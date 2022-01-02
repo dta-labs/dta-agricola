@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coneckta</title>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"
+        integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://cdn.conekta.io/js/latest/conekta.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+    <script src="./business/commons.js"></script>
+    <link rel="stylesheet" href="./css/font-awesome.min.css">
+    <link rel="stylesheet" href="./css/main.css">
+</head>
+
+<body>
+
+    <div id="preloader" class="preloader" style="display: none;">Loading...</div>
+
+    <div id="contenido" style="width: 350px; margin: auto; margin-top: 10%;">
+        <form id="card-form">
+            <div class="card">
+                <input type="hidden" id="conektaTokenId" name="conektaTokenId" value="">
+                <div class="card-header">
+                    <div class="row display-tr">
+                        <h4>Pago en línea</h4>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-12" style="margin-bottom: 10px;">
+                            <label>Tarjeta</label>
+                            <div class="input-group">
+                                <input class="form-control" name="card" id="card" data-conekta="card[number]"
+                                    type="text" autofocus="">
+                                <div class="input-group-append">
+                                    <span class="input-group-text">
+                                        <i class="fa fa-credit-card" aria-hidden="true"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-4 col-md-3" style="margin-bottom: 10px;">
+                            <label>CVC</label>
+                            <input class="form-control" data-conekta="card[cvc]" type="text" style="width: 60px;">
+                        </div>
+                        <div class="col-xs-8 col-md-9" style="margin-bottom: 10px;">
+                            <label style="display: block;">Expira (MM/AA)</label>
+                            <input class="form-control" data-conekta="card[exp_month]" type="text"
+                                style="width: 40px; display: inline;">/
+                            <input class="form-control" data-conekta="card[exp_year]" type="text"
+                                style="width: 40px; display: inline;">
+                        </div>
+                        <!-- <div class="col-md-12" style="margin-bottom: 10px;">
+                            <span class="btn btn-info btn-lg btn-block"></span>
+                        </div> -->
+                        <input name="name" id="name" data-conekta="card[name]" type="hidden">
+                        <input name="monto" id="monto" type="hidden">
+                        <input name="email" id="email" type="hidden">
+                        <input name="description" id="description" type="hidden" placeholder="Concepto">
+                        <input name="id" id="id" type="hidden">
+                        <input name="fechaHoraFin" id="fechaHoraFin" type="hidden">
+                        <input name="fechaHoraInicio" id="fechaHoraInicio" type="hidden">
+                        <input name="idClient" id="idClient" type="hidden">
+                        <input name="idOferta" id="idOferta" type="hidden">
+                        <input name="reservations" id="reservations" type="hidden">
+                        <input name="pagado" id="pagado" type="hidden">
+                        <input name="opToken" id="opToken" type="hidden">
+                        <input name="tipo" id="tipo" type="hidden">
+                        <input name="owner" id="owner" type="hidden">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <button class="btn btn-success btn-lg btn-block">Pagar $<span
+                                    id="monto1"></span>.00</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="modal fade" id="messagesModal" tabindex="-1" role="dialog" aria-labelledby="messagesModalCenterTitle"
+        aria-hidden="true" style="top: calc(45% - 192px);">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="messagesModalCenterTitle">Alerta</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="messagesModalCenterText">Mensaje...</div>
+                    <div ng-show="!authUser" style="color: red;">
+                        Se completó el pago exitosamente!
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Aceptar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        Conekta.setPublicKey("key_NPkcoWBCSShbwwjryuethYA");
+
+        var conektaSuccessResponseHandler = function (token) {
+            //alert(token);
+            $("#conektaTokenId").val(token.id);
+            jsPay();
+        }
+
+        var conektaErrorResponseHandler = function (response) {
+            alert(response.message_to_purchaser);
+        }
+
+        $(document).ready(function () {
+            getParameters();
+            $("#card-form").submit(function (e) {
+                showPreloader();
+                e.preventDefault();
+                var $form = $("#card-form");
+                Conekta.Token.create($form, conektaSuccessResponseHandler, conektaErrorResponseHandler);
+            });
+        })
+
+        function getParameters() {
+            document.getElementById("name").value = getURLParameter("name");
+            document.getElementById("description").value = getURLParameter("description");
+            document.getElementById("monto").value = getURLParameter("monto");
+            document.getElementById("monto1").innerHTML = getURLParameter("monto");
+            document.getElementById("email").value = getURLParameter("email");
+            document.getElementById("id").value = getURLParameter("id");
+            document.getElementById("fechaHoraFin").value = getURLParameter("fechaHoraFin");
+            document.getElementById("fechaHoraInicio").value = getURLParameter("fechaHoraInicio");
+            document.getElementById("idClient").value = getURLParameter("idClient");
+            document.getElementById("idOferta").value = getURLParameter("idOferta");
+            document.getElementById("reservations").value = getURLParameter("reservations");
+            document.getElementById("pagado").value = getURLParameter("pagado");
+            document.getElementById("opToken").value = getURLParameter("token");
+            document.getElementById("tipo").value = getURLParameter("tipo");
+            document.getElementById("owner").value = getURLParameter("owner");
+        }
+
+        function jsPay() {
+            let params = $("#card-form").serialize();
+            let url = "./business/pay.php";
+
+            $.post(url, params, function (data) {
+                if (data == "1") {
+                    // alert("Se realizó el pago :-)");
+                    $("#messagesModal").modal("show");
+                    jsClear();
+                    window.close();
+                } else {
+                    alert(data);
+                }
+            })
+        }
+
+        function jsClear() {
+            $(".form-control").prop("value", "");
+            $("#coneltaTokebId").prop("value", "");
+        }
+
+        function showPreloader() {
+            document.getElementById("preloader").style.display = "block";
+            document.getElementById("preloader").style.position = "fixed";
+            document.getElementById("contenido").style.display = "none";
+        }
+
+        function hidePreloader() {
+            document.getElementById("preloader").style.display = "none";
+            // document.getElementById("preloader").style.position = "relative";
+        }
+
+
+    </script>
+</body>
+
+</html>

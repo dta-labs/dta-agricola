@@ -1,0 +1,5 @@
+Pruebas:
+ON:			 http://pprsar.com/cosme/comm.php?id=526251003555&status=ON&safety=true&direction=FF&speed=25&autorreverse=false
+OFF:		 http://pprsar.com/cosme/comm.php?id=526251003555&status=OFF&safety=true&direction=FF&speed=25&autorreverse=false
+LOGS:		 http://pprsar.com/cosme/getlogs.php?id=526251003555
+SETTINGS:	 http://pprsar.com/cosme/consultardatos.php?id=526251003555

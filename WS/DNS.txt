@@ -1,0 +1,3 @@
+Reset de la caché del DNS
+
+ipconfig /flushdns

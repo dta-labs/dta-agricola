@@ -1,0 +1,793 @@
+/****************************************************************
+ *                                                              * 
+ *                Sistemas DTA Serie Pv66 v0.2.4 A              *
+ *                           2021.28.12                         *
+ *                                                              *
+ *   Sensores:                                                  *
+ *   - Atasco............... D9                                 *
+ *   - Presión 150psi....... A0                                 *
+ *   - Brújula QMC5883L..... A4 y A5                            *
+ *   - Comunicación......... Rx -> D2 | Tx -> D3                *
+ *   - GPS.................. Rx -> D12 | Tx -> D11              *
+ *                                                              *
+ *   Almacenamiento en EEPROM                                   *
+ *                                                              *
+ ****************************************************************/
+
+#include <SoftwareSerial.h>
+#include "analogo.h"
+#include <QMC5883LCompass.h>
+#include <EEPROM.h>
+#include <avr/wdt.h>
+#include <TinyGPS.h>
+
+#pragma region Variables
+
+// #define telefono "000000000000"
+#define telefono "526251531996"
+#define httpServer "AT+HTTPPARA=\"URL\",\"http://pprsar.com/cosme/comm_v2.php?id=" telefono
+// #define httpServer "AT+HTTPPARA=\"URL\",\"http://dtaamerica.com/ws/comm_v2.php?id=" telefono
+#define pinEngGunControl 4
+#define pinIrrigationControl 5
+#define pinActivationTimer 6
+#define pinMotorRR 7
+#define pinMotorFF 8
+#define pinSensorSeguridad 9
+#define pinSensorVoltaje 10
+#define serie 0                                 // 0 <= FL | 1 <= JQC
+#define restart asm("jmp 0x0000")
+#define positionSensor "GPS"                    // GPS | Compass
+
+// Comunicación GSM/GPRS
+SoftwareSerial gprs(2, 3);                      // RX, TX
+unsigned int commDelay = 0;
+//.................................................
+
+// Comunicación GPS
+TinyGPS gps;
+SoftwareSerial ssGPS(12, 11);                   // RX, TX
+float lat_central = 0.0f;
+float lon_central = 0.0f;
+float lat_actual = 0.0f;
+float lon_actual = 0.0f;
+int frecuence =  1000;
+int errorGPS = 0;
+//.................................................
+
+// Brújula
+QMC5883LCompass compass;
+//.................................................
+
+// Configuración de sensores
+const int sensorPPPin = A0;                     // Presión de agua
+Analogo presion = Analogo(sensorPPPin, false);
+float sensorPresion = 0;
+//.................................................
+
+// Variables 
+static bool testComm = false;
+static String deviceType = "PC";                // PC | PL
+static String statusVar = "OFF";
+static String directionVar = "FF";
+static String sensorPresionVar = "ON";
+static String autoreverseVar = "OFF";
+static String activateAutoreverse = "OFF";
+static String endGunVar = "OFF";
+static String particiones;
+static byte velocityVar = 0;
+static float positionVar = 0.0f;
+static unsigned int activationTimer = 0;
+static unsigned int deactivationTimer = 0;
+static bool restartGSM = true;
+static int signalVar = 0;
+static byte commError = 0;
+static bool commRx = true;
+
+struct eeObject {
+  char status[3];
+  char direction[3];
+  char sensorPresion[3];
+  byte velocity;
+  float lat_central;
+  float lon_central;
+};
+
+eeObject eeVar;
+//.................................................
+
+#pragma endregion Variables
+
+void setup() { 
+  wdt_disable();
+  setupCompass();
+  Serial.begin(115200);
+  ssGPS.begin(9600);
+  pinMode (pinSensorVoltaje, INPUT);
+  pinMode (pinSensorSeguridad, INPUT);
+  pinMode (pinEngGunControl, OUTPUT);
+  pinMode (pinIrrigationControl, OUTPUT);
+  pinMode (pinActivationTimer, OUTPUT);
+  pinMode (pinMotorRR, OUTPUT);
+  pinMode (pinMotorFF, OUTPUT);
+  digitalWrite(pinIrrigationControl, HIGH);                           // Control de riego Desactivado 
+  apagar();
+  Serial.println();
+  Serial.println(F(">>> DTA-Agrícola: Serie Pv66 v0.2.4 A"));
+  readEEPROM();
+  wdt_enable(WDTO_8S);
+  if (controlVoltaje()) {
+    digitalWrite(pinIrrigationControl, LOW);                          // Control de riego Activado 
+  }
+//  setupGSM();
+//  wdt_reset();
+//  wdt_disable();
+}
+
+void loop() {
+  commDelay = millis();
+  Serial.println();
+  Serial.println(F("> New loop"));
+  Serial.println();
+  setupGSM();
+  comunicaciones();
+  commDelay = millis() - commDelay;
+  Serial.print(F("Tiempo comunicciones: "));
+  Serial.println(commDelay);
+  acciones();
+}
+
+#pragma region EEPROM
+
+void readEEPROM() {
+  EEPROM.get(0, eeVar);
+  statusVar = (String(eeVar.status) == "ON") ? "ON" : "OFF";
+  directionVar = (String(eeVar.direction) == "RR") ? "RR" : "FF";
+  sensorPresionVar = (String(eeVar.sensorPresion) == "ON") ? "ON" : "OFF";
+  velocityVar = eeVar.velocity;
+  lat_central = eeVar.lat_central;
+  lon_central = eeVar.lon_central;
+  Serial.print(F("EEPROM "));
+  Serial.print(EEPROM.length());
+  Serial.print(F(": "));
+  Serial.print(statusVar);
+  Serial.print(F(" "));
+  Serial.print(directionVar);
+  Serial.print(F(" "));
+  Serial.print(sensorPresionVar);
+  Serial.print(F(" "));
+  Serial.print(String(lat_central, 6));
+  Serial.print(F(" "));
+  Serial.println(String(lon_central, 6));
+}
+
+void updateEEPROM() {
+  String stVar = (String(eeVar.status) == "ON") ? "ON" : "OFF";
+  String diVar = (String(eeVar.direction) == "RR") ? "RR" : "FF";
+  String spVar = (String(eeVar.sensorPresion) == "ON") ? "ON" : "OFF";
+  int veVar = eeVar.velocity;
+  float latVar = eeVar.lat_central;
+  float lonVar = eeVar.lon_central;
+  if (statusVar != stVar || directionVar != diVar || sensorPresionVar != spVar || velocityVar != veVar || (lat_central != latVar && lat_central != 0.0f) || (lon_central != lonVar && lon_central != 0.0f)) {
+    statusVar.toCharArray(eeVar.status, 3);
+    directionVar.toCharArray(eeVar.direction, 3);
+    sensorPresionVar.toCharArray(eeVar.sensorPresion, 3);
+    eeVar.velocity = velocityVar;
+    eeVar.lat_central = (lat_central != 0.0f) ? lat_central : eeVar.lat_central;
+    eeVar.lon_central = (lon_central != 0.0f) ? lon_central : eeVar.lon_central;
+    EEPROM.put(0, eeVar);
+    Serial.print(F("EEPROM: "));
+    Serial.print(eeVar.status);
+    Serial.print(F(" "));
+    Serial.print(eeVar.direction);
+    Serial.print(F(" "));
+    Serial.print(eeVar.sensorPresion);
+    Serial.print(F(" "));
+    Serial.print(eeVar.velocity);
+    Serial.print(F(" "));
+    Serial.print(String(eeVar.lat_central, 6));
+    Serial.print(F(" "));
+    Serial.print(String(eeVar.lon_central, 6));
+    Serial.println(F("... update successfully!"));
+  }
+}
+
+#pragma endregion EEPROM
+
+#pragma region Acciones
+
+void acciones() {
+  setActivationTimer();
+  showVars();
+  updateEEPROM();
+  wdt_reset();
+  if (controlVoltaje() && controlPresion()) {
+    Serial.println(F("> Actions:"));
+    control();
+  } else {
+    Serial.println(F("> Actions: low presure/voltage... system waiting for restoration"));
+    apagar();                                                         // Control de riego Desactivado 
+    for (int i = 0; i < 60; i++) {
+      delay(1000);
+      if (controlVoltaje() && controlPresion()) {
+        control();
+        break;
+      }
+      wdt_reset();
+    }
+  }
+}
+
+void setActivationTimer() {
+  // Serial.println("velocityVar " + (String)velocityVar);
+  // Serial.println("autoreverseVar " + autoreverseVar);
+  // Serial.println("activateAutoreverse " + activateAutoreverse);
+  // activateAutoreverse = (activateAutoreverse == "ON" && velocityVar != 0) ? "OFF" : activateAutoreverse;
+  // if (autoreverseVar == "ON" && velocityVar == 0 && activateAutoreverse == "OFF") {
+  //   velocityVar = 100;
+  //   directionVar = (directionVar == "FF") ? "RR": "FF";
+  //   activateAutoreverse = "ON";
+  // }
+  // unsigned int stopTime = (60000 - activationTimer) >= commDelay ? (60000 - activationTimer - commDelay) : activationTimer == 60000 ? 100 : commDelay - (60000 - activationTimer);
+  activationTimer = 60000 * velocityVar / 100;
+  deactivationTimer = (60000 - activationTimer) >= commDelay ? (60000 - activationTimer - commDelay) : (60000 - activationTimer) > 0 ? 1 : 0;
+}
+
+void showVars() {
+  Serial.print(F("> Type: "));
+  Serial.println(deviceType == "PC" ? "Central Pivot" : deviceType == "PC" ? "Lineal Pivot" : "Other");
+  Serial.print(F("> Status: "));
+  Serial.println(statusVar);
+  Serial.print(F("> Direction: "));
+  Serial.println(directionVar);
+  Serial.print(F("> Auto Reverse: "));
+  Serial.println(autoreverseVar);
+  Serial.print(F("> Position: "));
+  Serial.println((String)positionVar + "°");
+  Serial.print(F("> End Gun: "));
+  Serial.println((String)endGunVar);
+  Serial.print(F("> Velocity: "));
+  Serial.println((String)velocityVar + "%");
+  Serial.print(F("  ~ ON: "));
+  Serial.println((String)activationTimer + "ms");
+  Serial.print(F("  ~ OFF: "));
+  Serial.println((String)deactivationTimer + "ms");
+}
+
+void control() {
+  if (statusVar == "ON") {
+    setDirection();
+    wdt_reset();
+    controlAutomatico();
+  } else {
+    Serial.println(F("  ~ Sistem off! wait 1min"));
+    apagar();
+    for (int i = 0; i < 60; i++){                       // Esperar 1 minuto
+      delay(1000);
+      wdt_reset();
+    }
+  }
+  wdt_reset();
+}
+
+void setDirection() {
+  if (directionVar == "FF") {                                     // Activavión FF
+    digitalWrite(pinMotorRR, HIGH);                               // Apagado
+    delay(500);
+    digitalWrite(pinMotorFF, LOW);                                // Encendido
+  } 
+  if (directionVar == "RR") {                                     // Activavión RR
+    digitalWrite(pinMotorFF, HIGH);                               // Apagado
+    delay(500);
+    digitalWrite(pinMotorRR, LOW);                                // Encendido
+  }
+  // delay(1500);
+  int waitTime = 0;
+  while (!digitalRead(pinSensorSeguridad) && statusVar == "ON" && waitTime < 5000) {
+    delay(500);
+    waitTime += 500;
+  };
+}
+
+void controlAutomatico() {
+  Serial.println(F("   Sistem auto"));
+  Serial.print(F("   ~ Run: "));
+  Serial.print((String)activationTimer);
+  Serial.print(F("ms ("));
+  Serial.print((String)velocityVar);
+  Serial.println(F("%)"));
+  if (activationTimer > 0) {                                          // Control de encendido
+    for (int i = 0; i < activationTimer / 100; i++) {
+      if (controlVoltaje() && controlSeguridad()) {
+        digitalWrite(pinActivationTimer, LOW);
+        digitalWrite(pinEngGunControl, (endGunVar == "ON") ? (serie == 0 ? LOW : HIGH) : (serie == 0 ? HIGH : LOW));
+        delay(100);          
+      } else {
+        Serial.println(F("Error: voltage or sequrity"));
+        apagar();
+        return;
+      }
+      wdt_reset();
+    }
+  }
+  if (activationTimer == 0) {                                                 // Control de apagado
+    statusVar = "OFF";
+  }
+  Serial.print(F("   ~ Stop: "));
+  Serial.print((String)deactivationTimer);
+  Serial.println(F("ms"));
+  if (deactivationTimer > 0) {                                                 // Control de apagado
+    digitalWrite(pinActivationTimer, HIGH);
+    for (int i = 0; i < deactivationTimer / 100; i++){
+      delay(100);
+      wdt_reset();
+    }
+  }
+
+}
+
+void apagar() {
+  digitalWrite(pinEngGunControl, serie == 0 ? HIGH : LOW);        // Apagado
+  digitalWrite(pinMotorFF, HIGH);                                 // Apagado
+  digitalWrite(pinMotorRR, HIGH);                                 // Apagado
+  digitalWrite(pinActivationTimer, HIGH);                         // Apagado
+  delay(1000);
+  wdt_reset();
+}
+
+#pragma endregion Acciones
+
+#pragma region Sensores
+
+bool controlSeguridad() {
+  bool sensorSeguridad = digitalRead(pinSensorSeguridad);
+  if (!sensorSeguridad) {
+    Serial.println(F("    Falla sensor de seguridad... reintentando!"));
+    setDirection();
+    wdt_reset();
+    sensorSeguridad = digitalRead(pinSensorSeguridad);
+    if (!sensorSeguridad) {
+      Serial.println(F("    Falla sensor de seguridad... reintentando nuevamente!"));
+      setDirection();
+      wdt_reset();
+    }
+    sensorSeguridad = digitalRead(pinSensorSeguridad);
+    if (!sensorSeguridad) {
+      Serial.println(F("   Sistem off: Stuck alarm!"));
+      statusVar = "OFF";
+      apagar(); 
+      for (int i = 0; i < 60; i++){
+        delay(1000);
+        wdt_reset();
+      }
+    }
+  }
+  return sensorSeguridad;
+}
+
+bool controlVoltaje() {
+  // bool sensorVoltaje = true;
+  bool sensorVoltaje = digitalRead(pinSensorVoltaje);
+  if (!sensorVoltaje) {
+    Serial.println(F("Sistem off: Electric alarm!"));
+    apagar();
+  }
+  return sensorVoltaje;
+}
+
+bool controlPresion() {
+  bool result = true;
+  if (sensorPresionVar == "ON") {
+    result = (controlPresionAnalogica() > 0) ? true : false;
+  }
+  return result;
+}
+
+bool controlPresionDigital() {
+  return presion.getDigitalValue();
+}
+
+float controlPresionAnalogica() {
+  float presionActual = 0;
+  for (int i = 0; i < 3; i++) {
+    float pAnalog = presion.getAnalogValue();
+    float temp = presion.fmap(pAnalog, 0, 1023, 0.0, 15.0) - 1.25;
+    temp = (temp + 0.4018) / 0.7373;
+    presionActual += temp > 0 ? temp : 0;
+  }
+  presionActual = presionActual / 3;
+  Serial.print(F("PresionF: "));
+  Serial.println((String) presionActual);
+  return presionActual;
+}
+
+float getPosition() {
+  lat_central = (lat_central == 0) ? eeVar.lat_central : lat_central;
+  lon_central = (lon_central == 0) ? eeVar.lon_central : lon_central;
+  float newPosition = (positionSensor == "GPS") ? getGPSPosition() : getCompassPosition();
+//  if (lat_central * lon_central != 0.0f) { 
+//    float movementEstimation = velocityVar / 100;
+//    if (directionVar == "FF") {             // Filtro ascendente
+//      newPosition = (statusVar == "OFF") ? positionVar : (positionVar <= newPosition && newPosition <= positionVar + 2) || (positionVar == 359 && (newPosition == 360 || (0 <= newPosition && newPosition <= 2))) ? newPosition : (positionVar + movementEstimation > 360) ? positionVar + movementEstimation - 360 : positionVar + movementEstimation;
+//    } else {                                // Filtro descendente
+//      newPosition = (statusVar == "OFF") ? positionVar : (positionVar - 2 <= newPosition && newPosition <= positionVar) || (positionVar == 0 && (newPosition == 360 || (358 <= newPosition && newPosition <= 360))) ? newPosition : (positionVar - movementEstimation < 0) ? positionVar - movementEstimation + 360 : positionVar - movementEstimation;
+//    }
+//  }
+  Serial.print("newPosition filtered: ");
+  Serial.println(newPosition);
+  return newPosition;
+}
+
+float getGPSPosition() {                  // Posición por GPS
+  float azimut = positionVar;
+  bool newData = parseGPSData();
+  if (newData) {
+    unsigned long age;
+    gps.f_get_position(&lat_actual, &lon_actual, &age);
+    azimut = gps.course_to(lat_central, lon_central, lat_actual, lon_actual);
+    errorGPS = gps.hdop() == TinyGPS::GPS_INVALID_HDOP ? 0 : gps.hdop();
+    // printGPSData(lat_actual, lon_actual, azimut, errorGPS);
+  }
+  checkGPSConnection();
+  return azimut;
+}
+
+bool parseGPSData() {
+  bool newData = false;
+  ssGPS.listen();
+  // Se parsean por un segundo los datos del GPSy se reportan algunos valores clave
+  for (unsigned long start = millis(); millis() - start < frecuence;) {
+    while (ssGPS.available()) {
+      char c = ssGPS.read();
+      // Serial.write(c);   // descomentar para ver el flujo de datos del GPS
+      if (gps.encode(c))    // revisa si se completó una nueva cadena
+        newData = true;
+    }
+  }
+  return newData;
+}
+
+float printGPSData(float flat, float flon, float azimut, int errorGPS) {
+  Serial.print(lat_central, 6);
+  Serial.print(",");
+  Serial.print(lon_central, 6);
+  Serial.print(" ");
+  Serial.print(flat == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flat, 6);
+  Serial.print(",");
+  Serial.print(flon == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flon, 6);
+  Serial.print(" ");
+  Serial.print(gps.satellites() == TinyGPS::GPS_INVALID_SATELLITES ? 0 : gps.satellites());
+  Serial.print(" ");
+  Serial.print((int)azimut);
+  Serial.print(" ");
+  Serial.println(errorGPS);
+}
+
+void checkGPSConnection() {
+  unsigned long chars;
+  unsigned short sentences, failed;
+  gps.stats(&chars, &sentences, &failed);
+  if (chars == 0) {
+    Serial.println("Problema de conectividad con el GPS: revise el cableado");
+  }
+}
+
+float getCompassPosition() {               // Posición por Brújula
+  compass.read();
+  return (float) compass.getAzimuth();
+}
+
+void setupCompass() {
+  compass.init();                                             // Inicializar brújula
+  // compass.setMode(0x01,0x0C,0x10,0xC0);
+  compass.setSmoothing(10, true);  
+  compass.setCalibration(-511, 1017, 0, 2027, 0, 315);    // Calibrar brújula
+}
+
+#pragma endregion Sensores
+
+#pragma region Comunicaciones
+
+void setupGSM() {
+  if (restartGSM) {
+    Serial.println(F("Setup GSM"));
+    gprs.begin(9600);
+    gprs.listen();
+    if (testComm) { testComunicaciones(); }
+    // gprs.println(F("AT+CBAND=PCS_MODE"));		// PGSM_MODE, DCS_MODE, PCS_MODE, EGSM_DCS_MODE, GSM850_PCS_MODE, ALL_BAND
+    // getResponse(15, testComm); 
+    // gprs.println(F("AT+CBAND=ALL_BAND"));
+    // getResponse(15, testComm); 
+    gprs.println(F("AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\""));
+    getResponse(15, testComm); 
+    gprs.println(F("AT+SAPBR=3,1,\"APN\",\"internet.itelcel.com\""));
+    getResponse(15, testComm); 
+    gprs.println(F("AT+SAPBR=3,1,\"USER\",\"webgpr\""));
+    getResponse(15, testComm); 
+    gprs.println(F("AT+SAPBR=3,1,\"PWD\",\"webgprs2002\""));
+    getResponse(15, testComm); 
+    gprs.println(F("AT+CFUN=1"));               // Funcionalidad 0 mínima 1 máxima
+    getResponse(15, testComm); 
+    gprs.println(F("AT+SAPBR=1,1"));
+    getResponse(15, testComm); 
+    gprs.println(F("AT+SAPBR=2,1"));
+    getResponse(15, testComm); 
+  }
+  wdt_reset();
+}
+
+void testComunicaciones() {
+  gprs.println(F("AT+IPR=9600"));      // Velocidad en baudios?
+  getResponse(15, testComm); 
+  gprs.println(F("AT"));               // Tarjeta SIM Lista? OK
+  getResponse(15, testComm); 
+  gprs.println(F("AT+CGMI"));          // Fabricante del dispositivo?
+  getResponse(15, testComm); 
+  gprs.println(F("ATI"));              // Información del producto?
+  getResponse(15, testComm); 
+  gprs.println(F("AT+CGSN"));          // Número de serie?
+  getResponse(15, testComm); 
+  gprs.println(F("AT+IPR?"));          // Velocidad en baudios?
+  getResponse(15, testComm); 
+  gprs.println(F("AT+CBC"));           // Estado de la bateriía
+  getResponse(15, testComm); 
+  gprs.println(F("AT+CFUN?"));         // Funcionalidad 0 mínima 1 máxima
+  getResponse(15, testComm); 
+  gprs.println(F("AT+CGATT=1"));       // Tarjeta SIM insetada? +CPIN: READY OK
+  getResponse(15, testComm); 
+  gprs.println(F("AT+CPIN?"));         // Tarjeta SIM insetada? +CPIN: READY OK
+  getResponse(15, testComm); 
+  gprs.println(F("AT+WIND=1"));        // Indicación de tarjeta SIM insetada? +CPIN: READY OK
+  getResponse(15, testComm); 
+  gprs.println(F("AT+CREG?"));         // Tarjeta SIM registrada? +CREG: 0,1 OK 
+  getResponse(15, testComm); 
+  gprs.println(F("AT+CGATT?"));        // Tiene GPRS? +CGATT: 1 OK
+  getResponse(15, testComm); 
+  gprs.println(F("AT+CSQ"));           // Calidad de la señal -  debe ser 9 o superior: +CSQ: 14,0 OK
+  getResponse(15, testComm); 
+  gprs.println(F("AT+CCLK?"));         // Fecha y Hora?
+  getResponse(15, testComm); 
+  gprs.println(F("AT+COPS?"));         // Comañía telefónica?
+  getResponse(15, testComm); 
+}
+
+void comunicaciones() {
+  Serial.println(F("Server communication"));
+  String lastStatus = statusVar;
+  positionVar = getPosition();
+  String data = httpRequest();                                                       // Get Settings from HTTP
+  Serial.print(F("data: "));
+  Serial.println(data);
+  commRx = (data != "") ? true : false;
+  int idx = data.indexOf('"');
+  String aux = data.substring(idx + 1, data.indexOf('"', idx + 1));
+  statusVar = (aux == "ON" || aux == "OFF") ? aux : statusVar;                       // > status
+  if (lastStatus != statusVar) {                                                     // Avisar del cambio de estado
+    httpRequest();
+  }
+  idx = data.indexOf('"', idx + 1);
+  aux = data.substring(idx + 1, data.indexOf('"', idx + 1));
+  directionVar = (aux == "FF" || aux == "RR") ? aux : directionVar;                  // > direction
+  idx = data.indexOf('"', idx + 1);
+  aux = data.substring(idx + 1, data.indexOf('"', idx + 1));
+  sensorPresionVar = (aux == "ON" || aux == "OFF") ? aux : sensorPresionVar;         // > sensor de presión
+  // Set velocity
+  idx = data.indexOf('"', idx + 1);
+  aux = data.substring(idx + 1, data.indexOf('"', idx + 1));
+  autoreverseVar = (aux == "ON" || aux == "OFF") ? aux : autoreverseVar;             // > autoreverse
+  idx = data.indexOf('"', idx + 1);
+  aux = data.substring(idx + 1, data.indexOf('"', idx + 1));
+  lat_central = (aux != "") ? aux.toFloat() : lat_central;                           // > lat_central
+  idx = data.indexOf('"', idx + 1);
+  aux = data.substring(idx + 1, data.indexOf('"', idx + 1));
+  lon_central = (aux != "") ? aux.toFloat() : lon_central;                           // > lon_central
+  idx = data.indexOf('"', idx + 1);
+  aux = data.substring(idx + 1, data.indexOf('"', idx + 1));
+  deviceType = (aux != "") ? aux : deviceType;                                       // > deviceType
+  idx = data.indexOf('"', idx + 1);
+  aux = data.substring(idx + 1, data.indexOf('"', idx + 1));
+  int binds = (aux != "") ? aux.toInt() : 0;                                         // > bins
+  if (binds > 0) {
+    for (int i = 0; i < binds; i++) {
+      idx = data.indexOf('"', idx + 1);
+      int bindIni = (data.substring(idx + 1, data.indexOf('"', idx + 1))).toInt();   // inicio
+      idx = data.indexOf('"', idx + 1);
+      int bindFin = (data.substring(idx + 1, data.indexOf('"', idx + 1))).toInt();   // fin
+      idx = data.indexOf('"', idx + 1);
+      int bindVel = (data.substring(idx + 1, data.indexOf('"', idx + 1))).toInt();   // velocidad
+      idx = data.indexOf('"', idx + 1);
+      String bindEndGun = (data.substring(idx + 1, data.indexOf('"', idx + 1)));     // end gun
+      if (bindIni <= positionVar && positionVar < bindFin) {
+        velocityVar = bindVel;
+        endGunVar = (bindEndGun == "T") ? "ON" : "OFF";
+        break;
+      }
+    }
+  }
+  wdt_reset();
+}
+
+String httpRequest() {
+  gprs.listen();
+  String param1 = "&st=" + statusVar;
+  String param2 = "&sa=" + (String)(digitalRead(pinSensorSeguridad) ? "true" : "false");
+  String param3 = "&di=" + directionVar;
+  String param4 = "&vo=" + (String)(controlVoltaje() ? "true" : "false");
+  String param5 = "&ar=" + activateAutoreverse;
+  String param6 = "&sp=" + (String)velocityVar;
+  String param7 = "&pr=" + String(controlPresionAnalogica(), 1);
+  String param8 = "&po=" + String(positionVar, 1);
+  String param9 = "&la=" + String(lat_actual, 6);
+  String param10 = "&lo=" + String(lon_actual, 6);
+  String param11 = "&er=" + (String)errorGPS;
+  String param12 = "&rx=" + (String)(commRx ? "Ok" : "Er");
+  signalVar = getSignalValue();
+  String param13 = "&si=" + (String)signalVar + "\"";
+  gprs.println(F("AT+HTTPINIT"));
+  getResponse(15, false); 
+  // Serial.println(httpServer + param1 + param2 + param3 + param4 + param5 + param6 + param7 + param8 + param9 + param10 + param11 + param12 + param13);
+  gprs.println(httpServer + param1 + param2 + param3 + param4 + param5 + param6 + param7 + param8 + param9 + param10 + param11 + param12 + param13);
+  getResponse(25, true); 
+  wdt_reset();
+  gprs.println(F("AT+HTTPACTION=0"));
+  String result = getResponse(6000, true); 
+  restartGSM = (result.indexOf("ERROR") != -1 || result.indexOf("601") != -1 || signalVar < 6) ? true : false;
+  commWatchDogReset(signalVar);
+  gprs.println(F("AT+HTTPREAD"));
+  result = getResponse(0, false);
+  gprs.println(F("AT+HTTPTERM"));
+  getResponse(30, false); 
+  wdt_reset();
+  return result;
+}
+
+String getResponse(int wait, bool response){
+  String result = "";
+  delay(wait);
+  while(!gprs.available()) {}
+  while(gprs.available() > 0) {
+    result += (char)gprs.read();
+    delay(1.5);
+  }
+  if (response) {
+    Serial.println(result);
+  }
+  return result;
+}
+
+String getResponse2(bool response){
+  String result = "";
+  unsigned int timer = millis();
+  Serial.println(F("getGSM"));
+  while(!gprs.available()) {}
+  bool loop = true;
+  while(loop && millis() - timer < 10000) {
+    if(gprs.available() > 0) {
+      result += (char)gprs.read();
+    }
+    int idx = result.indexOf('+HTTPACTION:');
+    if(idx != -1 && result.indexOf('\r\n', idx + 1) != -1) { loop = false; }
+    delay(1.5);
+  }
+  if (response) {
+    Serial.println(result);
+  }
+  return result;
+}
+
+int getSignalValue() {
+  gprs.println(F("AT+CSQ"));           // Calidad de la señal -  debe ser 9 o superior: +CSQ: 14,0 OK
+  String aux1 = getResponse(15, false);
+  String aux2 = parse(aux1, ' ', 1);
+  String aux3 = parse(aux2, ',', 0);
+  int result = aux3.toInt(); 
+  return result;
+}
+
+void commWatchDogReset(int signalValue) {
+  commError = (signalValue < 6 || restartGSM) ? commError + 1 : 0;
+  Serial.print("commError: ");
+  Serial.println(commError);
+  if (commError == 5) {
+    while (true) { delay(1000); }
+  }
+}
+
+void clearGSM() {
+  gprs.flush();
+  while (gprs.available()) {
+    gprs.read();
+  }
+}
+
+String parse(String dataString, char separator, int index) {
+  int found = 0;
+  int strIndex[] = {0, -1};
+  int maxIndex = dataString.length()-1;
+  for(int i = 0; i <= maxIndex && found <= index; i++) {
+    if(dataString.charAt(i) == separator || i == maxIndex) {
+        found++;
+        strIndex[0] = strIndex[1]+1;
+        strIndex[1] = (i == maxIndex) ? i+1 : i;
+    }
+  }
+  return found > index ? dataString.substring(strIndex[0], strIndex[1]) : "";
+}
+
+#pragma endregion Comunicaciones
+
+/****************************************************************
+ *                                                              * 
+ *                 Sistemas DTA Serie Pv66 v0.2.2               *
+ *                                                              *
+ * Errores HTTP:                                              	*
+ *                                                              * 
+ * 502	Bad Gateway	The remote server returned an error.        *
+ * 600*	Empty access token.                                     *
+ *                                                              *
+ * 601*	Access token invalid                                    *
+ * 602*	Access token expired                                    *
+ * 603	Access denied                                           *
+ * 604*	Request timed out                                       *
+ * 605*	HTTP Method not supported                               *
+ * 606	Max rate limit ‘%s’ exceeded with in ‘%s’ secs          *
+ * 607	Daily quota reached                                     *
+ *                                                              *
+ * 608*	API Temporarily Unavailable	                            *
+ * 609	Invalid JSON                                            *
+ * 610	Requested resource not found                            *
+ * 611*	System error	All unhandled exceptions                  *
+ * 612	Invalid Content Type                                    *
+ * 613	Invalid Multipart Request                               *
+ * 614	Invalid Subscription                                    *
+ * 615	Concurrent access limit reached                         *
+ * 616	Invalid subscription type                               *
+ * 701	%s cannot be blank                                      *
+ * 702	No data found for given search scenario                 *
+ *                                                              *
+ * 703	Feature is not enabled for the subscription             *
+ * 704	Invalid date format                                     *
+ * 709	Business Rule Violation                                 *
+ * 710	Parent Folder Not Found                                 *
+ * 711	Incompatible Folder Type                                *
+ * 712	Merge to person Account operation is invalid            *
+ * 713	A system resource was temporarily unavailable           *
+ * 714	Unable to find default record type                      *
+ * 718	ExternalSalesPersonID not found                         *
+ *                                                              *
+ ****************************************************************/
+
+/****************************************************************
+ *                                                              *
+ * Valor  dB   Condición                                        *
+ * ===== ====  =========                                        *
+ *  2	  -109	Marginal                                          *
+ *  3	  -107	Marginal                                          *
+ *  4	  -105	Marginal                                          *
+ *  5	  -103	Marginal                                          *
+ *  6	  -101	Marginal                                          *
+ *  7	   -99	Marginal                                          *
+ *  8	   -97	Marginal                                          *
+ *  9	   -95	Marginal                                          *
+ * 10	   -93	OK                                                *
+ * 11	   -91	OK                                                *
+ * 12	   -89	OK                                                *
+ * 13	   -87	OK                                                *
+ * 14	   -85	OK                                                *
+ * 15	   -83	Good                                              *
+ * 16	   -81	Good                                              *
+ * 17	   -79	Good                                              *
+ * 18	   -77	Good                                              *
+ * 19	   -75	Good                                              *
+ * 20	   -73	Excellent                                         *
+ * 21	   -71	Excellent                                         *
+ * 22	   -69	Excellent                                         *
+ * 23	   -67	Excellent                                         *
+ * 24	   -65	Excellent                                         *
+ * 25	   -63	Excellent                                         *
+ * 26	   -61	Excellent                                         *
+ * 27	   -59	Excellent                                         *
+ * 28	   -57	Excellent                                         *
+ * 29	   -55	Excellent                                         *
+ * 30	   -53	Excellent                                         *
+ *                                                              *
+ ****************************************************************/
