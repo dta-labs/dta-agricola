@@ -1,0 +1,657 @@
+===== HARDWARE =====
+
+[ ] Modificaciones en la caja auxiliar del panel de control
+	[x] Alimentación del relay
+	[x] Control de la bomba de agua
+	[ ] Gestión de la seguridad
+	
+[ ] Modificaciones en la caja de control última torre
+	[ ] Timer
+	[x] Sensores de seguridad
+		[x] Eliminar un sensor
+		[x] Agregar una resistencia
+
+[ ] Calibración de la presión
+	[ ] Crear el sistema de calibración y volver a calibrar los sistemas
+		[ ] Extraer la ecuación de calibración
+
+===== SOFTWARE =====
+
+[ ] Software embebido
+	[x] Sensor de presión
+		[x] Eliminar la ecuación de calibración
+	[x] Sensor de posición
+		[x] Revisar la calibración
+	[ ] EEPROM
+		[x] Conservar los valores leidos con anterioridad
+		[ ] Guardar la última fecha de última conexión
+		[ ] Comprobar si el tiempo de última conexión sobrepasa un valor de tiempo específico y apagar el sistema 
+	[x] Enviar error de recepción de datos
+	[x] Declarar apagado del sistema
+		[x] Cuando hay falla de seguridad
+		[x] Cuando se detuvo porque la velocidad programada es 0%
+	[x] Revisar problemas con la comunicación
+		[x] Restablecer la comunicación antes de 5 minutos
+	
+[ ] Software PWA
+	[ ] Mejorar los resultados de la posición
+		[x] Agregar ajustes por parte de los usuarios
+		[x] Agregar la desviación magnética
+		[x] Agregar acceso a la web de cálculo de la desviación magnética
+	[ ] Crear simbología rápida del estado del equipo
+		[ ] Velocidad
+		[ ] Posición del equipo
+		[ ] Error del GPS
+		[ ] Presión
+		[ ] Calidad de señal de datos
+			[ ] Mensaje de advertencia de que el equipo puede no estar recibiendo las órdenes por la mala calidad de la señal
+	[ ] Mejorar el mapa y la señalización gráfica de la posición
+	[ ] Agregar elestado del tiempo
+	[ ] Datos generales
+		[ ] Mostrar las coordenadas actuales
+		[ ] Mostrar el error del GPS
+	[ ] Ajustes
+		[ ] Editar las coordenadas del centro del equipo
+		[ ] Agregar valor máximo del sensor de presión
+		[ ] Agregar constantes de calibración para el sensor de presión
+	[ ] Procesar error de recepción de datos
+		
+	[ ] Bugs:
+		[ ] Revisar los colores cuando se envía la orden de encendido o apagado
+			[ ] Recuerda el último color que estuvo (rojo, gris, gris oscuro, etc)
+		[ ] Click en la circunferencia del pivote n muestra/oculta los planes pero no oculta al resto de las ventanas abiertas
+		[ ] Error en el funcionamiento del spinner (encendido/apagado)
+
+[ ] Nube
+	[x] Actualizar estado de apagado cuando hay falla de seguridad o la velocidad programada es 0%
+	[ ] Procesar error de recepción de datos
+
+===== CLIENTES =====
+
+[ ] Realimentación de los clientes
+	[ ] Representantes formales de servicio al cliente
+	[ ] Encuestas periódicas de satisfacción del cliente
+	[ ] Medición de los resultados del uso del producto
+	[ ] Grupo de WhatSapp para los clientes
+	
+[ ] How have you tested your product/service in your market?
+	[ ] We have worked closely with our target customers/community
+	[ ] We involved early adopters of our product/service
+	[ ] We ran a pilot of out product/service in our target community
+	[ ] We changed our product/service in response to feedback from our target community
+
+===== FINANZAS =====
+
+[ ] Ingresos
+	[ ] Haber establecido el objetivo de ingresos para el año.
+	[*] Haber establecido el objetivo de ingresos para el trimestre.
+
+[ ] ¿Realiza un seguimiento eficaz de sus ventas?
+	[ ] No he considerado cómo realizar un seguimiento de las ventas.
+	[ ] Tener un plan para realizar un seguimiento de las ventas (definir la medida, el flujo de ventas)
+	[ ] Configure una hoja de cálculo de Excel para realizar un seguimiento del flujo de ventas
+	[ ] Configure y use activamente la hoja de cálculo de Excel para realizar un seguimiento del flujo de ventas.
+	[?] Configure y utilice activamente CRM para realizar un seguimiento de los canales de ventas.
+
+[ ] ¿Alcanzó el objetivo de ingresos del trimestre?
+	[ ] No tiene un objetivo de ingresos
+	[*] Tiene un objetivo de ingresos, pero no alcanzó el objetivo del trimestre.
+	[ ] Tener un objetivo de ingresos y alcanzar el objetivo del trimestre.
+
+[ ] Mecanismo de pago para los clientes (tarjeta de crédito, cheques, etc.)
+	[ ] No han definido un mecanismo de pago para los clientes y dependen principalmente del efectivo.
+	[ ] Haber definido un mecanismo de pago para los clientes, pero no lo he establecido.
+	[ ] Tener definido un mecanismo de pago para los clientes y haber establecido
+
+[ ] Cálculo de los costos directos o el costo de los bienes vendidos para producir productos o brindar servicios?
+	[ ] No he calculado los costos directos o los costos de los bienes vendidos.
+	[ ] Haber calculado los elementos de los costos directos o de los bienes vendidos.
+	[ ] Haber calculado los costos directos o los costos de los bienes vendidos.
+
+[ ] Cálculo de los costos indirectos o los gastos generales (es decir, costo de mano de obra, administración, instalaciones, seguridad)
+	[ ] No he calculado los costos indirectos o los gastos generales.
+	[ ] Haber calculado elementos de costos indirectos o gastos generales.
+	[ ] Haber calculado los costos indirectos o los gastos generales.
+
+[ ] Punto de equilibrio
+	[ ] No conozco nuestro punto de equilibrio
+	[*] Conoce el punto de equilibrio, pero aún no lo ha hecho
+	[ ] Conozca el punto de equilibrio y haya logrado
+
+[ ] Estructura de costos asequible (costo fijo y costo variable)
+	[ ] No sé si tengo una estructura de costos asequible
+	[ ] No es asequible y no tiene proyección sobre la estructura de costos.
+	[ ] Es asequible ahora, pero no lo será con el crecimiento y la escala más grandes.
+	[ ] No es asequible ahora, pero lo será a mayor escala y crecimiento.
+	[ ] Tener una estructura de costos asequible
+
+[ ] ¿Tiene un margen competitivo?
+	[ ] No sé si tenemos margen competitivo
+	[ ] No tiene un margen competitivo para administrar el negocio.
+	[ ] Tener un margen competitivo para administrar el negocio.
+
+[ ] ¿Tiene una proyección de pérdidas y ganancias a 12 meses?
+	[ ] Sí, tenemos una proyección de pérdidas y ganancias a 12 meses de mi negocio
+	[ ] No, no tenemos una proyección de pérdidas y ganancias a 12 meses de mi negocio
+
+[ ] ¿Tiene una proyección de pérdidas y ganancias personales a 12 meses?
+	[ ] Sí, tenemos una proyección de pérdidas y ganancias personales a 12 meses
+	[ ] No, no tenemos una proyección de pérdidas y ganancias personales a 12 meses
+
+[ ] ¿Tiene una proyección de flujo de caja a 12 meses?
+	[ ] Sí, tenemos una proyección de flujo de caja a 12 meses
+	[ ] No, no tenemos una proyección de flujo de caja a 12 meses
+
+[ ] ¿Sabes cuánto costará lanzarlo y cuánto?
+	[ ] No sé cuánto costará lanzar y cuánto
+	[ ] Sé cuánto costará lanzarlo pero no sé cuánto
+	[ ] Sepa cuánto costará lanzar y cuánto
+
+[ ] ¿Sabes qué tan rápido gastarás tu dinero en efectivo?
+	[ ] No sé que tan rápido quemaremos mi efectivo
+	[ ] Sepa qué tan rápido gastaremos nuestro efectivo y necesitamos fondos adicionales en el próximo trimestre
+	[ ] Sepa qué tan rápido gastaremos nuestro efectivo y necesitamos fondos adicionales en los próximos seis meses.
+	[ ] Sepa qué tan rápido gastaremos nuestro efectivo y necesitamos fondos adicionales el próximo año
+	[ ] Tener un flujo de caja positivo para administrar el negocio.
+
+[ ] ¿Cuándo necesitará / necesita comenzar a financiar?
+	[ ] Tan pronto como sea posible
+	[ ] en tres meses
+	[ ] en seis meses
+	[ ] en un año
+
+[ ] ¿Tiene un plan de financiación en el mejor de los casos?
+	[ ] Sí, tenemos un escenario de financiación en el mejor de los casos
+	[ ] No, no tenemos un escenario de financiación en el mejor de los casos
+
+[ ] ¿Tiene un plan de financiación para el peor de los casos?
+	[ ] Sí, tenemos el peor escenario de financiación
+	[ ] No, no tenemos el peor escenario de financiación.
+
+[ ] ¿Puede exponer su idea de negocio de forma clara y concisa en un minuto (discurso de ascensor)?
+	[ ] Sí, podemos exponer mi idea de negocio de forma clara y concisa en un minuto.
+	[ ] No, un minuto no es suficiente para exponer mi idea de negocio.
+
+[ ] ¿Puede indicar en qué se diferencia su negocio?
+	[ ] No tenemos diferenciador
+	[ ] Tenemos un diferenciador pero es difícil de afirmar
+	[ ] Tenemos un diferenciador y podemos afirmar en qué se diferencia mi negocio
+
+[ ] ¿Sus partes interesadas comprenderán fácilmente su idea?
+	[ ] Sí, nuestras partes interesadas entenderían fácilmente nuestra idea.
+	[ ] No, nuestras partes interesadas no entenderían fácilmente nuestra idea (complejidad del producto, tecnología, concepto)
+
+[ ] ¿Tienes un prototipo o una muestra?
+	[ ] Sí, tenemos un prototipo o una muestra para mostrar a los inversores
+	[ ] No, no tenemos un prototipo ni una muestra para mostrar a los inversores
+
+[ ] ¿Tienes una historia para invertir?
+	[*] No tenemos una historia para invertir
+	[ ] Tenemos una historia, pero no podemos entregarla de manera convincente.
+	[ ] Tenemos una historia de inversión convincente
+
+[ ] ¿Tiene un plan de salida para inversores?
+	[*] No tenemos plan de salida
+	[ ] Tenemos una idea sobre el plan de salida, pero no podemos articular un plan de salida a los inversores.
+	[ ] Tenemos un plan de salida y podemos articular un plan de salida a los inversores.
+
+===== MARKETING DIGITAL =====
+
+[ ] ¿Tienes una estrategia de marketing digital clara?
+	[ ] Sí, tenemos una clara estrategia de marketing digital
+	[ ] No, solo tenemos algo de presencia en Internet, pero no una estrategia.
+	[ ] Hemos preparado una estrategia pero no la estamos siguiendo muy bien
+
+[ ] ¿Su empresa contrata una agencia externa especializada en marketing digital?
+	[ ] Sí, tenemos una agencia digital externa
+	[ ] No, gestionamos nuestro propio contenido digital
+
+[ ] ¿Tiene métricas específicas para medir el éxito de su estrategia de redes sociales?
+	[ ] Sí, medimos nuestras redes sociales constantemente
+	[ ] No, actualmente no tenemos un protocolo de medición.
+
+[ ] ¿Mide el impacto de su inversión en sus canales de medios actuales?
+	[ ] Sí
+	[ ] No
+
+[ ] ¿La gente le dice a menudo que el producto es demasiado caro o muy barato (precio)?
+	[ ] Sí
+	[ ] No
+
+[ ] ¿Cómo se compara el precio de su producto con el de la competencia?
+	[ ] mucho menos costoso
+	[ ] menos costoso
+	[ ] precio igual o similar
+	[ ] más caro
+	[ ] mucho más caro
+
+[ ] ¿Realizó un análisis de precios para su producto?
+	[ ] Sí
+	[ ] No
+
+[ ] ¿Tiene una estrategia de precios definida?
+	[ ] Sí
+	[ ] No
+
+[ ] ¿Sabes cuántos clientes recurrentes tienes?
+	[ ] Sí, conocemos el tamaño de los clientes recurrentes
+	[ ] No, no sabemos el tamaño de los clientes recurrentes.
+
+[ ] ¿Su organización llega a los clientes después del proceso de venta?
+	[ ] Sí
+	[ ] No
+
+[ ] ¿Ofrecen productos o servicios adicionales después de la compra?
+	[ ] Sí
+	[ ] No
+
+[ ] ¿Tiene una estrategia de postventa clara para sus clientes?
+	[ ] Sí
+	[ ] No
+
+[ ] ¿Ha visto aumentos de clientes en los últimos 12 meses?
+	[ ] Sí
+	[ ] No
+
+[ ] ¿Fue este aumento el resultado de publicidad / promoción / recomendación directa de clientes?
+	[ ] Sí
+	[ ] No
+
+[ ] ¿Qué tan diversa es la promoción / publicidad de su producto? (es decir, solo redes sociales, o tal vez también radio, folletos, otras fuentes de Internet, etc.)
+	[ ] De cero a una fuente
+	[ ] Dos o tres fuentes
+	[ ] De cuatro a cinco
+	[ ] Más de 5 fuentes
+
+[ ] ¿Cuál es el factor más limitante para llegar a los clientes?
+	[ ] Producto no bien desarrollado
+	[ ] Falta de publicidad
+	[ ] Mercado limitado para el producto
+	[ ] Precio del producto
+
+[ ] ¿Sabes en qué industria se encuentra tu negocio?
+	[ ] Sí
+	[ ] No
+
+[ ] ¿Sabes a qué sector de la industria te diriges?
+	[ ] Sí
+	[ ] No
+
+[ ] ¿Puede abordar los cambios que se están produciendo en su mercado?
+	[ ] Sí
+	[ ] No
+
+[ ] ¿Sabes cuál es la tasa de crecimiento del sector objetivo?
+	[ ] Sí
+	[ ] No
+
+[ ] ¿Puede indicar cómo su producto puede generar cambios?
+	[ ] Sí
+	[ ] No
+
+[ ] ¿Está alcanzando su objetivo correcto con su estrategia de marketing actual?
+	[ ] Sí
+	[ ] No
+
+[ ] ¿Tiene una estrategia clara en línea y fuera de línea para comercializar sus productos y servicios?
+	[ ] Sí
+	[ ] No
+
+[ ] ¿Está midiendo el impacto de su inversión en publicidad y marketing?
+	[ ] Sí
+	[ ] No
+
+[ ] ¿Están sus esfuerzos actuales generando mucho tráfico?
+	[ ] Sí
+	[ ] No
+
+[ ] ¿Ha realizado estudios de mercado en los mercados en los que está ingresando? (Marque todos los que correspondan)
+	[*] Identificar las necesidades de los clientes y los grupos destinatarios
+	[*] Definición de un bien / servicio que satisfaga las necesidades de los grupos destinatarios.
+	[*] Evaluación de la competencia en este mercado
+	[ ] Evaluación del mercado específico del país, incluido el entorno cultural y legal.
+	[ ] Desarrollé un plan de mercado específicamente para los segmentos objetivo.
+	[*] Evaluó la capacidad interna necesaria para responder a los grupos destinatarios
+	[*] Información utilizada para investigaciones piloto previas
+
+[ ] ¿Conoce el tamaño de su mercado potencial?
+	[ ] Sí
+	[ ] No
+
+[ ] ¿Conoce el segmento del mercado al que se dirige?
+	[ ] Sí
+	[ ] No
+
+[ ] ¿Sabes quién es el cliente objetivo de tu producto?
+	[ ] Sí
+	[ ] No
+
+[ ] ¿Entiende cuáles son los objetivos y motivaciones de su cliente objetivo?
+	[ ] Entendemos claramente sus motivaciones y por qué toman sus decisiones
+	[ ] Tenemos una idea de sus objetivos y lo que buscan
+	[ ] Tenemos problemas para interpretar nuestros objetivos objetivos y motivaciones
+
+[ ] ¿Sabe cuál es la descripción demográfica de su cliente objetivo?
+	[ ] Sí
+	[ ] No
+
+[ ] ¿Sabe cómo mide el éxito su cliente objetivo?
+	[ ] Sí
+	[ ] No
+
+
+===== LEGAL =====
+
+
+[ ] ¿Cuántos empleados en total tiene en su organización?
+	[ ] 1-3
+	[ ] 4-10
+	[ ] 10 o más
+
+[ ] ¿Cuántos empleados en total tenía en su organización hace 1 año?
+	[ ] 1-3
+	[ ] 4-10
+	[ ] 10 o más
+
+[ ] ¿Cada miembro del equipo tiene responsabilidades definidas?
+	[ ] Sí
+	[ ] No
+
+[ ] ¿Tiene la empresa un miembro del equipo responsable del crecimiento?
+	[ ] Sí
+	[ ] No
+
+[ ] ¿Tiene la empresa un miembro del equipo responsable de RR.HH.?
+	[ ] Sí
+	[ ] No
+
+[ ] ¿Tiene un acuerdo de fundadores?
+	[ ] Sí
+	[ ] No
+	[ ] No se que significa un acuerdo de fundadores
+
+[ ] ¿Los fundadores tienen responsabilidades definidas?
+	[ ] Sí
+	[ ] No
+
+[ ] ¿Cada socio tiene partes iguales de la empresa?
+	[ ] Sí
+	[ ] No
+	[ ] Solo tenemos un fundador o socio
+
+[ ] ¿Los cofundadores tienen disputas sobre la empresa?
+	[ ] nunca
+	[ ] A veces
+	[ ] A menudo
+	[ ] siempre
+
+[ ] ¿Existe una estrategia de resolución de conflictos entre los fundadores?
+	[ ] Sí
+	[ ] No
+	[ ] Solo tenemos un fundador
+
+[ ] ¿Cada miembro de su equipo es responsable de sus responsabilidades?
+	[ ] Sí
+	[ ] No
+
+[ ] ¿Cómo evalúa el desempeño individual de su equipo?
+	[ ] Autoevaluación del empleado
+	[ ] Evaluación periódica con gerentes
+	[ ] Revisión por pares
+	[ ] No evaluamos el desempeño individual
+	[ ] Otro
+
+[ ] ¿Todos en la organización conocen la estructura de empleados de la organización?
+	[ ] Sí
+	[ ] No
+
+[ ] ¿Tiene un proceso de entrega claro establecido?
+	[ ] Sí
+	[ ] No
+
+[ ] ¿Todos en la cadena de entrega conocen sus roles y objetivos?
+	[ ] Sí
+	[ ] No
+
+[ ] ¿Están los clientes en general satisfechos con su proceso actual?
+	[ ] Muy satisfecho
+	[ ] De alguna manera satisfecho
+	[ ] No muy satisfecho
+	[ ] insatisfecho
+
+[ ] ¿Tiene formación para toda su cadena de proveedores y empleados internos?
+	[ ] Sí
+	[ ] No
+
+[ ] ¿Tiene formación para toda su cadena de proveedores y empleados internos?
+	[ ] Sí
+	[ ] No
+
+[ ] ¿Cuántos contactos necesitas con tus clientes potenciales para cerrar una venta?
+	[ ] 1-2
+	[ ] 3-4
+	[ ] 5 o más
+
+[ ] ¿Tiene un proceso de mapeo del viaje del cliente (una representación visual de cada experiencia que sus clientes tienen con su producto / servicio)?
+	[ ] Sí
+	[ ] No
+
+[ ] ¿Su organización está trabajando para construir relaciones a largo plazo con sus clientes?
+	[ ] Sí
+	[ ] No
+
+[ ] ¿Están disponibles las descripciones de los trabajos para sus empleados?
+	[ ] Sí
+	[ ] No
+
+[ ] ¿Está midiendo el desempeño de cada empleado de forma objetiva y constante?
+	[ ] Sí
+	[ ] No
+
+[ ] ¿Tiene mecanismos de control para todos sus procesos internos?
+	[ ] Sí
+	[ ] No
+
+[ ] ¿Cómo calificaría su procedimiento de almacenamiento de datos?
+	[ ] Contamos con un procedimiento definido y establecido
+	[ ] No tenemos un procedimiento de almacenamiento de datos
+
+[ ] ¿Tiene protocolos de seguridad en todos sus procesos?
+	[ ] Sí
+	[ ] No
+
+[ ] ¿Son sus operaciones actuales fácilmente escalables?
+	[ ] Sí
+	[ ] No
+
+[ ] ¿Tiene una estrategia para la consolidación de su negocio?
+	[ ] Sí
+	[ ] No
+
+[ ] ¿Cuenta con persona jurídica?
+	[ ] Sí, la empresa tiene estructura legal.
+	[ ] No, la empresa no tiene estructura legal
+
+[ ] ¿Cuál es su entidad legal de su startup? (Informativo)
+	[ ] Establecer una sucursal en una empresa extranjera (Sucursal de Sociedad Extranjera)
+	[ ] Una corporación (S.A. Sociedad Anónima)
+	[ ] Sociedad de acciones simplificadas (S.A.S. Sociedad por Acciones Simplificadas)
+	[ ] Una sociedad de responsabilidad limitada (Sociedad de Responsabilidad Limitada- SRL)
+	[ ] No tenemos una entidad legal
+
+[ ] ¿Cuenta con propiedad intelectual, secreto industrial o copyright sobre su solución?
+	[ ] Si, cuento con propiedad intelectual, secreto industrial o copyright sobre su solución
+	[ ] No, no cuento con propiedad intelectual, secreto industrial o copyright sobre su solución
+
+[ ] ¿Cuál es el estado de su patente?
+	[ ] No cuento con IP
+	[ ] no he iniciado el proceso
+	[ ] Estoy en el medio del proceso
+	[ ] Terminé el proceso y se otorga IP
+
+[ ] ¿Tiene una estrategia para utilizar su propiedad intelectual?
+	[ ] No cuento con IP
+	[ ] No, no tengo una estrategia para utilizar mi IP
+	[ ] Sí, tengo una estrategia, pero necesito una orientación adicional de un profesional.
+	[ ] Sí, tengo una estrategia clara para utilizar mi IP
+
+[ ] ¿Monitoriza las tendencias en torno a su tecnología?
+	[ ] No cuento con IP
+	[ ] No, no tengo un proceso para monitorear las tendencias en torno a la tecnología de forma regular
+	[ ] Sí, tengo un proceso para monitorear las tendencias en torno a la tecnología de forma regular
+
+
+===== CRECIMIENTO =====
+
+
+[ ] ¿Quieres hacer crecer tu negocio?
+	[ ] Sí, buscamos expandir nuestro negocio
+	[ ] No, estamos contentos con nuestra situación actual o no estamos listos para expandirnos.
+
+[ ] ¿Ha tenido éxito en su mercado actual?
+	[ ] Sí, hemos crecido y obtenido beneficios en nuestro mercado actual.
+	[ ] No, no hemos obtenido ganancias, hemos obtenido pequeñas ganancias y no nos hemos expandido ni crecido.
+
+[ ] ¿Cuál es su mayor barrera para el éxito empresarial o para un mayor éxito?
+	[ ] El producto
+	[ ] El mercado
+	[ ] El cliente
+	[ ] Producción
+	[ ] Publicidad
+	[ ] Estructura empresarial
+	[ ] Expansión
+
+[ ] ¿Ha identificado nuevos clientes? ¿Está creciendo su base de clientes?
+	[ ] Sí, hemos encontrado nuevos clientes que buscan comprar nuestro producto o nuestra base está creciendo
+	[ ] No, tenemos los mismos clientes y no hemos visto ni identificado nuevos grupos a los que llegar con nuestro producto.
+
+[ ] ¿Tiene una base de clientes leales? ¿Los clientes regresan con regularidad?
+	[ ] Sí, tenemos una base de clientes leales de personas que cuentan a otros sobre el producto o que regresan por más / otro
+	[ ] No: los clientes suelen ser usuarios únicos y no refieren a otros clientes al producto o servicio.
+
+[ ] ¿Tus clientes quieren que crezcas?
+	[ ] Sí, los clientes han indicado que les gustaría ver más nuestro producto (otros lugares de la ciudad u otras ciudades)
+	[ ] No: los clientes no han mostrado interés en ver nuevas ubicaciones o más de nuestro producto
+
+[ ] ¿Está contratando por necesidad? (¿demasiado trabajo?)
+	[ ] Sí, tenemos más trabajo del que podemos mantener, hemos tenido que contratar para satisfacer la demanda.
+	[ ] No, no necesitamos más empleados o los hemos contratado, pero no porque tuviéramos demasiado trabajo.
+
+[ ] ¿Cuál es su tipo de cliente?
+	[ ] personas
+	[ ] negocios
+	[ ] gobierno
+	[ ] otros
+
+[ ] ¿Tiene tracción en su campo?
+	[ ] Sí, tenemos impulso en el mercado actual, tenemos patrocinadores, clientes y nos estamos volviendo conocidos
+	[ ] No, no somos muy conocidos en el mercado, tenemos algunos inversores, pero no hay mucha conciencia de los clientes.
+
+[ ] Si tiene tracción en su campo, ¿cuánto? porcentaje aproximado en comparación con la competencia? Ej .: 5% mayor que el promedio, 10% mayor que el promedio, etc.
+	[ ] No tenemos tracción en el mercado
+	[ ] Menos que el promedio
+	[ ] 0 - 5% mayor que el promedio
+	[ ] 5 - 10% mayor que el promedio
+	[ ] 10 - 20% mayor que el promedio
+	[ ] Más de un 20% más que el promedio
+
+[ ] ¿Ha recibido elogios / aval públicos de expertos de la industria por su producto?
+	[*] Sí: hemos recibido el respaldo o el reconocimiento de expertos de la industria en un artículo, una noticia o un discurso.
+	[ ] No, todavía no hemos recibido el reconocimiento público de ningún experto con respecto a nuestro producto.
+
+[ ] ¿Está creciendo tu industria?
+	[ ] Sí, la industria de la que forma parte nuestro producto está creciendo.
+	[ ] No, la industria se ha estancado y no ha crecido recientemente.
+
+[ ] ¿Ha aumentado su margen bruto en el último año?
+	[ ] Sí, vimos un aumento en nuestro margen bruto este año.
+	[ ] No, nuestro margen bruto fue el mismo o más bajo el año pasado
+
+[ ] ¿Cuánto tiempo llevas vendiendo tu producto?
+	[ ] menos de 1 mes
+	[ ] menos de 6 meses
+	[ ] menos de 1 año
+	[ ] menos de 3 años
+	[ ] menos de 5 años
+	[ ] más de 5 años
+
+[ ] ¿Tiene informes de ventas para su producto?
+	[ ] Sí, tenemos registros precisos de nuestras ventas.
+	[ ] No, no hemos registrado nuestras ventas.
+
+[ ] ¿Conoce sus métricas de crecimiento?
+	[ ] Sí, tenemos una medida estándar que usamos para rastrear si estamos creciendo
+	[ ] No, no hemos estado midiendo nuestro crecimiento.
+
+[ ] ¿Con qué frecuencia realiza un seguimiento de las métricas de crecimiento?
+	[ ] No tenemos métrica de crecimiento
+	[ ] Anual
+	[ ] Semestral
+	[ ] Trimestral
+	[ ] Mensual
+	[ ] Más a menudo que una vez al mes
+
+[ ] ¿Qué tan exitoso ha sido su crecimiento hasta ahora?
+	[ ] no exitoso
+	[ ] algo fallido
+	[ ] ni exitoso ni fallido
+	[ ] algo exitoso
+	[ ] Muy exitoso
+
+[ ] ¿Cuál es su margen de beneficio?
+	[ ] <10%
+	[ ] 10%
+	[ ] > 10%
+
+[ ] ¿Siente que está obteniendo un buen margen de beneficio en su industria?
+	[ ] Sí, nos sentimos cómodos con nuestro margen de beneficio considerando el producto que vendemos, el mercado y la industria.
+	[ ] No, estamos por debajo de lo esperado para este producto, esta industria o este mercado.
+
+[ ] ¿Se alinean sus cifras de ventas con las de la competencia?
+	[ ] Sí, sabemos que nuestras ventas son iguales o superiores a las de nuestros competidores.
+	[ ] Desconocido: no conocemos las ventas de nuestros competidores y no podemos decir con precisión
+	[ ] No, sabemos que estamos por debajo de nuestros competidores en nuestras ventas.
+
+[ ] ¿Tienes planes de crecer?
+	[ ] Sí, estamos planeando expandir nuestro negocio.
+	[ ] No, todavía no lo hemos pensado
+
+[ ] ¿Ha tomado alguna medida sobre esos planes?
+	[ ] Sí, ya hemos comenzado a expandirnos
+	[ ] No, solo hemos hecho los planes
+
+[ ] ¿Ha descubierto cuál es su CAC (costo de adquisición de clientes)? (CAC = Costos de ventas y marketing / Nuevos clientes ganados)
+	[ ] Sí, hemos descubierto nuestro CAC
+	[ ] No, no hemos descubierto nuestro CAC
+
+[ ] ¿Su CAC es aceptable para su industria?
+	[ ] Sí, nuestro CAC es razonable o mejor que el promedio en nuestra industria específica
+	[ ] No, estamos pagando demasiado por cliente.
+
+[ ] ¿Ha definido su valor de vida útil del cliente (CLV, la cantidad total de dinero que se espera que gaste un cliente en su negocio o en sus productos durante su vida útil)?
+	[ ] Sí, hemos definido nuestro CLV
+	[ ] No, no hemos definido nuestro CLV
+
+[ ] ¿Cuál es la relación de CAC a LVT?
+	[ ] > 3:1
+	[ ] aproximadamente 3:1
+	[ ] < 3:1
+	[ ] No sabemos cuál es nuestra relación de CAC a LVT
+
+
+===== PRIMER ACERCAMIENTO =====
+
+ 1.- Qué problema resuelve
+ 2.- En qué consiste tu solución
+ 3.- Principal diferenciador
+ 4.- Segmento de mercado
+ 5.- Monetización
+ 6.- Clientes
+ 7.- Embudo*** (100)
+ 8.- Qué esperamos de MassChallenge
+ 9.- Capacidades claves y áreas de oportunidad
+10.- Términos legales
+
+- Incorporar el costo de la operación del dispositivo
+- Bootcamp martes miércoles y jueves
+- Plan de trabajo (sesiones regulares)
