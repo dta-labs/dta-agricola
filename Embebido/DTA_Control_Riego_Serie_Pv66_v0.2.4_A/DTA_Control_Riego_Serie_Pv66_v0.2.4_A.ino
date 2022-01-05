@@ -1,7 +1,7 @@
 /****************************************************************
  *                                                              * 
  *                Sistemas DTA Serie Pv66 v0.2.4 A              *
- *                           2021.28.12                         *
+ *                           2022.01.03                         *
  *                                                              *
  *   Sensores:                                                  *
  *   - Atasco............... D9                                 *
@@ -401,8 +401,6 @@ float controlPresionAnalogica() {
 }
 
 float getPosition() {
-  lat_central = (lat_central == 0) ? eeVar.lat_central : lat_central;
-  lon_central = (lon_central == 0) ? eeVar.lon_central : lon_central;
   float newPosition = (positionSensor == "GPS") ? getGPSPosition() : getCompassPosition();
 //  if (lat_central * lon_central != 0.0f) { 
 //    float movementEstimation = velocityVar / 100;
@@ -420,6 +418,8 @@ float getPosition() {
 float getGPSPosition() {                  // Posición por GPS
   float azimut = positionVar;
   bool newData = parseGPSData();
+  lat_central = (lat_central == 0) ? eeVar.lat_central : lat_central;
+  lon_central = (lon_central == 0) ? eeVar.lon_central : lon_central;
   if (newData) {
     unsigned long age;
     gps.f_get_position(&lat_actual, &lon_actual, &age);
@@ -438,7 +438,7 @@ bool parseGPSData() {
   for (unsigned long start = millis(); millis() - start < frecuence;) {
     while (ssGPS.available()) {
       char c = ssGPS.read();
-      // Serial.write(c);   // descomentar para ver el flujo de datos del GPS
+      Serial.write(c);   // descomentar para ver el flujo de datos del GPS
       if (gps.encode(c))    // revisa si se completó una nueva cadena
         newData = true;
     }
@@ -630,7 +630,7 @@ String httpRequest() {
   wdt_reset();
   gprs.println(F("AT+HTTPACTION=0"));
   String result = getResponse(6000, true); 
-  restartGSM = (result.indexOf("ERROR") != -1 || result.indexOf("601") != -1 || signalVar < 6) ? true : false;
+  restartGSM = (result.indexOf("ERROR") != -1 || result.indexOf("601") != -1  || result.indexOf("604") != -1 || signalVar < 6) ? true : false;
   commWatchDogReset(signalVar);
   gprs.println(F("AT+HTTPREAD"));
   result = getResponse(0, false);
@@ -716,8 +716,6 @@ String parse(String dataString, char separator, int index) {
 #pragma endregion Comunicaciones
 
 /****************************************************************
- *                                                              * 
- *                 Sistemas DTA Serie Pv66 v0.2.2               *
  *                                                              *
  * Errores HTTP:                                              	*
  *                                                              * 

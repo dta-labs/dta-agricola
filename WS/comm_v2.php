@@ -88,6 +88,7 @@
 		if ($_GET["er"]) { $data .= ',"error":"' . $_GET["er"] . '"'; }
 		if ($_GET["si"]) { $data .= ',"signal":"' . $_GET["si"] . '"'; }
 		if ($_GET["ar"] && ($_GET["ar"] == "ON" || $_GET["ar"] == "OFF")) { $data .= ',"autoreverse":"' . $_GET["ar"] . '"'; }
+		if ($_GET["rx"] && ($_GET["rx"] == "Ok" || $_GET["rx"] == "Er")) { $data .= ',"reception":"' . $_GET["rx"] . '"'; }
 		//if ($_GET["position"]) { $data .= ',"position":"' . $_GET["position"] . '"'; }
 		//if ($_GET["temperature"]) { $data .= ',"temperature":"' . $_GET["temperature"] . '"'; }
 		//if ($_GET["humidity"]) { $data .= ',"humidity":"' . $_GET["humidity"] . '"'; }
