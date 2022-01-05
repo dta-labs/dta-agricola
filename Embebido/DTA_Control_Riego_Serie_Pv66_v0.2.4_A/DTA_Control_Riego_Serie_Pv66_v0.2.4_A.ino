@@ -387,12 +387,14 @@ bool controlPresionDigital() {
 }
 
 float controlPresionAnalogica() {
-  float presionActual = 0;
+  float presionActual = 0.0f;
   for (int i = 0; i < 3; i++) {
     float pAnalog = presion.getAnalogValue();
-    float temp = presion.fmap(pAnalog, 0, 1023, 0.0, 15.0) - 1.25;
-    temp = (temp + 0.4018) / 0.7373;
-    presionActual += temp > 0 ? temp : 0;
+//    float temp = presion.fmap(pAnalog, 0, 1023, 0.0, 15.0) - 1.25;
+//    temp = (temp + 0.4018) / 0.7373;
+//    presionActual += temp > 0 ? temp : 0;
+    presionActual += pAnalog > 0 ? pAnalog : 0;
+    delay(10);
   }
   presionActual = presionActual / 3;
   Serial.print(F("PresionF: "));
@@ -438,7 +440,7 @@ bool parseGPSData() {
   for (unsigned long start = millis(); millis() - start < frecuence;) {
     while (ssGPS.available()) {
       char c = ssGPS.read();
-      Serial.write(c);   // descomentar para ver el flujo de datos del GPS
+      // Serial.write(c);   // descomentar para ver el flujo de datos del GPS
       if (gps.encode(c))    // revisa si se completó una nueva cadena
         newData = true;
     }
@@ -631,10 +633,10 @@ String httpRequest() {
   gprs.println(F("AT+HTTPACTION=0"));
   String result = getResponse(6000, true); 
   restartGSM = (result.indexOf("ERROR") != -1 || result.indexOf("601") != -1  || result.indexOf("604") != -1 || signalVar < 6) ? true : false;
-  commWatchDogReset(signalVar);
   gprs.println(F("AT+HTTPREAD"));
   result = getResponse(0, false);
   gprs.println(F("AT+HTTPTERM"));
+  commWatchDogReset(signalVar);
   getResponse(30, false); 
   wdt_reset();
   return result;
