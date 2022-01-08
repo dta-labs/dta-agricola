@@ -1,0 +1,227 @@
+[{
+		"latitude": 28.702449,
+		"longitude": -107.009929,
+		"name": "Campo #1",
+		"culture": "Maiz",
+		"state": "Preparación",
+		"irrigation": "Pivote central",
+		"radius": "500",
+		"owner": ""
+	}, {
+		"latitude": 28.696095,
+		"longitude": -107.002119,
+		"name": "Campo #2",
+		"culture": "Maiz",
+		"state": "Preparación",
+		"irrigation": "Pivote central",
+		"radius": "500",
+		"owner": ""
+	}, {
+		"latitude": 28.696095,
+		"longitude": -107.002119,
+		"name": "Campo #3",
+		"culture": "Maiz",
+		"state": "Preparación",
+		"irrigation": "Pivote central",
+		"radius": "500",
+		"owner": ""
+	}, {
+		"latitude": 28.754567,
+		"longitude": -107.044505,
+		"name": "Campo #4",
+		"culture": "Maiz",
+		"state": "Preparación",
+		"irrigation": "Pivote central",
+		"radius": "500",
+		"owner": ""
+	}, {
+		"latitude": 28.754521,
+		"longitude": -107.052045,
+		"name": "Campo #5",
+		"culture": "Maiz",
+		"state": "Preparación",
+		"irrigation": "Pivote central",
+		"radius": "500",
+		"owner": ""
+	}, {
+		"latitude": 28.771437,
+		"longitude": -107.051553,
+		"name": "Campo #6",
+		"culture": "Maiz",
+		"state": "Preparación",
+		"irrigation": "Pivote central",
+		"radius": "500",
+		"owner": ""
+	}, {
+		"latitude": 28.767789,
+		"longitude": -107.042043,
+		"name": "Campo #7",
+		"culture": "Maiz",
+		"state": "Preparación",
+		"irrigation": "Pivote central",
+		"radius": "500",
+		"owner": ""
+	}, {
+		"latitude": 28.785332,
+		"longitude": -107.067363,
+		"name": "Campo #8",
+		"culture": "Maiz",
+		"state": "Preparación",
+		"irrigation": "Pivote central",
+		"radius": "500",
+		"owner": ""
+	}, {
+		"latitude": 28.770432,
+		"longitude": -107.144180,
+		"name": "Campo #9",
+		"culture": "Maiz",
+		"state": "Preparación",
+		"irrigation": "Pivote central",
+		"radius": "500",
+		"owner": ""
+	}, {
+		"latitude": 28.780919,
+		"longitude": -107.159711,
+		"name": "Campo #10",
+		"culture": "Maiz",
+		"state": "Preparación",
+		"irrigation": "Pivote central",
+		"radius": "500",
+		"owner": ""
+	}, {
+		"latitude": 28.779608,
+		"longitude": -107.180254,
+		"name": "Campo #11",
+		"culture": "Maiz",
+		"state": "Preparación",
+		"irrigation": "Pivote central",
+		"radius": "500",
+		"owner": ""
+	}, {
+		"latitude": 28.773395,
+		"longitude": -107.177008,
+		"name": "Campo #12",
+		"culture": "Maiz",
+		"state": "Preparación",
+		"irrigation": "Pivote central",
+		"radius": "500",
+		"owner": ""
+	}, {
+		"latitude": 28.767620,
+		"longitude": -107.173123,
+		"name": "Campo #13",
+		"culture": "Maiz",
+		"state": "Preparación",
+		"irrigation": "Pivote central",
+		"radius": "500",
+		"owner": ""
+	}, {
+		"latitude": 28.780905,
+		"longitude": -107.159703,
+		"name": "Campo #14",
+		"culture": "Maiz",
+		"state": "Preparación",
+		"irrigation": "Pivote central",
+		"radius": "500",
+		"owner": ""
+	}, {
+		"latitude": 28.801654,
+		"longitude": -107.144740,
+		"name": "Campo #15",
+		"culture": "Maiz",
+		"state": "Preparación",
+		"irrigation": "Pivote central",
+		"radius": "500",
+		"owner": ""
+	}, {
+		"latitude": 28.702466,
+		"longitude": -107.009954,
+		"name": "Campo #16",
+		"culture": "Maiz",
+		"state": "Preparación",
+		"irrigation": "Pivote central",
+		"radius": "500",
+		"owner": ""
+	}, {
+		"latitude": 28.696038,
+		"longitude": -107.002134,
+		"name": "Campo #17",
+		"culture": "Maiz",
+		"state": "Preparación",
+		"irrigation": "Pivote central",
+		"radius": "500",
+		"owner": ""
+	}, {
+		"latitude": 28.637733,
+		"longitude": -107.031558,
+		"name": "Campo #18",
+		"culture": "Maiz",
+		"state": "Preparación",
+		"irrigation": "Pivote central",
+		"radius": "500",
+		"owner": ""
+	}, {
+		"latitude": 28.647549,
+		"longitude": -106.958451,
+		"name": "Campo #19",
+		"culture": "Maiz",
+		"state": "Preparación",
+		"irrigation": "Pivote central",
+		"radius": "500",
+		"owner": ""
+	}, {
+		"latitude": 28.655615,
+		"longitude": -106.966260,
+		"name": "Campo #20",
+		"culture": "Maiz",
+		"state": "Preparación",
+		"irrigation": "Pivote central",
+		"radius": "500",
+		"owner": ""
+	}, {
+		"latitude": 28.655595,
+		"longitude": -106.966253,
+		"name": "Campo #21",
+		"culture": "Maiz",
+		"state": "Preparación",
+		"irrigation": "Pivote central",
+		"radius": "500",
+		"owner": ""
+	}, {
+		"latitude": 28.647531,
+		"longitude": -106.958446,
+		"name": "Campo #22",
+		"culture": "Maiz",
+		"state": "Preparación",
+		"irrigation": "Pivote central",
+		"radius": "500",
+		"owner": ""
+	}, {
+		"latitude": 28.602868,
+		"longitude": -106.899707,
+		"name": "Campo #23",
+		"culture": "Maiz",
+		"state": "Preparación",
+		"irrigation": "Pivote central",
+		"radius": "500",
+		"owner": ""
+	}, {
+		"latitude": 28.844296,
+		"longitude": -107.289346,
+		"name": "Campo #24",
+		"culture": "Maiz",
+		"state": "Preparación",
+		"irrigation": "Pivote central",
+		"radius": "500",
+		"owner": ""
+	}, {
+		"latitude": 28.842914,
+		"longitude": -107.280347,
+		"name": "Campo #25",
+		"culture": "Maiz",
+		"state": "Preparación",
+		"irrigation": "Pivote central",
+		"radius": "500",
+		"owner": ""
+	}
+]

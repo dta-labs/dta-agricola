@@ -1,0 +1,54 @@
+[x] Acceso HTTP
+	[x] Mejorar la velocidad de lectura
+		[-] Traer toda la tabla
+		[-] Dividir los campos adecuadamente
+
+[ ] Controles del sistema
+	[ ] Planificación básica
+		[ ] Regular la Velocidad
+		[ ] Tiempo de riego
+		[ ] Hora de inicio del riego
+		[ ] Seguridad
+		
+[ ] Aplicaciones de prueba de dispositivos
+	[ ] Prueba de relays
+	[ ] Prueba de GSM-GPRS
+	[ ] Prueba de sensores
+	
+[ ] Baterías
+	[ ] ($ 29.80 x 1) https://articulo.mercadolibre.com.mx/MLM-752388871-bateria-pila-recargable-18650-litio-ventilador-bocina-vaper-_JM?quantity=10#reco_item_pos=1&reco_backend=machinalis-domain-pads&reco_backend_type=low_level&reco_client=vip-pads&reco_id=7e4a6c7c-cea0-4f10-894c-5974a1905d5b&is_advertising=true&ad_domain=VIPCORE_RECOMMENDED&ad_position=2&ad_click_id=NWI4YTdhMzEtMjQ4NC00YjkxLWJlMzktZmRhM2FiY2Y5MzRl
+	[ ] ($125.00 x 5) https://articulo.mercadolibre.com.mx/MLM-616121157-5-pilas-recargable-para-lampara-_JM?searchVariation=52450508032&quantity=2&variation=52450508032#searchVariation=52450508032&position=14&type=item&tracking_id=e7695b68-cc73-43d3-b47d-bcf3f258ec96
+	
+	
+settings:{
+  "direction" : "FF",
+  "fertilization" : "OFF",
+  "irrigation" : "automatic",
+  "latitude" : "28.712449",
+  "length" : "500",
+  "longitude" : "-107.009929",
+  "name" : "Campo # 2"
+  "status" : "OFF",
+  "type" : "Pivote central",
+  "velocity" : "25"
+  "zona" : "+6",
+}
+
+
+Comunicaciones:
+
+Hola muy buenos días Johan... 
+Hola muy buenos días Bernaldo... 
+
+
+desde ayer el dispositivo no transmite, nosotros solo pusimos carga apara una semana, pero como lo estamos monitoreoando pusimos nuevamente recarga para una semana más. Deben recordar recargar el número 6251504561 que es la línea de su dispositivo.
+
+Sin embargo nos envía señal de apagado, no sabemos si lo apagaron porque no necesitan regar o si lo hicieron porque no les reporta cuando no hay electricidad. Nosotros estamos trabajando en una actualización que les avise en cuanto pierda la conexión, pero aún está a prueba. Esperamos poder liberarla hoy. No obstante no deben preocuparse porque en cuanto regresa la corriente el equipo vuele a regar o no en dependencia de la orden que le habían dado.
+
+Enrique - Tiene L23-24
+
+[8:47 a. m., 5/6/2020] Cosme: Hola estimado Enrique, espero que estén bien... mira sí conseguimos la antena pero demora una semana en llegar... nosotros preparamos una pero no nos dio tiempo a pasar a verlos para ponérselos... esperamos poder ponerle los dos aparatos en la próxima visita... en cuanto vayamos a ir le avisamos.
+[8:49 a. m., 5/6/2020] Cosme: Una pregunta, va a desear que su sistema sepa en qué posición está, porque la versión que les llevaremos es la menos equipada y no tiene gps... si va a necesitar saber, entonces tendríamos que llevar una más equipada y por tanto un poco más costosa, Ud me dirá.
+
+giberttrafe@gmail.com
+Paraconectarse1!

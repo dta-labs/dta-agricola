@@ -1,0 +1,32 @@
+<a href="sms:+526251208106">Envíame un SMS</a>
+<a href="https://api.whatsapp.com/send?phone=+526251208106&text=hola,%20¿qué%20tal%20estás?">Mensaje</a>
+<a href="tel:+526251208106">Llamar al Teléfono</a>
+
+https://rapidapi.com/JayemithLLC/api/quick-easy-sms/endpoints (9.3)		1 x $0.005 USD		100/día MX$0.05983*/cu	EEUU/Canadá
+https://rapidapi.com/telesign/api/telesign-sms-verify (8.8)				1000 x $1 USD		100000 x $10 USD 		Sing
+https://rapidapi.com/twilio/api/twilio-sms (8.4)						100000 x $10 USD	
+
+https://rapidapi.com/dimashirokov/api/Plivo		 (0.2)					Free
+https://rapidapi.com/stefan.skliarov/api/Telnyx	 (0.2)					Free
+https://rapidapi.com/messagebird/api/sms-gateway (8.8)					Free
+https://rapidapi.com/clicksend/api/clicksend-sms (8.7)					Free
+
+var settings = {
+	"async": true,
+	"crossDomain": true,
+	"url": "https://clicksend.p.rapidapi.com/sms/send",
+	"method": "POST",
+	"headers": {
+		"authorization": "Basic ZHRhLmxhYnMuY29udGFjdEBnbWFpbC5jb206Q2xpY2tTZW5kMSE=",
+		"x-rapidapi-host": "clicksend.p.rapidapi.com",
+		"x-rapidapi-key": "b5b6923ae4msh2a00690679b59b2p197fb2jsn06eb2d5a0c3a",
+		"content-type": "application/json",
+		"accept": "application/json"
+	},
+	"processData": false,
+	"data": "{  \"messages\" : [    {      \"source\" : \"mashape\",      \"from\" : \"+525549998455\",      \"body\" : \"ON\",      \"to\" : \"+526251208106\",      \"schedule\":\"1452244637\",      \"custom_string\" : \"\"    }]}"
+}
+
+$.ajax(settings).done(function (response) {
+	console.log(response);
+});

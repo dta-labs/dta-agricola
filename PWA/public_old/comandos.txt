@@ -1,0 +1,39 @@
+ssh debian@192.168.10.100
+ssh debian@192.168.1.232
+debian:temppwd
+name -r
+nano client.py
+scp maqueta.py debian@192.168.0.42:/home/debian
+
+gcc fileCreate.c -o fileCreate2
+
+config-pin -a p9.22 pwm
+config-pin -q p9.22 pwm (para comprobar que funcionó)
+sh -c "echo 2000000 > /sys/class/pwm/pwm-1\:0/period"
+sh -c "echo 1000000 > /sys/class/pwm/pwm-1\:0/duty_cycle"
+sh -c "echo 1 > /sys/class/pwm/pwm-1\:0/enable"
+sh -c "echo 0 > /sys/class/pwm/pwm-1\:0/enable"
+
+config-pin -a p9.14 pwm
+config-pin -q p9.14 pwm (para comprobar que funcionó)
+sh -c "echo 2000000 > /sys/class/pwm/pwm-1\:0/period"
+sh -c "echo 1000000 > /sys/class/pwm/pwm-1\:0/duty_cycle"
+sh -c "echo 1 > /sys/class/pwm/pwm-1\:0/enable"
+sh -c "echo 0 > /sys/class/pwm/pwm-1\:0/enable"
+
+echo out > /sys/class/gpio/gpio44/direction
+echo 1 > /sys/class/gpio/gpio44/value
+echo 0 > /sys/class/gpio/gpio44/value
+
+
+
+Pines empleados por Eduardo:
+p8.12 -> gpio44 ok - café
+p8.14 -> gpio26
+p8.16 -> gpio46 ok - verde
+p8.18 -> gpio65
+
+p9.14 -> pwm
+p9.16 -> pwm
+p9.21 -> pwm
+p9.22 -> pwm

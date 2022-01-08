@@ -1,0 +1,52 @@
+[ ] Interfaz de usuario:
+	[x] Botón externo:
+		[x] Mostrar la posición (pivote)
+		[x] Mostrar la parcela (goteo)
+	[x] Panel interno:
+		[x] Mostrar la fecha/hora de actualización
+		[x] Quitar el modo de trabajo (manual/semi/auto)
+		[x] No permitir quedarse en cero planes
+
+[x] Acceso HTTP
+	[x] Mejorar la velocidad de lectura
+		[x] Traer toda la tabla
+		[x] Dividir los campos adecuadamente
+
+[ ] Controles del sistema
+	[ ] Planificación básica
+		[ ] Regular la Velocidad
+		[ ] Tiempo de riego
+		[ ] Hora de inicio del riego
+		[ ] Seguridad
+		
+[ ] Aplicaciones de prueba de dispositivos
+	[ ] Prueba de relays
+	[ ] Prueba de GSM-GPRS
+	[ ] Prueba de sensores
+	
+[ ] Baterías
+	[ ] ($ 29.80 x 1) https://articulo.mercadolibre.com.mx/MLM-752388871-bateria-pila-recargable-18650-litio-ventilador-bocina-vaper-_JM?quantity=10#reco_item_pos=1&reco_backend=machinalis-domain-pads&reco_backend_type=low_level&reco_client=vip-pads&reco_id=7e4a6c7c-cea0-4f10-894c-5974a1905d5b&is_advertising=true&ad_domain=VIPCORE_RECOMMENDED&ad_position=2&ad_click_id=NWI4YTdhMzEtMjQ4NC00YjkxLWJlMzktZmRhM2FiY2Y5MzRl
+	[ ] ($125.00 x 5) https://articulo.mercadolibre.com.mx/MLM-616121157-5-pilas-recargable-para-lampara-_JM?searchVariation=52450508032&quantity=2&variation=52450508032#searchVariation=52450508032&position=14&type=item&tracking_id=e7695b68-cc73-43d3-b47d-bcf3f258ec96
+	
+[ ] Software
+	[ ] Histórico:
+		[ ] Poner como texto el principal mensaje
+		[ ] Marcar con colores cada registro
+	[ ] Vista de escritorio/tableta
+		[x] Mostrar menú del equipo
+		[ ] Mostrar spiner de encendido/apagado
+		[ ] Modificar el menú principal a modo de dashboard
+			[ ] Incluir al usuario
+			[ ] Incluir todas las opciones
+			[ ] Incluir todos los equipos en el listado de equipo y abrir pestaña por defecto
+	[ ] Mapa
+		[ ] Incluir la vista de satélite del equipo
+		[ ] Incluir vista de todos los equipos solo en modo escritorio/tableta
+
+[ ] Embebido
+	[x] Desconectar Relays cuando se vaya la corriente
+	[ ] Completar el autorreverse
+
+[x] Actualizar web service
+	[x] Crear nuevo registro cuando se vaya la corriente
+

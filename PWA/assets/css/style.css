@@ -1,0 +1,346 @@
+body {
+  background: whitesmoke;
+  background-image: url(/assets/images/fondo-web.png);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-size: 100% 100%;
+}
+
+#control_de_riego {
+  margin-top: 2px; 
+  font-size: 1.5em;
+}
+
+.intro {
+  position: fixed;
+  top: 5%;
+  /* margin: auto; */
+  width: 100vw;
+  text-align: center;
+  text-decoration: blink;
+  text-shadow: 1px 1px 2px white;
+}
+
+.pie {
+  border-bottom: 1px solid black;
+  background-color: rgba(0, 0, 0, 0.3);
+  color: whitesmoke;
+  padding-top: 3px;
+  padding-bottom: 3px;
+  padding-left: 15px;
+  margin-bottom: 0px;
+  position: fixed;
+  width: 100vw;
+  bottom: 40px;
+  border-top: 2px solid gray;
+}
+
+.limitar {
+  width: 100%;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.dirIndicator {
+  position: relative;
+  top: -78%;
+  left: 8%;
+  font-size: 3em;
+}
+
+.pivote {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  margin-left: -10px;
+  margin-top: -10%;
+}
+
+.esfera {
+  position: absolute;
+  width: 83%;
+  height: 83%;
+  border: 2px solid white;
+  border-radius: 50%;
+  z-index: 10;
+  top: 10px;
+  left: 10px;
+}
+
+.esferaInterior {
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  border: 1px solid white;
+  border-radius: 50%;
+  z-index: 10;
+  top: 30px;
+  left: calc(50% - 90px);
+  border-color: black;
+}
+
+.brazo {
+  border: 3px solid white;
+  position: absolute;
+  left: 50%;
+  bottom: 50%;
+  height: 50%;
+  width: 0;
+  transform-origin: 50% 100%;
+  transition: transform 1s ease;
+}
+
+.parcelas {
+  position: relative;
+  width: 40px;
+  margin-left: -10px;
+  margin-top: -5%;
+}
+
+.parcela {
+  position: relative;
+  width: 5px;
+  height: 30px;
+  margin-right: 5px;
+  border: 2px solid white;
+  float: left;
+}
+
+.parcela_icon {
+  width: 75px !important;
+  position: relative;
+  top: 10px;
+}
+
+.angle {
+  -webkit-transform: rotate(-110deg);
+  -moz-transform: rotate(-110deg);
+  -o-transform: rotate(-110deg);
+  transform: rotate(-110deg);
+  display: inline-block;
+}
+
+.bordered {
+  border: 1px solid grey;
+  padding: 0 !important;
+  margin-left: 8px !important;
+  border-radius: 5px;
+}
+
+/* #region menues */
+
+.img-logo {
+  width: 150px;
+  margin-top: 15px;
+  margin-left: 20px;
+}
+
+.img-logo-cel {
+  width: 56px;
+  margin-top: 7px;
+}
+
+.bottom-navbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100vw;
+  height: 60px;
+  background: white;
+  border: 1px solid grey;
+  padding-top: 5px;
+  margin-bottom: 0;
+  z-index: 1000;
+}
+
+.top-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 40px;
+  background: white;
+  border: 1px solid grey;
+  padding: 0 0 10px 15px;
+  z-index: 1000;
+}
+
+.main-container {
+  margin-top: 40px;
+  /* height: calc(90vh - 30px); */
+  overflow-y: auto;
+}
+
+.navbar-option {
+  width: 25%;
+  text-align: center;
+  color: black;
+}
+
+.navbar-option i {
+  font-size: 2em;
+}
+
+.sercices-options {
+  box-shadow: 1px 1px 3px grey;
+  margin-bottom: 10px;
+  padding: 10px 20px;
+  font-size: 1.3em;
+  /* border: 1px solid lightgrey; */
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.sercices-options:hover {
+  background: lightgray;
+}
+
+.sercices-options i {
+  width: 10%;
+  text-align: center;
+}
+
+.fixed-action-btn {
+  bottom: 50px;
+}
+
+/* #endregion menues */
+
+/* #region mapa */
+
+.map {
+  width: 100%;
+  height: calc(100vh - 40px);
+}
+
+.leaflet-bottom.leaflet-left,
+.leaflet-bottom.leaflet-right {
+  display: none;
+}
+
+/* #endregion mapa */
+
+/* #region encendido */
+
+.switch2 label .lever:before,
+.switch2 label .lever:after {
+  width: 35px;
+  height: 35px;
+}
+
+.switch2 label .lever {
+  width: 65px;
+  height: 30px;
+}
+
+.switchLabel {
+  font-size: 1.5em;
+  color: black;
+  padding: 3px 5px;
+  margin-top: 8px;
+}
+
+.redBg {
+  color: white;
+  padding: 3px 5px;
+  background: darkgreen;
+}
+
+.blackBg {
+  color: white;
+  padding: 3px 5px;
+  background: red;
+}
+
+.switchControl {
+  border: 1px solid grey;
+  border-radius: 3px;
+  padding: 15px 0 !important;
+  box-shadow: 2px 2px 6px grey;
+}
+
+.switch label .lever {
+  margin-top: -10px;
+}
+
+.switch2 label input[type="checkbox"]:checked + .lever:before,
+.switch2 label input[type="checkbox"]:checked + .lever:after {
+  left: 30px;
+}
+
+/* #endregion encendido */
+
+/* #region spinner */
+
+.loader {
+  border: 5px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 5px solid #3498db;
+  width: 60px;
+  height: 60px;
+  -webkit-animation: spin 2s linear infinite; /* Safari */
+  animation: spin 2s linear infinite;
+}
+
+/* Safari */
+@-webkit-keyframes spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+#spinner {
+  display: none;
+  width: 100%;
+  height: 100vh;
+  position: absolute;
+  top: 0;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  z-index: 1000;
+}
+
+/* #endregion spinner */
+
+td,
+th {
+  border-bottom: 1px solid lightgrey;
+  padding: 5px;
+  text-align: center;
+}
+
+/* #region toast */
+
+@media only screen and (max-width: 600px) {
+  .toast {
+    margin: auto;
+    margin-bottom: 10px;
+    width: 95%;
+    border-radius: 3px;
+  }
+
+  #toast-container {
+    bottom: 5%;
+  }
+}
+
+/* #endregion toast */
+
+h6 {
+  background: lightgray;
+  padding: 2px 10px 4px 10px;
+}

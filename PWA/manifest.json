@@ -1,0 +1,51 @@
+{
+    "gcm_sender_id": "103953800507",
+    "name": "DTA-Agricola",
+    "short_name": "DTA-Agricola",
+    "description": "DTA-Agricola - Aplicacón para el monitoreo y control inteligente de sistemas de riego.",
+    "background_color": "#FFFFFF",
+    "theme_color": "#0000EF",
+    "orientation": "portrait",
+    "display": "standalone",
+    "start_url": "index.html",
+    "scope": "./",
+    "lang": "es-MX",
+    "icons": [
+        {
+            "src": "./assets/images/icons/res/mipmap-mdpi/DTA_Agricola.png",
+            "sizes": "48x48",
+            "type": "image/png",
+			"purpose": "any maskable" 
+        },
+        {
+            "src": "./assets/images/icons/res/mipmap-hdpi/DTA_Agricola.png",
+            "sizes": "72x72",
+            "type": "image/png",
+			"purpose": "any maskable" 
+        },
+        {
+            "src": "./assets/images/icons/res/mipmap-xhdpi/DTA_Agricola.png",
+            "sizes": "96x96",
+            "type": "image/png",
+			"purpose": "any maskable" 
+        },
+        {
+            "src": "./assets/images/icons/res/mipmap-xxhdpi/DTA_Agricola.png",
+            "sizes": "144x144",
+            "type": "image/png",
+			"purpose": "any maskable" 
+        },
+        {
+            "src": "./assets/images/icons/res/mipmap-xxxhdpi/DTA_Agricola.png",
+            "sizes": "192x192",
+            "type": "image/png",
+			"purpose": "any maskable" 
+        },
+        {
+            "src": "./assets/images/icons/DTA_Agricola_512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+			"purpose": "any maskable" 
+        }
+    ]
+}

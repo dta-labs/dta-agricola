@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="es" ng-app="Administracion">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="description" content="Sistema para la gestión eficiente de los campos y sus recursos naturales">
+    <meta name="author"
+        content="DTA-Labs (Laboratorio de Desarrollos Tecnológicos Avanzados) https://dta-labs.droppages.com/">
+    <title>DTA-Agricola v0.1b</title>
+    <link rel="shortcut icon" type="image/x-icon" href="assets/images/DTA-Agricola.png" />
+</head>
+
+<body ng-controller="ControladorPrincipal" ng-init="inicializacion()">
+
+    <!-- #region: MENU -->
+
+    <header>
+        <!-- Menú PC -->
+        <div class="show-in-pc-only">
+            <nav>
+                <div class="nav-wrapper green">
+                    <a href="#" class="brand-logo"><img class="img-logo" src="assets/images/DTA-Agricola lineal.png"
+                            alt="DTA-Agricola"></a>
+                    <ul id="nav-mobile" class="right hide-on-med-and-down">
+                        <li ng-click="showWindow('listado')" class="modal-trigger"><a href="#">Mis campos/parcelas</a>
+                        </li>
+                        <li ng-click="showWindow('servicios')"><a href="#">Servicios</a></li>
+                        <li ng-click="showWindow('notificaciones')"><a href="#">Notificaciones</a></li>
+                        <li ng-click="showWindow('login')" ng-show="!authUser"><a href="#">Registro</a></li>
+                        <li ng-click="userProfile()" ng-show="authUser" ng-click="logout()"><a href="#">Perfil</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </div>
+
+        <!-- Menú Movil-->
+        <div class="row bottom-navbar show-in-mobil-only" ng-show="authUser">
+            <div class="col navbar-option">
+                <a href="#!listado" ng-click="showWindow('listado')">
+                    <i class="fa fa-list" aria-hidden="true"></i>
+                </a>
+            </div>
+            <div class="col navbar-option modal-trigger" href="#modalLocalizaciones">
+                <a href="#!mapas" ng-click="showWindow('mapas')">
+                    <i class="material-icons">map</i>
+                </a>
+            </div>
+            <div class="col navbar-option">
+                <a href="#!servicios" ng-click="showWindow('servicios')">
+                    <i class="fa fa-th" aria-hidden="true"></i>
+                </a>
+            </div>
+            <div class="col navbar-option">
+                <a href="#!estadisticas" ng-click="showWindow('estadisticas')">
+                    <i class="fa fa-bar-chart-o" aria-hidden="true"></i>
+                </a>
+            </div>
+            <div class="col navbar-option" ng-show="!authUser">
+                <a href="#!login" ng-click="showWindow('login')">
+                    <i class="fa fa-user" aria-hidden="true"></i>
+                </a>
+            </div>
+            <div class="col navbar-option" ng-show="authUser" ng-click="logout()">
+                <img id="imgAuthMobil" src="{{authUser.photoURL}}" class="img-auth"
+                    style="width: 32px; height: 32px; border-radius: 50%;">
+            </div>
+        </div>
+
+        <!-- Spinner -->
+
+        <div id="spinner">
+            <div style="width: 100%; text-align: center;">
+                <div class="loader" style="margin: auto;"></div>
+                <p>Esperando confirmación...</p>
+            </div>
+        </div>
+
+        <!-- Ubicación actual -->
+
+        <!-- <div class="fixed-action-btn">
+            <a class="btn-floating white" ng-click="setMyPossition()">
+                <i class="fa fa-crosshairs black-text" aria-hidden="true"></i>
+            </a>
+        </div> -->
+
+    </header>
+
+    <!-- #endregion: MENU -->
+
+    <!-- #region: LISTADO -->
+
+    <section id="listado" ng-show="selectedWindow == 'listado'">
+
+        <div class="container">
+            <h5 style="border-bottom: solid;">Mis automatizaciones</h5>
+            <div class="text-center our-services" style="height: calc(90vh - 30px); overflow-y: auto;">
+                <ul>
+                    <li id="{{ system.key }}" class="sercices-options white-text" ng-repeat="system in systems"
+                        ng-click="selectSystem(system)" ng-show="system.name"
+                        style="background: {{ system.status == 'ON' ? 'lightseagreen' : 'grey' }};">
+                        <a href="#!sistema" ng-click="showWindow('home')" style="color: white !important">
+                            <div class="row" style="margin-bottom: 0;">
+                                <div class="col s2" style="margin-top: 10px;"><i class="fa fa-map-marker"
+                                        aria-hidden="true" style="font-size: 2em;"></i></div>
+                                <div class="col s9">
+                                    <span style="font-size: 1.2em;">{{ system.name }}</span><br>
+                                    <span style="font-size: .8em;">{{ system.type }}</span>
+                                </div>
+                                <!-- <div class="col s2" style="margin-top: 10px;">
+                                    <i class="fa fa-undo" aria-hidden="true" style="font-size: 2em;" ng-show="system.direction == 'RR'"></i>
+                                    <i class="fa fa-repeat" aria-hidden="true" style="font-size: 2em;" ng-show="system.direction == 'FF'"></i>
+                                </div> -->
+                                <div class="col s1" style="margin-top: 15px;"><i class="fa fa-chevron-right"
+                                        aria-hidden="true"></i></div>
+                            </div>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <br><br>
+        </div>
+
+    </section>
+
+    <!-- #endregion: LISTADO -->
+
+    <!-- #region: SISTEMA -->
+
+    <section id="sistema" ng-show="selectedWindow == 'sistema'">
+
+        <div class="container">
+            <h5 style="border-bottom: solid;">{{ actualSystem.name }}</h5>
+            <br>
+            <div class="switchControl input-field">
+                <div class="row">
+                    <div class="switch col s4 switchLabel" style="margin-top: -5px;">Encendido</div>
+                    <div class="switch col s8 center-align">
+                        <label>
+                            <span class="blackBg"><b>Off</b></span>
+                            <input type="checkbox" ng-model="actualSystem.status" ng-checked="actualSystem.status"
+                                ng-change="setMachineState()">
+                            <span class="lever"></span>
+                            <span class="redBg"><b>&nbsp;On&nbsp;</b></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="switch col s4 switchLabel" style="margin-top: -5px;">Dirección</div>
+                    <div class="switch col s8 center-align">
+                        <label>
+                            <span class="switchLabel"><i class="fa fa-undo" aria-hidden="true"
+                                    style="font-size: 1.5em !important;"></i></span>
+                            <input type="checkbox" ng-model="actualSystem.direction" ng-checked="actualSystem.direction"
+                                ng-change="setMachineSettings()">
+                            <span class="lever"></span>
+                            <span class="switchLabel"><i class="fa fa-repeat" aria-hidden="true"
+                                    style="font-size: 1.5em !important;"></i></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="switch col s4 switchLabel" style="margin-top: -5px;">Automático</div>
+                    <div class="switch col s8 center-align">
+                        <label>
+                            <span class="blackBg"><b>Off</b></span>
+                            <input type="checkbox" ng-model="actualSystem.irrigation"
+                                ng-checked="actualSystem.irrigation" ng-checked="actualSystem.irrigation"
+                                ng-change="setMachineSettings()">
+                            <span class="lever"></span>
+                            <span class="redBg"><b>&nbsp;On&nbsp;</b></span>
+                        </label>
+                    </div>
+                </div>
+                <!-- <div class="input-field col s12 m6" ng-show="actualSystem.irrigation == 'automatico'">
+                    <select id="sistemaSelector" ng-model="actualSystem.type" ng-change="setMachineSettings()">
+                        <optgroup label="Desplazamiento">
+                            <option value="Pivote central">Pivote central</option>
+                            <option value="Pivote lateral">Pivote lateral</option>
+                            <option value="Aspersor gigante (Cañón)">Aspersor gigante (Cañón)</option>
+                            <option value="Aspersor gigante (Enroyador)">Aspersor gigante (Enroyador)</option>
+                        </optgroup>
+                        <optgroup label="Estacionarios">
+                            <option value="Goteo de superficie">Goteo de superficie</option>
+                            <option value="Goteo subterráneo">Goteo subterráneo</option>
+                            <option value="Tubería móvil">Tubería móvil</option>
+                            <option value="Tubería fija">Tubería fija</option>
+                            <option value="Móviles">Móviles</option>
+                        </optgroup>
+                    </select>
+                    <label>Sistema de Riego</label>
+                </div> -->
+                <div class="row" ng-show="!actualSystem.irrigation">
+                    <div class="input-field col s4">
+                        <input id="inputLongitud" type="number" placeholder="0" min="0"
+                            value="{{ actualSystem.length }}" class="validate" ng-model="actualSystem.length"
+                            ng-change="setMachineSettings()">
+                        <label for="inputLongitud">Longitud (m)</label>
+                    </div>
+                    <div class="input-field col s4">
+                        <input id="inputCaudal" type="number" placeholder="0" min="0" value="{{ actualSystem.caudal }}"
+                            class="validate" ng-model="actualSystem.caudal" ng-change="setMachineSettings()">
+                        <label for="inputCaudal">Caudal (L/min)</label>
+                    </div>
+                    <div class="input-field col s4">
+                        <input id="inputVelocidad" type="number" placeholder="0" min="0"
+                            value="{{ actualSystem.velocity }}" class="validate" ng-model="actualSystem.velocity"
+                            ng-change="setMachineSettings()">
+                        <label for="inputVelocidad">Velocidad (%)</label>
+                    </div>
+                </div>
+                <div class="row" ng-show="actualSystem.irrigation">
+                    <div class="input-field col s4">
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input id="inputLongitud" type="number" placeholder="0" min="0"
+                                    value="{{ actualSystem.length }}" class="validate" ng-model="actualSystem.length"
+                                    ng-change="setMachineSettings()">
+                                <label for="inputLongitud">Longitud (m)</label>
+                            </div>
+                            <div class="input-field col s12">
+                                <input id="inputCaudal" type="number" placeholder="0" min="0"
+                                    value="{{ actualSystem.caudal }}" class="validate" ng-model="actualSystem.caudal"
+                                    ng-change="setMachineSettings()">
+                                <label for="inputCaudal">Caudal (L/min)</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-field col s8">
+                        <label for="placeholderPie" style="position: unset !important;">Planificación</label>
+                        <div id="placeholderPie" class="demo-placeholder" style="width: 160px; height: 160px;">
+                        </div>
+                    </div>
+                    <div class="input-field col s12"
+                        ng-show="(actualSystem.type.includes('Pivote') || actualSystem.type.includes('Aspersor')) && actualSystem.irrigation">
+                        <div style="background: lightseagreen; display: flex;">
+                            <i class="material-icons">slow_motion_video</i> Programación de riego
+                        </div>
+                        <table class="striped highlight">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Inicio</th>
+                                    <th>Final</th>
+                                    <th>Vel/Vol</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="plan in actualSystem.plans" ng-show="plan">
+                                    <td>
+                                        <i class='fa fa-clock-o' aria-hidden='true'
+                                            ng-show='plan.type == "velocity"'></i>
+                                        <i class='fa fa-tint' aria-hidden='true' ng-show='plan.type == "volume"'></i>
+                                    </td>
+                                    <td>{{ plan.starAngle }}</td>
+                                    <td>{{ plan.endAngle }}</td>
+                                    <td>{{ plan.value }}{{ plan.type == "velocity" ? " % " : " L/seg "}}</td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td colspan="2" class="right-align">
+                                        <div class="btn waves-effect waves-light red lighten-3 modal-trigger"
+                                            href="#modalResetRiego">
+                                            <i class="material-icons">delete</i>
+                                        </div>
+                                        <div class="btn waves-effect waves-light teal lighten-3 modal-trigger"
+                                            href="#modalRiego">
+                                            <i class="material-icons" ng-click="resetNewPlan()">add</i>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <img src="{{ actualSystem.type.includes('Pivote') || actualSystem.type.includes('Aspersor') ? 'assets/images/riegoPivote.png' : actualSystem.includes('Goteo') || actualSystem.includes('Tubería') ? 'assets/images/riegoGoteo.png' : actualSystem.type == 'Pozo' ? 'assets/images/riegoPozo.png' : 'assets/images/riegoVenturi.png' }}"
+                    style="width: 100%;" alt="imagen">
+            </div>
+            <br><br>
+            <br><br>
+        </div>
+
+        <!-- Modal plan de riego -->
+        <div id="modalRiego" class="modal">
+            <div class="modal-content">
+                <h6>Agregar nueva planificación</h6>
+                <div class="row" style="margin-top: 35px;">
+                    <div class="input-field col s6">
+                        <input id="planAnguloIni" type="number" placeholder="0" min="0" max="360">
+                        <label>Ángulo inicial</label>
+                    </div>
+                    <div class="input-field col s6">
+                        <input id="planAnduloFin" type="number" placeholder="360" min="0" max="360">
+                        <label>Ángulo final</label>
+                    </div>
+                    <div class="input-field col s6">
+                        <select id="planType">
+                            <option value="velocity">Velocidad</option>
+                            <option value="volume">Volumen</option>
+                        </select>
+                        <label>Type</label>
+                    </div>
+                    <div class="input-field col s6">
+                        <input id="planValue" type="number" placeholder="0" min="0">
+                        <label>Velocidad/Volumen</label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat"
+                    ng-click="resetNewPlan()">Cancelar</a>
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat" ng-click="setNewPlan()">Agregar</a>
+            </div>
+        </div>
+
+        <div id="modalResetRiego" class="modal">
+            <div class="modal-content">
+                <h6>Eliminar la planificación</h6>
+                <div class="row" style="margin-top: 35px;">
+                    Esto eliminará toda la programación del riego. ¿Seguro desea continuar?
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cancelar</a>
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat" ng-click="deletePlan()">Eliminar</a>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- #endregion: SISTEMA -->
+
+    <!-- #region: MAPAS -->
+
+    <section id="mapas" ng-show="selectedWindow == 'mapas'">
+
+        <div id="map" class="map"></div>
+
+        <!-- <div id="modalLocalizaciones" class="modal">
+            <div class="modal-content">
+                <h5 style="border-bottom: solid;">Mis Localizaciones</h5>
+                <p>
+                    <label>
+                        <input class="with-gap" name="localizaciones" type="radio" checked />
+                        <span>Campo 1</span>
+                    </label>
+                </p>
+                <p>
+                    <label>
+                        <input class="with-gap" name="localizaciones" type="radio" />
+                        <span>Campo 2</span>
+                    </label>
+                </p>
+                <p>
+                    <label>
+                        <input class="with-gap" name="localizaciones" type="radio" />
+                        <span>Campo 3</span>
+                    </label>
+                </p>
+            </div>
+            <div class="modal-footer">
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat">Agree</a>
+            </div> -->
+        </div>
+
+    </section>
+
+    <!-- #endregion: MAPAS -->
+
+    <!-- #region: SERVICIOS -->
+
+    <section id="servicios" ng-show="selectedWindow == 'servicios'">
+
+        <div class="container">
+            <div>
+                <h5 style="border-bottom: solid;">Nuestros servicios</h5>
+            </div>
+            <div class="text-center our-services">
+                <ul>
+                    <li ng-click="showWindow('listado')" class="sercices-options modal-trigger">
+                        <i class="fa fa-list" aria-hidden="true"></i>Mis campos/parcelas
+                    </li>
+                    <li ng-click="showWindow('mapas')" class="sercices-options modal-trigger">
+                        <i class="fa fa-map-marker" aria-hidden="true"></i>Vista global (Mapa)
+                    </li>
+                    <li ng-click="showWindow('estadisticas')" class="sercices-options">
+                        <i class="fa fa-bar-chart-o" aria-hidden="true"></i>Estadísiticas
+                    </li>
+                    <li ng-click="showWindow('notificaciones')" class="sercices-options">
+                        <i class="fa fa-bell-o" aria-hidden="true"></i>Notificaciones
+                    </li>
+                    <li ng-click="showWindow('login')" class="sercices-options">
+                        <i class="fa fa-cog" aria-hidden="true"></i>Configuraciones
+                    </li>
+                    <li ng-click="showWindow('login')" class="sercices-options">
+                        <i class="fa fa-question" aria-hidden="true"></i>Ayuda
+                    </li>
+                </ul>
+            </div>
+            <hr style="width: 30%" ng-show="selectedWindow == 'home'">
+        </div>
+
+    </section>
+
+    <!-- #endregion: SERVICIOS -->
+
+    <!-- #region: ESTADÍSTICAS -->
+
+    <section id="estadisticas" ng-show="selectedWindow == 'estadisticas'">
+
+        <div class="container">
+            <h5 style="border-bottom: solid;">Estadísticas</h5>
+            <div class="row">
+                <div class="col m12 col sm12 col xs12">
+                    <div class="dashboard_graph x_panel">
+                        <div class="row x_title">
+                            <div class="col m6">
+                                <h5>Agua <small>Consumo actual</small></h5>
+                            </div>
+                            <div class="col m6">
+                                <div id="reportrange" class="pull-right"
+                                    style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc">
+                                    <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+                                    <span>Enero 01, 2020 - Mayo 20, 2020</span> <b class="caret"></b>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="x_content">
+                            <div class="demo-container" style="height:250px">
+                                <div id="placeholder3xx3a" class="demo-placeholder" style="width: 100%; height:250px;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col m12 col sm12 col xs12">
+                    <div class="dashboard_graph x_panel">
+                        <div class="row x_title">
+                            <div class="col m6">
+                                <h5>Fertilizantes <small>Consumo actual</small></h5>
+                            </div>
+                            <div class="col m6">
+                                <div id="reportrange" class="pull-right"
+                                    style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc">
+                                    <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+                                    <span>Enero 01, 2020 - Mayo 20, 2020</span> <b class="caret"></b>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="x_content">
+                            <div class="demo-container" style="height:250px">
+                                <div id="placeholder3xx3b" class="demo-placeholder" style="width: 100%; height:250px;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <br>
+        </div>
+
+    </section>
+
+    <!-- #endregion: ESTADÍSTICAS -->
+
+    <!-- #region: NOTIFICACIONES -->
+
+    <section id="notificaciones" ng-show="selectedWindow == 'notificaciones'">
+
+        <div class="container">
+            <h5 style="border-bottom: solid;">Notificaciones</h5>
+            <p>No tiene ninguna notificación</p>
+        </div>
+
+    </section>
+
+    <!-- #endregion: NOTIFICACIONES -->
+
+    <!-- #region: USUARIOS -->
+
+    <section id="usuarios" ng-show="selectedWindow == 'login'">
+
+        <div class="container">
+            <h5 style="border-bottom: solid;">Acceder</h5>
+            <br>
+            <div id="firebaseui-auth-container"></div>
+        </div>
+
+        <!-- <div class="container">
+            <h5 style="border-bottom: solid;">Perfil</h5>
+            <br>
+            <div class="row">
+                <h6>Datos personales</h6>
+                <div class="row">
+                    <div class="form-group col s12">
+                        <label for="inputName">Nombre completo</label>
+                        <input type="text" class=" form-control form-control-sm" id="inputName"
+                            placeholder="Nombre y Apellidos">
+                    </div>
+                    <div class="form-group col s12">
+                        <label for="inputEmail">Correo electrónico</label>
+                        <input type="email" class=" form-control form-control-sm" id="inputEmail" placeholder="Email">
+                    </div>
+                </div>
+                <h6>Datos del trabajo</h6>
+                <div class="row">
+                    <div class="form-group col s12">
+                        <label for="inputAddress">Dirección</label>
+                        <input type="text" class=" form-control form-control-sm" id="inputAddress"
+                            placeholder="Calle y número">
+                    </div>
+                    <div class="form-group col s12">
+                        <label for="inputLocation">Localidad</label>
+                        <input type="text" class=" form-control form-control-sm" id="inputLocation"
+                            placeholder="Estado, localidad">
+                    </div>
+                    <div class="form-group col s12">
+                        <label for="inputZip">Código postal</label>
+                        <input type="text" class="form-control form-control-sm" id="inputZip" placeholder="Código ZIP">
+                    </div>
+                </div>
+                <h6>Datos contables</h6>
+                <div class="row">
+                    <div class="form-group col x12">
+                        <label for="inputCBancaria">Cuenta bancaria</label>
+                        <input type="text" class=" form-control form-control-sm" id="inputCBancaria"
+                            placeholder="Número de tarjeta, cuenta bancaria o cuenta en PayPal">
+                    </div>
+                </div>
+            </div>
+            <p id="profileErrorMessage" style="display: none; clear: both; color: red;">Por favor, complete
+                todos los campos correctamente!</p>
+            <p id="profileToS" style="clear: both;">Al continuar con el contrato, estaría aceptando
+                nuestros <a href="tos.html" target="blank">términos y condiciones</a></p>
+            <div class="row">
+                <div class="col xs12">
+                </div>
+            </div>
+            <div class="row">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" ng-click="showWindow('services')">Cancelar</button>
+                <button id="logout" type="button" class="btn btn-large btn-danger"
+                    ng-click="logout(); showWindow('services')" style="display: none;">Cerrar sesión</button>
+                <button type="button" class="btn btn-primary"
+                    ng-click="createContract(); showWindow('services')">Aceptar</button>
+            </div>
+            <br>
+            <br>
+            <br>
+            <br>
+        </div> -->
+
+    </section>
+
+    <!-- #endregion: USUARIOS -->
+
+    <!-- #region: CSS Y SCRIPTS -->
+
+    <link rel="stylesheet" href="assets/modules/font-awesome/css/font-awesome.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="assets/modules/materialize/css/materialize.min.css">
+    <link rel="stylesheet" href="assets/modules/leaflet/leaflet.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
+
+    <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/4.0.0/firebaseui.css" />
+
+    <script src="https://www.gstatic.com/firebasejs/5.10.1/firebase.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/ui/4.0.0/firebase-ui-auth__es_419.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.3.0/firebase-analytics.js"></script>
+    <script src="assets/js/firebaseComm.js"></script>
+    <!-- <script src="assets/modules/angularjs/angular.min.js"></script> -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular-route.js"></script>
+    <script src="assets/modules/materialize/js/materialize.min.js"></script>
+    <script src="assets/modules/leaflet/leaflet.js"></script>
+    <script src="assets/js/commons.js"></script>
+    <script src="assets/js/core.js"></script>
+    <script src="monitor/js/jquery.min.js"></script>
+    <!-- <script src="monitor/js/chartjs/chart.min.js"></script> -->
+    <script type="text/javascript" src="monitor/js/datepicker/daterangepicker.js"></script>
+
+    <!-- flot js -->
+    <!--[if lte IE 8]><script type="text/javascript" src="js/excanvas.min.js"></script><![endif]-->
+    <script type="text/javascript" src="monitor/js/flot/jquery.flot.js"></script>
+    <script type="text/javascript" src="monitor/js/flot/jquery.flot.pie.js"></script>
+    <script type="text/javascript" src="monitor/js/flot/jquery.flot.orderBars.js"></script>
+    <script type="text/javascript" src="monitor/js/flot/jquery.flot.time.min.js"></script>
+    <script type="text/javascript" src="monitor/js/flot/date.js"></script>
+    <script type="text/javascript" src="monitor/js/flot/jquery.flot.spline.js"></script>
+    <script type="text/javascript" src="monitor/js/flot/jquery.flot.stack.js"></script>
+    <script type="text/javascript" src="monitor/js/flot/curvedLines.js"></script>
+    <script type="text/javascript" src="monitor/js/flot/jquery.flot.resize.js"></script>
+    <script type="text/javascript" src="monitor/js/chartjs/chart.min.js"></script>
+
+    <!-- flot -->
+
+    <!-- #endregion: CSS Y SCRIPTS -->
+
+    <ng-view></ng-view>
+
+</body>
+
+</html>
+
+
+<script>
+    //random data
+    var d1 = [
+        [0, 1], [1, 9], [2, 6], [3, 10], [4, 5], [5, 17], [6, 6], [7, 10], [8, 7], [9, 11], [10, 35], [11, 9], [12, 12], [13, 5], [14, 3], [15, 4], [16, 9]
+    ];
+    var d2 = [
+        [0, 1], [1, 3], [2, 2], [3, 3], [4, 2], [5, 5], [6, 2], [7, 5], [8, 7], [9, 11], [10, 28], [11, 9], [12, 9], [13, 5], [14, 3], [15, 4], [16, 9]
+    ];
+
+    //flot options
+    var options = {
+        series: {
+            curvedLines: {
+                apply: true,
+                active: true,
+                monotonicFit: true
+            }
+        },
+        colors: ["#26B99A"],
+        grid: {
+            borderWidth: {
+                top: 0,
+                right: 0,
+                bottom: 1,
+                left: 1
+            },
+            borderColor: {
+                bottom: "#7F8790",
+                left: "#7F8790"
+            }
+        }
+    };
+
+    var plot = $.plot($("#placeholder3xx3a"), [{
+        label: "Consumo",
+        data: d1,
+        lines: {
+            fillColor: "rgba(150, 202, 89, 0.12)"
+        }, //#96CA59 rgba(150, 202, 89, 0.42)
+        points: {
+            fillColor: "#fff"
+        }
+    }], options);
+
+    var plot = $.plot($("#placeholder3xx3b"), [{
+        label: "Consumo",
+        data: d2,
+        lines: {
+            fillColor: "rgba(150, 202, 89, 0.12)"
+        }, //#96CA59 rgba(150, 202, 89, 0.42)
+        points: {
+            fillColor: "#fff"
+        }
+    }], options);
+
+</script>
+<!-- /flot -->
+<!--  -->
+<script>
+    $('document').ready(function () {
+        $(".sparkline_one").sparkline([2, 4, 3, 4, 5, 4, 5, 4, 3, 4, 5, 6, 7, 5, 4, 3, 5, 6], {
+            type: 'bar',
+            height: '40',
+            barWidth: 9,
+            colorMap: {
+                '7': '#a1a1a1'
+            },
+            barSpacing: 2,
+            barColor: '#26B99A'
+        });
+
+        $(".sparkline_two").sparkline([2, 4, 3, 4, 5, 4, 5, 4, 3, 4, 5, 6, 7, 5, 4, 3, 5, 6], {
+            type: 'line',
+            width: '200',
+            height: '40',
+            lineColor: '#26B99A',
+            fillColor: 'rgba(223, 223, 223, 0.57)',
+            lineWidth: 2,
+            spotColor: '#26B99A',
+            minSpotColor: '#26B99A'
+        });
+
+        var doughnutData = [
+            {
+                value: 30,
+                color: "#455C73"
+            },
+            {
+                value: 30,
+                color: "#9B59B6"
+            },
+            {
+                value: 60,
+                color: "#BDC3C7"
+            },
+            {
+                value: 100,
+                color: "#26B99A"
+            },
+            {
+                value: 120,
+                color: "#3498DB"
+            }
+        ];
+        var myDoughnut = new Chart(document.getElementById("canvas1").getContext("2d")).Doughnut(doughnutData);
+
+
+    })
+</script>
+<!-- -->
+<!-- datepicker -->
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        var cb = function (start, end, label) {
+            console.log(start.toISOString(), end.toISOString(), label);
+            $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+            //alert("Callback has fired: [" + start.format('MMMM D, YYYY') + " to " + end.format('MMMM D, YYYY') + ", label = " + label + "]");
+        }
+
+        var optionSet1 = {
+            startDate: moment().subtract(29, 'days'),
+            endDate: moment(),
+            minDate: '01/01/2012',
+            maxDate: '12/31/2015',
+            dateLimit: {
+                days: 60
+            },
+            showDropdowns: true,
+            showWeekNumbers: true,
+            timePicker: false,
+            timePickerIncrement: 1,
+            timePicker12Hour: true,
+            ranges: {
+                'Today': [moment(), moment()],
+                'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                'This Month': [moment().startOf('month'), moment().endOf('month')],
+                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+            },
+            opens: 'left',
+            buttonClasses: ['btn btn-default'],
+            applyClass: 'btn-small btn-primary',
+            cancelClass: 'btn-small',
+            format: 'MM/DD/YYYY',
+            separator: ' to ',
+            locale: {
+                applyLabel: 'Submit',
+                cancelLabel: 'Clear',
+                fromLabel: 'From',
+                toLabel: 'To',
+                customRangeLabel: 'Custom',
+                daysOfWeek: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
+                monthNames: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+                firstDay: 1
+            }
+        };
+        $('#reportrange span').html(moment().subtract(29, 'days').format('MMMM D, YYYY') + ' - ' + moment().format('MMMM D, YYYY'));
+        $('#reportrange').daterangepicker(optionSet1, cb);
+        $('#reportrange').on('show.daterangepicker', function () {
+            console.log("show event fired");
+        });
+        $('#reportrange').on('hide.daterangepicker', function () {
+            console.log("hide event fired");
+        });
+        $('#reportrange').on('apply.daterangepicker', function (ev, picker) {
+            console.log("apply event fired, start/end dates are " + picker.startDate.format('MMMM D, YYYY') + " to " + picker.endDate.format('MMMM D, YYYY'));
+        });
+        $('#reportrange').on('cancel.daterangepicker', function (ev, picker) {
+            console.log("cancel event fired");
+        });
+        $('#options1').click(function () {
+            $('#reportrange').data('daterangepicker').setOptions(optionSet1, cb);
+        });
+        $('#options2').click(function () {
+            $('#reportrange').data('daterangepicker').setOptions(optionSet2, cb);
+        });
+        $('#destroy').click(function () {
+            $('#reportrange').data('daterangepicker').remove();
+        });
+    });
+</script>
+<!-- /datepicker -->
+
+<!-- moris js -->
+<script src="js/moris/raphael-min.js"></script>
+<script src="js/moris/morris.js"></script>
+<script>
+    $(function () {
+        var day_data = [
+            {
+                "period": "Jan",
+                "Hours worked": 80
+            },
+            {
+                "period": "Feb",
+                "Hours worked": 125
+            },
+            {
+                "period": "Mar",
+                "Hours worked": 176
+            },
+            {
+                "period": "Apr",
+                "Hours worked": 224
+            },
+            {
+                "period": "May",
+                "Hours worked": 265
+            },
+            {
+                "period": "Jun",
+                "Hours worked": 314
+            }
+        ];
+        Morris.Bar({
+            element: 'graph_bar',
+            data: day_data,
+            hideHover: 'always',
+            xkey: 'period',
+            barColors: ['#26B99A', '#34495E', '#ACADAC', '#3498DB'],
+            ykeys: ['Hours worked', 'sorned'],
+            labels: ['Hours worked', 'SORN'],
+            xLabelAngle: 60
+        });
+    });
+</script>
+<!-- skycons -->
+<script>
+    var icons = new Skycons({
+        "color": "#73879C"
+    }),
+        list = [
+            "clear-day", "clear-night", "partly-cloudy-day",
+            "partly-cloudy-night", "cloudy", "rain", "sleet", "snow", "wind",
+            "fog"
+        ],
+        i;
+
+    for (i = list.length; i--;)
+        icons.set(list[i], list[i]);
+
+    icons.play();
+</script>
+<script>
+
+    var opts = {
+        lines: 12, // The number of lines to draw
+        angle: 0, // The length of each line
+        lineWidth: 0.4, // The line thickness
+        pointer: {
+            length: 0.75, // The radius of the inner circle
+            strokeWidth: 0.042, // The rotation offset
+            color: '#1D212A' // Fill color
+        },
+        limitMax: 'false', // If true, the pointer will not go past the end of the gauge
+        colorStart: '#1ABC9C', // Colors
+        colorStop: '#1ABC9C', // just experiment with them
+        strokeColor: '#F0F3F3', // to see which ones work best for you
+        generateGradient: true
+    };
+    var target = document.getElementById('foo2'); // your canvas element
+    var gauge = new Gauge(target).setOptions(opts); // create sexy gauge!
+    gauge.maxValue = 5000; // set max gauge value
+    gauge.animationSpeed = 32; // set animation speed (32 is default value)
+    gauge.set(3200); // set actual value
+    gauge.setTextField(document.getElementById("gauge-text2"));
+</script>
