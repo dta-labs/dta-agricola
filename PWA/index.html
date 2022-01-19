@@ -230,7 +230,9 @@
                         <div class="col s12 m6 xl4" id="{{ system.key }}" ng-repeat="system in systems"
                             ng-click="selectSystem(system)" ng-show="system.name">
                             <div class="sercices-options white-text"
-                                style="background: {{ system.type == 'Nogal' && system.status == 'ON' ? 'lightseagreen' : system.status == 'OFF' ? 'lightgrey' : system.log.voltage == 'false' ? 'red' : system.log.safety == 'false' ? 'palevioletred' : system.log.commDelay != '-1' ? 'grey' : 'lightseagreen' }};">
+                                style="background: {{ system.type == 'Nogal' && system.log.state == 'ON' ? 'lightseagreen' : 
+                                system.log.state == 'OFF' ? 'lightgrey' : system.log.voltage == 'false' ? 'red' : 
+                                system.log.safety == 'false' ? 'palevioletred' : system.log.commDelay != '-1' ? 'grey' : 'lightseagreen' }};">
                                 <a href="#!sistema" ng-click="showWindow('sistema')" style="color: white !important">
                                     <div class="row" style="margin-bottom: 0;">
                                         <div class="col s3" style="margin-top: 10px;">
@@ -460,9 +462,9 @@
                 <div class="main-container text-center our-services">
 
                     <div class="switchControl input-field" ng-click="showWindow('listado')"
-                        style=" background: {{ systems[actualSystem.key].type == 'Nogal' && systems[actualSystem.key].status == true ? 'lightseagreen' : 
-                                systems[actualSystem.key].status == false ? 'lightgrey' : systems[actualSystem.key].log.voltage == 'false' ? 'red' : 
-                                systems[actualSystem.key].log.safety == 'false' ? 'palevioletred' : systems[actualSystem.key].log.commDelay != '-1' ? 'grey' : 'lightseagreen' }};">
+                        style="background: {{ actualSystem.type == 'Nogal' && actualSystem.log.state == 'ON' ? 'lightseagreen' : 
+                                actualSystem.log.state == 'OFF' ? 'lightgrey' : actualSystem.log.voltage == 'false' ? 'red' : 
+                                actualSystem.log.safety == 'false' ? 'palevioletred' : actualSystem.log.commDelay != '-1' ? 'grey' : 'lightseagreen' }};">
                         <div class="row" style="margin-bottom: 0;">
                             <div class="col s2" style="margin: 2px 0 0 10px; cursor: pointer;">
                                 <i class="material-icons" style="font-size: 3.5em; margin-left: -10px;">chevron_left</i>

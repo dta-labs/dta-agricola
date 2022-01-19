@@ -212,8 +212,6 @@ app.controller("ControladorPrincipal", function ($scope) {
                 updateCompass();
                 let status = log.state;
                 hideSpinner(locationKey, status);
-                // showFields();
-                // initializeSystemMap($scope.systems[locationKey]);
                 if ($scope.actualSystem && locationKey == $scope.actualSystem.key) { $scope.selectSystem($scope.systems[locationKey]); }
                 $scope.$apply();
             }
@@ -706,7 +704,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         if (shape[campo.key]) { 
             map.removeLayer(shape[campo.key]);
         }
-        shape[campo.key] = semiCircle(coord, radius, campo.startAngle, campo.endAngle, getColor(campo, "fill"));
+        shape[campo.key] = semiCircle(coord, radius, campo.startAngle, campo.endAngle, $scope.getColor(campo, "fill"));
         map.addLayer(shape[campo.key]);
         
         if (campo.log && campo.log.latitude != "NaN" && campo.log.longitude != "NaN") {
@@ -740,9 +738,9 @@ app.controller("ControladorPrincipal", function ($scope) {
         }, options));
     }
 
-    getColor = (campo, type) => {
+    $scope.getColor = (campo, type) => {
         color = type == "fill" ? "lightseagreen" : "green" ;
-        return campo.log && !campo.log.voltage ? 'red' : campo.log && !campo.log.safety ? 'palevioletred' : campo.status ? color : 'lightgrey';
+        return campo.log && campo.log.voltage == "false" ? 'red' : campo.log && campo.log.safety == "false" ? 'palevioletred' : campo.log.state == "ON" ? color : 'lightgrey';
     }
 
     // function showFields() {

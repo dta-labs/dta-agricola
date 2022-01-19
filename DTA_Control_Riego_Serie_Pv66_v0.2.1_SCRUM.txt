@@ -63,11 +63,12 @@
 		
 	[ ] Bugs:
 		[x] Click en la circunferencia del pivote muestra/oculta los planes pero no oculta al resto de las ventanas abiertas << Caducado >>
-		[ ] Revisar los colores de señalización
-			[ ] No se refresca adecuadamente el color en:
-				[ ] Listado de equipos
-				[ ] Cabecera del equipo
-			[ ] Cuando se envía la orden de encendido o apagado recuerda el último color que estuvo (rojo, gris, gris oscuro, etc)
+		[x] Revisar los colores de señalización
+			[x] No se refresca adecuadamente el color en:
+				[x] Listado de equipos
+				[x] Cabecera del equipo
+				[x] Representación del equipo en el mapa
+			[x] Cuando se envía la orden de encendido o apagado recuerda el último color que estuvo (rojo, gris, gris oscuro, etc)
 		[ ] Error en el funcionamiento del spinner (encendido/apagado)
 
 [ ] Nube
