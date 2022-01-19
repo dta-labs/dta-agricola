@@ -124,7 +124,7 @@ body {
 .bordered {
   border: 1px solid grey;
   padding: 0 !important;
-  margin-left: 8px !important;
+  margin-left: 16px !important;
   border-radius: 5px;
 }
 
@@ -211,7 +211,8 @@ body {
 
 .map {
   width: 100%;
-  height: calc(100vh - 40px);
+  height: 250px;
+  z-index: 1;
 }
 
 .leaflet-bottom.leaflet-left,

@@ -11,9 +11,10 @@
 		[x] Eliminar un sensor
 		[x] Agregar una resistencia
 
-[ ] Calibración de la presión
-	[ ] Crear el sistema de calibración y volver a calibrar los sistemas
-		[ ] Extraer la ecuación de calibración
+[x] Calibración de la presión
+	[x] Leer el valor del sensor desde la rede
+		[x] Mapear el valor de la presión en base al valor leído
+	[x] Eliminar la ecuación de calibración
 
 ===== SOFTWARE =====
 
@@ -25,7 +26,7 @@
 	[ ] EEPROM
 		[x] Conservar los valores leidos con anterioridad
 		[ ] Guardar la última fecha de última conexión
-		[ ] Comprobar si el tiempo de última conexión sobrepasa un valor de tiempo específico y apagar el sistema 
+			[ ] Comprobar si el tiempo de última conexión sobrepasa un valor de tiempo específico y apagar el sistema 
 	[x] Enviar error de recepción de datos
 	[x] Declarar apagado del sistema
 		[x] Cuando hay falla de seguridad
@@ -34,37 +35,44 @@
 		[x] Restablecer la comunicación antes de 5 minutos
 	
 [ ] Software PWA
+	[x] Crear simbología rápida del estado del equipo
+		[x] Velocidad
+		[x] Posición del equipo
+		[x] Error del GPS
+		[x] Presión
+		[x] Calidad de señal de datos
+	[x] Datos generales
+		[x] Mostrar las coordenadas actuales
+		[x] Mostrar el error del GPS
 	[ ] Mejorar los resultados de la posición
 		[x] Agregar ajustes por parte de los usuarios
 		[x] Agregar la desviación magnética
 		[x] Agregar acceso a la web de cálculo de la desviación magnética
-	[ ] Crear simbología rápida del estado del equipo
-		[ ] Velocidad
-		[ ] Posición del equipo
-		[ ] Error del GPS
-		[ ] Presión
-		[ ] Calidad de señal de datos
-			[ ] Mensaje de advertencia de que el equipo puede no estar recibiendo las órdenes por la mala calidad de la señal
+		[ ] Manejo de los ajustes
 	[ ] Mejorar el mapa y la señalización gráfica de la posición
-	[ ] Agregar elestado del tiempo
-	[ ] Datos generales
-		[ ] Mostrar las coordenadas actuales
-		[ ] Mostrar el error del GPS
+		[x] Agregar semicírculos
+		[x] Mostrar la posición
+		[ ] Agregar mapa offline
+	[ ] Agregar el estado del tiempo
 	[ ] Ajustes
 		[ ] Editar las coordenadas del centro del equipo
-		[ ] Agregar valor máximo del sensor de presión
-		[ ] Agregar constantes de calibración para el sensor de presión
+		[ ] Ajustes de la presión
+			[x] Agregar valor máximo del sensor de presión
+			[ ] Agregar constantes de calibración
 	[ ] Procesar error de recepción de datos
 		
 	[ ] Bugs:
-		[ ] Revisar los colores cuando se envía la orden de encendido o apagado
-			[ ] Recuerda el último color que estuvo (rojo, gris, gris oscuro, etc)
-		[ ] Click en la circunferencia del pivote n muestra/oculta los planes pero no oculta al resto de las ventanas abiertas
+		[x] Click en la circunferencia del pivote muestra/oculta los planes pero no oculta al resto de las ventanas abiertas << Caducado >>
+		[ ] Revisar los colores de señalización
+			[ ] No se refresca adecuadamente el color en:
+				[ ] Listado de equipos
+				[ ] Cabecera del equipo
+			[ ] Cuando se envía la orden de encendido o apagado recuerda el último color que estuvo (rojo, gris, gris oscuro, etc)
 		[ ] Error en el funcionamiento del spinner (encendido/apagado)
 
 [ ] Nube
 	[x] Actualizar estado de apagado cuando hay falla de seguridad o la velocidad programada es 0%
-	[ ] Procesar error de recepción de datos
+	[-] Procesar error de recepción de datos
 
 ===== CLIENTES =====
 
