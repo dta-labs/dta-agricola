@@ -67,6 +67,9 @@
 				[x] Cabecera del equipo
 				[x] Representación del equipo en el mapa
 			[x] Cuando se envía la orden de encendido o apagado recuerda el último color que estuvo (rojo, gris, gris oscuro, etc)
+		[x] Evitar el autobloqueo de la pantalla
+		[x] Evitar el refrescamiento
+		[x] Evitar el zoom
 		[ ] Error en el funcionamiento del spinner (encendido/apagado)
 
 [ ] Nube

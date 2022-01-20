@@ -804,7 +804,17 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     // #endregion Leaflet
 
+    const requestWakeLock = async () => {
+        try {
+          const wakeLock = await navigator.wakeLock.request('screen');
+        } catch (err) {
+          // The wake lock request fails - usually system-related, such as low battery.
+          console.log(`${err.name}, ${err.message}`);
+        }
+    }
+      
     $scope.inicializacion = () => {
+        requestWakeLock();
         initializeMap();
         listenUserStatus();
         setTimeout(function () {
