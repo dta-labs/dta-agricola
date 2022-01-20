@@ -5,8 +5,8 @@
 	[x] Control de la bomba de agua
 	[ ] Gestión de la seguridad
 	
-[ ] Modificaciones en la caja de control última torre
-	[ ] Timer
+[x] Modificaciones en la caja de control última torre
+	[x] Timer
 	[x] Sensores de seguridad
 		[x] Eliminar un sensor
 		[x] Agregar una resistencia
@@ -48,11 +48,10 @@
 		[x] Ajustes de la presión
 			[x] Agregar valor máximo del sensor de presión
 		[x] Editar las coordenadas del centro del equipo
-	[ ] Mejorar los resultados de la posición
+	[x] Mejorar los resultados de la posición
 		[x] Agregar ajustes por parte de los usuarios
 		[x] Agregar la desviación magnética
 		[x] Agregar acceso a la web de cálculo de la desviación magnética
-		[ ] Manejo de los ajustes
 	[ ] Mejorar el mapa y la señalización gráfica de la posición
 		[x] Agregar semicírculos
 		[x] Mostrar la posición
