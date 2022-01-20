@@ -44,6 +44,10 @@
 	[x] Datos generales
 		[x] Mostrar las coordenadas actuales
 		[x] Mostrar el error del GPS
+	[x] Ajustes
+		[x] Ajustes de la presión
+			[x] Agregar valor máximo del sensor de presión
+		[x] Editar las coordenadas del centro del equipo
 	[ ] Mejorar los resultados de la posición
 		[x] Agregar ajustes por parte de los usuarios
 		[x] Agregar la desviación magnética
@@ -54,11 +58,6 @@
 		[x] Mostrar la posición
 		[ ] Agregar mapa offline
 	[ ] Agregar el estado del tiempo
-	[ ] Ajustes
-		[ ] Editar las coordenadas del centro del equipo
-		[ ] Ajustes de la presión
-			[x] Agregar valor máximo del sensor de presión
-			[ ] Agregar constantes de calibración
 	[ ] Procesar error de recepción de datos
 		
 	[ ] Bugs:

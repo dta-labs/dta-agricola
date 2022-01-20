@@ -696,6 +696,20 @@
                                         <td style="text-align: left;"><i class="fa fa-pencil" aria-hidden="true"
                                                 style="color: grey" ng-click="editName = !editName"></i></td>
                                     </tr>
+                                    <tr ng-init="editLatitude = true">
+                                        <td style="text-align: left;">Latitud central</td>
+                                        <td style="text-align: left;"><input type="number"
+                                                ng-model="actualSystem.latitude" ng-readonly="editLatitude"></td>
+                                        <td style="text-align: left;"><i class="fa fa-pencil" aria-hidden="true"
+                                                style="color: grey" ng-click="editLatitude = !editLatitude"></i></td>
+                                    </tr>
+                                    <tr ng-init="editLongitude = true">
+                                        <td style="text-align: left;">Longitud central</td>
+                                        <td style="text-align: left;"><input type="number"
+                                                ng-model="actualSystem.longitude" ng-readonly="editLongitude"></td>
+                                        <td style="text-align: left;"><i class="fa fa-pencil" aria-hidden="true"
+                                                style="color: grey" ng-click="editLongitude = !editLongitude"></i></td>
+                                    </tr>
                                     <tr ng-init="editStartAngle = true">
                                         <td style="text-align: left;">Ángulo inicial</td>
                                         <td style="text-align: left;"><input type="number"
@@ -731,7 +745,7 @@
                                         <td style="text-align: left;"><i class="fa fa-pencil" aria-hidden="true"
                                                 style="color: grey" ng-click="editSensorPresion = !editSensorPresion"></i></td>
                                     </tr>
-                                    <tr ng-init="editMagneticDesv = true">
+                                    <!-- <tr ng-init="editMagneticDesv = true">
                                         <td style="text-align: left;">Posición Desv. Magnéticia</td>
                                         <td style="text-align: left;"><input type="number"
                                                 ng-model="actualSystem.magneticDesv" ng-readonly="editMagneticDesv">
@@ -750,7 +764,7 @@
                                         <td style="text-align: left;"><i class="fa fa-pencil" aria-hidden="true"
                                                 style="color: grey" ng-click="editPosManualAdj = !editPosManualAdj"></i>
                                         </td>
-                                    </tr>
+                                    </tr> -->
                                     <tr ng-init="editZona = true">
                                         <td style="text-align: left;">Zona horaria</td>
                                         <td style="text-align: left;">
