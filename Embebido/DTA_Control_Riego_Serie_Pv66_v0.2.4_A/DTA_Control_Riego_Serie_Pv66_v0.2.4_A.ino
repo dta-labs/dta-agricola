@@ -24,7 +24,7 @@
 #pragma region Variables
 
 // #define telefono "000000000000"
-#define telefono "526251531996"
+#define telefono "526258372598"
 #define httpServer "AT+HTTPPARA=\"URL\",\"http://pprsar.com/cosme/comm_v2.php?id=" telefono
 // #define httpServer "AT+HTTPPARA=\"URL\",\"http://dtaamerica.com/ws/comm_v2.php?id=" telefono
 #define pinEngGunControl 4
@@ -69,13 +69,15 @@ static bool testComm = false;
 static String deviceType = "PC";                // PC | PL
 static String statusVar = "OFF";
 static String directionVar = "FF";
-static String sensorPresionVar = "ON";
+static byte sensorPresionVar = 0;
 static String autoreverseVar = "OFF";
 static String activateAutoreverse = "OFF";
 static String endGunVar = "OFF";
 static String particiones;
 static byte velocityVar = 0;
 static float positionVar = 0.0f;
+static int positionIni = 0;
+static int positionEnd = 0;
 static unsigned int activationTimer = 0;
 static unsigned int deactivationTimer = 0;
 static bool restartGSM = true;
@@ -86,7 +88,7 @@ static bool commRx = true;
 struct eeObject {
   char status[3];
   char direction[3];
-  char sensorPresion[3];
+  byte sensorPresion;
   byte velocity;
   float lat_central;
   float lon_central;
@@ -113,6 +115,9 @@ void setup() {
   apagar();
   Serial.println();
   Serial.println(F(">>> DTA-Agrícola: Serie Pv66 v0.2.4 A"));
+  Serial.print("    «");
+  Serial.print(telefono);
+  Serial.println("»");
   readEEPROM();
   wdt_enable(WDTO_8S);
   if (controlVoltaje()) {
@@ -142,8 +147,8 @@ void readEEPROM() {
   EEPROM.get(0, eeVar);
   statusVar = (String(eeVar.status) == "ON") ? "ON" : "OFF";
   directionVar = (String(eeVar.direction) == "RR") ? "RR" : "FF";
-  sensorPresionVar = (String(eeVar.sensorPresion) == "ON") ? "ON" : "OFF";
-  velocityVar = eeVar.velocity;
+  sensorPresionVar = eeVar.sensorPresion;
+  velocityVar = (eeVar.velocity > 100) ? 100 : (eeVar.velocity < 0) ? 0 : eeVar.velocity;
   lat_central = eeVar.lat_central;
   lon_central = eeVar.lon_central;
   Serial.print(F("EEPROM "));
@@ -153,7 +158,9 @@ void readEEPROM() {
   Serial.print(F(" "));
   Serial.print(directionVar);
   Serial.print(F(" "));
-  Serial.print(sensorPresionVar);
+  Serial.print((String)sensorPresionVar);
+  Serial.print(F(" "));
+  Serial.print((String)velocityVar);
   Serial.print(F(" "));
   Serial.print(String(lat_central, 6));
   Serial.print(F(" "));
@@ -163,14 +170,14 @@ void readEEPROM() {
 void updateEEPROM() {
   String stVar = (String(eeVar.status) == "ON") ? "ON" : "OFF";
   String diVar = (String(eeVar.direction) == "RR") ? "RR" : "FF";
-  String spVar = (String(eeVar.sensorPresion) == "ON") ? "ON" : "OFF";
-  int veVar = eeVar.velocity;
+  byte spVar = eeVar.sensorPresion;
+  byte veVar = eeVar.velocity;
   float latVar = eeVar.lat_central;
   float lonVar = eeVar.lon_central;
   if (statusVar != stVar || directionVar != diVar || sensorPresionVar != spVar || velocityVar != veVar || (lat_central != latVar && lat_central != 0.0f) || (lon_central != lonVar && lon_central != 0.0f)) {
     statusVar.toCharArray(eeVar.status, 3);
     directionVar.toCharArray(eeVar.direction, 3);
-    sensorPresionVar.toCharArray(eeVar.sensorPresion, 3);
+    eeVar.sensorPresion = sensorPresionVar;
     eeVar.velocity = velocityVar;
     eeVar.lat_central = (lat_central != 0.0f) ? lat_central : eeVar.lat_central;
     eeVar.lon_central = (lon_central != 0.0f) ? lon_central : eeVar.lon_central;
@@ -296,11 +303,11 @@ void controlAutomatico() {
   Serial.print((String)velocityVar);
   Serial.println(F("%)"));
   if (activationTimer > 0) {                                          // Control de encendido
-    for (int i = 0; i < activationTimer / 100; i++) {
-      if (controlVoltaje() && controlSeguridad()) {
+    for (int i = 0; i < activationTimer / 1000; i++) {
+      if (controlVoltaje() && controlSeguridad() && positionControl()) {
         digitalWrite(pinActivationTimer, LOW);
         digitalWrite(pinEngGunControl, (endGunVar == "ON") ? (serie == 0 ? LOW : HIGH) : (serie == 0 ? HIGH : LOW));
-        delay(100);          
+        // delay(100);          
       } else {
         Serial.println(F("Error: voltage or sequrity"));
         apagar();
@@ -322,7 +329,11 @@ void controlAutomatico() {
       wdt_reset();
     }
   }
+}
 
+bool positionControl() {
+  positionVar = getPosition();
+  return (positionIni <= positionVar && positionVar < positionEnd) ? true : false;
 }
 
 void apagar() {
@@ -376,8 +387,8 @@ bool controlVoltaje() {
 
 bool controlPresion() {
   bool result = true;
-  if (sensorPresionVar == "ON") {
-    result = (controlPresionAnalogica() > 0) ? true : false;
+  if (sensorPresionVar != 0) {
+    result = (controlPresionAnalogica() > 1) ? true : false;
   }
   return result;
 }
@@ -388,15 +399,16 @@ bool controlPresionDigital() {
 
 float controlPresionAnalogica() {
   float presionActual = 0.0f;
-  for (int i = 0; i < 3; i++) {
-    float pAnalog = presion.getAnalogValue();
-//    float temp = presion.fmap(pAnalog, 0, 1023, 0.0, 15.0) - 1.25;
-//    temp = (temp + 0.4018) / 0.7373;
-//    presionActual += temp > 0 ? temp : 0;
-    presionActual += pAnalog > 0 ? pAnalog : 0;
-    delay(10);
-  }
-  presionActual = presionActual / 3;
+    for (int i = 0; i < 3; i++) {
+      float pAnalog = presion.getAnalogValue();
+      float temp = presion.fmap(pAnalog, 0, 1023, 0.0, sensorPresionVar);
+//      float temp = presion.fmap(pAnalog, 0, 1023, 0.0, sensorPresionVar) - 1.25;
+//      temp = (temp + 0.4018) / 0.7373;
+      presionActual += temp > 0 ? temp : 0;
+//      presionActual += pAnalog > 0 ? pAnalog : 0;
+      delay(10);
+    }
+    presionActual = presionActual / 3;
   Serial.print(F("PresionF: "));
   Serial.println((String) presionActual);
   return presionActual;
@@ -475,6 +487,7 @@ void checkGPSConnection() {
 
 float getCompassPosition() {               // Posición por Brújula
   compass.read();
+  delay(1000);
   return (float) compass.getAzimuth();
 }
 
@@ -571,7 +584,7 @@ void comunicaciones() {
   directionVar = (aux == "FF" || aux == "RR") ? aux : directionVar;                  // > direction
   idx = data.indexOf('"', idx + 1);
   aux = data.substring(idx + 1, data.indexOf('"', idx + 1));
-  sensorPresionVar = (aux == "ON" || aux == "OFF") ? aux : sensorPresionVar;         // > sensor de presión
+  sensorPresionVar = (aux != "") ? aux.toInt() : sensorPresionVar;         // > sensor de presión
   // Set velocity
   idx = data.indexOf('"', idx + 1);
   aux = data.substring(idx + 1, data.indexOf('"', idx + 1));
@@ -591,15 +604,15 @@ void comunicaciones() {
   if (binds > 0) {
     for (int i = 0; i < binds; i++) {
       idx = data.indexOf('"', idx + 1);
-      int bindIni = (data.substring(idx + 1, data.indexOf('"', idx + 1))).toInt();   // inicio
+      positionIni = (data.substring(idx + 1, data.indexOf('"', idx + 1))).toInt();   // inicio
       idx = data.indexOf('"', idx + 1);
-      int bindFin = (data.substring(idx + 1, data.indexOf('"', idx + 1))).toInt();   // fin
+      positionEnd = (data.substring(idx + 1, data.indexOf('"', idx + 1))).toInt();   // fin
       idx = data.indexOf('"', idx + 1);
       int bindVel = (data.substring(idx + 1, data.indexOf('"', idx + 1))).toInt();   // velocidad
       idx = data.indexOf('"', idx + 1);
       String bindEndGun = (data.substring(idx + 1, data.indexOf('"', idx + 1)));     // end gun
-      if (bindIni <= positionVar && positionVar < bindFin) {
-        velocityVar = bindVel;
+      if (positionIni <= positionVar && positionVar < positionEnd) {
+        velocityVar = (bindVel > 100) ? 100 : (bindVel < 0) ? 0 : bindVel;
         endGunVar = (bindEndGun == "T") ? "ON" : "OFF";
         break;
       }
@@ -616,17 +629,17 @@ String httpRequest() {
   String param4 = "&vo=" + (String)(controlVoltaje() ? "true" : "false");
   String param5 = "&ar=" + activateAutoreverse;
   String param6 = "&sp=" + (String)velocityVar;
-  String param7 = "&pr=" + String(controlPresionAnalogica(), 1);
+  String param7 = "&pr=" + (String)controlPresionAnalogica();
   String param8 = "&po=" + String(positionVar, 1);
-  String param9 = "&la=" + String(lat_actual, 6);
-  String param10 = "&lo=" + String(lon_actual, 6);
+  String param9 = "&la=" + String(lat_actual, 5);
+  String param10 = "&lo=" + String(lon_actual, 5);
   String param11 = "&er=" + (String)errorGPS;
   String param12 = "&rx=" + (String)(commRx ? "Ok" : "Er");
   signalVar = getSignalValue();
   String param13 = "&si=" + (String)signalVar + "\"";
+//  Serial.println(httpServer + param1 + param2 + param3 + param4 + param5 + param6 + param7 + param8 + param9 + param10 + param11 + param12 + param13);
   gprs.println(F("AT+HTTPINIT"));
-  getResponse(15, false); 
-  // Serial.println(httpServer + param1 + param2 + param3 + param4 + param5 + param6 + param7 + param8 + param9 + param10 + param11 + param12 + param13);
+  getResponse(15, true); 
   gprs.println(httpServer + param1 + param2 + param3 + param4 + param5 + param6 + param7 + param8 + param9 + param10 + param11 + param12 + param13);
   getResponse(25, true); 
   wdt_reset();
