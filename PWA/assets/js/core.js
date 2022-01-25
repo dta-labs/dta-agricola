@@ -283,7 +283,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         setActualSystemPlans();
         invertLog();
         // $scope.actualSystem.posicionActual = parseInt($scope.actualSystem.log.position ? $scope.actualSystem.log.position : "0") + parseInt($scope.actualSystem.summerHour ? $scope.actualSystem.summerHour : "0");
-        showPlanRiegoPie();
+        // showPlanRiegoPie();
         hideTheSpinner();
         $scope.showWindow('sistema');
         updateCompass();
@@ -384,6 +384,9 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     $scope.actualSystemWindows = (win) => {
         $scope.as_config = win == "as_config" ? !$scope.as_config : false;
+        // if (win == "as_config") {
+        //     showPlanRiegoPie();
+        // }
         $scope.as_adjust = win == "as_adjust" ? !$scope.as_adjust : false;
         $scope.as_more = win == "as_more" ? !$scope.as_more : false;
         $scope.as_hist = win == "as_hist" ? !$scope.as_hist : false;
@@ -508,7 +511,7 @@ app.controller("ControladorPrincipal", function ($scope) {
             }
             $scope.actualSystem.plans[index] = newPlan;
             $scope.actualSystem.plansLength = length + 1;
-            showPlanRiegoPie();
+            // showPlanRiegoPie();
             $scope.setMachineSettings();
         }
     }
@@ -534,7 +537,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         ep.endAngle = document.getElementById("editPlanAnduloFin").value;
         ep.value = document.getElementById("editPlanValue").value;
         ep.endGun = document.getElementById("editEndGun").value;
-        showPlanRiegoPie();
+        // showPlanRiegoPie();
         $scope.setMachineSettings();
     }
 
@@ -567,7 +570,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         } else {
             dataPie = [{ "label": "0%", "data": 100 }];
         }
-        //drawPieGraph(dataPie);
+        // drawPieGraph(dataPie);
     }
 
     drawPieGraph = (dataPie) => {
@@ -610,7 +613,7 @@ app.controller("ControladorPrincipal", function ($scope) {
             addLayers();
         }
     }
-    
+
     addLayers = () => {
         let Satelite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
             attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
@@ -677,7 +680,7 @@ app.controller("ControladorPrincipal", function ($scope) {
             Lng: <b>${campo.longitude}</b>
         `;
 
-        if (!marker[campo.key]) { 
+        if (!marker[campo.key]) {
             // map.removeLayer(marker[campo.key]);
             marker[campo.key] = L.marker(coord);
             map.addLayer(marker[campo.key]);
@@ -695,24 +698,39 @@ app.controller("ControladorPrincipal", function ($scope) {
                 break;
             case "Nogal":
                 showNogal(campo);
-        } 
+        }
     }
 
     showPC = (campo) => {
         let radius = campo.length ? parseInt(campo.length) : 50;
         let coord = [campo.latitude, campo.longitude];
-        if (shape[campo.key]) { 
-            map.removeLayer(shape[campo.key]);
+        if (campo.plansLength && campo.plansLength > 1) {
+            for (i in campo.plans) {
+                if (shape[campo.key + i]) {
+                    map.removeLayer(shape[campo.key + i]);
+                }
+                if (campo.plans[i].value > 0) {
+                    shape[campo.key + i] = semiCircle(coord, radius, parseInt(campo.plans[i].starAngle), parseInt(campo.plans[i].endAngle), getRandomColor(campo.plans[i].value));
+                    map.addLayer(shape[campo.key + i]);
+                }
+            }
+        } else {
+            if (shape[campo.key]) {
+                map.removeLayer(shape[campo.key]);
+            }
+            shape[campo.key] = semiCircle(coord, radius, parseInt(campo.startAngle), parseInt(campo.endAngle), $scope.getColor(campo, "fill"));
+            map.addLayer(shape[campo.key]);
         }
-        shape[campo.key] = semiCircle(coord, radius, campo.startAngle, campo.endAngle, $scope.getColor(campo, "fill"));
-        map.addLayer(shape[campo.key]);
-        
+        showPCPosition(campo);
+    }
+    
+    showPCPosition = (campo) => {
         if (campo.log && campo.log.latitude != "NaN" && campo.log.longitude != "NaN") {
             polygon = [
                 [campo.latitude, campo.longitude],
                 [campo.log.latitude, campo.log.longitude]
             ];
-            if (indicator[campo.key]) { 
+            if (indicator[campo.key]) {
                 map.removeLayer(indicator[campo.key]);
             }
             indicator[campo.key] = L.polygon(polygon);
@@ -720,9 +738,9 @@ app.controller("ControladorPrincipal", function ($scope) {
         }
     }
 
-    showPL = (campo) => {}
+    showPL = (campo) => { }
 
-    showNogal = (campo) => {}
+    showNogal = (campo) => { }
 
     semiCircle = (coord, radius, startAngle, stopAngle, color) => {
         let options = {
@@ -739,8 +757,17 @@ app.controller("ControladorPrincipal", function ($scope) {
     }
 
     $scope.getColor = (campo, type) => {
-        color = type == "fill" ? "lightseagreen" : "green" ;
+        color = type == "fill" ? "lightseagreen" : "green";
         return campo.log && campo.log.voltage == "false" ? 'red' : campo.log && campo.log.safety == "false" ? 'palevioletred' : campo.log.state == "ON" ? color : 'lightgrey';
+    }
+
+    getRandomColor = (value) => {
+        let color = "#ff0000";
+        if (value > 0) {
+            let colors = ["#00FF00", "#82E0AA", "#2ECC71 ", "#28B463", "#239B56", "#1D8348", "#186A3B", "#1E8449", "#196F3D", "#145A32"];
+            color = colors[Math.floor(Math.random() * 10)];
+        }
+        return color;
     }
 
     // function showFields() {
@@ -806,13 +833,13 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     const requestWakeLock = async () => {
         try {
-          const wakeLock = await navigator.wakeLock.request('screen');
+            const wakeLock = await navigator.wakeLock.request('screen');
         } catch (err) {
-          // The wake lock request fails - usually system-related, such as low battery.
-          console.log(`${err.name}, ${err.message}`);
+            // The wake lock request fails - usually system-related, such as low battery.
+            console.log(`${err.name}, ${err.message}`);
         }
     }
-      
+
     $scope.inicializacion = () => {
         requestWakeLock();
         initializeMap();

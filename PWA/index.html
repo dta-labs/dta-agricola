@@ -484,6 +484,9 @@
                                     style="width: 60px; margin-left: -20px; margin-top: 5px;" alt="parcela"
                                     ng-show="systems[actualSystem.key].type == 'Nogal'">
                             </div>
+                            <!-- <div class="col s2">
+                                <div id="cont_6a5db8c49950a24d35c3f8422d19dd30"><script type="text/javascript" async src="https://www.meteored.mx/wid_loader/6a5db8c49950a24d35c3f8422d19dd30"></script></div>
+                            </div> -->
                         </div>
                     </div>
 
@@ -552,11 +555,11 @@
                         </div>
                         <div class="row" ng-show="actualSystem.type != 'Nogal'" style="margin-bottom: 0px;">
                             <div id="map" class="main-container map col s12 m8" style="margin-top: 0px; height: calc(100vh - 390px);"></div>
-                            <!-- <div class="input-field col s12 m4" style="text-align: center;height: 200px !important;"
-                                ng-click="actualSystemWindows('as_config')">
+                            <!-- <div class="input-field col s12 m4" style="text-align: center;height: 200px !important; position: absolute;"
+                                ng-click="actualSystemWindows('as_config')" ng-show="as_config">
                                 <div style="position: relative; z-index: 20;">
                                     <i class="material-icons"
-                                        style="transform: rotate(-45deg);color: gray;margin-left: 15px;">near_me</i>
+                                        style="transform: rotate(-45deg);color: white;margin-left: 15px;">near_me</i>
                                     <label for="placeholderPie" style="position: relative;top: 7px;left: -22px;">N</label>
                                     <div id="placeholderPie" class="demo-placeholder" style="height: 180px;">
                                     </div>
