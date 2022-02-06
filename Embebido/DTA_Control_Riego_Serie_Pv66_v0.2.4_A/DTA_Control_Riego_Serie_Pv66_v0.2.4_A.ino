@@ -1,7 +1,7 @@
 /****************************************************************
  *                                                              * 
  *                Sistemas DTA Serie Pv66 v0.2.4 A              *
- *                           2022.01.03                         *
+ *                           2022.01.27                         *
  *                                                              *
  *   Sensores:                                                  *
  *   - Atasco............... D9                                 *
@@ -24,7 +24,7 @@
 #pragma region Variables
 
 // #define telefono "000000000000"
-#define telefono "526258372598"
+#define telefono "526251452797"
 #define httpServer "AT+HTTPPARA=\"URL\",\"http://pprsar.com/cosme/comm_v2.php?id=" telefono
 // #define httpServer "AT+HTTPPARA=\"URL\",\"http://dtaamerica.com/ws/comm_v2.php?id=" telefono
 #define pinEngGunControl 4
@@ -34,7 +34,7 @@
 #define pinMotorFF 8
 #define pinSensorSeguridad 9
 #define pinSensorVoltaje 10
-#define serie 0                                 // 0 <= FL | 1 <= JQC
+#define serie 1                                 // 0 <= FL | 1 <= JQC
 #define restart asm("jmp 0x0000")
 #define positionSensor "GPS"                    // GPS | Compass
 
@@ -669,26 +669,6 @@ String getResponse(int wait, bool response){
   return result;
 }
 
-String getResponse2(bool response){
-  String result = "";
-  unsigned int timer = millis();
-  Serial.println(F("getGSM"));
-  while(!gprs.available()) {}
-  bool loop = true;
-  while(loop && millis() - timer < 10000) {
-    if(gprs.available() > 0) {
-      result += (char)gprs.read();
-    }
-    int idx = result.indexOf('+HTTPACTION:');
-    if(idx != -1 && result.indexOf('\r\n', idx + 1) != -1) { loop = false; }
-    delay(1.5);
-  }
-  if (response) {
-    Serial.println(result);
-  }
-  return result;
-}
-
 int getSignalValue() {
   gprs.println(F("AT+CSQ"));           // Calidad de la señal -  debe ser 9 o superior: +CSQ: 14,0 OK
   String aux1 = getResponse(15, false);
@@ -704,13 +684,6 @@ void commWatchDogReset(int signalValue) {
   Serial.println(commError);
   if (commError == 5) {
     while (true) { delay(1000); }
-  }
-}
-
-void clearGSM() {
-  gprs.flush();
-  while (gprs.available()) {
-    gprs.read();
   }
 }
 
