@@ -23,8 +23,8 @@
 SoftwareSerial gprs(3, 4);                  // RX, TX
 // #define telefono = "526251477680"
 #define telefono "111111111111"
-#define httpServer "AT+HTTPPARA=\"URL\",\"http://pprsar.com/cosme/commj.php?id=" telefono
-// #define httpServer "AT+HTTPPARA=\"URL\",\"http://dtaamerica.com/ws/commj.php?id=" telefono
+#define httpServer "AT+HTTPPARA=\"URL\",\"http://pprsar.com/cosme/commj_v2.php?id=" telefono
+// #define httpServer "AT+HTTPPARA=\"URL\",\"http://dtaamerica.com/ws/commj_v2.php?id=" telefono
 
 // Actuadores y variables
 static bool testComm = false;
@@ -326,7 +326,7 @@ void comunicaciones() {
   aux = parse(data, '"', 2);                                 // > initial plot
   byte lastPlot = plot;
   plot = (aux != "") ? aux.toInt() : plot;
-  if (lastPlot != plot) {                                    // Avisar del cambio de estado
+  if (lastPlot != plot) {                                    // Avisar del cambio de parcela
     setActivationTime(); 
   }
   aux = parse(data, '"', 3);                                 // > timeRiego1
