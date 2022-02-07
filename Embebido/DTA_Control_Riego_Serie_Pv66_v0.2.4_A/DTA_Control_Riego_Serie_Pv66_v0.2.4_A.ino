@@ -23,8 +23,8 @@
 
 #pragma region Variables
 
-// #define telefono "000000000000"
-#define telefono "526251452797"
+#define telefono "000000000000"
+// #define telefono "526251452797"
 #define httpServer "AT+HTTPPARA=\"URL\",\"http://pprsar.com/cosme/comm_v2.php?id=" telefono
 // #define httpServer "AT+HTTPPARA=\"URL\",\"http://dtaamerica.com/ws/comm_v2.php?id=" telefono
 #define pinEngGunControl 4

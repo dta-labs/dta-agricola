@@ -12,14 +12,14 @@
 
 	$data = json_decode($response);
 	//print_r($data);
-	$timeZone = $data->zona; // Zona horaria
-	$summerHour = $data->summerHour; // Horario de verano
+	$timeZone = $data->zona ? $data->zona : 0; // Zona horaria
+	$summerHour = $data->summerHour ? $data->summerHour : 0; // Horario de verano
 	$localZone = intval($timeZone) + intval($summerHour);
 	
 	$lectura = "\"" . $data->status . "\"" . $data->position;
 	for ($i = 0; $i < 7; $i++) {
 		$p = "p" . $i;
-		$lectura .= "\"" . $data->plans->$p->value;
+		$lectura .= "\"" . $data->plots->$p->value;
 	}
 	$lectura .=  "\"";
 
@@ -40,7 +40,6 @@
 		$item = (object) $value;
 		$status = $item->{'state'};
 		$initialDate = $item->{'date'};
-		$voltage = $item->{'voltage'};
 	}
 	$zona = $localZone . ' hours';
 	$dateTime = new DateTime();
