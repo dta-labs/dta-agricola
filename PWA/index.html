@@ -8,7 +8,7 @@
     <meta name="description" content="Sistema para la gestión eficiente de los campos y sus recursos naturales">
     <meta name="author"
         content="DTA-Labs (Laboratorio de Desarrollos Tecnológicos Avanzados) https://dta-labs.droppages.com/">
-    <meta name="theme-color" content="#0000EF"/>
+    <meta name="theme-color" content="#0000EF" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
     <title>DTA-Agricola v0.2b</title>
@@ -21,7 +21,7 @@
     <link rel="apple-touch-icon" sizes="72x72" href="./assets/images/icons/res/mipmap-hdpi/DTA_Agricola.png">
     <link rel="apple-touch-icon" sizes="48x48" href="./assets/images/icons/res/mipmap-mdpi/DTA_Agricola.png">
     <link rel="apple-touch-startup-image" href="./assets/images/DTA-Agricola.png">
-    <meta name="apple-mobile-web-app-title" content="DTA-Agricola v0.1b">  
+    <meta name="apple-mobile-web-app-title" content="DTA-Agricola v0.1b">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
 
@@ -127,7 +127,8 @@
                 </div>
             </div>
 
-            <div class="row bottom-navbar" ng-show="selectedWindow == 'mapas' || selectedWindow == 'estadisticas' || selectedWindow == 'notificaciones' || selectedWindow == 'ayuda' || selectedWindow == 'usuarios'"
+            <div class="row bottom-navbar"
+                ng-show="selectedWindow == 'mapas' || selectedWindow == 'estadisticas' || selectedWindow == 'notificaciones' || selectedWindow == 'ayuda' || selectedWindow == 'usuarios'"
                 ng-click="showWindow('servicios')" style="border-radius: 10px 10px 0 0;">
                 <div class="col s12 center-align" style="font-size: 1.3em; margin-top: 10px;">
                     <i class="fa fa-arrow-left" aria-hidden="true" style="margin-top: 5px;"></i>
@@ -232,18 +233,18 @@
                         <div class="col s12 m6 xl4" id="{{ system.key }}" ng-repeat="system in systems"
                             ng-click="selectSystem(system)" ng-show="system.name">
                             <div class="sercices-options white-text"
-                                style="background: {{ system.type == 'Nogal' && system.log.state == 'ON' ? 'lightseagreen' : 
+                                style="background: {{ system.type == 'Estacionario' && system.log.state == 'ON' ? 'lightseagreen' : 
                                 system.log.state == 'OFF' ? 'lightgrey' : system.log.voltage == 'false' ? 'red' : 
                                 system.log.safety == 'false' ? 'palevioletred' : system.log.commDelay != '-1' ? 'grey' : 'lightseagreen' }};">
                                 <a href="#!sistema" ng-click="showWindow('sistema')" style="color: white !important">
                                     <div class="row" style="margin-bottom: 0;">
                                         <div class="col s3" style="margin-top: 10px;">
-                                            <div class="pivote" ng-show="system.type != 'Nogal'">
+                                            <div class="pivote" ng-show="system.type != 'Estacionario'">
                                                 <div class="esfera">
                                                     <div id="pos_{{ system.key }}" class="brazo"></div>
                                                 </div>
                                             </div>
-                                            <div ng-show="system.type == 'Nogal'">
+                                            <div ng-show="system.type == 'Estacionario'">
                                                 <img src="/assets/images/parcela.png" class="parcela_icon"
                                                     alt="parcela">
                                             </div>
@@ -265,7 +266,7 @@
                                             </span>
                                             <span style="font-size: .8em;">
                                                 <i class="fa fa-tint" aria-hidden="true"></i>
-                                                        {{ system.log.presion ? system.log.presion : 0 }}psi
+                                                {{ system.log.presion ? system.log.presion : 0 }}psi
                                             </span>
                                             <br>
                                             <span ng-show="system.status == 'OFF'" style="font-size: .8em;"><b>
@@ -332,23 +333,22 @@
                     <h6>Agregar equipo</h6>
                     <div class="row" style="margin-top: 35px;">
                         <div class="input-field col s12">
-                            <input id="newDeviceKey" type="text" placeholder="Código del equipo"
-                                ng-model="newDevice.key">
-                            <label for="newDeviceKey">Código del equipo</label>
-                        </div>
-                        <div class="input-field col s12">
                             <input id="newDeviceName" type="text" placeholder="Nombre del equipo"
                                 ng-model="newDevice.name">
                             <label for="newDeviceName">Nombre</label>
                         </div>
                         <div class="input-field col s12">
-                            <select class="select" ng-model="newDevice.type">
+                            <input id="newDeviceKey" type="text" placeholder="Código del equipo"
+                                ng-model="newDevice.key">
+                            <label for="newDeviceKey">Código del equipo</label>
+                        </div>
+                        <div class="input-field col s12">
+                            <select class="select" ng-model="newDevice.type" ng-change="setNewDeviceParams()">
                                 <option value="" disabled selected>Seleccione un tipo</option>
                                 <option value="PC" data-icon="assets/images/riegoPivote.png">Pivote central</option>
                                 <option value="PL" data-icon="assets/images/riegoPivote.png">Pivote lineal</option>
-                                <option value="Goteo" data-icon="assets/images/riegoGoteo.png">Riego por goteo</option>
-                                <option value="Aspersión" data-icon="assets/images/riegoVenturi.png">Aspersión
-                                    estacionarios</option>
+                                <option value="Estacionario" data-icon="assets/images/riegoEstacionario.png">
+                                    Estacionario (Estacionario/Aspersión)</option>
                                 <option value="Pozo" data-icon="assets/images/riegoPozo.png">Bombeo</option>
                             </select>
                             <label for="newDeviceType">Tipo de equipo</label>
@@ -377,10 +377,18 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="input-field col s6">
+                        <div class="input-field col s6" ng-show="newDevice.type == 'PC' || newDevice.type == 'PL'">
                             <input id="newDeviceLarge" type="number" placeholder="Largo del equipo"
                                 ng-model="newDevice.length">
                             <label for="newDeviceLarge">Largo del equipo</label>
+                        </div>
+                        <div class="input-field col s6"
+                            ng-show="newDevice.type != 'PC' && newDevice.type != 'PL' && newDevice.type != 'PL'">
+                            <select class="select" ng-model="newDevice.length">
+                                <option value="4">J0004 (3 válvulas + pozo)</option>
+                                <option value="8">J0008 (7 válvulas + pozo)</option>
+                            </select>
+                            <label for="newDeviceLarge">Serie</label>
                         </div>
                         <div class="input-field col s6" ng-init="newDevice.zona = '0'">
                             <!-- <input id="newDeviceZona" type="number" placeholder="Zona" ng-model="newDevice.zona"> -->
@@ -464,7 +472,7 @@
                 <div class="main-container text-center our-services">
 
                     <div class="switchControl input-field" ng-click="showWindow('listado')"
-                        style="background: {{ actualSystem.type == 'Nogal' && actualSystem.log.state == 'ON' ? 'lightseagreen' : 
+                        style="background: {{ actualSystem.type == 'Estacionario' && actualSystem.log.state == 'ON' ? 'lightseagreen' : 
                                 actualSystem.log.state == 'OFF' ? 'lightgrey' : actualSystem.log.voltage == 'false' ? 'red' : 
                                 actualSystem.log.safety == 'false' ? 'palevioletred' : actualSystem.log.commDelay != '-1' ? 'grey' : 'lightseagreen' }};">
                         <div class="row" style="margin-bottom: 0;">
@@ -478,11 +486,11 @@
                                 <span>{{ systems[actualSystem.key].log.update }}</span>
                             </div>
                             <div class="col s2" style="margin: 2px 0 0 10px; text-align: right;">
-                                <i class="material-icons" ng-show="systems[actualSystem.key].type != 'Nogal'"
+                                <i class="material-icons" ng-show="systems[actualSystem.key].type != 'Estacionario'"
                                     style="font-size: 3.5em; margin-left: -10px;">filter_tilt_shift</i>
                                 <img src="/assets/images/parcela-black.png"
                                     style="width: 60px; margin-left: -20px; margin-top: 5px;" alt="parcela"
-                                    ng-show="systems[actualSystem.key].type == 'Nogal'">
+                                    ng-show="systems[actualSystem.key].type == 'Estacionario'">
                             </div>
                             <!-- <div class="col s2">
                                 <div id="cont_6a5db8c49950a24d35c3f8422d19dd30"><script type="text/javascript" async src="https://www.meteored.mx/wid_loader/6a5db8c49950a24d35c3f8422d19dd30"></script></div>
@@ -492,21 +500,10 @@
 
                     <div class="switchControl input-field"
                         style="background: rgba(255,255,255,.9); min-height: calc(100vh - 220px);">
-                        <div class="row center-align" style="margin-bottom: 0px;">
+                        <div class="row hide-on-med-and-up" style="margin-bottom: 0px;">
                             <!-- <div class="switch switch2 col s4 switchLabel" style="margin-top: -5px;">Encendido</div> -->
-                            <div class="col s5 m12 row bordered">
-                                <div id="encendido" class="col s12 m6" style="font-size: 1em; margin-bottom: 5px;">Encendido</div>
-                                <div class="col s12 m6 switch switch" style="padding: 0px; margin-bottom: 10px;">
-                                    <label>
-                                        <span class="blackBg"><b>Off</b></span>
-                                        <input type="checkbox" ng-model="actualSystem.status"
-                                            ng-checked="actualSystem.status" ng-change="setMachineState()">
-                                        <span class="lever"></span>
-                                        <span class="redBg"><b>&nbsp;On&nbsp;</b></span>
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="col s5 m12 row bordered" ng-show="actualSystem.type != 'Nogal'">
+                            <div class="col s5 m12 row center-align bordered"
+                                ng-show="actualSystem.type != 'Estacionario'">
                                 <div id="direccion" class="col s12 m6" style="font-size: 1em;">Dirección</div>
                                 <div class="col s12 m6 switch switch" style="padding: 0px; margin-bottom: 10px;">
                                     <label>
@@ -520,87 +517,141 @@
                                     </label>
                                 </div>
                             </div>
-                        </div>
-                        <div class="row" ng-show="actualSystem.type == 'Nogal'">
-                            <!-- <div class="input-field col s4" ng-show="actualSystem.type != 'Nogal'">
-                                <input id="inputLongitud" type="number" placeholder="0" min="0"
-                                    value="{{ actualSystem.length }}" class="validate" ng-model="actualSystem.length"
-                                    ng-change="setMachineSettings()">
-                                <label for="inputLongitud">Longitud (m)</label>
-                            </div> -->
-                            <!-- <div class="input-field col s4" ng-show="actualSystem.type != 'Nogal'">
-                                <input id="inputCaudal" type="number" placeholder="0" min="0"
-                                    value="{{ actualSystem.caudal }}" class="validate" ng-model="actualSystem.caudal"
-                                    ng-change="setMachineSettings()">
-                                <label for="inputCaudal">Caudal (L/min)</label>
-                            </div> -->
-                            <div class="input-field col s4">
-                                <input id="inputVelocidad" type="number" placeholder="0" min="0"
-                                    value="{{ actualSystem.velocity }}" class="validate"
-                                    ng-model="actualSystem.velocity" ng-change="setMachineSettings()">
-                                <label for="inputVelocidad">Tiempo (min)</label>
-                            </div>
-                            <div class="input-field col s4">
-                                <input id="inputParcelas" type="number" placeholder="1" min="1"
-                                    value="{{ actualSystem.plots }}" class="validate" ng-model="actualSystem.plots"
-                                    ng-change="setMachineSettings()">
-                                <label for="inputParcelas">Parcelas</label>
-                            </div>
-                            <div class="input-field col s4">
-                                <input id="inputPosicion" type="number" placeholder="0" min="0"
-                                    value="{{ actualSystem.position }}" class="validate"
-                                    ng-model="actualSystem.position" ng-change="setMachineSettings()">
-                                <label for="inputPosicion">Posición actual</label>
-                            </div>
-                        </div>
-                        <div class="row" ng-show="actualSystem.type != 'Nogal'" style="margin-bottom: 0px;">
-                            <div id="map" class="main-container map col s12 m8" style="margin-top: 0px; height: calc(100vh - 390px);"></div>
-                            <!-- <div class="input-field col s12 m4" style="text-align: center;height: 200px !important; position: absolute;"
-                                ng-click="actualSystemWindows('as_config')" ng-show="as_config">
-                                <div style="position: relative; z-index: 20;">
-                                    <i class="material-icons"
-                                        style="transform: rotate(-45deg);color: white;margin-left: 15px;">near_me</i>
-                                    <label for="placeholderPie" style="position: relative;top: 7px;left: -22px;">N</label>
-                                    <div id="placeholderPie" class="demo-placeholder" style="height: 180px;">
+                            <div class="col s6 m12 {{ actualSystem.type == 'Estacionario' ? 'offset-s5' : ''}}">
+                                <div class="row center-align bordered">
+                                    <div id="encendido" class="col s12 m6" style="font-size: 1em; margin-bottom: 5px;">
+                                        Encendido</div>
+                                    <div class="col s12 m6 switch switch" style="padding: 0px; margin-bottom: 10px;">
+                                        <label>
+                                            <span class="blackBg"><b>Off</b></span>
+                                            <input type="checkbox" ng-model="actualSystem.status"
+                                                ng-checked="actualSystem.status" ng-change="setMachineState()">
+                                            <span class="lever"></span>
+                                            <span class="redBg"><b>&nbsp;On&nbsp;</b></span>
+                                        </label>
                                     </div>
-                                    <div class="esferaInterior">
-                                        <div id="as_pos_{{ actualSystem.key }}" class="brazo" style="border-color: black;">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" style="margin-bottom: 0px;">
+                            <div id="map" class="main-container map col s12 m8"
+                                style="margin-top: 0px; height: calc(100vh - 390px);"></div>
+                            <div class="input-field col s12 m4" style="margin-bottom: 0;">
+                                <div class="row">
+                                    <div class="row hide-on-small-only" style="margin-bottom: 0px;">
+                                        <!-- <div class="switch switch2 col s4 switchLabel" style="margin-top: -5px;">Encendido</div> -->
+                                        <div class="col m11">
+                                            <div class="row center-align bordered">
+                                                <div id="encendido" class="col s12 m4"
+                                                    style="font-size: 1em; margin-bottom: 5px;">Encendido</div>
+                                                <div class="col s12 m8 switch switch"
+                                                    style="padding: 0px; margin-bottom: 10px;">
+                                                    <label>
+                                                        <span class="blackBg"><b>Off</b></span>
+                                                        <input type="checkbox" ng-model="actualSystem.status"
+                                                            ng-checked="actualSystem.status"
+                                                            ng-change="setMachineState()">
+                                                        <span class="lever"></span>
+                                                        <span class="redBg"><b>&nbsp;On&nbsp;</b></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col m11" ng-show="actualSystem.type != 'Estacionario'">
+                                            <div class="row center-align bordered">
+                                                <div id="direccion" class="col s12 m4" style="font-size: 1em;">Dirección
+                                                </div>
+                                                <div class="col s12 m8 switch"
+                                                    style="padding: 0px; margin-bottom: 10px;">
+                                                    <label>
+                                                        <span class="switchLabel"><i class="fa fa-undo"
+                                                                aria-hidden="true"
+                                                                style="font-size: 1.5em !important;"></i></span>
+                                                        <input type="checkbox" ng-model="actualSystem.direction"
+                                                            ng-checked="actualSystem.direction"
+                                                            ng-change="setMachineSettings()">
+                                                        <span class="lever"></span>
+                                                        <span class="switchLabel"><i class="fa fa-repeat"
+                                                                aria-hidden="true"
+                                                                style="font-size: 1.5em !important;"></i></span>
+                                                    </label>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div> -->
-                            <div class="input-field col s12 m4" style="margin-bottom: 0;">
-                                <!-- <label for="placeholderPie" style="position: unset !important;">Información</label> -->
-                                <div class="row" style="margin-bottom: 0;">
-                                    <div class="bordered col s2 m12 row" style="border-bottom: 1px solid grey; margin-bottom: 15px;">
-                                        <div class="col s12 m2 center-align"><i class="material-icons">network_check</i></div>
+                                <div class="row" style="margin-bottom: 0;"
+                                    ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'">
+                                    <div class="bordered col s2 m11 row"
+                                        style="border-bottom: 1px solid grey; margin-bottom: 15px;">
+                                        <div class="col s12 m2 center-align"><i class="material-icons">network_check</i>
+                                        </div>
                                         <div class="col s12 m10 center-align">
                                             <b>{{ actualSystem.log.speed ? actualSystem.log.speed : 0 }}</b>%
                                         </div>
                                     </div>
-                                    <div class="bordered col s2 m12 row"
+                                    <div class="bordered col s2 m11 row"
                                         style="border-bottom: 1px solid grey; margin-bottom: 15px; margin-bottom: 10px;">
                                         <div class="col s12 m2 center-align"><i class="material-icons">near_me</i></div>
                                         <div class="col s12 m10 center-align">
                                             <b>{{ actualSystem.log.position ? actualSystem.log.position : 0 }}</b>°
                                         </div>
                                     </div>
-                                    <div class="bordered col s2 m12 row" style="border-bottom: 1px solid grey; margin-bottom: 15px;">
+                                    <div class="bordered col s2 m11 row"
+                                        style="border-bottom: 1px solid grey; margin-bottom: 15px;">
                                         <div class="col s12 m2 center-align"><i class="material-icons">search</i></div>
                                         <div class="col s12 m10 center-align">
                                             <b>{{ actualSystem.log.error ? actualSystem.log.error : 0 }}</b>cm
                                         </div>
                                     </div>
-                                    <div class="bordered col s2 m12 row" style="border-bottom: 1px solid grey; margin-bottom: 15px;">
+                                    <div class="bordered col s2 m11 row"
+                                        style="border-bottom: 1px solid grey; margin-bottom: 15px;">
                                         <div class="col s12 m2 center-align"><i class="fa fa-tint" aria-hidden="true"
-                                            style="font-size: 1.7em; margin: 2px 0 3px 0;"></i></div>
+                                                style="font-size: 1.7em; margin: 2px 0 3px 0;"></i></div>
                                         <div class="col s12 m10 center-align">
                                             <b>{{ actualSystem.log.presion ? actualSystem.log.presion : 0 }}</b>psi
                                             <!-- <b>{{ actualSystem.log.presion ? actualSystem.log.presion * actualSystem.sensorPresion / 1024 : 0 }}</b>psi -->
                                         </div>
                                     </div>
-                                    <div class="bordered col s2 m12 row" style="border-bottom: 1px solid grey; margin-bottom: 15px;">
-                                        <div class="col s12 m2 center-align"><i class="material-icons">rss_feed</i></div>
+                                    <div class="bordered col s2 m11 row"
+                                        style="border-bottom: 1px solid grey; margin-bottom: 15px;">
+                                        <div class="col s12 m2 center-align"><i class="material-icons">rss_feed</i>
+                                        </div>
+                                        <div class="col s12 m10 center-align">
+                                            <b>{{ actualSystem.log.signal ? actualSystem.log.signal : 0 }}</b>/30
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" style="margin-bottom: 0;"
+                                    ng-show="actualSystem.type == 'Estacionario'">
+                                    <div class="bordered col s4 m11 row"
+                                        style="border-bottom: 1px solid grey; margin-bottom: 15px;">
+                                        <div class="col s12 m2 center-align"><i class="material-icons">alarm</i></div>
+                                        <div class="col s12 m10 center-align">
+                                            <b>{{ actualSystem.log.activationTime ?
+                                                msToTime(actualSystem.log.activationTime) : 0 }}</b>
+                                        </div>
+                                    </div>
+                                    <div class="bordered col s2 m11 row"
+                                        style="border-bottom: 1px solid grey; margin-bottom: 15px;">
+                                        <div class="col s12 m2 center-align"><i class="material-icons">map</i></div>
+                                        <div class="col s12 m10 center-align">
+                                            <b>{{ actualSystem.log.plot ? actualSystem.log.plot : 0 }}</b>
+                                        </div>
+                                    </div>
+                                    <div class="bordered col s2 m11 row"
+                                        style="border-bottom: 1px solid grey; margin-bottom: 15px;">
+                                        <div class="col s12 m2 center-align"><i class="fa fa-tint" aria-hidden="true"
+                                                style="font-size: 1.7em; margin: 2px 0 3px 0;"></i></div>
+                                        <div class="col s12 m10 center-align">
+                                            <b>{{ actualSystem.log.presion ? actualSystem.log.presion : 0 }}</b>psi
+                                            <!-- <b>{{ actualSystem.log.presion ? actualSystem.log.presion * actualSystem.sensorPresion / 1024 : 0 }}</b>psi -->
+                                        </div>
+                                    </div>
+                                    <div class="bordered col s2 m11 row"
+                                        style="border-bottom: 1px solid grey; margin-bottom: 15px;">
+                                        <div class="col s12 m2 center-align"><i class="material-icons">rss_feed</i>
+                                        </div>
                                         <div class="col s12 m10 center-align">
                                             <b>{{ actualSystem.log.signal ? actualSystem.log.signal : 0 }}</b>/30
                                         </div>
@@ -608,7 +659,8 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row" ng-show="actualSystem.type != 'Nogal' && as_config">
+                        <div class="row"
+                            ng-show="(actualSystem.type == 'PC' || actualSystem.type == 'PL') && as_config">
                             <div class="col s12">
                                 <div class="btn" ng-click="as_config = !as_config" style="width: 100%;">
                                     <span style="position: absolute; left: 20px; font-size: 2em;">
@@ -679,7 +731,120 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row" ng-show="actualSystem.type != 'Nogal' && as_adjust">
+                        <div class="row" ng-show="actualSystem.type == 'Estacionario' && as_config">
+                            <div class="col s12">
+                                <div class="btn" ng-click="as_config = !as_config" style="width: 100%;">
+                                    <span style="position: absolute; left: 20px; font-size: 2em;">
+                                        <i class="material-icons">slow_motion_video</i>
+                                    </span>
+                                    <span>
+                                        Programación del riego
+                                    </span>
+                                    <span style="position: absolute; right: 20px;">
+                                        <i class="fa fa-chevron-down" aria-hidden="true" ng-show="!as_config"></i>
+                                        <i class="fa fa-chevron-up" aria-hidden="true" ng-show="as_config"></i>
+                                    </span>
+                                </div>
+                                <div ng-show="as_config">
+                                    <table class="striped highlight">
+                                        <thead>
+                                            <tr>
+                                                <th width="5%">#</th>
+                                                <th width="35%">Polígono</th>
+                                                <th width="20%">Días</th>
+                                                <th width="20%">Horas</th>
+                                                <th width="20%">Min</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr class="modal-trigger" href="#modalEditRiegoEstacionario"
+                                                ng-click="setEditPlanEstacionario('p0')">
+                                                <td width="5%">1</td>
+                                                <td width="35%">{{ actualSystem.plots.p0.poligon ? "Ver más..." : "No
+                                                    definido" }}</td>
+                                                <td width="20%">{{ getDayFromMs(actualSystem.plots.p0.value) }}</td>
+                                                <td width="20%">{{ getHourFromMs(actualSystem.plots.p0.value) }}
+                                                <td width="20%">{{ getMinutesFromMs(actualSystem.plots.p0.value) }}</td>
+                                            </tr>
+                                            <tr class="modal-trigger" href="#modalEditRiegoEstacionario"
+                                                ng-click="setEditPlanEstacionario('p1')">
+                                                <td width="5%">2</td>
+                                                <td width="35%">{{ actualSystem.plots.p1.poligon ? "Ver más..." : "No
+                                                    definido" }}</td>
+                                                <td width="20%">{{ getDayFromMs(actualSystem.plots.p1.value) }}</td>
+                                                <td width="20%">{{ getHourFromMs(actualSystem.plots.p1.value) }}
+                                                <td width="20%">{{ getMinutesFromMs(actualSystem.plots.p1.value) }}</td>
+                                            </tr>
+                                            <tr class="modal-trigger" href="#modalEditRiegoEstacionario"
+                                                ng-click="setEditPlanEstacionario('p2')">
+                                                <td width="5%">3</td>
+                                                <td width="35%">{{ actualSystem.plots.p2.poligon ? "Ver más..." : "No
+                                                    definido" }}</td>
+                                                <td width="20%">{{ getDayFromMs(actualSystem.plots.p2.value) }}</td>
+                                                <td width="20%">{{ getHourFromMs(actualSystem.plots.p2.value) }}
+                                                <td width="20%">{{ getMinutesFromMs(actualSystem.plots.p2.value) }}</td>
+                                            </tr>
+                                            <tr class="modal-trigger" href="#modalEditRiegoEstacionario"
+                                                ng-show="actualSystem.length == '8'"
+                                                ng-click="setEditPlanEstacionario('p3')">
+                                                <td width="5%">4</td>
+                                                <td width="35%">{{ actualSystem.plots.p3.poligon ? "Ver más..." : "No
+                                                    definido" }}</td>
+                                                <td width="20%">{{ getDayFromMs(actualSystem.plots.p3.value) }}</td>
+                                                <td width="20%">{{ getHourFromMs(actualSystem.plots.p3.value) }}
+                                                <td width="20%">{{ getMinutesFromMs(actualSystem.plots.p3.value) }}</td>
+                                            </tr>
+                                            <tr class="modal-trigger" href="#modalEditRiegoEstacionario"
+                                                ng-show="actualSystem.length == '8'"
+                                                ng-click="setEditPlanEstacionario('p4')">
+                                                <td width="5%">5</td>
+                                                <td width="35%">{{ actualSystem.plots.p4.poligon ? "Ver más..." : "No
+                                                    definido" }}</td>
+                                                <td width="20%">{{ getDayFromMs(actualSystem.plots.p4.value) }}</td>
+                                                <td width="20%">{{ getHourFromMs(actualSystem.plots.p4.value) }}
+                                                <td width="20%">{{ getMinutesFromMs(actualSystem.plots.p4.value) }}</td>
+                                            </tr>
+                                            <tr class="modal-trigger" href="#modalEditRiegoEstacionario"
+                                                ng-show="actualSystem.length == '8'"
+                                                ng-click="setEditPlanEstacionario('p5')">
+                                                <td width="5%">6</td>
+                                                <td width="35%">{{ actualSystem.plots.p5.poligon ? "Ver más..." : "No
+                                                    definido" }}</td>
+                                                <td width="20%">{{ getDayFromMs(actualSystem.plots.p5.value) }}</td>
+                                                <td width="20%">{{ getHourFromMs(actualSystem.plots.p5.value) }}
+                                                <td width="20%">{{ getMinutesFromMs(actualSystem.plots.p5.value) }}</td>
+                                            </tr>
+                                            <tr class="modal-trigger" href="#modalEditRiegoEstacionario"
+                                                ng-show="actualSystem.length == '8'"
+                                                ng-click="setEditPlanEstacionario('p6')">
+                                                <td width="5%">7</td>
+                                                <td width="35%">{{ actualSystem.plots.p6.poligon ? "Ver más..." : "No
+                                                    definido" }}</td>
+                                                <td width="20%">{{ getDayFromMs(actualSystem.plots.p6.value) }}</td>
+                                                <td width="20%">{{ getHourFromMs(actualSystem.plots.p6.value) }}
+                                                <td width="20%">{{ getMinutesFromMs(actualSystem.plots.p6.value) }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="5" class="right-align">
+                                                    <div class="switch">
+                                                        Cíclico
+                                                        <label>
+                                                            <span class="blackBg"><b>Off</b></span>
+                                                            <input type="checkbox" ng-model="actualSystem.autoreverse"
+                                                                ng-checked="actualSystem.autoreverse"
+                                                                ng-change="setMachineSettings()">
+                                                            <span class="lever"></span>
+                                                            <span class="redBg"><b>&nbsp;On&nbsp;</b></span>
+                                                        </label>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" ng-show="as_adjust">
                             <div class="col s12">
                                 <div class="btn" ng-click="as_adjust = !as_adjust" style="width: 100%;">
                                     <span style="position: absolute; left: 20px;">
@@ -715,7 +880,7 @@
                                         <td style="text-align: left;"><i class="fa fa-pencil" aria-hidden="true"
                                                 style="color: grey" ng-click="editLongitude = !editLongitude"></i></td>
                                     </tr>
-                                    <tr ng-init="editStartAngle = true">
+                                    <!-- <tr ng-init="editStartAngle = true">
                                         <td style="text-align: left;">Ángulo inicial</td>
                                         <td style="text-align: left;"><input type="number"
                                                 ng-model="actualSystem.startAngle" ng-readonly="editStartAngle"></td>
@@ -728,8 +893,8 @@
                                                 ng-model="actualSystem.endAngle" ng-readonly="editEndAngle"></td>
                                         <td style="text-align: left;"><i class="fa fa-pencil" aria-hidden="true"
                                                 style="color: grey" ng-click="editEndAngle = !editEndAngle"></i></td>
-                                    </tr>
-                                    <tr ng-init="editRadio = true">
+                                    </tr> -->
+                                    <tr ng-init="editRadio = true" ng-show="actualSystem.type != 'Estacionario'">
                                         <td style="text-align: left;">Radio</td>
                                         <td style="text-align: left;"><input type="number"
                                                 ng-model="actualSystem.length" ng-readonly="editRadio"></td>
@@ -746,9 +911,11 @@
                                     <tr ng-init="editSensorPresion = true">
                                         <td style="text-align: left;">Max. val. sensor presión</td>
                                         <td style="text-align: left;"><input type="number"
-                                                ng-model="actualSystem.sensorPresion" ng-readonly="editSensorPresion"></td>
+                                                ng-model="actualSystem.sensorPresion" ng-readonly="editSensorPresion">
+                                        </td>
                                         <td style="text-align: left;"><i class="fa fa-pencil" aria-hidden="true"
-                                                style="color: grey" ng-click="editSensorPresion = !editSensorPresion"></i></td>
+                                                style="color: grey"
+                                                ng-click="editSensorPresion = !editSensorPresion"></i></td>
                                     </tr>
                                     <!-- <tr ng-init="editMagneticDesv = true">
                                         <td style="text-align: left;">Posición Desv. Magnéticia</td>
@@ -880,7 +1047,7 @@
                                         <td style="text-align: left;">Sistema</td>
                                         <td style="text-align: left;"><i>{{ actualSystem.type }}</i></td>
                                     </tr>
-                                    <tr>
+                                    <tr ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'">
                                         <td style="text-align: left;">Marca</td>
                                         <td style="text-align: left;"><i>{{ actualSystem.brand }}</i></td>
                                     </tr>
@@ -893,22 +1060,24 @@
                                         <td style="text-align: left;"><i>{{ actualSystem.key }}</i></td>
                                     </tr>
                                     <tr>
-                                        <td style="text-align: left;">Centro</td>
+                                        <td style="text-align: left;">Ubicación</td>
                                         <td style="text-align: left;"><i>{{ actualSystem.latitude }}, {{
                                                 actualSystem.longitude }}</i>
                                         </td>
                                     </tr>
-                                    <tr>
+                                    <tr ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'">
                                         <td style="text-align: left;">Posición</td>
                                         <td style="text-align: left;">
                                             <i><b>
-                                                {{ actualSystem.log.latitude ? actualSystem.log.latitude : 0 }}, {{ actualSystem.log.longitude ? actualSystem.log.longitude : 0 }}
-                                            </b></i>
+                                                    {{ actualSystem.log.latitude ? actualSystem.log.latitude : 0 }}, {{
+                                                    actualSystem.log.longitude ? actualSystem.log.longitude : 0 }}
+                                                </b></i>
                                         </td>
                                     </tr>
-                                    <tr>
+                                    <tr ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'">
                                         <td style="text-align: left;">Precisión</td>
-                                        <td style="text-align: left;"><i><b>{{ actualSystem.log.error ? actualSystem.log.error : 0 }}</b> cm</i>
+                                        <td style="text-align: left;"><i><b>{{ actualSystem.log.error ?
+                                                    actualSystem.log.error : 0 }}</b> cm</i>
                                         </td>
                                     </tr>
                                 </table>
@@ -932,19 +1101,45 @@
                                     <p></p>
                                     <!-- <div class="col s12" ng-repeat="reg in logs[actualSystem.key] | orderBy: '-date'"> -->
                                     <div class="col s12" ng-repeat="reg in invertedRegisters">
-                                        <div class="sercices-options gray-text white">
-                                            [{{ reg.date }}] - Sistema {{ reg.state == "ON" ? "encendido" : "apagado" }}
-                                            {{ reg.safety == "true" ? "" : " -> Error de Atasco" }} {{ reg.safety < 1
-                                                ? "" : " -> Presión baja" }} <br>
-                                                Posición: {{ reg.position }} {{ reg.direction == "FF" ? "avanzando" :
-                                                "retrocediendo" }} al {{ reg.speed }}% <br>
+                                        <div class="sercices-options gray-text white"
+                                            ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'"
+                                            style="background: {{ reg.state == 'ON' ? 'lightseagreen !important' : 'lightgray !important' }}; color: {{ reg.state == 'ON' ? 'white' : 'black' }};">
+                                            [{{ reg.update }}] - {{ reg.state == "ON" ? "Encendido" : "Apagado" }} <br>
+                                            {{ (reg.safety == "false" ? "¡Error de Atasco! | " : "") }}
+                                            <i class="fa fa-undo" style="font-size: .8em;"
+                                                ng-show="reg.direction == 'RR'"></i>
+                                            <i class="fa fa-repeat" style="font-size: .8em;"
+                                                ng-show="reg.direction == 'FF'"></i>
+                                            <span style="font-size: .8em;">
+                                                <i class="material-icons" style="font-size: .9em;">near_me</i>
+                                                {{ reg.position ? reg.position : 0 }}°
+                                            </span>
+                                            <span style="font-size: .8em;">
+                                                <i class="material-icons" style="font-size: .9em;">network_check</i>
+                                                {{ reg.speed ? reg.speed : 0}}%
+                                            </span>
+                                            <span style="font-size: .8em;">
+                                                <i class="fa fa-tint" aria-hidden="true"></i>
+                                                {{ reg.presion < 1 ? "Presión Baja" : "Presión Normal" }} </span>
+                                        </div>
+                                        <div class="sercices-options gray-text white"
+                                            ng-show="actualSystem.type == 'Estacionario'"
+                                            style="background: {{ reg.state == 'ON' ? 'lightseagreen !important' : 'lightgray !important' }}; color: {{ reg.state == 'ON' ? 'white' : 'black' }};">
+                                            [{{ reg.update }}] - {{ reg.state == "ON" ? "Encendido" : "Apagado" }} <br>
+                                            <span style="font-size: .8em;">
+                                                <!-- <i class="material-icons" style="font-size: .9em;">near_me</i> -->
+                                                Parcela: {{ reg.plot }} -> {{ msToTime(reg.activationTime) }}
+                                            </span>
+                                            <span style="font-size: .8em;">
+                                                <i class="fa fa-tint" aria-hidden="true"></i>
+                                                {{ reg.presion < 1 ? "Presión Baja" : "Presión Normal" }} </span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <!-- <div class="row" ng-show="!as_config && !as_adjust && !as_more && !as_hist">
-                            <img src="{{ actualSystem.type.includes('Pivote Central') || actualSystem.type.includes('PC') || actualSystem.type.includes('PL') ? 'assets/images/riegoPivote.png' : actualSystem.includes('Goteo') || actualSystem.type.includes('Aspersor') || actualSystem.includes('Tubería') ? 'assets/images/riegoGoteo.png' : actualSystem.type == 'Pozo' ? 'assets/images/riegoPozo.png' : 'assets/images/riegoVenturi.png' }}"
+                            <img src="{{ actualSystem.type.includes('Pivote Central') || actualSystem.type.includes('PC') || actualSystem.type.includes('PL') ? 'assets/images/riegoPivote.png' : actualSystem.includes('Estacionario') || actualSystem.type.includes('Aspersor') || actualSystem.includes('Tubería') ? 'assets/images/riegoEstacionario.png' : actualSystem.type == 'Pozo' ? 'assets/images/riegoPozo.png' : 'assets/images/riegoVenturi.png' }}"
                                 style="width: 100%;" alt="imagen">
                         </div> -->
                     </div>
@@ -1053,46 +1248,42 @@
                 </div>
             </div>
 
+            <div id="modalEditRiegoEstacionario" class="modal">
+                <div class="modal-content">
+                    <h6>Editar planificación</h6>
+                    <div class="row" style="margin-top: 35px;">
+                        <div class="input-field col s12">
+                            <label>Polígono</label>
+                            <textarea id="editPoligon" rows="4" cols="50"
+                                placeholder="[[lat1, lon1], [lat2, lon2]]"></textarea>
+                        </div>
+                        <div class="input-field col s4">
+                            <input id="editDay" type="number" placeholder="0" min="0" max="30">
+                            <label>Días</label>
+                        </div>
+                        <div class="input-field col s4">
+                            <input id="editHour" type="number" placeholder="0" min="0" max="24">
+                            <label>Horas</label>
+                        </div>
+                        <div class="input-field col s4">
+                            <input id="editMinutes" type="number" placeholder="0" min="0" max="60">
+                            <label>Minutos</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input id="planEstacionarioId" type="hidden">
+                    <a href="#!" class="modal-close waves-effect grey waves-grey btn-flat white-text">
+                        <i class="material-icons">&nbsp;&nbsp;reply&nbsp;&nbsp;</i></a>
+                    <a href="#!" class="modal-close waves-effect teal waves-green btn-flat white-text"
+                        ng-click="editPlanEstacionario()"><i
+                            class="material-icons">&nbsp;&nbsp;check&nbsp;&nbsp;</i></a>
+                </div>
+            </div>
+
         </section>
 
         <!-- #endregion: SISTEMA -->
-
-        <!-- #region: MAPAS -->
-
-        <section id="mapas" ng-show="selectedWindow == 'mapas'">
-
-            <!-- <div id="map" class="main-container map"></div> -->
-
-            <!-- <div id="modalLocalizaciones" class="modal">
-                <div class="modal-content">
-                    <h5 style="border-bottom: solid;">Mis Localizaciones</h5>
-                    <p>
-                        <label>
-                            <input class="with-gap" name="localizaciones" type="radio" checked />
-                            <span>Campo 1</span>
-                        </label>
-                    </p>
-                    <p>
-                        <label>
-                            <input class="with-gap" name="localizaciones" type="radio" />
-                            <span>Campo 2</span>
-                        </label>
-                    </p>
-                    <p>
-                        <label>
-                            <input class="with-gap" name="localizaciones" type="radio" />
-                            <span>Campo 3</span>
-                        </label>
-                    </p>
-                </div>
-                <div class="modal-footer">
-                    <a href="#!" class="modal-close waves-effect waves-green btn-flat">Agree</a>
-                </div>
-            </div> -->
-
-        </section>
-
-        <!-- #endregion: MAPAS -->
 
         <!-- #region: SERVICIOS -->
 

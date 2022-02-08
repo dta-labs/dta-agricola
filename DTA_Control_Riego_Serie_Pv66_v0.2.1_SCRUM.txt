@@ -52,6 +52,15 @@
 		[x] Agregar ajustes por parte de los usuarios
 		[x] Agregar la desviación magnética
 		[x] Agregar acceso a la web de cálculo de la desviación magnética
+	[x] Mejorar el manejo de los sistemas de riego estacionarios
+		[x] Agregar el mapeo de múltiples polígonos
+		[x] Agregar la programación de los polígonos en cuanto a días|horas|minutos
+		[x] Ajustar la opción de agregar nuevo dispositivo para incluir los estacionarios
+	[ ] Cambios en la forma de mostrar los históricos de cada equipo
+		[x] Agregar iconografía
+		[ ] Agregar colores en base a si estaba
+			[x] Encendido / Apagado
+			[ ] Atascado (para los de movimiento contínuo)
 	[ ] Mejorar el mapa y la señalización gráfica de la posición
 		[x] Agregar semicírculos
 		[x] Mostrar la posición
@@ -59,7 +68,7 @@
 	[ ] Agregar el estado del tiempo
 	[ ] Procesar error de recepción de datos
 		
-	[ ] Bugs:
+	[x] Bugs:
 		[x] Click en la circunferencia del pivote muestra/oculta los planes pero no oculta al resto de las ventanas abiertas << Caducado >>
 		[x] Revisar los colores de señalización
 			[x] No se refresca adecuadamente el color en:
@@ -70,7 +79,8 @@
 		[x] Evitar el autobloqueo de la pantalla
 		[x] Evitar el refrescamiento
 		[x] Evitar el zoom
-		[ ] Error en el funcionamiento del spinner (encendido/apagado)
+		[x] Error en el funcionamiento del spinner (encendido/apagado)
+		[ ] Cuando un equipo no tiene histórico, se queda con el historial del último equipo revisado
 
 [ ] Nube
 	[x] Actualizar estado de apagado cuando hay falla de seguridad o la velocidad programada es 0%

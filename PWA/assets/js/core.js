@@ -4,6 +4,7 @@ var svg = L.svg();
 var marker = {};
 var shape = {};
 var indicator = {};
+var poligons = {};
 
 let deferredPrompt;
 const installBtn = document.querySelector('#installBtn');
@@ -422,12 +423,8 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     $scope.createNewDevice = () => {
         $scope.newDevice = {
-            "autoreverse": "OFF",
             "booleanStatus": false,
-            "brand": "",
             "caudal": "320",
-            "delayTime": "10",
-            "direction": "FF",
             "fertilization": "OFF",
             "installation": new Date(),
             "irrigation": "a",
@@ -437,25 +434,73 @@ app.controller("ControladorPrincipal", function ($scope) {
             "longitude": "",
             "name": "",
             "password": "",
-            "plans": {
-                "p0": {
-                    "endAngle": "360",
-                    "starAngle": "0",
-                    "type": "velocity",
-                    "value": "0"
-                }
-            },
-            "plansLength": "1",
-            "sensorPosition": "ON",
             "sensorPresion": "0",
-            "sensorSecurity": "ON",
-            "sensorVoltage": "ON",
             "status": "OFF",
             "summerHour": "0",
             "type": "",
-            "velocity": "0",
             "zona": ((new Date()).getTimezoneOffset() / 60) * -1
         };
+    }
+
+    $scope.setNewDeviceParams = () => {
+        switch ($scope.newDevice.type) {
+            case "PC":
+            case "PL":
+                Object.assign($scope.newDevice,
+                    {
+                        "autoreverse": "OFF",
+                        "brand": "",
+                        "direction": "FF",
+                        "plansLength": "1",
+                        "plans": {
+                            "p0": {
+                                "endAngle": "360",
+                                "starAngle": "0",
+                                "type": "velocity",
+                                "value": "0"
+                            }
+                        },
+                        "sensorPosition": "ON",
+                        "sensorSecurity": "ON",
+                        "sensorVoltage": "ON",
+                        "velocity": "0"
+                    }
+                );
+                break;
+            case "Estacionario":
+                Object.assign($scope.newDevice,
+                    {
+                        "clyclic": "ON",
+                        "position": "1",
+                        "plots": {
+                            "p0": {
+                                "value": "0"
+                            },
+                            "p1": {
+                                "value": "0"
+                            },
+                            "p2": {
+                                "value": "0"
+                            },
+                            "p3": {
+                                "value": "0"
+                            },
+                            "p4": {
+                                "value": "0"
+                            },
+                            "p5": {
+                                "value": "0"
+                            },
+                            "p6": {
+                                "value": "0"
+                            },
+                        }
+                    }
+                );
+                break;
+            case "Pozo":
+                break;
+        }
     }
 
     $scope.updateNewDevice = () => {
@@ -538,6 +583,33 @@ app.controller("ControladorPrincipal", function ($scope) {
         ep.value = document.getElementById("editPlanValue").value;
         ep.endGun = document.getElementById("editEndGun").value;
         // showPlanRiegoPie();
+        $scope.setMachineSettings();
+    }
+
+    $scope.setEditPlanEstacionario = (index) => {
+        document.getElementById("planEstacionarioId").value = index;
+        document.getElementById("editPoligon").innerHTML = $scope.actualSystem.plots[index].poligon ? $scope.actualSystem.plots[index].poligon : "";
+        document.getElementById("editDay").value = $scope.getDayFromMs($scope.actualSystem.plots[index].value);
+        document.getElementById("editHour").value = $scope.getHourFromMs($scope.actualSystem.plots[index].value);
+        document.getElementById("editMinutes").value = $scope.getMinutesFromMs($scope.actualSystem.plots[index].value);
+    }
+
+    $scope.editPlanEstacionario = () => {
+        let index = document.getElementById("planEstacionarioId").value;
+        let arr1 = [];
+        let arr2 = document.getElementById("editPoligon").innerHTML.split(",");
+        for (let i = 0; i < arr2.length; i += 2) {
+            let arr3 = [];
+            arr3.push(parseFloat(arr2[i]));
+            arr3.push(parseFloat(arr2[i + 1]));
+            arr1.push(arr3);
+        }
+        $scope.actualSystem.plots[index].poligon = arr1;
+        let day = parseInt(document.getElementById("editDay").value) * (1000 * 60 * 60 * 24);
+        let hour = parseInt(document.getElementById("editHour").value) * (1000 * 60 * 60);
+        let minutes = parseInt(document.getElementById("editMinutes").value) * (1000 * 60);
+        let millis = day + hour + minutes;
+        $scope.actualSystem.plots[index].value = millis;
         $scope.setMachineSettings();
     }
 
@@ -696,8 +768,8 @@ app.controller("ControladorPrincipal", function ($scope) {
             case "PL":
                 showPL(campo);
                 break;
-            case "Nogal":
-                showNogal(campo);
+            case "Estacionario":
+                showStationary(campo);
         }
     }
 
@@ -723,7 +795,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         }
         showPCPosition(campo);
     }
-    
+
     showPCPosition = (campo) => {
         if (campo.log && campo.log.latitude != "NaN" && campo.log.longitude != "NaN") {
             polygon = [
@@ -740,7 +812,19 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     showPL = (campo) => { }
 
-    showNogal = (campo) => { }
+    showStationary = (campo) => {
+        if (campo.plots) {
+            for (let i = 0; i < 7; i++) {
+                let idx = "p" + i;
+                let newPoligon = campo.plots[idx].poligon;
+                if (poligons[campo.key + idx]) {
+                    map.removeLayer(poligons[campo.key + idx]);
+                }
+                poligons[campo.key + idx] = L.polygon(newPoligon);
+                map.addLayer(poligons[campo.key + idx]);
+            }
+        }
+    }
 
     semiCircle = (coord, radius, startAngle, stopAngle, color) => {
         let options = {
@@ -830,6 +914,30 @@ app.controller("ControladorPrincipal", function ($scope) {
     // }
 
     // #endregion Leaflet
+
+    // #region SCRIPTS GENERALES
+
+    $scope.msToTime = (duration) => {
+        if (!duration) { return "00:00:00"; };
+        return getDayFromMs + ":" + getHourFromMs + ":" + getMinutesFromMs;
+    }
+
+    $scope.getDayFromMs = (duration) => {
+        let days = parseInt(duration / (1000 * 60 * 60 * 24));
+        return (days < 10 ? "0" + days : days);
+    }
+
+    $scope.getHourFromMs = (duration) => {
+        let hours = parseInt((duration % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        return (hours < 10 ? "0" + hours : hours);
+    }
+
+    $scope.getMinutesFromMs = (duration) => {
+        let minutes = parseInt((duration % (1000 * 60 * 60)) / (1000 * 60));
+        return (minutes < 10 ? "0" + minutes : minutes);
+    }
+
+    // #endregion SCRIPTS GENERALES
 
     const requestWakeLock = async () => {
         try {
