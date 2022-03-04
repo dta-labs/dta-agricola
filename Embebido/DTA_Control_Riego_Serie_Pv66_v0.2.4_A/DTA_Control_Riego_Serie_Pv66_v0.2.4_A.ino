@@ -287,7 +287,6 @@ void setDirection() {
     delay(500);
     digitalWrite(pinMotorRR, LOW);                                // Encendido
   }
-  // delay(1500);
   int waitTime = 0;
   while (!digitalRead(pinSensorSeguridad) && statusVar == "ON" && waitTime < 5000) {
     delay(500);
@@ -302,27 +301,25 @@ void controlAutomatico() {
   Serial.print(F("ms ("));
   Serial.print((String)velocityVar);
   Serial.println(F("%)"));
-  if (activationTimer > 0) {                                          // Control de encendido
+  if (activationTimer > 0) {                                      // Control de encendido
     for (int i = 0; i < activationTimer / 1000; i++) {
       if (controlVoltaje() && controlSeguridad() && positionControl()) {
         digitalWrite(pinActivationTimer, LOW);
         digitalWrite(pinEngGunControl, (endGunVar == "ON") ? (serie == 0 ? LOW : HIGH) : (serie == 0 ? HIGH : LOW));
         // delay(100);          
       } else {
-        Serial.println(F("Error: voltage or sequrity"));
+        Serial.println(F("Error: voltage, sequrity or position"));
         apagar();
         return;
       }
       wdt_reset();
     }
   }
-  if (activationTimer == 0) {                                                 // Control de apagado
-    statusVar = "OFF";
-  }
   Serial.print(F("   ~ Stop: "));
   Serial.print((String)deactivationTimer);
   Serial.println(F("ms"));
-  if (deactivationTimer > 0) {                                                 // Control de apagado
+  statusVar = (activationTimer == 0) ? "OFF" : statusVar;         // Control de apagado
+  if (deactivationTimer > 0) {
     digitalWrite(pinActivationTimer, HIGH);
     for (int i = 0; i < deactivationTimer / 100; i++){
       delay(100);
@@ -393,22 +390,18 @@ bool controlPresion() {
   return result;
 }
 
-bool controlPresionDigital() {
-  return presion.getDigitalValue();
-}
-
 float controlPresionAnalogica() {
   float presionActual = 0.0f;
-    for (int i = 0; i < 3; i++) {
-      float pAnalog = presion.getAnalogValue();
-      float temp = presion.fmap(pAnalog, 0, 1023, 0.0, sensorPresionVar);
+  for (int i = 0; i < 3; i++) {
+    float pAnalog = presion.getAnalogValue();
+    float temp = presion.fmap(pAnalog, 100, 1023, 0.0, sensorPresionVar);
+    presionActual += temp > 0 ? temp : 0;
 //      float temp = presion.fmap(pAnalog, 0, 1023, 0.0, sensorPresionVar) - 1.25;
 //      temp = (temp + 0.4018) / 0.7373;
-      presionActual += temp > 0 ? temp : 0;
 //      presionActual += pAnalog > 0 ? pAnalog : 0;
-      delay(10);
-    }
-    presionActual = presionActual / 3;
+    delay(10);
+  }
+  presionActual = presionActual / 3;
   Serial.print(F("PresionF: "));
   Serial.println((String) presionActual);
   return presionActual;
@@ -584,7 +577,7 @@ void comunicaciones() {
   directionVar = (aux == "FF" || aux == "RR") ? aux : directionVar;                  // > direction
   idx = data.indexOf('"', idx + 1);
   aux = data.substring(idx + 1, data.indexOf('"', idx + 1));
-  sensorPresionVar = (aux != "") ? aux.toInt() : sensorPresionVar;         // > sensor de presión
+  sensorPresionVar = (aux != "") ? aux.toInt() : sensorPresionVar;                   // > sensor de presión
   // Set velocity
   idx = data.indexOf('"', idx + 1);
   aux = data.substring(idx + 1, data.indexOf('"', idx + 1));
