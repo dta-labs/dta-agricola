@@ -1103,35 +1103,35 @@
                                     <div class="col s12" ng-repeat="reg in invertedRegisters">
                                         <div class="sercices-options gray-text white"
                                             ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'"
-                                            style="background: {{ reg.state == 'ON' ? 'lightseagreen !important' : 'lightgray !important' }}; color: {{ reg.state == 'ON' ? 'white' : 'black' }};">
-                                            [{{ reg.update }}] - {{ reg.state == "ON" ? "Encendido" : "Apagado" }} <br>
-                                            {{ (reg.safety == "false" ? "¡Error de Atasco! | " : "") }}
-                                            <i class="fa fa-undo" style="font-size: .8em;"
+                                            style="background: {{ reg.safety == 'false' ? 'palevioletred !important' : reg.state == 'ON' ? 'lightseagreen !important' : 'lightgray !important' }}; color: {{ reg.state == 'ON' ? 'white' : 'black' }};">
+                                            Sistema {{ reg.state == "ON" ? "Encendido" :  (reg.safety == "false" ? " Atascado!" : "Apagado") }}<br>
+                                            <span style="font-size: .8em;">[{{ reg.date }} - {{ reg.update }}]</span> <br>
+                                            <i class="fa fa-undo" style="font-size: .8em; width: 25px;"
                                                 ng-show="reg.direction == 'RR'"></i>
                                             <i class="fa fa-repeat" style="font-size: .8em;"
                                                 ng-show="reg.direction == 'FF'"></i>
                                             <span style="font-size: .8em;">
-                                                <i class="material-icons" style="font-size: .9em;">near_me</i>
+                                                <i class="material-icons" style="font-size: .9em; width: 25px;">near_me</i>
                                                 {{ reg.position ? reg.position : 0 }}°
                                             </span>
                                             <span style="font-size: .8em;">
-                                                <i class="material-icons" style="font-size: .9em;">network_check</i>
+                                                <i class="material-icons" style="font-size: .9em; width: 25px;">network_check</i>
                                                 {{ reg.speed ? reg.speed : 0}}%
                                             </span>
                                             <span style="font-size: .8em;">
-                                                <i class="fa fa-tint" aria-hidden="true"></i>
+                                                <i class="fa fa-tint" aria-hidden="true" style="width: 25px;"></i>
                                                 {{ reg.presion < 1 ? "Presión Baja" : "Presión Normal" }} </span>
                                         </div>
                                         <div class="sercices-options gray-text white"
                                             ng-show="actualSystem.type == 'Estacionario'"
                                             style="background: {{ reg.state == 'ON' ? 'lightseagreen !important' : 'lightgray !important' }}; color: {{ reg.state == 'ON' ? 'white' : 'black' }};">
-                                            [{{ reg.update }}] - {{ reg.state == "ON" ? "Encendido" : "Apagado" }} <br>
+                                            [{{ reg.date }} - {{ reg.update }}] - {{ reg.state == "ON" ? "Encendido" : "Apagado" }} <br>
                                             <span style="font-size: .8em;">
                                                 <!-- <i class="material-icons" style="font-size: .9em;">near_me</i> -->
                                                 Parcela: {{ reg.plot }} -> {{ msToTime(reg.activationTime) }}
                                             </span>
                                             <span style="font-size: .8em;">
-                                                <i class="fa fa-tint" aria-hidden="true"></i>
+                                                <i class="fa fa-tint" aria-hidden="true" style="width: 25px;"></i>
                                                 {{ reg.presion < 1 ? "Presión Baja" : "Presión Normal" }} </span>
                                         </div>
                                     </div>

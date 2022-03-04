@@ -797,7 +797,7 @@ app.controller("ControladorPrincipal", function ($scope) {
     }
 
     showPCPosition = (campo) => {
-        if (campo.log && campo.log.latitude != "NaN" && campo.log.longitude != "NaN") {
+        if (campo.log && campo.log.latitude != "NaN" && campo.log.longitude != "NaN" && campo.log.latitude != "0.00000" && campo.log.longitude != "0.00000") {
             polygon = [
                 [campo.latitude, campo.longitude],
                 [campo.log.latitude, campo.log.longitude]

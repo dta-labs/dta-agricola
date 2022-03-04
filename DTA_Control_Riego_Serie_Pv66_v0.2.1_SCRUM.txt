@@ -1,72 +1,96 @@
 ===== HARDWARE =====
 
-[ ] Modificaciones en la caja auxiliar del panel de control
-	[x] Alimentación del relay
-	[x] Control de la bomba de agua
-	[ ] Gestión de la seguridad
-	
-[x] Modificaciones en la caja de control última torre
-	[x] Timer
-	[x] Sensores de seguridad
-		[x] Eliminar un sensor
-		[x] Agregar una resistencia
+[ ] Pv66 v0.2
+	[x] Modificaciones en la caja auxiliar del panel de control
+		[x] Alimentación del relay
+		[x] Control de la bomba de agua
+		
+	[x] Modificaciones en la caja de control última torre
+		[x] Timer
+		[x] Sensores de seguridad
+			[x] Eliminar un sensor
+			[x] Agregar una resistencia
 
-[x] Calibración de la presión
-	[x] Leer el valor del sensor desde la rede
-		[x] Mapear el valor de la presión en base al valor leído
-	[x] Eliminar la ecuación de calibración
+	[x] Calibración de la presión
+		[x] Leer el valor del sensor desde la rede
+			[x] Mapear el valor de la presión en base al valor leído
+		[x] Eliminar la ecuación de calibración
+
+[ ] J0008 v0.2
 
 ===== SOFTWARE =====
 
 [ ] Software embebido
-	[x] Sensor de presión
-		[x] Eliminar la ecuación de calibración
-	[x] Sensor de posición
-		[x] Revisar la calibración
-	[ ] EEPROM
-		[x] Conservar los valores leidos con anterioridad
-		[ ] Guardar la última fecha de última conexión
-			[ ] Comprobar si el tiempo de última conexión sobrepasa un valor de tiempo específico y apagar el sistema 
-	[x] Enviar error de recepción de datos
-	[x] Declarar apagado del sistema
-		[x] Cuando hay falla de seguridad
-		[x] Cuando se detuvo porque la velocidad programada es 0%
-	[x] Revisar problemas con la comunicación
-		[x] Restablecer la comunicación antes de 5 minutos
+
+	[ ] Pv66 v0.2
+		[x] Sensor de presión
+			[x] Eliminar la ecuación de calibración
+		[x] Sensor de posición
+			[x] Revisar la calibración
+		[x] Enviar error de recepción de datos
+		[x] Declarar apagado del sistema
+			[x] Cuando hay falla de seguridad
+			[x] Cuando se detuvo porque la velocidad programada es 0%
+		[x] Revisar problemas con la comunicación
+			[x] Restablecer la comunicación antes de 5 minutos
+		[ ] EEPROM
+			[x] Conservar los valores leidos con anterioridad
+			[ ] Guardar la última fecha de última conexión
+				[ ] Comprobar si el tiempo de última conexión sobrepasa un valor de tiempo específico y apagar el sistema 
+	
+	[ ] J0008 v0.2
+		[x] Rediseñar completamente el software
+			[x] Trabajo en tiempo real
+			[x] Manejo de las válvulas de forma segura
+			[x] Modificación de las comunicaciones
+			[x] Almacenamiento del estado en la EEPROM
+			[ ] Implementar el control de funcionamiento cíclico
 	
 [ ] Software PWA
-	[x] Crear simbología rápida del estado del equipo
-		[x] Velocidad
-		[x] Posición del equipo
-		[x] Error del GPS
-		[x] Presión
-		[x] Calidad de señal de datos
-	[x] Datos generales
-		[x] Mostrar las coordenadas actuales
-		[x] Mostrar el error del GPS
-	[x] Ajustes
-		[x] Ajustes de la presión
-			[x] Agregar valor máximo del sensor de presión
-		[x] Editar las coordenadas del centro del equipo
-	[x] Mejorar los resultados de la posición
-		[x] Agregar ajustes por parte de los usuarios
-		[x] Agregar la desviación magnética
-		[x] Agregar acceso a la web de cálculo de la desviación magnética
-	[x] Mejorar el manejo de los sistemas de riego estacionarios
-		[x] Agregar el mapeo de múltiples polígonos
-		[x] Agregar la programación de los polígonos en cuanto a días|horas|minutos
-		[x] Ajustar la opción de agregar nuevo dispositivo para incluir los estacionarios
-	[ ] Cambios en la forma de mostrar los históricos de cada equipo
-		[x] Agregar iconografía
-		[ ] Agregar colores en base a si estaba
-			[x] Encendido / Apagado
-			[ ] Atascado (para los de movimiento contínuo)
-	[ ] Mejorar el mapa y la señalización gráfica de la posición
-		[x] Agregar semicírculos
-		[x] Mostrar la posición
-		[ ] Agregar mapa offline
-	[ ] Agregar el estado del tiempo
-	[ ] Procesar error de recepción de datos
+
+	[ ] Equipos de Movimiento Contínuo
+		[x] Crear simbología rápida del estado del equipo
+			[x] Velocidad
+			[x] Posición del equipo
+			[x] Error del GPS
+			[x] Presión
+			[x] Calidad de señal de datos
+		[x] Datos generales
+			[x] Mostrar las coordenadas actuales
+			[x] Mostrar el error del GPS
+		[x] Ajustes
+			[x] Ajustes de la presión
+				[x] Agregar valor máximo del sensor de presión
+			[x] Editar las coordenadas del centro del equipo
+		[x] Mejorar los resultados de la posición
+			[x] Agregar ajustes por parte de los usuarios
+			[x] Agregar la desviación magnética
+			[x] Agregar acceso a la web de cálculo de la desviación magnética
+	
+	[ ] Equipos Estacionarios
+		[x] Crear simbología rápida del estado del equipo
+			[x] Tiempo programado
+			[x] Parcela activa
+			[x] Presión
+			[x] Calidad de señal de datos
+		[ ] Mejorar el manejo de los sistemas de riego estacionarios
+			[x] Ajustar la opción de agregar nuevo dispositivo para incluir los estacionarios
+			[x] Agregar el mapeo de múltiples polígonos
+			[x] Agregar la programación de los polígonos en cuanto a días | horas | minutos
+			[ ] Implementar el control de funcionamiento cíclico en los equipos estacionarios
+	
+	[ ] App en Genereal
+		[ ] Cambios en la forma de mostrar los históricos de cada equipo
+			[x] Agregar iconografía
+			[ ] Agregar colores en base a si estaba
+				[x] Encendido / Apagado
+				[ ] Atascado (para los de movimiento contínuo)
+		[ ] Mejorar el mapa y la señalización gráfica de la posición
+			[x] Agregar semicírculos
+			[x] Mostrar la posición
+			[ ] Agregar mapa offline
+		[ ] Agregar el estado del tiempo
+		[ ] Procesar error de recepción de datos
 		
 	[x] Bugs:
 		[x] Click en la circunferencia del pivote muestra/oculta los planes pero no oculta al resto de las ventanas abiertas << Caducado >>
@@ -80,9 +104,13 @@
 		[x] Evitar el refrescamiento
 		[x] Evitar el zoom
 		[x] Error en el funcionamiento del spinner (encendido/apagado)
+		[x] Cambiar de posición el Encendido y la Dirección
+			[x] Vista móbil
+			[x] Vista escritorio
 		[ ] Cuando un equipo no tiene histórico, se queda con el historial del último equipo revisado
 
 [ ] Nube
+
 	[x] Actualizar estado de apagado cuando hay falla de seguridad o la velocidad programada es 0%
 	[-] Procesar error de recepción de datos
 
