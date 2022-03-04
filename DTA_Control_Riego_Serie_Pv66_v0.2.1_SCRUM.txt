@@ -15,6 +15,11 @@
 		[x] Leer el valor del sensor desde la rede
 			[x] Mapear el valor de la presión en base al valor leído
 		[x] Eliminar la ecuación de calibración
+		
+	[ ] Bugs
+		[.] Problemas con la lectura de la presión
+		[.] Problemas con el control del tiempo
+		[ ] Se queda congelado el sistema
 
 [ ] J0008 v0.2
 

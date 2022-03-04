@@ -306,7 +306,7 @@ void controlAutomatico() {
       if (controlVoltaje() && controlSeguridad() && positionControl()) {
         digitalWrite(pinActivationTimer, LOW);
         digitalWrite(pinEngGunControl, (endGunVar == "ON") ? (serie == 0 ? LOW : HIGH) : (serie == 0 ? HIGH : LOW));
-        // delay(100);          
+        delay(100);          
       } else {
         Serial.println(F("Error: voltage, sequrity or position"));
         apagar();
