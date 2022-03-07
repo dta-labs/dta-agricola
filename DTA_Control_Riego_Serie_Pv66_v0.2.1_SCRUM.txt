@@ -17,8 +17,8 @@
 		[x] Eliminar la ecuación de calibración
 		
 	[ ] Bugs
+		[x] Problemas con el control del tiempo
 		[.] Problemas con la lectura de la presión
-		[.] Problemas con el control del tiempo
 		[ ] Se queda congelado el sistema
 
 [ ] J0008 v0.2
