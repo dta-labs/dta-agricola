@@ -49,10 +49,12 @@ app.controller("ControladorPrincipal", function ($scope) {
     $scope.statisticSelectedSystem = {};
     let sendCommand = {};
     $scope.logs = {};
+    $scope.users = {};
     $scope.as_config = false;
     $scope.as_adjust = false;
     $scope.as_more = false;
     $scope.as_hist = false;
+    $scope.as_users = false;
 
     // #region NAVEGACION
 
@@ -177,6 +179,7 @@ app.controller("ControladorPrincipal", function ($scope) {
                     if (system.val()) {
                         $scope.systems[locationKey] = system.val();
                         $scope.systems[locationKey].key = locationKey;
+                        loadSystemUsers(locationKey);
                         loadSystemLog(locationKey);
                         // $scope.showWindow('listado');
                         if (locationKey == lastLocation) {
@@ -188,6 +191,15 @@ app.controller("ControladorPrincipal", function ($scope) {
             }
             $scope.showWindow('listado');
         }
+    }
+
+    loadSystemUsers = (locationKey) => {
+        firebase.database().ref("systems/" + locationKey + "/users").on("value", users => {
+            if (users.val()) {
+                $scope.users[locationKey] = users.val();
+                $scope.$apply();
+            }
+        });
     }
 
     loadSystemLog = (locationKey) => {
@@ -391,6 +403,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         $scope.as_adjust = win == "as_adjust" ? !$scope.as_adjust : false;
         $scope.as_more = win == "as_more" ? !$scope.as_more : false;
         $scope.as_hist = win == "as_hist" ? !$scope.as_hist : false;
+        $scope.as_users = win == "as_users" ? !$scope.as_users : false;
         window.scrollTo(0, 1000);
     }
 
@@ -422,16 +435,18 @@ app.controller("ControladorPrincipal", function ($scope) {
     }
 
     $scope.createNewDevice = () => {
+        let milatitud = position.coords.latitude;
+        let milongitud = position.coords.longitude;
         $scope.newDevice = {
             "booleanStatus": false,
-            "caudal": "320",
+            "caudal": "0",
             "fertilization": "OFF",
             "installation": new Date(),
             "irrigation": "a",
             "key": "",
-            "latitude": "",
+            "latitude": milatitud,
             "length": "",
-            "longitude": "",
+            "longitude": milongitud,
             "name": "",
             "password": "",
             "sensorPresion": "0",
@@ -506,12 +521,18 @@ app.controller("ControladorPrincipal", function ($scope) {
     $scope.updateNewDevice = () => {
         if ($scope.newDevice.key && $scope.newDevice.name && $scope.newDevice.type && $scope.newDevice.zona) {
             updateNewDevice($scope.newDevice);
-            updateDeviceUsers(convertDotToDash($scope.authUser.email), $scope.newDevice.key, "propietario");
+            updateDeviceUsers(convertDotToDash($scope.authUser.email), $scope.newDevice.key, $scope.authUser.displayName, "propietario");
             location.reload();
             // getUserData();
             // $scope.$apply();
             document.getElementById("modalNuevoEquipo").style.display = "none";
         }
+    }
+
+    $scope.addNewUserToDevice = () => {
+        updateDeviceUsers(convertDotToDash($scope.newUserEmail), $scope.actualSystem.key, $scope.newUserName, "propietario");
+        location.reload();
+        document.getElementById("modalAddUser").style.display = "none";
     }
 
     $scope.install = () => {
@@ -950,6 +971,7 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     $scope.inicializacion = () => {
         requestWakeLock();
+        getLocation();
         initializeMap();
         listenUserStatus();
         setTimeout(function () {
@@ -1050,28 +1072,28 @@ document.addEventListener('DOMContentLoaded', function () {
 // #region Geolocalización
 
 function getLocation() {
-    // if (navigator.geolocation) {
-    //     navigator.geolocation.getCurrentPosition(showPosition, error, {
-    //         maximumAge: 60000,
-    //         timeout: 4000
-    //     });
-    // } else {
-    //     M.toast({
-    //         html: 'Geolocalización no soportada'
-    //     });
-    // }
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(showPosition, error, {
+            maximumAge: 60000,
+            timeout: 4000
+        });
+    } else {
+        M.toast({
+            html: 'Geolocalización no soportada'
+        });
+    }
 }
 
-// function showPosition(position) {
-//     let milatitud = position.coords.latitude;
-//     let milongitud = position.coords.longitude;
-//     let miaccuracy = position.coords.accuracy;
-//     M.toast({
-//         html: "Lat: " + milatitud + "° Lng: " + milongitud + "° Err: " + miaccuracy + "m"
-//     });
-//     let miCoord = [milatitud, milongitud];
-//     addMarker(miCoord, 'Posición actual:<br>Lat: ' + milatitud + '°<br>Lng: ' + milongitud + '°<br>Err: ' + miaccuracy + 'm');
-// }
+function showPosition(position) {
+    // let milatitud = position.coords.latitude;
+    // let milongitud = position.coords.longitude;
+    // let miaccuracy = position.coords.accuracy;
+    // M.toast({
+    //     html: "Lat: " + milatitud + "° Lng: " + milongitud + "° Err: " + miaccuracy + "m"
+    // });
+    // let miCoord = [milatitud, milongitud];
+    // addMarker(miCoord, 'Posición actual:<br>Lat: ' + milatitud + '°<br>Lng: ' + milongitud + '°<br>Err: ' + miaccuracy + 'm');
+}
 
 function error() {
     M.toast({

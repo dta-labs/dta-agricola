@@ -96,6 +96,7 @@
 			[ ] Agregar mapa offline
 		[ ] Agregar el estado del tiempo
 		[ ] Procesar error de recepción de datos
+		[x] Agregar la función "Invitar a alguien"
 		
 	[x] Bugs:
 		[x] Click en la circunferencia del pivote muestra/oculta los planes pero no oculta al resto de las ventanas abiertas << Caducado >>

@@ -123,10 +123,10 @@ function updateNewDevice(newDevice) {
     firebase.database().ref("systems/" + newDevice.key).update({"settings": newDevice});
 }
 
-function updateDeviceUsers(authUserKey, newDeviceKey, role) {
+function updateDeviceUsers(authUserKey, newDeviceKey, name, role) {
     let dato = JSON.parse(`{"${newDeviceKey}": "${role}"}`);
     firebase.database().ref("users/" + authUserKey + "/systems").update(dato);
-    dato = JSON.parse(`{"${authUserKey}": "${role}"}`);
+    dato = JSON.parse(`{"${authUserKey}": "${name}"}`);
     firebase.database().ref("systems/" + newDeviceKey + "/users").update(dato);    
 }
 

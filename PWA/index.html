@@ -125,6 +125,12 @@
                         <p style="margin-top: -4px;">Históricos</p>
                     </a>
                 </div>
+                <div class="col navbar-option">
+                    <a href="javascript:void(0)" ng-click="actualSystemWindows('as_users')" style="color: black;">
+                        <i class="fa fa-users" aria-hidden="true" style="margin-top: 5px;"></i>
+                        <p style="margin-top: -4px;">Usuarios</p>
+                    </a>
+                </div>
             </div>
 
             <div class="row bottom-navbar"
@@ -335,12 +341,12 @@
                         <div class="input-field col s12">
                             <input id="newDeviceName" type="text" placeholder="Nombre del equipo"
                                 ng-model="newDevice.name">
-                            <label for="newDeviceName">Nombre</label>
+                            <label for="newDeviceName">Nombre del equipo (alias)</label>
                         </div>
                         <div class="input-field col s12">
                             <input id="newDeviceKey" type="text" placeholder="Código del equipo"
                                 ng-model="newDevice.key">
-                            <label for="newDeviceKey">Código del equipo</label>
+                            <label for="newDeviceKey">Código identificador del equipo</label>
                         </div>
                         <div class="input-field col s12">
                             <select class="select" ng-model="newDevice.type" ng-change="setNewDeviceParams()">
@@ -1138,6 +1144,37 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="row" ng-show="as_users">
+                            <div class="col s12">
+                                <div class="btn" ng-click="as_users = !as_users" style="width: 100%;">
+                                    <span style="position: absolute; left: 20px;">
+                                        <i class="fa fa-users" aria-hidden="true"></i>
+                                    </span>
+                                    <span>
+                                        Usuarios
+                                    </span>
+                                    <span style="position: absolute;right: 20px;">
+                                        <i class="fa fa-chevron-down" aria-hidden="true" ng-show="!as_users"></i>
+                                        <i class="fa fa-chevron-up" aria-hidden="true" ng-show="as_users"></i>
+                                    </span>
+                                </div>
+                                <div class="row" ng-show="as_users">
+                                    <p></p>
+                                    <div class="col s12" ng-repeat="reg in users[actualSystem.key]">
+                                        <div class="sercices-options gray-text white">
+                                            <i class="fa fa-user" aria-hidden="true" style="margin-top: 5px;"></i> 
+                                            {{ reg }}
+                                        </div>
+                                    </div>
+                                    <div class="col s12">
+                                        <div class="sercices-options gray-text white text-centered modal-trigger" href="#modalAddUser">
+                                            <i class="fa fa-plus" aria-hidden="true" style="margin-top: 5px;"></i> 
+                                            Invitar a alguien
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <!-- <div class="row" ng-show="!as_config && !as_adjust && !as_more && !as_hist">
                             <img src="{{ actualSystem.type.includes('Pivote Central') || actualSystem.type.includes('PC') || actualSystem.type.includes('PL') ? 'assets/images/riegoPivote.png' : actualSystem.includes('Estacionario') || actualSystem.type.includes('Aspersor') || actualSystem.includes('Tubería') ? 'assets/images/riegoEstacionario.png' : actualSystem.type == 'Pozo' ? 'assets/images/riegoPozo.png' : 'assets/images/riegoVenturi.png' }}"
                                 style="width: 100%;" alt="imagen">
@@ -1150,6 +1187,29 @@
             </div>
 
             <!-- Modal plan de riego -->
+            <div id="modalAddUser" class="modal">
+                <div class="modal-content">
+                    <h6>Invitar a alguien</h6>
+                    <div class="row" style="margin-top: 35px;">
+                        <div class="input-field col s12">
+                            <input id="newUserEmail" type="text" ng-model="newUserEmail">
+                            <label>Correo electrónico</label>
+                        </div>
+                        <div class="input-field col s12">
+                            <input id="newUserName" type="text" ng-model="newUserName">
+                            <label>Nombre</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="#!" class="modal-close waves-effect grey waves-grey btn-flat white-text">
+                        <i class="material-icons">&nbsp;&nbsp;reply&nbsp;&nbsp;</i></a>
+                    <a href="#!" class="modal-close waves-effect teal waves-green btn-flat white-text"
+                        ng-click="addNewUserToDevice()"><i
+                            class="material-icons">&nbsp;&nbsp;check&nbsp;&nbsp;</i></a>
+                </div>
+            </div>
+
             <div id="modalRiego" class="modal">
                 <div class="modal-content">
                     <h6>Agregar nueva planificación</h6>
@@ -1311,7 +1371,7 @@
                             <i class="fa fa-bell-o" aria-hidden="true"></i>Notificaciones
                         </li>
                         <li ng-click="showWindow('users')" class="sercices-options teal darken white-text">
-                            <i class="fa fa-users" aria-hidden="true"></i>Gestión de usuarios
+                            <i class="fa fa-users" aria-hidden="true"></i>Perfil de usuario
                         </li>
                         <li id="installBtn" ng-click="install()" class="sercices-options teal darken white-text">
                             <i class="fa fa-check-square-o" aria-hidden="true"></i>Instalar la aplicación
