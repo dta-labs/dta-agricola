@@ -1,11 +1,12 @@
 /****************************************************************
  *                                                              * 
- *                Sistemas DTA Serie Pv66 v0.2.4 A              *
- *                           2022.01.27                         *
+ *               Sistemas DTA Serie Pv66 v0.2.4.1 A             *
+ *                           2022.03.24                         *
  *                                                              *
  *   Sensores:                                                  *
  *   - Atasco............... D9                                 *
  *   - Presión 150psi....... A0                                 *
+ *   - Seguridad efecto Hall A1                                 *
  *   - Brújula QMC5883L..... A4 y A5                            *
  *   - Comunicación......... Rx -> D2 | Tx -> D3                *
  *   - GPS.................. Rx -> D12 | Tx -> D11              *
@@ -24,7 +25,7 @@
 #pragma region Variables
 
 // #define telefono "000000000000"
-#define telefono "526251259145"
+#define telefono "526251060168"
 #define httpServer "AT+HTTPPARA=\"URL\",\"http://pprsar.com/cosme/comm_v2.php?id=" telefono
 // #define httpServer "AT+HTTPPARA=\"URL\",\"http://dtaamerica.com/ws/comm_v2.php?id=" telefono
 #define pinEngGunControl 4
@@ -33,8 +34,10 @@
 #define pinMotorRR 7
 #define pinMotorFF 8
 #define pinSensorSeguridad 9
+#define pinSensorSeguridadAnalogico A1
+#define pinIndicadorSeguridad 13
 #define pinSensorVoltaje 10
-#define serie 1                                 // 0 <= FL | 1 <= JQC
+#define serie 0                                 // 0 <= FL | 1 <= JQC
 #define restart asm("jmp 0x0000")
 #define positionSensor "GPS"                    // GPS | Compass
 
@@ -111,13 +114,14 @@ void setup() {
   pinMode (pinActivationTimer, OUTPUT);
   pinMode (pinMotorRR, OUTPUT);
   pinMode (pinMotorFF, OUTPUT);
+  pinMode (pinIndicadorSeguridad, OUTPUT);
   digitalWrite(pinIrrigationControl, HIGH);                           // Control de riego Desactivado 
   apagar();
   Serial.println();
-  Serial.println(F(">>> DTA-Agrícola: Serie Pv66 v0.2.4 A"));
-  Serial.print("    «");
+  Serial.println(F(">>> DTA-Agrícola: Serie Pv66 v0.2.4.1 A"));
+  Serial.print(F("    «"));
   Serial.print(telefono);
-  Serial.println("»");
+  Serial.println(F("»"));
   readEEPROM();
   wdt_enable(WDTO_8S);
   if (controlVoltaje()) {
@@ -288,7 +292,7 @@ void setDirection() {
     digitalWrite(pinMotorRR, LOW);                                // Encendido
   }
   int waitTime = 0;
-  while (!digitalRead(pinSensorSeguridad) && statusVar == "ON" && waitTime < 5000) {
+  while (!(digitalRead(pinSensorSeguridad) || getCorriente()) && statusVar == "ON" && waitTime < 5000) {
     delay(500);
     waitTime += 500;
   };
@@ -301,15 +305,25 @@ void controlAutomatico() {
   Serial.print(F("ms ("));
   Serial.print((String)velocityVar);
   Serial.println(F("%)"));
+  unsigned long actualTime = millis();
   if (activationTimer > 0) {                                      // Control de encendido
-    for (int i = 0; i < activationTimer / 1000; i++) {
-      if (controlVoltaje() && controlSeguridad() && positionControl()) {
+    // for (int i = 0; i < activationTimer / 120; i++) {
+    int i = 0;
+    while ((millis() - actualTime) < activationTimer) {
+      i++;
+      Serial.println(i);
+      if (controlVoltaje() && positionControl() && controlSeguridad()) {
+//      if (controlVoltaje()  && positionControl() && (digitalRead(pinSensorSeguridad) || getCorriente())) {
         digitalWrite(pinActivationTimer, LOW);
         digitalWrite(pinEngGunControl, (endGunVar == "ON") ? (serie == 0 ? LOW : HIGH) : (serie == 0 ? HIGH : LOW));
-        delay(100);          
+        delay(1000);          
       } else {
         Serial.println(F("Error: voltage, sequrity or position"));
         apagar();
+        for (int i = 0; i < 60; i++){
+          delay(1000);
+          wdt_reset();
+        }
         return;
       }
       wdt_reset();
@@ -347,19 +361,19 @@ void apagar() {
 #pragma region Sensores
 
 bool controlSeguridad() {
-  bool sensorSeguridad = digitalRead(pinSensorSeguridad);
-  if (!sensorSeguridad) {
+  bool result = (digitalRead(pinSensorSeguridad) || getCorriente());
+  if (!result) {
     Serial.println(F("    Falla sensor de seguridad... reintentando!"));
     setDirection();
     wdt_reset();
-    sensorSeguridad = digitalRead(pinSensorSeguridad);
-    if (!sensorSeguridad) {
+    result = (digitalRead(pinSensorSeguridad) || getCorriente());
+    if (!result) {
       Serial.println(F("    Falla sensor de seguridad... reintentando nuevamente!"));
       setDirection();
       wdt_reset();
     }
-    sensorSeguridad = digitalRead(pinSensorSeguridad);
-    if (!sensorSeguridad) {
+    result = (digitalRead(pinSensorSeguridad) || getCorriente());
+    if (!result) {
       Serial.println(F("   Sistem off: Stuck alarm!"));
       statusVar = "OFF";
       apagar(); 
@@ -369,7 +383,32 @@ bool controlSeguridad() {
       }
     }
   }
-  return sensorSeguridad;
+  return (result);
+}
+
+bool getCorriente() {
+  float sensibilidad = 0.185;
+  float valorReferencia = 5;
+  float valorReposo = 2.5;
+  float Ipico = 0;
+  float Imin = 0;
+  float Imax = 0;
+  float ruido = 0.07;
+  unsigned long tiempo = millis();
+  while (millis() - tiempo < 120) { // medir por 120ms
+    float Vin = analogRead(pinSensorSeguridadAnalogico);
+    float acs712 = Vin * valorReferencia / 1023;
+    float I = 0.9 * I + 0.1 * (acs712 - valorReposo) / sensibilidad;
+    if (I > Imax) Imax = I;
+    if (I < Imin) Imin = I;
+  }
+  Ipico = ((Imax - Imin) / 2) - ruido;
+  float Irms = Ipico * 0.707;  // I RMS = Ipico / (2^1/2)
+  Serial.print("Seguridad: ");
+  Serial.println(Irms);
+  digitalWrite(pinIndicadorSeguridad, (Irms >= 0.10) ? HIGH : LOW);
+  bool result = (Irms >= 0.10) ? true : false;
+  return result;
 }
 
 bool controlVoltaje() {
@@ -422,7 +461,7 @@ float getPosition() {
   return newPosition;
 }
 
-float getGPSPosition() {                  // Posición por GPS
+float getGPSPosition() {                   // Posición por GPS
   float azimut = positionVar;
   bool newData = parseGPSData();
   lat_central = (lat_central == 0) ? eeVar.lat_central : lat_central;
@@ -617,7 +656,7 @@ void comunicaciones() {
 String httpRequest() {
   gprs.listen();
   String param1 = "&st=" + statusVar;
-  String param2 = "&sa=" + (String)(digitalRead(pinSensorSeguridad) ? "true" : "false");
+  String param2 = "&sa=" + (String)((digitalRead(pinSensorSeguridad) || getCorriente()) ? "true" : "false");
   String param3 = "&di=" + directionVar;
   String param4 = "&vo=" + (String)(controlVoltaje() ? "true" : "false");
   String param5 = "&ar=" + activateAutoreverse;

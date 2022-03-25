@@ -1,0 +1,47 @@
+Sensor de corriente ACS712
+
+I = (Vin - 2.5) / Sensibilidad
+I = (Vin - 2.5) / 185mV/A
+
+Soporta 5x la I nominal (25A para el circuito de 5A)
+
+Sensibilides
+ 5A -> 0.185
+20A -> 0.100
+30A -> 0.66
+
+Mejorar la sensibilidad
+
+sensibilidad = (Vpatron - Vsincarga) / (Ipatron - Isincarga)
+
+Fórmulas:
+
+:: Corriente contínua
+
+	sensibilidad = 185
+	acs712 = Vin * 5 / 1023
+	I = (acs712 - 2.5) / sensibilidad
+	Serial.println(I, 2)
+
+:: Corriente alterna
+
+	sensibilidad = 185
+	valorReposo = 2.5
+	I = 0
+	Ipico = 0
+	Imin = 0
+	Imax = 0
+	ruido = 0
+	tensión de red = 127
+	tiempo = millis()
+	while (millis() - tiempo < 500) { // medir por 500ms
+		acs712 = Vin * 5 / 1023
+		I = 0.9 * I + 0.1 * (acs712 - 2.5) / sensibilidad
+		if (I > Imax) Imax = I 
+		if (I < Imax) Imin = I 
+	}
+	Ipico = ((Imax - Imin) / 2) - ruido
+	Irms = Ipico * 0.707  // I RMS = Ipico / (2^1/2)
+	
+	Virginia III - 4141070292
+	
