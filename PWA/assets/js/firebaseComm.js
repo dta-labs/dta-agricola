@@ -126,8 +126,16 @@ function updateNewDevice(newDevice) {
 function updateDeviceUsers(authUserKey, newDeviceKey, name, role) {
     let dato = JSON.parse(`{"${newDeviceKey}": "${role}"}`);
     firebase.database().ref("users/" + authUserKey + "/systems").update(dato);
-    dato = JSON.parse(`{"${authUserKey}": "${name}"}`);
+    // dato = JSON.parse(`{"${authUserKey}": "${name}"}`);
+    dato = JSON.parse(`{"${authUserKey}": {"alias": "${name}", "role": "${role}"}}`);
     firebase.database().ref("systems/" + newDeviceKey + "/users").update(dato);    
+}
+
+function deleteUser(deviceKey, userKey) {
+    let dato = JSON.parse(`{"${userKey}": null}`);
+    firebase.database().ref("systems/" + deviceKey + "/users").update(dato); 
+    dato = JSON.parse(`{"${deviceKey}": null}`); 
+    firebase.database().ref("users/" + userKey + "/systems/").update(dato);      
 }
 
 // #region Ejemplos

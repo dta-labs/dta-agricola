@@ -230,9 +230,9 @@
 
         <!-- #region: LISTADO -->
 
-        <section id="listado">
+        <section id="listado" ng-show="selectedWindow == 'listado'">
 
-            <div class="container" ng-show="selectedWindow == 'listado'">
+            <div class="container">
                 <br>
                 <div class="main-container text-center our-services">
                     <div class="row">
@@ -242,7 +242,9 @@
                                 style="background: {{ system.type == 'Estacionario' && system.log.state == 'ON' ? 'lightseagreen' : 
                                 system.log.state == 'OFF' ? 'lightgrey' : system.log.voltage == 'false' ? 'red' : 
                                 system.log.safety == 'false' ? 'palevioletred' : system.log.commDelay != '-1' ? 'grey' : 'lightseagreen' }};">
-                                <a href="#!sistema" ng-click="showWindow('sistema')" style="color: white !important">
+                                <!-- <a href="#!sistema" style="color: white !important"> -->
+                                <a ng-click="showWindow('sistema')" style="color: white !important">
+                                <!-- <a href="#!sistema" ng-click="showWindow('sistema')" style="color: white !important"> -->
                                     <div class="row" style="margin-bottom: 0;">
                                         <div class="col s3" style="margin-top: 10px;">
                                             <div class="pivote" ng-show="system.type != 'Estacionario'">
@@ -255,7 +257,8 @@
                                                     alt="parcela">
                                             </div>
                                         </div>
-                                        <div class="col s9 limitar">
+
+                                        <div class="col s9 limitar" ng-show="system.type != 'Estacionario'">
                                             <span style="font-size: 1.2em;">{{ system.name }}</span>
                                             <br>
                                             <i class="fa fa-undo" style="font-size: .8em;"
@@ -279,15 +282,15 @@
                                                     {{ system.status }}</b>&nbsp;</span>
                                             <span
                                                 ng-show="(system.log.voltage == 'true' && system.log.safety == 'true' && system.log.commDelay == '-1') || system.status == 'OFF'"
-                                                style="font-size: .8em;">[{{ system.log.update }}]</span>
+                                                style="font-size: .8em;">[{{ system.log.update ? system.log.update : "00000000 0000" }}]</span>
                                             <span
                                                 ng-show="(system.log.voltage == 'false' || system.log.safety == 'false' || (system.log.commDelay != '-1' && system.log.voltage == 'true' && system.log.safety == 'true')) && system.status == 'ON'"
                                                 style="font-size: .8em;">
                                                 <b><i>
                                                         <span>{{ system.log.voltage == 'false' ? 'Falla de
                                                             electricidad!' :
-                                                            system.log.safety == 'false' ? 'Alarma de atasco!' :
-                                                            system.log.commDelay != '-1' ? 'Falla de comunicación!' : ''
+                                                            system.log.safety == 'false' ? '¡Alarma: falla de seguridad!' :
+                                                            system.log.commDelay != '-1' ? '¡Falla de comunicación!' : ''
                                                             }}</span>
                                                         <span
                                                             ng-show="system.log.voltage == 'false' || system.log.safety == 'false'">{{
@@ -303,13 +306,27 @@
                                                 style="font-size: .8em;"><span
                                                     id="errorTime_{{ system.key }}"></span></span>
                                         </div>
-                                        <!-- <div class="col s2" style="margin-top: 10px;">
-                                            <i class="fa fa-undo" aria-hidden="true" style="font-size: 2em;" ng-show="system.direction == 'RR'"></i>
-                                            <i class="fa fa-repeat" aria-hidden="true" style="font-size: 2em;" ng-show="system.direction == 'FF'"></i>
-                                        </div>
-                                        <div class="col s1" style="margin-top: 15px;">
-                                            <i class="fa fa-chevron-right" aria-hidden="true"></i>
-                                        </div> -->
+                                        
+                                        <div class="col s9 limitar" ng-show="system.type == 'Estacionario'">
+                                            <span style="font-size: 1.2em;">{{ system.name }}</span>
+                                            <br>
+                                            <span style="font-size: .8em;">
+                                                <i class="material-icons" style="font-size: 1.2em;">alarm</i>
+                                                {{ system.log && system.log.timer  ? system.log.timer : "00:00:00" }}
+                                            </span>
+                                            <span style="font-size: .8em;">
+                                                <i class="material-icons" style="font-size: 1.2em;">map</i>
+                                                {{ system.log && system.log.plot ? system.log.plot : 0}}
+                                            </span>
+                                            <span style="font-size: .8em;">
+                                                <i class="fa fa-tint" aria-hidden="true"></i>
+                                                {{ system.log.presion ? system.log.presion : 0 }}psi
+                                            </span>
+                                            <br>
+                                            <span style="font-size: .8em;"><b>
+                                                {{ system.status }}</b>&nbsp;</span>
+                                            <span style="font-size: .8em;">[{{ system.log.update ? system.log.update : "00000000 0000" }}]</span>
+                                           </div>
                                     </div>
                                 </a>
                             </div>
@@ -387,6 +404,11 @@
                             <input id="newDeviceLarge" type="number" placeholder="Largo del equipo"
                                 ng-model="newDevice.length">
                             <label for="newDeviceLarge">Largo del equipo</label>
+                        </div>
+                        <div class="input-field col s6" ng-show="newDevice.type == 'PC' || newDevice.type == 'PL'">
+                            <input id="newDeviceMaxVelocity" type="number" placeholder="Límite de velocidad"
+                                ng-model="newDevice.maxVelocity">
+                            <label for="newDeviceLarge">Límite de velocidad</label>
                         </div>
                         <div class="input-field col s6"
                             ng-show="newDevice.type != 'PC' && newDevice.type != 'PL' && newDevice.type != 'PL'">
@@ -542,7 +564,7 @@
                         <div class="row" style="margin-bottom: 0px;">
                             <div id="map" class="main-container map col s12 m8"
                                 style="margin-top: 0px; height: calc(100vh - 390px);"></div>
-                            <div class="input-field col s12 m4" style="margin-bottom: 0;">
+                            <div class="input-field col s12 m4" style="margin-bottom: 0; margin-top: 0;">
                                 <div class="row">
                                     <div class="row hide-on-small-only" style="margin-bottom: 0px;">
                                         <!-- <div class="switch switch2 col s4 switchLabel" style="margin-top: -5px;">Encendido</div> -->
@@ -588,7 +610,7 @@
                                 </div>
                                 <div class="row" style="margin-bottom: 0;"
                                     ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'">
-                                    <div class="bordered col s2 m11 row"
+                                    <div class="bordered col s2 m11 row" ng-click="actualSystemWindows('as_config')"
                                         style="border-bottom: 1px solid grey; margin-bottom: 15px;">
                                         <div class="col s12 m2 center-align"><i class="material-icons">network_check</i>
                                         </div>
@@ -923,6 +945,15 @@
                                                 style="color: grey"
                                                 ng-click="editSensorPresion = !editSensorPresion"></i></td>
                                     </tr>
+                                    <tr ng-init="editMaxVelocity = true">
+                                        <td style="text-align: left;">Límite de velocidad</td>
+                                        <td style="text-align: left;"><input type="number"
+                                                ng-model="actualSystem.maxVelocity" ng-readonly="editMaxVelocity">
+                                        </td>
+                                        <td style="text-align: left;"><i class="fa fa-pencil" aria-hidden="true"
+                                                style="color: grey"
+                                                ng-click="editMaxVelocity = !editMaxVelocity"></i></td>
+                                    </tr>
                                     <!-- <tr ng-init="editMagneticDesv = true">
                                         <td style="text-align: left;">Posición Desv. Magnéticia</td>
                                         <td style="text-align: left;"><input type="number"
@@ -1110,7 +1141,7 @@
                                         <div class="sercices-options gray-text white"
                                             ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'"
                                             style="background: {{ reg.safety == 'false' ? 'palevioletred !important' : reg.state == 'ON' ? 'lightseagreen !important' : 'lightgray !important' }}; color: {{ reg.state == 'ON' ? 'white' : 'black' }};">
-                                            Sistema {{ reg.state == "ON" ? "Encendido" :  (reg.safety == "false" ? " Atascado!" : "Apagado") }}<br>
+                                            {{ reg.state == "ON" ? "Sistema Encendido" :  (reg.safety == "false" ? " Falla de Seguridad!" : "Sistema Apagado") }}<br>
                                             <span style="font-size: .8em;">[{{ reg.date }} - {{ reg.update }}]</span> <br>
                                             <i class="fa fa-undo" style="font-size: .8em; width: 25px;"
                                                 ng-show="reg.direction == 'RR'"></i>
@@ -1160,13 +1191,24 @@
                                 </div>
                                 <div class="row" ng-show="as_users">
                                     <p></p>
-                                    <div class="col s12" ng-repeat="reg in users[actualSystem.key]">
+                                    <div class="col s12" ng-repeat="reg in users[actualSystem.key]" ng-show="reg.alias != authUser.displayName">
                                         <div class="sercices-options gray-text white">
-                                            <i class="fa fa-user" aria-hidden="true" style="margin-top: 5px;"></i> 
-                                            {{ reg }}
+                                            <div class="row" style="margin-bottom: 0;">
+                                                <div class="col s9 m10">
+                                                    <div class="row" style="margin-bottom: 0;">
+                                                        <div class="col s1"><i class="fa fa-user" aria-hidden="true" style="margin-top: 5px;"></i> </div>
+                                                        <div class="col s10">{{ reg.alias }} <br> [{{ reg.role }}]</div>
+                                                    </div>
+                                                </div>
+                                                <div class="col s3 m2 right-align">
+                                                    <i class="fa fa-trash-o" aria-hidden="true" 
+                                                        ng-click="deleteUser(actualSystem.key, reg.alias)"
+                                                        ng-show="reg.role != 'propietario'"></i>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="col s12">
+                                    <div class="col s12" ng-show="userLocations[dotToDash(authUser.email)].systems[actualSystem.key] == 'propietario'">
                                         <div class="sercices-options gray-text white text-centered modal-trigger" href="#modalAddUser">
                                             <i class="fa fa-plus" aria-hidden="true" style="margin-top: 5px;"></i> 
                                             Invitar a alguien
@@ -1175,10 +1217,6 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- <div class="row" ng-show="!as_config && !as_adjust && !as_more && !as_hist">
-                            <img src="{{ actualSystem.type.includes('Pivote Central') || actualSystem.type.includes('PC') || actualSystem.type.includes('PL') ? 'assets/images/riegoPivote.png' : actualSystem.includes('Estacionario') || actualSystem.type.includes('Aspersor') || actualSystem.includes('Tubería') ? 'assets/images/riegoEstacionario.png' : actualSystem.type == 'Pozo' ? 'assets/images/riegoPozo.png' : 'assets/images/riegoVenturi.png' }}"
-                                style="width: 100%;" alt="imagen">
-                        </div> -->
                     </div>
 
                     <p style="margin-bottom: 70px;"></p>
@@ -1198,6 +1236,14 @@
                         <div class="input-field col s12">
                             <input id="newUserName" type="text" ng-model="newUserName">
                             <label>Nombre</label>
+                        </div>
+                        <div class="input-field col s12">
+                            <select id="newUserRole" style="display:block;" ng-model="newUserRole">
+                                <option value="propietario">Propietario</option>
+                                <option value="trabajador" selected="selected">Trabajador</option>
+                                <!-- <option value="observador">Observador</option> -->
+                            </select>
+                            <label style="top: -28px; font-size: .8em;">Role</label>
                         </div>
                     </div>
                 </div>
@@ -1527,7 +1573,7 @@
                             <i class="material-icons" style="color: palevioletred; margin-top: 4px;">brightness_1</i>
                         </div>
                         <div class="col s10">
-                            Alarma de atasco
+                            ¡Alarma: falla de seguridad!
                         </div>
                     </div>
                     <div class="row sercices-options white">

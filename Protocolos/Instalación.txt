@@ -1,0 +1,136 @@
+============================================================================
+Protocolo de instalación del sistema de automatización de riego DTA-Agrícola
+============================================================================
+
+1.- Probar el funcionamiento del equipo:
+	1.1.- Avance:
+			1.1.1.- Al 100% (No se detiene)
+			1.1.2.- Al 50% (avanza por 30seg y se detiene otros 30seg)
+	1.2.- Retroceso:
+			1.2.1.- Al 100% (No se detiene)
+			1.2.2.- Al 50% (retrocede por 30seg y se detiene otros 30seg)
+	1.3.- Seguridad: 
+			1.3.1.- Cortarla en una de las torres
+			1.3.2.- Revisar si hay varilla de seguridad en la última torre y probar su funcionamiento
+	1.4.- Arranque automático
+			1.4.1.- Mover el equipo en dirección de avance, cortar la corriente, esperar unos segundos y concectar nuevamente. El equipo debe iniciar automáticamente en la misma dirección.
+			1.4.2.- Mover el equipo en dirección de retroceso, y repetir los pasos de 1.4.1
+	1.5.- Revisar el correcto funcionamiento de los motores:
+			1.5.1.- Revisar en las etiquetas de los motores las RPM
+					1.5.1.1.- Todos deben ser de baja o de alta
+					1.5.1.2.- En caso de que no sean todos similares, fijarse si el de alta está en la última torre
+	1.6.- Revisar si tiene control de pistola (cañón) en la torre final y si está concectado
+	
+2.- Montaje del módulo de control auxiliar en la torre central
+	2.1.- Contactores estándar
+			2.1.1.- Desconectar el cable de la bobina de activación (A2) del contactor de avance y conectarlo con FF(IN) del módulo
+			2.1.2.- Conectar FF(OUT) del módulo con la bobina de activación (A2) del contactor de avance 
+			2.1.3.- Hacer puente entre el cable de avance que sale para la torre final y FF(OUT) del módulo
+			2.1.4.- Desconectar el cable de la bobina de activación (A2) del contactor de retroceso y conectarlo con RR(IN) del módulo
+			2.1.5.- Conectar RR(OUT) del módulo con la bobina de activación (A2) del contactor de retroceso
+			2.1.6.- Hacer puente entre el cable de avance que sale para la torre final y FF(OUT) del módulo
+			2.1.7.- Desconectar el cable del timer y conectarlo con T(IN) del módulo
+			2.1.8.- Conectar T(OUT) del módulo con el cable del timer que sale hacia la torre final
+			2.1.9.- En caso de equipos compatibles con Valley, conectar el P(OUT) al cable de seguridad que sale hacia la torre final
+			2.1.10.- Conexión de la seguridad: 
+					2.1.8.1.- Desconectar el cable de pistola final de la regleta principal
+					2.1.8.2.- Conectarlo con el cable de retorno de seguridad
+					2.1.8.3.- Asegurarse de desconectar el cable de pistola final de la regleta de la torre final
+					2.1.8.4.- En caso de equipos compatibles con Valley, si no se cuenta con cable de pistola final, invertir la conexión de la seguridad de salida y la de entrada (esto hará que se pueda medir la seguridad en la última torre)
+	2.2.- Contactores con relay H
+			2.2.1.- Desconectar el cable de la bobina de activación (A2) del contactor de avance y conectarlo con FF(IN) del módulo
+			2.2.2.- Conectar FF(OUT) del módulo con la bobina de activación (A2) del contactor de avance 
+			2.2.3.- Hacer puente entre el cable de avance que sale para la torre final y FF(OUT) del módulo
+			2.2.4.- Desconectar el cable de la bobina de activación (A2) del contactor de retroceso y conectarlo con RR(IN) del módulo
+			2.2.5.- Conectar RR(OUT) del módulo con la bobina de activación (A2) del contactor de retroceso
+			2.2.6.- Hacer puente entre el cable de avance que sale para la torre final y FF(OUT) del módulo
+			2.2.7.- Desconectar el cable del timer y conectarlo con T(IN) del módulo
+			2.2.8.- Conectar T(OUT) del módulo con el cable del timer que sale hacia la torre final
+			2.2.9.- En caso de equipos compatibles con Valley, conectar el P(OUT) al cable de seguridad que sale hacia la torre final
+			2.2.10.- Conexión de la seguridad: 
+					2.2.8.1.- Desconectar el cable de pistola final de la regleta principal
+					2.2.8.2.- Conectarlo con el cable de retorno de seguridad
+					2.2.8.3.- Asegurarse de desconectar el cable de pistola final de la regleta de la torre final
+					2.2.8.4.- En caso de equipos compatibles con Valley, si no se cuenta con cable de pistola final, invertir la conexión de la seguridad de salida y la de entrada (esto hará que se pueda medir la seguridad en la última torre)
+	2.3.- Contactores con enclave mecánico
+			2.3.1.- Desconectar el cable del contacto auxiliar "Normalmente Cerrado" (21) del contactor de retroceso (se encuentra al frente) y conectarlo con FF(IN) del módulo
+			2.3.2.- Conectar FF(OUT) del módulo con el contacto auxiliar "Normalmente Cerrado" (21) del contactor de retroceso (se encuentra al frente)
+			2.3.3.- Hacer puente entre el cable de avance que sale para la torre final y FF(OUT) del módulo
+			2.3.4.- Desconectar el cable del contacto auxiliar "Normalmente Cerrado" (21) del contactor de avance (se encuentra detrás) y conectarlo con RR(IN) del módulo
+			2.3.5.- Conectar RR(OUT) del módulo con el del contacto auxiliar "Normalmente Cerrado" (21) del contactor de avance (se encuentra detrás)
+			2.3.6.- Hacer puente entre el cable de avance que sale para la torre final y FF(OUT) del módulo
+			2.3.7.- Desconectar el cable del timer y conectarlo con T(IN) del módulo
+			2.3.8.- Conectar T(OUT) del módulo con el cable del timer que sale hacia la torre final
+			2.3.9.- En caso de equipos compatibles con Valley, conectar el P(OUT) al cable de seguridad que sale hacia la torre final
+			2.3.10.- Conexión de la seguridad: 
+					2.3.8.1.- Desconectar el cable de pistola final de la regleta principal
+					2.3.8.2.- Conectarlo con el cable de retorno de seguridad
+					2.3.8.3.- Asegurarse de desconectar el cable de pistola final de la regleta de la torre final
+					2.3.8.4.- En caso de equipos compatibles con Valley, si no se cuenta con cable de pistola final, invertir la conexión de la seguridad de salida y la de entrada (esto hará que se pueda medir la seguridad en la última torre)
+	2.4.- Contactores con módulo de relays de propósito DTD
+			2.4.1.- Retirar el relay encargado del enclave de la dirección
+			2.4.1.- Desconectar el cable de la bobina de activación (A2) del contactor de avance y conectarlo con FF(IN) del módulo
+			2.1.2.- Conectar FF(OUT) del módulo con la bobina de activación (A2) del contactor de avance 
+			2.1.3.- Hacer puente entre el cable de avance que sale para la torre final y FF(OUT) del módulo
+			2.1.4.- Desconectar el cable de la bobina de activación (A2) del contactor de retroceso y conectarlo con RR(IN) del módulo
+			2.1.5.- Conectar RR(OUT) del módulo con la bobina de activación (A2) del contactor de retroceso
+			2.1.6.- Hacer puente entre el cable de avance que sale para la torre final y FF(OUT) del módulo
+			2.1.7.- Desconectar el cable del timer y conectarlo con T(IN) del módulo
+			2.1.8.- Conectar T(OUT) del módulo con el cable del timer que sale hacia la torre final
+			2.1.9.- En caso de equipos compatibles con Valley, conectar el P(OUT) al cable de seguridad que sale hacia la torre final
+			2.1.10.- Conexión de la seguridad: 
+					2.1.8.1.- Desconectar el cable de pistola final de la regleta principal
+					2.1.8.2.- Conectarlo con el cable de retorno de seguridad
+					2.1.8.3.- Asegurarse de desconectar el cable de pistola final de la regleta de la torre final
+					2.1.8.4.- En caso de equipos compatibles con Valley, si no se cuenta con cable de pistola final, invertir la conexión de la seguridad de salida y la de entrada (esto hará que se pueda medir la seguridad en la última torre)
+	2.5.- Revisar que la señal de salida para la torre final no esté conectada a fase desde los contactores, en caso de que sí, desconectar
+	2.6.- Pruebas del módulo de control auxiliar:
+			2.6.1.- Módulo apagado (switch OFF):
+					2.6.1.1.- Debe haber continuidad entre FF(IN) y FF(OUT)
+					2.6.1.2.- Debe haber continuidad entre RR(IN) y RR(OUT)
+					2.6.1.3.- Debe haber continuidad entre T(IN) y T(OUT)
+					2.6.1.4.- Debe haber continuidad entre P(IN) y P(OUT)
+					2.6.2.1.- Realizar las pruebas de funcionamiento manual del equipo que se muestran en el paso 1
+			2.6.2.- No encender el módulo (switch ON) hasta que se conecte el Módulo de control principal (paso 3)
+
+3.- Montaje del módulo de control principal en la torre final
+	3.1.- Conectar el neutro (N) al neutro en la regleta
+	3.2.- Timer:
+			3.2.1.- Desconectar el cable del timer en la regleta y empalmarlo con T(IN) 
+			3.2.2.- Conectar T(OUT) en la posición que ocuparía el timer en la regleta
+	3.3.- Conectar el avance FF(OUT) al FF en la regleta 
+	3.4.- Conectar el retroceso RR(OUT) al RR en la regleta 
+	3.5.- Seguridad:
+			3.5.1.- Conectar S(IN) a la Pistola Final (End Gung) en la regleta
+			3.5.1.- Desconectar salida de la Pistola Final (End Gung) en la regleta
+	3.6.- En caso de contarse con un cañón o pistola final, empalmar P con el cable de salida de la Pistola Final
+	3.7.- Pruebas del módulo de control principal:
+			3.7.1.- Módulo apagado (switch OFF):
+					3.7.1.1.- Realizar las pruebas de funcionamiento manual del equipo que se muestran en el paso 1
+			
+4.- Orden de encendido:
+	4.1.- Apagar sistema de riego
+	4.2.- Encender el módulo principal (switch ON) en la torre final
+	4.3.- Encender el módulo auxiliar (switch ON) en la caja de control central
+	4.4.- Encender sistema de riego
+
+5.- Orden de apagado:
+	5.1.- Apagar sistema de riego
+	5.2.- Apagar el módulo auxiliar (switch ON) en la caja de control central
+	5.3.- Apagar el módulo principal (switch ON) en la torre final
+	5.4.- Encender sistema de riego
+
+=========================================
+Código de colores según el tipo de equipo
+=========================================
+
+Función | Valley  | Zimmatic | Reinke  | Reintic 
+N 		| Blanco  | Blanco   | Blanco  | Blanco  
+FF		| Café    | Rosa     | Morado  | Rosa - Amarillo  
+RR		| Naranja | Amarillo | Rosa    | Amarillo - Rosa
+T		| Morado  | Naranja  | Naranja | Naranja 
+Pistola | Rosa    | Morado   | Amarillo| Morado  
+S(IN)	| Amarillo| Café     | Café    | Café    
+S(OUT)	| Ama-Roj |          |         |         
+
+

@@ -19,7 +19,8 @@
 	[ ] Bugs
 		[x] Problemas con el control del tiempo
 		[.] Problemas con la lectura de la presión
-		[ ] Se queda congelado el sistema
+		[.] Se queda congelado el sistema
+			[ ] Cuando no se logra establecer la comunicación, el sistema se resetea una y otra vez
 
 [ ] J0008 v0.2
 
@@ -71,6 +72,11 @@
 			[x] Agregar ajustes por parte de los usuarios
 			[x] Agregar la desviación magnética
 			[x] Agregar acceso a la web de cálculo de la desviación magnética
+		[ ] Control de velocidad de los equipos
+			[ ] Cambiar el control de velocidad de los equipos
+			[ ] Definir velocidad máxima de un equipo
+		[ ] Mejorar la velocidad de actualización
+		[ ] 
 	
 	[ ] Equipos Estacionarios
 		[x] Crear simbología rápida del estado del equipo
@@ -93,31 +99,36 @@
 		[ ] Mejorar el mapa y la señalización gráfica de la posición
 			[x] Agregar semicírculos
 			[x] Mostrar la posición
+			[x] Mostrar rosa náutica
 			[ ] Agregar mapa offline
 		[ ] Agregar el estado del tiempo
 		[ ] Procesar error de recepción de datos
 		[x] Agregar la función "Invitar a alguien"
 		
-	[x] Bugs:
-		[x] Click en la circunferencia del pivote muestra/oculta los planes pero no oculta al resto de las ventanas abiertas << Caducado >>
-		[x] Revisar los colores de señalización
-			[x] No se refresca adecuadamente el color en:
-				[x] Listado de equipos
-				[x] Cabecera del equipo
-				[x] Representación del equipo en el mapa
-			[x] Cuando se envía la orden de encendido o apagado recuerda el último color que estuvo (rojo, gris, gris oscuro, etc)
-		[x] Evitar el autobloqueo de la pantalla
-		[x] Evitar el refrescamiento
-		[x] Evitar el zoom
-		[x] Error en el funcionamiento del spinner (encendido/apagado)
-		[x] Cambiar de posición el Encendido y la Dirección
-			[x] Vista móbil
-			[x] Vista escritorio
-		[ ] Cuando un equipo no tiene histórico, se queda con el historial del último equipo revisado
+		[ ] Bugs:
+			[x] Click en la circunferencia del pivote muestra/oculta los planes pero no oculta al resto de las ventanas abiertas << Caducado >>
+			[x] Revisar los colores de señalización
+				[x] No se refresca adecuadamente el color en:
+					[x] Listado de equipos
+					[x] Cabecera del equipo
+					[x] Representación del equipo en el mapa
+				[x] Cuando se envía la orden de encendido o apagado recuerda el último color que estuvo (rojo, gris, gris oscuro, etc)
+			[x] Evitar el autobloqueo de la pantalla
+			[x] Evitar el refrescamiento
+			[x] Evitar el zoom
+			[x] Error en el funcionamiento del spinner (encendido/apagado)
+			[x] Cambiar de posición el Encendido y la Dirección
+				[x] Vista móbil
+				[x] Vista escritorio
+			[x] Problema con la visualización del área de riego
+			[x] Problema con la visualización de las etiquetas de equipos
+			[ ] Cuando un equipo no tiene histórico, se queda con el historial del último equipo revisado
+			[ ] 
 
 [ ] Nube
 
 	[x] Actualizar estado de apagado cuando hay falla de seguridad o la velocidad programada es 0%
+		[x] Suprimir esta actualización
 	[-] Procesar error de recepción de datos
 
 ===== CLIENTES =====

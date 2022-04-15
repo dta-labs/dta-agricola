@@ -139,7 +139,7 @@
 			curl_close($ch);
 		}
 
-		if (($key == "") && ($_GET["st"] && $_GET["st"] == "OFF")) {
+		/*if (($key == "") && ($_GET["st"] && $_GET["st"] == "OFF")) {
 			$url = "https://dta-agricola.firebaseio.com/systems/$id/settings/status.json";
 			$data = '"OFF"';
 			$ch = curl_init();
@@ -154,6 +154,6 @@
 			echo 'Error';
 			}
 			curl_close($ch);
-		}
+		}*/
 	}
 ?>

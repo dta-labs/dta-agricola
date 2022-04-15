@@ -225,7 +225,7 @@ app.controller("ControladorPrincipal", function ($scope) {
                 updateCompass();
                 let status = log.state;
                 hideSpinner(locationKey, status);
-                if ($scope.actualSystem && locationKey == $scope.actualSystem.key) { $scope.selectSystem($scope.systems[locationKey]); }
+                // if ($scope.actualSystem && locationKey == $scope.actualSystem.key) { $scope.selectSystem($scope.systems[locationKey]); }
                 $scope.$apply();
             }
         });
@@ -397,9 +397,6 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     $scope.actualSystemWindows = (win) => {
         $scope.as_config = win == "as_config" ? !$scope.as_config : false;
-        // if (win == "as_config") {
-        //     showPlanRiegoPie();
-        // }
         $scope.as_adjust = win == "as_adjust" ? !$scope.as_adjust : false;
         $scope.as_more = win == "as_more" ? !$scope.as_more : false;
         $scope.as_hist = win == "as_hist" ? !$scope.as_hist : false;
@@ -530,9 +527,18 @@ app.controller("ControladorPrincipal", function ($scope) {
     }
 
     $scope.addNewUserToDevice = () => {
-        updateDeviceUsers(convertDotToDash($scope.newUserEmail), $scope.actualSystem.key, $scope.newUserName, "propietario");
-        location.reload();
+        updateDeviceUsers(convertDotToDash($scope.newUserEmail), $scope.actualSystem.key, $scope.newUserName, $scope.newUserRole);
+        //location.reload();
         document.getElementById("modalAddUser").style.display = "none";
+    }
+
+    $scope.deleteUser = (key, user) => {
+        let deviceUserList = $scope.users[key];
+        for (idx in deviceUserList) {
+            if (deviceUserList[idx].alias == user) {
+                deleteUser(key, idx);
+            }
+        }
     }
 
     $scope.install = () => {
@@ -569,10 +575,11 @@ app.controller("ControladorPrincipal", function ($scope) {
         if (starAngle != endAngle) {
             let length = Object.keys($scope.actualSystem.plans).length;
             let index = `p${length}`;
+            let finalValue = (value <= $scope.actualSystem.maxVelocity) ? value : $scope.actualSystem.maxVelocity;
             let newPlan = {
                 starAngle: "" + starAngle,
                 endAngle: "" + endAngle,
-                value: "" + value,
+                value: "" + finalValue,
                 endGun: endGun
             }
             $scope.actualSystem.plans[index] = newPlan;
@@ -601,7 +608,8 @@ app.controller("ControladorPrincipal", function ($scope) {
         let ep = $scope.actualSystem.plans[$scope.editedPlan];
         ep.starAngle = document.getElementById("editPlanAnguloIni").value;
         ep.endAngle = document.getElementById("editPlanAnduloFin").value;
-        ep.value = document.getElementById("editPlanValue").value;
+        // ep.value = document.getElementById("editPlanValue").value;
+        ep.value = (document.getElementById("editPlanValue").value <= $scope.actualSystem.maxVelocity) ? document.getElementById("editPlanValue").value : $scope.actualSystem.maxVelocity;
         ep.endGun = document.getElementById("editEndGun").value;
         // showPlanRiegoPie();
         $scope.setMachineSettings();
@@ -704,10 +712,25 @@ app.controller("ControladorPrincipal", function ($scope) {
         if (!map) {
             map = L.map('map');
             addLayers();
+            rosanautica();
         }
+    }
+    
+    rosanautica = () => {
+        let north = L.control({position: "topright"});
+        north.onAdd = function(map) {
+            var div = L.DomUtil.create("div", "info legend");
+            div.innerHTML = '<img src="./assets/images/rosa-nautica.png" style="width: 70px;">';
+            return div;
+        }
+        north.addTo(map);
     }
 
     addLayers = () => {
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+        }).addTo(map);
+
         let Satelite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
             attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
         }).addTo(map);
@@ -744,11 +767,12 @@ app.controller("ControladorPrincipal", function ($scope) {
             "Calles  ": Calles,
             "Calles y terreno": Calles_Terreno,
             "Satélite": Satelite,
-            // "Geológico": Geologico,
-            // "Flubial": Flubial
+            "Geológico": Geologico,
+            "Flubial": Flubial
         }
 
-        L.control.layers(baseLayers).addTo(map);
+        // L.control.layers(baseLayers).addTo(map);
+        
     }
 
     initializeSystemMap = (system) => {
@@ -764,18 +788,37 @@ app.controller("ControladorPrincipal", function ($scope) {
     addMarker = (campo) => {
         let coord = [campo.latitude, campo.longitude];
         let text = `
-            <h6>${campo.name}</h6>
-            Estado: <b>${campo.status == "ON" ? "Encendido" : "Apagado"}</b><br>
-            Riego: <b>${campo.irrigation == "a" ? "Automático" : campo.irrigation == "s" ? "Semiautomático" : "Manual"}</b><br>
-            Config: <b>${campo.direction == "FF" ? "Avanzar" : "Retroceder"} ${campo.velocity}%</b><br>
-            Caudal: <b>${campo.caudal}"</b><br>
+            <h6 style="background: ${campo.type == 'Estacionario' && campo.log.state == 'ON' ? 'lightseagreen' : 
+            campo.log.state == 'OFF' ? 'lightgrey' : campo.log.voltage == 'false' ? 'red' : 
+            campo.log.safety == 'false' ? 'palevioletred' : campo.log.commDelay != '-1' ? 'grey' : 'lightseagreen'};">${campo.name}</h6>
+            Estado: <b>${campo.status ? "Encendido" : "Apagado"}</b><br>
+            `;
+        if (campo.type == "PC" || campo.type == "PL") {
+            text += `
+                Config: <b>${campo.direction ? "Avanzar" : "Retroceder"} ${campo.log ? campo.log.speed : 0}%</b><br>
+            `;
+        }
+        text += `
             Lat: <b>${campo.latitude}</b><br>
             Lng: <b>${campo.longitude}</b>
         `;
+        
+        let greenIcon = L.icon({
+            iconUrl: './assets/images/marcador.png',
+            shadowUrl: '',
+        
+            iconSize:     [52, 52], // size of the icon
+            shadowSize:   [50, 64], // size of the shadow
+            iconAnchor:   [26, 52], // point of the icon which will correspond to marker's location
+            shadowAnchor: [4, 62],  // the same for the shadow
+            popupAnchor:  [0, -52] // point from which the popup should open relative to the iconAnchor
+        });
 
         if (!marker[campo.key]) {
             // map.removeLayer(marker[campo.key]);
-            marker[campo.key] = L.marker(coord);
+            // marker[campo.key] = L.marker(coord);
+
+            marker[campo.key] = L.marker(coord, {icon: greenIcon});
             map.addLayer(marker[campo.key]);
         }
         marker[campo.key].bindPopup(text);
@@ -797,7 +840,7 @@ app.controller("ControladorPrincipal", function ($scope) {
     showPC = (campo) => {
         let radius = campo.length ? parseInt(campo.length) : 50;
         let coord = [campo.latitude, campo.longitude];
-        if (campo.plansLength && campo.plansLength > 1) {
+        if (campo.plansLength) {
             for (i in campo.plans) {
                 if (shape[campo.key + i]) {
                     map.removeLayer(shape[campo.key + i]);
@@ -807,12 +850,6 @@ app.controller("ControladorPrincipal", function ($scope) {
                     map.addLayer(shape[campo.key + i]);
                 }
             }
-        } else {
-            if (shape[campo.key]) {
-                map.removeLayer(shape[campo.key]);
-            }
-            shape[campo.key] = semiCircle(coord, radius, parseInt(campo.startAngle), parseInt(campo.endAngle), $scope.getColor(campo, "fill"));
-            map.addLayer(shape[campo.key]);
         }
         showPCPosition(campo);
     }
@@ -837,12 +874,14 @@ app.controller("ControladorPrincipal", function ($scope) {
         if (campo.plots) {
             for (let i = 0; i < 7; i++) {
                 let idx = "p" + i;
-                let newPoligon = campo.plots[idx].poligon;
-                if (poligons[campo.key + idx]) {
-                    map.removeLayer(poligons[campo.key + idx]);
+                if (campo.plots[idx].poligon) {
+                    let newPoligon = campo.plots[idx].poligon;
+                    if (poligons[campo.key + idx]) {
+                        map.removeLayer(poligons[campo.key + idx]);
+                    }
+                    poligons[campo.key + idx] = L.polygon(newPoligon);
+                    map.addLayer(poligons[campo.key + idx]);
                 }
-                poligons[campo.key + idx] = L.polygon(newPoligon);
-                map.addLayer(poligons[campo.key + idx]);
             }
         }
     }
@@ -940,7 +979,7 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     $scope.msToTime = (duration) => {
         if (!duration) { return "00:00:00"; };
-        return getDayFromMs + ":" + getHourFromMs + ":" + getMinutesFromMs;
+        return $scope.getDayFromMs(duration) + ":" + $scope.getHourFromMs(duration) + ":" + $scope.getMinutesFromMs(duration);
     }
 
     $scope.getDayFromMs = (duration) => {
@@ -958,6 +997,14 @@ app.controller("ControladorPrincipal", function ($scope) {
         return (minutes < 10 ? "0" + minutes : minutes);
     }
 
+    $scope.dashToDot = (input) => {
+        return convertDashToDot(input);
+    }
+
+    $scope.dotToDash = (input) => {
+        return convertDotToDash(input);
+    }
+
     // #endregion SCRIPTS GENERALES
 
     const requestWakeLock = async () => {
@@ -970,6 +1017,7 @@ app.controller("ControladorPrincipal", function ($scope) {
     }
 
     $scope.inicializacion = () => {
+        document.getElementById('contenido').style.display = 'none';
         requestWakeLock();
         getLocation();
         initializeMap();
@@ -978,8 +1026,8 @@ app.controller("ControladorPrincipal", function ($scope) {
             if (!$scope.authUser) {
                 $scope.showWindow('login');
                 $scope.$apply();
-            } else {
-                $scope.showWindow('listado');
+            // } else {
+            //     $scope.showWindow('listado');
             }
         }, 5000);
     }

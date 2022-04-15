@@ -1,0 +1,27 @@
+=============================
+Resolución de problemas (Q&A)
+=============================
+
+Q: Equipos de tipo Zimmatic y Reintic, última torre camina con dificultad:
+	- Pasos cortos de menos de un segundo
+	- Relevador enclavando y desenclavando constantemente
+A: Desconectar de la regleta el cable de salida de pistola final y revisar que los relays estén correctamente instalados
+
+Q: Pivote Valley, con nuestro equipo conectado, enclava y desenclava seguidamente el contactor
+A: Retirar el relay de propósito DTD
+
+Q: Pivote Valley, con nuestro equipo conectado, solo camina en una dirección
+A: Se debe al relay de propósito DTD. La solución es conectar adecuadamente el módulo de control auxiliar (ver protocolo de instalación)
+
+Q: Pivote Valley, con nuestro equipo conectado, tiene problemas de alineación cuando se cambia de dirección.
+A: Conectar adecuadamente el módulo de control auxiliar (ver protocolo de instalación)
+
+Q: Pivote Valley, no cuenta con cable de pistola final.
+A: Invertir la conexión de la seguridad de salida y la de entrada (esto hará que se pueda medir la seguridad en la última torre)
+
+Q: Contactores de avance y/o retroceso zumban.
+A: Revisar que la señal de salida para la torre final no esté conectada a fase, en caso de que sí, desconectar.
+
+Q: Pivote Zimmatic no rienicia automáticamente
+A: - Revisar la configuración del temporizador de reinicio
+   - Si el temporizador de inicio no funciona adecuadamente, saltarlo
