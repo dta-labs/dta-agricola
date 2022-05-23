@@ -1,0 +1,10 @@
+Estimado CLIENTE, con la intención de brindarle un mejor servicio le solicitamos nos responda algunas preguntas con respecto a cada uno de sus sistemas de riego:
+1.- Marca del equipo
+2.- ¿Funciona la seguridad?
+3.- Sobre los motores de las torres
+	a) ¿Funcionan a la misma velocidad?
+	b) ¿Hay motores de alta y de baja en el mismo sistema?
+4.- Foto del esquema eléctrico del equipo
+5.- Foto del interior del panel eléctrico donde se aprecien los contactores y los colores de los cables
+6.- ¿El sistema incluye los cables Avanzar, Retroceder, Pistola final (cañón), Seguridad y Temporizador (timer)?
+7.- ¿Existe señal telefónica en la zona donde se encuentra el sistema de riego (puede ser llamada de voz o WhatsApp)?

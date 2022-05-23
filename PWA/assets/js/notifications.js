@@ -4,18 +4,18 @@ const FIREBASE_AUTH = firebase.auth();
 const FIREBASE_MESSAGING = firebase.messaging();
 const FIREBASE_DATABASE = firebase.database();
 
-const signInButton = document.getElementById('sign-in');
-const signOutButton = document.getElementById('sign-out');
+// const signInButton = document.getElementById('sign-in');
+// const signOutButton = document.getElementById('sign-out');
 const suscribeButton = document.getElementById('suscribe');
 const unSuscribeButton = document.getElementById('unsuscribe');
-const sendNotificationForm = document.getElementById('send-notification-form');
+// const sendNotificationForm = document.getElementById('send-notification-form');
 
 /* Event Listeners */
 
 // signInButton.addEventListener('click', signIn);
 // signOutButton.addEventListener('click', signOut);
-// suscribeButton.addEventListener('click', suscribeToNotifications);
-// unSuscribeButton.addEventListener('click', unSuscribeToNotifications);
+suscribeButton.addEventListener('click', suscribeToNotifications);
+unSuscribeButton.addEventListener('click', unSuscribeToNotifications);
 // sendNotificationForm.addEventListener('submit', sendNotification);
 
 FIREBASE_AUTH.onAuthStateChanged(handleAuthStateChanged);
@@ -39,8 +39,8 @@ function handleAuthStateChanged(user) {
         // suscribeButton.removeAttribute("hidden");
         // unSuscribeButton.removeAttribute("hidden");
     } else {
-        signInButton.removeAttribute("hidden");
-        signOutButton.setAttribute("hidden", "true");
+        // signInButton.removeAttribute("hidden");
+        // signOutButton.setAttribute("hidden", "true");
         suscribeButton.setAttribute("hidden", "true");
         unSuscribeButton.setAttribute("hidden", "true");
     }

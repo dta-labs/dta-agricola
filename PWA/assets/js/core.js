@@ -49,6 +49,7 @@ app.controller("ControladorPrincipal", function ($scope) {
     $scope.statisticSelectedSystem = {};
     let sendCommand = {};
     $scope.logs = {};
+    $scope.logDetail = {};
     $scope.users = {};
     $scope.as_config = false;
     $scope.as_adjust = false;
@@ -165,6 +166,15 @@ app.controller("ControladorPrincipal", function ($scope) {
         });
     };
 
+    $scope.isSystemOfRole = (role) => {
+        let userRole = "";
+        if ($scope.actualSystem) {
+            userRole = $scope.userLocations[convertDotToDash($scope.authUser.email)].systems[$scope.actualSystem.key];
+        }
+        let result = (userRole  == role) ? true : false;
+        return result;
+    }
+
     // #endregion USER
 
     // #region DEVICES
@@ -224,11 +234,24 @@ app.controller("ControladorPrincipal", function ($scope) {
                 }
                 updateCompass();
                 let status = log.state;
+                showAlert(locationKey, log.safety);
                 hideSpinner(locationKey, status);
                 // if ($scope.actualSystem && locationKey == $scope.actualSystem.key) { $scope.selectSystem($scope.systems[locationKey]); }
                 $scope.$apply();
             }
         });
+    }
+
+    showAlert = (locationKey, safety) => {
+        if (safety == "false" && $scope.systems[locationKey].status == "ON") {
+            let htmlMsg = '<b>' + $scope.systems[locationKey].name + ': Falla de seguridad!</b>';
+            M.toast({html: htmlMsg});
+            let alertSound = document.getElementById("alertSound");
+            alertSound.play(); 
+            setTimeout(function () {
+                alertSound.pause();
+            }, 15000);
+        }
     }
 
     findCommErrors = () => {
@@ -301,6 +324,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         $scope.showWindow('sistema');
         updateCompass();
         initializeSystemMap($scope.actualSystem);
+        getMetorologicalData();
     }
 
     setActualSystemPlans = () => {
@@ -327,6 +351,13 @@ app.controller("ControladorPrincipal", function ($scope) {
             }
             $scope.$apply();
         }, 500);
+    }
+
+    getMetorologicalData = () => {
+        $.ajax({url: `https://api.openweathermap.org/data/2.5/weather?lat=${$scope.actualSystem.latitude}&lon=${$scope.actualSystem.longitude}&appid=db9c92bd1f6d8d5db0aa0bae36ce093f`, success: function(result){
+            $scope.meteo = result;
+            $scope.$apply();
+        }});
     }
 
     $scope.setMachineState = () => {                                       // New *******************
@@ -370,6 +401,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         $scope.actualSystem.longitude = "" + $scope.actualSystem.longitude;
         $scope.actualSystem.plansLength = "" + $scope.actualSystem.plansLength;
         $scope.actualSystem.velocity = "" + $scope.actualSystem.velocity;
+        $scope.actualSystem.maxVelocity = "" + $scope.actualSystem.maxVelocity <= 100 ? $scope.actualSystem.maxVelocity : 100;
         $scope.actualSystem.sensorPresion = "" + $scope.actualSystem.sensorPresion;
         $scope.actualSystem.irrigation = "a";
         // $scope.actualSystem.irrigation = document.querySelector('input[name=groupRiego]:checked').getAttribute("data");
@@ -427,7 +459,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         firebase.database().ref("configurations/" + type).once("value", config => {
             $scope.systemConfig = config.val();
             $scope.systemConfigType = type;
-            // $scope.$apply();
+            $scope.$apply();
         });
     }
 
@@ -568,9 +600,9 @@ app.controller("ControladorPrincipal", function ($scope) {
         }
         if (starAngle == -1 || endAngle == -1) {
             starAngle = document.getElementById('planAnguloIni').value,
-                endAngle = document.getElementById('planAnduloFin').value,
-                value = document.getElementById('planValue').value,
-                endGun = document.getElementById('planEndGun').value
+            endAngle = document.getElementById('planAnduloFin').value,
+            value = document.getElementById('planValue').value,
+            endGun = document.getElementById('planEndGun').value
         }
         if (starAngle != endAngle) {
             let length = Object.keys($scope.actualSystem.plans).length;
@@ -720,7 +752,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         let north = L.control({position: "topright"});
         north.onAdd = function(map) {
             var div = L.DomUtil.create("div", "info legend");
-            div.innerHTML = '<img src="./assets/images/rosa-nautica.png" style="width: 70px;">';
+            div.innerHTML = '<img src="./assets/images/rosa-nautica.png" style="width: 45px;">';
             return div;
         }
         north.addTo(map);
@@ -787,10 +819,12 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     addMarker = (campo) => {
         let coord = [campo.latitude, campo.longitude];
-        let text = `
-            <h6 style="background: ${campo.type == 'Estacionario' && campo.log.state == 'ON' ? 'lightseagreen' : 
-            campo.log.state == 'OFF' ? 'lightgrey' : campo.log.voltage == 'false' ? 'red' : 
-            campo.log.safety == 'false' ? 'palevioletred' : campo.log.commDelay != '-1' ? 'grey' : 'lightseagreen'};">${campo.name}</h6>
+        let text = "";
+        text += `
+            <h6 style="background: ${campo.status == false ? 'lightgrey' : 
+            campo.log && campo.log.voltage == 'false' ? 'red' : 
+            campo.log && campo.log.safety == 'false' ? 'palevioletred' : 
+            campo.log && campo.log.commDelay != '-1' ? 'grey' : 'lightseagreen'};">${campo.name}</h6>
             Estado: <b>${campo.status ? "Encendido" : "Apagado"}</b><br>
             `;
         if (campo.type == "PC" || campo.type == "PL") {
@@ -845,10 +879,11 @@ app.controller("ControladorPrincipal", function ($scope) {
                 if (shape[campo.key + i]) {
                     map.removeLayer(shape[campo.key + i]);
                 }
-                if (campo.plans[i].value > 0) {
+                // if (campo.plans[i].value > 0) {
+                    // shape[campo.key + i] = semiCircle(coord, radius, parseInt(campo.plans[i].starAngle), parseInt(campo.plans[i].endAngle), getRandomColor(campo.plans[i].value));
                     shape[campo.key + i] = semiCircle(coord, radius, parseInt(campo.plans[i].starAngle), parseInt(campo.plans[i].endAngle), getRandomColor(campo.plans[i].value));
                     map.addLayer(shape[campo.key + i]);
-                }
+                // }
             }
         }
         showPCPosition(campo);
@@ -910,6 +945,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         if (value > 0) {
             let colors = ["#00FF00", "#82E0AA", "#2ECC71 ", "#28B463", "#239B56", "#1D8348", "#186A3B", "#1E8449", "#196F3D", "#145A32"];
             color = colors[Math.floor(Math.random() * 10)];
+            color = "#00FF00";
         }
         return color;
     }
@@ -1042,6 +1078,7 @@ document.addEventListener('DOMContentLoaded', function () {
     M.Modal.init(document.querySelectorAll('.modal'));
     M.FloatingActionButton.init(document.querySelectorAll('.fixed-action-btn'));
     M.FormSelect.init(document.querySelectorAll('.select'));
+    M.Collapsible.init(document.querySelectorAll('.collapsible'));
 });
 
 // #endregion Materializes

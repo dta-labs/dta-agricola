@@ -60,3 +60,19 @@ self.addEventListener('fetch', e => {
         })
 });
 
+// navigator.serviceWorker.ready.then(registration => {
+//     if (registration.sync) {
+//         // Background Sync is supported.
+//     } else {
+//         // Background Sync isn't supported.
+//     }
+// });
+
+// navigator.serviceWorker.ready.then(registration => {
+//     if (registration.periodicSync) {
+//         // Periodic Background Sync is supported.
+//     } else {
+//         // Periodic Background Sync isn't supported.
+//     }
+// });
+

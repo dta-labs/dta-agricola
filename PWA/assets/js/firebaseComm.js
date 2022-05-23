@@ -48,6 +48,46 @@ function initializeFirebaseUI() {
     ui.start('#firebaseui-auth-container', uiConfig);
 }
 
+// #region NOTIFICATIONS
+
+// const messaging = firebase.messaging();
+
+// function InitializeFirebaseMessaging() {
+//     messaging
+//         .requestPermission()
+//         .then(function() {
+//             console.log("Notification permission");
+//         })
+//         .then(function(token) {
+//             console.log("Token: " + token);
+//         })
+//         .catch(function(reason) {
+//             console.error("Error: " + reason);
+//         });
+//     }
+    
+// messaging.onMessage(function(payload) {
+//     console.log(payload);
+// });
+
+// messaging.onTokenRefresh(function() {
+//     messaging.getToken()
+//         .then(function(newToken) {
+//             console.log("New Token: " + newToken);
+//         })
+//         .catch(function(reason) {
+//             console.error("Error: " + reason);
+//         });
+// })
+
+// messaging.setBackgroundMessagingHandler(function(payload) {
+//     console.log(payload);
+// });
+
+// InitializeFirebaseMessaging();
+
+// #endregion NOTIFICATIONS
+
 function loadCamposFromFB() {         // Old ***********************
     return new Promise((resolve, reject) => {
         firebase.database().ref("campos").on("value", campos => {

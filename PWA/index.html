@@ -502,7 +502,7 @@
                     <div class="switchControl input-field" ng-click="showWindow('listado')"
                         style="background: {{ actualSystem.type == 'Estacionario' && actualSystem.log.state == 'ON' ? 'lightseagreen' : 
                                 actualSystem.log.state == 'OFF' ? 'lightgrey' : actualSystem.log.voltage == 'false' ? 'red' : 
-                                actualSystem.log.safety == 'false' ? 'palevioletred' : actualSystem.log.commDelay != '-1' ? 'grey' : 'lightseagreen' }};">
+                                actualSystem.log.safety == 'false' ? 'palevioletred' : actualSystem.log.commDelay != '-1' ? 'grey' : 'lightseagreen' }}; cursor: pointer;">
                         <div class="row" style="margin-bottom: 0;">
                             <div class="col s2" style="margin: 2px 0 0 10px; cursor: pointer;">
                                 <i class="material-icons" style="font-size: 3.5em; margin-left: -10px;">chevron_left</i>
@@ -532,7 +532,9 @@
                             <!-- <div class="switch switch2 col s4 switchLabel" style="margin-top: -5px;">Encendido</div> -->
                             <div class="col s5 m12 row center-align bordered"
                                 ng-show="actualSystem.type != 'Estacionario'">
-                                <div id="direccion" class="col s12 m6" style="font-size: 1em;">Dirección</div>
+                                <div id="direccion" class="col s12 m6" style="font-size: 1em;">
+                                    Dirección
+                                </div>
                                 <div class="col s12 m6 switch switch" style="padding: 0px; margin-bottom: 10px;">
                                     <label>
                                         <span class="switchLabel"><i class="fa fa-undo" aria-hidden="true"
@@ -548,7 +550,8 @@
                             <div class="col s6 m12 {{ actualSystem.type == 'Estacionario' ? 'offset-s5' : ''}}">
                                 <div class="row center-align bordered">
                                     <div id="encendido" class="col s12 m6" style="font-size: 1em; margin-bottom: 5px;">
-                                        Encendido</div>
+                                        Encendido
+                                    </div>
                                     <div class="col s12 m6 switch switch" style="padding: 0px; margin-bottom: 10px;">
                                         <label>
                                             <span class="blackBg"><b>Off</b></span>
@@ -610,8 +613,41 @@
                                 </div>
                                 <div class="row" style="margin-bottom: 0;"
                                     ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'">
-                                    <div class="bordered col s2 m11 row" ng-click="actualSystemWindows('as_config')"
+                                    <div class="bordered col s4 m11 row"
+                                        style="border-bottom: 1px solid grey; margin-bottom: 15px; margin-right: -5px;">
+                                        <div class="col s12 m2 center-align">
+                                            <i class="material-icons" style="margin-top: 3px; color: {{ (actualSystem.log.safety == 'true') ? 'green' : 'red' }};">
+                                                {{ (actualSystem.log.safety == "true") ? 'check_circle' : 'do_not_disturb_alt' }}
+                                            </i>
+                                        </div>
+                                        <div class="col s12 m10 center-align">
+                                            <b>Seguridad</b>
+                                        </div>
+                                    </div>
+                                    <div class="bordered col s3 m11 row"
+                                        style="border-bottom: 1px solid grey; margin-bottom: 15px; margin-right: -5px;">
+                                        <div class="col s12 m2 center-align">
+                                            <i class="material-icons" style="margin-top: 3px; color: {{ (actualSystem.log.reception == 'Ok' && actualSystem.log.commDelay == '-1') ? 'green' : 'red' }};">
+                                                {{ (actualSystem.log.reception == 'Ok' && actualSystem.log.commDelay == '-1') ? 'check_circle' : 'do_not_disturb_alt' }}
+                                            </i>
+                                        </div>
+                                        <div class="col s12 m10 center-align">
+                                            <b>GSM</b>
+                                        </div>
+                                    </div>
+                                    <div class="bordered col s3 m11 row"
                                         style="border-bottom: 1px solid grey; margin-bottom: 15px;">
+                                        <div class="col s12 m2 center-align">
+                                            <i class="material-icons" style="margin-top: 3px; color: {{ (actualSystem.log.latitude != '0.00000' && actualSystem.log.longitude != '0.00000') ? 'green' : 'red' }};">
+                                                {{ (actualSystem.log.latitude != '0.00000' && actualSystem.log.longitude != '0.00000') ? 'check_circle' : 'do_not_disturb_alt' }}
+                                            </i>
+                                        </div>
+                                        <div class="col s12 m10 center-align">
+                                            <b>GPS</b>
+                                        </div>
+                                    </div>
+                                    <div class="bordered col s2 m11 row" ng-click="actualSystemWindows('as_config')"
+                                        style="border-bottom: 1px solid grey; margin-bottom: 15px; cursor: pointer;">
                                         <div class="col s12 m2 center-align"><i class="material-icons">network_check</i>
                                         </div>
                                         <div class="col s12 m10 center-align">
@@ -716,7 +752,7 @@
                                         <tbody>
                                             <tr ng-repeat="plan in actualSystemPlans" ng-show="plan"
                                                 class="modal-trigger" href="#modalEditRiego"
-                                                ng-click="setEditPlan($index)">
+                                                ng-click="setEditPlan($index)" style="cursor: pointer;">
                                                 <td><i class='fa fa-clock-o' aria-hidden='true'></i></td>
                                                 <td>{{ plan.starAngle }}</td>
                                                 <td>{{ plan.endAngle }}</td>
@@ -892,21 +928,21 @@
                                         <td style="text-align: left;"><input type="text" ng-model="actualSystem.name"
                                                 ng-readonly="editName"></td>
                                         <td style="text-align: left;"><i class="fa fa-pencil" aria-hidden="true"
-                                                style="color: grey" ng-click="editName = !editName"></i></td>
+                                                style="color: grey" ng-click="editName = !editName" ng-show="isSystemOfRole('propietario') || isSystemOfRole('desarrollador')"></i></td>
                                     </tr>
                                     <tr ng-init="editLatitude = true">
                                         <td style="text-align: left;">Latitud central</td>
                                         <td style="text-align: left;"><input type="number"
                                                 ng-model="actualSystem.latitude" ng-readonly="editLatitude"></td>
                                         <td style="text-align: left;"><i class="fa fa-pencil" aria-hidden="true"
-                                                style="color: grey" ng-click="editLatitude = !editLatitude"></i></td>
+                                                style="color: grey" ng-click="editLatitude = !editLatitude" ng-show="isSystemOfRole('propietario') || isSystemOfRole('desarrollador')"></i></td>
                                     </tr>
                                     <tr ng-init="editLongitude = true">
                                         <td style="text-align: left;">Longitud central</td>
                                         <td style="text-align: left;"><input type="number"
                                                 ng-model="actualSystem.longitude" ng-readonly="editLongitude"></td>
                                         <td style="text-align: left;"><i class="fa fa-pencil" aria-hidden="true"
-                                                style="color: grey" ng-click="editLongitude = !editLongitude"></i></td>
+                                                style="color: grey" ng-click="editLongitude = !editLongitude" ng-show="isSystemOfRole('propietario') || isSystemOfRole('desarrollador')"></i></td>
                                     </tr>
                                     <!-- <tr ng-init="editStartAngle = true">
                                         <td style="text-align: left;">Ángulo inicial</td>
@@ -927,14 +963,14 @@
                                         <td style="text-align: left;"><input type="number"
                                                 ng-model="actualSystem.length" ng-readonly="editRadio"></td>
                                         <td style="text-align: left;"><i class="fa fa-pencil" aria-hidden="true"
-                                                style="color: grey" ng-click="editRadio = !editRadio"></i></td>
+                                                style="color: grey" ng-click="editRadio = !editRadio" ng-show="isSystemOfRole('propietario') || isSystemOfRole('desarrollador')"></i></td>
                                     </tr>
                                     <tr ng-init="editCaudal = true">
                                         <td style="text-align: left;">Caudal</td>
                                         <td style="text-align: left;"><input type="number"
                                                 ng-model="actualSystem.caudal" ng-readonly="editCaudal"></td>
                                         <td style="text-align: left;"><i class="fa fa-pencil" aria-hidden="true"
-                                                style="color: grey" ng-click="editCaudal = !editCaudal"></i></td>
+                                                style="color: grey" ng-click="editCaudal = !editCaudal" ng-show="isSystemOfRole('propietario') || isSystemOfRole('desarrollador')"></i></td>
                                     </tr>
                                     <tr ng-init="editSensorPresion = true">
                                         <td style="text-align: left;">Max. val. sensor presión</td>
@@ -943,7 +979,7 @@
                                         </td>
                                         <td style="text-align: left;"><i class="fa fa-pencil" aria-hidden="true"
                                                 style="color: grey"
-                                                ng-click="editSensorPresion = !editSensorPresion"></i></td>
+                                                ng-click="editSensorPresion = !editSensorPresion" ng-show="isSystemOfRole('propietario') || isSystemOfRole('desarrollador')"></i></td>
                                     </tr>
                                     <tr ng-init="editMaxVelocity = true">
                                         <td style="text-align: left;">Límite de velocidad</td>
@@ -952,7 +988,7 @@
                                         </td>
                                         <td style="text-align: left;"><i class="fa fa-pencil" aria-hidden="true"
                                                 style="color: grey"
-                                                ng-click="editMaxVelocity = !editMaxVelocity"></i></td>
+                                                ng-click="editMaxVelocity = !editMaxVelocity" ng-show="isSystemOfRole('propietario') || isSystemOfRole('desarrollador')"></i></td>
                                     </tr>
                                     <!-- <tr ng-init="editMagneticDesv = true">
                                         <td style="text-align: left;">Posición Desv. Magnéticia</td>
@@ -1038,7 +1074,7 @@
                                             </select>
                                         </td>
                                         <td style="text-align: left;"><i class="fa fa-pencil" aria-hidden="true"
-                                                style="color: grey" ng-click="editZona = !editZona"></i></td>
+                                                style="color: grey" ng-click="editZona = !editZona" ng-show="isSystemOfRole('propietario') || isSystemOfRole('desarrollador')"></i></td>
                                     </tr>
                                     <tr ng-init="editSummerHour = true">
                                         <td style="text-align: left;">Horario verano</td>
@@ -1052,14 +1088,14 @@
                                             </select>
                                         </td>
                                         <td style="text-align: left;"><i class="fa fa-pencil" aria-hidden="true"
-                                                style="color: grey" ng-click="editSummerHour = !editSummerHour"></i>
+                                                style="color: grey" ng-click="editSummerHour = !editSummerHour" ng-show="isSystemOfRole('propietario') || isSystemOfRole('desarrollador')"></i>
                                         </td>
                                     </tr>
-                                    <tr>
+                                    <tr ng-show="isSystemOfRole('propietario') || isSystemOfRole('desarrollador')">
                                         <td colspan="3" class="right-align">
                                             <a href="#!"
                                                 class="modal-close waves-effect teal waves-green btn-flat white-text"
-                                                ng-click="setMachineSettings()"><i class="material-icons">check</i></a>
+                                                ng-click="setMachineSettings()">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i class="material-icons">check</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
                                         </td>
                                     </tr>
                                 </table>
@@ -1082,24 +1118,28 @@
                                 <table class="striped highlight" ng-show="as_more">
                                     <tr>
                                         <td style="text-align: left;">Sistema</td>
-                                        <td style="text-align: left;"><i>{{ actualSystem.type }}</i></td>
+                                        <td style="text-align: left;"><b><i>{{ actualSystem.type }}</b></i></td>
                                     </tr>
                                     <tr ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'">
                                         <td style="text-align: left;">Marca</td>
-                                        <td style="text-align: left;"><i>{{ actualSystem.brand }}</i></td>
+                                        <td style="text-align: left;"><b><i>{{ actualSystem.brand }}</b></i></td>
                                     </tr>
                                     <tr>
                                         <td style="text-align: left;">Instalación</td>
-                                        <td style="text-align: left;"><i>{{ actualSystem.installation }}</i></td>
+                                        <td style="text-align: left;"><b><i>{{ actualSystem.installation }}</b></i></td>
                                     </tr>
                                     <tr>
                                         <td style="text-align: left;">Id Usuario</td>
-                                        <td style="text-align: left;"><i>{{ actualSystem.key }}</i></td>
+                                        <td style="text-align: left;"><b><i>{{ actualSystem.key }}</i></b></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align: left;">Localidad:</td>
+                                        <td style="text-align: left;"><b>{{ meteo.name }}</b></td>
                                     </tr>
                                     <tr>
                                         <td style="text-align: left;">Ubicación</td>
-                                        <td style="text-align: left;"><i>{{ actualSystem.latitude }}, {{
-                                                actualSystem.longitude }}</i>
+                                        <td style="text-align: left;"><b><i>{{ actualSystem.latitude }}, {{
+                                                actualSystem.longitude }}</i></b>
                                         </td>
                                     </tr>
                                     <tr ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'">
@@ -1116,6 +1156,22 @@
                                         <td style="text-align: left;"><i><b>{{ actualSystem.log.error ?
                                                     actualSystem.log.error : 0 }}</b> cm</i>
                                         </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align: left;">Temperatura:</td>
+                                        <td style="text-align: left;"><b>{{ meteo.main.temp - 273.15 | number : 2}}°C ~ {{ meteo.main.temp }}°K</b></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align: left;">Presión:</td>
+                                        <td style="text-align: left;"><b>{{ meteo.main.pressure }}hPa</b></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align: left;">Humedad:</td>
+                                        <td style="text-align: left;"><b>{{ meteo.main.humidity }}%</b></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align: left;">Velocidad del viento: </td>
+                                        <td style="text-align: left;"><b>{{ meteo.wind.speed }}km/h</b></td>
                                     </tr>
                                 </table>
                             </div>
@@ -1134,45 +1190,72 @@
                                         <i class="fa fa-chevron-up" aria-hidden="true" ng-show="as_hist"></i>
                                     </span>
                                 </div>
-                                <div class="row" ng-show="as_hist">
+                                <ul class="row collapsible" ng-show="as_hist" style="padding: 0 10px;">
                                     <p></p>
                                     <!-- <div class="col s12" ng-repeat="reg in logs[actualSystem.key] | orderBy: '-date'"> -->
-                                    <div class="col s12" ng-repeat="reg in invertedRegisters">
-                                        <div class="sercices-options gray-text white"
+                                    <li class="col s12" ng-repeat="reg in invertedRegisters">
+                                        <div class="sercices-options gray-text white collapsible-header row"
+                                            ng-click="modalLogDetail_$index = !modalLogDetail_$index"
                                             ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'"
-                                            style="background: {{ reg.safety == 'false' ? 'palevioletred !important' : reg.state == 'ON' ? 'lightseagreen !important' : 'lightgray !important' }}; color: {{ reg.state == 'ON' ? 'white' : 'black' }};">
-                                            {{ reg.state == "ON" ? "Sistema Encendido" :  (reg.safety == "false" ? " Falla de Seguridad!" : "Sistema Apagado") }}<br>
-                                            <span style="font-size: .8em;">[{{ reg.date }} - {{ reg.update }}]</span> <br>
-                                            <i class="fa fa-undo" style="font-size: .8em; width: 25px;"
-                                                ng-show="reg.direction == 'RR'"></i>
-                                            <i class="fa fa-repeat" style="font-size: .8em;"
-                                                ng-show="reg.direction == 'FF'"></i>
-                                            <span style="font-size: .8em;">
-                                                <i class="material-icons" style="font-size: .9em; width: 25px;">near_me</i>
-                                                {{ reg.position ? reg.position : 0 }}°
-                                            </span>
-                                            <span style="font-size: .8em;">
-                                                <i class="material-icons" style="font-size: .9em; width: 25px;">network_check</i>
-                                                {{ reg.speed ? reg.speed : 0}}%
-                                            </span>
-                                            <span style="font-size: .8em;">
-                                                <i class="fa fa-tint" aria-hidden="true" style="width: 25px;"></i>
-                                                {{ reg.presion < 1 ? "Presión Baja" : "Presión Normal" }} </span>
+                                            style="background: {{ reg.state == 'ON' && reg.voltage == 'false' ? 'red !important' : 
+                                                    reg.state == 'ON' && reg.safety == 'false' ? 'palevioletred !important' : 
+                                                    reg.state == 'ON' ? 'lightseagreen !important' : 'lightgray !important' }}; 
+                                                    color: {{ reg.state == 'OFF' ? 'black' : 'white' }};">
+                                            <div class="col s12">
+                                                <b>{{ reg.state == 'ON' && reg.voltage == 'false' ? 'Falla de Electricidad' : 
+                                                    reg.state == 'ON' && reg.safety == 'false' ? 'Falla de Seguridad' : 
+                                                    reg.state == 'ON' ? 'Sistema Encendido' : 'Sistema Apagado' }}</b><br>
+                                                <span style="font-size: .75em;">[{{ reg.date }} - {{ reg.update }}]</span> <br>
+                                                <i class="fa fa-undo" style="font-size: .8em; width: 10px;"
+                                                    ng-show="reg.direction == 'RR'"></i>
+                                                <i class="fa fa-repeat" style="font-size: .8em; width: 10px;"
+                                                    ng-show="reg.direction == 'FF'"></i>
+                                                <span style="font-size: .8em;">
+                                                    <i class="material-icons" style="font-size: .9em; width: 10px;">near_me</i>
+                                                    {{ reg.position ? reg.position : 0 }}°&nbsp;&nbsp;&nbsp;
+                                                </span>
+                                                <span style="font-size: .8em;">
+                                                    <i class="material-icons" style="font-size: .9em; width: 10px;">network_check</i>
+                                                    {{ reg.speed ? reg.speed : 0}}%&nbsp;&nbsp;&nbsp;
+                                                </span>
+                                                <span style="font-size: .8em;">
+                                                    <i class="fa fa-tint" aria-hidden="true" style="width: 10px;"></i>
+                                                    {{ reg.presion == 0 ? "0.00" : reg.presion < 1 ? "Presión Baja" : "Presión Normal" }} 
+                                                </span>
+                                            </div>
                                         </div>
-                                        <div class="sercices-options gray-text white"
+                                        <div class="sercices-options gray-text white collapsible-header"
+                                            ng-click="modalLogDetail_$index = !modalLogDetail_$index"
                                             ng-show="actualSystem.type == 'Estacionario'"
                                             style="background: {{ reg.state == 'ON' ? 'lightseagreen !important' : 'lightgray !important' }}; color: {{ reg.state == 'ON' ? 'white' : 'black' }};">
-                                            [{{ reg.date }} - {{ reg.update }}] - {{ reg.state == "ON" ? "Encendido" : "Apagado" }} <br>
+                                            <b>[{{ reg.date }} - {{ reg.update }}] - {{ reg.state == "ON" ? "Encendido" : "Apagado" }}</b><br>
                                             <span style="font-size: .8em;">
                                                 <!-- <i class="material-icons" style="font-size: .9em;">near_me</i> -->
                                                 Parcela: {{ reg.plot }} -> {{ msToTime(reg.activationTime) }}
                                             </span>
                                             <span style="font-size: .8em;">
                                                 <i class="fa fa-tint" aria-hidden="true" style="width: 25px;"></i>
-                                                {{ reg.presion < 1 ? "Presión Baja" : "Presión Normal" }} </span>
+                                                {{ reg.presion < 1 ? "Presión Baja" : "Presión Normal" }}
+                                            </span>
                                         </div>
-                                    </div>
-                                </div>
+                                        <div class="collapsible-body" style="padding: 1rem; font-size: 1.2em;">
+                                            Estado: <b>{{ reg.state }}</b><br>
+                                            Fecha inicial: <b>{{ reg.date }}</b><br>
+                                            Actualización: <b>{{ reg.update }}</b><br>
+                                            Dirección: <b>{{ reg.direction }}</b><br>
+                                            Velocidad: <b>{{ reg.speed }}</b><br>
+                                            Latitud: <b>{{ reg.latitude }}</b><br>
+                                            Longitud: <b>{{ reg.longitude }}</b><br>
+                                            Posición: <b>{{ reg.position }}</b><br>
+                                            Presión: <b>{{ reg.presion }}</b><br>
+                                            Recepción: <b>{{ reg.reception }}</b><br>
+                                            Autoreversa: <b>{{ reg.autoreverse }}</b><br>
+                                            Señal: <b>{{ reg.signal }}</b><br>
+                                            Seguridad: <b>{{ reg.safety }}</b><br>
+                                            Voltaje: <b>{{ reg.voltage }}</b>
+                                        </div>
+                                    </li>
+                                </ul>
                             </div>
                         </div>
                         <div class="row" ng-show="as_users">
@@ -1208,7 +1291,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col s12" ng-show="userLocations[dotToDash(authUser.email)].systems[actualSystem.key] == 'propietario'">
+                                    <div class="col s12" ng-show="isSystemOfRole('propietario') || isSystemOfRole('desarrollador')">
                                         <div class="sercices-options gray-text white text-centered modal-trigger" href="#modalAddUser">
                                             <i class="fa fa-plus" aria-hidden="true" style="margin-top: 5px;"></i> 
                                             Invitar a alguien
@@ -1241,7 +1324,7 @@
                             <select id="newUserRole" style="display:block;" ng-model="newUserRole">
                                 <option value="propietario">Propietario</option>
                                 <option value="trabajador" selected="selected">Trabajador</option>
-                                <!-- <option value="observador">Observador</option> -->
+                                <option value="observador">Observador</option>
                             </select>
                             <label style="top: -28px; font-size: .8em;">Role</label>
                         </div>
@@ -1386,7 +1469,7 @@
                             class="material-icons">&nbsp;&nbsp;check&nbsp;&nbsp;</i></a>
                 </div>
             </div>
-
+            
         </section>
 
         <!-- #endregion: SISTEMA -->
@@ -1533,6 +1616,11 @@
             </div>
 
         </section>
+
+        <audio id="alertSound">
+            <source src="assets/sounds/alarma-de-evacuacin-evacuacion.mp3" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
 
         <!-- #endregion: NOTIFICACIONES -->
 
@@ -1802,6 +1890,7 @@
         <link rel="stylesheet" href="assets/modules/leaflet/leaflet.css">
         <link rel="stylesheet" href="assets/css/style.css">
         <link rel="stylesheet" href="assets/css/responsive.css">
+        <link rel="stylesheet" href="assets/css/meteocons-font/FONT/Font-face/stylesheet.css">
 
         <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/4.0.0/firebaseui.css" />
 

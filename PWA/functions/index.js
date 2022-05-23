@@ -15,7 +15,8 @@ exports.sendNotifications = functions.database.ref('/systems/{systemId}/logs/{lo
     // } else {
 
     const NOTIFICATION_SNAPSHOT = change.after.val();
-    let msg = ((NOTIFICATION_SNAPSHOT.safety == "false") ? "atasco" : (NOTIFICATION_SNAPSHOT.voltage == "false") ? "electricidad" : "");
+    let msg = ((NOTIFICATION_SNAPSHOT.voltage == "false" && NOTIFICATION_SNAPSHOT.state == "ON" && NOTIFICATION_SNAPSHOT.date == NOTIFICATION_SNAPSHOT.update) ? "electricidad" : 
+                (NOTIFICATION_SNAPSHOT.safety == "false" && NOTIFICATION_SNAPSHOT.state == "ON" && NOTIFICATION_SNAPSHOT.date == NOTIFICATION_SNAPSHOT.update) ? "seguridad" : "");
 
     if (msg != "") {
 

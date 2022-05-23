@@ -1,0 +1,63 @@
+https://api.openweathermap.org/geo/1.0/reverse?lat=28.407231&lon=-106.863344&limit=1&appid=db9c92bd1f6d8d5db0aa0bae36ce093f
+
+[
+	{
+		"name": "Cuauhtémoc",
+		"local_names": {
+			"ru": "Сьюдад-Куаутемок",
+			"es": "Cuauhtémoc"
+		},
+		"lat": 28.4009579,
+		"lon": -106.8665305,
+		"country": "MX",
+		"state": "Chihuahua"
+	}
+]
+https://api.openweathermap.org/data/2.5/weather?lat=28.407231&lon=-106.863344&appid=db9c92bd1f6d8d5db0aa0bae36ce093f
+
+{
+	"coord": {
+		"lon": -106.8633,
+		"lat": 28.4072
+	},
+	"weather": [
+		{
+			"id": 802,
+			"main": "Clouds",
+			"description": "scattered clouds",
+			"icon": "03d"
+		}
+	],
+	"base": "stations",
+	"main": {
+		"temp": 289.49,
+		"feels_like": 287.39,
+		"temp_min": 289.49,
+		"temp_max": 289.49,
+		"pressure": 1008,
+		"humidity": 8,
+		"sea_level": 1008,
+		"grnd_level": 794
+	},
+	"visibility": 10000,
+	"wind": {
+		"speed": 11.65,
+		"deg": 257,
+		"gust": 14.13
+	},
+	"clouds": {
+		"all": 46
+	},
+	"dt": 1646955539,
+	"sys": {
+		"type": 2,
+		"id": 2032478,
+		"country": "MX",
+		"sunrise": 1646918562,
+		"sunset": 1646961174
+	},
+	"timezone": -25200,
+	"id": 4012406,
+	"name": "Cuauhtémoc",
+	"cod": 200
+}

@@ -77,7 +77,13 @@
 		}
 		$data .= ',"update":"' . $date . '"';
 		if ($_GET["st"] && ($_GET["st"] == "ON" || $_GET["st"] == "OFF")) { $data .= ',"state":"' . $_GET["st"] . '"'; }
-		if ($_GET["sa"] && ($_GET["sa"] == "true" || $_GET["sa"] == "false")) { $data .= ',"safety":"' . $_GET["sa"] . '"'; }
+		if ($_GET["sa"] && ($_GET["sa"] == "true" || $_GET["sa"] == "false")) { 
+			if ($_GET["st"] && $_GET["st"] == "ON") {
+				$data .= ',"safety":"' . $_GET["sa"] . '"'; 
+			} else {
+				$data .= ',"safety":"true"';
+			}
+		}
 		if ($_GET["di"] && ($_GET["di"] == "FF" || $_GET["di"] == "RR")) { $data .= ',"direction":"' . $_GET["di"] . '"'; }
 		if ($_GET["vo"] && ($_GET["vo"] == "true" || $_GET["vo"] == "false")) { $data .= ',"voltage":"' . $_GET["vo"] . '"'; }
 		if ($_GET["sp"]) { $data .= ',"speed":"' . $_GET["sp"] . '"'; }
