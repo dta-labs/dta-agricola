@@ -22,8 +22,8 @@
 
 #pragma region Variables
 
-#define telefono "000000000000"
-// #define telefono "526251342314"
+// #define telefono "000000000000"
+#define telefono "526251201079"
 #define httpServer "AT+HTTPPARA=\"URL\",\"http://pprsar.com/cosme/comm_v3.php?id=" telefono
 // #define httpServer "AT+HTTPPARA=\"URL\",\"http://dtaamerica.com/ws/comm_v2.php?id=" telefono
 #define pinEngGunControl 4
@@ -37,7 +37,7 @@
 // int LED = 13;
 
 // Comunicación GSM/GPRS
-SoftwareSerial gprs(2, 3);                      // RX, TX (2, 3) <= azul | (3, 2) <= rojo
+SoftwareSerial gprs(3, 2);                      // RX, TX (2, 3) <= azul | (3, 2) <= rojo
 unsigned int commDelay = 0;
 //.................................................
 
@@ -79,6 +79,7 @@ static bool restartGSM = true;
 static int signalVar = 0;
 static byte commError = 0;
 static bool commRx = true;
+static bool isSequrity = false;
 
 struct {
   float status;
@@ -131,7 +132,7 @@ void loop() {
   setupGSM();
   comunicaciones();
   commDelay = millis() - commDelay;
-  Serial.print(F("Tiempo comunicciones: "));
+  Serial.print(F("Communication time: "));
   Serial.println(commDelay);
   acciones();
 }
@@ -203,8 +204,6 @@ void acciones() {
   showVars();
   wdt_reset();
   if (statusVar == "ON") {
-    setDirection();
-    wdt_reset();
     controlAutomatico();
   } else {
     Serial.println(F("  ~ Sistem off! wait 1 min"));
@@ -215,8 +214,9 @@ void acciones() {
 }
 
 void setActivationTimer() {
-  activationTimer = 60000 * velocityVar / 100;
-  deactivationTimer = (60000 - activationTimer) >= commDelay ? (60000 - activationTimer - commDelay) : (60000 - activationTimer) > 0 ? 100 : 0;
+  activationTimer = 600 * velocityVar;      // 60000 * velocityVar / 100;
+  int dif = 60000 - activationTimer;
+  deactivationTimer = (dif) >= commDelay ? (dif - commDelay) : (dif) > 0 ? 100 : 0;
 }
 
 void showVars() {
@@ -225,11 +225,55 @@ void showVars() {
   Serial.print(F("> Status: ")); Serial.println(statusVar);
   Serial.print(F("> Direction: ")); Serial.println(directionVar);
   Serial.print(F("> Auto Reverse: ")); Serial.println(autoreverseVar);
-  Serial.print(F("> Position: ")); Serial.println((String)positionVar + "°");
+  Serial.print(F("> Position: ")); Serial.print((String)positionVar); Serial.println(F("°"));
   Serial.print(F("> End Gun: ")); Serial.println((String)endGunVar);
-  Serial.print(F("> Velocity: ")); Serial.println((String)velocityVar + "%");
-  Serial.print(F("  ~ ON: ")); Serial.println((String)activationTimer + "ms");
-  Serial.print(F("  ~ OFF: ")); Serial.println((String)deactivationTimer + "ms");
+  Serial.print(F("> Velocity: ")); Serial.print((String)velocityVar); Serial.println(F("%"));
+  Serial.print(F("  ~ ON: ")); Serial.print((String)activationTimer); Serial.println(F("ms"));
+  Serial.print(F("  ~ OFF: ")); Serial.print((String)deactivationTimer); Serial.println(F("ms"));
+}
+
+void controlAutomatico() {
+  Serial.println(F("   Sistem auto"));
+  Serial.print(F("   ~ Run: ")); 
+  Serial.print((String)activationTimer);
+  Serial.print(F("ms ("));
+  Serial.print((String)velocityVar);
+  Serial.println(F("%)"));
+  if (run()) {
+    Serial.print(F("   ~ Stop: ")); 
+    Serial.print((String)deactivationTimer);
+    Serial.println(F("ms"));
+    stop();
+  } else {
+    Serial.println(F("   ~ Sistem off! wait 1 min"));
+    apagar();
+    waitOneMinute();
+  }
+}
+
+bool run() {
+  if (activationTimer > 0) {
+    setDirection();
+    unsigned long actualTime = millis();
+    while ((millis() - actualTime) < activationTimer) {
+      bool isVoltage = controlVoltaje();
+      bool isPosition = positionControl();
+      isSequrity = controlSeguridad();
+      if (isVoltage && isSequrity && isPosition) {
+        digitalWrite(pinActivationTimer, LOW);
+        digitalWrite(pinEngGunControl, (endGunVar == "ON") ? (serie == 0 ? LOW : HIGH) : (serie == 0 ? HIGH : LOW));
+      } else {
+        Serial.print(F("     "));
+        Serial.print((!isVoltage) ? F("Voltage") : (!isSequrity) ? F("Sequrity") : (!isPosition) ? F("Position") : F("Unknow"));
+        Serial.println(F(" error!"));
+        digitalWrite(pinActivationTimer, HIGH);
+        return false;
+      }
+      delay(500);          
+      wdt_reset();
+    }
+  }
+  return true;
 }
 
 void setDirection() {
@@ -243,53 +287,10 @@ void setDirection() {
     delay(500);
     digitalWrite(pinMotorRR, LOW);                                // Encendido
   }
-  int waitTime = 0;
-  while (!isSequre() && waitTime < 3000) {
-    delay(500);
-    waitTime += 500;
-  };
-}
-
-void controlAutomatico() {
-  Serial.println(F("   Sistem auto"));
-  Serial.print(F("   ~ Run: ")); 
-  Serial.print((String)activationTimer);
-  Serial.print(F("ms ("));
-  Serial.print((String)velocityVar);
-  Serial.println(F("%)"));
-  run();
-  Serial.print(F("   ~ Stop: "));
-  Serial.print((String)deactivationTimer);
-  Serial.println(F("ms"));
-  stop();
-}
-
-void run() {
-  if (activationTimer > 0) {
-    unsigned long actualTime = millis();
-    while ((millis() - actualTime) < activationTimer) {
-      bool isVoltage = controlVoltaje();
-      bool isSequrity = controlSeguridad();
-      bool isPosition = positionControl();
-      if (isVoltage && isSequrity && isPosition) {
-        digitalWrite(pinActivationTimer, LOW);
-        digitalWrite(pinEngGunControl, (endGunVar == "ON") ? (serie == 0 ? LOW : HIGH) : (serie == 0 ? HIGH : LOW));
-      } else {
-        Serial.print(F("     Error: "));
-        Serial.println((!isVoltage) ? "voltage!" : (!isSequrity) ? "sequrity!" : (!isPosition) ? "position!" : "unknow!");
-        // digitalWrite(pinActivationTimer, HIGH);
-        apagar();
-        waitOneMinute();
-        return;
-      }
-      delay(500);          
-      wdt_reset();
-    }
-  }
 }
 
 void stop() {
-  // statusVar = (activationTimer == 0) ? "OFF" : statusVar;         // Control de apagado
+  statusVar = (activationTimer == 0 && autoreverseVar == "OFF") ? "OFF" : statusVar;         // Control de apagado
   if (deactivationTimer > 0) {
     digitalWrite(pinActivationTimer, HIGH);
     for (int i = 0; i < deactivationTimer / 100; i++){
@@ -300,7 +301,6 @@ void stop() {
 }
 
 bool positionControl() {
-  return true;
   if (testFunc) { return true; }
   positionVar = getPosition();
   wdt_reset();
@@ -319,7 +319,7 @@ void apagar() {
 }
 
 void waitOneMinute() {
-  for (int i = 0; i < 60; i++){                                   // Esperar 1 minuto
+  for (int i = 0; i < 60; i++){
     delay(1000);
     wdt_reset();
   }
@@ -334,45 +334,34 @@ bool isSequre() {
 }
 
 bool controlSeguridad() {
-  byte iter = 0;
-  while (!isSequre() && iter < 3) {
-    Serial.println(F("     Falla sensor de seguridad... reintentando!"));
-    setDirection();
-    wdt_reset();
-    iter++;
-  };
-  // Serial.print(F("Seguridad -> "));
-  // Serial.print(controlSeguridad1());
-  // Serial.print(F(" "));
-  // Serial.println(controlSeguridad2());
-  return isSequre();
+  if (!isSequre()) {
+    Serial.println(F("     Sequrity error... try again!"));
+    return isSequre();
+  }
+  return true;
 }
 
 bool controlSeguridad1() {
+  delay(500);
   return digitalRead(pinSensorSeguridad);
 }
 
 bool controlSeguridad2() {
-  float tension_de_red = 127;
-  float I = 0;
-  float Ipico = 0;
-  float Imin = 0;
+  float Sensibilidad = 0.185;
+  float voltajeSensor;
+  float corriente = 0;
   float Imax = 0;
-  float ruido = 0.07;
-  unsigned long tiempo = millis();
-  while (millis() - tiempo < 250) { // medir por 250ms
-    float Vin = analogRead(A1);
-    float acs712 = Vin * 5 / 1023;
-    I = 0.9 * I + 0.1 * (acs712 - 2.5) / 0.185;
-    if (I > Imax) Imax = I;
-    if (I < Imax) Imin = I;
+  float Imin = 0;
+  long tiempo = millis();
+  while(millis() - tiempo < 500){ 
+    voltajeSensor = analogRead(A1) * (5.0 / 1023.0);
+    corriente = 0.9 * corriente + 0.1 * ((voltajeSensor - 2.5) / Sensibilidad); 
+    if(corriente>Imax){ Imax = corriente; }
+    if(corriente<Imin){ Imin = corriente; }
   }
-  Ipico = Imax - ruido;
-  float Irms = Ipico * 0.707;  // I RMS = Ipico / (2^1/2)
-  // Serial.print(F("Irms: ")); Serial.print(Irms, 2); Serial.print(F(" "));
-  bool result = (Irms >= 0.10) ? true : false;
-  // digitalWrite(LED, result ? HIGH : LOW);
-  return result;
+  float Irms = (((Imax-Imin)/2)) * 0.707;
+  Serial.print(F("Irms: ")); Serial.println(Irms, 2);
+  return Irms >= 0.1 ? true : false;
 }
 
 bool controlVoltaje() {
@@ -427,7 +416,7 @@ bool parseGPSData() {
   for (unsigned long start = millis(); millis() - start < 1000;) {
     while (ssGPS.available()) {
       char c = ssGPS.read();
-      if (testFunc) { Serial.write(c); }   // descomentar para ver el flujo de datos del GPS
+      // Serial.write(c);   // descomentar para ver el flujo de datos del GPS
       if (gps.encode(c))    // revisa si se completó una nueva cadena
         newData = true;
     }
@@ -540,10 +529,11 @@ void comunicaciones() {
     boolData = boolData == true ? false : true;
   }
   // data = data != "" ? data : eeVar.data;
-  if (data != "") {
+  if (data != "" && (data.indexOf("ON") != -1 || data.indexOf("OFF") != -1)) {
     setVariables(data);
     updateEEPROM();
   } else {
+    Serial.print(F("lat_central: ")); Serial.print(lat_central, 2); Serial.print(F("lon_central: ")); Serial.println(lon_central, 2);
     Serial.println(F("data: Error!"));
   }
 }
@@ -600,7 +590,7 @@ void setVariables(String data) {
 String httpRequest() {
   gprs.listen();
   String param1 = "&st=" + statusVar;
-  String param2 = "&sa=" + (String)(isSequre() ? "true" : "false");
+  String param2 = "&sa=" + (String)(isSequrity ? "true" : "false");
   String param3 = "&di=" + directionVar;
   String param4 = "&vo=" + (String)(controlVoltaje() ? "true" : "false");
   String param5 = "&ar=" + activateAutoreverse;
@@ -726,7 +716,7 @@ String parse(String dataString, char separator, int index) {
  *                                                              *
  ****************************************************************/
 
-  /****************************************************************
+/****************************************************************
   *                                                              *
   * Valor  dB   Condición                                        *
   * ===== ====  =========                                        *

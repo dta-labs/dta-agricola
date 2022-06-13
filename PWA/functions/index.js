@@ -24,11 +24,10 @@ exports.sendNotifications = functions.database.ref('/systems/{systemId}/logs/{lo
 
         admin.database().ref('/systems/' + systemId + '/settings/name').once('value').then((name) => {
 
-            msg = msg + " en " + name.val();
             const payload = {
                 notification: {
                     title: `DTA-Agrícola alerta!`,
-                    body: `Falla de ${msg}`,
+                    body: `Falla de ${msg} en ${name.val()}`,
                     icon: `https://dta-agricola.web.app/assets/images/DTA-Agricola.png`
                     // click_action: `https://${functions.config().firebase.authDomain}`
                 }
