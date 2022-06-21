@@ -336,7 +336,10 @@ bool isSequre() {
 bool controlSeguridad() {
   if (!isSequre()) {
     Serial.println(F("     Sequrity error... try again!"));
-    return isSequre();
+    if (!isSequre()) {
+      Serial.println(F("     Sequrity error... try again!"));
+      return isSequre();
+    }
   }
   return true;
 }
