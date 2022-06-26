@@ -4,11 +4,11 @@
  *                           2022.05.01                         *
  *                                                              *
  *   Sensores:                                                  *
- *   - Atasco............... D9                                 *
- *   - Presión 150psi....... A0                                 *
- *   - Brújula QMC5883L..... A4 y A5                            *
- *   - Comunicación......... Rx -> D2 | Tx -> D3                *
- *   - GPS.................. Rx -> D12 | Tx -> D11              *
+ *   - Presión 150psi............. A0                           *
+ *   - Seguridad efecto Hall...... A1                           *
+ *   - Seguridad lectura directa.. D9                           *
+ *   - Comunicación............... Rx -> D2 | Tx -> D3          *
+ *   - GPS........................ Rx -> D12 | Tx -> D11        *
  *                                                              *
  *   Almacenamiento en EEPROM                                   *
  *                                                              *
@@ -206,7 +206,7 @@ void acciones() {
   if (statusVar == "ON") {
     controlAutomatico();
   } else {
-    Serial.println(F("  ~ Sistem off! wait 1 min"));
+    Serial.println(F("  ~ System off! wait 1 min"));
     apagar();
     waitOneMinute();
   }
@@ -233,7 +233,7 @@ void showVars() {
 }
 
 void controlAutomatico() {
-  Serial.println(F("   Sistem auto"));
+  Serial.println(F("   System auto"));
   Serial.print(F("   ~ Run: ")); 
   Serial.print((String)activationTimer);
   Serial.print(F("ms ("));
@@ -245,7 +245,7 @@ void controlAutomatico() {
     Serial.println(F("ms"));
     stop();
   } else {
-    Serial.println(F("   ~ Sistem off! wait 1 min"));
+    Serial.println(F("   ~ System off! wait 1 min"));
     apagar();
     waitOneMinute();
   }
