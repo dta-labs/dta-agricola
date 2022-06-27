@@ -1,18 +1,22 @@
-/****************************************************************
- *                                                              * 
- *                Sistemas DTA Serie Pv66 v0.2.4 A              *
- *                           2022.05.01                         *
- *                                                              *
- *   Sensores:                                                  *
- *   - Presión 150psi............. A0                           *
- *   - Seguridad efecto Hall...... A1                           *
- *   - Seguridad lectura directa.. D9                           *
- *   - Comunicación............... Rx -> D2 | Tx -> D3          *
- *   - GPS........................ Rx -> D12 | Tx -> D11        *
- *                                                              *
- *   Almacenamiento en EEPROM                                   *
- *                                                              *
- ****************************************************************/
+/****************************************************************************
+ *                                                                          * 
+ *                    Sistemas DTA Serie Pv66 v0.2.4 A                      *
+ *                               2022.06.26                                 *
+ *                                                                          *
+ *   Sensores:                                                              *
+ *   - Presión 150psi............. A0                                       *
+ *   - Seguridad efecto Hall...... A1                                       *
+ *   - Seguridad lectura directa.. D9                                       *
+ *   - Comunicación............... D2, D3                      				*
+ *   - GPS........................ D11, D12, D13 (Tarjetas amarillas)       *
+ *                                                                          *
+ *   Configuración: {Gun, GSMr, GSMt, GPSr, GPSt, Seq}                      *
+ *   - Gun: 0 <= Relay FL | 1 <= Relay JQC                                  *
+ *   - GSM: RX, TX (2, 3) <= Chip azul | (3, 2) <= Chip rojo                *
+ *   - GPS: RX, TX (12, 11) <= Tarjeta blanca | (13, 12) Tarjeta amarilla   *
+ *   - Seq: 0 <= Lectura directa | 1 <= Efecto Hall                         *
+ *                                                                          *
+ ****************************************************************************/
 
 #include <SoftwareSerial.h>
 #include "analogo.h"
@@ -22,8 +26,9 @@
 
 #pragma region Variables
 
-// #define telefono "000000000000"
-#define telefono "526251201079"
+int config[] = {0, 3, 2, 12, 11, 1};
+#define telefono "000000000000"
+// #define telefono "526251201079"
 #define httpServer "AT+HTTPPARA=\"URL\",\"http://pprsar.com/cosme/comm_v3.php?id=" telefono
 // #define httpServer "AT+HTTPPARA=\"URL\",\"http://dtaamerica.com/ws/comm_v2.php?id=" telefono
 #define pinEngGunControl 4
@@ -33,17 +38,17 @@
 #define pinMotorFF 8
 #define pinSensorSeguridad 9
 #define pinSensorVoltaje 10
-#define serie 0                                 // 0 <= FL | 1 <= JQC
+int serie = config[0];
 // int LED = 13;
 
 // Comunicación GSM/GPRS
-SoftwareSerial gprs(3, 2);                      // RX, TX (2, 3) <= azul | (3, 2) <= rojo
+SoftwareSerial gprs(config[1], config[2]);
 unsigned int commDelay = 0;
 //.................................................
 
 // Comunicación GPS
 TinyGPS gps;
-SoftwareSerial ssGPS(12, 11);                   // RX, TX (12, 11) <= Tarjeta blanca | (13, 12) Tarjeta amarilla
+SoftwareSerial ssGPS(config[3], config[4]);
 float lat_central = 0.0f;
 float lon_central = 0.0f;
 float lat_actual = 0.0f;
@@ -301,7 +306,7 @@ void stop() {
 }
 
 bool positionControl() {
-  if (testFunc) { return true; }
+  // return true; 
   positionVar = getPosition();
   wdt_reset();
   if (lat_actual == 0.0f && lon_actual == 0.0f) {                     // Control de apagado
@@ -330,7 +335,7 @@ void waitOneMinute() {
 #pragma region Sensores
 
 bool isSequre() {
-  return controlSeguridad1() ? true : controlSeguridad2() ? true : false;
+  return (config[5] == 0) ? controlSeguridad1() : controlSeguridad2();
 }
 
 bool controlSeguridad() {

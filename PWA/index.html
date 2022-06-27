@@ -346,22 +346,22 @@
                             <div class="row" style="margin-left: 0; margin-right: 0;">
                                 <div class="col s12 m6 xl4" id="{{ system.key }}" ng-repeat="system in systems"
                                     ng-click="selectSystem(system)" ng-show="system.name">
-                                    <div class="sercices-options white-text"
+                                    <div class="sercices-options"
                                         style="background: {{ system.type == 'Estacionario' && system.log.state == 'ON' ? 'lightseagreen' : 
                                         system.log.state == 'OFF' ? 'lightgrey' : system.log.voltage == 'false' ? 'red' : 
                                         system.log.safety == 'false' ? 'palevioletred' : system.log.commDelay != '-1' ? 'grey' : 'lightseagreen' }};">
-                                        <!-- <a href="#!sistema" style="color: white !important"> -->
-                                        <a ng-click="showWindow('sistema')" style="color: white !important">
-                                        <!-- <a href="#!sistema" ng-click="showWindow('sistema')" style="color: white !important"> -->
+                                        <!-- <a href="#!sistema" style="color: {{ system.log.state == 'OFF' ? 'grey' : 'white' }};"> -->
+                                        <a ng-click="showWindow('sistema')" style="color: {{ system.log.state == 'OFF' ? 'grey' : 'white' }};">
+                                        <!-- <a href="#!sistema" ng-click="showWindow('sistema')" style="color: {{ system.log.state == 'OFF' ? 'grey' : 'white' }};"> -->
                                             <div class="row" style="margin-bottom: 0;">
                                                 <div class="col s3" style="margin-top: 10px;">
                                                     <div class="pivote" ng-show="system.type != 'Estacionario'">
-                                                        <div class="esfera">
-                                                            <div id="pos_{{ system.key }}" class="brazo"></div>
+                                                        <div class="esfera" style="border-color: {{ system.log.state == 'OFF' ? 'grey' : 'white' }};">
+                                                            <div id="pos_{{ system.key }}" class="brazo" style="border-color: {{ system.log.state == 'OFF' ? 'grey' : 'white' }};"></div>
                                                         </div>
                                                     </div>
                                                     <div ng-show="system.type == 'Estacionario'">
-                                                        <img src="/assets/images/parcela.png" class="parcela_icon"
+                                                        <img src="/assets/images/{{ system.log.state == 'OFF' ? 'parcela-grey' : 'parcela' }}.png" class="parcela_icon"
                                                             alt="parcela">
                                                     </div>
                                                 </div>
