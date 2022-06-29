@@ -1079,6 +1079,7 @@ document.addEventListener('DOMContentLoaded', function () {
     M.FloatingActionButton.init(document.querySelectorAll('.fixed-action-btn'));
     M.FormSelect.init(document.querySelectorAll('.select'));
     M.Collapsible.init(document.querySelectorAll('.collapsible'));
+    // M.AutoInit();
 });
 
 // #endregion Materializes

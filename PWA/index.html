@@ -346,10 +346,11 @@
                             <div class="row" style="margin-left: 0; margin-right: 0;">
                                 <div class="col s12 m6 xl4" id="{{ system.key }}" ng-repeat="system in systems"
                                     ng-click="selectSystem(system)" ng-show="system.name">
-                                    <div class="sercices-options"
+                                    <div class="sercices-options waves-effect"
                                         style="background: {{ system.type == 'Estacionario' && system.log.state == 'ON' ? 'lightseagreen' : 
                                         system.log.state == 'OFF' ? 'lightgrey' : system.log.voltage == 'false' ? 'red' : 
-                                        system.log.safety == 'false' ? 'palevioletred' : system.log.commDelay != '-1' ? 'grey' : 'lightseagreen' }};">
+                                        system.log.safety == 'false' ? 'palevioletred' : system.log.commDelay != '-1' ? 'grey' : 'lightseagreen' }};
+                                        display: block !important;">
                                         <!-- <a href="#!sistema" style="color: {{ system.log.state == 'OFF' ? 'grey' : 'white' }};"> -->
                                         <a ng-click="showWindow('sistema')" style="color: {{ system.log.state == 'OFF' ? 'grey' : 'white' }};">
                                         <!-- <a href="#!sistema" ng-click="showWindow('sistema')" style="color: {{ system.log.state == 'OFF' ? 'grey' : 'white' }};"> -->
@@ -607,10 +608,11 @@
                     <div class="container" style="width: 95% !important;">
                         <div class="main-container text-center our-services">
 
-                            <div class="switchControl input-field" ng-click="showWindow('listado')"
+                            <div class="switchControl waves-effect input-field" ng-click="showWindow('listado')"
                                 style="background: {{ actualSystem.type == 'Estacionario' && actualSystem.log.state == 'ON' ? 'lightseagreen' : 
                                         actualSystem.log.state == 'OFF' ? 'lightgrey' : actualSystem.log.voltage == 'false' ? 'red' : 
-                                        actualSystem.log.safety == 'false' ? 'palevioletred' : actualSystem.log.commDelay != '-1' ? 'grey' : 'lightseagreen' }}; cursor: pointer;">
+                                        actualSystem.log.safety == 'false' ? 'palevioletred' : actualSystem.log.commDelay != '-1' ? 'grey' : 'lightseagreen' }}; 
+                                        cursor: pointer; display: block !important;">
                                 <div class="row" style="margin-bottom: 0;">
                                     <div class="col s2" style="margin: 2px 0 0 10px; cursor: pointer;">
                                         <i class="material-icons" style="font-size: 3.5em; margin-left: -10px;">chevron_left</i>
@@ -1514,6 +1516,12 @@
                                         ng-model="editPlan.editPlanValue">
                                     <label>Velocidad/Volumen</label>
                                 </div>
+                                <!-- <div class="input-field col s4 m4">
+                                    <p class="range-field">
+                                        <input type="range" id="test5" min="0" max="100" />
+                                    </p>
+                                    <label>Velocidad/Volumen</label>
+                                </div> -->
                                 <div class="input-field col s4 m2">
                                     <div class="btn waves-effect waves-light modal-trigger" href="#systemConfigModal"
                                         style="width: 100%; margin-top: 5px;">
