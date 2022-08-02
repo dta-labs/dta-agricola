@@ -28,7 +28,9 @@ exports.sendNotifications = functions.database.ref('/systems/{systemId}/logs/{lo
                 notification: {
                     title: `DTA-Agrícola alerta!`,
                     body: `Falla de ${msg} en ${name.val()}`,
-                    icon: `https://dta-agricola.web.app/assets/images/DTA-Agricola.png`
+                    icon: `https://dta-agricola.web.app/assets/images/DTA-Agricola.png`,
+					sound: `https://dta-agricola.web.app/assets/sounds/alarma-de-evacuacin-evacuacion.mp3`,
+                    click_action: `https://dta-agricola.web.app/`
                     // click_action: `https://${functions.config().firebase.authDomain}`
                 }
             }
