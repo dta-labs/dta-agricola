@@ -234,7 +234,7 @@ app.controller("ControladorPrincipal", function ($scope) {
                 }
                 updateCompass();
                 let status = log.state;
-                showAlert(locationKey, log.safety);
+                showAlert($scope.systems[locationKey].name, log);
                 hideSpinner(locationKey, status);
                 // if ($scope.actualSystem && locationKey == $scope.actualSystem.key) { $scope.selectSystem($scope.systems[locationKey]); }
                 $scope.$apply();
@@ -242,15 +242,21 @@ app.controller("ControladorPrincipal", function ($scope) {
         });
     }
 
-    showAlert = (locationKey, safety) => {
-        if (safety == "false" && $scope.systems[locationKey].status == "ON") {
-            let htmlMsg = '<b>' + $scope.systems[locationKey].name + ': Falla de seguridad!</b>';
-            M.toast({html: htmlMsg});
-            let alertSound = document.getElementById("alertSound");
-            alertSound.play(); 
-            setTimeout(function () {
-                alertSound.pause();
-            }, 15000);
+    showAlert = (locationKey, log) => {
+        let name = $scope.systems[locationKey].name;
+        if ((log.safety == "false" || log.voltage == "false") && $scope.systems[locationKey].status == "ON") {
+            let alarms = localStorage.getItem("alarms");
+            if (!alarms || !alarms[name] || (alarms && alarms[name] && alarms[name] != log.date)) {
+                localStorage.setItem(name, log.date);
+                let txt = log.voltage == "false" ? "electricidad" : "seguridad";
+                let htmlMsg = '<b>' + name + ': Falla de ' + txt + '!</b>';
+                M.toast({html: htmlMsg});
+                let alertSound = document.getElementById("alertSound");
+                alertSound.play(); 
+                setTimeout(function () {
+                    alertSound.pause();
+                }, 5000);
+            }
         }
     }
 
