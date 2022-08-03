@@ -26,11 +26,11 @@
 
 #pragma region Variables
 
-int config[] = {0, 2, 3, 12, 11, 0};
-// #define telefono "000000000000"
-#define telefono "526258372598"
-#define httpServer "AT+HTTPPARA=\"URL\",\"http://pprsar.com/cosme/comm_v3.php?id=" telefono
-// #define httpServer "AT+HTTPPARA=\"URL\",\"http://dtaamerica.com/ws/comm_v2.php?id=" telefono
+const long config[] = {0, 2, 3, 12, 11, 1, 52, 625, 1020642};
+const String telefono = (String) config[6] + (String) config[7] + (String) config[8];
+// const String telefono = "000000000000";
+const String httpServer = "AT+HTTPPARA=\"URL\",\"http://pprsar.com/cosme/comm_v3.php?id=" + telefono;
+// const String httpServer = "AT+HTTPPARA=\"URL\",\"http://dtaamerica.com/ws/comm_v2.php?id=" + telefono;#define pinEngGunControl 4
 #define pinEngGunControl 4
 #define pinIrrigationControl 5
 #define pinActivationTimer 6
