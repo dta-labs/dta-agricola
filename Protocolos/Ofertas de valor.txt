@@ -1,0 +1,21 @@
+Productos DTA-Agrícola:
+=======================
+- PivotControl	(Control de pivotes)
+				¿Desea reducir el tiempo que consume revisando sus pivotes, el combustible invertido y el mantenimiento de sus sistemas de riego debido a fallas de funcionamiento? ¿Los sistemas de monitoreo y control de pivotes en el mercado no le ofrecen todas las características que está buscando o resultan demasiado complejos y costosos? PivotControl es un sistema de monitoreo y control en tiempo real, basado en tecnología GPS, avanzado y sencillo de usar desde su teléfono celular o computadora.
+- PivotMonitor	(Monitoreo de pivotes)
+				Si lo que desea es simplemente monitorear sus pivotes. Esta versión "Lite" también enviará alertas por mensaje de texto o correo electrónico y le permitirá ver el estado del pivote.
+- DripControl	(Control de riego por goteo)
+				¿Cuenta con sistemas de riego por aspersión, por difusión, por goteo, subterráneo o cintas de exudación? ¿Cuenta con un único pozo para irrigar múltiples parcelas o cultivos? DripControl le permitirá monitorear y controlar en tiempo real un pozo y hasta 3, 7 ó 15 electroválvulas en dependencia de la versión de que disponga. Así como implementar tu propio plan de riego. Todo de manera sencialla desde su teléfono celular o computadora.
+- FieldControl	(Monitoreo y control de campo)		
+				Monitorea y controla dispositivos como bombas, pozos, medidores de flujo, sondas de humedad del suelo y un amplio número de sensores. Tome decisiones bien informadas al ver todos los datos de riego pertinentes desde la palma de su mano o desde la comodidad de la computadora de su oficina.
+- FieldMonitor	(Monitor de campo)
+				¿Cuenta con poca disponibilidad de agua o desea eficientar sus recursos naturales? FieldMonitor realiza un perfil de sus suelos recopilando información como humedad a diferentes niveles de profundidad, humedad relativa, lluvia, temperatura, velocidad del viento, UV, entre otros. Lo cual le permitirá implementar fácilmente decisiones de riego. 
+- DTA-Agrícola	(Aplicación celular y escritorio)
+				Monitoree y controle todos sus campos y sistemas de riego en tiempo real desde un único lugar. Reciba alarmas, conozca todo momento el estado del funcionamiento de sus sistemas y planifique el riego eficientemente. Revise estadísticas y datos históricos de manera sencilla. Todo, desde la palma de su mano y en cualquier lugar del mundo donde se encuentre.
+- DTA-Planing	(Aplicación de escritorio)
+				Planifique y distribuya sus recursos. Cree, replique o reutilice planes de riego. Monitoree en tiempo real cada una de sus parcelas y sistemas conectados. Comuníquese con productores y proveedores de cualquier parte del mundo que estén integrados en nuestra comunidad (DTA-Community) y  comparta experiencias. Oferte, busque lo que necesita y realice transacciones. Todo esto y más de forma sencilla e intuitiva, totalmente gratuita.
+				
+Mensajes:
+- Llamar la atención
+- Propuesta
+- Llamado a la acción
