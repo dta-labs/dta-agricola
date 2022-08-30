@@ -190,7 +190,7 @@ app.controller("ControladorPrincipal", function ($scope) {
                         $scope.systems[locationKey] = system.val();
                         $scope.systems[locationKey].key = locationKey;
                         loadSystemUsers(locationKey);
-                        loadSystemLog(locationKey);
+                        $scope.loadSystemLog(locationKey, 10);
                         // $scope.showWindow('listado');
                         if (locationKey == lastLocation) {
                             $scope.$apply();
@@ -212,8 +212,8 @@ app.controller("ControladorPrincipal", function ($scope) {
         });
     }
 
-    loadSystemLog = (locationKey) => {
-        firebase.database().ref("systems/" + locationKey + "/logs").on("value", logs => {
+    $scope.loadSystemLog = (locationKey, registers) => {
+        firebase.database().ref("systems/" + locationKey + "/logs").limitToLast(registers).on("value", logs => {
             if (logs.val()) {
                 $scope.logs[locationKey] = logs.val();
                 $scope.logsArray = Object.values($scope.logs);
@@ -234,9 +234,10 @@ app.controller("ControladorPrincipal", function ($scope) {
                 }
                 updateCompass();
                 let status = log.state;
-                showAlert($scope.systems[locationKey].name, log);
+                // showAlert(locationKey, log);
                 hideSpinner(locationKey, status);
                 // if ($scope.actualSystem && locationKey == $scope.actualSystem.key) { $scope.selectSystem($scope.systems[locationKey]); }
+                if (registers == 1000) { invertLog() }
                 $scope.$apply();
             }
         });
