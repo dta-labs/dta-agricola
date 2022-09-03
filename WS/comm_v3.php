@@ -1,4 +1,6 @@
 <?php
+	$apiKey = "AIzaSyBGhhdWhG7bD4QBkjK5IlXgiGVkoUv70KM";
+	$headers = array('Authorization: key='.$apiKey,'Content-Type: application/json');
 	$id = $_GET["id"];
 
 	// 1.- Consultar configuración (Settings) y enviar las órdenes al dispositivo:
@@ -6,6 +8,7 @@
 	$url = "https://dta-agricola.firebaseio.com/systems/$id/settings.json";
 	$ch = curl_init();
 	curl_setopt($ch, CURLOPT_URL, $url);
+	// curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 	$response = curl_exec($ch);
 	curl_close($ch);
@@ -56,6 +59,7 @@
 		$newData = '"' . $dir . '"';
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
+		// curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $newData);
@@ -73,6 +77,7 @@
 	$url = "https://dta-agricola.firebaseio.com/systems/$id/logs.json";
 	$ch = curl_init();
 	curl_setopt($ch, CURLOPT_URL, $url);
+	// curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 	$response = curl_exec($ch);
 	curl_close($ch);
@@ -137,6 +142,7 @@
 		// print("URL: " . $url);
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
+		// curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		if ($key) {
 			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");

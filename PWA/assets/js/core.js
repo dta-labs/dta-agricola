@@ -216,6 +216,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         firebase.database().ref("systems/" + locationKey + "/logs").limitToLast(registers).on("value", logs => {
             if (logs.val()) {
                 $scope.logs[locationKey] = logs.val();
+                $scope.logsArray = {};
                 $scope.logsArray = Object.values($scope.logs);
                 let keys = Object.keys($scope.logs[locationKey]);
                 let length = keys.length;
@@ -233,11 +234,11 @@ app.controller("ControladorPrincipal", function ($scope) {
                     document.getElementById('pos_' + locationKey).style.transform = 'rotate(' + position + 'deg)';
                 }
                 updateCompass();
-                let status = log.state;
                 // showAlert(locationKey, log);
-                hideSpinner(locationKey, status);
+                hideSpinner(locationKey, log.state);
                 // if ($scope.actualSystem && locationKey == $scope.actualSystem.key) { $scope.selectSystem($scope.systems[locationKey]); }
-                if (registers == 1000) { invertLog() }
+                // if (registers == 1000) { invertLog() }
+                invertLog();
                 $scope.$apply();
             }
         });
