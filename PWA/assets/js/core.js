@@ -51,6 +51,7 @@ app.controller("ControladorPrincipal", function ($scope) {
     $scope.logs = {};
     $scope.logDetail = {};
     $scope.users = {};
+    $scope.meteo = [];
     $scope.as_config = false;
     $scope.as_adjust = false;
     $scope.as_more = false;
@@ -190,7 +191,7 @@ app.controller("ControladorPrincipal", function ($scope) {
                         $scope.systems[locationKey] = system.val();
                         $scope.systems[locationKey].key = locationKey;
                         loadSystemUsers(locationKey);
-                        $scope.loadSystemLog(locationKey, 10);
+                        $scope.loadSystemLog(locationKey, 1);
                         // $scope.showWindow('listado');
                         if (locationKey == lastLocation) {
                             $scope.$apply();
@@ -362,8 +363,10 @@ app.controller("ControladorPrincipal", function ($scope) {
     }
 
     getMetorologicalData = () => {
+        $scope.meteo[$scope.actualSystem.key] = {};
         $.ajax({url: `https://api.openweathermap.org/data/2.5/weather?lat=${$scope.actualSystem.latitude}&lon=${$scope.actualSystem.longitude}&appid=db9c92bd1f6d8d5db0aa0bae36ce093f`, success: function(result){
-            $scope.meteo = result;
+            $scope.meteo[$scope.actualSystem.key] = result;
+            $scope.meteo[$scope.actualSystem.key].weather["iconUrl"] = `http://openweathermap.org/img/w/${$scope.meteo[$scope.actualSystem.key].weather["0"].icon}.png`;
             $scope.$apply();
         }});
     }

@@ -30,6 +30,7 @@ function initializeFirebaseUI() {
         signInOptions: [
             firebase.auth.GoogleAuthProvider.PROVIDER_ID,
             firebase.auth.EmailAuthProvider.PROVIDER_ID,
+            // clientId: settings.clientId,
             // {
             //     provider: firebase.auth.PhoneAuthProvider.PROVIDER_ID,
             //     recaptchaParameters: {
