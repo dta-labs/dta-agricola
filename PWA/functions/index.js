@@ -49,7 +49,7 @@ exports.sendNotifications = functions.database.ref('/systems/{systemId}/logs/{lo
                 const tokens = [];
 
                 for (let key in snapshot) {
-                    if (snapshot[key].token && 
+                    if (snapshot[key].token && snapshot[key].systems[systemId] &&
                         (snapshot[key].systems[systemId] == "propietario" || 
                         snapshot[key].systems[systemId] == "trabajador")) {
                         tokens.push(snapshot[key].token);
