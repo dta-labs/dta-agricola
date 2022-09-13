@@ -1,6 +1,7 @@
 var ui;
 var config = {
-    apiKey: "AIzaSyBGhhdWhG7bD4QBkjK5IlXgiGVkoUv70KM",
+    // apiKey: "AIzaSyBGhhdWhG7bD4QBkjK5IlXgiGVkoUv70KM",
+    apiKey: "AIzaSyAR3TYAOFC43LjXmTOevgenQeb5aV6-6TU",
     authDomain: "dta-agricola.firebaseapp.com",
     databaseURL: "https://dta-agricola.firebaseio.com",
     projectId: "dta-agricola",
