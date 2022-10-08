@@ -38,6 +38,7 @@ const String httpServer = "AT+HTTPPARA=\"URL\",\"http://pprsar.com/cosme/comm_v3
 #define pinMotorFF 8
 #define pinSensorSeguridad 9
 #define pinSensorVoltaje 10
+#define watchDogPin A5
 int serie = config[0];
 // int LED = 13;
 
@@ -207,7 +208,8 @@ void updateEEPROM() {
 void acciones() {
   setActivationTimer();
   showVars();
-  wdt_reset();
+  systemWatchDog();
+  
   if (statusVar == "ON") {
     controlAutomatico();
   } else {
@@ -215,7 +217,7 @@ void acciones() {
     apagar();
     waitOneMinute();
   }
-  wdt_reset();
+  systemWatchDog();
 }
 
 void setActivationTimer() {
@@ -275,7 +277,7 @@ bool run() {
         return false;
       }
       delay(500);          
-      wdt_reset();
+      systemWatchDog();
     }
   }
   return true;
@@ -300,7 +302,7 @@ void stop() {
     digitalWrite(pinActivationTimer, HIGH);
     for (int i = 0; i < deactivationTimer / 100; i++){
       delay(100);
-      wdt_reset();
+      systemWatchDog();
     }
   }
 }
@@ -308,7 +310,7 @@ void stop() {
 bool positionControl() {
   // return true; 
   positionVar = getPosition();
-  wdt_reset();
+  systemWatchDog();
   if (lat_actual == 0.0f && lon_actual == 0.0f) {                     // Control de apagado
     statusVar = "OFF";
     return false;
@@ -326,7 +328,7 @@ void apagar() {
 void waitOneMinute() {
   for (int i = 0; i < 60; i++){
     delay(1000);
-    wdt_reset();
+    systemWatchDog();
   }
 }
 
@@ -486,7 +488,7 @@ void setupGSM() {
     gprs.println(F("AT+SAPBR=2,1"));
     getResponse(15, testComm); 
   }
-  wdt_reset();
+  systemWatchDog();
 }
 
 void testComunicaciones() {
@@ -527,7 +529,7 @@ void testComunicaciones() {
 void comunicaciones() {
   Serial.println(F("Server communication"));
   positionVar = getPosition();
-  wdt_reset();
+  systemWatchDog();
   String data = httpRequest();                                                       // Get Settings from HTTP
   data = data.substring(data.indexOf('"'), data.indexOf("OK"));
   // Para test
@@ -592,7 +594,7 @@ void setVariables(String data) {
       }
     }
   }
-  wdt_reset();
+  systemWatchDog();
 }
 
 String httpRequest() {
@@ -616,24 +618,24 @@ String httpRequest() {
   getResponse(15, true); 
   gprs.println(httpServer + param1 + param2 + param3 + param4 + param5 + param6 + param7 + param8 + param9 + param10 + param11 + param12 + param13);
   getResponse(25, true); 
-  wdt_reset();
+  systemWatchDog();
   gprs.println(F("AT+HTTPACTION=0"));
   String result = getResponse(6000, true); 
-  wdt_reset();
+  systemWatchDog();
   restartGSM = (result.indexOf("ERROR") != -1 || result.indexOf("601") != -1  || result.indexOf("604") != -1 || signalVar < 6) ? true : false;
   gprs.println(F("AT+HTTPREAD"));
   result = getResponse(0, false);
   gprs.println(F("AT+HTTPTERM"));
   getResponse(30, false); 
   commWatchDogReset(signalVar);
-  wdt_reset();
+  systemWatchDog();
   return result;
 }
 
 String getResponse(int wait, bool response){
   String result = "";
   delay(wait);
-  wdt_reset();
+  systemWatchDog();
   unsigned long iTimer = millis();
   while(!gprs.available() && (millis() - iTimer) <= 1000) {
     delay(5);    
@@ -647,7 +649,7 @@ String getResponse(int wait, bool response){
   if (response) {
     Serial.println(result);
   }
-  // wdt_reset();
+  // systemWatchDog();
   return result;
 }
 
@@ -667,6 +669,15 @@ void commWatchDogReset(int signalValue) {
   if (commError == 5) {
     while (true) { delay(1000); }
   }
+}
+
+
+void systemWatchDog() {
+  wdt_reset();
+  pinMode(watchDogPin, OUTPUT);         // Sink current to drain charge from C2
+  digitalWrite(watchDogPin, LOW);
+  delay(100);                           // Give enough time for C2 to discharge (should discharge in 50 ms)     
+  pinMode(watchDogPin, INPUT);          // Return to high impedance
 }
 
 String parse(String dataString, char separator, int index) {
