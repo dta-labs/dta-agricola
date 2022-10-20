@@ -1,0 +1,9 @@
+Riegos Peter: Listado de precios
+Pivotes marca: Valley
+Vendedor: Irvin
+
+Piezas y partes    v6000      v8000
+========================================
+Tubo estándar     $822.00    $980.00
+Ángulos           $ 23.00 -  $183.00
+Cables            $ 11.06 c/metro

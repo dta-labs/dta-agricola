@@ -38,7 +38,7 @@ const String httpServer = "AT+HTTPPARA=\"URL\",\"http://pprsar.com/cosme/comm_v3
 #define pinMotorFF 8
 #define pinSensorSeguridad 9
 #define pinSensorVoltaje 10
-#define watchDogPin A5
+#define watchDogPin A3
 int serie = config[0];
 // int LED = 13;
 

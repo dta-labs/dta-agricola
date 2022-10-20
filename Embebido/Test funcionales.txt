@@ -1,0 +1,26 @@
+No genera notificación:
+=======================
+http://pprsar.com/cosme/comm_v3.php?id=000000000000&st=OFF&sa=false&di=FF&vo=true&ar=OFF&sp=85&pr=0.00&po=0.0&la=0.00000&lo=0.00000&er=120&rx=Ok&si=21
+
+Genera notificación:
+====================
+http://pprsar.com/cosme/comm_v3.php?id=000000000000&st=ON&sa=false&di=FF&vo=true&ar=OFF&sp=85&pr=0.00&po=0.0&la=0.00000&lo=0.00000&er=120&rx=Ok&si=21
+
+Prueba de Autorreverse:
+=======================
+http://pprsar.com/cosme/comm_v3.php?id=000000000000&st=OFF&sa=true&di=FF&vo=true&ar=ON&sp=85&pr=0.00&po=191.0&la=0.00000&lo=0.00000&er=81&rx=Ok&si=21
+
+\"ON\"FF\"0\"ON\"28.420324\"-107.514814\"PC\"3\"10\"190\"80\"F\"190\"270\"10\"T\"270\"360\"0\"F\"
+"ON"FF"0"ON"28.420324"-107.514814"PC"1"F"
+
+Pruebas equipo de Claudio:
+==========================
+http://pprsar.com/cosme/comm_v3.php?id=526251201079&st=ON&sa=true&di=RR&vo=true&ar=OFF&sp=55&pr=0.00&po=56.8&la=28.42388&lo=-107.50792&er=106&rx=Ok&si=23
+
+https://dta-agricola.firebaseio.com/systems/000000000000/settings.json
+
+Pruebas del clima:
+==================
+
+https://api.openweathermap.org/data/2.5/weather?lat=28.638448&lon=-106.052834&appid=db9c92bd1f6d8d5db0aa0bae36ce093f
+http://openweathermap.org/img/w/04n.png
