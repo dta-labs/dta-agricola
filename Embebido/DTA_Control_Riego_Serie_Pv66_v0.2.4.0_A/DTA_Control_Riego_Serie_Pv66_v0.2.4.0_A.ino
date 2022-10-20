@@ -671,7 +671,6 @@ void commWatchDogReset(int signalValue) {
   }
 }
 
-
 void systemWatchDog() {
   wdt_reset();
   pinMode(watchDogPin, OUTPUT);         // Sink current to drain charge from C2

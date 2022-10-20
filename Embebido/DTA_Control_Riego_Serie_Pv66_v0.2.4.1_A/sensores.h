@@ -1,108 +1,146 @@
-// Sensores
 
-#include "analogo.h"
-
-class Sensores {
-	private:
-	
-		int pinSensorPresion = A0;                     // Presión de agua
-		int pinSensorSeguridadAnalogico = A1;          // Segurdidad analógico
-		int pinSensorSeguridadDigital = 9;             // Segurdidad digital
-		int pinSensorVoltaje = 10          			   // Voltaje
+#pragma region Sensores
+class Analogo {
+  private:
+    TinyGPS gps;
+    SoftwareSerial ssGPS(config[3], config[4]);
+    float lat_central = 0.0f;
+    float lon_central = 0.0f;
+    float lat_actual = 0.0f;
+    float lon_actual = 0.0f;
+    int errorGPS = 0;
 
 	public:
 
-		Sensores(int presionPin, int seguridadAPin, int seguridadDPin, int voltajePin) {
-			pinSensorPresion = presionPin;
-			pinSensorSeguridadAnalogico = seguridadAPin;
-			pinSensorSeguridadDigital = seguridadDPin;
-			pinSensorVoltaje = voltajePin;
-			Analogo presion = Analogo(pinSensorPresion, false);
-		}
-		
-		bool controlSeguridad() {
-			bool sensorSeguridadD = digitalRead(pinSensorSeguridad);
-			bool sensorSeguridadA = getCorriente();
-			if (!sensorSeguridadD && !sensorSeguridadA) {
-				Serial.println(F("    Falla sensor de seguridad... reintentando!"));
-				setDirection();
-				wdt_reset();
-				sensorSeguridadD = digitalRead(pinSensorSeguridad);
-				sensorSeguridadA = getCorriente();
-				if (!sensorSeguridadD && !sensorSeguridadA) {
-					Serial.println(F("    Falla sensor de seguridad... reintentando nuevamente!"));
-					setDirection();
-					wdt_reset();
-				}
-				sensorSeguridadD = digitalRead(pinSensorSeguridad);
-				sensorSeguridadA = getCorriente();
-				if (!sensorSeguridadD && !sensorSeguridadA) {
-					Serial.println(F("   Sistem off: Stuck alarm!"));
-					statusVar = "OFF";
-					apagar(); 
-					for (int i = 0; i < 60; i++){
-						delay(1000);
-						wdt_reset();
-					}
-				}
-			}
-			return sensorSeguridadD | sensorSeguridadA;
-		}
+    Sensores() {
 
-		bool getCorriente() {
-			float sensibilidad = 0.185;
-			float valorReferencia = 5;
-			float valorReposo = 2.5;
-			float I = 0;
-			float Ipico = 0;
-			float Imin = 0;
-			float Imax = 0;
-			float ruido = 0.07;
-			unsigned long tiempo = millis();
-			while (millis() - tiempo < 120) { // medir por 120ms
-				float Vin = analogRead(pinSensorSeguridadAnalogico);
-				float acs712 = Vin * valorReferencia / 1023;
-				I = 0.9 * I + 0.1 * (acs712 - valorReposo) / sensibilidad;
-				if (I > Imax) Imax = I;
-				if (I < Imax) Imin = I;
-			}
-			Ipico = Imax - ruido;
-			float Irms = Ipico * 0.707;  // I RMS = Ipico / (2^1/2)
-			digitalWrite(13, (Irms >= 0.10) ? HIGH : LOW);
-			return (Irms >= 0.10) ? true : false;
-		}
+    }
 
-		bool controlVoltaje() {
-		  // bool sensorVoltaje = true;
-		  bool sensorVoltaje = digitalRead(pinSensorVoltaje);
-		  if (!sensorVoltaje) {
-			Serial.println(F("Sistem off: Electric alarm!"));
-			apagar();
-		  }
-		  return sensorVoltaje;
-		}
+    bool controlSeguridad() {
+      if (!isSequre()) {
+        Serial.println(F("     Sequrity error... try again!"));
+        if (!isSequre()) {
+          Serial.println(F("     Sequrity error... try again!"));
+          return isSequre();
+        }
+      }
+      return true;
+    }
 
-		bool controlPresion(int sensorPresionVar) {
-		  bool result = true;
-		  if (sensorPresionVar != 0) {
-			result = (controlPresionAnalogica() > 1) ? true : false;
-		  }
-		  return result;
-		}
+    bool controlVoltaje() {
+      return digitalRead(pinSensorVoltaje);
+    }
 
-		float controlPresionAnalogica(int sensorPresionVar) {
-		  float presionActual = 0.0f;
-		  for (int i = 0; i < 3; i++) {
-			float pAnalog = presion.getAnalogValue();
-			float temp = presion.fmap(pAnalog, 100, 1023, 0.0, sensorPresionVar);
-			presionActual += temp > 0 ? temp : 0;
-			delay(10);
-		  }
-		  presionActual = presionActual / 3;
-		  Serial.print(F("PresionF: "));
-		  Serial.println((String) presionActual);
-		  return presionActual;
-		}
+    float controlPresionAnalogica() {
+      float presionActual = 0.0f;
+      for (int i = 0; i < 3; i++) {
+        float pAnalog = presion.getAnalogValue();
+        float temp = presion.fmap(pAnalog, 100, 1023, 0.0, sensorPresionVar);
+        presionActual += temp > 0 ? temp : 0;
+        // float temp = presion.fmap(pAnalog, 0, 1023, 0.0, sensorPresionVar) - 1.25;
+        // temp = (temp + 0.4018) / 0.7373;
+        // presionActual += pAnalog > 0 ? pAnalog : 0;
+        delay(10);
+      }
+      presionActual = presionActual / 3;
+      Serial.print(F("PresionF: "));
+      Serial.println((String) presionActual);
+      return presionActual;
+    }
+
+    bool controlPresion() {
+      bool result = true;
+      if (sensorPresionVar >= 1) {
+        result = (controlPresionAnalogica() > 1) ? true : false;
+      }
+      return result;
+    }
+
+    float getPosition() {
+      float azimut = positionVar;
+      bool newData = parseGPSData();
+      lat_central = (lat_central == 0) ? eeVar.lat_central : lat_central;
+      lon_central = (lon_central == 0) ? eeVar.lon_central : lon_central;
+      if (newData) {
+        unsigned long age;
+        gps.f_get_position(&lat_actual, &lon_actual, &age);
+        azimut = gps.course_to(lat_central, lon_central, lat_actual, lon_actual);
+        errorGPS = gps.hdop() == TinyGPS::GPS_INVALID_HDOP ? 0 : gps.hdop();
+        // printGPSData(lat_actual, lon_actual, azimut, errorGPS);
+      }
+      checkGPSConnection();
+      return azimut;
+    }
+
+	private:
+
+    bool isSequre() {
+      return (config[5] == 0) ? controlSeguridad1() : controlSeguridad2();
+    }
+
+    bool controlSeguridad1() {
+      delay(500);
+      return digitalRead(pinSensorSeguridad);
+    }
+
+    bool controlSeguridad2() {
+      float Sensibilidad = 0.185;
+      float voltajeSensor;
+      float corriente = 0;
+      float Imax = 0;
+      float Imin = 0;
+      long tiempo = millis();
+      while(millis() - tiempo < 500){ 
+        voltajeSensor = analogRead(A1) * (5.0 / 1023.0);
+        corriente = 0.9 * corriente + 0.1 * ((voltajeSensor - 2.5) / Sensibilidad); 
+        if(corriente>Imax){ Imax = corriente; }
+        if(corriente<Imin){ Imin = corriente; }
+      }
+      float Irms = (((Imax-Imin)/2)) * 0.707;
+      Serial.print(F("Irms: ")); Serial.println(Irms, 2);
+      return Irms >= 0.1 ? true : false;
+    }
+
+    bool parseGPSData() {
+      bool newData = false;
+      ssGPS.listen();
+      // Se parsean por un segundo los datos del GPSy se reportan algunos valores clave
+      for (unsigned long start = millis(); millis() - start < 1000;) {
+        while (ssGPS.available()) {
+          char c = ssGPS.read();
+          // Serial.write(c);   // descomentar para ver el flujo de datos del GPS
+          if (gps.encode(c))    // revisa si se completó una nueva cadena
+            newData = true;
+        }
+      }
+      return newData;
+    }
+
+    float printGPSData(float flat, float flon, float azimut, int errorGPS) {
+      Serial.print(lat_central, 6);
+      Serial.print(F(","));
+      Serial.print(lon_central, 6);
+      Serial.print(F(" "));
+      Serial.print(flat == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flat, 6);
+      Serial.print(F(","));
+      Serial.print(flon == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flon, 6);
+      Serial.print(F(" "));
+      Serial.print(gps.satellites() == TinyGPS::GPS_INVALID_SATELLITES ? 0 : gps.satellites());
+      Serial.print(F(" "));
+      Serial.print((int)azimut);
+      Serial.print(F(" "));
+      Serial.println(errorGPS);
+    }
+
+    void checkGPSConnection() {
+      unsigned long chars;
+      unsigned short sentences, failed;
+      gps.stats(&chars, &sentences, &failed);
+      if (chars == 0) {
+        Serial.println("Problema de conectividad con el GPS: revise el cableado");
+      }
+    }
 
 }
 
+#pragma endregion Sensores
