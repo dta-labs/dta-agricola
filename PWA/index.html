@@ -367,7 +367,7 @@
                                                     </div>
                                                 </div>
 
-                                                <div class="col s9 limitar" ng-show="system.type != 'Estacionario'">
+                                                <div class="col s7 limitar" ng-show="system.type != 'Estacionario'">
                                                     <span style="font-size: 1.2em;">{{ system.name }}</span>
                                                     <br>
                                                     <i class="fa fa-undo" style="font-size: .8em;"
@@ -375,7 +375,7 @@
                                                     <i class="fa fa-repeat" style="font-size: .8em;"
                                                         ng-show="system.direction == 'FF'"></i>
                                                     <span style="font-size: .8em;">
-                                                        <i class="material-icons" style="font-size: .9em;">near_me</i>
+                                                        <!-- <i class="material-icons" style="font-size: .9em;">near_me</i> -->
                                                         {{ system.log.position ? system.log.position : 0 }}°
                                                     </span>
                                                     <span style="font-size: .8em;">
@@ -387,8 +387,7 @@
                                                         {{ system.log.presion ? system.log.presion : 0 }}psi
                                                     </span>
                                                     <br>
-                                                    <span ng-show="system.status == 'OFF'" style="font-size: .8em;"><b>
-                                                            {{ system.status }}</b>&nbsp;</span>
+                                                    <span ng-show="system.status == 'OFF'" style="font-size: .8em;"><b>{{ system.status }}</b></span>
                                                     <span
                                                         ng-show="(system.log.voltage == 'true' && system.log.safety == 'true' && system.log.commDelay == '-1') || system.status == 'OFF'"
                                                         style="font-size: .8em;">[{{ system.log.update ? system.log.update : "00000000 0000" }}]</span>
@@ -416,7 +415,7 @@
                                                             id="errorTime_{{ system.key }}"></span></span>
                                                 </div>
                                                 
-                                                <div class="col s9 limitar" ng-show="system.type == 'Estacionario'">
+                                                <div class="col s7 limitar" ng-show="system.type == 'Estacionario'">
                                                     <span style="font-size: 1.2em;">{{ system.name }}</span>
                                                     <br>
                                                     <span style="font-size: .8em;">
@@ -432,10 +431,13 @@
                                                         {{ system.log.presion ? system.log.presion : 0 }}psi
                                                     </span>
                                                     <br>
-                                                    <span style="font-size: .8em;"><b>
-                                                        {{ system.status }}</b>&nbsp;</span>
+                                                    <span style="font-size: .8em;"><b>{{ system.status }}</b></span>
                                                     <span style="font-size: .8em;">[{{ system.log.update ? system.log.update : "00000000 0000" }}]</span>
                                                 </div>
+
+                                                <div class="col s2" style="margin: 2px 0 0 -10px; text-align: right;">
+                                                    <img src="{{ meteo[system.key].weather.iconUrl }}" alt="Weather icon" ng-if="meteo[system.key].weather.iconUrl">
+                                                </div>           
                                             </div>
                                         </a>
                                     </div>
@@ -479,8 +481,7 @@
                                         <option value="" disabled selected>Seleccione un tipo</option>
                                         <option value="PC" data-icon="assets/images/riegoPivote.png">Pivote central</option>
                                         <option value="PL" data-icon="assets/images/riegoPivote.png">Pivote lineal</option>
-                                        <option value="Estacionario" data-icon="assets/images/riegoEstacionario.png">
-                                            Estacionario (Estacionario/Aspersión)</option>
+                                        <option value="Estacionario" data-icon="assets/images/riegoGoteo.png">Estacionario</option>
                                         <option value="Pozo" data-icon="assets/images/riegoPozo.png">Bombeo</option>
                                     </select>
                                     <label for="newDeviceType">Tipo de equipo</label>

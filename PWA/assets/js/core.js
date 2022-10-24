@@ -191,6 +191,7 @@ app.controller("ControladorPrincipal", function ($scope) {
                         $scope.systems[locationKey] = system.val();
                         $scope.systems[locationKey].key = locationKey;
                         loadSystemUsers(locationKey);
+                        getMetorologicalData(locationKey);
                         $scope.loadSystemLog(locationKey, 1);
                         // $scope.showWindow('listado');
                         if (locationKey == lastLocation) {
@@ -333,7 +334,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         $scope.showWindow('sistema');
         updateCompass();
         initializeSystemMap($scope.actualSystem);
-        getMetorologicalData();
+        getMetorologicalData($scope.actualSystem.key);
     }
 
     setActualSystemPlans = () => {
@@ -346,7 +347,7 @@ app.controller("ControladorPrincipal", function ($scope) {
     }
 
     invertLog = () => {
-        if ($scope.logs[$scope.actualSystem.key]) {
+        if ($scope.actualSystem && $scope.logs[$scope.actualSystem.key]) {
             registers = $scope.logs[$scope.actualSystem.key];
             registersArr = Object.values(registers);
             $scope.invertedRegisters = registersArr.reverse();
@@ -362,11 +363,11 @@ app.controller("ControladorPrincipal", function ($scope) {
         }, 500);
     }
 
-    getMetorologicalData = () => {
-        $scope.meteo[$scope.actualSystem.key] = {};
-        $.ajax({url: `https://api.openweathermap.org/data/2.5/weather?lat=${$scope.actualSystem.latitude}&lon=${$scope.actualSystem.longitude}&appid=db9c92bd1f6d8d5db0aa0bae36ce093f`, success: function(result){
-            $scope.meteo[$scope.actualSystem.key] = result;
-            $scope.meteo[$scope.actualSystem.key].weather["iconUrl"] = `http://openweathermap.org/img/w/${$scope.meteo[$scope.actualSystem.key].weather["0"].icon}.png`;
+    getMetorologicalData = (key) => {
+        $scope.meteo[key] = {};
+        $.ajax({url: `https://api.openweathermap.org/data/2.5/weather?lat=${$scope.systems[key].latitude}&lon=${$scope.systems[key].longitude}&appid=db9c92bd1f6d8d5db0aa0bae36ce093f`, success: function(result){
+            $scope.meteo[key] = result;
+            $scope.meteo[key].weather["iconUrl"] = `http://openweathermap.org/img/w/${$scope.meteo[key].weather["0"].icon}.png`;
             $scope.$apply();
         }});
     }
