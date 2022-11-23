@@ -55,7 +55,7 @@
 
         <div class="row">
 
-            <div class="col s0 m2 green">
+            <div class="col s0 m3 l2">
 
                 <!-- #region: MENU PC -->
                 <div class="left_col show-in-pc-only">
@@ -120,7 +120,7 @@
                                             &nbsp;&nbsp;Ayuda
                                         </a>
                                     </li>
-                                    <li ng-click="userProfile()" ng-show="authUser" ng-click="logout()">
+                                    <li ng-click="logout()" ng-show="authUser" ng-click="logout()">
                                         <a href="#">
                                             <i class="fa fa-sign-out" aria-hidden="true"></i>
                                             &nbsp;Salir
@@ -157,7 +157,7 @@
 
             </div>
 
-            <div class="col s12 m10">
+            <div class="col s12 m9 l10">
 
                 <!-- #region: MENU CELULAR -->
 
@@ -463,8 +463,10 @@
 
                     <!-- Modal Nuevo Equipo -->
                     <div id="modalNuevoEquipo" class="modal">
+                        <div class="modal-header">
+                            Agregar equipo
+                        </div>
                         <div class="modal-content">
-                            <h6>Agregar equipo</h6>
                             <div class="row" style="margin-top: 35px;">
                                 <div class="input-field col s12">
                                     <input id="newDeviceName" type="text" placeholder="Nombre del equipo"
@@ -677,17 +679,16 @@
                                     </div>
                                 </div>
                                 <div class="row" style="margin-bottom: 0px;">
-                                    <div id="map" class="main-container map col s12 m8"
-                                        style="margin-top: 0px; height: calc(100vh - 390px);"></div>
+                                    <div id="map" class="main-container map col s12 m8"></div>
                                     <div class="input-field col s12 m4" style="margin-bottom: 0; margin-top: 0;">
                                         <div class="row">
                                             <div class="row hide-on-small-only" style="margin-bottom: 0px;">
                                                 <!-- <div class="switch switch2 col s4 switchLabel" style="margin-top: -5px;">Encendido</div> -->
-                                                <div class="col m11">
+                                                <div class="col m10">
                                                     <div class="row center-align bordered">
-                                                        <div id="encendido" class="col s12 m4"
+                                                        <div id="encendido" class="col s12"
                                                             style="font-size: 1em; margin-bottom: 5px;">Encendido</div>
-                                                        <div class="col s12 m8 switch switch"
+                                                        <div class="col s12 switch"
                                                             style="padding: 0px; margin-bottom: 10px;">
                                                             <label>
                                                                 <span class="blackBg"><b>Off</b></span>
@@ -700,11 +701,11 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="col m11" ng-show="actualSystem.type != 'Estacionario'">
+                                                <div class="col m10" ng-show="actualSystem.type != 'Estacionario'">
                                                     <div class="row center-align bordered">
-                                                        <div id="direccion" class="col s12 m4" style="font-size: 1em;">Dirección
+                                                        <div id="direccion" class="col s12" style="font-size: 1em;">Dirección
                                                         </div>
-                                                        <div class="col s12 m8 switch"
+                                                        <div class="col s12 switch"
                                                             style="padding: 0px; margin-bottom: 10px;">
                                                             <label>
                                                                 <span class="switchLabel"><i class="fa fa-undo"
@@ -725,7 +726,7 @@
                                         </div>
                                         <div class="row" style="margin-bottom: 0;"
                                             ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'">
-                                            <div class="bordered col s4 m11 row"
+                                            <div class="bordered col s4 m10 row"
                                                 style="border-bottom: 1px solid grey; margin-bottom: 15px; margin-right: -5px;">
                                                 <div class="col s12 m2 center-align">
                                                     <i class="material-icons" style="margin-top: 3px; color: {{ (actualSystem.log.safety == 'true') ? 'green' : 'red' }};">
@@ -736,7 +737,7 @@
                                                     <b>Seguridad</b>
                                                 </div>
                                             </div>
-                                            <div class="bordered col s3 m11 row"
+                                            <div class="bordered col s3 m10 row"
                                                 style="border-bottom: 1px solid grey; margin-bottom: 15px; margin-right: -5px;">
                                                 <div class="col s12 m2 center-align">
                                                     <i class="material-icons" style="margin-top: 3px; color: {{ (actualSystem.log.reception == 'Ok' && actualSystem.log.commDelay == '-1') ? 'green' : 'red' }};">
@@ -747,7 +748,7 @@
                                                     <b>GSM</b>
                                                 </div>
                                             </div>
-                                            <div class="bordered col s3 m11 row"
+                                            <div class="bordered col s3 m10 row"
                                                 style="border-bottom: 1px solid grey; margin-bottom: 15px;">
                                                 <div class="col s12 m2 center-align">
                                                     <i class="material-icons" style="margin-top: 3px; color: {{ (actualSystem.log.latitude != '0.00000' && actualSystem.log.longitude != '0.00000') ? 'green' : 'red' }};">
@@ -758,29 +759,25 @@
                                                     <b>GPS</b>
                                                 </div>
                                             </div>
-                                            <div class="bordered col s2 m11 row" ng-click="actualSystemWindows('as_config')"
-                                                style="border-bottom: 1px solid grey; margin-bottom: 15px; cursor: pointer;">
-                                                <div class="col s12 m2 center-align"><i class="material-icons">network_check</i>
-                                                </div>
-                                                <div class="col s12 m10 center-align">
-                                                    <b>{{ actualSystem.log.speed ? actualSystem.log.speed : 0 }}</b>%
-                                                </div>
-                                            </div>
-                                            <div class="bordered col s2 m11 row"
-                                                style="border-bottom: 1px solid grey; margin-bottom: 15px; margin-bottom: 10px;">
-                                                <div class="col s12 m2 center-align"><i class="material-icons">near_me</i></div>
-                                                <div class="col s12 m10 center-align">
-                                                    <b>{{ actualSystem.log.position ? actualSystem.log.position : 0 }}</b>°
-                                                </div>
-                                            </div>
-                                            <div class="bordered col s2 m11 row"
+                                        </div>
+                                        <div class="row" style="margin-bottom: 0;" 
+                                            ng-show="actualSystem.type == 'Estacionario'">
+                                            <div class="bordered col s4 m10 row"
                                                 style="border-bottom: 1px solid grey; margin-bottom: 15px;">
-                                                <div class="col s12 m2 center-align"><i class="material-icons">search</i></div>
+                                                <div class="col s12 m2 center-align"><i class="material-icons">alarm</i></div>
                                                 <div class="col s12 m10 center-align">
-                                                    <b>{{ actualSystem.log.error ? actualSystem.log.error : 0 }}</b>cm
+                                                    <b>{{ actualSystem.log.activationTime ?
+                                                        msToTime(actualSystem.log.activationTime) : 0 }}</b>
                                                 </div>
                                             </div>
-                                            <div class="bordered col s2 m11 row"
+                                            <div class="bordered col s2 m10 row"
+                                                style="border-bottom: 1px solid grey; margin-bottom: 15px;">
+                                                <div class="col s12 m2 center-align"><i class="material-icons">map</i></div>
+                                                <div class="col s12 m10 center-align">
+                                                    <b>{{ actualSystem.log.plot ? actualSystem.log.plot : 0 }}</b>
+                                                </div>
+                                            </div>
+                                            <div class="bordered col s2 m10 row"
                                                 style="border-bottom: 1px solid grey; margin-bottom: 15px;">
                                                 <div class="col s12 m2 center-align"><i class="fa fa-tint" aria-hidden="true"
                                                         style="font-size: 1.7em; margin: 2px 0 3px 0;"></i></div>
@@ -789,7 +786,7 @@
                                                     <!-- <b>{{ actualSystem.log.presion ? actualSystem.log.presion * actualSystem.sensorPresion / 1024 : 0 }}</b>psi -->
                                                 </div>
                                             </div>
-                                            <div class="bordered col s2 m11 row"
+                                            <div class="bordered col s2 m10 row"
                                                 style="border-bottom: 1px solid grey; margin-bottom: 15px;">
                                                 <div class="col s12 m2 center-align"><i class="material-icons">rss_feed</i>
                                                 </div>
@@ -798,39 +795,47 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="row" style="margin-bottom: 0;"
-                                            ng-show="actualSystem.type == 'Estacionario'">
-                                            <div class="bordered col s4 m11 row"
-                                                style="border-bottom: 1px solid grey; margin-bottom: 15px;">
-                                                <div class="col s12 m2 center-align"><i class="material-icons">alarm</i></div>
-                                                <div class="col s12 m10 center-align">
-                                                    <b>{{ actualSystem.log.activationTime ?
-                                                        msToTime(actualSystem.log.activationTime) : 0 }}</b>
-                                                </div>
+                                    </div>
+                                </div>
+                                <div class="row" style="margin: auto;">
+                                    <div class="row" style="margin-bottom: 0;" ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'">
+                                        <div class="bordered col s2 row" ng-click="actualSystemWindows('as_config')"
+                                            style="border-bottom: 1px solid grey; margin-bottom: 15px; cursor: pointer;">
+                                            <div class="col s12 m2 center-align"><i class="material-icons">network_check</i>
                                             </div>
-                                            <div class="bordered col s2 m11 row"
-                                                style="border-bottom: 1px solid grey; margin-bottom: 15px;">
-                                                <div class="col s12 m2 center-align"><i class="material-icons">map</i></div>
-                                                <div class="col s12 m10 center-align">
-                                                    <b>{{ actualSystem.log.plot ? actualSystem.log.plot : 0 }}</b>
-                                                </div>
+                                            <div class="col s12 m10 center-align">
+                                                <b>{{ actualSystem.log.speed ? actualSystem.log.speed : 0 }}</b>%
                                             </div>
-                                            <div class="bordered col s2 m11 row"
-                                                style="border-bottom: 1px solid grey; margin-bottom: 15px;">
-                                                <div class="col s12 m2 center-align"><i class="fa fa-tint" aria-hidden="true"
-                                                        style="font-size: 1.7em; margin: 2px 0 3px 0;"></i></div>
-                                                <div class="col s12 m10 center-align">
-                                                    <b>{{ actualSystem.log.presion ? actualSystem.log.presion : 0 }}</b>psi
-                                                    <!-- <b>{{ actualSystem.log.presion ? actualSystem.log.presion * actualSystem.sensorPresion / 1024 : 0 }}</b>psi -->
-                                                </div>
+                                        </div>
+                                        <div class="bordered col s2 row"
+                                            style="border-bottom: 1px solid grey; margin-bottom: 15px; margin-bottom: 10px;">
+                                            <div class="col s12 m2 center-align"><i class="material-icons">near_me</i></div>
+                                            <div class="col s12 m10 center-align">
+                                                <b>{{ actualSystem.log.position ? actualSystem.log.position : 0 }}</b>°
                                             </div>
-                                            <div class="bordered col s2 m11 row"
-                                                style="border-bottom: 1px solid grey; margin-bottom: 15px;">
-                                                <div class="col s12 m2 center-align"><i class="material-icons">rss_feed</i>
-                                                </div>
-                                                <div class="col s12 m10 center-align">
-                                                    <b>{{ actualSystem.log.signal ? actualSystem.log.signal : 0 }}</b>/30
-                                                </div>
+                                        </div>
+                                        <div class="bordered col s2 row"
+                                            style="border-bottom: 1px solid grey; margin-bottom: 15px;">
+                                            <div class="col s12 m2 center-align"><i class="material-icons">search</i></div>
+                                            <div class="col s12 m10 center-align">
+                                                <b>{{ actualSystem.log.error ? actualSystem.log.error : 0 }}</b>cm
+                                            </div>
+                                        </div>
+                                        <div class="bordered col s2 row"
+                                            style="border-bottom: 1px solid grey; margin-bottom: 15px;">
+                                            <div class="col s12 m2 center-align"><i class="fa fa-tint" aria-hidden="true"
+                                                    style="font-size: 1.7em; margin: 2px 0 3px 0;"></i></div>
+                                            <div class="col s12 m10 center-align">
+                                                <b>{{ actualSystem.log.presion ? actualSystem.log.presion : 0 }}</b>psi
+                                                <!-- <b>{{ actualSystem.log.presion ? actualSystem.log.presion * actualSystem.sensorPresion / 1024 : 0 }}</b>psi -->
+                                            </div>
+                                        </div>
+                                        <div class="bordered col s2 row"
+                                            style="border-bottom: 1px solid grey; margin-bottom: 15px;">
+                                            <div class="col s12 m2 center-align"><i class="material-icons">rss_feed</i>
+                                            </div>
+                                            <div class="col s12 m10 center-align">
+                                                <b>{{ actualSystem.log.signal ? actualSystem.log.signal : 0 }}</b>/30
                                             </div>
                                         </div>
                                     </div>

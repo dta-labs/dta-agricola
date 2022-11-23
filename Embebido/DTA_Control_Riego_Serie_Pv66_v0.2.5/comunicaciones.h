@@ -23,32 +23,34 @@ String parse(String dataString, char separator, int index) {
   return found > index ? dataString.substring(strIndex[0], strIndex[1]) : "";
 }
 
-void setupGSM() {
-  if (restartGSM) {
-    Serial.println(F("Setup GSM"));
-    gprs.begin(9600);
-    gprs.listen();
-    if (testComm) { testComunicaciones(); }
-    // gprs.println(F("AT+CBAND=PCS_MODE"));		// PGSM_MODE, DCS_MODE, PCS_MODE, EGSM_DCS_MODE, GSM850_PCS_MODE, ALL_BAND
-    // getResponse(15, testComm); 
-    // gprs.println(F("AT+CBAND=ALL_BAND"));
-    // getResponse(15, testComm); 
-    gprs.println(F("AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\""));
-    getResponse(15, testComm); 
-    gprs.println(F("AT+SAPBR=3,1,\"APN\",\"internet.itelcel.com\""));
-    getResponse(15, testComm); 
-    gprs.println(F("AT+SAPBR=3,1,\"USER\",\"webgpr\""));
-    getResponse(15, testComm); 
-    gprs.println(F("AT+SAPBR=3,1,\"PWD\",\"webgprs2002\""));
-    getResponse(15, testComm); 
-    gprs.println(F("AT+CFUN=1"));               // Funcionalidad 0 mínima 1 máxima
-    getResponse(15, testComm); 
-    gprs.println(F("AT+SAPBR=1,1"));
-    getResponse(15, testComm); 
-    gprs.println(F("AT+SAPBR=2,1"));
-    getResponse(15, testComm); 
+String getResponse(int wait, bool response){
+  String result = "";
+  delay(wait);
+  // systemWatchDog();
+  unsigned long iTimer = millis();
+  while(!gprs.available() && (millis() - iTimer) <= 1000) {
+    delay(5);    
   }
-  systemWatchDog();
+  // while(!gprs.available()) {}
+  while(gprs.available() > 0) {
+    result += (char)gprs.read();
+    delay(1.5);
+  }
+  result = result != "" ? result : "ERROR";
+  if (response) {
+    Serial.println(result);
+  }
+  // // systemWatchDog();
+  return result;
+}
+
+int getSignalValue() {
+  gprs.println(F("AT+CSQ"));           // Calidad de la señal -  debe ser 9 o superior: +CSQ: 14,0 OK
+  String aux1 = getResponse(15, false);
+  String aux2 = parse(aux1, ' ', 1);
+  String aux3 = parse(aux2, ',', 0);
+  int result = aux3.toInt(); 
+  return result;
 }
 
 void testComunicaciones() {
@@ -86,26 +88,32 @@ void testComunicaciones() {
   // getResponse(15, testComm); 
 }
 
-void comunicaciones() {
-  Serial.println(F("Server communication"));
-  positionVar = getPosition();
-  systemWatchDog();
-  String data = httpRequest();                                                       // Get Settings from HTTP
-  data = data.substring(data.indexOf('"'), data.indexOf("OK"));
-  // Para test
-  if (testFunc) {
-    data = (boolData) ? "\"ON\"FF\"0\"OFF\"30.73081\"-107.86308\"PC\"1\"0\"360\"50\"F\"" : "\"ON\"RR\"0\"OFF\"30.73081\"-107.86308\"PC\"1\"0\"360\"50\"F\"";
-    commError = 0;
-    boolData = boolData == true ? false : true;
+void setupGSM() {
+  if (restartGSM) {
+    Serial.println(F("Setup GSM"));
+    gprs.begin(9600);
+    gprs.listen();
+    if (testComm) { testComunicaciones(); }
+    // gprs.println(F("AT+CBAND=PCS_MODE"));		// PGSM_MODE, DCS_MODE, PCS_MODE, EGSM_DCS_MODE, GSM850_PCS_MODE, ALL_BAND
+    // getResponse(15, testComm); 
+    // gprs.println(F("AT+CBAND=ALL_BAND"));
+    // getResponse(15, testComm); 
+    gprs.println(F("AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\""));
+    getResponse(15, testComm); 
+    gprs.println(F("AT+SAPBR=3,1,\"APN\",\"internet.itelcel.com\""));
+    getResponse(15, testComm); 
+    gprs.println(F("AT+SAPBR=3,1,\"USER\",\"webgpr\""));
+    getResponse(15, testComm); 
+    gprs.println(F("AT+SAPBR=3,1,\"PWD\",\"webgprs2002\""));
+    getResponse(15, testComm); 
+    gprs.println(F("AT+CFUN=1"));               // Funcionalidad 0 mínima 1 máxima
+    getResponse(15, testComm); 
+    gprs.println(F("AT+SAPBR=1,1"));
+    getResponse(15, testComm); 
+    gprs.println(F("AT+SAPBR=2,1"));
+    getResponse(15, testComm); 
   }
-  // data = data != "" ? data : eeVar.data;
-  if (data != "" && (data.indexOf("ON") != -1 || data.indexOf("OFF") != -1)) {
-    setVariables(data);
-    updateEEPROM();
-  } else {
-    Serial.print(F("lat_central: ")); Serial.print(lat_central, 2); Serial.print(F("lon_central: ")); Serial.println(lon_central, 2);
-    Serial.println(F("data: Error!"));
-  }
+  // systemWatchDog();
 }
 
 void setVariables(String data) {
@@ -154,7 +162,7 @@ void setVariables(String data) {
       }
     }
   }
-  systemWatchDog();
+  // systemWatchDog();
 }
 
 String httpRequest() {
@@ -178,48 +186,40 @@ String httpRequest() {
   getResponse(15, true); 
   gprs.println(httpServer + param1 + param2 + param3 + param4 + param5 + param6 + param7 + param8 + param9 + param10 + param11 + param12 + param13);
   getResponse(25, true); 
-  systemWatchDog();
+  // systemWatchDog();
   gprs.println(F("AT+HTTPACTION=0"));
   String result = getResponse(6000, true); 
-  systemWatchDog();
+  // systemWatchDog();
   restartGSM = (result.indexOf("ERROR") != -1 || result.indexOf("601") != -1  || result.indexOf("604") != -1 || signalVar < 6) ? true : false;
   gprs.println(F("AT+HTTPREAD"));
   result = getResponse(0, false);
   gprs.println(F("AT+HTTPTERM"));
   getResponse(30, false); 
-  commWatchDogReset(signalVar);
-  systemWatchDog();
-  return result;
-}
-
-String getResponse(int wait, bool response){
-  String result = "";
-  delay(wait);
-  systemWatchDog();
-  unsigned long iTimer = millis();
-  while(!gprs.available() && (millis() - iTimer) <= 1000) {
-    delay(5);    
-  }
-  // while(!gprs.available()) {}
-  while(gprs.available() > 0) {
-    result += (char)gprs.read();
-    delay(1.5);
-  }
-  result = result != "" ? result : "ERROR";
-  if (response) {
-    Serial.println(result);
-  }
+  // commWatchDogReset(signalVar);
   // systemWatchDog();
   return result;
 }
 
-int getSignalValue() {
-  gprs.println(F("AT+CSQ"));           // Calidad de la señal -  debe ser 9 o superior: +CSQ: 14,0 OK
-  String aux1 = getResponse(15, false);
-  String aux2 = parse(aux1, ' ', 1);
-  String aux3 = parse(aux2, ',', 0);
-  int result = aux3.toInt(); 
-  return result;
+void comunicaciones() {
+  Serial.println(F("Server communication"));
+  positionVar = getPosition();
+  // systemWatchDog();
+  String data = httpRequest();                                                       // Get Settings from HTTP
+  data = data.substring(data.indexOf('"'), data.indexOf("OK"));
+  // Para test
+  if (testFunc) {
+    data = (boolData) ? "\"ON\"FF\"0\"OFF\"30.73081\"-107.86308\"PC\"1\"0\"360\"50\"F\"" : "\"ON\"RR\"0\"OFF\"30.73081\"-107.86308\"PC\"1\"0\"360\"50\"F\"";
+    commError = 0;
+    boolData = boolData == true ? false : true;
+  }
+  // data = data != "" ? data : eeVar.data;
+  if (data != "" && (data.indexOf("ON") != -1 || data.indexOf("OFF") != -1)) {
+    setVariables(data);
+    updateEEPROM();
+  } else {
+    Serial.print(F("lat_central: ")); Serial.print(lat_central, 2); Serial.print(F("lon_central: ")); Serial.println(lon_central, 2);
+    Serial.println(F("data: Error!"));
+  }
 }
 
 void commWatchDogReset(int signalValue) {

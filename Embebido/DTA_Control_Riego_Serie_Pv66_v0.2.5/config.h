@@ -22,8 +22,12 @@ unsigned int commDelay = 0;
 //.................................................
 
 // Comunicación GPS
+TinyGPS gps;
+SoftwareSerial ssGPS(config[3], config[4]);
 float lat_central = 0.0f;
 float lon_central = 0.0f;
+float lat_actual = 0.0f;
+float lon_actual = 0.0f;
 int errorGPS = 0;
 //.................................................
 
@@ -49,6 +53,7 @@ static int velocityVar = 0;
 static float positionVar = 0.0f;
 static int positionIni = 0;
 static int positionEnd = 0;
+static unsigned int actualTimer = 0;
 static unsigned int activationTimer = 0;
 static unsigned int deactivationTimer = 0;
 static bool restartGSM = true;
@@ -56,6 +61,19 @@ static int signalVar = 0;
 static byte commError = 0;
 static bool commRx = true;
 static bool isSequrity = false;
+static int matrizEstados[5][6] = {{ 0,  1,  3, -1, -1, -1},
+                                  {-1, -1,  1, -1, -1, -1},
+                                  {-1, -1, -1, -1, -1, -1},
+                                  {-1, -1, -1, -1, -1, -1},
+                                  {-1, -1, -1, -1, -1, -1}};
+
+enum Estado {
+  inicial,
+  comunicacion,
+  activado,
+  desactivado,
+  final
+} estadoActual = Estado::inicial;
 
 struct {
   float status;

@@ -5,6 +5,9 @@ var marker = {};
 var shape = {};
 var indicator = {};
 var poligons = {};
+var milatitud;
+var milongitud;
+var miaccuracy;
 
 let deferredPrompt;
 const installBtn = document.querySelector('#installBtn');
@@ -156,9 +159,9 @@ app.controller("ControladorPrincipal", function ($scope) {
     }
 
     $scope.logout = () => {
+        $scope.showWindow("login");
         firebase.auth().signOut().then(function () {
             //ui = null;
-            $scope.showWindow("login");
             $scope.authUser = null;
             $scope.tipoUsuario = 0;
             // ui.start("#firebaseui-auth-container", uiConfig);
@@ -476,8 +479,7 @@ app.controller("ControladorPrincipal", function ($scope) {
     }
 
     $scope.createNewDevice = () => {
-        let milatitud = position.coords.latitude;
-        let milongitud = position.coords.longitude;
+        getLocation();
         $scope.newDevice = {
             "booleanStatus": false,
             "caudal": "0",
@@ -1172,6 +1174,7 @@ document.addEventListener('DOMContentLoaded', function () {
 function getLocation() {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(showPosition, error, {
+            enableHighAccurace: true,
             maximumAge: 60000,
             timeout: 4000
         });
@@ -1183,12 +1186,12 @@ function getLocation() {
 }
 
 function showPosition(position) {
-    // let milatitud = position.coords.latitude;
-    // let milongitud = position.coords.longitude;
-    // let miaccuracy = position.coords.accuracy;
-    // M.toast({
-    //     html: "Lat: " + milatitud + "° Lng: " + milongitud + "° Err: " + miaccuracy + "m"
-    // });
+    milatitud = position.coords.latitude;
+    milongitud = position.coords.longitude;
+    miaccuracy = position.coords.accuracy;
+    M.toast({
+        html: "Lat: " + milatitud + "° Lng: " + milongitud + "° Err: " + miaccuracy + "m"
+    });
     // let miCoord = [milatitud, milongitud];
     // addMarker(miCoord, 'Posición actual:<br>Lat: ' + milatitud + '°<br>Lng: ' + milongitud + '°<br>Err: ' + miaccuracy + 'm');
 }

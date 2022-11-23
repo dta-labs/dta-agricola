@@ -1,20 +1,23 @@
 /****************************************************************************
  *                                                                          * 
  *                    Sistemas DTA Serie Pv66 v0.2.4 A                      *
- *                               2022.06.26                                 *
+ *                               2022.11.14                                 *
  *                                                                          *
  *   Sensores:                                                              *
  *   - Presión 150psi............. A0                                       *
  *   - Seguridad efecto Hall...... A1                                       *
  *   - Seguridad lectura directa.. D9                                       *
- *   - Comunicación............... D2, D3                      				*
+ *   - Comunicación............... D2, D3                      				      *
  *   - GPS........................ D11, D12, D13 (Tarjetas amarillas)       *
  *                                                                          *
- *   Configuración: {Gun, GSMr, GSMt, GPSr, GPSt, Seq}                      *
+ *   Configuración: {Gun, GSMr, GSMt, GPSr, GPSt, Seq, Code, Lada, Number}  *
  *   - Gun: 0 <= Relay FL | 1 <= Relay JQC                                  *
  *   - GSM: RX, TX (2, 3) <= Chip azul | (3, 2) <= Chip rojo                *
  *   - GPS: RX, TX (12, 11) <= Tarjeta blanca | (13, 12) Tarjeta amarilla   *
  *   - Seq: 0 <= Lectura directa | 1 <= Efecto Hall                         *
+ *   - Code: Código del país                                                *
+ *   - Lada: Código de área                                                 *
+ *   - Number: Número de la tarjeta                                         *
  *                                                                          *
  ****************************************************************************/
 
@@ -26,9 +29,11 @@
 
 #pragma region Variables
 
-const long config[] = {0, 2, 3, 12, 11, 1, 52, 625, 1020642};
-const String telefono = (String) config[6] + (String) config[7] + (String) config[8];
-// const String telefono = "000000000000";
+const long config[] = {0, 3, 2, 12, 11, 0, 52, 625, 1020642};
+static bool testFunc = true;
+static bool testComm = false;
+static bool testGPS = false;
+const String telefono = testFunc ? "000000000000" : (String) config[6] + (String) config[7] + (String) config[8];
 const String httpServer = "AT+HTTPPARA=\"URL\",\"http://pprsar.com/cosme/comm_v3.php?id=" + telefono;
 // const String httpServer = "AT+HTTPPARA=\"URL\",\"http://dtaamerica.com/ws/comm_v2.php?id=" + telefono;#define pinEngGunControl 4
 #define pinEngGunControl 4
@@ -64,8 +69,6 @@ float sensorPresion = 0;
 //.................................................
 
 // Variables 
-static bool testComm = false;
-static bool testFunc = false;
 static String deviceType = "PC";                // PC | PL
 static String statusVar = "OFF";
 static String directionVar = "FF";
@@ -121,8 +124,8 @@ void setup() {
   // pinMode(LED, OUTPUT);
   // digitalWrite(pinIrrigationControl, HIGH);                           // Control de riego Desactivado 
   apagar();
-  Serial.println();
-  Serial.println(F(">>> DTA-Agrícola: Serie Pv66 v0.2.4 A"));
+  // Serial.println();
+  Serial.println(F("\n>>> DTA-Agrícola: Serie Pv66 v0.2.4 A"));
   Serial.print(F("    «"));
   Serial.print(telefono);
   Serial.println(F("»"));
@@ -132,9 +135,9 @@ void setup() {
 
 void loop() {
   commDelay = millis();
-  Serial.println();
-  Serial.println(F("> New loop"));
-  Serial.println();
+  // Serial.println();
+  Serial.println(F("\n> New loop\n"));
+  // Serial.println();
   setupGSM();
   comunicaciones();
   commDelay = millis() - commDelay;
@@ -222,14 +225,16 @@ void acciones() {
 
 void setActivationTimer() {
   activationTimer = 600 * velocityVar;      // 60000 * velocityVar / 100;
-  int dif = 60000 - activationTimer;
-  deactivationTimer = (dif) >= commDelay ? (dif - commDelay) : (dif) > 0 ? 100 : 0;
+  unsigned int dif = 60000 - activationTimer - commDelay;
+  // deactivationTimer = dif > commDelay ? (dif - commDelay) : (dif > 0 ? 100 : 0);
+  deactivationTimer = velocityVar == 100 ? 0 : dif > 0 ? dif : 10;
 }
 
 void showVars() {
   Serial.print(F("> Type: "));
   Serial.println(deviceType == "PC" ? "Central Pivot" : deviceType == "PC" ? "Lineal Pivot" : "Other");
   Serial.print(F("> Status: ")); Serial.println(statusVar);
+  Serial.print(F("> Safety: ")); Serial.println(isSequrity ? F("TRUE") : F("FALSE"));
   Serial.print(F("> Direction: ")); Serial.println(directionVar);
   Serial.print(F("> Auto Reverse: ")); Serial.println(autoreverseVar);
   Serial.print(F("> Position: ")); Serial.print((String)positionVar); Serial.println(F("°"));
@@ -240,12 +245,6 @@ void showVars() {
 }
 
 void controlAutomatico() {
-  Serial.println(F("   System auto"));
-  Serial.print(F("   ~ Run: ")); 
-  Serial.print((String)activationTimer);
-  Serial.print(F("ms ("));
-  Serial.print((String)velocityVar);
-  Serial.println(F("%)"));
   if (run()) {
     Serial.print(F("   ~ Stop: ")); 
     Serial.print((String)deactivationTimer);
@@ -259,14 +258,17 @@ void controlAutomatico() {
 }
 
 bool run() {
+  Serial.println(F("   System auto"));
+  Serial.print(F("   ~ Run: ")); Serial.print((String)activationTimer); 
+  Serial.print(F("ms (")); Serial.print((String)velocityVar); Serial.println(F("%)"));
   if (activationTimer > 0) {
     setDirection();
     unsigned long actualTime = millis();
-    while ((millis() - actualTime) < activationTimer) {
+    while ((millis() - actualTime) <= activationTimer) {
+      isSequrity = controlSeguridad();
       bool isVoltage = controlVoltaje();
       bool isPosition = positionControl();
-      isSequrity = controlSeguridad();
-      if (isVoltage && isSequrity && isPosition) {
+      if ((testFunc ? true : isSequrity && isVoltage && isPosition)) {
         digitalWrite(pinActivationTimer, LOW);
         digitalWrite(pinEngGunControl, (endGunVar == "ON") ? (serie == 0 ? LOW : HIGH) : (serie == 0 ? HIGH : LOW));
       } else {
@@ -300,8 +302,9 @@ void stop() {
   statusVar = (activationTimer == 0 && autoreverseVar == "OFF") ? "OFF" : statusVar;         // Control de apagado
   if (deactivationTimer > 0) {
     digitalWrite(pinActivationTimer, HIGH);
-    for (int i = 0; i < deactivationTimer / 100; i++){
-      delay(100);
+    unsigned long actualTime = millis();
+    while ((millis() - actualTime) < deactivationTimer) {
+      delay(500);
       systemWatchDog();
     }
   }
@@ -370,7 +373,7 @@ bool controlSeguridad2() {
     if(corriente<Imin){ Imin = corriente; }
   }
   float Irms = (((Imax-Imin)/2)) * 0.707;
-  Serial.print(F("Irms: ")); Serial.println(Irms, 2);
+  Serial.print(F("          Irms: ")); Serial.println(Irms, 2);
   return Irms >= 0.1 ? true : false;
 }
 
@@ -426,9 +429,8 @@ bool parseGPSData() {
   for (unsigned long start = millis(); millis() - start < 1000;) {
     while (ssGPS.available()) {
       char c = ssGPS.read();
-      // Serial.write(c);   // descomentar para ver el flujo de datos del GPS
-      if (gps.encode(c))    // revisa si se completó una nueva cadena
-        newData = true;
+      if (testGPS) Serial.write(c);         // descomentar para ver el flujo de datos del GPS
+      if (gps.encode(c)) newData = true;    // revisa si se completó una nueva cadena
     }
   }
   return newData;
@@ -455,7 +457,7 @@ void checkGPSConnection() {
   unsigned short sentences, failed;
   gps.stats(&chars, &sentences, &failed);
   if (chars == 0) {
-    Serial.println("Problema de conectividad con el GPS: revise el cableado");
+    Serial.println(F("     Problema de conectividad con el GPS: revise el cableado"));
   }
 }
 
@@ -529,28 +531,26 @@ void testComunicaciones() {
 void comunicaciones() {
   Serial.println(F("Server communication"));
   positionVar = getPosition();
-  systemWatchDog();
+  // systemWatchDog();
   String data = httpRequest();                                                       // Get Settings from HTTP
   data = data.substring(data.indexOf('"'), data.indexOf("OK"));
   // Para test
-  if (testFunc) {
-    data = (boolData) ? "\"ON\"FF\"0\"OFF\"30.73081\"-107.86308\"PC\"1\"0\"360\"50\"F\"" : "\"ON\"RR\"0\"OFF\"30.73081\"-107.86308\"PC\"1\"0\"360\"50\"F\"";
-    commError = 0;
-    boolData = boolData == true ? false : true;
-  }
-  // data = data != "" ? data : eeVar.data;
+  // if (testFunc) {
+  //   data = (boolData) ? "\"ON\"FF\"0\"OFF\"30.73081\"-107.86308\"PC\"1\"0\"360\"50\"F\"" : "\"ON\"RR\"0\"OFF\"30.73081\"-107.86308\"PC\"1\"0\"360\"50\"F\"";
+  //   commError = 0;
+  //   boolData = boolData == true ? false : true;
+  // }
   if (data != "" && (data.indexOf("ON") != -1 || data.indexOf("OFF") != -1)) {
     setVariables(data);
     updateEEPROM();
   } else {
-    Serial.print(F("lat_central: ")); Serial.print(lat_central, 2); Serial.print(F("lon_central: ")); Serial.println(lon_central, 2);
+    Serial.print(F("lat_central: ")); Serial.print(lat_central, 2); Serial.print(F(" lon_central: ")); Serial.println(lon_central, 2);
     Serial.println(F("data: Error!"));
   }
 }
 
 void setVariables(String data) {
-  Serial.print(F("data: "));
-  Serial.println(data);
+  Serial.print(F("data: ")); Serial.println(data);
   commRx = (data != "") ? true : false;
   int idx = data.indexOf('"');
   String aux = data.substring(idx + 1, data.indexOf('"', idx + 1));
@@ -560,7 +560,7 @@ void setVariables(String data) {
   directionVar = (aux == "FF" || aux == "RR") ? aux : directionVar;                  // > direction
   idx = data.indexOf('"', idx + 1);
   aux = data.substring(idx + 1, data.indexOf('"', idx + 1));
-  sensorPresionVar = (aux == "") ? sensorPresionVar : (aux.toFloat() > 0) ? aux.toFloat() : 0;                 // > sensor de presión
+  sensorPresionVar = (aux == "") ? sensorPresionVar : (aux.toFloat() > 0) ? aux.toFloat() : 0;    // > sensor de presión
   idx = data.indexOf('"', idx + 1);
   aux = data.substring(idx + 1, data.indexOf('"', idx + 1));
   autoreverseVar = (aux == "ON" || aux == "OFF") ? aux : autoreverseVar;             // > autoreverse
@@ -613,7 +613,7 @@ String httpRequest() {
   String param12 = "&rx=" + (String)(commRx ? "Ok" : "Er");
   signalVar = getSignalValue();
   String param13 = "&si=" + (String)signalVar + "\"";
-  // Serial.println(httpServer + param1 + param2 + param3 + param4 + param5 + param6 + param7 + param8 + param9 + param10 + param11 + param12 + param13);
+  if (testComm) Serial.println(httpServer + param1 + param2 + param3 + param4 + param5 + param6 + param7 + param8 + param9 + param10 + param11 + param12 + param13);
   gprs.println(F("AT+HTTPINIT"));
   getResponse(15, true); 
   gprs.println(httpServer + param1 + param2 + param3 + param4 + param5 + param6 + param7 + param8 + param9 + param10 + param11 + param12 + param13);
@@ -640,7 +640,6 @@ String getResponse(int wait, bool response){
   while(!gprs.available() && (millis() - iTimer) <= 1000) {
     delay(5);    
   }
-  // while(!gprs.available()) {}
   while(gprs.available() > 0) {
     result += (char)gprs.read();
     delay(1.5);
@@ -671,7 +670,19 @@ void commWatchDogReset(int signalValue) {
   }
 }
 
+#pragma endregion Comunicaciones
+
+#pragma region Generales
+
 void systemWatchDog() {
+  wdt_reset();
+  pinMode(watchDogPin, OUTPUT);         // Sink current to drain charge from C2
+  digitalWrite(watchDogPin, HIGH);
+  delay(50);                           // Give enough time for C2 to discharge (should discharge in 50 ms)     
+  digitalWrite(watchDogPin, LOW);          // Return to high impedance
+}
+
+void systemWatchDog2() {
   wdt_reset();
   pinMode(watchDogPin, OUTPUT);         // Sink current to drain charge from C2
   digitalWrite(watchDogPin, LOW);

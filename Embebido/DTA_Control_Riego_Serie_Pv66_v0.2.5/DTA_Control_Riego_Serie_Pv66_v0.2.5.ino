@@ -1,20 +1,20 @@
 /****************************************************************************
  *                                                                          * 
- *                    Sistemas DTA Serie Pv66 v0.2.4 A                      *
- *                               2022.06.26                                 *
+ *                    Sistemas DTA Serie Pv66 v0.2.5 A                      *
+ *                               2022.10.25                                 *
  *                                                                          *
  *   Sensores:                                                              *
  *   - Presión 150psi............. A0                                       *
  *   - Seguridad efecto Hall...... A1                                       *
  *   - Seguridad lectura directa.. D9                                       *
- *   - Comunicación............... D2, D3                      				*
+ *   - Comunicación............... D2, D3                      				      *
  *   - GPS........................ D11, D12, D13 (Tarjetas amarillas)       *
  *                                                                          *
  *   Configuración: {Gun, GSMr, GSMt, GPSr, GPSt, Seq}                      *
  *   - Gun: 0 <= Relay FL | 1 <= Relay JQC                                  *
  *   - GSM: RX, TX (2, 3) <= Chip azul | (3, 2) <= Chip rojo                *
  *   - GPS: RX, TX (12, 11) <= Tarjeta blanca | (13, 12) Tarjeta amarilla   *
- *   - Seq: 0 <= Lectura directa | 1 <= Efecto Hall                         *
+ *   - Seg: 0 <= Lectura directa | 1 <= Efecto Hall                         *
  *                                                                          *
  ****************************************************************************/
 
@@ -33,54 +33,94 @@ void setup() {
   wdt_disable();
   pinMode (pinIrrigationControl, OUTPUT);
   digitalWrite(pinIrrigationControl, LOW);                          // Control de riego Activado 
-  Serial.begin(115200);
-  ssGPS.begin(9600);
   pinMode (pinSensorVoltaje, INPUT);
   pinMode (pinSensorSeguridad, INPUT);
   pinMode (pinEngGunControl, OUTPUT);
   pinMode (pinActivationTimer, OUTPUT);
   pinMode (pinMotorRR, OUTPUT);
   pinMode (pinMotorFF, OUTPUT);
-  // pinMode(LED, OUTPUT);
-  // digitalWrite(pinIrrigationControl, HIGH);                           // Control de riego Desactivado 
   apagar();
+  Serial.begin(115200);
+  ssGPS.begin(9600);
   Serial.println();
-  Serial.println(F(">>> DTA-Agrícola: Serie Pv66 v0.2.4 A"));
+  Serial.println(F(">>> DTA-Agrícola: Serie Pv66 v0.2.5 A"));
   Serial.print(F("    «"));
   Serial.print(telefono);
   Serial.println(F("»"));
   readEEPROM();
   wdt_enable(WDTO_8S);
+  actualTimer = millis();
 }
 
 void loop() {
-  commDelay = millis();
+  definirEstado();
+  switch (estadoActual) {
+    case Estado::inicial:
+      estadoInicial();
+      break;
+    case Estado::comunicacion:
+      estadoComunicaciones();
+      break;
+    case Estado::activado:
+      estadoActivado();
+      break;
+    case Estado::desactivado:
+      estadoDesactivado();
+      break;
+    case Estado::final:
+      actualTimer = millis();
+    default: 
+      break;
+  }
+  systemWatchDog();
+}
+
+void definirEstado() {
+  unsigned int deltaTimer = millis() - actualTimer;
+  int condicion = 0;
+  if (deltaTimer < activationTimer && deactivationTimer > 8000 && commFrec()) { condicion = 1; }    // Comunicación
+  if (statusVar == "OFF" && commFrec()) { condicion = 1; }                                      // Comunicación
+  if (deltaTimer < activationTimer && activationTimer > 8000 && commFrec()) { condicion = 1; }    // Comunicación
+  if (deltaTimer < activationTimer && statusVar == "ON") { condicion = 1; }   // activationTimer && ON
+  if (statusVar == "OFF") { condicion = 2; }                                  // OFF
+  estadoActual = matrizEstados[estadoActual][condicion];                      // Nuevo estado
+}
+
+void estadoInicial() {
   Serial.println();
   Serial.println(F("> New loop"));
   Serial.println();
+
+}
+
+void estadoComunicaciones() {
   setupGSM();
   comunicaciones();
-  commDelay = millis() - commDelay;
-  Serial.print(F("Communication time: "));
-  Serial.println(commDelay);
-  acciones();
+}
+
+void estadoActivado() {
+  setActivationTimer();
+  showVars();
+}
+
+void estadoDesactivado() {
+  Serial.println(F("  ~ System off! wait 1 min"));
+  apagar();
+}
+
+bool commFrec() {
+  return true;
 }
 
 #pragma region Acciones
 
 void acciones() {
-  setActivationTimer();
-  showVars();
-  systemWatchDog();
   
   if (statusVar == "ON") {
     controlAutomatico();
   } else {
-    Serial.println(F("  ~ System off! wait 1 min"));
-    apagar();
     waitOneMinute();
   }
-  systemWatchDog();
 }
 
 void setActivationTimer() {
@@ -140,7 +180,7 @@ bool run() {
         return false;
       }
       delay(500);          
-      systemWatchDog();
+      // systemWatchDog();
     }
   }
   return true;
@@ -165,7 +205,7 @@ void stop() {
     digitalWrite(pinActivationTimer, HIGH);
     for (int i = 0; i < deactivationTimer / 100; i++){
       delay(100);
-      systemWatchDog();
+      // systemWatchDog();
     }
   }
 }
@@ -173,7 +213,7 @@ void stop() {
 bool positionControl() {
   // return true; 
   positionVar = getPosition();
-  systemWatchDog();
+  // systemWatchDog();
   if (lat_actual == 0.0f && lon_actual == 0.0f) {                     // Control de apagado
     statusVar = "OFF";
     return false;
@@ -191,7 +231,7 @@ void apagar() {
 void waitOneMinute() {
   for (int i = 0; i < 60; i++){
     delay(1000);
-    systemWatchDog();
+    // systemWatchDog();
   }
 }
 

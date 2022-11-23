@@ -35,7 +35,7 @@
 			}
 		}
 		if ($dataSettings->plans->$p->endGun && $dataSettings->plans->$p->endGun == "true") {
-			$endGun .= "T";
+			$endGun = "T";
 		}
 		$plans .= "\"" . $starAngle . "\"" . $endAngle . "\"" . $value . "\"" . $endGun;
 	}

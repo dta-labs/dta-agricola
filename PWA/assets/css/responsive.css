@@ -6,6 +6,13 @@
   display: inherit;
 }
 
+
+.map {
+  margin-top: 0px;
+  height: calc(100vh - 330px);
+}
+
+
 /* lg */
 @media (min-width: 1200px) {
 }
@@ -40,6 +47,7 @@
   .btn-signup {
     padding: 10px 20px;
   }
+  
 }
 
 /* xs */
@@ -430,6 +438,12 @@
   .apsic {
     margin-top: -45%;
   }
+
+  .map {
+    margin-top: 0px;
+    height: calc(100vh - 390px);
+  }
+  
 }
 
 /* XS Portrait */

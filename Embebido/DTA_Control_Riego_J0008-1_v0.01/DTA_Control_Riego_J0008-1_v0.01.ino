@@ -418,7 +418,10 @@ String httpRequest() {
 String getResponse(int wait, bool response){
   String result = "";
   delay(wait);
-  while(!gprs.available()) {}
+  unsigned long iTimer = millis();
+  while(!gprs.available() && (millis() - iTimer) <= 1000) {
+    delay(5);    
+  }
   while(gprs.available() > 0) {
     result += (char)gprs.read();
     delay(1.5);
