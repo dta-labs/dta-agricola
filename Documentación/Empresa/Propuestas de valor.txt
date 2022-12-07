@@ -1,5 +1,7 @@
 Productos DTA-Agrícola:
 =======================
+- PumpControl	(Control de bombas)
+				¿Desea reducir el riesgo de fallas, averías y hasta roturas irreversibles de sus sitemas de bombeo? ¿Emplea una misma bomba para más de un sistema de riego? PumpControl es un sistema de monitoreo y control en tiempo real avanzado y a la vez sencillo de usar desde su teléfono celular o computadora que le permite enlazarlo con los sistemas de riego que desee y le previene de futuros desastres ante mal funcionamiento de sus equipo.
 - PivotControl	(Control de pivotes)
 				¿Desea reducir el tiempo que consume revisando sus pivotes, el combustible invertido y el mantenimiento de sus sistemas de riego debido a fallas de funcionamiento? ¿Los sistemas de monitoreo y control de pivotes en el mercado no le ofrecen todas las características que está buscando o resultan demasiado complejos y costosos? PivotControl es un sistema de monitoreo y control en tiempo real, basado en tecnología GPS, avanzado y sencillo de usar desde su teléfono celular o computadora.
 - PivotMonitor	(Monitoreo de pivotes)
