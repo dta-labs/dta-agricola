@@ -1,5 +1,7 @@
 #pragma region Sensores
 
+#pragma region <<Seguridad>>
+
 bool controlSeguridad1() {
   delay(500);
   return digitalRead(pinSensorSeguridad);
@@ -39,19 +41,26 @@ bool controlSeguridad() {
   return true;
 }
 
+#pragma endregion <<Seguridad>>
+
+#pragma region <<Voltaje>>
+
 bool controlVoltaje() {
   return digitalRead(pinSensorVoltaje);
 }
+
+#pragma endregion <<Voltaje>>
+
+#pragma region <<Presión>>
 
 float controlPresionAnalogica() {
   float presionActual = 0.0f;
   for (int i = 0; i < 3; i++) {
     float pAnalog = presion.getAnalogValue();
     float temp = presion.fmap(pAnalog, 100, 1023, 0.0, sensorPresionVar);
-    presionActual += temp > 0 ? temp : 0;
     // float temp = presion.fmap(pAnalog, 0, 1023, 0.0, sensorPresionVar) - 1.25;
     // temp = (temp + 0.4018) / 0.7373;
-    // presionActual += pAnalog > 0 ? pAnalog : 0;
+    presionActual += temp > 0 ? temp : 0;
     delay(10);
   }
   presionActual = presionActual / 3;
@@ -63,15 +72,20 @@ float controlPresionAnalogica() {
 bool controlPresion() {
   bool result = true;
   if (sensorPresionVar >= 1) {
-    result = (controlPresionAnalogica() > 1) ? true : false;
+    sensorPresionVar = controlPresionAnalogica();
+    result = (sensorPresionVar > 1) ? true : false;
   }
   return result;
 }
 
+#pragma endregion <<Presión>>
+
+#pragma region <<Posición>>
+
 bool parseGPSData() {
   bool newData = false;
   ssGPS.listen();
-  // Se parsean por un segundo los datos del GPSy se reportan algunos valores clave
+  // Se parsean por un segundo los datos del GPS y se reportan algunos valores clave
   for (unsigned long start = millis(); millis() - start < 1000;) {
     while (ssGPS.available()) {
       char c = ssGPS.read();
@@ -108,6 +122,17 @@ float getPosition() {
   return azimut;
 }
 
+bool positionControl() {
+  // return true; 
+  positionVar = getPosition();
+  // systemWatchDog();
+  if (lat_actual == 0.0f && lon_actual == 0.0f) {                     // Control de apagado
+    statusVar = "OFF";
+    return false;
+  }
+  return (positionIni <= positionVar && positionVar < positionEnd) ? true : false;
+}
+
 float printGPSData(float flat, float flon, float azimut, int errorGPS) {
   Serial.print(lat_central, 6);
   Serial.print(F(","));
@@ -122,6 +147,15 @@ float printGPSData(float flat, float flon, float azimut, int errorGPS) {
   Serial.print((int)azimut);
   Serial.print(F(" "));
   Serial.println(errorGPS);
+}
+
+#pragma endregion <<Posición>>
+
+void getSensors() {
+  isVoltage = controlVoltaje();
+  isPresure = controlPresion(); 
+  isPosition = positionControl();
+  isSequrity = controlSeguridad();
 }
 
 #pragma endregion Sensores

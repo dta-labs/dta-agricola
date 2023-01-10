@@ -186,23 +186,25 @@ app.controller("ControladorPrincipal", function ($scope) {
     loadSystems = () => {
         if ($scope.authUser) {
             let userSystems = $scope.userLocations[convertDotToDash($scope.authUser.email)].systems;
-            let lastLocation = Object.keys(userSystems)[Object.keys(userSystems).length - 1];
-            for (let locationKey in userSystems) {
-                listeners[locationKey] = firebase.database().ref("systems/" + locationKey + "/settings");
-                listeners[locationKey].on("value", system => {
-                    if (system.val()) {
-                        $scope.systems[locationKey] = system.val();
-                        $scope.systems[locationKey].key = locationKey;
-                        loadSystemUsers(locationKey);
-                        getMetorologicalData(locationKey);
-                        $scope.loadSystemLog(locationKey, 1);
-                        // $scope.showWindow('listado');
-                        if (locationKey == lastLocation) {
-                            $scope.$apply();
+            if (userSystems) {
+                let lastLocation = Object.keys(userSystems)[Object.keys(userSystems).length - 1];
+                for (let locationKey in userSystems) {
+                    listeners[locationKey] = firebase.database().ref("systems/" + locationKey + "/settings");
+                    listeners[locationKey].on("value", system => {
+                        if (system.val()) {
+                            $scope.systems[locationKey] = system.val();
+                            $scope.systems[locationKey].key = locationKey;
+                            loadSystemUsers(locationKey);
+                            getMetorologicalData(locationKey);
+                            $scope.loadSystemLog(locationKey, 1);
+                            // $scope.showWindow('listado');
+                            if (locationKey == lastLocation) {
+                                $scope.$apply();
+                            }
+                            if ($scope.actualSystem && locationKey == $scope.actualSystem.key) { $scope.selectSystem($scope.systems[locationKey]); }
                         }
-                        if ($scope.actualSystem && locationKey == $scope.actualSystem.key) { $scope.selectSystem($scope.systems[locationKey]); }
-                    }
-                });
+                    });
+                }
             }
             $scope.showWindow('listado');
         }

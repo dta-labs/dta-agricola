@@ -26,12 +26,10 @@ String parse(String dataString, char separator, int index) {
 String getResponse(int wait, bool response){
   String result = "";
   delay(wait);
-  // systemWatchDog();
   unsigned long iTimer = millis();
   while(!gprs.available() && (millis() - iTimer) <= 1000) {
     delay(5);    
   }
-  // while(!gprs.available()) {}
   while(gprs.available() > 0) {
     result += (char)gprs.read();
     delay(1.5);
@@ -40,7 +38,6 @@ String getResponse(int wait, bool response){
   if (response) {
     Serial.println(result);
   }
-  // // systemWatchDog();
   return result;
 }
 
@@ -51,6 +48,15 @@ int getSignalValue() {
   String aux3 = parse(aux2, ',', 0);
   int result = aux3.toInt(); 
   return result;
+}
+
+void commWatchDogReset(int signalValue) {
+  commError += (signalValue < 6 || restartGSM) ? 1 : 0;
+  Serial.print(F("commError: "));
+  Serial.println(commError);
+  if (commError == 5) {
+    while (true) { delay(1000); }
+  }
 }
 
 void testComunicaciones() {
@@ -91,12 +97,10 @@ void testComunicaciones() {
 void setupGSM() {
   if (restartGSM) {
     Serial.println(F("Setup GSM"));
-    gprs.begin(9600);
     gprs.listen();
+    gprs.begin(9600);
     if (testComm) { testComunicaciones(); }
-    // gprs.println(F("AT+CBAND=PCS_MODE"));		// PGSM_MODE, DCS_MODE, PCS_MODE, EGSM_DCS_MODE, GSM850_PCS_MODE, ALL_BAND
-    // getResponse(15, testComm); 
-    // gprs.println(F("AT+CBAND=ALL_BAND"));
+    // gprs.println(F("AT+CBAND=ALL_BAND"));		// PGSM_MODE, DCS_MODE, PCS_MODE, EGSM_DCS_MODE, GSM850_PCS_MODE, ALL_BAND
     // getResponse(15, testComm); 
     gprs.println(F("AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\""));
     getResponse(15, testComm); 
@@ -113,69 +117,19 @@ void setupGSM() {
     gprs.println(F("AT+SAPBR=2,1"));
     getResponse(15, testComm); 
   }
-  // systemWatchDog();
-}
-
-void setVariables(String data) {
-  Serial.print(F("data: "));
-  Serial.println(data);
-  commRx = (data != "") ? true : false;
-  int idx = data.indexOf('"');
-  String aux = data.substring(idx + 1, data.indexOf('"', idx + 1));
-  statusVar = (aux == "ON" || aux == "OFF") ? aux : statusVar;                       // > status
-  idx = data.indexOf('"', idx + 1);
-  aux = data.substring(idx + 1, data.indexOf('"', idx + 1));
-  directionVar = (aux == "FF" || aux == "RR") ? aux : directionVar;                  // > direction
-  idx = data.indexOf('"', idx + 1);
-  aux = data.substring(idx + 1, data.indexOf('"', idx + 1));
-  sensorPresionVar = (aux == "") ? sensorPresionVar : (aux.toFloat() > 0) ? aux.toFloat() : 0;                 // > sensor de presión
-  idx = data.indexOf('"', idx + 1);
-  aux = data.substring(idx + 1, data.indexOf('"', idx + 1));
-  autoreverseVar = (aux == "ON" || aux == "OFF") ? aux : autoreverseVar;             // > autoreverse
-  idx = data.indexOf('"', idx + 1);
-  aux = data.substring(idx + 1, data.indexOf('"', idx + 1));
-  lat_central = (aux != "") ? aux.toFloat() : lat_central;                           // > lat_central
-  idx = data.indexOf('"', idx + 1);
-  aux = data.substring(idx + 1, data.indexOf('"', idx + 1));
-  lon_central = (aux != "") ? aux.toFloat() : lon_central;                           // > lon_central
-  idx = data.indexOf('"', idx + 1);
-  aux = data.substring(idx + 1, data.indexOf('"', idx + 1));
-  deviceType = (aux != "") ? aux : deviceType;                                       // > deviceType
-  idx = data.indexOf('"', idx + 1);
-  aux = data.substring(idx + 1, data.indexOf('"', idx + 1));
-  int bindsNo = (aux != "") ? aux.toInt() : 0;                                       // > bins
-  if (bindsNo > 0) {
-    binsVar = data.substring(idx + 1);
-    for (int i = 0; i < bindsNo; i++) {
-      idx = data.indexOf('"', idx + 1);
-      positionIni = (data.substring(idx + 1, data.indexOf('"', idx + 1))).toInt();   // inicio
-      idx = data.indexOf('"', idx + 1);
-      positionEnd = (data.substring(idx + 1, data.indexOf('"', idx + 1))).toInt();   // fin
-      idx = data.indexOf('"', idx + 1);
-      int bindVel = (data.substring(idx + 1, data.indexOf('"', idx + 1))).toInt();   // velocidad
-      idx = data.indexOf('"', idx + 1);
-      String bindEndGun = (data.substring(idx + 1, data.indexOf('"', idx + 1)));     // end gun
-      if (positionIni <= positionVar && positionVar < positionEnd) {
-        velocityVar = (bindVel > 100) ? 100 : (bindVel < 0) ? 0 : bindVel;
-        endGunVar = (bindEndGun == "T") ? "ON" : "OFF";
-        break;
-      }
-    }
-  }
-  // systemWatchDog();
 }
 
 String httpRequest() {
   gprs.listen();
-  String param1 = "&st=" + statusVar;
-  String param2 = "&sa=" + (String)(isSequrity ? "true" : "false");
-  String param3 = "&di=" + directionVar;
-  String param4 = "&vo=" + (String)(controlVoltaje() ? "true" : "false");
-  String param5 = "&ar=" + activateAutoreverse;
-  String param6 = "&sp=" + (String)velocityVar;
-  String param7 = "&pr=" + (String)controlPresionAnalogica();
-  String param8 = "&po=" + String(positionVar, 1);
-  String param9 = "&la=" + String(lat_actual, 5);
+  String param1  = "&st=" + statusVar;
+  String param2  = "&sa=" + (String)(isSequrity ? "true" : "false");
+  String param3  = "&di=" + directionVar;
+  String param4  = "&vo=" + (String)(isVoltage ? "true" : "false");
+  String param5  = "&ar=" + autoreverseVar;
+  String param6  = "&sp=" + (String)velocityVar;
+  String param7  = "&pr=" + (String)sensorPresionVar;
+  String param8  = "&po=" + String(positionVar, 1);
+  String param9  = "&la=" + String(lat_actual, 5);
   String param10 = "&lo=" + String(lon_actual, 5);
   String param11 = "&er=" + (String)errorGPS;
   String param12 = "&rx=" + (String)(commRx ? "Ok" : "Er");
@@ -183,52 +137,163 @@ String httpRequest() {
   String param13 = "&si=" + (String)signalVar + "\"";
   // Serial.println(httpServer + param1 + param2 + param3 + param4 + param5 + param6 + param7 + param8 + param9 + param10 + param11 + param12 + param13);
   gprs.println(F("AT+HTTPINIT"));
-  getResponse(15, true); 
+  getResponse(15, false); 
   gprs.println(httpServer + param1 + param2 + param3 + param4 + param5 + param6 + param7 + param8 + param9 + param10 + param11 + param12 + param13);
   getResponse(25, true); 
-  // systemWatchDog();
+  systemWatchDog();
   gprs.println(F("AT+HTTPACTION=0"));
   String result = getResponse(6000, true); 
-  // systemWatchDog();
-  restartGSM = (result.indexOf("ERROR") != -1 || result.indexOf("601") != -1  || result.indexOf("604") != -1 || signalVar < 6) ? true : false;
+  systemWatchDog();
+  restartGSM = (result == "" || result.indexOf("ERROR") != -1 || result.indexOf("601") != -1  || result.indexOf("604") != -1 || signalVar < 6) ? true : false;
   gprs.println(F("AT+HTTPREAD"));
   result = getResponse(0, false);
   gprs.println(F("AT+HTTPTERM"));
   getResponse(30, false); 
-  // commWatchDogReset(signalVar);
-  // systemWatchDog();
+  commWatchDogReset(signalVar);
+  systemWatchDog();
   return result;
+}
+
+void setVariables(String data) {
+  Serial.print(F("data: "));
+  Serial.println(data);
+  int idx = data.indexOf('"');
+  String aux = data.substring(idx + 1, data.indexOf('"', idx + 1));
+  statusVar = (aux == "ON" || aux == "OFF") ? aux : statusVar;                                  // > status
+  idx = data.indexOf('"', idx + 1);
+  aux = data.substring(idx + 1, data.indexOf('"', idx + 1));
+  directionVar = (aux == "FF" || aux == "RR") ? aux : directionVar;                             // > direction
+  idx = data.indexOf('"', idx + 1);
+  aux = data.substring(idx + 1, data.indexOf('"', idx + 1));
+  sensorPresionVar = (aux == "") ? sensorPresionVar : (aux.toFloat() > 0) ? aux.toFloat() : 0;  // > sensor de presión
+  idx = data.indexOf('"', idx + 1);
+  aux = data.substring(idx + 1, data.indexOf('"', idx + 1));
+  autoreverseVar = (aux == "ON" || aux == "OFF") ? aux : autoreverseVar;                        // > autoreverse
+  idx = data.indexOf('"', idx + 1);
+  aux = data.substring(idx + 1, data.indexOf('"', idx + 1));
+  lat_central = (aux != "") ? aux.toFloat() : lat_central;                                      // > lat_central
+  idx = data.indexOf('"', idx + 1);
+  aux = data.substring(idx + 1, data.indexOf('"', idx + 1));
+  lon_central = (aux != "") ? aux.toFloat() : lon_central;                                      // > lon_central
+  idx = data.indexOf('"', idx + 1);
+  aux = data.substring(idx + 1, data.indexOf('"', idx + 1));
+  deviceType = (aux != "") ? aux : deviceType;                                                  // > deviceType
+  idx = data.indexOf('"', idx + 1);
+  aux = data.substring(idx + 1, data.indexOf('"', idx + 1));
+  int bindsNo = (aux != "") ? aux.toInt() : 0;                                                  // > bins
+  if (bindsNo > 0) {
+    binsVar = data.substring(idx + 1);
+    for (int i = 0; i < bindsNo; i++) {
+      idx = data.indexOf('"', idx + 1);
+      positionIni = (data.substring(idx + 1, data.indexOf('"', idx + 1))).toInt();              // inicio
+      idx = data.indexOf('"', idx + 1);
+      positionEnd = (data.substring(idx + 1, data.indexOf('"', idx + 1))).toInt();              // fin
+      idx = data.indexOf('"', idx + 1);
+      int bindVel = (data.substring(idx + 1, data.indexOf('"', idx + 1))).toInt();              // velocidad
+      idx = data.indexOf('"', idx + 1);
+      String bindEndGun = (data.substring(idx + 1, data.indexOf('"', idx + 1)));                // end gun
+      if (positionIni <= positionVar && positionVar < positionEnd) {
+        velocityVar = (bindVel > 100) ? 100 : (bindVel < 0) ? 0 : bindVel;
+        endGunVar = (bindEndGun == "T") ? "ON" : "OFF";
+        break;
+      }
+    }
+  }
 }
 
 void comunicaciones() {
   Serial.println(F("Server communication"));
-  positionVar = getPosition();
-  // systemWatchDog();
   String data = httpRequest();                                                       // Get Settings from HTTP
   data = data.substring(data.indexOf('"'), data.indexOf("OK"));
-  // Para test
-  if (testFunc) {
-    data = (boolData) ? "\"ON\"FF\"0\"OFF\"30.73081\"-107.86308\"PC\"1\"0\"360\"50\"F\"" : "\"ON\"RR\"0\"OFF\"30.73081\"-107.86308\"PC\"1\"0\"360\"50\"F\"";
+  if (testFunc) {                                                                    // Para test
+    data = (testData) ? "\"ON\"FF\"0\"OFF\"30.73081\"-107.86308\"PC\"1\"0\"360\"50\"F\"" : "\"ON\"RR\"0\"OFF\"30.73081\"-107.86308\"PC\"1\"0\"360\"50\"F\"";
     commError = 0;
-    boolData = boolData == true ? false : true;
+    testData = testData == true ? false : true;
   }
   // data = data != "" ? data : eeVar.data;
   if (data != "" && (data.indexOf("ON") != -1 || data.indexOf("OFF") != -1)) {
     setVariables(data);
-    updateEEPROM();
+    // updateEEPROM();
   } else {
-    Serial.print(F("lat_central: ")); Serial.print(lat_central, 2); Serial.print(F("lon_central: ")); Serial.println(lon_central, 2);
+    commRx = (data != "") ? true : false;
+    Serial.print(F("lat_central: ")); Serial.print(lat_central, 2); Serial.print(F(" lon_central: ")); Serial.println(lon_central, 2);
     Serial.println(F("data: Error!"));
   }
 }
 
-void commWatchDogReset(int signalValue) {
-  commError += (signalValue < 6 || restartGSM) ? 1 : 0;
-  Serial.print(F("commError: "));
-  Serial.println(commError);
-  if (commError == 5) {
-    while (true) { delay(1000); }
-  }
-}
+/****************************************************************
+ *                                                              *
+ * Errores HTTP:                                              	*
+ *                                                              * 
+ * 502	Bad Gateway	The remote server returned an error.        *
+ * 600*	Empty access token.                                     *
+ *                                                              *
+ * 601*	Access token invalid                                    *
+ * 602*	Access token expired                                    *
+ * 603	Access denied                                           *
+ * 604*	Request timed out                                       *
+ * 605*	HTTP Method not supported                               *
+ * 606	Max rate limit ‘%s’ exceeded with in ‘%s’ secs          *
+ * 607	Daily quota reached                                     *
+ *                                                              *
+ * 608*	API Temporarily Unavailable	                            *
+ * 609	Invalid JSON                                            *
+ * 610	Requested resource not found                            *
+ * 611*	System error	All unhandled exceptions                  *
+ * 612	Invalid Content Type                                    *
+ * 613	Invalid Multipart Request                               *
+ * 614	Invalid Subscription                                    *
+ * 615	Concurrent access limit reached                         *
+ * 616	Invalid subscription type                               *
+ * 701	%s cannot be blank                                      *
+ * 702	No data found for given search scenario                 *
+ *                                                              *
+ * 703	Feature is not enabled for the subscription             *
+ * 704	Invalid date format                                     *
+ * 709	Business Rule Violation                                 *
+ * 710	Parent Folder Not Found                                 *
+ * 711	Incompatible Folder Type                                *
+ * 712	Merge to person Account operation is invalid            *
+ * 713	A system resource was temporarily unavailable           *
+ * 714	Unable to find default record type                      *
+ * 718	ExternalSalesPersonID not found                         *
+ *                                                              *
+ ****************************************************************/
+
+/****************************************************************
+  *                                                              *
+  * Valor  dB   Condición                                        *
+  * ===== ====  =========                                        *
+  *  2	  -109	Marginal                                          *
+  *  3	  -107	Marginal                                          *
+  *  4	  -105	Marginal                                          *
+  *  5	  -103	Marginal                                          *
+  *  6	  -101	Marginal                                          *
+  *  7	   -99	Marginal                                          *
+  *  8	   -97	Marginal                                          *
+  *  9	   -95	Marginal                                          *
+  * 10	   -93	OK                                                *
+  * 11	   -91	OK                                                *
+  * 12	   -89	OK                                                *
+  * 13	   -87	OK                                                *
+  * 14	   -85	OK                                                *
+  * 15	   -83	Good                                              *
+  * 16	   -81	Good                                              *
+  * 17	   -79	Good                                              *
+  * 18	   -77	Good                                              *
+  * 19	   -75	Good                                              *
+  * 20	   -73	Excellent                                         *
+  * 21	   -71	Excellent                                         *
+  * 22	   -69	Excellent                                         *
+  * 23	   -67	Excellent                                         *
+  * 24	   -65	Excellent                                         *
+  * 25	   -63	Excellent                                         *
+  * 26	   -61	Excellent                                         *
+  * 27	   -59	Excellent                                         *
+  * 28	   -57	Excellent                                         *
+  * 29	   -55	Excellent                                         *
+  * 30	   -53	Excellent                                         *
+  *                                                              *
+  ****************************************************************/
 
 #pragma endregion Comunicaciones
