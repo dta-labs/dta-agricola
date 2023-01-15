@@ -10,7 +10,7 @@
 
 #pragma region Variables
 
-const long config[] = {0, 3, 2, 12, 11, 1, 52, 625, 1020642};
+const long config[] = {0, 3, 2, 12, 11, 0, 52, 625, 1020642};
 // const String telefono = (String) config[6] + (String) config[7] + (String) config[8];
 const String telefono = "000000000000";
 const String httpServer = "AT+HTTPPARA=\"URL\",\"http://pprsar.com/cosme/comm_v3.php?id=" + telefono;
@@ -67,13 +67,12 @@ static String endGunVar = "OFF";
 static String binsVar = "";
 static String dataVar = "";
 static int velocityVar = 0;
-static float positionVar = 0.0f;
+static float positionVar = 0.0f;                      // Posición
 static int positionIni = 0;
 static int positionEnd = 0;
-static unsigned long actualTimer = 0;                 // Timers
-static unsigned long activationTimer = 0;
-static unsigned long deactivationTimer = 60000;
-static unsigned long courrentTimer = 0;
+static unsigned long actualTimer = 0;                 // Temporizadores
+static unsigned int activationTimer = 0;
+static unsigned int deactivationTimer = 60000;
 static bool restartGSM = true;                        // Comunicaciones
 static int signalVar = 0;
 static byte commError = 0;
@@ -100,18 +99,21 @@ struct {
 
 #pragma region <<Máquina de estado>>
 
-static byte matrizEstados[2][6] = {{ 2, 1, 1, 5, 6,-1},
-                                   {-1, 3, 4,-1,-1, 6}};
-
 enum Estado {
   INICIAL,
   SENSORES,
-  NUEVOCICLO,
   AVANZANDO,
   DETENIDO,
-  COMUNICACION,
-  APAGADO
+  APAGADO,
+  NUEVOCICLO,
+  COMUNICACION
 } estadoActual = Estado::NUEVOCICLO;
+
+Estado matrizEstados[5][4] = {{ NUEVOCICLO, SENSORES, SENSORES, APAGADO},               // INICIAL
+                              { INICIAL, AVANZANDO, DETENIDO, INICIAL},                 // SENSORES
+                              { INICIAL, COMUNICACION, INICIAL, INICIAL},               // AVANZANDO
+                              { INICIAL, INICIAL, COMUNICACION, INICIAL},               // DETENIDO
+                              { INICIAL, COMUNICACION, COMUNICACION, COMUNICACION}};    // APAGADO
 
 #pragma endendregion <<Máquina de estado>>
 

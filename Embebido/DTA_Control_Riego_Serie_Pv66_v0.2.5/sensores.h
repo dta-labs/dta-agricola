@@ -106,6 +106,22 @@ void checkGPSConnection() {
   }
 }
 
+float printGPSData(float flat, float flon, float azimut, int errorGPS) {
+  Serial.print(lat_central, 6);
+  Serial.print(F(","));
+  Serial.print(lon_central, 6);
+  Serial.print(F(" "));
+  Serial.print(flat == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flat, 6);
+  Serial.print(F(","));
+  Serial.print(flon == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flon, 6);
+  Serial.print(F(" "));
+  Serial.print(gps.satellites() == TinyGPS::GPS_INVALID_SATELLITES ? 0 : gps.satellites());
+  Serial.print(F(" "));
+  Serial.print((int)azimut);
+  Serial.print(F(" "));
+  Serial.println(errorGPS);
+}
+
 float getPosition() {
   float azimut = positionVar;
   bool newData = parseGPSData();
@@ -125,28 +141,11 @@ float getPosition() {
 bool positionControl() {
   // return true; 
   positionVar = getPosition();
-  // systemWatchDog();
   if (lat_actual == 0.0f && lon_actual == 0.0f) {                     // Control de apagado
     statusVar = "OFF";
     return false;
   }
   return (positionIni <= positionVar && positionVar < positionEnd) ? true : false;
-}
-
-float printGPSData(float flat, float flon, float azimut, int errorGPS) {
-  Serial.print(lat_central, 6);
-  Serial.print(F(","));
-  Serial.print(lon_central, 6);
-  Serial.print(F(" "));
-  Serial.print(flat == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flat, 6);
-  Serial.print(F(","));
-  Serial.print(flon == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flon, 6);
-  Serial.print(F(" "));
-  Serial.print(gps.satellites() == TinyGPS::GPS_INVALID_SATELLITES ? 0 : gps.satellites());
-  Serial.print(F(" "));
-  Serial.print((int)azimut);
-  Serial.print(F(" "));
-  Serial.println(errorGPS);
 }
 
 #pragma endregion <<Posición>>

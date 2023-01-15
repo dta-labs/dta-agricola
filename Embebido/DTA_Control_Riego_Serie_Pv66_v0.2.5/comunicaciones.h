@@ -193,6 +193,7 @@ void setVariables(String data) {
       idx = data.indexOf('"', idx + 1);
       String bindEndGun = (data.substring(idx + 1, data.indexOf('"', idx + 1)));                // end gun
       if (positionIni <= positionVar && positionVar < positionEnd) {
+        Serial.print(F("Pos: ")); Serial.print(positionIni); Serial.print(F(",")); Serial.print(positionEnd);  Serial.print(F(" "));  Serial.print(positionVar); 
         velocityVar = (bindVel > 100) ? 100 : (bindVel < 0) ? 0 : bindVel;
         endGunVar = (bindEndGun == "T") ? "ON" : "OFF";
         break;

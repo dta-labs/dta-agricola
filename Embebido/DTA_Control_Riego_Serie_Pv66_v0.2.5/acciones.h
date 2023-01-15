@@ -20,10 +20,10 @@ void showVars() {
   Serial.print(F("  ~ OFF: ")); Serial.print((String)deactivationTimer); Serial.println(F("ms"));
 }
 
-void waitFor(int seconds) {
+void waitFor(int time) {
   unsigned long initialTimer = millis();
-  seconds *= 1000;
-  while (millis() - initialTimer < seconds) {
+  time *= 100;
+  while (millis() - initialTimer < time) {
     delay(100);
     systemWatchDog();
   }
