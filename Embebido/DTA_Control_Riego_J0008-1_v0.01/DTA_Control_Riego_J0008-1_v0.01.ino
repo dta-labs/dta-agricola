@@ -28,23 +28,17 @@ SoftwareSerial gprs(2, 3);                  // RX, TX
 
 // Actuadores y variables
 static bool testComm = false;
-static int pinBomba = 5;
-static int pinRiego1 = 6;
-static int pinRiego2 = 7;
-static int pinRiego3 = 8;
-static int pinRiego4 = 9;
-static int pinRiego5 = 10;
-static int pinRiego6 = 11;
-static int pinRiego7 = 12;
-static unsigned long int timeRiego1 = 0;
-static unsigned long int timeRiego2 = 0;
-static unsigned long int timeRiego3 = 0;
-static unsigned long int timeRiego4 = 0;
-static unsigned long int timeRiego5 = 0;
-static unsigned long int timeRiego6 = 0;
-static unsigned long int timeRiego7 = 0;
-static unsigned long int activeTime = 0;
-static unsigned long int activationTime = 0;
+#define pinBomba 5
+#define pinRiego1 6
+#define pinRiego2 7
+#define pinRiego3 8
+#define pinRiego4 9
+#define pinRiego5 10
+#define pinRiego6 11
+#define pinRiego7 12
+static unsigned long timeRiego[7] = {0, 0, 0, 0, 0, 0, 0};
+static unsigned long activeTime = 0;
+static unsigned long activationTime = 0;
 static byte plots = 7;
 static int plot = 0;
 static String statusVar = "OFF";
@@ -57,13 +51,7 @@ static bool firstSettings = true;
 struct eeObject {
   char status[3];
   int plot;
-  unsigned long int timeRiego1;
-  unsigned long int timeRiego2;
-  unsigned long int timeRiego3;
-  unsigned long int timeRiego4;
-  unsigned long int timeRiego5;
-  unsigned long int timeRiego6;
-  unsigned long int timeRiego7;
+  unsigned long timeRiego[7] = {0, 0, 0, 0, 0, 0, 0};
 };
 
 eeObject eeVar;
@@ -104,77 +92,42 @@ void readEEPROM() {
   EEPROM.get(0, eeVar);
   statusVar = (String)(eeVar.status == "ON") ? "ON" : "OFF";
   plot = eeVar.plot > 7 ? 7 : eeVar.plot;
-  timeRiego1 = eeVar.timeRiego1;
-  timeRiego2 = eeVar.timeRiego2;
-  timeRiego3 = eeVar.timeRiego3;
-  timeRiego4 = eeVar.timeRiego4;
-  timeRiego5 = eeVar.timeRiego5;
-  timeRiego6 = eeVar.timeRiego6;
-  timeRiego7 = eeVar.timeRiego7;
-  Serial.print(F("EEPROM "));
-  Serial.print(EEPROM.length());
-  Serial.print(F(": "));
-  Serial.print(statusVar);
-  Serial.print(F(" "));
-  Serial.print(plot);
-  Serial.print(F(" "));
-  Serial.print((String)timeRiego1);
-  Serial.print(F(" "));
-  Serial.print((String)timeRiego2);
-  Serial.print(F(" "));
-  Serial.print((String)timeRiego3);
-  Serial.print(F(" "));
-  Serial.print((String)timeRiego4);
-  Serial.print(F(" "));
-  Serial.print((String)timeRiego5);
-  Serial.print(F(" "));
-  Serial.print((String)timeRiego6);
-  Serial.print(F(" "));
-  Serial.println((String)timeRiego7);
+  for (int i = 1; i <= 7; i++) {
+    timeRiego[i] = eeVar.timeRiego[i];
+  }
+  Serial.print(F("EEPROM ")); Serial.print(EEPROM.length());
+  Serial.print(F(": ")); Serial.print(statusVar);
+  Serial.print(F(" ")); Serial.print(plot);
+  for (int i = 1; i <= 7; i++) {
+    Serial.print(F(" ")); Serial.print((String)timeRiego[i]);
+  }
+  Serial.println();
 }
 
 void updateEEPROM() {
   String stVar = (String(eeVar.status) == "ON") ? "ON" : "OFF";
   int pt = eeVar.plot > 7 ? 7 : eeVar.plot;
-  unsigned long int tr1 = eeVar.timeRiego1;
-  unsigned long int tr2 = eeVar.timeRiego2;
-  unsigned long int tr3 = eeVar.timeRiego3;
-  unsigned long int tr4 = eeVar.timeRiego4;
-  unsigned long int tr5 = eeVar.timeRiego5;
-  unsigned long int tr6 = eeVar.timeRiego6;
-  unsigned long int tr7 = eeVar.timeRiego7;
-  if (statusVar != stVar || pt != plot || tr1 != timeRiego1 || tr2 != timeRiego2 || tr3 != timeRiego3 || tr4 != timeRiego4 || tr5 != timeRiego5 || tr6 != timeRiego6 || tr7 != timeRiego7) {
+  unsigned long int tr1 = eeVar.timeRiego[1];
+  unsigned long int tr2 = eeVar.timeRiego[2];
+  unsigned long int tr3 = eeVar.timeRiego[3];
+  unsigned long int tr4 = eeVar.timeRiego[4];
+  unsigned long int tr5 = eeVar.timeRiego[5];
+  unsigned long int tr6 = eeVar.timeRiego[6];
+  unsigned long int tr7 = eeVar.timeRiego[7];
+  if (statusVar != stVar || pt != plot || tr1 != timeRiego[1] || tr2 != timeRiego[2] || tr3 != timeRiego[3] || tr4 != timeRiego[4] || tr5 != timeRiego[5] || tr6 != timeRiego[6] || tr7 != timeRiego[7]) {
     statusVar.toCharArray(eeVar.status, 3);
     eeVar.plot = plot;
-    eeVar.timeRiego1 = timeRiego1;
-    eeVar.timeRiego2 = timeRiego2;
-    eeVar.timeRiego3 = timeRiego3;
-    eeVar.timeRiego4 = timeRiego4;
-    eeVar.timeRiego5 = timeRiego5;
-    eeVar.timeRiego6 = timeRiego6;
-    eeVar.timeRiego7 = timeRiego7;
+    for (int i = 1; i <= 7; i++) {
+      eeVar.timeRiego[i] = timeRiego[i];
+    }
     EEPROM.put(0, eeVar);
-    Serial.print(F("EEPROM "));
-    Serial.print(EEPROM.length());
-    Serial.print(F(": "));
-    Serial.print(statusVar);
-    Serial.print(F(" "));
-    Serial.print(plot);
-    Serial.print(F(" "));
-    Serial.print((String)eeVar.timeRiego1);
-    Serial.print(F(" "));
-    Serial.print((String)eeVar.timeRiego2);
-    Serial.print(F(" "));
-    Serial.print((String)eeVar.timeRiego3);
-    Serial.print(F(" "));
-    Serial.print((String)eeVar.timeRiego4);
-    Serial.print(F(" "));
-    Serial.print((String)eeVar.timeRiego5);
-    Serial.print(F(" "));
-    Serial.print((String)eeVar.timeRiego6);
-    Serial.print(F(" "));
-    Serial.print((String)eeVar.timeRiego7);
-    Serial.println(F("... update successfully!"));
+    Serial.print(F("EEPROM ")); Serial.print(EEPROM.length());
+    Serial.print(F(": ")); Serial.print(statusVar);
+    Serial.print(F(" ")); Serial.print(plot);
+    for (int i = 1; i <= 7; i++) {
+      Serial.print(F(" ")); Serial.print((String)eeVar.timeRiego[i]);
+    }
+    Serial.println(F("\n... update successfully!"));
   }
 }
 
@@ -201,43 +154,13 @@ void setPlot() {
   if ((millis() - activeTime) >= activationTime) {
     plot = (plot < 7) ? (plot + 1) : 1;
     apagar();
-    setActivationTime();
     activeTime = millis();
   }
 }
 
 void setActivationTime() {
-  Serial.print(F("plot>>")); Serial.println(plot);
-  switch(plot) {
-    case 1:
-      activationTime = timeRiego1;
-      Serial.print("activationTime>>"); Serial.println(activationTime);
-      break;
-    case 2:
-      activationTime = timeRiego2;
-      Serial.print("activationTime>>"); Serial.println(activationTime);
-      break;
-    case 3:
-      activationTime = timeRiego3;
-      Serial.print("activationTime>>"); Serial.println(activationTime);
-      break;
-    case 4:
-      activationTime = timeRiego4;
-      Serial.print("activationTime>>"); Serial.println(activationTime);
-      break;
-    case 5:
-      activationTime = timeRiego5;
-      Serial.print("activationTime>>"); Serial.println(activationTime);
-      break;
-    case 6:
-      activationTime = timeRiego6;
-      Serial.print("activationTime>>"); Serial.println(activationTime);
-      break;
-    case 7:
-      activationTime = timeRiego7;
-      Serial.print("activationTime>>"); Serial.println(activationTime);
-      break;
-  }
+  activationTime = timeRiego[plot];
+  Serial.print(F("plot: ")); Serial.print(plot); Serial.print(F(": ")); Serial.println(activationTime);
 }
 
 void apagarTodo() {
@@ -341,20 +264,20 @@ void comunicaciones() {
     plot = (aux != "") ? aux.toInt() : plot;
     firstSettings = false;
   }
-  aux = parse(data, '"', 3);                                 // > timeRiego1
-  timeRiego1 = (aux != "") ? aux.toInt() : timeRiego1;
-  aux = parse(data, '"', 4);                                 // > timeRiego2
-  timeRiego2 = (aux != "") ? aux.toInt() : timeRiego2;
-  aux = parse(data, '"', 5);                                 // > timeRiego3
-  timeRiego3 = (aux != "") ? aux.toInt() : timeRiego3;
-  aux = parse(data, '"', 6);                                 // > timeRiego4
-  timeRiego4 = (aux != "") ? aux.toInt() : timeRiego4;
-  aux = parse(data, '"', 7);                                 // > timeRiego5
-  timeRiego5 = (aux != "") ? aux.toInt() : timeRiego5;
-  aux = parse(data, '"', 8);                                 // > timeRiego6
-  timeRiego6 = (aux != "") ? aux.toInt() : timeRiego6;
-  aux = parse(data, '"', 9);                                 // > timeRiego7
-  timeRiego7 = (aux != "") ? aux.toInt() : timeRiego7;
+  aux = parse(data, '"', 3);                                 // > timeRiego[1]
+  timeRiego[1] = (aux != "") ? aux.toInt() : timeRiego[1];
+  aux = parse(data, '"', 4);                                 // > timeRiego[2]
+  timeRiego[2] = (aux != "") ? aux.toInt() : timeRiego[2];
+  aux = parse(data, '"', 5);                                 // > timeRiego[3]
+  timeRiego[3] = (aux != "") ? aux.toInt() : timeRiego[3];
+  aux = parse(data, '"', 6);                                 // > timeRiego[4]
+  timeRiego[4] = (aux != "") ? aux.toInt() : timeRiego[4];
+  aux = parse(data, '"', 7);                                 // > timeRiego[5]
+  timeRiego[5] = (aux != "") ? aux.toInt() : timeRiego[5];
+  aux = parse(data, '"', 8);                                 // > timeRiego[6]
+  timeRiego[6] = (aux != "") ? aux.toInt() : timeRiego[6];
+  aux = parse(data, '"', 9);                                 // > timeRiego[7]
+  timeRiego[7] = (aux != "") ? aux.toInt() : timeRiego[7];
   setActivationTime(); 
   showVars();
 }
@@ -365,19 +288,19 @@ void showVars() {
   Serial.print(F("> Actual plot: "));
   Serial.println(plot);
   Serial.print(F("> Irrigation time 1: "));
-  Serial.println(timeRiego1);
+  Serial.println(timeRiego[1]);
   Serial.print(F("> Irrigation time 2: "));
-  Serial.println(timeRiego2);
+  Serial.println(timeRiego[2]);
   Serial.print(F("> Irrigation time 3: "));
-  Serial.println(timeRiego3);
+  Serial.println(timeRiego[3]);
   Serial.print(F("> Irrigation time 4: "));
-  Serial.println(timeRiego4);
+  Serial.println(timeRiego[4]);
   Serial.print(F("> Irrigation time 5: "));
-  Serial.println(timeRiego5);
+  Serial.println(timeRiego[5]);
   Serial.print(F("> Irrigation time 6: "));
-  Serial.println(timeRiego6);
+  Serial.println(timeRiego[6]);
   Serial.print(F("> Irrigation time 7: "));
-  Serial.println(timeRiego7);
+  Serial.println(timeRiego[7]);
   Serial.print(F("> Remaining time: "));
   Serial.print(activationTime != 0 ? (activationTime - (millis() - activeTime)) : 0);
   Serial.print(F("/"));
@@ -391,7 +314,7 @@ String httpRequest() {
   String param3 = "&po=" + (String)plot;
   String param4 = "&rx=" + (String)(commRx ? "Ok" : "Er");
   String param5 = "&si=" + (String)signalVar + "\"";
-//  Serial.println(httpServer + param1 + param2 + param3 + param4 + param5);
+  // Serial.println(httpServer + param1 + param2 + param3 + param4 + param5);
   gprs.println(F("AT+HTTPINIT"));
   getResponse(15, false); 
   gprs.println(httpServer + param1 + param2 + param3 + param4 + param5);
@@ -437,7 +360,7 @@ int getSignalValue() {
 
 void commWatchDogReset(int signalValue) {
   commError = (signalValue < 6 || restartGSM) ? commError + 1 : 0;
-  Serial.print("commError: ");
+  Serial.print(F("commError: "));
   Serial.println(commError);
   if (commError == 5) {
     while (true) { delay(1000); }
