@@ -5,11 +5,11 @@
  *   Automatización de sistemas de Jardinería y Paisajismo      *
  *   ~ Salidas:                                                 *
  *     - 7 canales de 24V alterna                               *
- *     - 1 interruptor multipropósito 110V 10A                  *
+ *     - 1 interruptor multipropósito 110V/220V 10A             *
  *   ~ Entradas:                                                *
  *     - N/A                                                    *
  *   ~ Comunicación GSM                                         *
- *   
+ *                                                              *
  *                                                              *
  ****************************************************************/
 
@@ -82,20 +82,15 @@ void setup() {
   pinMode(pinRiego6, OUTPUT);
   pinMode(pinRiego7, OUTPUT);
   apagarTodo();
-  Serial.println();
   Serial.println(F(">>> DTA-Agrícola: Serie J0008-1 v0.2 A"));
-  Serial.print("    «");
-  Serial.print(telefono);
-  Serial.println("»");
+  Serial.print(F("    «")); Serial.print(telefono); Serial.println(F("»"));
   readEEPROM();
   setActivationTime();
   activeTime = millis();
 }
 
 void loop() {
-  Serial.println();
-  Serial.println("********************* New loop *********************");
-  Serial.println();
+  Serial.println(F("\n********************* New loop *********************\n"));
   wdt_enable(WDTO_8S);
   setupGSM();
   comunicaciones();
@@ -189,31 +184,30 @@ void updateEEPROM() {
 
 void acciones() {
   if (statusVar == "ON") {
-    digitalWrite(pinBomba, LOW);                        // Bomba de agua encendida
+    digitalWrite(pinBomba, LOW);                                  // Bomba de agua encendida
     if (activationTime != 0) {
-      apagar();
-      Serial.print(F("Active plot: "));
-      Serial.println(plot);
-      digitalWrite(plot + 5, LOW);                      // Encendido
+      Serial.print(F("Active plot: ")); Serial.println(plot);
+      digitalWrite(plot + 5, LOW);                                // Encendido
     }
     setPlot();
   } else {
     apagarTodo();
   }
   updateEEPROM();
-  delay(60000);
+  delay(30000);                                                   // Demora de 30 segundos
 }
 
 void setPlot() {
-  if ((millis() - activeTime) > activationTime) {
+  if ((millis() - activeTime) >= activationTime) {
     plot = (plot < 7) ? (plot + 1) : 1;
+    apagar();
     setActivationTime();
     activeTime = millis();
   }
 }
 
 void setActivationTime() {
-  Serial.print("plot>>"); Serial.println(plot);
+  Serial.print(F("plot>>")); Serial.println(plot);
   switch(plot) {
     case 1:
       activationTime = timeRiego1;
@@ -342,8 +336,8 @@ void comunicaciones() {
   if (lastStatus != statusVar) {                             // Avisar del cambio de estado
     httpRequest();
   }
-  if (firstSettings) {                                    // Avisar del cambio de parcela
-    aux = parse(data, '"', 2);                                 // > initial plot
+  if (firstSettings) {                                       // Avisar del cambio de parcela
+    aux = parse(data, '"', 2);                               // > initial plot
     plot = (aux != "") ? aux.toInt() : plot;
     firstSettings = false;
   }
