@@ -1,21 +1,20 @@
 ;
-const CACHE_NAME = 'DTA_Agricola_v1.0';
+const CACHE_NAME = 'DTA_Irrigation_Control_v0.2';
 urlsToCache = [
     './',
     './assets/css/responsive.css',
     './assets/css/style.css',
-    './images/icons/res/mipmap-mdpi/DTA_Agricola.png',
-    './images/icons/res/mipmap-hdpi/DTA_Agricola.png',
-    './images/icons/res/mipmap-xhdpi/DTA_Agricola.png',
-    './images/icons/res/mipmap-xxhdpi/DTA_Agricola.png',
-    './images/icons/res/mipmap-xxxhdpi/DTA_Agricola.png',
-    './images/icons/web_hi_res_512.png',
-    './images/DTA-Agricola lineal.png',
-    './images/DTA-Agricola.png',
-    './images/DTA.png',
-    './images/fondo-cel.png',
-    './images/fondo-web.png',
-    './images/intro.webp'
+    './assets/images/icons/res/mipmap-mdpi/DTA_Agricola.png',
+    './assets/images/icons/res/mipmap-hdpi/DTA_Agricola.png',
+    './assets/images/icons/res/mipmap-xhdpi/DTA_Agricola.png',
+    './assets/images/icons/res/mipmap-xxhdpi/DTA_Agricola.png',
+    './assets/images/icons/res/mipmap-xxxhdpi/DTA_Agricola.png',
+    './assets/images/icons/web_hi_res_512.png',
+    './assets/images/DTA-Agricola lineal.png',
+    './assets/images/DTA-Agricola.png',
+    './assets/images/fondo-cel.png',
+    './assets/images/fondo-web.png',
+    './assets/images/intro.webp'
 ]
 
 // Almacenar en cachpe los archivos estáticos

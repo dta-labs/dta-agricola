@@ -1,15 +1,17 @@
 /****************************************************************
  *                                                              *
- *               Sistemas DTA Serie J0008-1 v0.2 A              *
+ *                 Sistemas DTA Serie AGxx v0.2 A               *
  *                                                              *
  *   Automatización de sistemas de Jardinería y Paisajismo      *
  *   ~ Salidas:                                                 *
  *     - 7 canales de 24V alterna                               *
  *     - 1 interruptor multipropósito 110V/220V 10A             *
  *   ~ Entradas:                                                *
- *     - N/A                                                    *
+ *     - Sensor de presión                                      *
+ *     - Sensor de voltage                                      *
  *   ~ Comunicación GSM                                         *
  *                                                              *
+ *  Configuraciones: {Rx, Tx, Plots, Pais, Lada, Número}        *
  *                                                              *
  ****************************************************************/
 
@@ -19,42 +21,44 @@
 
 #pragma region Variables
 
-// Comunicación GSM/GPRS
-SoftwareSerial gprs(2, 3);                  // RX, TX
-// #define telefono = "526251477680"
-#define telefono "111111111111"
-#define httpServer "AT+HTTPPARA=\"URL\",\"http://pprsar.com/cosme/commj_v2.php?id=" telefono
-// #define httpServer "AT+HTTPPARA=\"URL\",\"http://dtaamerica.com/ws/commj_v2.php?id=" telefono
+// Settings
+const long config[] = {2, 3, 8, 52, 625, 1477680};          // Rx, Tx, Plots, Pais, Lada, Número
+static bool testFunc = true;
+static bool testComm = false;
+SoftwareSerial gprs(config[0], config[1]);                  // Rx, Tx
+static byte plots = config[2];
+const String telefono = testFunc ? "111111111111" : (String) config[3] + (String) config[4] + (String) config[5];
+const String httpServer = "AT+HTTPPARA=\"URL\",\"http://pprsar.com/cosme/commj_v2.php?id=" + telefono;
+// const String httpServer = "AT+HTTPPARA=\"URL\",\"http://dtaamerica.com/ws/commj_v2.php?id=" + telefono;
 
 // Actuadores y variables
-static bool testComm = false;
-#define pinBomba 5
-#define pinRiego1 6
-#define pinRiego2 7
-#define pinRiego3 8
-#define pinRiego4 9
-#define pinRiego5 10
-#define pinRiego6 11
-#define pinRiego7 12
-static unsigned long timeRiego[7] = {0, 0, 0, 0, 0, 0, 0};
+#define pinBomba   4
+#define pinRiego1  5
+#define pinRiego2  6
+#define pinRiego3  7
+#define pinRiego4  8
+#define pinRiego5  9
+#define pinRiego6 10
+#define pinRiego7 11
+#define pinRiego8 12
+#define watchDogPin A5
+#define offSet 5
+static byte plot = 0;
+static unsigned long timeRiego[8] = {0, 0, 0, 0, 0, 0, 0, 0};             // Actions
 static unsigned long activeTime = 0;
 static unsigned long activationTime = 0;
-static byte plots = 7;
-static int plot = 0;
 static String statusVar = "OFF";
+static byte commError = 0;                                                // Communications
+static byte signalVar = 0;
 static bool restartGSM = true;
-static int signalVar = 0;
-static byte commError = 0;
 static bool commRx = true;
 static bool firstSettings = true;
 
 struct eeObject {
   char status[3];
-  int plot;
-  unsigned long timeRiego[7] = {0, 0, 0, 0, 0, 0, 0};
-};
-
-eeObject eeVar;
+  byte plot;
+  unsigned long timeRiego[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+} eeVar;
 
 #pragma endregion Variables
 
@@ -62,28 +66,27 @@ void setup() {
   wdt_disable();
   Serial.begin(115200);
   pinMode(pinBomba, OUTPUT);
-  pinMode(pinRiego1, OUTPUT);
-  pinMode(pinRiego2, OUTPUT);
-  pinMode(pinRiego3, OUTPUT);
-  pinMode(pinRiego4, OUTPUT);
-  pinMode(pinRiego5, OUTPUT);
-  pinMode(pinRiego6, OUTPUT);
-  pinMode(pinRiego7, OUTPUT);
+  for (byte i = 0; i < plots; i++) {
+    pinMode(i + offSet, OUTPUT);
+  }
   apagarTodo();
-  Serial.println(F(">>> DTA-Agrícola: Serie J0008-1 v0.2 A"));
+  Serial.println(F(">>> DTA-Agrícola: Serie AGxx v0.2 A"));
   Serial.print(F("    «")); Serial.print(telefono); Serial.println(F("»"));
   readEEPROM();
   setActivationTime();
+  wdt_enable(WDTO_8S);
   activeTime = millis();
 }
 
 void loop() {
   Serial.println(F("\n********************* New loop *********************\n"));
-  wdt_enable(WDTO_8S);
   setupGSM();
   comunicaciones();
-  wdt_disable();
+  systemWatchDog();
   acciones();
+  showVars();
+  systemWatchDog();
+  waitFor(30);                                                            // Demora de 30 segundos
 }
 
 #pragma region EEPROM
@@ -91,14 +94,14 @@ void loop() {
 void readEEPROM() {
   EEPROM.get(0, eeVar);
   statusVar = (String)(eeVar.status == "ON") ? "ON" : "OFF";
-  plot = eeVar.plot > 7 ? 7 : eeVar.plot;
-  for (int i = 1; i <= 7; i++) {
+  plot = eeVar.plot >= plots ? plots : eeVar.plot;
+  for (int i = 0; i < plots; i++) {
     timeRiego[i] = eeVar.timeRiego[i];
   }
   Serial.print(F("EEPROM ")); Serial.print(EEPROM.length());
   Serial.print(F(": ")); Serial.print(statusVar);
   Serial.print(F(" ")); Serial.print(plot);
-  for (int i = 1; i <= 7; i++) {
+  for (byte i = 0; i < plots; i++) {
     Serial.print(F(" ")); Serial.print((String)timeRiego[i]);
   }
   Serial.println();
@@ -106,28 +109,30 @@ void readEEPROM() {
 
 void updateEEPROM() {
   String stVar = (String(eeVar.status) == "ON") ? "ON" : "OFF";
-  int pt = eeVar.plot > 7 ? 7 : eeVar.plot;
-  unsigned long int tr1 = eeVar.timeRiego[1];
-  unsigned long int tr2 = eeVar.timeRiego[2];
-  unsigned long int tr3 = eeVar.timeRiego[3];
-  unsigned long int tr4 = eeVar.timeRiego[4];
-  unsigned long int tr5 = eeVar.timeRiego[5];
-  unsigned long int tr6 = eeVar.timeRiego[6];
-  unsigned long int tr7 = eeVar.timeRiego[7];
-  if (statusVar != stVar || pt != plot || tr1 != timeRiego[1] || tr2 != timeRiego[2] || tr3 != timeRiego[3] || tr4 != timeRiego[4] || tr5 != timeRiego[5] || tr6 != timeRiego[6] || tr7 != timeRiego[7]) {
+  int pt = eeVar.plot >= plots ? plots : eeVar.plot;
+  unsigned long tr0 = eeVar.timeRiego[0];
+  unsigned long tr1 = eeVar.timeRiego[1];
+  unsigned long tr2 = eeVar.timeRiego[2];
+  unsigned long tr3 = eeVar.timeRiego[3];
+  unsigned long tr4 = eeVar.timeRiego[4];
+  unsigned long tr5 = eeVar.timeRiego[5];
+  unsigned long tr6 = eeVar.timeRiego[6];
+  unsigned long tr7 = eeVar.timeRiego[7];
+  if (statusVar != stVar || pt != plot || tr0 != timeRiego[0] || tr1 != timeRiego[1] || tr2 != timeRiego[2] || 
+      tr3 != timeRiego[3] || tr4 != timeRiego[4] || tr5 != timeRiego[5] || tr6 != timeRiego[6] || tr7 != timeRiego[7]) {
     statusVar.toCharArray(eeVar.status, 3);
     eeVar.plot = plot;
-    for (int i = 1; i <= 7; i++) {
+    for (byte i = 0; i < plots; i++) {
       eeVar.timeRiego[i] = timeRiego[i];
     }
     EEPROM.put(0, eeVar);
-    Serial.print(F("EEPROM ")); Serial.print(EEPROM.length());
+    Serial.print(F("~ EEPROM ")); Serial.print(EEPROM.length());
     Serial.print(F(": ")); Serial.print(statusVar);
     Serial.print(F(" ")); Serial.print(plot);
-    for (int i = 1; i <= 7; i++) {
+    for (int i = 0; i < plots; i++) {
       Serial.print(F(" ")); Serial.print((String)eeVar.timeRiego[i]);
     }
-    Serial.println(F("\n... update successfully!"));
+    Serial.println(F("... update successfully!"));
   }
 }
 
@@ -137,22 +142,19 @@ void updateEEPROM() {
 
 void acciones() {
   if (statusVar == "ON") {
-    digitalWrite(pinBomba, LOW);                                  // Bomba de agua encendida
-    if (activationTime != 0) {
-      Serial.print(F("Active plot: ")); Serial.println(plot);
-      digitalWrite(plot + 5, LOW);                                // Encendido
-    }
+    digitalWrite(pinBomba, LOW);                                        // Bomba de agua encendida
     setPlot();
+    setActivationTime();
+    if (activationTime != 0) { digitalWrite(plot + offSet, LOW); }      // Encendido
   } else {
     apagarTodo();
   }
   updateEEPROM();
-  delay(30000);                                                   // Demora de 30 segundos
 }
 
 void setPlot() {
   if ((millis() - activeTime) >= activationTime) {
-    plot = (plot < 7) ? (plot + 1) : 1;
+    plot = (plot + 1 < plots) ? plot + 1 : 0;
     apagar();
     activeTime = millis();
   }
@@ -160,7 +162,7 @@ void setPlot() {
 
 void setActivationTime() {
   activationTime = timeRiego[plot];
-  Serial.print(F("plot: ")); Serial.print(plot); Serial.print(F(": ")); Serial.println(activationTime);
+  Serial.print(F("Active plot: ")); Serial.print(plot); Serial.print(F(" >> ")); Serial.println(activationTime);
 }
 
 void apagarTodo() {
@@ -169,14 +171,26 @@ void apagarTodo() {
 }
 
 void apagar() {
-  digitalWrite(pinRiego1, HIGH); // Apagado
-  digitalWrite(pinRiego2, HIGH); // Apagado
-  digitalWrite(pinRiego3, HIGH); // Apagado
-  digitalWrite(pinRiego4, HIGH); // Apagado
-  digitalWrite(pinRiego5, HIGH); // Apagado
-  digitalWrite(pinRiego6, HIGH); // Apagado
-  digitalWrite(pinRiego7, HIGH); // Apagado
-  delay(3000);
+  for (byte i = 0; i < plots; i++) {
+    digitalWrite(i + offSet, HIGH);      // Apagado
+  }
+}
+
+void waitFor(int time) {
+  unsigned long initialTimer = millis();
+  time *= 1000;
+  while (millis() - initialTimer < time) {
+    delay(1000);
+    systemWatchDog();
+  }
+}
+
+void systemWatchDog() {
+  wdt_reset();
+  pinMode(watchDogPin, OUTPUT);         // Sink current to drain charge from C2
+  digitalWrite(watchDogPin, LOW);
+  delay(100);                           // Give enough time for C2 to discharge (should discharge in 50 ms)     
+  pinMode(watchDogPin, INPUT);          // Return to high impedance
 }
 
 #pragma endregion Acciones
@@ -248,61 +262,31 @@ void testComunicaciones() {
 
 void comunicaciones() {
   Serial.println("Comunicación con el servidor");
-  String data = httpRequest();                               // Get Settings from HTTP
-  Serial.print(F("data: "));
-  Serial.println(data);
+  String data = httpRequest();                                      // Get Settings from HTTP
+  Serial.print(F("data: ")); Serial.println(data);
   commRx = (data != "") ? true : false;
   String aux = "";
-  aux = parse(data, '"', 1);                                 // > status
-  String lastStatus = statusVar;
+  aux = parse(data, '"', 1);                                        // status
   statusVar = (aux == "ON" || aux == "OFF") ? aux : statusVar;
-  if (lastStatus != statusVar) {                             // Avisar del cambio de estado
-    httpRequest();
-  }
-  if (firstSettings) {                                       // Avisar del cambio de parcela
-    aux = parse(data, '"', 2);                               // > initial plot
+  if (firstSettings) {                                              // Avisar del cambio de parcela
+    aux = parse(data, '"', 2);                                      // initial plot
     plot = (aux != "") ? aux.toInt() : plot;
     firstSettings = false;
   }
-  aux = parse(data, '"', 3);                                 // > timeRiego[1]
-  timeRiego[1] = (aux != "") ? aux.toInt() : timeRiego[1];
-  aux = parse(data, '"', 4);                                 // > timeRiego[2]
-  timeRiego[2] = (aux != "") ? aux.toInt() : timeRiego[2];
-  aux = parse(data, '"', 5);                                 // > timeRiego[3]
-  timeRiego[3] = (aux != "") ? aux.toInt() : timeRiego[3];
-  aux = parse(data, '"', 6);                                 // > timeRiego[4]
-  timeRiego[4] = (aux != "") ? aux.toInt() : timeRiego[4];
-  aux = parse(data, '"', 7);                                 // > timeRiego[5]
-  timeRiego[5] = (aux != "") ? aux.toInt() : timeRiego[5];
-  aux = parse(data, '"', 8);                                 // > timeRiego[6]
-  timeRiego[6] = (aux != "") ? aux.toInt() : timeRiego[6];
-  aux = parse(data, '"', 9);                                 // > timeRiego[7]
-  timeRiego[7] = (aux != "") ? aux.toInt() : timeRiego[7];
-  setActivationTime(); 
-  showVars();
+  for (byte i = 0; i < plots; i++) {
+    aux = parse(data, '"', i + 3);                                  // timeRiego[0..plots]
+    timeRiego[i] = (aux != "") ? aux.toInt() : timeRiego[i];
+  }
 }
 
 void showVars() {
-  Serial.print(F("> Status: "));
-  Serial.println(statusVar);
-  Serial.print(F("> Actual plot: "));
-  Serial.println(plot);
-  Serial.print(F("> Irrigation time 1: "));
-  Serial.println(timeRiego[1]);
-  Serial.print(F("> Irrigation time 2: "));
-  Serial.println(timeRiego[2]);
-  Serial.print(F("> Irrigation time 3: "));
-  Serial.println(timeRiego[3]);
-  Serial.print(F("> Irrigation time 4: "));
-  Serial.println(timeRiego[4]);
-  Serial.print(F("> Irrigation time 5: "));
-  Serial.println(timeRiego[5]);
-  Serial.print(F("> Irrigation time 6: "));
-  Serial.println(timeRiego[6]);
-  Serial.print(F("> Irrigation time 7: "));
-  Serial.println(timeRiego[7]);
-  Serial.print(F("> Remaining time: "));
-  Serial.print(activationTime != 0 ? (activationTime - (millis() - activeTime)) : 0);
+  Serial.print(F("~ Status: ")); Serial.println(statusVar);
+  for (byte i = 0; i < plots; i++) {
+    Serial.print(F("~ Irrigation time ")); Serial.print(i); Serial.print(F(": ")); Serial.print(timeRiego[i]); 
+    if (plot == i) { Serial.println(F(" <")); } else { Serial.println(F("")); }
+  }
+  Serial.print(F("~ Remaining time: "));
+  Serial.print(activationTime != 0 ? millis() - activeTime : 0);
   Serial.print(F("/"));
   Serial.println(activationTime);
 }
@@ -314,7 +298,7 @@ String httpRequest() {
   String param3 = "&po=" + (String)plot;
   String param4 = "&rx=" + (String)(commRx ? "Ok" : "Er");
   String param5 = "&si=" + (String)signalVar + "\"";
-  // Serial.println(httpServer + param1 + param2 + param3 + param4 + param5);
+  Serial.println(testFunc ? httpServer + param1 + param2 + param3 + param4 + param5 : "");
   gprs.println(F("AT+HTTPINIT"));
   getResponse(15, false); 
   gprs.println(httpServer + param1 + param2 + param3 + param4 + param5);
@@ -329,7 +313,7 @@ String httpRequest() {
   commWatchDogReset(signalVar);
   getResponse(30, false); 
   wdt_reset();
-  return result;
+  return testFunc ? "\"ON\"1\"60000\"180000\"0\"45000\"50000\"120000\"190000\"0\"" : result;
 }
 
 String getResponse(int wait, bool response){
@@ -359,7 +343,7 @@ int getSignalValue() {
 }
 
 void commWatchDogReset(int signalValue) {
-  commError = (signalValue < 6 || restartGSM) ? commError + 1 : 0;
+  commError = ((signalValue < 6 || restartGSM) && !testFunc) ? commError + 1 : 0;
   Serial.print(F("commError: "));
   Serial.println(commError);
   if (commError == 5) {

@@ -92,15 +92,23 @@ function initializeFirebaseUI() {
 function loadCamposFromFB() {         // Old ***********************
     return new Promise((resolve, reject) => {
         firebase.database().ref("campos").on("value", campos => {
-            resolve(addNewFields(campos));
+            resolve(campos);
         });
     });
 }
 
-function loadUserLocations(email) {         // Old ***********************
+function loadUserLocations(email) {  
     return new Promise((resolve, reject) => {
         firebase.database().ref("users").orderByKey().equalTo(convertDotToDash(email)).on("value", users => {
             resolve(addNewFields(users));
+        });
+    });
+}
+
+function loadCulturesList() { 
+    return new Promise((resolve, reject) => {
+        firebase.database().ref("cultivos").on("value", cultivos => {
+            resolve(addNewFields(cultivos));
         });
     });
 }

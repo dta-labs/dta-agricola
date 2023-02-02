@@ -9,10 +9,6 @@ var milatitud;
 var milongitud;
 var miaccuracy;
 
-let deferredPrompt;
-const installBtn = document.querySelector('#installBtn');
-installBtn.style.display = 'none';
-
 // #region Controlador Angular
 
 var app = angular.module("Administracion", ["ngRoute"]);
@@ -60,6 +56,8 @@ app.controller("ControladorPrincipal", function ($scope) {
     $scope.as_more = false;
     $scope.as_hist = false;
     $scope.as_users = false;
+    $scope.listPlanesRiego;
+    $scope.selectedPlaneRiego;
 
     // #region NAVEGACION
 
@@ -127,6 +125,14 @@ app.controller("ControladorPrincipal", function ($scope) {
             "bankAccount": document.getElementById("inputCBancaria").value
         };
         updateUserInfo(convertDotToDash($scope.authUser.email), profile);
+        swal({
+            title: "Perfil de usuario",
+            text: "Sus datos personales han sido actualiados",
+            icon: "warning",
+            button: true,
+            dangerMode: true,
+        });
+
     }
 
     listenUserStatus = () => {
@@ -153,6 +159,7 @@ app.controller("ControladorPrincipal", function ($scope) {
     getUserLocations = () => {
         loadUserLocations($scope.authUser.email).then(result => {
             $scope.userLocations = result;
+            $scope.userProfile = result[convertDotToDash($scope.authUser.email)].profile;
             loadSystems();
             $scope.$apply();
         });
@@ -167,6 +174,7 @@ app.controller("ControladorPrincipal", function ($scope) {
             // ui.start("#firebaseui-auth-container", uiConfig);
             //logoutAutUser();
             //document.getElementById("logout").style.display = "none";
+            $scope.showWindow('login');
         });
     };
 
@@ -589,9 +597,6 @@ app.controller("ControladorPrincipal", function ($scope) {
         }
     }
 
-    $scope.install = () => {
-    }
-
     $scope.reload = () => {
         document.location.reload();
     }
@@ -630,10 +635,26 @@ app.controller("ControladorPrincipal", function ($scope) {
                 value: "" + finalValue,
                 endGun: endGun
             }
-            $scope.actualSystem.plans[index] = newPlan;
-            $scope.actualSystem.plansLength = length + 1;
-            // showPlanRiegoPie();
-            $scope.setMachineSettings();
+            swal({
+                title: "Plan de riego",
+                text: "¿Desea confirmar los cambios realizados?",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+              })
+            .then((confirm) => {
+                if (confirm) {
+                    $scope.actualSystem.plans[index] = newPlan;
+                    $scope.actualSystem.plansLength = length + 1;
+                    // showPlanRiegoPie();
+                    $scope.setMachineSettings();
+                        swal("Plan de riego actualizado correctamente!", {
+                        icon: "success",
+                    });
+                } else {
+                  swal("No se realizó la actualización!");
+                }
+            });
         }
     }
 
@@ -653,14 +674,30 @@ app.controller("ControladorPrincipal", function ($scope) {
     }
 
     $scope.editPlan = () => {
-        let ep = $scope.actualSystem.plans[$scope.editedPlan];
-        ep.starAngle = document.getElementById("editPlanAnguloIni").value;
-        ep.endAngle = document.getElementById("editPlanAnduloFin").value;
-        // ep.value = document.getElementById("editPlanValue").value;
-        ep.value = (document.getElementById("editPlanValue").value <= $scope.actualSystem.maxVelocity) ? document.getElementById("editPlanValue").value : $scope.actualSystem.maxVelocity;
-        ep.endGun = document.getElementById("editEndGun").value;
-        // showPlanRiegoPie();
-        $scope.setMachineSettings();
+        swal({
+            title: "Plan de riego",
+            text: "¿Desea confirmar los cambios realizados?",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+          })
+        .then((confirm) => {
+            if (confirm) {
+                let ep = $scope.actualSystem.plans[$scope.editedPlan];
+                ep.starAngle = document.getElementById("editPlanAnguloIni").value;
+                ep.endAngle = document.getElementById("editPlanAnduloFin").value;
+                // ep.value = document.getElementById("editPlanValue").value;
+                ep.value = (document.getElementById("editPlanValue").value <= $scope.actualSystem.maxVelocity) ? document.getElementById("editPlanValue").value : $scope.actualSystem.maxVelocity;
+                ep.endGun = document.getElementById("editEndGun").value;
+                // showPlanRiegoPie();
+                $scope.setMachineSettings();
+                swal("Plan de riego actualizado correctamente!", {
+                    icon: "success",
+                });
+            } else {
+              swal("No se realizó la actualización!");
+            }
+        });
     }
 
     $scope.setEditPlanEstacionario = (index) => {
@@ -672,22 +709,48 @@ app.controller("ControladorPrincipal", function ($scope) {
     }
 
     $scope.editPlanEstacionario = () => {
+        dataEditionPlanEstacionario();
+        swal({
+            title: "Plan de riego",
+            text: "¿Desea confirmar los cambios realizados?",
+            icon: "warning",
+            buttons: ["Cancelar", true],
+            dangerMode: true,
+          })
+        .then((confirm) => {
+            if (confirm) {
+                $scope.setMachineSettings();
+                $scope.apply();
+                swal("Plan de riego actualizado correctamente!", {
+                    icon: "success",
+                });
+            } else {
+                swal("No se realizó la actualización!");
+            }
+        });
+    }
+    
+    dataEditionPlanEstacionario = () => {
         let index = document.getElementById("planEstacionarioId").value;
         let arr1 = [];
-        let arr2 = document.getElementById("editPoligon").innerHTML.split(",");
-        for (let i = 0; i < arr2.length; i += 2) {
-            let arr3 = [];
-            arr3.push(parseFloat(arr2[i]));
-            arr3.push(parseFloat(arr2[i + 1]));
-            arr1.push(arr3);
+        // let arr2 = document.getElementById("editPoligon").innerHTML.split(",");
+        let arr2 = document.getElementById("editPoligon").value.split(",");
+        if (arr2.length >= 2) {
+            for (let i = 0; i < arr2.length; i += 2) {
+                let arr3 = [];
+                arr3.push(parseFloat(arr2[i]));
+                arr3.push(parseFloat(arr2[i + 1]));
+                arr1.push(arr3);
+            }
+            $scope.actualSystem.plots[index].poligon = arr1;
+        } else {
+            $scope.actualSystem.plots[index].poligon = "";
         }
-        $scope.actualSystem.plots[index].poligon = arr1;
         let day = parseInt(document.getElementById("editDay").value) * (1000 * 60 * 60 * 24);
         let hour = parseInt(document.getElementById("editHour").value) * (1000 * 60 * 60);
         let minutes = parseInt(document.getElementById("editMinutes").value) * (1000 * 60);
         let millis = day + hour + minutes;
         $scope.actualSystem.plots[index].value = millis;
-        $scope.setMachineSettings();
     }
 
     $scope.deleteEditedPlan = () => {
@@ -738,6 +801,59 @@ app.controller("ControladorPrincipal", function ($scope) {
             legend: {
                 show: false
             }
+        });
+    }
+
+    $scope.loadCultures = () => {
+        if (!$scope.listPlanesRiego) { loadCultures(); };
+        $scope.showWindow('fichasTecnicas'); 
+    }
+
+    $scope.showFichaTecnicaModal = (plan) => {
+        if (plan.price == "0.00") { 
+            $scope.selectedPlaneRiego = plan;
+            M.Modal.getInstance($('#fichaTecnica')).open();
+        } else {
+            swal({
+                title: "Ficha técnica de " + plan.culture + " " + plan.detail,
+                text: "Este es un recurso de pago",
+                icon: "warning",
+                button: true,
+                dangerMode: true,
+            });
+        }
+    }
+
+    $scope.selectPlanRiego = () => {
+        if (!$scope.listPlanesRiego) { loadCultures(); };
+        M.Dropdown.init(document.querySelectorAll('.dropdown-trigger'));
+        $scope.showWindow('planificarRiego');
+    }
+
+    loadCultures = () => {
+        firebase.database().ref("cultivos").once("value", cultivos => {
+            $scope.listPlanesRiego = cultivos.val();
+            $scope.$apply();
+        });
+    }
+
+    $scope.selectCulture = (sistema) => {
+        swal({
+            title: sistema,
+            text: "Asignar un plan de riego es un recurso de pago",
+            icon: "warning",
+            button: true,
+            dangerMode: true,
+        });
+    }
+
+    $scope.automatizaciones = () => {
+        swal({
+            title: "Automatización",
+            text: "Esta es una característica de pago",
+            icon: "warning",
+            button: true,
+            dangerMode: true,
         });
     }
 
@@ -1095,6 +1211,7 @@ document.addEventListener('DOMContentLoaded', function () {
     M.FloatingActionButton.init(document.querySelectorAll('.fixed-action-btn'));
     M.FormSelect.init(document.querySelectorAll('.select'));
     M.Collapsible.init(document.querySelectorAll('.collapsible'));
+    M.Dropdown.init(document.querySelectorAll('.dropdown-trigger'));
     // M.AutoInit();
 });
 
@@ -1191,9 +1308,9 @@ function showPosition(position) {
     milatitud = position.coords.latitude;
     milongitud = position.coords.longitude;
     miaccuracy = position.coords.accuracy;
-    M.toast({
-        html: "Lat: " + milatitud + "° Lng: " + milongitud + "° Err: " + miaccuracy + "m"
-    });
+    // M.toast({
+    //     html: "Lat: " + milatitud + "° Lng: " + milongitud + "° Err: " + miaccuracy + "m"
+    // });
     // let miCoord = [milatitud, milongitud];
     // addMarker(miCoord, 'Posición actual:<br>Lat: ' + milatitud + '°<br>Lng: ' + milongitud + '°<br>Err: ' + miaccuracy + 'm');
 }
@@ -1214,26 +1331,41 @@ function getNewLocation(distancia, angulo, miPosicion) {
 
 // #endregion Geolocalización
 
-window.addEventListener('beforeinstallprompt', (e) => {
-    // Prevent Chrome 67 and earlier from automatically showing the prompt
-    e.preventDefault();
-    // Stash the event so it can be triggered later.
-    deferredPrompt = e;
-    // Update UI to notify the user they can add to home screen
-    installBtn.style.display = 'block';
-    installBtn.addEventListener('click', (e) => {
-        // hide our user interface that shows our A2HS button
-        installBtn.style.display = 'none';
-        // Show the prompt
-        deferredPrompt.prompt();
-        // Wait for the user to respond to the prompt
-        deferredPrompt.userChoice.then((choiceResult) => {
-            if (choiceResult.outcome === 'accepted') {
-                console.log('El usuario aceptó la instalación de la aplicación...');
-            } else {
-                console.log('El usuario rechazó la instalación de la aplicación...');
-            }
-            deferredPrompt = null;
-        });
-    });
-});
+// #region Progresive Web Application
+
+var beforeInstallPrompt = null;
+
+const installBtn1 = document.querySelector('#installBtn1');
+installBtn1.style.display = 'none';
+const installBtn2 = document.querySelector('#installBtn2');
+installBtn2.style.display = 'none';
+
+window.addEventListener("beforeinstallprompt", eventHandler, errorHandler);
+
+function eventHandler(event){
+    beforeInstallPrompt = event; 
+    installBtn1.style.display = 'block';
+    installBtn2.style.display = 'block';
+}
+
+function errorHandler(e){
+    console.log('error: ' + e);
+}
+
+function instalar() {
+    if (beforeInstallPrompt) beforeInstallPrompt.prompt();
+}
+
+function serviceWorker() {
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker
+            //    .register('/firebase-messaging-sw.js')
+            .register('/sw.js')
+            .then(reg => console.log("Service Worker registrado correctamente", reg))
+            .catch(err => console.log("Error registrado Service Worker", err));
+    }
+}
+
+serviceWorker();
+
+// #endregion Progresive Web Application
