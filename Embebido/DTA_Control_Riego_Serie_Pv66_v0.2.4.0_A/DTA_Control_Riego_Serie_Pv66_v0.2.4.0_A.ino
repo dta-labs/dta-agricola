@@ -7,7 +7,7 @@
  *   - Presión 150psi............. A0                                       *
  *   - Seguridad efecto Hall...... A1                                       *
  *   - Seguridad lectura directa.. D9                                       *
- *   - Comunicación............... D2, D3                      				      *
+ *   - Comunicación............... D2, D3                      				*
  *   - GPS........................ D11, D12, D13 (Tarjetas amarillas)       *
  *                                                                          *
  *   Configuración: {Gun, GSMr, GSMt, GPSr, GPSt, Seq, Code, Lada, Number}  *

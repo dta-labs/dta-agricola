@@ -22,7 +22,7 @@
 #pragma region Variables
 
 // Settings
-const long config[] = {2, 3, 8, 52, 625, 1477680};          // Rx, Tx, Plots, Pais, Lada, Número
+const long config[] = {2, 3, 7, 52, 625, 1477680};          // Rx, Tx, Plots, Pais, Lada, Número
 static bool testFunc = true;
 static bool testComm = false;
 SoftwareSerial gprs(config[0], config[1]);                  // Rx, Tx
@@ -33,18 +33,10 @@ const String httpServer = "AT+HTTPPARA=\"URL\",\"http://pprsar.com/cosme/commj_v
 
 // Actuadores y variables
 #define pinBomba   4
-#define pinRiego1  5
-#define pinRiego2  6
-#define pinRiego3  7
-#define pinRiego4  8
-#define pinRiego5  9
-#define pinRiego6 10
-#define pinRiego7 11
-#define pinRiego8 12
 #define watchDogPin A5
 #define offSet 5
 static byte plot = 0;
-static unsigned long timeRiego[8] = {0, 0, 0, 0, 0, 0, 0, 0};             // Actions
+static unsigned long timeRiego[7] = {0, 0, 0, 0, 0, 0, 0};             // Actions
 static unsigned long activeTime = 0;
 static unsigned long activationTime = 0;
 static String statusVar = "OFF";
@@ -57,7 +49,7 @@ static bool firstSettings = true;
 struct eeObject {
   char status[3];
   byte plot;
-  unsigned long timeRiego[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+  unsigned long timeRiego[7] = {0, 0, 0, 0, 0, 0, 0};
 } eeVar;
 
 #pragma endregion Variables
@@ -292,6 +284,7 @@ void showVars() {
 }
 
 String httpRequest() {
+  if (testFunc) { return "\"ON\"1\"60000\"180000\"0\"45000\"50000\"120000\"190000\"0\""; }
   signalVar = getSignalValue();
   String param1 = "&st=" + statusVar;
   String param2 = "&tm=" + (String)activationTime;
@@ -313,7 +306,7 @@ String httpRequest() {
   commWatchDogReset(signalVar);
   getResponse(30, false); 
   wdt_reset();
-  return testFunc ? "\"ON\"1\"60000\"180000\"0\"45000\"50000\"120000\"190000\"0\"" : result;
+  return result;
 }
 
 String getResponse(int wait, bool response){
