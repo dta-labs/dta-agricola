@@ -21,6 +21,7 @@
 		$p = "p" . $i;
 		$lectura .= "\"" . $data->plots->$p->value;
 	}
+	$lectura .=  "\"" . $data->clyclic;
 	$lectura .=  "\"";
 
 	print_r($lectura);
@@ -56,7 +57,10 @@
 
 	if ($_GET["st"] && ($_GET["st"] == "ON" || $_GET["st"] == "OFF")) {
 		$key = "";
-		if ($status == $_GET["st"]) {
+		// if ($status == $_GET["st"]) {
+		// 	$key = "/$index";
+		// }
+		if ($index) {
 			$key = "/$index";
 		}
 		$data = '{';
