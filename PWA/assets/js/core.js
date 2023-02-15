@@ -1145,6 +1145,10 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     // #region SCRIPTS GENERALES
 
+    $scope.getNumber = function(data){
+        return parseInt(data.day);
+    };
+
     $scope.msToTime = (duration) => {
         if (!duration) { return "00:00:00"; };
         return $scope.getDayFromMs(duration) + ":" + $scope.getHourFromMs(duration) + ":" + $scope.getMinutesFromMs(duration);

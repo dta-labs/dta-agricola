@@ -341,7 +341,7 @@
                                     <div class="sercices-options waves-effect"
                                         style="background: {{ system.type == 'Estacionario' && system.log.state == 'ON' ? '#20b2aab0' : 
                                         system.log.state == 'OFF' ? '#d3d3d3e0' : system.log.voltage == 'false' ? '#ff0000c0' : 
-                                        system.log.safety == 'false' ? '#db7093c0' : system.log.commDelay != '-1' ? '#808080b0' : '#20b2aab0' }};
+                                        system.log.safety == 'false' ? '#db7093c0' : system.log.commDelay != '-1' ? '#808080e0' : '#20b2aab0' }};
                                         display: block !important;">
                                         <!-- <a href="#!sistema" style="color: {{ system.log.state == 'OFF' ? 'grey' : 'white' }};"> -->
                                         <a ng-click="showWindow('sistema')" style="color: {{ system.log.state == 'OFF' ? 'grey' : 'white' }};">
@@ -611,7 +611,7 @@
                             <div class="switchControl waves-effect input-field" ng-click="showWindow('listado')"
                                 style="background: {{ actualSystem.type == 'Estacionario' && actualSystem.log.state == 'ON' ? '#20b2aab0' : 
                                         actualSystem.log.state == 'OFF' ? '#d3d3d3e0' : actualSystem.log.voltage == 'false' ? '#ff0000c0' : 
-                                        actualSystem.log.safety == 'false' ? '#db7093c0' : actualSystem.log.commDelay != '-1' ? '#808080b0' : '#20b2aab0' }}; 
+                                        actualSystem.log.safety == 'false' ? '#db7093c0' : actualSystem.log.commDelay != '-1' ? '#808080e0' : '#20b2aab0' }}; 
                                         cursor: pointer; display: block !important;">
                                 <div class="row" style="margin-bottom: 0;">
                                     <div class="col s2 m2" style="margin: 2px 0 0 10px; cursor: pointer;">
@@ -625,9 +625,11 @@
                                     </div>
                                     <div class="col s2 m3" style="margin: 2px 0 0 -10px; text-align: center;">
                                         <p style="margin: 0; margin-top: -10px;"><img src="{{ meteo[actualSystem.key].weather.iconUrl }}" alt="Weather icon"></p>
-                                        <p style="margin: 0; margin-top: -15px;"><b>
-                                            <span class="show-in-pc-only">{{ meteo[actualSystem.key].main.temp - 273.15 | number : 0}}°C | </span>
-                                            <span style="display: inline-block;">{{ meteo[actualSystem.key].main.humidity }}% Hr</span>
+                                        <p class="show-in-pc-only" style="margin: 0; margin-top: -15px;"><b>
+                                            {{ meteo[actualSystem.key].main.temp - 273.15 | number : 0}}°C | {{ meteo[actualSystem.key].main.humidity }}% Hr
+                                        </b></p>
+                                        <p class="show-in-mobil-only" style="margin: 0; margin-top: -15px; width: 70px;"><b>
+                                            {{ meteo[actualSystem.key].main.humidity }}% Hr
                                         </b></p>
                                     </div>
                                 </div>
@@ -771,7 +773,7 @@
                                                 style="border-bottom: 1px solid grey; margin-bottom: 15px;">
                                                 <div class="col s12 m2 center-align"><i class="material-icons">map</i></div>
                                                 <div class="col s12 m10 center-align">
-                                                    <b>{{ actualSystem.log.plot ? actualSystem.log.plot : 0 }}</b>
+                                                    <b>{{ actualSystem.log.plot ? actualSystem.log.plot : '0' }}</b>
                                                 </div>
                                             </div>
                                             <div class="bordered col s2 m10 row"
@@ -1736,7 +1738,7 @@
                             </h5>
                             <div style="margin-top: 35px;">
                                 <ul>
-                                    <li ng-repeat="plan in selectedPlaneRiego.plan">
+                                    <li ng-repeat="plan in selectedPlaneRiego.plan | orderBy : getNumber">
                                         <div class="row">
                                             <div class="col s2 center-align">
                                                 <span style="font-size: 1.5em;">{{ plan.day }}</span><br>
