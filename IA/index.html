@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RNA Colores</title>
+    <style>
+        #sitio {
+            padding: 5rem;
+            margin-left: 15rem; 
+        }
+    </style>
+</head>
+<body>
+    <input id="color" type="color" onInput="update()" value="#ffffff">
+    <div id="sitio"><h1>Mi sitio web</h1></div>
+
+    <script src="brain.js"></script>
+    <script>
+        var rna = new brain.NeuralNetwork();
+
+        rna.train([
+            {input: {Nitrogen: 0, Phosphorus: 0, Potassium: 0}, output: {color: 1}},
+            {input: {Nitrogen: 1, Phosphorus: 1, Potassium: 1}, output: {color: 0}},
+            // {input: {rojo: 0, verde: 1, azul: 0}, output: {color: 1}},
+        ]);
+
+        update = () => {
+            let color = document.getElementById('color').value;
+            let div = document.getElementById('sitio');
+            div.style.background = color;
+            var entrada = {
+                Nitrogen: hexToRgb(color).n / 255,
+                Phosphorus: hexToRgb(color).p / 255,
+                azul: hexToRgb(color).k / 255,
+            }
+            var resultado = rna.run(entrada);
+            div.style.color = resultado.color > 0.5 ? "white" : "black";
+            console.log(resultado);
+        }
+
+        hexToRgb = (hex) => {
+            var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                n: parseInt(result[1], 16),
+                p: parseInt(result[2], 16),
+                k: parseInt(result[3], 16)
+            } : null;
+        }
+
+    </script>
+</body>
+</html>
