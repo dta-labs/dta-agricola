@@ -150,7 +150,7 @@ String getResponse(int wait, bool response, String smg){
     delay(1.5);
   }
   if (response) {
-    result += result != "" ? "" : smg;
+    result += result != "" ? "" : "Error: " + smg;
     Serial.println(result);
   }
   systemWatchDog();
@@ -236,6 +236,7 @@ void testWatchdog() {
   for (byte i = 0; i < 15; i++) {
     Serial.print(F("."));
     delay(1000);
+    wdt_reset();
   }
 }
 
@@ -244,6 +245,5 @@ void systemWatchDog() {
   pinMode(watchDogPin, OUTPUT);         // Sink current to drain charge from C2
   digitalWrite(watchDogPin, HIGH);
   delay(50);                            // Give enough time for C2 to discharge (should discharge in 50 ms)     
-  // digitalWrite(watchDogPin, HIGH);
   pinMode(watchDogPin, INPUT);          // Return to high impedance
 }

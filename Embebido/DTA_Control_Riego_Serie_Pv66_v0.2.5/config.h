@@ -8,7 +8,7 @@
  *                                                                          *
  ****************************************************************************/
 
-#pragma region Variables
+#pragma region Definiciones
 
 const long config[] = {0, 3, 2, 12, 11, 0, 52, 625, 1020642};
 // const String telefono = (String) config[6] + (String) config[7] + (String) config[8];
@@ -25,6 +25,8 @@ const String httpServer = "AT+HTTPPARA=\"URL\",\"http://pprsar.com/cosme/comm_v3
 #define watchDogPin A5
 int serie = config[0];
 // int LED = 13;
+
+#pragma endregion Definiciones
 
 #pragma region <<GSM/GPRS>>
 
@@ -61,7 +63,6 @@ static bool testData = true;                    // Para test
 static String deviceType = "PC";                // PC | PL
 static String statusVar = "OFF";
 static String directionVar = "FF";
-static float sensorPresionVar = 0;
 static String autoreverseVar = "OFF";
 static String endGunVar = "OFF";
 static String binsVar = "";
@@ -81,6 +82,8 @@ static bool isSequrity = false;                       // Sensores
 static bool isVoltage = false;
 static bool isPresure = false;
 static bool isPosition = false;
+static float sensorPresionVar = 0;
+static float actualPresure = 0;
 
 struct {
   float status;
@@ -118,6 +121,4 @@ Estado matrizEstados[5][4] = {{ NUEVOCICLO, SENSORES, SENSORES, APAGADO},       
 #pragma endendregion <<Máquina de estado>>
 
 #pragma endregion <<Variables>>
-
-#pragma endregion Variables
 

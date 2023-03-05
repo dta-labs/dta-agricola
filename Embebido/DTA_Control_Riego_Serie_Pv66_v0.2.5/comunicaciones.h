@@ -1,13 +1,4 @@
-
 #pragma region Comunicaciones
-
-void systemWatchDog() {
-  wdt_reset();
-  pinMode(watchDogPin, OUTPUT);         // Sink current to drain charge from C2
-  digitalWrite(watchDogPin, LOW);
-  delay(100);                           // Give enough time for C2 to discharge (should discharge in 50 ms)     
-  pinMode(watchDogPin, INPUT);          // Return to high impedance
-}
 
 String parse(String dataString, char separator, int index) {
   int found = 0;
@@ -127,7 +118,7 @@ String httpRequest() {
   String param4  = "&vo=" + (String)(isVoltage ? "true" : "false");
   String param5  = "&ar=" + autoreverseVar;
   String param6  = "&sp=" + (String)velocityVar;
-  String param7  = "&pr=" + (String)sensorPresionVar;
+  String param7  = "&pr=" + (String)actualPresure;
   String param8  = "&po=" + String(positionVar, 1);
   String param9  = "&la=" + String(lat_actual, 5);
   String param10 = "&lo=" + String(lon_actual, 5);

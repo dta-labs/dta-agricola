@@ -3,7 +3,6 @@
 #pragma region <<Seguridad>>
 
 bool controlSeguridad1() {
-  delay(500);
   return digitalRead(pinSensorSeguridad);
 }
 
@@ -33,10 +32,8 @@ bool isSequre() {
 bool controlSeguridad() {
   if (!isSequre()) {
     Serial.println(F("     Sequrity error... try again!"));
-    if (!isSequre()) {
-      Serial.println(F("     Sequrity error... try again!"));
-      return isSequre();
-    }
+    delay(500);
+    return isSequre();
   }
   return true;
 }
@@ -70,12 +67,8 @@ float controlPresionAnalogica() {
 }
 
 bool controlPresion() {
-  bool result = true;
-  if (sensorPresionVar >= 1) {
-    sensorPresionVar = controlPresionAnalogica();
-    result = (sensorPresionVar > 1) ? true : false;
-  }
-  return result;
+  actualPresure = controlPresionAnalogica();
+  return (sensorPresionVar == 0) || (sensorPresionVar > 0 && actualPresure >= 1) ? true : false;
 }
 
 #pragma endregion <<Presión>>

@@ -1,5 +1,12 @@
-#include "Arduino.h"
 #pragma region Acciones
+
+void systemWatchDog() {
+  wdt_reset();
+  pinMode(watchDogPin, OUTPUT);         // Sink current to drain charge from C2
+  digitalWrite(watchDogPin, HIGH);
+  delay(50);                            // Give enough time for C2 to discharge (should discharge in 50 ms)     
+  pinMode(watchDogPin, INPUT);          // Return to high impedance
+}
 
 void setActivationTimer() {
   activationTimer = 600 * velocityVar;      // 60000 * velocityVar / 100;

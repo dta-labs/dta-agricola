@@ -1,7 +1,7 @@
 /****************************************************************************
  *                                                                          * 
  *                    Sistemas DTA Serie Pv66 v0.2.4 A                      *
- *                               2022.11.14                                 *
+ *                               2023.03.04                                 *
  *                                                                          *
  *   Sensores:                                                              *
  *   - Presión 150psi............. A0                                       *
@@ -73,6 +73,7 @@ static String deviceType = "PC";                // PC | PL
 static String statusVar = "OFF";
 static String directionVar = "FF";
 static float sensorPresionVar = 0;
+static float actualPresure = 0;
 static String autoreverseVar = "OFF";
 static String activateAutoreverse = "OFF";
 static String endGunVar = "OFF";
@@ -268,14 +269,16 @@ bool run() {
       isSequrity = controlSeguridad();
       bool isVoltage = controlVoltaje();
       bool isPosition = positionControl();
-      if ((testFunc ? true : isSequrity && isVoltage && isPosition)) {
+      bool isPresure = controlPresion();
+      if ((testFunc ? true : isSequrity && isVoltage && isPosition && isPresure)) {
         digitalWrite(pinActivationTimer, LOW);
         digitalWrite(pinEngGunControl, (endGunVar == "ON") ? (serie == 0 ? LOW : HIGH) : (serie == 0 ? HIGH : LOW));
       } else {
         Serial.print(F("     "));
         Serial.print((!isVoltage) ? F("Voltage") : (!isSequrity) ? F("Sequrity") : (!isPosition) ? F("Position") : F("Unknow"));
         Serial.println(F(" error!"));
-        digitalWrite(pinActivationTimer, HIGH);
+        // digitalWrite(pinActivationTimer, HIGH);
+        apagar();        
         return false;
       }
       delay(500);          
@@ -346,16 +349,13 @@ bool isSequre() {
 bool controlSeguridad() {
   if (!isSequre()) {
     Serial.println(F("     Sequrity error... try again!"));
-    if (!isSequre()) {
-      Serial.println(F("     Sequrity error... try again!"));
-      return isSequre();
-    }
+    delay(500);
+    return isSequre();
   }
   return true;
 }
 
 bool controlSeguridad1() {
-  delay(500);
   return digitalRead(pinSensorSeguridad);
 }
 
@@ -382,11 +382,8 @@ bool controlVoltaje() {
 }
 
 bool controlPresion() {
-  bool result = true;
-  if (sensorPresionVar >= 1) {
-    result = (controlPresionAnalogica() > 1) ? true : false;
-  }
-  return result;
+  actualPresure = controlPresionAnalogica();
+  return (sensorPresionVar == 0) || (sensorPresionVar > 0 && actualPresure >= 1) ? true : false;
 }
 
 float controlPresionAnalogica() {
@@ -605,7 +602,7 @@ String httpRequest() {
   String param4 = "&vo=" + (String)(controlVoltaje() ? "true" : "false");
   String param5 = "&ar=" + activateAutoreverse;
   String param6 = "&sp=" + (String)velocityVar;
-  String param7 = "&pr=" + (String)controlPresionAnalogica();
+  String param7 = "&pr=" + (String)actualPresure;
   String param8 = "&po=" + String(positionVar, 1);
   String param9 = "&la=" + String(lat_actual, 5);
   String param10 = "&lo=" + String(lon_actual, 5);
@@ -678,15 +675,7 @@ void systemWatchDog() {
   wdt_reset();
   pinMode(watchDogPin, OUTPUT);         // Sink current to drain charge from C2
   digitalWrite(watchDogPin, HIGH);
-  delay(50);                           // Give enough time for C2 to discharge (should discharge in 50 ms)     
-  digitalWrite(watchDogPin, LOW);          // Return to high impedance
-}
-
-void systemWatchDog2() {
-  wdt_reset();
-  pinMode(watchDogPin, OUTPUT);         // Sink current to drain charge from C2
-  digitalWrite(watchDogPin, LOW);
-  delay(100);                           // Give enough time for C2 to discharge (should discharge in 50 ms)     
+  delay(50);                            // Give enough time for C2 to discharge (should discharge in 50 ms)     
   pinMode(watchDogPin, INPUT);          // Return to high impedance
 }
 

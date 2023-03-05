@@ -1,7 +1,7 @@
 /****************************************************************************
  *                                                                          * 
  *                    Sistemas DTA Serie Pv66 v0.2.5 A                      *
- *                               2023.01.14                                 *
+ *                               2023.03.04                                 *
  *                                                                          *
  *   Sensores:                                                              *
  *   - Presión 150psi............. A0                                       *
@@ -15,16 +15,16 @@
 #pragma region includes
 
 #include <SoftwareSerial.h>
-#include "analogo.h"
 // #include <EEPROM.h>
 #include <avr/wdt.h>
 #include <TinyGPS.h>
 
+#include "analogo.h"
 #include "config.h"
 // #include "eeprom.h"
 #include "sensores.h"
-#include "comunicaciones.h"
 #include "acciones.h"
+#include "comunicaciones.h"
 
 #pragma endregion includes
 
@@ -78,6 +78,8 @@ void loop() {
   }
   systemWatchDog();
 }
+
+#pragma region Máquina de estados
 
 Estado definirEstado(unsigned long deltaTimer) {
   int posicion = 0;
@@ -158,3 +160,5 @@ bool commAvailability(unsigned long deltaTimer) {
   // Serial.print("commFrec: "); Serial.print(commFrec); Serial.print(" deltaTimer: "); Serial.print(deltaTimer); Serial.print(" Comm: "); Serial.println(result ? "true" : "false");
   // return result;
 }
+
+#pragma endregion Máquina de estados
