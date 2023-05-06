@@ -27,7 +27,8 @@ static bool testFunc = false;
 static bool testComm = false;
 SoftwareSerial gprs(config[0], config[1]);                  // Rx, Tx
 static byte plots = config[2];
-const String telefono = testFunc ? "111111111111" : (String) config[3] + (String) config[4] + (String) config[5];
+// const String telefono = testFunc ? "111111111111" : (String) config[3] + (String) config[4] + (String) config[5];
+const String telefono = "111111111111";
 const String httpServer = "AT+HTTPPARA=\"URL\",\"http://pprsar.com/cosme/commj_v2.php?id=" + telefono;
 // const String httpServer = "AT+HTTPPARA=\"URL\",\"http://dtaamerica.com/ws/commj_v2.php?id=" + telefono;
 
@@ -243,7 +244,12 @@ void comunicaciones() {
   for (byte i = 0; i < plots; i++) {
     aux = parse(data, '"', i + 3);                                  // timeRiego[0..plots]
     if (i == plot) {
-      activationTime = (aux != "") ? aux.toInt() : activationTime;
+      int value = (aux != "") ? aux.toInt() : 0;
+      if (value > 0) {
+        activationTime = value;
+      } else {
+        plot++;
+      }
     }
   }
 }

@@ -720,7 +720,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         .then((confirm) => {
             if (confirm) {
                 $scope.setMachineSettings();
-                $scope.apply();
+                $scope.$apply();
                 swal("Plan de riego actualizado correctamente!", {
                     icon: "success",
                 });

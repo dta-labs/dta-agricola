@@ -1,8 +1,8 @@
 #pragma region Comunicaciones
 
 String parse(String dataString, char separator, int index) {
-  int found = 0;
-  int strIndex[] = {0, -1};
+  byte found = 0;
+  byte strIndex[] = {0, -1};
   int maxIndex = dataString.length()-1;
   for(int i = 0; i <= maxIndex && found <= index; i++) {
     if(dataString.charAt(i) == separator || i == maxIndex) {
@@ -51,9 +51,9 @@ void commWatchDogReset(int signalValue) {
 }
 
 void testComunicaciones() {
-  gprs.println(F("AT+IPR=9600"));      // Velocidad en baudios?
+  gprs.println(F("AT+IPR=9600"));
   getResponse(15, testComm); 
-  gprs.println(F("AT"));               // Tarjeta SIM Lista? OK
+  gprs.println(F("AT"));
   getResponse(15, testComm); 
   // gprs.println(F("AT+CGMI"));          // Fabricante del dispositivo?
   // getResponse(15, testComm); 
@@ -86,9 +86,10 @@ void testComunicaciones() {
 }
 
 void setupGSM() {
+  Serial.println(F("> Setup GSM"));
+  gprs.listen();
   if (restartGSM) {
-    Serial.println(F("Setup GSM"));
-    gprs.listen();
+    gprs.end();
     gprs.begin(9600);
     if (testComm) { testComunicaciones(); }
     // gprs.println(F("AT+CBAND=ALL_BAND"));		// PGSM_MODE, DCS_MODE, PCS_MODE, EGSM_DCS_MODE, GSM850_PCS_MODE, ALL_BAND
@@ -126,14 +127,13 @@ String httpRequest() {
   String param12 = "&rx=" + (String)(commRx ? "Ok" : "Er");
   signalVar = getSignalValue();
   String param13 = "&si=" + (String)signalVar + "\"";
-  // Serial.println(httpServer + param1 + param2 + param3 + param4 + param5 + param6 + param7 + param8 + param9 + param10 + param11 + param12 + param13);
   gprs.println(F("AT+HTTPINIT"));
   getResponse(15, false); 
   gprs.println(httpServer + param1 + param2 + param3 + param4 + param5 + param6 + param7 + param8 + param9 + param10 + param11 + param12 + param13);
   getResponse(25, true); 
   systemWatchDog();
   gprs.println(F("AT+HTTPACTION=0"));
-  String result = getResponse(6000, true); 
+  String result = getResponse(3000, false); 
   systemWatchDog();
   restartGSM = (result == "" || result.indexOf("ERROR") != -1 || result.indexOf("601") != -1  || result.indexOf("604") != -1 || signalVar < 6) ? true : false;
   gprs.println(F("AT+HTTPREAD"));
@@ -148,7 +148,7 @@ String httpRequest() {
 void setVariables(String data) {
   Serial.print(F("data: "));
   Serial.println(data);
-  int idx = data.indexOf('"');
+  byte idx = data.indexOf('"');
   String aux = data.substring(idx + 1, data.indexOf('"', idx + 1));
   statusVar = (aux == "ON" || aux == "OFF") ? aux : statusVar;                                  // > status
   idx = data.indexOf('"', idx + 1);
@@ -173,18 +173,17 @@ void setVariables(String data) {
   aux = data.substring(idx + 1, data.indexOf('"', idx + 1));
   int bindsNo = (aux != "") ? aux.toInt() : 0;                                                  // > bins
   if (bindsNo > 0) {
-    binsVar = data.substring(idx + 1);
     for (int i = 0; i < bindsNo; i++) {
       idx = data.indexOf('"', idx + 1);
       positionIni = (data.substring(idx + 1, data.indexOf('"', idx + 1))).toInt();              // inicio
       idx = data.indexOf('"', idx + 1);
       positionEnd = (data.substring(idx + 1, data.indexOf('"', idx + 1))).toInt();              // fin
       idx = data.indexOf('"', idx + 1);
-      int bindVel = (data.substring(idx + 1, data.indexOf('"', idx + 1))).toInt();              // velocidad
+      byte bindVel = (data.substring(idx + 1, data.indexOf('"', idx + 1))).toInt();             // velocidad
       idx = data.indexOf('"', idx + 1);
       String bindEndGun = (data.substring(idx + 1, data.indexOf('"', idx + 1)));                // end gun
       if (positionIni <= positionVar && positionVar < positionEnd) {
-        Serial.print(F("Pos: ")); Serial.print(positionIni); Serial.print(F(",")); Serial.print(positionEnd);  Serial.print(F(" "));  Serial.print(positionVar); 
+        // Serial.print(F("\nPos: ")); Serial.print(positionIni); Serial.print(F(",")); Serial.print(positionEnd);  Serial.print(F(" "));  Serial.println(positionVar); 
         velocityVar = (bindVel > 100) ? 100 : (bindVel < 0) ? 0 : bindVel;
         endGunVar = (bindEndGun == "T") ? "ON" : "OFF";
         break;
@@ -194,18 +193,16 @@ void setVariables(String data) {
 }
 
 void comunicaciones() {
-  Serial.println(F("Server communication"));
+  Serial.println(F("> Server communication"));
   String data = httpRequest();                                                       // Get Settings from HTTP
   data = data.substring(data.indexOf('"'), data.indexOf("OK"));
   if (testFunc) {                                                                    // Para test
-    data = (testData) ? "\"ON\"FF\"0\"OFF\"30.73081\"-107.86308\"PC\"1\"0\"360\"50\"F\"" : "\"ON\"RR\"0\"OFF\"30.73081\"-107.86308\"PC\"1\"0\"360\"50\"F\"";
+    data = (testData) ? F("\"ON\"FF\"0\"OFF\"30.73081\"-107.86308\"PC\"1\"0\"360\"50\"F\"") : F("\"ON\"RR\"0\"OFF\"30.73081\"-107.86308\"PC\"1\"0\"360\"50\"F\"");
     commError = 0;
     testData = testData == true ? false : true;
   }
-  // data = data != "" ? data : eeVar.data;
   if (data != "" && (data.indexOf("ON") != -1 || data.indexOf("OFF") != -1)) {
     setVariables(data);
-    // updateEEPROM();
   } else {
     commRx = (data != "") ? true : false;
     Serial.print(F("lat_central: ")); Serial.print(lat_central, 2); Serial.print(F(" lon_central: ")); Serial.println(lon_central, 2);

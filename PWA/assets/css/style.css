@@ -159,6 +159,13 @@ body {
   display: inline-block;
 }
 
+.spinner {
+  position: fixed !important;
+  top: 0px !important;
+  left: 0px !important;
+  z-index: 100000 !important;
+}
+
 /* #region menues */
 
 .img-logo {

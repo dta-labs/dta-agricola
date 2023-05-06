@@ -126,9 +126,9 @@ void testComunicaciones() {
   getResponse(15, true, "AT+SAPBR=2,1"); 
   gprs.println(F("AT+HTTPINIT"));
   getResponse(15, true, "AT+HTTPINIT"); 
-  gprs.println(F("http://pprsar.com/cosme/commj_v2.php?id=111111111111&st=OFF&tm=0&po=0&rx=Er&si=19"));
-  // gprs.println(F("http://dtaamerica.com/ws/commj_v2.php?id=111111111111&st=OFF&tm=0&po=0&rx=Er&si=19"));
-  getResponse(25, true, "http://pprsar.com/cosme/commj_v2.php?id=111111111111&st=OFF&tm=0&po=0&rx=Er&si=19"); 
+  gprs.println(F("http://pprsar.com/cosme/commj_v2.php?id=000000000000&st=OFF&tm=0&po=0&rx=Er&si=19"));
+  // gprs.println(F("http://dtaamerica.com/ws/commj_v2.php?id=000000000000&st=OFF&tm=0&po=0&rx=Er&si=19"));
+  getResponse(25, true, "http://pprsar.com/cosme/commj_v2.php?id=000000000000&st=OFF&tm=0&po=0&rx=Er&si=19"); 
   gprs.println(F("AT+HTTPACTION=0"));
   getResponse(4000, true, "AT+HTTPACTION=0"); 
   gprs.println(F("AT+HTTPREAD"));

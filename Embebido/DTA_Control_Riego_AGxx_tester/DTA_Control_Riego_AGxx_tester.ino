@@ -34,19 +34,27 @@ void loop() {
   testActuadores();
   testSensores();
   testComunicaciones();
-  testWatchdog();
+  // testWatchdog();
 }
 
 void testActuadores() {
   delay(3000);
+  actuadiresOff();
   Serial.println(F("» Actuadores (Salidas x 8):"));
   for (byte i = 0; i < plots; i++) {
     byte idx = i + 1;
     Serial.print(F("  ~ Actuador : ")); Serial.println(idx);
     digitalWrite(i + offSet, LOW);
-    delay(500);
+    delay(2000);
   }
   Serial.println();
+}
+
+void actuadiresOff() {
+  for (byte i = 0; i < plots; i++) {
+    byte idx = i + 1;
+    digitalWrite(i + offSet, HIGH);
+  }
 }
 
 void testSensores() {

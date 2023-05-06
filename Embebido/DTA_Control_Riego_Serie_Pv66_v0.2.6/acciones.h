@@ -8,29 +8,30 @@ void systemWatchDog() {
   pinMode(watchDogPin, INPUT);          // Return to high impedance
 }
 
-void setActivationTimer() {
+void setActivationTimers() {
   activationTimer = 600 * velocityVar;      // 60000 * velocityVar / 100;
   unsigned int dif = 60000 - activationTimer;
   deactivationTimer = velocityVar == 100 ? 0 : dif > 0 ? dif : 10;
 }
 
 void showVars() {
-  Serial.print(F("> Type: "));
-  Serial.println(deviceType == "PC" ? "Central Pivot" : deviceType == "PC" ? "Lineal Pivot" : "Other");
-  Serial.print(F("> Status: ")); Serial.println(statusVar);
-  Serial.print(F("> Direction: ")); Serial.println(directionVar);
-  Serial.print(F("> Auto Reverse: ")); Serial.println(autoreverseVar);
-  Serial.print(F("> Position: ")); Serial.print((String)positionVar); Serial.println(F("°"));
-  Serial.print(F("> End Gun: ")); Serial.println((String)endGunVar);
-  Serial.print(F("> Velocity: ")); Serial.print((String)velocityVar); Serial.println(F("%"));
-  Serial.print(F("  ~ ON: ")); Serial.print((String)activationTimer); Serial.println(F("ms"));
-  Serial.print(F("  ~ OFF: ")); Serial.print((String)deactivationTimer); Serial.println(F("ms"));
+  Serial.print(F("\n> Setting vars: "));
+  Serial.print(F("\n  ~ Type: "));
+  Serial.println(deviceType == "PC" ? F("Central Pivot") : deviceType == "PC" ? F("Lineal Pivot") : F("Other"));
+  Serial.print(F("  ~ Status: ")); Serial.println(statusVar);
+  Serial.print(F("  ~ Direction: ")); Serial.println(directionVar);
+  Serial.print(F("  ~ Auto Reverse: ")); Serial.println(autoreverseVar);
+  Serial.print(F("  ~ Position: ")); Serial.print((String)positionVar); Serial.println(F("°"));
+  Serial.print(F("  ~ End Gun: ")); Serial.println((String)endGunVar);
+  Serial.print(F("  ~ Velocity: ")); Serial.print((String)velocityVar); Serial.println(F("%"));
+  Serial.print(F("    . ON: ")); Serial.print((String)activationTimer); Serial.println(F("ms"));
+  Serial.print(F("    . OFF: ")); Serial.print((String)deactivationTimer); Serial.println(F("ms"));
 }
 
-void waitFor(int time) {
+void waitFor(int seconds) {
   unsigned long initialTimer = millis();
-  time *= 100;
-  while (millis() - initialTimer < time) {
+  seconds *= 1000;
+  while (millis() - initialTimer < seconds) {
     delay(100);
     systemWatchDog();
   }
@@ -42,6 +43,8 @@ void apagar() {
   digitalWrite(pinMotorRR, HIGH);                                 // Apagado
   digitalWrite(pinActivationTimer, HIGH);                         // Apagado
   statusVar = "OFF";
+  activationTimer = 0;
+  deactivationTimer = 60000;
 }
 
 void setDirection() {

@@ -1,6 +1,7 @@
 Razón social: Miriam Esther Echemendía Naranjo
 Dirección: Calle 5A No. 501, Cuauhtémoc, Chihuahua, 31500
 RFC: EENM740609SG2
-Régimen de Incorporación Fiscal
+Régimen: 621 - Incorporación Fiscal
 Uso del CDFi: Gastos en general
 Email: mechemendianaranjo@gmail.com
+Forma de pago: Tarjeta de Crédito

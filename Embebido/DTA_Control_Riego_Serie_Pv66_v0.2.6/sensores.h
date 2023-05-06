@@ -7,7 +7,7 @@ bool controlSeguridad1() {
 }
 
 bool controlSeguridad2() {
-  float Sensibilidad = 0.185;
+  int Sensibilidad = 185;       // 0.185
   float voltajeSensor;
   float corriente = 0;
   float Imax = 0;
@@ -15,7 +15,7 @@ bool controlSeguridad2() {
   long tiempo = millis();
   while (millis() - tiempo < 500) {
     voltajeSensor = analogRead(A1) * (5.0 / 1023.0);
-    corriente = 0.9 * corriente + 0.1 * ((voltajeSensor - 2.5) / Sensibilidad);
+    corriente = 0.9 * corriente + 0.1 * ((voltajeSensor - 2.5) / (Sensibilidad / 100));
     if (corriente > Imax) { Imax = corriente; }
     if (corriente < Imin) { Imin = corriente; }
   }
@@ -53,15 +53,15 @@ bool controlVoltaje() {
 float controlPresionAnalogica() {
   float presionActual = 0.0f;
   for (int i = 0; i < 3; i++) {
-    float pAnalog = presion.getAnalogValue();
-    float temp = presion.fmap(pAnalog, 100, 1023, 0.0, sensorPresionVar);
+    float pAnalog = analogRead(A0);
+    float temp = map(pAnalog, 100, 1023, 0.0, sensorPresionVar);
     // float temp = presion.fmap(pAnalog, 0, 1023, 0.0, sensorPresionVar) - 1.25;
     // temp = (temp + 0.4018) / 0.7373;
     presionActual += temp > 0 ? temp : 0;
     delay(10);
   }
   presionActual = presionActual / 3;
-  Serial.print(F("PresionF: "));
+  Serial.print(F("  ~ PresionF: "));
   Serial.println((String)presionActual);
   return presionActual;
 }
@@ -77,7 +77,6 @@ bool controlPresion() {
 
 bool parseGPSData() {
   bool newData = false;
-  ssGPS.listen();
   // Se parsean por un segundo los datos del GPS y se reportan algunos valores clave
   for (unsigned long start = millis(); millis() - start < 1000;) {
     while (ssGPS.available()) {
@@ -95,7 +94,7 @@ void checkGPSConnection() {
   unsigned short sentences, failed;
   gps.stats(&chars, &sentences, &failed);
   if (chars == 0) {
-    Serial.println("Problema de conectividad con el GPS: revise el cableado");
+    Serial.println(F("Problema de conectividad con el GPS: revise el cableado"));
   }
 }
 
@@ -118,8 +117,6 @@ float printGPSData(float flat, float flon, float azimut, int errorGPS) {
 float getPosition() {
   float azimut = positionVar;
   bool newData = parseGPSData();
-  lat_central = (lat_central == 0) ? eeVar.lat_central : lat_central;
-  lon_central = (lon_central == 0) ? eeVar.lon_central : lon_central;
   if (newData) {
     unsigned long age;
     gps.f_get_position(&lat_actual, &lon_actual, &age);
@@ -133,21 +130,25 @@ float getPosition() {
 
 bool positionControl() {
   // return true; 
+  ssGPS.begin(9600);
+  ssGPS.listen();
   positionVar = getPosition();
   if (lat_actual == 0.0f && lon_actual == 0.0f) {                     // Control de apagado
     statusVar = "OFF";
     return false;
   }
+  ssGPS.end();
   return (positionIni <= positionVar && positionVar < positionEnd) ? true : false;
 }
 
 #pragma endregion <<Posición>>
 
-void getSensors() {
+bool getSensors() {
   isVoltage = controlVoltaje();
   isPresure = controlPresion(); 
   isPosition = positionControl();
   isSequrity = controlSeguridad();
+  return isVoltage && isSequrity && isPresure && isPosition;
 }
 
 #pragma endregion Sensores
