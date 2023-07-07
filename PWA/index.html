@@ -761,7 +761,7 @@
                                         </div>
                                         <div class="row" style="margin-bottom: 0;" 
                                             ng-show="actualSystem.type == 'Estacionario'">
-                                            <div class="bordered col s4 m10 row"
+                                            <div class="bordered col s4 m10 row" ng-click="as_config = !as_config"
                                                 style="border-bottom: 1px solid grey; margin-bottom: 15px;">
                                                 <div class="col s12 m2 center-align"><i class="material-icons">alarm</i></div>
                                                 <div class="col s12 m10 center-align">
@@ -773,7 +773,7 @@
                                                 style="border-bottom: 1px solid grey; margin-bottom: 15px;">
                                                 <div class="col s12 m2 center-align"><i class="material-icons">map</i></div>
                                                 <div class="col s12 m10 center-align">
-                                                    <b>{{ actualSystem.log.plot ? actualSystem.log.plot : '0' }}</b>
+                                                    <b>{{ actualSystem.log.plot ? strToInt(actualSystem.log.plot) + 1 : '0' }}</b>
                                                 </div>
                                             </div>
                                             <div class="bordered col s2 m10 row"
@@ -931,82 +931,112 @@
                                                 <thead>
                                                     <tr>
                                                         <th width="5%">#</th>
-                                                        <th width="35%">Polígono</th>
+                                                        <th width="15%">Polígono</th>
                                                         <th width="20%">Días</th>
                                                         <th width="20%">Horas</th>
                                                         <th width="20%">Min</th>
+                                                        <th width="20%">Válvula</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     <tr class="modal-trigger" href="#modalEditRiegoEstacionario"
                                                         ng-click="setEditPlanEstacionario('p0')">
                                                         <td width="5%">1</td>
-                                                        <td width="35%">{{ actualSystem.plots.p0.poligon ? "Ver más..." : "No
-                                                            definido" }}</td>
+                                                        <td width="15%">
+                                                            <i class="material-icons">
+                                                                {{ actualSystem.plots.p0.poligon ? "map" : "location_off" }}
+                                                            </i>
+                                                        </td>
                                                         <td width="20%">{{ getDayFromMs(actualSystem.plots.p0.value) }}</td>
                                                         <td width="20%">{{ getHourFromMs(actualSystem.plots.p0.value) }}
                                                         <td width="20%">{{ getMinutesFromMs(actualSystem.plots.p0.value) }}</td>
+                                                        <td width="20%">{{ actualSystem.plots.p0.valvle == "F" ? "Fijo" : "Pulso" }}</td>
                                                     </tr>
                                                     <tr class="modal-trigger" href="#modalEditRiegoEstacionario"
                                                         ng-click="setEditPlanEstacionario('p1')">
                                                         <td width="5%">2</td>
-                                                        <td width="35%">{{ actualSystem.plots.p1.poligon ? "Ver más..." : "No
-                                                            definido" }}</td>
+                                                        <td width="15%">
+                                                            <i class="material-icons">
+                                                                {{ actualSystem.plots.p1.poligon ? "map" : "location_off" }}
+                                                            </i>
+                                                        </td>
                                                         <td width="20%">{{ getDayFromMs(actualSystem.plots.p1.value) }}</td>
                                                         <td width="20%">{{ getHourFromMs(actualSystem.plots.p1.value) }}
                                                         <td width="20%">{{ getMinutesFromMs(actualSystem.plots.p1.value) }}</td>
+                                                        <td width="20%">{{ actualSystem.plots.p1.valvle == "F" ? "Fijo" : "Pulso" }}</td>
                                                     </tr>
                                                     <tr class="modal-trigger" href="#modalEditRiegoEstacionario"
                                                         ng-click="setEditPlanEstacionario('p2')">
                                                         <td width="5%">3</td>
-                                                        <td width="35%">{{ actualSystem.plots.p2.poligon ? "Ver más..." : "No
-                                                            definido" }}</td>
+                                                        <td width="15%">
+                                                            <i class="material-icons">
+                                                                {{ actualSystem.plots.p2.poligon ? "map" : "location_off" }}
+                                                            </i>
+                                                        </td>
                                                         <td width="20%">{{ getDayFromMs(actualSystem.plots.p2.value) }}</td>
                                                         <td width="20%">{{ getHourFromMs(actualSystem.plots.p2.value) }}
                                                         <td width="20%">{{ getMinutesFromMs(actualSystem.plots.p2.value) }}</td>
+                                                        <td width="20%">{{ actualSystem.plots.p2.valvle == "F" ? "Fijo" : "Pulso" }}</td>
                                                     </tr>
+                                                    
                                                     <tr class="modal-trigger" href="#modalEditRiegoEstacionario"
-                                                        ng-show="actualSystem.length == '8'"
+                                                        ng-if="actualSystem.length >= '7'"
                                                         ng-click="setEditPlanEstacionario('p3')">
                                                         <td width="5%">4</td>
-                                                        <td width="35%">{{ actualSystem.plots.p3.poligon ? "Ver más..." : "No
-                                                            definido" }}</td>
+                                                        <td width="15%">
+                                                            <i class="material-icons">
+                                                                {{ actualSystem.plots.p3.poligon ? "map" : "location_off" }}
+                                                            </i>
+                                                        </td>
                                                         <td width="20%">{{ getDayFromMs(actualSystem.plots.p3.value) }}</td>
                                                         <td width="20%">{{ getHourFromMs(actualSystem.plots.p3.value) }}
                                                         <td width="20%">{{ getMinutesFromMs(actualSystem.plots.p3.value) }}</td>
+                                                        <td width="20%">{{ actualSystem.plots.p3.valvle == "F" ? "Fijo" : "Pulso" }}</td>
                                                     </tr>
                                                     <tr class="modal-trigger" href="#modalEditRiegoEstacionario"
-                                                        ng-show="actualSystem.length == '8'"
+                                                        ng-if="actualSystem.length >= '7'"
                                                         ng-click="setEditPlanEstacionario('p4')">
                                                         <td width="5%">5</td>
-                                                        <td width="35%">{{ actualSystem.plots.p4.poligon ? "Ver más..." : "No
-                                                            definido" }}</td>
+                                                        <td width="15%">
+                                                            <i class="material-icons">
+                                                                {{ actualSystem.plots.p4.poligon ? "map" : "location_off" }}
+                                                            </i>
+                                                        </td>
                                                         <td width="20%">{{ getDayFromMs(actualSystem.plots.p4.value) }}</td>
                                                         <td width="20%">{{ getHourFromMs(actualSystem.plots.p4.value) }}
                                                         <td width="20%">{{ getMinutesFromMs(actualSystem.plots.p4.value) }}</td>
+                                                        <td width="20%">{{ actualSystem.plots.p4.valvle == "F" ? "Fijo" : "Pulso" }}</td>
                                                     </tr>
                                                     <tr class="modal-trigger" href="#modalEditRiegoEstacionario"
-                                                        ng-show="actualSystem.length == '8'"
+                                                        ng-if="actualSystem.length >= '7'"
                                                         ng-click="setEditPlanEstacionario('p5')">
                                                         <td width="5%">6</td>
-                                                        <td width="35%">{{ actualSystem.plots.p5.poligon ? "Ver más..." : "No
-                                                            definido" }}</td>
+                                                        <td width="15%">
+                                                            <i class="material-icons">
+                                                                {{ actualSystem.plots.p5.poligon ? "map" : "location_off" }}
+                                                            </i>
+                                                        </td>
                                                         <td width="20%">{{ getDayFromMs(actualSystem.plots.p5.value) }}</td>
                                                         <td width="20%">{{ getHourFromMs(actualSystem.plots.p5.value) }}
                                                         <td width="20%">{{ getMinutesFromMs(actualSystem.plots.p5.value) }}</td>
+                                                        <td width="20%">{{ actualSystem.plots.p5.valvle == "F" ? "Fijo" : "Pulso" }}</td>
                                                     </tr>
                                                     <tr class="modal-trigger" href="#modalEditRiegoEstacionario"
-                                                        ng-show="actualSystem.length == '8'"
+                                                        ng-if="actualSystem.length >= '7'"
                                                         ng-click="setEditPlanEstacionario('p6')">
                                                         <td width="5%">7</td>
-                                                        <td width="35%">{{ actualSystem.plots.p6.poligon ? "Ver más..." : "No
-                                                            definido" }}</td>
+                                                        <td width="15%">
+                                                            <i class="material-icons">
+                                                                {{ actualSystem.plots.p6.poligon ? "map" : "location_off" }}
+                                                            </i>
+                                                        </td>
                                                         <td width="20%">{{ getDayFromMs(actualSystem.plots.p6.value) }}</td>
                                                         <td width="20%">{{ getHourFromMs(actualSystem.plots.p6.value) }}
                                                         <td width="20%">{{ getMinutesFromMs(actualSystem.plots.p6.value) }}</td>
+                                                        <td width="20%">{{ actualSystem.plots.p6.valvle == "F" ? "Fijo" : "Pulso" }}</td>
                                                     </tr>
                                                     <tr>
-                                                        <td colspan="5" class="right-align">
+                                                        <td colspan="6" class="right-align">
                                                             <div class="switch">
                                                                 Cíclico
                                                                 <label>
@@ -1326,7 +1356,7 @@
                                                         <b>{{ reg.state == 'ON' && reg.voltage == 'false' ? 'Falla de Electricidad' : 
                                                             reg.state == 'ON' && reg.safety == 'false' ? 'Falla de Seguridad' : 
                                                             reg.state == 'ON' ? 'Sistema Encendido' : 'Sistema Apagado' }}</b><br>
-                                                        <span style="font-size: .75em;">[{{ reg.date }} - {{ reg.update }}]</span> <br>
+                                                        <span style="font-size: .7em;">[{{ reg.date }} - {{ reg.update }}]</span> <br>
                                                         <i class="fa fa-undo" style="font-size: .8em; width: 10px;"
                                                             ng-show="reg.direction == 'RR'"></i>
                                                         <i class="fa fa-repeat" style="font-size: .8em; width: 10px;"
@@ -1350,32 +1380,26 @@
                                                     ng-show="actualSystem.type == 'Estacionario'"
                                                     style="background: {{ reg.state == 'ON' ? 'lightseagreen !important' : 'lightgray !important' }}; color: {{ reg.state == 'ON' ? 'white' : 'black' }};">
                                                     <div class="col 12">
-                                                        <span style="font-size: .75em;">[{{ reg.date }} - {{ reg.update }}] - {{ reg.state == "ON" ? "Encendido" : "Apagado" }}</span><br>
-                                                        <span style="font-size: .8em;">
-                                                            <!-- <i class="material-icons" style="font-size: .9em;">near_me</i> -->
-                                                            Parcela: {{ reg.plot }} -> {{ msToTime(reg.activationTime) }}
-                                                        </span><br>
-                                                        <span style="font-size: .8em;">
-                                                            <i class="fa fa-tint" aria-hidden="true" style="width: 25px;"></i>
-                                                            {{ reg.presion < 1 ? "Presión Baja" : "Presión Normal" }}
-                                                        </span>
+                                                        <span style="font-size: .9em;"><b>{{ reg.state == "ON" ? "Sistema Encendido" : "Sistema Apagado" }}</b></span><br>
                                                     </div>
                                                 </div>
-                                                <div class="collapsible-body" style="padding: 1rem; font-size: 1.2em;">
-                                                    Estado: <b>{{ reg.state }}</b><br>
-                                                    Fecha inicial: <b>{{ reg.date }}</b><br>
-                                                    Actualización: <b>{{ reg.update }}</b><br>
-                                                    Dirección: <b>{{ reg.direction }}</b><br>
-                                                    Velocidad: <b>{{ reg.speed }}</b><br>
-                                                    Latitud: <b>{{ reg.latitude }}</b><br>
-                                                    Longitud: <b>{{ reg.longitude }}</b><br>
-                                                    Posición: <b>{{ reg.position }}</b><br>
-                                                    Presión: <b>{{ reg.presion }}</b><br>
-                                                    Recepción: <b>{{ reg.reception }}</b><br>
-                                                    Autoreversa: <b>{{ reg.autoreverse }}</b><br>
-                                                    Señal: <b>{{ reg.signal }}</b><br>
-                                                    Seguridad: <b>{{ reg.safety }}</b><br>
-                                                    Voltaje: <b>{{ reg.voltage }}</b>
+                                                <div class="collapsible-body" style="padding: 1rem; font-size: 1em;">
+                                                    <p>Fecha inicial: <b>{{ reg.date }}</b></p>
+                                                    <p>Actualización: <b>{{ reg.update }}</b></p>
+                                                    <p ng-show="actualSystem.type == 'Estacionario'">Parcela: <b>{{ strToInt(reg.plot) + 1 }}</b></p>
+                                                    <p ng-show="actualSystem.type == 'Estacionario'">Tiempo activación: <b>{{ msToTime(reg.activationTime) }}</b></p>
+                                                    <p ng-show="actualSystem.type == 'PC'">Presión: <b>{{ reg.presion < 1 ? "Presión Baja" : "Presión Normal" }}</b></p>
+                                                    <p ng-show="actualSystem.type == 'PC'">Dirección: <b>{{ reg.direction }}</b></p>
+                                                    <p ng-show="actualSystem.type == 'PC'">Velocidad: <b>{{ reg.speed }}</b></p>
+                                                    <p ng-show="actualSystem.type == 'PC'">Latitud: <b>{{ reg.latitude }}</b></p>
+                                                    <p ng-show="actualSystem.type == 'PC'">Longitud: <b>{{ reg.longitude }}</b></p>
+                                                    <p ng-show="actualSystem.type == 'PC'">Posición: <b>{{ reg.position }}</b></p>
+                                                    <p ng-show="actualSystem.type == 'PC'">Presión: <b>{{ reg.presion }}</b></p>
+                                                    <p ng-show="actualSystem.type == 'PC'">Recepción: <b>{{ reg.reception }}</b></p>
+                                                    <p ng-show="actualSystem.type == 'PC'">Autoreversa: <b>{{ reg.autoreverse }}</b></p>
+                                                    <p ng-show="actualSystem.type == 'PC'">Seguridad: <b>{{ reg.safety }}</b></p>
+                                                    <p ng-show="actualSystem.type == 'PC'">Voltaje: <b>{{ reg.voltage }}</b></p>
+                                                    <p>Señal: <b>{{ reg.signal }}</b></p>
                                                 </div>
                                             </li>
                                         </ul>
@@ -1587,6 +1611,13 @@
                                 <div class="input-field col s4">
                                     <input id="editMinutes" type="number" placeholder="0" min="0" max="60">
                                     <label>Minutos</label>
+                                </div>
+                                <div class="input-field col s12 m6">
+                                    <select id="editType" class="select">
+                                        <option value="F">Normalmente cerrada</option>
+                                        <option value="P">Activación por pulso</option>
+                                      </select>
+                                    <label>Tipo de electroválvula</label>
                                 </div>
                             </div>
                         </div>

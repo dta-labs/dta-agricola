@@ -17,7 +17,7 @@
 #include <avr/wdt.h>
 #include <TinyGPS.h>
 
-SoftwareSerial gprs(2, 3);              // Rx, Tx: (2, 3) ~ Azul | (3, 2) ~ Rojo
+SoftwareSerial gprs(3, 2);              // Rx, Tx: (2, 3) ~ Azul | (3, 2) ~ Rojo
 TinyGPS gps;
 SoftwareSerial ssGPS(12, 11);           // (12, 11) Tarjetas blancas | (13, 12) Tarjetas amarillas <<viejas>>
 static byte plots = 5;

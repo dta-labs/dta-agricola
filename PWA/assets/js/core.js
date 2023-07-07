@@ -706,6 +706,8 @@ app.controller("ControladorPrincipal", function ($scope) {
         document.getElementById("editDay").value = $scope.getDayFromMs($scope.actualSystem.plots[index].value);
         document.getElementById("editHour").value = $scope.getHourFromMs($scope.actualSystem.plots[index].value);
         document.getElementById("editMinutes").value = $scope.getMinutesFromMs($scope.actualSystem.plots[index].value);
+        document.getElementById("editType").value = $scope.actualSystem.plots[index].valvle;
+        M.FormSelect.init(document.querySelectorAll('.select'));
     }
 
     $scope.editPlanEstacionario = () => {
@@ -751,6 +753,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         let minutes = parseInt(document.getElementById("editMinutes").value) * (1000 * 60);
         let millis = day + hour + minutes;
         $scope.actualSystem.plots[index].value = millis;
+        $scope.actualSystem.plots[index].valvle = document.getElementById("editType").value;
     }
 
     $scope.deleteEditedPlan = () => {
@@ -1144,6 +1147,10 @@ app.controller("ControladorPrincipal", function ($scope) {
     // #endregion Leaflet
 
     // #region SCRIPTS GENERALES
+
+    $scope.strToInt = (data) => {
+        return parseInt(data);
+    };
 
     $scope.getNumber = function(data){
         return parseInt(data.day);

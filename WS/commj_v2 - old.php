@@ -16,12 +16,12 @@
 	$summerHour = $data->summerHour ? $data->summerHour : 0; // Horario de verano
 	$localZone = intval($timeZone) + intval($summerHour);
 	
-	$lectura = "\"" . $data->status . "\"" . $data->autoreverse . "\"" . $data->length . "\"" . $data->position;
+	$lectura = "\"" . $data->status . "\"" . $data->position;
 	for ($i = 0; $i < 7; $i++) {
 		$p = "p" . $i;
 		$lectura .= "\"" . $data->plots->$p->value;
-		$lectura .= "\"" . $data->plots->$p->valvle;
 	}
+	$lectura .=  "\"" . $data->clyclic;
 	$lectura .=  "\"";
 
 	print_r($lectura);
@@ -100,28 +100,7 @@
 		}
 		curl_close($ch);
 
-		// cURL de actualización de posición en Settings
-
-		$url = "https://dta-agricola.firebaseio.com/systems/$id/settings/position.json";
-		// print("URL: " . $url);
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL, $url);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		if ($key) {
-			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
-			// print("PUT");
-		} else {
-			curl_setopt($ch, CURLOPT_POST, 1);
-			// print("POST");
-		}
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $_GET["po"]);
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: text/plain'));
-		$response = curl_exec($ch);
-		if (curl_errno($ch)) {
-			// echo 'Error: '.curl_errno($ch);
-			echo 'Error';
-		}
-		curl_close($ch);
+		// cURL de actualización de Settings
 
 	}
 
