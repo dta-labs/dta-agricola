@@ -978,9 +978,8 @@
                                                         <td width="20%">{{ getMinutesFromMs(actualSystem.plots.p2.value) }}</td>
                                                         <td width="20%">{{ actualSystem.plots.p2.valvle == "F" ? "Fijo" : "Pulso" }}</td>
                                                     </tr>
-                                                    
                                                     <tr class="modal-trigger" href="#modalEditRiegoEstacionario"
-                                                        ng-if="actualSystem.length >= '7'"
+                                                        ng-if="actualSystem.length >= '4'"
                                                         ng-click="setEditPlanEstacionario('p3')">
                                                         <td width="5%">4</td>
                                                         <td width="15%">
@@ -994,7 +993,7 @@
                                                         <td width="20%">{{ actualSystem.plots.p3.valvle == "F" ? "Fijo" : "Pulso" }}</td>
                                                     </tr>
                                                     <tr class="modal-trigger" href="#modalEditRiegoEstacionario"
-                                                        ng-if="actualSystem.length >= '7'"
+                                                        ng-if="actualSystem.length >= '5'"
                                                         ng-click="setEditPlanEstacionario('p4')">
                                                         <td width="5%">5</td>
                                                         <td width="15%">
@@ -1008,7 +1007,7 @@
                                                         <td width="20%">{{ actualSystem.plots.p4.valvle == "F" ? "Fijo" : "Pulso" }}</td>
                                                     </tr>
                                                     <tr class="modal-trigger" href="#modalEditRiegoEstacionario"
-                                                        ng-if="actualSystem.length >= '7'"
+                                                        ng-if="actualSystem.length >= '6'"
                                                         ng-click="setEditPlanEstacionario('p5')">
                                                         <td width="5%">6</td>
                                                         <td width="15%">
@@ -1046,6 +1045,11 @@
                                                                         ng-change="setMachineSettings()">
                                                                     <span class="lever"></span>
                                                                     <span class="redBg"><b>&nbsp;On&nbsp;</b></span>
+                                                                </label>
+                                                                <label for="frecuencia" ng-show="actualSystem.autoreverse">  cada:
+                                                                    <input id="frecuencia" type="number" min="0" max="365" ng-model="actualSystem.frecuencia" 
+                                                                    style="width: 45px;">
+                                                                    <span>días</span>
                                                                 </label>
                                                             </div>
                                                         </td>
