@@ -81,7 +81,7 @@ bool parseGPSData() {
   for (unsigned long start = millis(); millis() - start < 1000;) {
     while (ssGPS.available()) {
       char c = ssGPS.read();
-      // Serial.write(c);   // descomentar para ver el flujo de datos del GPS
+      Serial.write(c);   // descomentar para ver el flujo de datos del GPS
       if (gps.encode(c))  // revisa si se completó una nueva cadena
         newData = true;
     }
@@ -94,7 +94,7 @@ void checkGPSConnection() {
   unsigned short sentences, failed;
   gps.stats(&chars, &sentences, &failed);
   if (chars == 0) {
-    Serial.println(F("Problema de conectividad con el GPS: revise el cableado"));
+    Serial.println(F("  * Problema de conectividad con el GPS: revise el cableado"));
   }
 }
 
