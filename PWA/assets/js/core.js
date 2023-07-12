@@ -15,9 +15,9 @@ var app = angular.module("Administracion", ["ngRoute"]);
 
 app.config(function ($routeProvider) {
     $routeProvider
-        // .when("/", {
-        //     template: "<p ng-init='showListado()' style='display: none;'>listado</p>"
-        // })
+        .when("/", {
+            template: "<p ng-init='showListado()' style='display: none;'>listado</p>"
+        })
         .when("/listado", {
             template: "<p ng-init='showListado()' style='display: none;'>listado</p>"
         })
@@ -32,6 +32,9 @@ app.config(function ($routeProvider) {
         })
         .when("/estadisticas", {
             template: "<p ng-init='showEstadisticas()' style='display: none;'>estadisticas</p>"
+        })
+        .when("/ayuda", {
+            template: "<p ng-init='showAyuda()' style='display: none;'>ayuda</p>"
         })
         .when("/login", {
             template: "<p ng-init='showLogin()' style='display: none;'>servicios</p>"
@@ -79,6 +82,10 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     $scope.showEstadisticas = () => {
         $scope.showWindow('estadisticas');
+    }
+
+    $scope.showAyuda = () => {
+        $scope.showWindow('ayuda');
     }
 
     $scope.showLogin = () => {
@@ -894,48 +901,48 @@ app.controller("ControladorPrincipal", function ($scope) {
     }
 
     addLayers = () => {
-        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-            attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
-        }).addTo(map);
+        // L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        //     attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+        // }).addTo(map);
 
         let Satelite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
             attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
         }).addTo(map);
 
-        let Calles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        });
+        // let Calles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        //     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        // });
 
-        let Calles_Terreno = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}{r}.{ext}', {
-            attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-            subdomains: 'abcd',
-            minZoom: 0,
-            maxZoom: 15,
-            ext: 'png'
-        });
+        // let Calles_Terreno = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}{r}.{ext}', {
+        //     attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        //     subdomains: 'abcd',
+        //     minZoom: 0,
+        //     maxZoom: 15,
+        //     ext: 'png'
+        // });
 
-        let Geologico = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}', {
-            attribution: 'Tiles &copy; Esri &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, iPC',
-            maxZoom: 16
-        });
+        // let Geologico = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}', {
+        //     attribution: 'Tiles &copy; Esri &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, iPC',
+        //     maxZoom: 16
+        // });
 
-        let Flubial = L.tileLayer('http://t{s}.freemap.sk/T/{z}/{x}/{y}.jpeg', {
-            minZoom: 8,
-            maxZoom: 16,
-            subdomains: '1234',
-            bounds: [
-                [47.204642, 15.996093],
-                [49.830896, 22.576904]
-            ],
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, vizualization CC-By-SA 2.0 <a href="http://freemap.sk">Freemap.sk</a>'
-        });
+        // let Flubial = L.tileLayer('http://t{s}.freemap.sk/T/{z}/{x}/{y}.jpeg', {
+        //     minZoom: 8,
+        //     maxZoom: 16,
+        //     subdomains: '1234',
+        //     bounds: [
+        //         [47.204642, 15.996093],
+        //         [49.830896, 22.576904]
+        //     ],
+        //     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, vizualization CC-By-SA 2.0 <a href="http://freemap.sk">Freemap.sk</a>'
+        // });
 
         let baseLayers = {
-            "Calles  ": Calles,
-            "Calles y terreno": Calles_Terreno,
+            // "Calles  ": Calles,
+            // "Calles y terreno": Calles_Terreno,
             "Satélite": Satelite,
-            "Geológico": Geologico,
-            "Flubial": Flubial
+            // "Geológico": Geologico,
+            // "Flubial": Flubial
         }
 
         // L.control.layers(baseLayers).addTo(map);
@@ -1216,6 +1223,23 @@ app.controller("ControladorPrincipal", function ($scope) {
 // #endregion Controlador Angular
 
 // #region Materializes
+
+window.addEventListener('online',  showListado);
+window.addEventListener('offline', showOffLine);
+
+function showListado() {
+    document.getElementById("spinner").style.display = "none";
+    document.getElementById("contenido").style.display = "block";
+    document.getElementById("offline").style.display = "none";
+    console.log(window.navigator.onLine);
+}
+
+function showOffLine() {
+    document.getElementById("spinner").style.display = "none";
+    document.getElementById("contenido").style.display = "none";
+    document.getElementById("offline").style.display = "block";
+    console.log(window.navigator.onLine);
+}
 
 document.addEventListener('DOMContentLoaded', function () {
     M.Modal.init(document.querySelectorAll('.modal'));

@@ -42,7 +42,7 @@
         </div>
     </div>
 
-    <!-- Spinner -->
+    <!-- #region: Spinner -->
 
     <div id="spinner" class="spinner">
         <div style="width: 100%; text-align: center;">
@@ -51,13 +51,27 @@
         </div>
     </div>
 
+    <!-- #endregion: Spinner -->
+
+    <!-- #region: OFFLINE -->
+
+    <section id="offline" style="display: none;">
+        <div class="container valign-wrapper center-align" style="width: 95% !important; height: calc(100vh - 200px) !important;">
+            <span>
+                <img src="./assets/images/offline3.png" alt="offline" style="width: 70%">
+            </span>
+        </div>
+    </section>
+
+    <!-- #endregion: OFFLINE -->
+
     <div id="contenido" style="display: none;">
 
         <div class="row">
 
-            <div class="col s0 m3 l2">
+            <!-- #region: MENU PC -->
 
-                <!-- #region: MENU PC -->
+            <div class="col s0 m3 l2">
                 <div class="left_col show-in-pc-only">
                     <div class="main-menu">
 
@@ -160,17 +174,17 @@
                         <!-- /menu footer buttons -->
                     </div>
                 </div>
-                <!-- #endregion: MENU PC -->
-
             </div>
-
+            
+            <!-- #endregion: MENU PC -->
+            
             <div class="col s12 m8 l10">
 
                 <!-- #region: MENU CELULAR -->
 
                 <header>
 
-                    <!-- Menú Movil-->
+                    <!-- Barra menú inferior Celular -->
                     <div class="show-in-mobil-only row bottom-navbar" ng-show="authUser && selectedWindow == 'sistema'"
                         style="border-radius: 10px 10px 0 0;">
                         <div class="col navbar-option">
@@ -205,6 +219,7 @@
                         </div>
                     </div>
 
+                    <!-- Barra menú inferior PC -->
                     <div class="show-in-pc-only row bottom-navbar systemMenuPC" ng-show="authUser && selectedWindow == 'sistema'">
                         <div class="col navbar-option">
                             <a href="javascript:void(0)" ng-click="actualSystemWindows('as_config')" style="color: black;">
@@ -238,16 +253,18 @@
                         </div>
                     </div>
 
-                    <div class="row bottom-navbar show-in-mobil-only"
+                    <!-- Barra menú inferior Regresar -->
+                    <!-- <div class="show-in-mobil-only row bottom-navbar"
                         ng-show="selectedWindow == 'mapas' || selectedWindow == 'estadisticas' || selectedWindow == 'notificaciones' || selectedWindow == 'ayuda' || selectedWindow == 'usuarios'"
                         ng-click="showWindow('servicios')" style="border-radius: 10px 10px 0 0;">
                         <div class="col s12 center-align" style="font-size: 1.3em; margin-top: 10px;">
                             <i class="fa fa-arrow-left" aria-hidden="true" style="margin-top: 5px;"></i>
                             <span style="margin-top: -4px;">Regresar</span>
                         </div>
-                    </div>
+                    </div> -->
 
-                    <div class="top-navbar show-in-mobil-only">
+                    <!-- Barra menú superior Celular -->
+                    <div class="show-in-mobil-only top-navbar">
                         <div class="row">
                             <div class="col s2" style="margin-left: -15px;">
                                 <img class="img-logo-cel" src="assets/images/DTA.png" alt="DTA-Agricola">
@@ -322,7 +339,7 @@
 
                 </header>
 
-                <!-- #endregion: MENU -->
+                <!-- #endregion: MENU CELULAR -->
 
                 <!-- #region: LISTADO -->
 
@@ -343,9 +360,9 @@
                                         system.log.state == 'OFF' ? '#d3d3d3e0' : system.log.voltage == 'false' ? '#ff0000c0' : 
                                         system.log.safety == 'false' ? '#db7093c0' : system.log.commDelay != '-1' ? '#808080e0' : '#20b2aab0' }};
                                         display: block !important;">
-                                        <!-- <a href="#!sistema" style="color: {{ system.log.state == 'OFF' ? 'grey' : 'white' }};"> -->
-                                        <a ng-click="showWindow('sistema')" style="color: {{ system.log.state == 'OFF' ? 'grey' : 'white' }};">
-                                        <!-- <a href="#!sistema" ng-click="showWindow('sistema')" style="color: {{ system.log.state == 'OFF' ? 'grey' : 'white' }};"> -->
+                                        <!-- <a href="#!/sistema" style="color: {{ system.log.state == 'OFF' ? 'grey' : 'white' }};"> -->
+                                        <!-- <a ng-click="showWindow('sistema')" style="color: {{ system.log.state == 'OFF' ? 'grey' : 'white' }};"> -->
+                                        <a href="#!/sistema" ng-click="showWindow('sistema')" style="color: {{ system.log.state == 'OFF' ? 'grey' : 'white' }};">
                                             <div class="row" style="margin-bottom: 0;">
                                                 <div class="col s3" style="margin-top: 10px;">
                                                     <div class="pivote" ng-show="system.type != 'Estacionario'">
@@ -1718,10 +1735,12 @@
                                     style="display: none;">
                                     <i class="fa fa-bar-chart-o" aria-hidden="true"></i>Estadísiticas (Reportes)
                                 </li>
-                                <li ng-click="showWindow('users')" class="sercices-options teal darken white-text">
+                                <li ng-click="showWindow('users')" class="sercices-options teal darken white-text" 
+                                    style="display: none;">
                                     <i class="fa fa-users" aria-hidden="true"></i>Perfil de usuario
                                 </li>
-                                <li ng-click="showWindow('notificaciones')" class="sercices-options teal darken white-text">
+                                <li ng-click="showWindow('notificaciones')" class="sercices-options teal darken white-text" 
+                                    style="display: none;">
                                     <i class="fa fa-bell-o" aria-hidden="true"></i>Notificaciones
                                 </li>
                                 <li id="installBtn2" onclick="instalar()" class="sercices-options teal darken white-text">
@@ -1730,8 +1749,10 @@
                                 <li ng-click="reload()" class="sercices-options teal darken white-text">
                                     <i class="fa fa-download" aria-hidden="true"></i>Actualizar el sistema
                                 </li>
-                                <li ng-click="showWindow('ayuda')" class="sercices-options teal darken white-text">
-                                    <i class="fa fa-question" aria-hidden="true"></i>Ayuda
+                                <li class="sercices-options teal darken white-text">
+                                    <a href="#!/ayuda" style="color: white; text-decoration: none;">
+                                        <i class="fa fa-question" aria-hidden="true"></i>Ayuda
+                                    </a>
                                 </li>
                             </ul>
                         </div>

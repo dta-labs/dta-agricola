@@ -20,7 +20,7 @@ String fillNumber(int number, byte positions) {
   return result + numberStr;
 }
 
-const int config[] = {0, 3, 2, 12, 11, 0, 0, 0, 0, 0};
+const int config[] = {0, 2, 3, 12, 11, 0, 0, 0, 0, 0};
 const String telefono = fillNumber(config[6], 2) + fillNumber(config[7], 3) + fillNumber(config[8], 3) + fillNumber(config[9], 4);
 const String httpServer = "AT+HTTPPARA=\"URL\",\"http://pprsar.com/cosme/comm_v3.php?id=" + telefono;
 // const String httpServer = "AT+HTTPPARA=\"URL\",\"http://dtaamerica.com/ws/comm_v2.php?id=" + telefono;

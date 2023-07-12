@@ -39,7 +39,7 @@ void setup() {
   Serial.begin(115200);
   Serial.print(F("\n>>> DTA-Agrícola: Serie Pv66 v0.2.6\n"));
   Serial.print(F("    «")); Serial.print(telefono); Serial.print(F("»\n"));
-  wdt_enable(WDTO_8S);
+  // wdt_enable(WDTO_8S);
 }
 
 void loop(){

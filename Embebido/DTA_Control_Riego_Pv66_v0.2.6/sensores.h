@@ -31,7 +31,7 @@ bool isSequre() {
 
 bool controlSeguridad() {
   if (!isSequre()) {
-    Serial.println(F("     Sequrity error... try again!"));
+    Serial.println(F("  * Sequrity error... try again!"));
     delay(500);
     return isSequre();
   }
