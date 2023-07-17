@@ -6,6 +6,9 @@ body {
   background-size: 100% 100%;
   overscroll-behavior: contain;     /* Prevenir la regarga de la página en el navegador */
   overscroll-behavior-y: none;      /* Prevenir la regarga de la página en el navegador */
+  -webkit-user-select: none;        /*Prevenir selección por parte de los usuarios Safari */
+  -ms-user-select: none;            /* Prevenir selección por parte de los usuariosIE 10 and IE 11 */
+  user-select: none;                /* Prevenir selección por parte de los usuariosStandard syntax */
 }
 
 #control_de_riego {

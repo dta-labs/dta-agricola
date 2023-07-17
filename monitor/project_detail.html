@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="Verport" content="width=device-width, initial-scale=1">
+
+    <title>DTA - Agrícola</title>
+
+    <!-- Bootstrap core CSS -->
+
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <link href="fonts/css/font-awesome.min.css" rel="stylesheet">
+    <link href="css/animate.min.css" rel="stylesheet">
+
+    <!-- Custom styling plus plugins -->
+    <link href="css/custom.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="css/maps/jquery-jvectormap-2.0.1.css" />
+    <link href="css/icheck/flat/green.css" rel="stylesheet" />
+    <link href="css/floatexamples.css" rel="stylesheet" type="text/css" />
+
+    <link rel="stylesheet" href="js/leaflet/leaflet.css">
+    <link rel="stylesheet" href="css/dta-styles.css">
+
+    <script src="js/jquery.min.js"></script>
+
+    <!--[if lt IE 9]>
+        <script src="../assets/js/ie8-responsive-file-warning.js"></script>
+        <![endif]-->
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+          <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+          <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+</head>
+
+<body class="nav-md">
+
+    <div class="container body">
+
+        <div class="main_container">
+
+            <div class="left_col">
+                <div class="left_col scroll-Ver main-menu">
+
+                    <div class="navbar nav_title" style="border: 0;">
+                        <a href="index.html" class="site_title"><img src="images/DTA-Agricola.png" class="img-menu-logo"
+                                alt="DTA-Agricola"> <span>DTA - Agrícola</span></a>
+                    </div>
+                    <div class="clearfix"></div>
+
+                    <br />
+
+                    <!-- sidebar menu -->
+                    <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
+
+                        <div class="menu_section">
+                            <h3>General</h3>
+                            <ul class="nav side-menu">
+                                <li><a href="index.html"><i class="fa fa-home"></i> Panel central </a></li>
+                                <li><a href="projects.html"><i class="fa fa-edit"></i> Proyectos </a></li>
+                                <li><a href="profile.html"><i class="fa fa-user"></i> Productores </a></li>
+                            </ul>
+                        </div>
+
+                    </div>
+                    <!-- /sidebar menu -->
+
+                    <!-- /menu footer buttons -->
+                    <div class="sidebar-footer hidden-small">
+                        <a data-toggle="tooltip" data-placement="top" title="Settings">
+                            <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
+                        </a>
+                        <a data-toggle="tooltip" data-placement="top" title="FullScreen">
+                            <span class="glyphicon glyphicon-fullscreen" aria-hidden="true"></span>
+                        </a>
+                        <a data-toggle="tooltip" data-placement="top" title="Lock">
+                            <span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span>
+                        </a>
+                        <a data-toggle="tooltip" data-placement="top" title="Logout">
+                            <span class="glyphicon glyphicon-off" aria-hidden="true"></span>
+                        </a>
+                    </div>
+                    <!-- /menu footer buttons -->
+                </div>
+            </div>
+
+            <!-- top navigation -->
+            <div class="top_nav">
+
+                <div class="nav_menu">
+                    <nav class="" role="navigation">
+                        <div class="nav toggle">
+                            <a id="menu_toggle"><i class="fa fa-bars"></i></a>
+                        </div>
+
+                        <ul class="nav navbar-nav navbar-right">
+                            <li class="">
+                                <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown"
+                                    aria-expanded="false">
+                                    <img src="images/img.jpg" alt="">Cosme Santiesteban
+                                    <span class=" fa fa-angle-down"></span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-usermenu animated fadeInDown pull-right">
+                                    <li><a href="javascript:;"> Perfil</a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:;">
+                                            <span class="badge bg-red pull-right">50%</span>
+                                            <span>Configuraciones</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:;">Ayuda</a>
+                                    </li>
+                                    <li><a href="login.html"><i class="fa fa-sign-out pull-right"></i> Salir</a>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+
+            </div>
+            <!-- /top navigation -->
+
+            <!-- page content -->
+            <div class="right_col" role="main">
+
+                <div class="">
+                    <div class="page-title">
+                        <div class="title_left">
+                            <h3>Detalles de la parcela <small> </small></h3>
+                        </div>
+
+                        <div class="title_right">
+                            <div class="col-md-5 col-sm-5 col-xs-12 form-group pull-right top_search">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="Buscar...">
+                                    <span class="input-group-btn">
+                            <button class="btn btn-default" type="button">Ir!</button>
+                        </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="x_panel">
+                                <div class="x_title">
+                                    <h2>Lote 2<small> Inicio: 01.05.2020</small></h2>
+                                    <ul class="nav navbar-right panel_toolbox">
+                                        <li><a href="#"><i class="fa fa-chevron-up"></i></a>
+                                        </li>
+                                        <li><a href="#"><i class="fa fa-close"></i></a>
+                                        </li>
+                                    </ul>
+                                    <div class="clearfix"></div>
+                                </div>
+
+                                <div class="x_content">
+
+                                    <div class="col-md-9 col-sm-9 col-xs-12">
+
+                                        <ul class="stats-overVer">
+                                            <li>
+                                                <span class="name"> Presupuesto estimado </span>
+                                                <span class="value text-success"> 2300 </span>
+                                            </li>
+                                            <li>
+                                                <span class="name"> Presupuesto empleado </span>
+                                                <span class="value text-success"> 2000 </span>
+                                            </li>
+                                            <li class="hidden-phone">
+                                                <span class="name"> Tiempo activo </span>
+                                                <span class="value text-success"> 20 </span>
+                                            </li>
+                                        </ul>
+                                        <br />
+
+                                        <div id="mainb" style="height:350px;"></div>
+
+                                    </div>
+
+                                    <!-- start project-detail sidebar -->
+                                    <div class="col-md-3 col-sm-3 col-xs-12">
+
+                                        <section class="panel">
+
+                                            <div class="x_title">
+                                                <h2>Descripción del proyecto</h2>
+                                                <div class="clearfix"></div>
+                                            </div>
+                                            <div class="panel-body">
+                                                <h3 class="green">Krahn - Janos</h3>
+
+                                                <p>Proyecto financiado por DTA</p>
+                                                <br />
+
+                                                <div class="project_detail">
+                                                    <p class="title">Cliente</p>
+                                                    <p>johan Krahn</p>
+                                                    <p class="title">Sistema de riego</p>
+                                                    <p>Pivote Central</p>
+                                                    <p class="title">Cultivo</p>
+                                                    <p>Maíz</p>
+                                                    <p class="title">Ubicación</p>
+                                                    <p>Colonia Buena Vista, Janos</p>
+                                                    <p class="title">Responsable</p>
+                                                    <p>Idelfonso Jáquez</p>
+                                                    <p class="title">Instalación</p>
+                                                    <p>01.05.2020</p>
+                                                </div>
+
+                                            </div>
+
+                                        </section>
+
+                                    </div>
+                                    <!-- end project-detail sidebar -->
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="clearfix"></div>
+
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <div class="x_panel">
+                            <div class="x_title">
+                                <h2>Table design <small>Custom design</small></h2>
+                                <ul class="nav navbar-right panel_toolbox">
+                                    <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                    </li>
+                                    <li class="dropdown">
+                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                                        <ul class="dropdown-menu" role="menu">
+                                            <li><a href="#">Settings 1</a>
+                                            </li>
+                                            <li><a href="#">Settings 2</a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                    <li><a class="close-link"><i class="fa fa-close"></i></a>
+                                    </li>
+                                </ul>
+                                <div class="clearfix"></div>
+                            </div>
+
+                            <div class="x_content">
+
+                                <p>Add class <code>bulk_action</code> to table for bulk actions options on row select</p>
+
+                                <table class="table table-striped responsive-utilities jambo_table bulk_action">
+                                    <thead>
+                                        <tr class="headings">
+                                            <th>
+                                                <input type="checkbox" id="check-all" class="flat">
+                                            </th>
+                                            <th class="column-title">Fecha </th>
+                                            <th class="column-title">Lote </th>
+                                            <th class="column-title">Pozo  </th>
+                                            <th class="column-title">Presión </th>
+                                            <th class="column-title">Hora </th>
+                                            <th class="column-title">Superficie </th>
+                                            <th class="column-title no-link last"><span class="nobr">Action</span>
+                                            </th>
+                                            <th class="bulk-actions" colspan="7">
+                                                <a class="antoo" style="color:#fff; font-weight:500;">Bulk Actions ( <span class="action-cnt"> </span> ) <i class="fa fa-chevron-down"></i></a>
+                                            </th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        <tr class="even pointer">
+                                            <td class="a-center "><input type="checkbox" class="flat" name="table_records" ></td>
+                                            <td class=" ">121000040</td>
+                                            <td class=" ">May 23, 2014 11:47:56 PM </td>
+                                            <td class=" ">121000210 <i class="success fa fa-long-arrow-up"></i></td>
+                                            <td class=" ">John Blank L</td>
+                                            <td class=" ">Paid</td>
+                                            <td class="a-right a-right ">7.45</td>
+                                            <td class=" last"><a href="#">Ver</a>
+                                                            </td>
+                                        </tr>
+                                        <tr class="odd pointer">
+                                            <td class="a-center ">
+                                                <input type="checkbox" class="flat" name="table_records">
+                                            </td>
+                                            <td class=" ">121000039</td>
+                                            <td class=" ">May 23, 2014 11:30:12 PM</td>
+                                            <td class=" ">121000208 <i class="success fa fa-long-arrow-up"></i>
+                                            </td>
+                                            <td class=" ">John Blank L</td>
+                                            <td class=" ">Paid</td>
+                                            <td class="a-right a-right ">741.20</td>
+                                            <td class=" last"><a href="#">Ver</a>
+                                            </td>
+                                        </tr>
+                                        <tr class="even pointer">
+                                            <td class="a-center ">
+                                                <input type="checkbox" class="flat" name="table_records">
+                                            </td>
+                                            <td class=" ">121000038</td>
+                                            <td class=" ">May 24, 2014 10:55:33 PM</td>
+                                            <td class=" ">121000203 <i class="success fa fa-long-arrow-up"></i>
+                                            </td>
+                                            <td class=" ">Mike Smith</td>
+                                            <td class=" ">Paid</td>
+                                            <td class="a-right a-right ">432.26</td>
+                                            <td class=" last"><a href="#">Ver</a>
+                                            </td>
+                                        </tr>
+                                        <tr class="odd pointer">
+                                            <td class="a-center ">
+                                                <input type="checkbox" class="flat" name="table_records">
+                                            </td>
+                                            <td class=" ">121000037</td>
+                                            <td class=" ">May 24, 2014 10:52:44 PM</td>
+                                            <td class=" ">121000204</td>
+                                            <td class=" ">Mike Smith</td>
+                                            <td class=" ">Paid</td>
+                                            <td class="a-right a-right ">333.21</td>
+                                            <td class=" last"><a href="#">Ver</a>
+                                            </td>
+                                        </tr>
+                                        <tr class="even pointer">
+                                            <td class="a-center ">
+                                                <input type="checkbox" class="flat" name="table_records">
+                                            </td>
+                                            <td class=" ">121000040</td>
+                                            <td class=" ">May 24, 2014 11:47:56 PM </td>
+                                            <td class=" ">121000210</td>
+                                            <td class=" ">John Blank L</td>
+                                            <td class=" ">Paid</td>
+                                            <td class="a-right a-right ">7.45</td>
+                                            <td class=" last"><a href="#">Ver</a>
+                                            </td>
+                                        </tr>
+                                        <tr class="odd pointer">
+                                            <td class="a-center ">
+                                                <input type="checkbox" class="flat" name="table_records">
+                                            </td>
+                                            <td class=" ">121000039</td>
+                                            <td class=" ">May 26, 2014 11:30:12 PM</td>
+                                            <td class=" ">121000208 <i class="error fa fa-long-arrow-down"></i>
+                                            </td>
+                                            <td class=" ">John Blank L</td>
+                                            <td class=" ">Paid</td>
+                                            <td class="a-right a-right ">741.20</td>
+                                            <td class=" last"><a href="#">Ver</a>
+                                            </td>
+                                        </tr>
+                                        <tr class="even pointer">
+                                            <td class="a-center ">
+                                                <input type="checkbox" class="flat" name="table_records">
+                                            </td>
+                                            <td class=" ">121000038</td>
+                                            <td class=" ">May 26, 2014 10:55:33 PM</td>
+                                            <td class=" ">121000203</td>
+                                            <td class=" ">Mike Smith</td>
+                                            <td class=" ">Paid</td>
+                                            <td class="a-right a-right ">432.26</td>
+                                            <td class=" last"><a href="#">Ver</a>
+                                            </td>
+                                        </tr>
+                                        <tr class="odd pointer">
+                                            <td class="a-center ">
+                                                <input type="checkbox" class="flat" name="table_records">
+                                            </td>
+                                            <td class=" ">121000037</td>
+                                            <td class=" ">May 26, 2014 10:52:44 PM</td>
+                                            <td class=" ">121000204</td>
+                                            <td class=" ">Mike Smith</td>
+                                            <td class=" ">Paid</td>
+                                            <td class="a-right a-right ">333.21</td>
+                                            <td class=" last"><a href="#">Ver</a>
+                                            </td>
+                                        </tr>
+                                        <tr class="even pointer">
+                                            <td class="a-center ">
+                                                <input type="checkbox" class="flat" name="table_records">
+                                            </td>
+                                            <td class=" ">121000040</td>
+                                            <td class=" ">May 27, 2014 11:47:56 PM </td>
+                                            <td class=" ">121000210</td>
+                                            <td class=" ">John Blank L</td>
+                                            <td class=" ">Paid</td>
+                                            <td class="a-right a-right ">7.45</td>
+                                            <td class=" last"><a href="#">Ver</a>
+                                            </td>
+                                        </tr>
+                                        <tr class="odd pointer">
+                                            <td class="a-center ">
+                                                <input type="checkbox" class="flat" name="table_records">
+                                            </td>
+                                            <td class=" ">121000039</td>
+                                            <td class=" ">May 28, 2014 11:30:12 PM</td>
+                                            <td class=" ">121000208</td>
+                                            <td class=" ">John Blank L</td>
+                                            <td class=" ">Paid</td>
+                                            <td class="a-right a-right ">741.20</td>
+                                            <td class=" last"><a href="#">Ver</a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- footer content -->
+                <footer>
+                    <div class="">
+                        <p class="pull-right">&copy; 2020 por <a>DTA - Labs</a>, todos los derechos reservados. |
+                            <span class="lead"> <img src="images/DTA-Agricola2.png" class="img-footer-logo"
+                                alt="DTA-Agricola"> DTA - Agrícola!</span>
+                        </p>
+                    </div>
+                    <div class="clearfix"></div>
+                </footer>
+                <!-- /footer content -->
+
+            </div>
+            <!-- /page content -->
+        </div>
+
+    </div>
+
+    <div id="custom_notifications" class="custom-notifications dsp_none">
+        <ul class="list-unstyled notifications clearfix" data-tabbed_notifications="notif-group">
+        </ul>
+        <div class="clearfix"></div>
+        <div id="notif-group" class="tabbed_notifications"></div>
+    </div>
+
+    <script src="js/bootstrap.min.js"></script>
+
+    <!-- chart js -->
+    <script src="js/chartjs/chart.min.js"></script>
+    <!-- bootstrap progress js -->
+    <script src="js/progressbar/bootstrap-progressbar.min.js"></script>
+    <script src="js/nicescroll/jquery.nicescroll.min.js"></script>
+    <!-- icheck -->
+    <script src="js/icheck/icheck.min.js"></script>
+
+    <script src="js/custom.js"></script>
+
+    <!-- echart -->
+    <script src="js/echart/echarts-all.js"></script>
+    <script src="js/echart/green.js"></script>
+
+    <script>
+        var myChart9 = echarts.init(document.getElementById('mainb'), theme);
+        myChart9.setOption({
+            title: {
+                x: 'center',
+                y: 'top',
+                padding: [0, 0, 20, 0],
+                text: 'Consumo de agua :: Real vs Estimada vs Temperatura',
+                textStyle: {
+                    fontSize: 15,
+                    fontWeight: 'normal'
+                }
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            toolbox: {
+                show: true,
+                feature: {
+                    dataVer: {
+                        show: true,
+                        readOnly: false
+                    },
+                    restore: {
+                        show: true
+                    },
+                    saveAsImage: {
+                        show: true
+                    }
+                }
+            },
+            calculable: true,
+            legend: {
+                data: ['Real', 'Estimación', 'Temperatura'],
+                y: 'bottom'
+            },
+            xAxis: [
+                {
+                    type: 'category',
+                    data: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+            }
+        ],
+            yAxis: [
+                {
+                    type: 'value',
+                    name: 'Cantidad',
+                    axisLabel: {
+                        formatter: '{value} ml'
+                    }
+            },
+                {
+                    type: 'value',
+                    name: 'Horas',
+                    axisLabel: {
+                        formatter: '{value} °C'
+                    }
+            }
+        ],
+            series: [
+                {
+                    name: 'Real',
+                    type: 'bar',
+                    data: [1.0, 2.9, 5.0, 20.2, 45.6, 76.7, 98.6, 120.2, 30.6, 16.0, 6.4, 3.3]
+            },
+                {
+                    name: 'Estimación',
+                    type: 'bar',
+                    data: [2.6, 5.9, 9.0, 26.4, 58.7, 150.7, 175.6, 182.2, 48.7, 18.8, 6.0, 2.3]
+            },
+                {
+                    name: 'Temperatura',
+                    type: 'line',
+                    yAxisIndex: 1,
+                    data: [2.0, 2.2, 3.3, 4.5, 6.3, 10.2, 20.3, 23.4, 23.0, 16.5, 12.0, 6.2]
+            }
+        ]
+        });
+    </script>
+
+</body>
+
+</html>

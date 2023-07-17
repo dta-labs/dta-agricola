@@ -46,7 +46,9 @@
 	[x] Desconectar Relays cuando se vaya la corriente
 	[ ] Completar el autorreverse
 
-[x] Actualizar web service
+[ ] Actualizar web service
 	[x] Crear nuevo registro cuando se vaya la corriente
+	[ ] Agregar frecuencia de riego
+	[ ] Crear logs más eficientes
 
 https://www.alibaba.com/product-detail/DL181-Portable-DC-UPS-USB-5V_1600159215351.html?spm=a2700.pcdrm.0.0.738b25vY25vYRG

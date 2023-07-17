@@ -755,9 +755,9 @@ app.controller("ControladorPrincipal", function ($scope) {
         } else {
             $scope.actualSystem.plots[index].poligon = "";
         }
-        let day = parseInt(document.getElementById("editDay").value) * (1000 * 60 * 60 * 24);
-        let hour = parseInt(document.getElementById("editHour").value) * (1000 * 60 * 60);
-        let minutes = parseInt(document.getElementById("editMinutes").value) * (1000 * 60);
+        let day = document.getElementById("editDay").value != '' ? parseInt(document.getElementById("editDay").value) * (1000 * 60 * 60 * 24) : 0;
+        let hour = document.getElementById("editHour").value != '' ? parseInt(document.getElementById("editHour").value) * (1000 * 60 * 60) : 0;
+        let minutes = document.getElementById("editMinutes").value != '' ? parseInt(document.getElementById("editMinutes").value) * (1000 * 60) : 0;
         let millis = day + hour + minutes;
         $scope.actualSystem.plots[index].value = millis;
         $scope.actualSystem.plots[index].valvle = document.getElementById("editType").value;
@@ -1224,23 +1224,6 @@ app.controller("ControladorPrincipal", function ($scope) {
 
 // #region Materializes
 
-window.addEventListener('online',  showListado);
-window.addEventListener('offline', showOffLine);
-
-function showListado() {
-    document.getElementById("spinner").style.display = "none";
-    document.getElementById("contenido").style.display = "block";
-    document.getElementById("offline").style.display = "none";
-    console.log(window.navigator.onLine);
-}
-
-function showOffLine() {
-    document.getElementById("spinner").style.display = "none";
-    document.getElementById("contenido").style.display = "none";
-    document.getElementById("offline").style.display = "block";
-    console.log(window.navigator.onLine);
-}
-
 document.addEventListener('DOMContentLoaded', function () {
     M.Modal.init(document.querySelectorAll('.modal'));
     M.FloatingActionButton.init(document.querySelectorAll('.fixed-action-btn'));
@@ -1402,5 +1385,28 @@ function serviceWorker() {
 }
 
 serviceWorker();
+
+window.addEventListener('online',  showListado);
+window.addEventListener('offline', showOffLine);
+
+function showListado() {
+    document.getElementById("spinner").style.display = "none";
+    document.getElementById("contenido").style.display = "block";
+    document.getElementById("offline").style.display = "none";
+    console.log(window.navigator.onLine);
+}
+
+function showOffLine() {
+    document.getElementById("spinner").style.display = "none";
+    document.getElementById("contenido").style.display = "none";
+    document.getElementById("offline").style.display = "block";
+    console.log(window.navigator.onLine);
+}
+
+window.addEventListener("beforeunload",function(e){
+    document.getElementById("mensaje").innerHTML = "Si se va no se guardarán los datos";
+    (e || window.event).returnValue = null;
+    return null;
+},true);
 
 // #endregion Progresive Web Application

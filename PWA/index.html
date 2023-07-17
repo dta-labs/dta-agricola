@@ -3,11 +3,12 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <!-- <meta http-equiv="Content-Security-Policy" content="script-src 'none'"> -->
     <meta name="description" content='"DTA - Irrigation Control\" es la aplicacón de DTA-Agricola para el monitoreo y control inteligente y en tiempo real de sistemas de riego y bombeo.'>
-    <meta name="author"
-        content="DTA-Labs (Laboratorio de Desarrollos Tecnológicos Avanzados) https://dtaamerica.com/">
+    <meta name="author" content="DTA-Labs (Laboratorio de Desarrollos Tecnológicos Avanzados) https://dtaamerica.com/">
     <meta name="theme-color" content="#0000EF" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
@@ -77,7 +78,7 @@
 
                         <div class="navbar nav_title" style="border: 0; border-bottom: 3px solid;">
                             <a href="index.html">
-                                <img src="assets/images/DTA-Agricola lineal white.png" class="img-logo"
+                                <img src="./assets/images/DTA-Agricola lineal white.png" class="img-logo"
                                     alt="DTA-Agricola">
                             </a>
                         </div>
@@ -132,19 +133,21 @@
                                         </ul>
                                     </li>
                                     <li ng-click="showWindow('login')" ng-show="!authUser">
-                                        <a href="#">
+                                        <a href="#" style="width: 100%;">
                                             <i class="fa fa-sign-in" aria-hidden="true"></i>
                                             &nbsp;&nbsp;Registro
                                         </a>
                                     </li>
                                     <li ng-click="showWindow('ayuda')">
-                                        <a href="#">
-                                            <i class="fa fa-question" aria-hidden="true"></i>
-                                            &nbsp;&nbsp;Ayuda
+                                        <a href="#!/ayuda" style="width: 100%;">
+                                            <!-- <div> -->
+                                                <i class="fa fa-question" aria-hidden="true"></i>
+                                                &nbsp;&nbsp;Ayuda
+                                            <!-- </div> -->
                                         </a>
                                     </li>
                                     <li ng-click="logout()" ng-show="authUser" ng-click="logout()">
-                                        <a href="#">
+                                        <a href="#!/login" style="width: 100%;">
                                             <i class="fa fa-sign-out" aria-hidden="true"></i>
                                             &nbsp;Salir
                                         </a>
@@ -267,14 +270,14 @@
                     <div class="show-in-mobil-only top-navbar">
                         <div class="row">
                             <div class="col s2" style="margin-left: -15px;">
-                                <img class="img-logo-cel" src="assets/images/DTA.png" alt="DTA-Agricola">
+                                <img class="img-logo-cel" src="./assets/images/DTA.png" alt="DTA-Agricola">
                             </div>
                             <div class="col {{ authUser ? 's7' : 's8'}} center-align">
                                 <p id="control_de_riego">Control de riego</p>
                             </div>
                             <div class="col s2 right-align">
                                 <div ng-show="!authUser">
-                                    <a href="#!login" ng-click="showWindow('login')" style="color: black;">
+                                    <a href="#!/login" ng-click="showWindow('login')" style="color: black;">
                                         <i class="fa fa-user" aria-hidden="true" style="margin-top: 5px; font-size: 2em;"></i>
                                         <!-- <p style="margin-top: -5px;">Acceso</p> -->
                                     </a>
@@ -371,7 +374,7 @@
                                                         </div>
                                                     </div>
                                                     <div ng-show="system.type == 'Estacionario'">
-                                                        <img src="/assets/images/{{ system.log.state == 'OFF' ? 'parcela-grey' : 'parcela' }}.png" class="parcela_icon"
+                                                        <img src="./assets/images/{{ system.log.state == 'OFF' ? 'parcela-grey' : 'parcela' }}.png" class="parcela_icon"
                                                             alt="parcela">
                                                     </div>
                                                 </div>
@@ -490,10 +493,10 @@
                                 <div class="input-field col s12">
                                     <select class="select" ng-model="newDevice.type" ng-change="setNewDeviceParams()">
                                         <option value="" disabled selected>Seleccione un tipo</option>
-                                        <option value="PC" data-icon="assets/images/riegoPivote.png">Pivote central</option>
-                                        <option value="PL" data-icon="assets/images/riegoPivote.png">Pivote lineal</option>
-                                        <option value="Estacionario" data-icon="assets/images/riegoGoteo.png">Estacionario</option>
-                                        <option value="Pozo" data-icon="assets/images/riegoPozo.png">Bombeo</option>
+                                        <option value="PC" data-icon="./assets/images/riegoPivote.png">Pivote central</option>
+                                        <option value="PL" data-icon="./assets/images/riegoPivote.png">Pivote lineal</option>
+                                        <option value="Estacionario" data-icon="./assets/images/riegoGoteo.png">Estacionario</option>
+                                        <option value="Pozo" data-icon="./assets/images/riegoPozo.png">Bombeo</option>
                                     </select>
                                     <label for="newDeviceType">Tipo de equipo</label>
                                 </div>
@@ -641,7 +644,7 @@
                                         <span>{{ systems[actualSystem.key].log.update }}</span>
                                     </div>
                                     <div class="col s2 m3" style="margin: 2px 0 0 -10px; text-align: center;">
-                                        <p style="margin: 0; margin-top: -10px;"><img src="{{ meteo[actualSystem.key].weather.iconUrl }}" alt="Weather icon"></p>
+                                        <p style="margin: 0; margin-top: -10px;"><img src="{{ meteo[actualSystem.key].weather.iconUrl }}" alt="Weather icon" ng-if="meteo[actualSystem.key].weather.iconUrl"></p>
                                         <p class="show-in-pc-only" style="margin: 0; margin-top: -15px;"><b>
                                             {{ meteo[actualSystem.key].main.temp - 273.15 | number : 0}}°C | {{ meteo[actualSystem.key].main.humidity }}% Hr
                                         </b></p>
@@ -1625,15 +1628,15 @@
                                         placeholder="[[lat1, lon1], [lat2, lon2]]"></textarea>
                                 </div>
                                 <div class="input-field col s4">
-                                    <input id="editDay" type="number" placeholder="0" min="0" max="30">
+                                    <input id="editDay" type="number" placeholder="0" min="0" max="365" value="0">
                                     <label>Días</label>
                                 </div>
                                 <div class="input-field col s4">
-                                    <input id="editHour" type="number" placeholder="0" min="0" max="24">
+                                    <input id="editHour" type="number" placeholder="0" min="0" max="24" value="0">
                                     <label>Horas</label>
                                 </div>
                                 <div class="input-field col s4">
-                                    <input id="editMinutes" type="number" placeholder="0" min="0" max="60">
+                                    <input id="editMinutes" type="number" placeholder="0" min="0" max="60" value="0">
                                     <label>Minutos</label>
                                 </div>
                                 <div class="input-field col s12 m6">
@@ -1751,7 +1754,9 @@
                                 </li>
                                 <li class="sercices-options teal darken white-text">
                                     <a href="#!/ayuda" style="color: white; text-decoration: none;">
-                                        <i class="fa fa-question" aria-hidden="true"></i>Ayuda
+                                        <div>
+                                            <i class="fa fa-question" aria-hidden="true"></i>Ayuda
+                                        </div>
                                     </a>
                                 </li>
                             </ul>
@@ -1966,7 +1971,7 @@
                 </section>
 
                 <audio id="alertSound">
-                    <source src="assets/sounds/alarma-de-evacuacin-evacuacion.mp3" type="audio/mpeg">
+                    <source src="./assets/sounds/alarma-de-evacuacin-evacuacion.mp3" type="audio/mpeg">
                     Your browser does not support the audio element.
                 </audio>
 
@@ -1977,82 +1982,147 @@
                 <section id="ayuda">
 
                     <div class="container" ng-show="selectedWindow == 'ayuda'">
-                        <!-- <h5 style="border-bottom: solid;">Ayuda</h5> -->
-                        <p><b>Código de colores:</b></p>
-                        <div>
-                            <div class="row sercices-options white">
-                                <div class="col s2">
-                                    <i class="material-icons" style="color: lightseagreen; margin-top: 4px;">brightness_1</i>
-                                </div>
-                                <div class="col s10">
-                                    Sistema encendido
-                                </div>
-                            </div>
-                            <div class="row sercices-options white">
-                                <div class="col s2">
-                                    <i class="material-icons" style="color: lightgrey; margin-top: 4px;">brightness_1</i>
-                                </div>
-                                <div class="col s10">
-                                    Sistema apagado
-                                </div>
-                            </div>
-                            <div class="row sercices-options white">
-                                <div class="col s2">
-                                    <i class="material-icons" style="color: grey; margin-top: 4px;">brightness_1</i>
-                                </div>
-                                <div class="col s10">
-                                    Comunicación inestable
-                                </div>
-                            </div>
-                            <div class="row sercices-options white">
-                                <div class="col s2">
-                                    <i class="material-icons" style="color: palevioletred; margin-top: 4px;">brightness_1</i>
-                                </div>
-                                <div class="col s10">
-                                    ¡Alarma: falla de seguridad!
-                                </div>
-                            </div>
-                            <div class="row sercices-options white">
-                                <div class="col s2">
-                                    <i class="material-icons" style="color: red; margin-top: 4px;">brightness_1</i>
-                                </div>
-                                <div class="col s10">
-                                    Falla eléctrica
-                                </div>
-                            </div>
-                        </div>
                         <br>
-                        <p><b>Tabla de programación:</b></p>
-                        <div>
-                            <div class="row sercices-options modal-trigger white" href="#systemConfigModal"
-                                ng-click="showSystemTable('zimmatic')">
-                                <div class="col s11">
-                                    ZIMMATIC / Crowsmart / Rintec Ydrus
-                                </div>
-                                <div class="col s1">
-                                    <i class="material-icons">chevron_right</i>
-                                </div>
+                        <br>
+                        <div class="row sercices-options white">
+                            <div class="col s12">
+                                <h4 class="center-align" style="border-bottom: solid 1px antiquewhite;">
+                                    <strong>Ayuda</strong>
+                                </h4>
                             </div>
-                            <div class="row sercices-options modal-trigger white" href="#systemConfigModal"
-                                ng-click="showSystemTable('valley')">
-                                <div class="col s11">
-                                    Valley cams
+                            <div class="col s12 m6 l3">
+                                <div class="center-align">
+                                    <i class="material-icons" style="font-size: 3em;">devices</i>
                                 </div>
-                                <div class="col s1">
-                                    <i class="material-icons">chevron_right</i>
-                                </div>
+                                <h5 class="center-align"><strong>Monitorea</strong></h5>
+                                <p>Mapea la información de tus sistemas de riego y bombeo. Conoce las condiciones climáticas de tus parcelas.</p>
+                                <a class="waves-effect waves-light btn" href="https://dtaamerica.com/dta-agricola/DTA-Control.html"><i class="material-icons left">open_in_new</i>Ir</a>
                             </div>
-                            <div class="row sercices-options modal-trigger white" href="#systemConfigModal"
-                                ng-click="showSystemTable('lindsay')">
-                                <div class="col s11">
-                                    Lindsay
+                            <div class="col s12 m6 l3">
+                                <div class="center-align">
+                                    <i class="material-icons" style="font-size: 3em;">phonelink_ring</i>
                                 </div>
-                                <div class="col s1">
-                                    <i class="material-icons">chevron_right</i>
-                                </div>
+                                <h5 class="center-align"><strong>Controla</strong></h5>
+                                <p>Automatización agrícola. Ajusta las prácticas de cultivo a las necesidades del suelo y las plantas con la ayuda de IA.</p>
+                                <a class="waves-effect waves-light btn" href="https://dtaamerica.com/dta-agricola/DTA-Planning.html"><i class="material-icons left">open_in_new</i>Ir</a>
                             </div>
-
-                        </div>
+                            <div class="col s12 m6 l3">
+                                <div class="center-align">
+                                    <i class="material-icons" style="font-size: 3em;">phonelink_setup</i>
+                                </div>
+                                <h5 class="center-align"><strong>Procesa</strong></h5>
+                                <p>Inteligencia Artificial colectiva. Asistencia inteligente para la toma de decisiones que el agricultor debe anticipar.</p>
+                                <a class="waves-effect waves-light btn" href="https://dtaamerica.com/dta-agricola/index.html#content6-n"><i class="material-icons left">open_in_new</i>Ir</a>
+                            </div>
+                            <div class="col s12 m6 l3">
+                                <div class="center-align">
+                                    <i class="material-icons" style="font-size: 3em;">trending_up</i>
+                                </div>
+                                <h5 class="center-align"><strong>Mejora</strong></h5>
+                                <p>Incrementa la productividad con la aplicación de buenas prácticas de manejo de cultivos.</p><br>
+                                <a class="waves-effect waves-light btn" href="https://dtaamerica.com/dta-agricola/index.html#content6-m"><i class="material-icons left">open_in_new</i>Ir</a>
+                            </div>
+                            <div class="col s12">
+                                <ul class="collapsible">
+                                    <li>
+                                        <div class="collapsible-header"><i class="material-icons">dashboard</i>Sistemas de estacionarios</div>
+                                        <div class="collapsible-body">
+                                            <h5><strong>DripControl</strong></h5>
+                                            <p>¿Cuenta con sistemas de riego por aspersión, por difusión, por goteo, subterráneo o cintas de exudación? ¿Cuenta con un único pozo para irrigar múltiples parcelas o cultivos? DripControl le permitirá monitorear y controlar en tiempo real un pozo y hasta 3, 7 ó 15 electroválvulas en dependencia de la versión de que disponga. Así como implementar tu propio plan de riego.</p>
+                                            <p><strong>Instalación</strong></p>
+                                            </p>
+                                            <div class="row">
+                                                <div class="col s6 m3"><strong>Conexiones:</strong></div>
+                                                <div class="col s6 m9">
+                                                    <a href="./assets/documents/Cableado - Estacionario 1.webp"><i class="material-icons">photo_library</i></a> &nbsp; 
+                                                    <a href="./assets/documents/Cableado - Estacionario 2.webp"><i class="material-icons">photo_library</i></a> &nbsp; 
+                                                    <a href="./assets/documents/Cableado - Estacionarios.pdf"><i class="material-icons">picture_as_pdf</i></a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="collapsible-header"><i class="material-icons">access_time</i>Sistemas de movimiento continuo</div>
+                                        <div class="collapsible-body">
+                                            <h5><strong>PivotControl</strong></h5>
+                                            <p>¿Desea reducir el tiempo que consume revisando sus pivotes, el combustible invertido y el mantenimiento de sus sistemas de riego debido a fallas de funcionamiento? ¿Los sistemas de monitoreo y control de pivotes en el mercado no le ofrecen todas las características que está buscando o resultan demasiado complejos y costosos? PivotControl es un sistema de monitoreo y control en tiempo real, basado en tecnología GPS, avanzado y sencillo de usar desde su teléfono celular o computadora. </p>
+                                            <div>
+                                                <u>Conexiones:</u> 
+                                                <div class="row">
+                                                    <div class="col s6 m3"><strong>Panel:</strong></div>
+                                                    <div class="col s6 m9">
+                                                        <a href="./assets/documents/Cableado - Panel.webp"><i class="material-icons">photo_library</i></a> &nbsp; &nbsp;
+                                                        <a href="./assets/documents/Cableado.pdf"><i class="material-icons">picture_as_pdf</i></a>
+                                                    </div>
+                                                    <div class="col s6 m3"><strong>Valley:</strong></div>
+                                                    <div class="col s6 m9">
+                                                        <a href="./assets/documents/Cableado - Valley.webp"><i class="material-icons">photo_library</i></a> &nbsp; &nbsp;
+                                                        <a href="./assets/documents/Cableado - Valley.pdf"><i class="material-icons">picture_as_pdf</i></a>
+                                                    </div>
+                                                    <div class="col s6 m3"><strong>ZIMMATIC:</strong></div>
+                                                    <div class="col s6 m9">
+                                                        <a href="./assets/documents/Cableado - ZIMMATIC.webp"><i class="material-icons">photo_library</i></a> &nbsp; &nbsp;
+                                                        <a href="./assets/documents/Cableado - ZIMMATIC.pdf"><i class="material-icons">picture_as_pdf</i></a> <br>
+                                                    </div>
+                                                    <div class="col s6 m3"><strong>REINTIC:</strong></div>
+                                                    <div class="col s6 m9">
+                                                        <a href="./assets/documents/Cableado - REINTIC.webp"><i class="material-icons">photo_library</i></a> &nbsp; &nbsp;
+                                                        <a href="./assets/documents/Cableado - REINTIC.pdf"><i class="material-icons">picture_as_pdf</i></a>
+                                                    </div>
+                                                </div>
+                                                <u>Código de colores</u>
+                                                <div>
+                                                    <div class="row" style="border-bottom: 1px solid antiquewhite; margin-bottom: 0;">
+                                                        <div class="col s2">
+                                                            <i class="material-icons" style="color: lightseagreen; margin-top: 4px;">brightness_1</i>
+                                                        </div>
+                                                        <div class="col s10">
+                                                            Sistema encendido
+                                                        </div>
+                                                    </div>
+                                                    <div class="row" style="border-bottom: 1px solid antiquewhite; margin-bottom: 0;">
+                                                        <div class="col s2">
+                                                            <i class="material-icons" style="color: lightgrey; margin-top: 4px;">brightness_1</i>
+                                                        </div>
+                                                        <div class="col s10">
+                                                            Sistema apagado
+                                                        </div>
+                                                    </div>
+                                                    <div class="row" style="border-bottom: 1px solid antiquewhite; margin-bottom: 0;">
+                                                        <div class="col s2">
+                                                            <i class="material-icons" style="color: grey; margin-top: 4px;">brightness_1</i>
+                                                        </div>
+                                                        <div class="col s10">
+                                                            Comunicación inestable
+                                                        </div>
+                                                    </div>
+                                                    <div class="row" style="border-bottom: 1px solid antiquewhite; margin-bottom: 0;">
+                                                        <div class="col s2">
+                                                            <i class="material-icons" style="color: palevioletred; margin-top: 4px;">brightness_1</i>
+                                                        </div>
+                                                        <div class="col s10">
+                                                            ¡Alarma: falla de seguridad!
+                                                        </div>
+                                                    </div>
+                                                    <div class="row" style="border-bottom: 1px solid antiquewhite; margin-bottom: 0;">
+                                                        <div class="col s2">
+                                                            <i class="material-icons" style="color: red; margin-top: 4px;">brightness_1</i>
+                                                        </div>
+                                                        <div class="col s10">
+                                                            Falla eléctrica
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <hr>
+                                            <h5><strong>PumpControl</strong></h5>
+                                            <p>¿Desea reducir el riesgo de fallas, averías y hasta roturas irreversibles de sus sitemas de bombeo? ¿Emplea una misma bomba para más de un sistema de riego? PumpControl es un sistema de monitoreo y control en tiempo real avanzado y a la vez sencillo de usar desde su teléfono celular o computadora que le permite enlazarlo con los sistemas de riego que desee y le previene de futuros desastres ante mal funcionamiento de sus equipo.</p>
+                                            <hr>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>                                
                         <br>
                         <br>
                     </div>
@@ -2241,51 +2311,37 @@
 
             </div>
         </div>
+
         <!-- #region: CSS Y SCRIPTS -->
 
-        <link rel="stylesheet" href="assets/modules/font-awesome/css/font-awesome.min.css">
+        <link rel="stylesheet" href="./assets/modules/font-awesome/css/font-awesome.min.css">
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-        <link rel="stylesheet" href="assets/modules/materialize/css/materialize.min.css">
-        <link rel="stylesheet" href="assets/modules/leaflet/leaflet.css">
-        <link rel="stylesheet" href="assets/css/style.css">
-        <link rel="stylesheet" href="assets/css/responsive.css">
-        <link rel="stylesheet" href="assets/css/meteocons-font/FONT/Font-face/stylesheet.css">
+        <link rel="stylesheet" href="./assets/modules/materialize/css/materialize.min.css">
+        <link rel="stylesheet" href="./assets/modules/leaflet/leaflet.css">
+        <link rel="stylesheet" href="./assets/css/style.css">
+        <link rel="stylesheet" href="./assets/css/responsive.css">
+        <!-- <link rel="stylesheet" href="./assets/css/meteocons-font/FONT/Font-face/stylesheet.css"> -->
 
         <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/4.0.0/firebaseui.css" />
 
         <script src="https://www.gstatic.com/firebasejs/5.10.1/firebase.js"></script>
         <script src="https://www.gstatic.com/firebasejs/ui/4.0.0/firebase-ui-auth__es_419.js"></script>
         <script src="https://www.gstatic.com/firebasejs/7.3.0/firebase-analytics.js"></script>
-        <script src="assets/js/firebaseComm.js"></script>
-        <script src="assets/js/notifications.js"></script>
-        <!-- <script src="assets/modules/angularjs/angular.min.js"></script> -->
-        <script src="monitor/js/jquery.min.js"></script>
+        <script src="./assets/js/firebaseComm.js"></script>
+        <script src="./assets/js/notifications.js"></script>
+        <!-- <script src="./assets/modules/angularjs/angular.min.js"></script> -->
+        <script src="./assets/js/jquery.min.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular-route.js"></script>
-        <script src="assets/modules/materialize/js/materialize.min.js"></script>
-        <script src="assets/modules/leaflet/leaflet.js"></script>
-        <script src="assets/modules/leaflet-semicircle/semicircle.js"></script>
-        <script src="assets/js/commons.js"></script>
-        <!-- <script src="assets/cultures/listPlanesRiego.js"></script> -->
-        <script src="assets/js/core.js"></script>
+        <script src="./assets/modules/materialize/js/materialize.min.js"></script>
+        <script src="./assets/modules/leaflet/leaflet.js"></script>
+        <script src="./assets/modules/leaflet-semicircle/semicircle.js"></script>
+        <script src="./assets/js/commons.js"></script>
+        <!-- <script src="./assets/cultures/listPlanesRiego.js"></script> -->
+        <script src="./assets/js/core.js"></script>
         <!-- <script src="monitor/js/chartjs/chart.min.js"></script> -->
-        <script type="text/javascript" src="monitor/js/datepicker/daterangepicker.js"></script>
+        <script type="text/javascript" src="./assets/modules/datepicker/daterangepicker.js"></script>
         <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-
-        <!-- flot js -->
-        <!--[if lte IE 8]><script type="text/javascript" src="js/excanvas.min.js"></script><![endif]-->
-        <script type="text/javascript" src="monitor/js/flot/jquery.flot.js"></script>
-        <script type="text/javascript" src="monitor/js/flot/jquery.flot.pie.js"></script>
-        <script type="text/javascript" src="monitor/js/flot/jquery.flot.orderBars.js"></script>
-        <script type="text/javascript" src="monitor/js/flot/jquery.flot.time.min.js"></script>
-        <script type="text/javascript" src="monitor/js/flot/date.js"></script>
-        <script type="text/javascript" src="monitor/js/flot/jquery.flot.spline.js"></script>
-        <script type="text/javascript" src="monitor/js/flot/jquery.flot.stack.js"></script>
-        <script type="text/javascript" src="monitor/js/flot/curvedLines.js"></script>
-        <script type="text/javascript" src="monitor/js/flot/jquery.flot.resize.js"></script>
-        <script type="text/javascript" src="monitor/js/chartjs/chart.min.js"></script>
-
-        <!-- flot -->
 
         <!-- #endregion: CSS Y SCRIPTS -->
 

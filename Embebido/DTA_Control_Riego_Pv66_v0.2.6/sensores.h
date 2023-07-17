@@ -61,7 +61,7 @@ float controlPresionAnalogica() {
     delay(10);
   }
   presionActual = presionActual / 3;
-  Serial.print(F("  ~ PresionF: "));
+  Serial.print(F("  ~ Presion: "));
   Serial.println((String)presionActual);
   return presionActual;
 }
@@ -128,17 +128,14 @@ float getPosition() {
   return azimut;
 }
 
-bool positionControl() {
+bool controlPosicion() {
   // return true; 
   ssGPS.begin(9600);
   ssGPS.listen();
   positionVar = getPosition();
-  if (lat_actual == 0.0f && lon_actual == 0.0f) {                     // Control de apagado
-    statusVar = "OFF";
-    return false;
-  }
   ssGPS.end();
-  return (positionIni <= positionVar && positionVar < positionEnd) ? true : false;
+  return (lat_actual == 0.0f && lon_actual == 0.0f) ? false : 
+         (positionIni <= positionVar && positionVar < positionEnd) ? true : false;
 }
 
 #pragma endregion <<Posición>>
@@ -146,9 +143,10 @@ bool positionControl() {
 bool getSensors() {
   isVoltage = controlVoltaje();
   isPresure = controlPresion(); 
-  isPosition = positionControl();
+  isPosition = controlPosicion();
   isSequrity = controlSeguridad();
-  return isVoltage && isSequrity && isPresure && isPosition;
+  return isVoltage && isPresure && isSequrity;
+  // return isVoltage && isSequrity && isPresure && isPosition;
 }
 
 #pragma endregion Sensores

@@ -78,15 +78,20 @@ void activeMachine() {
     Serial.print(F("> Running ")); Serial.println(directionVar == "FF" ? F("forward") : F("reverse"));
     setDirection(); 
     if (getSensors()) {
-      digitalWrite(pinActivationTimer, LOW);
-      digitalWrite(pinEngGunControl, (endGunVar == "ON") ? (serie == 0 ? LOW : HIGH) : (serie == 0 ? HIGH : LOW));
+      if (isPosition) {
+        digitalWrite(pinActivationTimer, LOW);
+        digitalWrite(pinEngGunControl, (endGunVar == "ON") ? (serie == 0 ? LOW : HIGH) : (serie == 0 ? HIGH : LOW));
+      } else {
+        digitalWrite(pinActivationTimer, HIGH);
+        digitalWrite(pinEngGunControl, (endGunVar == "ON") ? (serie == 0 ? HIGH : LOW) : (serie == 0 ? LOW : HIGH));
+        Serial.println(F("  * Position error!"));
+      }
     } else {
       apagar();
       Serial.print(F("  * "));
       Serial.print(!isVoltage ? F("Voltage")  : 
                   !isSequrity ? F("Sequrity") :
                   !isPresure  ? F("Presure")  :
-                  !isPosition ? F("Position") : 
                   F("Unknow"));
       Serial.println(F(" error!"));
     }
@@ -101,12 +106,13 @@ void activeMachine() {
 void unactiveMachine() {
   static unsigned long unactiveTime = 0;
   if (millis() - unactiveTime < deactivationTimer) {
-    Serial.println(F("> Stopped"));
+    Serial.print(F("> Stopped"));
     digitalWrite(pinActivationTimer, HIGH);
     if (!controlSeguridad()) {
-      Serial.println(F("> Stopped: Sequrity error!"));
+      Serial.print(F(": Sequrity error!"));
       apagar();
     }
+    Serial.println();
   } else {
     unactiveTime = millis();
   }
