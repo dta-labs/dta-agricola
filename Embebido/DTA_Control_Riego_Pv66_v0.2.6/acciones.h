@@ -42,9 +42,9 @@ void apagar() {
   digitalWrite(pinMotorFF, HIGH);                                 // Apagado
   digitalWrite(pinMotorRR, HIGH);                                 // Apagado
   digitalWrite(pinActivationTimer, HIGH);                         // Apagado
-  statusVar = "OFF";
-  activationTimer = 0;
-  deactivationTimer = 60000;
+  // statusVar = "OFF";
+  // activationTimer = 0;
+  // deactivationTimer = 60000;
 }
 
 void setDirection() {

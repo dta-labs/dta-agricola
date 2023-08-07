@@ -61,18 +61,18 @@ $(function () {
 
 /** ******  /left menu  *********************** **/
 
-
-
 /** ******  tooltip  *********************** **/
 $(function () {
-        $('[data-toggle="tooltip"]').tooltip()
-    })
-    /** ******  /tooltip  *********************** **/
-    /** ******  progressbar  *********************** **/
+    $('[data-toggle="tooltip"]').tooltip()
+})
+/** ******  /tooltip  *********************** **/
+
+/** ******  progressbar  *********************** **/
 if ($(".progress .progress-bar")[0]) {
     $('.progress .progress-bar').progressbar(); // bootstrap 3
 }
 /** ******  /progressbar  *********************** **/
+
 /** ******  switchery  *********************** **/
 if ($(".js-switch")[0]) {
     var elems = Array.prototype.slice.call(document.querySelectorAll('.js-switch'));
@@ -83,6 +83,7 @@ if ($(".js-switch")[0]) {
     });
 }
 /** ******  /switcher  *********************** **/
+
 /** ******  collapse panel  *********************** **/
 // Close ibox function
 $('.close-link').click(function () {
@@ -104,6 +105,7 @@ $('.collapse-link').click(function () {
     }, 50);
 });
 /** ******  /collapse panel  *********************** **/
+
 /** ******  iswitch  *********************** **/
 if ($("input.flat")[0]) {
     $(document).ready(function () {
@@ -114,6 +116,7 @@ if ($("input.flat")[0]) {
     });
 }
 /** ******  /iswitch  *********************** **/
+
 /** ******  star rating  *********************** **/
 // Starrr plugin (https://github.com/dobtco/starrr)
 var __slice = [].slice;
@@ -216,9 +219,9 @@ var __slice = [].slice;
     });
 })(window.jQuery, window);
 
-$(function () {
-    return $(".starrr").starrr();
-});
+// $(function () {
+//     return $(".starrr").starrr();
+// });
 
 $(document).ready(function () {
 
@@ -233,12 +236,14 @@ $(document).ready(function () {
 
 });
 /** ******  /star rating  *********************** **/
+
 /** ******  table  *********************** **/
 $('table input').on('ifChecked', function () {
     check_state = '';
     $(this).parent().parent().parent().addClass('selected');
     countChecked();
 });
+
 $('table input').on('ifUnchecked', function () {
     check_state = '';
     $(this).parent().parent().parent().removeClass('selected');
@@ -251,45 +256,43 @@ $('.bulk_action input').on('ifChecked', function () {
     $(this).parent().parent().parent().addClass('selected');
     countChecked();
 });
+
 $('.bulk_action input').on('ifUnchecked', function () {
     check_state = '';
     $(this).parent().parent().parent().removeClass('selected');
     countChecked();
 });
+
 $('.bulk_action input#check-all').on('ifChecked', function () {
     check_state = 'check_all';
     countChecked();
 });
+
 $('.bulk_action input#check-all').on('ifUnchecked', function () {
     check_state = 'uncheck_all';
     countChecked();
 });
 
 function countChecked() {
-        if (check_state == 'check_all') {
-            $(".bulk_action input[name='table_records']").iCheck('check');
-        }
-        if (check_state == 'uncheck_all') {
-            $(".bulk_action input[name='table_records']").iCheck('uncheck');
-        }
-        var n = $(".bulk_action input[name='table_records']:checked").length;
-        if (n > 0) {
-            $('.column-title').hide();
-            $('.bulk-actions').show();
-            $('.action-cnt').html(n + ' Records Selected');
-        } else {
-            $('.column-title').show();
-            $('.bulk-actions').hide();
-        }
+    if (check_state == 'check_all') {
+        $(".bulk_action input[name='table_records']").iCheck('check');
     }
-    /** ******  /table  *********************** **/
-    /** ******    *********************** **/
-    /** ******    *********************** **/
-    /** ******    *********************** **/
-    /** ******    *********************** **/
-    /** ******    *********************** **/
-    /** ******    *********************** **/
-    /** ******  Accordion  *********************** **/
+    if (check_state == 'uncheck_all') {
+        $(".bulk_action input[name='table_records']").iCheck('uncheck');
+    }
+    var n = $(".bulk_action input[name='table_records']:checked").length;
+    if (n > 0) {
+        $('.column-title').hide();
+        $('.bulk-actions').show();
+        $('.action-cnt').html(n + ' Records Selected');
+    } else {
+        $('.column-title').show();
+        $('.bulk-actions').hide();
+    }
+}
+/** ******  /table  *********************** **/
+
+/** ******  Accordion  *********************** **/
 
 $(function () {
     $(".expand").on("click", function () {
@@ -305,13 +308,14 @@ $(function () {
 });
 
 /** ******  Accordion  *********************** **/
+
 /** ******  scrollview  *********************** **/
 $(document).ready(function () {
   
-            $(".scroll-view").niceScroll({
-                touchbehavior: true,
-                cursorcolor: "rgba(42, 63, 84, 0.35)"
-            });
+            // $(".scroll-view").niceScroll({
+            //     touchbehavior: true,
+            //     cursorcolor: "rgba(42, 63, 84, 0.35)"
+            // });
 
 });
 /** ******  /scrollview  *********************** **/

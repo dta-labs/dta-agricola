@@ -1,3 +1,7 @@
+a, a:link, a:visited {
+    color: white;
+}
+
 .main-menu {
     position: fixed;
     top: 0;
@@ -12,4 +16,10 @@
 
 .img-footer-logo {
     width: 32px;
+}
+
+.dropdown-content {
+    background-color: #263238 !important;
+    width: 200px !important;
+    color: white !important;
 }

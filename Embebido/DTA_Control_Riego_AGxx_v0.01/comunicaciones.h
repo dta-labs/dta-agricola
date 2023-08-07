@@ -115,18 +115,23 @@ void setupGSM() {
 }
 
 String httpRequest() {
-  if (testFunc) { return "\"ON\"OFF\"7\"1\"60000\"F\"180000\"F\"0\"F\"45000\"F\"50000\"F\"120000\"F\"190000\"F\""; }
+  if (testFunc) { return F("\"ON\"OFF\"7\"1\"60000\"F\"180000\"F\"0\"F\"45000\"F\"50000\"F\"120000\"F\"190000\"F\""); }
   signalVar = getSignalValue();
   gprs.println(F("AT+HTTPINIT"));
   getResponse(15, true); 
   gprs.print(httpServer);
   gprs.print(telefono);
-  gprs.print("&st=" + statusVar);
+  gprs.print(F("&st="));
+  gprs.print(statusVar);
   unsigned long enlapsedTime = (millis() - activeTime);
-  gprs.print("&tm=" + (String)(enlapsedTime));
-  gprs.print("&po=" + (String)plot);
-  gprs.print("&rx=" + (String)(commRx ? "Ok" : "Er"));
-  gprs.println("&si=" + (String)signalVar + "\"");
+  gprs.print(F("&tm="));
+  gprs.print((String)(enlapsedTime));
+  gprs.print(F("&po="));
+  gprs.print((String)plot);
+  gprs.print(F("&rx="));
+  gprs.print((String)(commRx ? "Ok" : "Er"));
+  gprs.println(F("&si="));
+  gprs.print((String)signalVar + "\"");
   getResponse(35, true); 
   gprs.println(F("AT+HTTPACTION=0"));
   String result = getResponse(4000, true); 
@@ -142,14 +147,14 @@ String httpRequest() {
 void comunicaciones() {
   Serial.println(F("Comunicación con el servidor"));
   String data = httpRequest();                                                    // Get Settings from HTTP
-  data = data.substring(data.indexOf('"'), data.indexOf("OK"));
+  data = data.substring(data.indexOf('"'), data.indexOf(OK));
   Serial.print(F("data: ")); Serial.println(data);
   commRx = (data != "") ? true : false;
   String aux = "";
   aux = parse(data, '"', 1);                                                      // status
-  statusVar = (aux == "ON" || aux == "OFF") ? aux : statusVar;
+  statusVar = (aux == ON || aux == OFF) ? aux : statusVar;
   aux = parse(data, '"', 2);                                                      // cyclic
-  cyclic = (aux == "ON" || aux == "OFF") ? aux == "ON" ? true : false : cyclic;
+  cyclic = (aux == ON || aux == OFF) ? aux == ON ? true : false : cyclic;
   aux = parse(data, '"', 3);                                                      // number of plots
   plots = (aux != "") ? aux.toInt() : plots;
   if (firstSettings) {                                                            // Avisar del cambio de parcela

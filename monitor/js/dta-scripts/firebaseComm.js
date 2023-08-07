@@ -1,6 +1,6 @@
 var ui;
 var config = {
-    apiKey: "AIzaSyBGhhdWhG7bD4QBkjK5IlXgiGVkoUv70KM",
+    apiKey: "AIzaSyCMQrfX00C0DuaYCUugYPDsPSo-a-0nqNA",
     authDomain: "dta-agricola.firebaseapp.com",
     databaseURL: "https://dta-agricola.firebaseio.com",
     projectId: "dta-agricola",
@@ -8,12 +8,13 @@ var config = {
     messagingSenderId: "157203634312",
     appId: "1:157203634312:web:95003cad8bc5a95151a73d",
     measurementId: "G-51FCCVQT6B"
-  };
-  // Initialize Firebase
-  firebase.initializeApp(config);
-  //firebase.analytics();
 
-//initializeFirebaseUI();
+};
+// Initialize Firebase
+firebase.initializeApp(config);
+//firebase.analytics();
+
+initializeFirebaseUI();
 
 function initializeFirebaseUI() {
     let uiConfig = {
@@ -48,9 +49,41 @@ function initializeFirebaseUI() {
     ui.start('#firebaseui-auth-container', uiConfig);
 }
 
-function loadCamposFromFB() {
+function loadUserLocations(email) {
     return new Promise((resolve, reject) => {
-        firebase.database().ref("campos").on("value", campos => {
+        firebase.database().ref("users").orderByKey().equalTo(convertDotToDash(email)).on("value", users => {
+            resolve(addNewFields(users));
+        });
+    });
+}
+
+function loadUserSystem(id) {
+    return new Promise((resolve, reject) => {
+        firebase.database().ref("systems/" + id + "/settings").on("value", system => {
+            resolve(addNewFields(system));
+        });
+    });
+}
+
+function findUserEnterprises() {
+    return new Promise((resolve, reject) => {
+        firebase.database().ref("enterprises").on("value", enterprises => {
+            resolve(addNewFields(enterprises));
+        });
+    });
+}
+
+function loadUsersFromFB() {
+    return new Promise((resolve, reject) => {
+        firebase.database().ref("users").on("value", usuarios => {
+            resolve(addNewFields(usuarios));
+        });
+    });
+}
+
+function loadCampo(id) {
+    return new Promise((resolve, reject) => {
+        firebase.database().ref("systems").on("value", campos => {
             resolve(addNewFields(campos));
         });
     });
@@ -66,31 +99,14 @@ function addNewFields(table) {
     return result;
 }
 
-function updateNewAccessInFB(id, accessType, data = "No data send") {
-    //let newKey = firebase.database().ref().child("Citas").push().key;
-    let newKey = new Date().getTime();
-    firebase.database().ref("access/" + id + "/" + newKey).update(
-        {
-            "accessType": accessType,
-            "data": data
-        }
-    );
-}
-
 // #region Ejemplos
 
-function loadSpecialistsFromFB() {
+function loadCamposFromFB() {
     return new Promise((resolve, reject) => {
-        firebase.database().ref("Especialistas").on("value", especialistas => {
-            let specialists = addNewFields(especialistas);
-            resolve(specialists);
+        firebase.database().ref("systems").on("value", campos => {
+            resolve(addNewFields(campos));
         });
     });
-}
-
-function updateOfertaInFB(newKeyoffert) {
-    //let newKey = firebase.database().ref().child("Citas").push().key;
-    firebase.database().ref("Citas/" + newKey).update(offert);
 }
 
 function setAuthUser(currentUser, credential, redirectUrl) {
@@ -107,10 +123,6 @@ function logoutAutUser() {
     }, function (error) {
         // Error.
     });
-}
-
-function deleteCurrentOffert(key) {
-    firebase.database().ref("Ofertas/" + key).remove();
 }
 
 // #endregion Ejemplos

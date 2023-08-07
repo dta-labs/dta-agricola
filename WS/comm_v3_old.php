@@ -105,14 +105,17 @@
 
 	if ($_GET["st"] && ($_GET["st"] == "ON" || $_GET["st"] == "OFF")) {
 		$key = "";
-		if ($status == $_GET["st"] && $voltage == $_GET["vo"]) {
+		// if ($status == $_GET["st"] && $voltage == $_GET["vo"]) {
+		// 	$key = "/$index";
+		// }
+		if ($index) {
 			$key = "/$index";
 		}
 		$dataUpdate = '{';
-		if ($key) {
-			$dataUpdate .= '"date":"' . $initialDate . '"';
-		} else {
+		if (!$key || ($key && $_GET["st"] && $_GET["st"] == "ON" && $_GET["vo"] && ($_GET["vo"] == "false" || ($_GET["vo"] == "true" && $_GET["sa"] && $_GET["sa"] == "false")))) {
 			$dataUpdate .= '"date":"' . $date . '"';
+		} else {
+			$dataUpdate .= '"date":"' . $initialDate . '"';
 		}
 		$dataUpdate .= ',"update":"' . $date . '"';
 		if ($_GET["st"] && ($_GET["st"] == "ON" || $_GET["st"] == "OFF")) { $dataUpdate .= ',"state":"' . $_GET["st"] . '"'; }

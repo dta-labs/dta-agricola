@@ -105,27 +105,18 @@
 
 	if ($_GET["st"] && ($_GET["st"] == "ON" || $_GET["st"] == "OFF")) {
 		$key = "";
-		// if ($status == $_GET["st"] && $voltage == $_GET["vo"]) {
-		// 	$key = "/$index";
-		// }
-		if ($index) {
+		if ($status == $_GET["st"] && $voltage == $_GET["vo"]) {
 			$key = "/$index";
 		}
 		$dataUpdate = '{';
-		if (!$key || ($key && $_GET["st"] && $_GET["st"] == "ON" && $_GET["vo"] && ($_GET["vo"] == "false" || ($_GET["vo"] == "true" && $_GET["sa"] && $_GET["sa"] == "false")))) {
-			$dataUpdate .= '"date":"' . $date . '"';
-		} else {
+		if ($key) {
 			$dataUpdate .= '"date":"' . $initialDate . '"';
+		} else {
+			$dataUpdate .= '"date":"' . $date . '"';
 		}
 		$dataUpdate .= ',"update":"' . $date . '"';
-		if ($_GET["st"] && ($_GET["st"] == "ON" || $_GET["st"] == "OFF")) { $dataUpdate .= ',"state":"' . $_GET["st"] . '"'; }
-		if ($_GET["sa"] && ($_GET["sa"] == "true" || $_GET["sa"] == "false")) { 
-			if ($_GET["st"] && $_GET["st"] == "ON") {
-				$dataUpdate .= ',"safety":"' . $_GET["sa"] . '"'; 
-			} else {
-				$dataUpdate .= ',"safety":"true"';
-			}
-		}
+		$dataUpdate .= ',"state":"' . $_GET["st"] . '"';
+		if ($_GET["sa"] && ($_GET["sa"] == "true" || $_GET["sa"] == "false")) { $dataUpdate .= ',"safety":"' . $_GET["sa"] . '"'; }
 		if ($_GET["di"] && ($_GET["di"] == "FF" || $_GET["di"] == "RR")) { $dataUpdate .= ',"direction":"' . $_GET["di"] . '"'; }
 		if ($_GET["vo"] && ($_GET["vo"] == "true" || $_GET["vo"] == "false")) { $dataUpdate .= ',"voltage":"' . $_GET["vo"] . '"'; }
 		if ($_GET["sp"]) { $dataUpdate .= ',"speed":"' . $_GET["sp"] . '"'; }
@@ -149,10 +140,10 @@
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		if ($key) {
 			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
-			// print("PUT");
+			// print("PUT");	// Actualiza registro
 		} else {
 			curl_setopt($ch, CURLOPT_POST, 1);
-			// print("POST");
+			// print("POST");	// Nuevo registro
 		}
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $dataUpdate);
 		curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: text/plain'));

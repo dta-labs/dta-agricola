@@ -57,12 +57,12 @@
 
 	if ($_GET["st"] && ($_GET["st"] == "ON" || $_GET["st"] == "OFF")) {
 		$key = "";
-		// if ($status == $_GET["st"]) {
-		// 	$key = "/$index";
-		// }
-		if ($index) {
+		if ($status == $_GET["st"]) {
 			$key = "/$index";
 		}
+		// if ($index) {
+		// 	$key = "/$index";
+		// }
 		$data = '{';
 		if ($key) {
 			$data .= '"date":"' . $initialDate . '"';
@@ -86,16 +86,13 @@
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		if ($key) {
 			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
-			// print("PUT");
 		} else {
 			curl_setopt($ch, CURLOPT_POST, 1);
-			// print("POST");
 		}
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
 		curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: text/plain'));
 		$response = curl_exec($ch);
 		if (curl_errno($ch)) {
-			// echo 'Error: '.curl_errno($ch);
 			echo 'Error';
 		}
 		curl_close($ch);
@@ -103,22 +100,14 @@
 		// cURL de actualización de posición en Settings
 
 		$url = "https://dta-agricola.firebaseio.com/systems/$id/settings/position.json";
-		// print("URL: " . $url);
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		if ($key) {
-			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
-			// print("PUT");
-		} else {
-			curl_setopt($ch, CURLOPT_POST, 1);
-			// print("POST");
-		}
+		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $_GET["po"]);
 		curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: text/plain'));
 		$response = curl_exec($ch);
 		if (curl_errno($ch)) {
-			// echo 'Error: '.curl_errno($ch);
 			echo 'Error';
 		}
 		curl_close($ch);

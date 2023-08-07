@@ -89,7 +89,7 @@ app.controller("ControladorPrincipal", function ($scope) {
     }
 
     $scope.showLogin = () => {
-        $scope.showWindow('login');
+        $scope.login();
     }
 
     $scope.showWindow = windowsName => {
@@ -172,8 +172,14 @@ app.controller("ControladorPrincipal", function ($scope) {
         });
     }
 
-    $scope.logout = () => {
+    $scope.login = () => {
+        if (!ui) {
+            initializeFirebaseUI();
+        }
         $scope.showWindow("login");
+    };
+
+    $scope.logout = () => {
         firebase.auth().signOut().then(function () {
             //ui = null;
             $scope.authUser = null;
@@ -181,8 +187,8 @@ app.controller("ControladorPrincipal", function ($scope) {
             // ui.start("#firebaseui-auth-container", uiConfig);
             //logoutAutUser();
             //document.getElementById("logout").style.display = "none";
-            $scope.showWindow('login');
         });
+        $scope.login();
     };
 
     $scope.isSystemOfRole = (role) => {
@@ -261,7 +267,7 @@ app.controller("ControladorPrincipal", function ($scope) {
                 // if ($scope.actualSystem && locationKey == $scope.actualSystem.key) { $scope.selectSystem($scope.systems[locationKey]); }
                 // if (registers == 1000) { invertLog() }
                 invertLog();
-                $scope.$apply();
+                // $scope.$apply();
             }
         });
     }
@@ -347,7 +353,8 @@ app.controller("ControladorPrincipal", function ($scope) {
         $scope.actualSystem.autoreverse = $scope.actualSystem.autoreverse == "ON" || $scope.actualSystem.autoreverse == true ? true : false;
         $scope.actualSystem.direction = $scope.actualSystem.direction == "FF" || $scope.actualSystem.direction == true ? true : false;
         setActualSystemPlans();
-        invertLog();
+        $scope.loadSystemLog(system.key, 10);
+        // invertLog();
         // $scope.actualSystem.posicionActual = parseInt($scope.actualSystem.log.position ? $scope.actualSystem.log.position : "0") + parseInt($scope.actualSystem.summerHour ? $scope.actualSystem.summerHour : "0");
         // showPlanRiegoPie();
         hideTheSpinner();
@@ -367,6 +374,7 @@ app.controller("ControladorPrincipal", function ($scope) {
     }
 
     invertLog = () => {
+        $scope.invertedRegisters = [];
         if ($scope.actualSystem && $scope.logs[$scope.actualSystem.key]) {
             registers = $scope.logs[$scope.actualSystem.key];
             registersArr = Object.values(registers);
@@ -390,6 +398,29 @@ app.controller("ControladorPrincipal", function ($scope) {
             $scope.meteo[key].weather["iconUrl"] = `http://openweathermap.org/img/w/${$scope.meteo[key].weather["0"].icon}.png`;
             $scope.$apply();
         }});
+    }
+
+    $scope.stopSystem = () => {
+        if ($scope.actualSystem.status) {
+            $scope.actualSystem.status = false;
+            $scope.setMachineState();
+        }
+    }
+
+    $scope.playForward = () => {
+        if (!$scope.actualSystem.direction || !$scope.actualSystem.status) {
+            $scope.actualSystem.status = true;
+            $scope.actualSystem.direction = true;
+            $scope.setMachineState();
+        }
+    }
+
+    $scope.playBackward = () => {
+        if ($scope.actualSystem.direction || !$scope.actualSystem.status) {
+            $scope.actualSystem.status = true;
+            $scope.actualSystem.direction = false;
+            $scope.setMachineState();
+        }
     }
 
     $scope.setMachineState = () => {                                       // New *******************
@@ -424,7 +455,6 @@ app.controller("ControladorPrincipal", function ($scope) {
         $scope.actualSystem.sensorVoltage = $scope.actualSystem.sensorVoltage ? "ON" : "OFF";
         $scope.actualSystem.sensorPosition = $scope.actualSystem.sensorPosition ? "ON" : "OFF";
         $scope.actualSystem.autoreverse = $scope.actualSystem.autoreverse ? "ON" : "OFF";
-        // $scope.actualSystem.sensorPresion = "" + $scope.actualSystem.sensorPresion;
         $scope.actualSystem.direction = $scope.actualSystem.direction ? "FF" : "RR";
         $scope.actualSystem.caudal = "" + $scope.actualSystem.caudal;
         $scope.actualSystem.delayTime = "" + $scope.actualSystem.delayTime;
@@ -466,6 +496,11 @@ app.controller("ControladorPrincipal", function ($scope) {
         $scope.as_hist = win == "as_hist" ? !$scope.as_hist : false;
         $scope.as_users = win == "as_users" ? !$scope.as_users : false;
         window.scrollTo(0, 1000);
+    }
+
+    $scope.setNewPoligonNode = () => {
+        getLocation();
+        document.getElementById("editPoligon").innerHTML += `,${milatitud},${milongitud}`
     }
 
     // #endregion DEVICES
@@ -738,7 +773,33 @@ app.controller("ControladorPrincipal", function ($scope) {
             }
         });
     }
+ 
+    $scope.addSchedule = () => {
+        let data = {
+            "date": document.getElementById("schDate").value,
+            "time": document.getElementById("schTime").value
+        }
+        if (!$scope.actualSystem.schedule) {
+            $scope.actualSystem.schedule = [];
+        }
+        $scope.actualSystem.schedule.push(data);
+        $scope.setMachineSettings();
+        document.getElementById("schDate").value = null;
+        document.getElementById("schTime").value = null;
+    }
     
+    $scope.deleteSchedule = (idx) => {
+        if ($scope.actualSystem.schedule) {
+            delete $scope.actualSystem.schedule[idx];
+            let data = [].concat($scope.actualSystem.schedule);
+            $scope.actualSystem.schedule = [];
+            data.forEach(function(item) {
+                $scope.actualSystem.schedule.push(item);
+            });
+            $scope.setMachineSettings();
+        }
+    }
+   
     dataEditionPlanEstacionario = () => {
         let index = document.getElementById("planEstacionarioId").value;
         let arr1 = [];
@@ -1408,5 +1469,16 @@ window.addEventListener("beforeunload",function(e){
     (e || window.event).returnValue = null;
     return null;
 },true);
+
+// Set the badge
+const unreadCount = 24;
+navigator.setAppBadge(unreadCount).catch((error) => {
+    //Do something with the error.
+});
+
+// Clear the badge
+navigator.clearAppBadge().catch((error) => {
+    // Do something with the error.
+});
 
 // #endregion Progresive Web Application

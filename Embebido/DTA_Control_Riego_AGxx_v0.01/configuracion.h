@@ -14,8 +14,8 @@ const int config[] = {2, 3, 6, 52, 625, 102, 266};        // Rx, Tx, Plots, Pais
 SoftwareSerial gprs(config[0], config[1]);                  // Rx, Tx
 static byte plots = config[2];
 #define telefono fillNumber(config[3], 2) + fillNumber(config[4], 3) + fillNumber(config[5], 3) + fillNumber(config[6], 4)
-#define httpServer "AT+HTTPPARA=\"URL\",\"http://pprsar.com/cosme/commj_v2.php?id="
-// #define httpServer "AT+HTTPPARA=\"URL\",\"http://dtaamerica.com/ws/commj_v2.php?id="
+#define httpServer F("AT+HTTPPARA=\"URL\",\"http://pprsar.com/cosme/commj_v2.php?id=")
+// #define httpServer F("AT+HTTPPARA=\"URL\",\"http://dtaamerica.com/ws/commj_v2.php?id=")
 
 // Actuadores y variables
 #define testFunc false
@@ -23,6 +23,9 @@ static byte plots = config[2];
 #define pinBomba 4
 #define watchDogPin A5
 #define offSet 5
+#define ON F("ON")
+#define OFF F("OFF")
+#define OK F("OK")
 static byte plot = 0;
 static unsigned long activeTime = 0;
 static unsigned long activationTime = 0;

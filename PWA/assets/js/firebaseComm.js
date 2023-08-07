@@ -47,6 +47,9 @@ function initializeFirebaseUI() {
     };
     ui = new firebaseui.auth.AuthUI(firebase.auth());
     ui.start('#firebaseui-auth-container', uiConfig);
+	//if (ui.isPendingRedirect()) {
+	//  ui.start('#firebaseui-auth-container', uiConfig);
+	//}
 }
 
 // #region NOTIFICATIONS
@@ -160,6 +163,9 @@ function deleteFakeFiels(system){
     // delete system.key;
     for (let plan in system.plans) {
         delete system.plans[plan].$$hashKey;
+    }
+    for (let sch in system.schedule) {
+        delete system.schedule[sch].$$hashKey;
     }
     return system;
 }

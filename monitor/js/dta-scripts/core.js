@@ -4,10 +4,35 @@ initializeMap();
 
 //#region Controlador Angular
 
-var app = angular.module("Administracion", []);
+var app = angular.module("Administracion", ['ngRoute']);
+
+// app.config(function ($routeProvider) {
+//     $routeProvider
+//         .when("/", {
+//             template: "<p ng-init='showWindow(\"dashboard\")' style='display: none;'>listado</p>",
+//         })
+//         .when("/productor", {
+//             template: "<p ng-init='showWindow(\"productor\")' style='display: none;'>listado</p>",
+//         })
+//         .when("/parcela", {
+//             template: "<p ng-init='showWindow(\"parcela\")' style='display: none;'>listado</p>",
+//         })
+//         .when("/reportes", {
+//             template: "<p ng-init='showWindow(\"reportes\")' style='display: none;'>listado</p>",
+//         })
+//         .when("/ayuda", {
+//             template: "<p ng-init='showWindow(\"ayuda\")' style='display: none;'>listado</p>",
+//         });
+// });
 
 app.controller("ControladorPrincipal", function ($scope) {
 
+    let listeners = {};
+    $scope.logs = {};
+    $scope.systems = {};
+    $scope.selectedEnterprise = {};
+    $scope.meteo = [];
+    $scope.selectedProductor = "";
     $scope.selectedWindow = 'mapas';
 
     $scope.showWindow = windowsName => {
@@ -19,6 +44,270 @@ app.controller("ControladorPrincipal", function ($scope) {
         getLocation();
     }
 
+    // #region USER
+
+    listenUserStatus = () => {
+        firebase.auth().onAuthStateChanged(user => {
+            if (user) {
+                $scope.authUser = user;
+                getUserEnterprises();
+                getProductors();
+            } else {
+                $scope.$apply(function () {
+                    $scope.authUser = null;
+                });
+            }
+        });
+    };
+
+    getUserEnterprises = () => {
+        findUserEnterprises().then(result => {
+            $scope.enterprises = [];
+            for (item in result) {
+                if (result[item].owner == $scope.authUser.email) {
+                    $scope.enterprises.push(result[item]);
+                }
+            }
+            mappingEnterprisesPartners();
+            $scope.$apply();
+        });
+    }
+
+    mappingEnterprisesPartners = () => {
+        for (idx in $scope.enterprises) {
+            mappingPartnersOfEnterprise($scope.enterprises[idx].partners);
+        }
+    }
+
+    mappingPartnersOfEnterprise = (partners) => {
+        for (idx in partners) {
+            $scope.showPartnerFields(partners[idx]);
+        }
+    }
+
+    $scope.showPartnerFields = (userEmail) => {
+        loadUserLocations(userEmail).then(result => {
+            userSystems = result[userEmail];
+            loadSystems(userSystems);
+            // $scope.$apply();
+        });
+    }
+
+    loadSystems = (userSystems) => {
+        if (userSystems.systems) {
+            for (let locationKey in userSystems.systems) {
+                if (!listeners[locationKey]) {
+                    listeners[locationKey] = firebase.database().ref("systems/" + locationKey + "/settings");
+                    listeners[locationKey].on("value", system => {
+                        if (system.val()) {
+                            $scope.systems[locationKey] = system.val();
+                            $scope.systems[locationKey].key = locationKey;
+                            showField($scope.systems[locationKey]);
+                            $scope.loadSystemLog(locationKey, 1);
+                            getMetorologicalData(locationKey);
+                            $scope.$apply();
+                        }
+                    });
+                }
+            }
+            $scope.showWindow('dashboard');
+        }
+    }
+
+    $scope.loadSystemLog = (locationKey, registers) => {
+        firebase.database().ref("systems/" + locationKey + "/logs").limitToLast(registers).on("value", logs => {
+            if (logs.val()) {
+                $scope.logs[locationKey] = logs.val();
+                $scope.logsArray = {};
+                $scope.logsArray = Object.values($scope.logs);
+                let keys = Object.keys($scope.logs[locationKey]);
+                let length = keys.length;
+                let myLogs = $scope.logs[locationKey];
+                let log = myLogs[keys[length - 1]];
+                let position = log.position ? log.position : 0;
+                position = parseInt(position)
+                    - parseInt($scope.systems[locationKey].magneticDesv ? $scope.systems[locationKey].magneticDesv : "0")
+                    - parseInt($scope.systems[locationKey].posManualAdj ? $scope.systems[locationKey].posManualAdj : "0");
+                log.position = position;
+                log["statusTime"] = calcStatusTime(log.date, log.update);
+                $scope.systems[locationKey]["log"] = log;
+                if (document.getElementById('pos_' + locationKey)) {
+                    document.getElementById('pos_' + locationKey).style.transform = 'rotate(' + position + 'deg)';
+                }
+                updateCompass();
+                invertLog();
+                // $scope.$apply();
+            }
+        });
+    }
+
+    // #endregion USER
+
+    // #region EMPRESA
+
+    $scope.setSelectedEnterprise = (key) => {
+        for (idx in $scope.enterprises) {
+            if ($scope.enterprises[idx].key == key) {
+                $scope.selectedEnterprise = $scope.selectedEnterprise != $scope.enterprises[idx] ? $scope.enterprises[idx] : {};
+            }
+        }
+        if ($scope.selectedEnterprise.partners) {
+            // getProductors();
+            $scope.usuarios = [];
+            for (idx in $scope.listaUsuarios) {
+                if ($scope.selectedEnterprise.partners.includes($scope.listaUsuarios[idx].key)) {
+                    $scope.usuarios.push($scope.listaUsuarios[idx]);
+                }
+            }
+            $scope.showWindow('productores');
+        } else {
+            $scope.showWindow('dashboard');
+        }
+        // removeMarkers();
+        // if ($scope.selectedEnterprise.partners) {
+        //     showEnterpriseMarkers(key);
+        // } else {
+        //     showAllMarkers();
+        // }
+    }
+
+    // showEnterpriseMarkers = (key) => {
+    //     for (idx in $scope.systems) {
+    //         if ($scope.systems[idx] in $scope.selectedEnterprise) {
+    //             showField($scope.systems[idx]);
+    //         }
+    //     }
+    // }
+
+    // showAllMarkers = () => {
+    //     for (idx in $scope.systems) {
+    //         showField($scope.systems[idx]);
+    //     }
+    // }
+
+    $scope.showEnterprises = (key) => {
+        for (idx in $scope.empresas) {
+            let div_obj = document.getElementById('div_' + $scope.empresas[idx].key)
+            let ul_obj = document.getElementById('ul_' + $scope.empresas[idx].key)
+            if ($scope.empresas[idx].key == key) {
+                let value = div_obj.style.display == "block" ? "none" : "block"
+                div_obj.style.display = value;
+                ul_obj.style.display = value;
+            } else {
+                div_obj.style.display = "none";
+                ul_obj.style.display = "none";
+            }
+        }
+    }
+
+    // #endregion EMPRESA
+
+    // #region PRODUCTOR
+
+    $scope.resumenProductor = (key) => {
+        $scope.selectedProductor = $scope.usuarios.find(usuario => usuario.key == key);
+        $scope.showWindow('resumenProductor');
+    }
+
+    getProductors = () => {
+        loadUsersFromFB().then(result => {
+            $scope.listaUsuarios = [];
+            for (let idx in result) {
+                $scope.listaUsuarios.push(result[idx]);
+            }
+            $scope.$apply();
+        });
+    }
+
+    $scope.getFields = () => {
+        loadCamposFromFB().then(result => {
+            $scope.sistemas = [];
+            for (let idx in result) {
+                if (result[idx].settings) {
+                    $scope.sistemas.push(result[idx]);
+                }
+            }
+            $scope.$apply();
+        });
+    }
+
+    // #endregion PRODUCTOR
+
+    // #region MISELANEAS
+
+    $scope.getJsonLength = (json) => {
+        return Object.keys(json).length;
+    }
+
+    $scope.getRandomInt = (max) => {
+        return Math.floor(Math.random() * max);
+    }
+
+    invertLog = () => {
+        $scope.invertedRegisters = [];
+        if ($scope.actualSystem && $scope.logs[$scope.actualSystem.key]) {
+            registers = $scope.logs[$scope.actualSystem.key];
+            registersArr = Object.values(registers);
+            $scope.invertedRegisters = registersArr.reverse();
+        }
+    }
+
+    calcStatusTime = (date, update) => {
+        // let dif = getTimeDiference(date, update);
+        let dif = getTimeDiference(date, null);
+        let result = "-1";
+        if (dif.day >= 1 || dif.hour >= 1 || dif.min >= 10) {
+            result = dif.day >= 1 ? ("+" + dif.day + "d") : dif.hour >= 1 ? ("+" + dif.hour + "h") : ("" + dif.min + "m");
+        }
+        return result;
+    }
+
+    getTimeDiference = (date, update = null) => {
+        let dDate = new Date(parseInt(date.substring(0, 4)), parseInt(date.substring(4, 6)) - 1, parseInt(date.substring(6, 8)), (date.substring(13, 15) == "pm" ? parseInt(date.substring(9, 11)) + 12 : parseInt(date.substring(9, 11)) == 12 ? 0 : parseInt(date.substring(9, 11))), parseInt(date.substring(11, 13)), 0, 0).getTime();
+        let dUpdate = update ? (new Date(parseInt(update.substring(0, 4)), parseInt(update.substring(4, 6)) - 1, parseInt(update.substring(6, 8)), (update.substring(13, 15) == "pm" ? parseInt(update.substring(9, 11)) + 12 : parseInt(update.substring(9, 11)) == 12 ? 0 : parseInt(update.substring(9, 11))), parseInt(update.substring(11, 13)), 0, 0).getTime()) : (new Date()).getTime();
+        let dif = dUpdate - dDate;
+        return {
+            day: parseInt(dif / (1000 * 60 * 60 * 60)),
+            hour: parseInt(dif / (1000 * 60 * 60)),
+            min: parseInt(dif / (1000 * 60))
+        };
+    }
+
+    updateCompass = () => {
+        setTimeout(function () {
+            if ($scope.actualSystem && document.getElementById('as_pos_' + $scope.actualSystem.key)) {
+                document.getElementById('as_pos_' + $scope.actualSystem.key).style.transform = 'rotate(' + $scope.actualSystem.log.position + 'deg)';
+            }
+            $scope.$apply();
+        }, 500);
+    }
+
+    getMetorologicalData = (key) => {
+        $scope.meteo[key] = {};
+        $.ajax({
+            url: `https://api.openweathermap.org/data/2.5/weather?lat=${$scope.systems[key].latitude}&lon=${$scope.systems[key].longitude}&appid=db9c92bd1f6d8d5db0aa0bae36ce093f`, success: function (result) {
+                $scope.meteo[key] = result;
+                $scope.meteo[key].weather["iconUrl"] = `http://openweathermap.org/img/w/${$scope.meteo[key].weather["0"].icon}.png`;
+                $scope.$apply();
+            }
+        });
+    }
+
+    // #endregion MISELANEAS
+
+    $scope.inicializacion = () => {
+        $scope.showWindow("empty");
+        listenUserStatus();
+        setTimeout(function () {
+            if (!$scope.authUser) {
+                $scope.showWindow('login');
+                $scope.$apply();
+            } else {
+                $scope.showWindow('dashboard');
+                $scope.$apply();
+            }
+        }, 2000);
+    }
 });
 
 //#endregion Controlador Angular
@@ -26,9 +315,7 @@ app.controller("ControladorPrincipal", function ($scope) {
 //#region Materializes
 
 document.addEventListener('DOMContentLoaded', function () {
-    M.Modal.init(document.querySelectorAll('.modal'));
-    M.FloatingActionButton.init(document.querySelectorAll('.fixed-action-btn'));
-    var instances = M.FormSelect.init(document.querySelectorAll('select'));
+    M.AutoInit();
 });
 
 //#endregion Materializes
@@ -78,23 +365,25 @@ function getNewLocation(distancia, angulo, miPosicion) {
 //#region Leaflet 
 //https://leaflet-extras.github.io/leaflet-providers/preview/ 
 
-function initializeMap() {
-    let coordCasa = [28.407193, -106.863354];
-    let coord = [28.7114403, -106.9131596];
-    map = L.map('map').setView(coord, 17);
+let markers = [];
 
-    geoLocation();
+function initializeMap() {
+    // let coordCasa = [28.407193, -106.863354];
+    let coord = [28.7114403, -106.9131596];
+    map = L.map('mapa').setView(coord, 4.3);
+
+    // geoLocation();
     addLayers();
-    showFields();
+    // showFields();
 }
 
 function geoLocation() {
     map.locate({
         setView: true,
-        maxZoom: 17
+        maxZoom: 20
     });
-    map.on('locationfound', onLocationFound);
-    map.on('locationerror', onLocationError);
+    // map.on('locationfound', onLocationFound);
+    // map.on('locationerror', onLocationError);
 }
 
 function onLocationFound(e) {
@@ -159,22 +448,31 @@ function showFields() {
     loadCamposFromFB().then(result => {
         let campos = result;
         for (let idx in campos) {
-            let campo = campos[idx];
-            coordinate = [campo.latitude, campo.longitude];
-            let text = "<h6>" + campo.name + "</h6>Cultivo: " + campo.cultures[0].culture + "<br>Estado: " + campo.machine.state + "<br>Riego: " + campo.machine.irrigation + "<br>Lat: " + campo.latitude + "<br>Lng: " + campo.longitude;
-            addMarker(coordinate, text);
-            addCircle(coordinate, parseInt(campo.machine.length));
+            if (campos[idx].settings) {
+                let campo = campos[idx].settings;
+                showField(campo);
+            }
         }
-        coord = [28.7114403, -106.9131596]
-        addMarker(coord, 'Semillas Cosecha de Oro<br>' + new Date());
-        addCircle(coord, 30);
     });
 }
 
-function addMarker(coord, text = 'Mi marcador<br>28/10/2019') {
-    L.marker(coord).addTo(map)
-        .bindPopup(text)
-        .openPopup();
+function showField(campo) {
+    coordinate = [campo.latitude, campo.longitude];
+    let text = `<h6> ${campo.name} </h6> <b> ${campo.key} </b><br/><span style='font-size: .8em;'> [${campo.latitude}, ${campo.longitude}]</span>`;
+    addMarker(coordinate, text);
+}
+
+function addMarker(coord, text = 'DTA-Agricola') {
+    let marker = L.marker(coord).addTo(map).bindPopup(text);
+    // .openPopup();
+    markers.push(marker);
+}
+
+function removeMarkers() {
+    for (idx in markers) {
+        map.removeLayer(markers[idx]);
+    }
+    markers = [];
 }
 
 function addPopup(coord = [28.407, -106.867], text = "Sucursal Banco HSBC") {
