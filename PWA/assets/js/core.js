@@ -1117,7 +1117,8 @@ app.controller("ControladorPrincipal", function ($scope) {
                     if (poligons[campo.key + idx]) {
                         map.removeLayer(poligons[campo.key + idx]);
                     }
-                    poligons[campo.key + idx] = L.polygon(newPoligon);
+                    let color = campo.position == i ? "lightgreen" : "blue";
+                    poligons[campo.key + idx] = L.polygon(newPoligon, {color: color});
                     map.addLayer(poligons[campo.key + idx]);
                 }
             }
