@@ -135,8 +135,7 @@ function updateLog($status, $index, $initialDate, $date, $baseUrl) {
 
 // 4.- Programa principal
 
-function main()
-{
+function main() {
     $baseUrl = config();
     $dataSettings = getcURLData($baseUrl . "settings.json");
     $localZone = sendSettings($dataSettings);
