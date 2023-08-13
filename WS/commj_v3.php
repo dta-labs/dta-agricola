@@ -55,13 +55,37 @@ function postcURLData($url, $data) {
 
 // 1.- Consultar configuración (Settings) y enviar las órdenes al dispositivo:
 
+function getDateTime($localZone) {
+    $zona = $localZone . ' hours';
+    $dateTime = new DateTime();
+    $dateTime->modify($zona);
+    return $dateTime;
+}
+
+function getAutoreverse($dataSettings, $localZone) {
+    $autoreverse = $dataSettings->autoreverse;
+    if ($autoreverse == "OFF" && $dataSettings->isScheduled) {
+        $date = getDateTime($localZone)->format('Y-m-d');
+        $time = getDateTime($localZone)->format('H:i');
+        if ($dataSettings->position == 0 || $dataSettings->position == $dataSettings->length) {
+            foreach ($dataSettings->schedule as $schedule) {
+                if ($date == $schedule->date && $time == $schedule->time) {
+                    return "ON";
+                }
+            }
+        }
+    }
+    return $autoreverse;
+}
+
 function sendSettings($dataSettings) {
     //print_r($dataSettings);
     $timeZone = $dataSettings->zona ? $dataSettings->zona : 0; // Zona horaria
     $summerHour = $dataSettings->summerHour ? $dataSettings->summerHour : 0; // Horario de verano
     $localZone = intval($timeZone) + intval($summerHour);
+    $autoreverse = getAutoreverse($dataSettings, $localZone);
 
-    $lectura = "\"" . $dataSettings->status . "\"" . $dataSettings->autoreverse . "\"" . $dataSettings->length . "\"" . $dataSettings->position;
+    $lectura = "\"" . $dataSettings->status . "\"" . $autoreverse . "\"" . $dataSettings->length . "\"" . $dataSettings->position;
     for ($i = 0; $i < 7; $i++) {
         $p = "p" . $i;
         $lectura .= "\"" . $dataSettings->plots->$p->value;
@@ -83,10 +107,11 @@ function checkLastState($baseUrl, $localZone) {
         $status = $item->{'state'};
         $initialDate = $item->{'date'};
     }
-    $zona = $localZone . ' hours';
-    $dateTime = new DateTime();
-    $dateTime->modify($zona);
-    $date = $dateTime->format('Ymd hia');
+    // $zona = $localZone . ' hours';
+    // $dateTime = new DateTime();
+    // $dateTime->modify($zona);
+    // $date = $dateTime->format('Ymd hia');
+    $date = getDateTime($localZone)->format('Ymd hia');
 
     $indexes = array_keys($json);
     $index = "";

@@ -235,7 +235,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         firebase.database().ref("systems/" + locationKey + "/users").on("value", users => {
             if (users.val()) {
                 $scope.users[locationKey] = users.val();
-                $scope.$apply();
+                // $scope.$apply();
             }
         });
     }
@@ -454,6 +454,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         $scope.actualSystem.sensorSecurity = $scope.actualSystem.sensorSecurity ? "ON" : "OFF";
         $scope.actualSystem.sensorVoltage = $scope.actualSystem.sensorVoltage ? "ON" : "OFF";
         $scope.actualSystem.sensorPosition = $scope.actualSystem.sensorPosition ? "ON" : "OFF";
+        $scope.actualSystem.isScheduled = $scope.actualSystem.autoreverse ? false : $scope.actualSystem.isScheduled;
         $scope.actualSystem.autoreverse = $scope.actualSystem.autoreverse ? "ON" : "OFF";
         $scope.actualSystem.direction = $scope.actualSystem.direction ? "FF" : "RR";
         $scope.actualSystem.caudal = "" + $scope.actualSystem.caudal;
