@@ -18,7 +18,7 @@
 #include <SoftwareSerial.h>
 #include <EEPROM.h>
 
-#include "miselaneas.h"
+#include "miscelaneas.h"
 #include "configuracion.h"
 #include "eeprom.h"
 #include "comunicaciones.h"
@@ -112,7 +112,8 @@ void apagar() {
     for (byte i = 0; i < plots; i++) {
       digitalWrite(i + offSet, LOW);      // Pulso: pone el voltaje por 5 segundos
       delay(5000);
-    }
+      digitalWrite(i + offSet, HIGH);
+   }
   }
 }
 
