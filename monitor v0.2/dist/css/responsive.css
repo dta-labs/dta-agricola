@@ -1,0 +1,28 @@
+.show-in-pc-only {
+	display: none;
+}
+
+.firebaseui-idp-button {
+  height: 50px !important;
+  width: 100% !important;
+  border-radius: 5px !important;
+  max-width: 100% !important;
+}
+
+@media (max-width: 992px) {
+  iframe {
+	  height: calc(100vh - 100px) !important;
+  }
+}
+
+@media (min-width: 992px) {
+  .show-in-pc-only {
+	  display: flex;
+  }
+}
+
+@media (min-width: 1200px) {
+  .show-in-pc-only {
+	  display: flex;
+  }
+}

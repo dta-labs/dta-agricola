@@ -130,9 +130,9 @@ String httpRequest() {
   gprs.print((String)plot);
   gprs.print(F("&rx="));
   gprs.print((String)(commRx ? "Ok" : "Er"));
-  gprs.println(F("&si="));
-  gprs.print((String)signalVar + "\"");
-  getResponse(35, true); 
+  gprs.print(F("&si="));
+  gprs.println((String)signalVar + "\"");
+  getResponse(25, true); 
   gprs.println(F("AT+HTTPACTION=0"));
   String result = getResponse(4000, true); 
   restartGSM = (result.indexOf("ERROR") != -1 || result.indexOf("601") != -1  || result.indexOf("604") != -1 || signalVar < 6) ? true : false;

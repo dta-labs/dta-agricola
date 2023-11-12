@@ -121,7 +121,7 @@ void testComunicaciones() {
   getResponse(15, true); 
   gprs.println(F("AT+HTTPINIT"));
   getResponse(15, true); 
-  gprs.println(F("http://pprsar.com/cosme/commj_v2.php?id=111111111111&st=OFF&tm=0&po=0&rx=Er&si=19"));
+  gprs.println(F("AT+HTTPPARA=\"URL\",\"http://pprsar.com/cosme/commj_v2.php?id=111111111111&st=OFF&tm=0&po=0&rx=Er&si=19\""));
   // gprs.println(F("http://dtaamerica.com/ws/commj_v2.php?id=111111111111&st=OFF&tm=0&po=0&rx=Er&si=19"));
   getResponse(25, true); 
   gprs.println(F("AT+HTTPACTION=0"));

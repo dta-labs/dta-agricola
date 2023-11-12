@@ -65,7 +65,7 @@ void acciones() {
 }
 
 void setPlot() {
-  unsigned long irrigationTime = activationTime != 0 && activationTime > eeVar.enlapsedTime ? activationTime - eeVar.enlapsedTime : activationTime;
+  // unsigned long irrigationTime = activationTime != 0 && activationTime > eeVar.enlapsedTime ? activationTime - eeVar.enlapsedTime : activationTime;
   // if ((millis() - activeTime) >= irrigationTime) {
   if ((millis() - activeTime) >= activationTime) {
     plot = (plot < plots - 1) ? plot + 1 : 0;

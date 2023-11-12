@@ -65,23 +65,24 @@ function transformItem(input) {
 }
 
 function easyDate(dateTime) {
-    let year = dateTime.getFullYear();
-    let month = ('0' + (dateTime.getMonth() + 1)).substr(-2);
-    let day = ('0' + dateTime.getDate()).substr(-2);
-    let dayOfWeek = dateTime.getDay();
-    let hour = ('0' + dateTime.getHours()).substr(-2);
-    let min = ('0' + dateTime.getMinutes()).substr(-2);
-    return {
-        year: year,
-        month: month,
-        day: day,
-        dayOfWeek: dayOfWeek,
-        date: year + '-' + month + '-' + day,
-        hour: hour,
-        min: min,
-        time: hour + ':' + min,
-        timeStamp: dateTime.getTime()
-    }
+	let dateTime = new Date(_dateTime.replace(/\-0/g, "-"));
+	let year = dateTime.getFullYear();
+	let month = ('0' + (dateTime.getMonth() + 1)).substr(-2);
+	let day = ('0' + (dateTime.getDate() > 9 ? dateTime.getDate() + 1 : dateTime.getDate())).substr(-2);
+	let dayOfWeek = dateTime.getDay();
+	let hour = ('0' + dateTime.getHours()).substr(-2);
+	let min = ('0' + dateTime.getMinutes()).substr(-2);
+	return {
+		year: year,
+		month: month,
+		day: day,
+		dayOfWeek: dayOfWeek,
+		date: year + '-' + month + '-' + day,
+		hour: hour,
+		min: min,
+		time: hour + ':' + min,
+		timeStamp: dateTime.getTime()
+	}
 }
 
 function sortBy(list, param) {

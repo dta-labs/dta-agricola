@@ -187,6 +187,10 @@ body {
   border-radius: 5px;
 }
 
+.collapsible-body {
+  padding: 0 !important;
+}
+
 /* #region menues */
 
 .img-logo {

@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="es" ng-app="Administracion">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Suite de monitoreo DTA-Agrícola">
+  <meta name="keywords"
+    content="Agricultura 5.0, Riego Inteligente, Agricultura de precisión, Monitoreo y control, Variables agroclimáticas, Impagenes expectrales">
+  <meta name="author" content="DTA-Agrícola">
+
+  <title>DTA - Monitor v0.2</title>
+
+  <link rel="icon" type="image/x-icon" href="dist/img/DTA-Agricola.png">
+  <!-- Google Font: Source Sans Pro -->
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="dist/css/adminlte.min.css">
+  <!-- overlayScrollbars -->
+  <link rel="stylesheet" href="plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
+  <!-- Custom styling plus plugins -->
+  <link rel="stylesheet" href="dist/css/responsive.css">
+  <link rel="stylesheet" href="dist/js/leaflet/leaflet.css">
+
+</head>
+
+<body class="hold-transition sidebar-mini layout-fixed" data-panel-auto-height-mode="height"
+  ng-controller="ControladorPrincipal" ng-init="inicializacion()">
+  <div class="wrapper">
+
+    <!-- #region Navbar -->
+    <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+      <!-- Left navbar links -->
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+        </li>
+        <li class="nav-item d-none d-sm-inline-block">
+          <a href="index.html" class="nav-link">Inicio</a>
+        </li>
+        <li class="nav-item d-none d-sm-inline-block">
+          <a href="contacto.html" class="nav-link">Contacto</a>
+        </li>
+      </ul>
+
+      <!-- SEARCH FORM -->
+      <form class="form-inline ml-3">
+        <div class="input-group input-group-sm">
+          <input class="form-control form-control-navbar" type="search" placeholder="Buscar..." aria-label="Search">
+          <div class="input-group-append">
+            <button class="btn btn-navbar" type="submit">
+              <i class="fas fa-search"></i>
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <!-- Right navbar links -->
+      <ul class="navbar-nav ml-auto">
+        <!-- Messages Dropdown Menu -->
+        <li class="nav-item dropdown">
+          <a class="nav-link" data-toggle="dropdown" href="#">
+            <i class="far fa-comments"></i>
+            <span class="badge badge-danger navbar-badge">3</span>
+          </a>
+          <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+            <a href="#" class="dropdown-item">
+              <!-- Message Start -->
+              <div class="media">
+                <img src="dist/img/user1-128x128.jpg" alt="User Avatar" class="img-size-50 mr-3 img-circle">
+                <div class="media-body">
+                  <h3 class="dropdown-item-title">
+                    Brad Diesel
+                    <span class="float-right text-sm text-danger"><i class="fas fa-star"></i></span>
+                  </h3>
+                  <p class="text-sm">Call me whenever you can...</p>
+                  <p class="text-sm text-muted"><i class="far fa-clock mr-1"></i> 4 Hours Ago</p>
+                </div>
+              </div>
+              <!-- Message End -->
+            </a>
+            <div class="dropdown-divider"></div>
+            <a href="#" class="dropdown-item">
+              <!-- Message Start -->
+              <div class="media">
+                <img src="dist/img/user8-128x128.jpg" alt="User Avatar" class="img-size-50 img-circle mr-3">
+                <div class="media-body">
+                  <h3 class="dropdown-item-title">
+                    John Pierce
+                    <span class="float-right text-sm text-muted"><i class="fas fa-star"></i></span>
+                  </h3>
+                  <p class="text-sm">I got your message bro</p>
+                  <p class="text-sm text-muted"><i class="far fa-clock mr-1"></i> 4 Hours Ago</p>
+                </div>
+              </div>
+              <!-- Message End -->
+            </a>
+            <div class="dropdown-divider"></div>
+            <a href="#" class="dropdown-item">
+              <!-- Message Start -->
+              <div class="media">
+                <img src="dist/img/user3-128x128.jpg" alt="User Avatar" class="img-size-50 img-circle mr-3">
+                <div class="media-body">
+                  <h3 class="dropdown-item-title">
+                    Nora Silvester
+                    <span class="float-right text-sm text-warning"><i class="fas fa-star"></i></span>
+                  </h3>
+                  <p class="text-sm">The subject goes here</p>
+                  <p class="text-sm text-muted"><i class="far fa-clock mr-1"></i> 4 Hours Ago</p>
+                </div>
+              </div>
+              <!-- Message End -->
+            </a>
+            <div class="dropdown-divider"></div>
+            <a href="#" class="dropdown-item dropdown-footer">See All Messages</a>
+          </div>
+        </li>
+        <!-- Notifications Dropdown Menu -->
+        <li class="nav-item dropdown">
+          <a class="nav-link" data-toggle="dropdown" href="#">
+            <i class="far fa-bell"></i>
+            <span class="badge badge-warning navbar-badge">15</span>
+          </a>
+          <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+            <span class="dropdown-item dropdown-header">15 Notifications</span>
+            <div class="dropdown-divider"></div>
+            <a href="#" class="dropdown-item">
+              <i class="fas fa-envelope mr-2"></i> 4 new messages
+              <span class="float-right text-muted text-sm">3 mins</span>
+            </a>
+            <div class="dropdown-divider"></div>
+            <a href="#" class="dropdown-item">
+              <i class="fas fa-users mr-2"></i> 8 friend requests
+              <span class="float-right text-muted text-sm">12 hours</span>
+            </a>
+            <div class="dropdown-divider"></div>
+            <a href="#" class="dropdown-item">
+              <i class="fas fa-file mr-2"></i> 3 new reports
+              <span class="float-right text-muted text-sm">2 days</span>
+            </a>
+            <div class="dropdown-divider"></div>
+            <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
+          </div>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" data-widget="fullscreen" href="#" role="button">
+            <i class="fas fa-expand-arrows-alt"></i>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#" role="button">
+            <i class="fas fa-th-large"></i>
+          </a>
+        </li>
+      </ul>
+    </nav>
+    <!-- #endregion navbar -->
+
+    <!-- #region Main Sidebar -->
+    <aside class="main-sidebar sidebar-dark-primary elevation-4">
+      <!-- Brand Logo -->
+      <a href="index.html" class="brand-link">
+        <img src="dist/img/DTA-Agricola.png" alt="DTA-Agricola" class="brand-image img-circle elevation-3"
+          style="opacity: .8">
+        <span class="brand-text font-weight-light">Monitor v0.2</span>
+      </a>
+
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <!-- Sidebar user panel (optional) -->
+        <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+          <div class="image">
+            <img src="dist/img/img.jpg" class="img-circle elevation-2" alt="User Image">
+          </div>
+          <div class="info">
+            <a href="#" class="d-block">{{ authUser.displayName }}</a>
+          </div>
+        </div>
+
+        <!-- SidebarSearch Form -->
+        <div class="form-inline">
+          <div class="input-group" data-widget="sidebar-search">
+            <input class="form-control form-control-sidebar" type="search" placeholder="Buscar..." aria-label="Search">
+            <div class="input-group-append">
+              <button class="btn btn-sidebar">
+                <i class="fas fa-search fa-fw"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar Menu -->
+        <nav class="mt-2">
+          <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+            <li class="nav-header">EMPRESAS</li>
+            <li class="nav-item" ng-repeat="empresa in enterprises">
+              <a href="" class="nav-link" ng-click="setSelectedEnterprise(empresa.key)">
+                <i class="nav-icon fas fa-users"></i>
+                {{ empresa.name }}
+                <p>
+                  <i class="fas fa-angle-left right"></i>
+                  <span class="badge badge-info right">{{ empresa.partners.length }}</span>
+                </p>
+              </a>
+              <a id="addProductor_{{ empresa.key }}" class="waves-effect waves-light btn"
+                style="width: 100%; display: none;">
+                <i class="far fa-user-plus nav-icon"></i>Agregar productor
+              </a>
+              <ul class="nav nav-treeview">
+                <li class="nav-item" ng-repeat="partner in empresa.partners" ng-click="resumenProductor(partner)">
+                  <a href="#" class="nav-link" style="font-size: small;" ng-click="setSelectedEnterprise(empresa.key)">
+                    <i class="far fa-user nav-icon"></i>
+                    <span style="font-size: 1.3em;">{{ partner.split("@")[0] }}</span>
+                  </a>
+                </li>
+              </ul>
+            </li>
+            <li class="nav-header" style="padding: .5rem;">HERRAMIENTAS</li>
+            <li class="nav-item">
+              <a href="fichas.html" class="nav-link">
+                <i class="nav-icon fas fa-leaf"></i>
+                <p>Fichas técnicas</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="a2i.html" class="nav-link">
+                <i class="nav-icon fas fa-magic"></i>
+                <p>Asistente Agrícola</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="gallery.html" class="nav-link">
+                <i class="nav-icon far fa-calendar-alt"></i>
+                <p>Calendario</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="opciones.html" class="nav-link">
+                <i class="nav-icon fa fa-cog"></i>
+                <p>Opciones</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="ayuda.html" class="nav-link">
+                <i class="nav-icon fa fa-question"></i>
+                <p>Ayuda</p>
+              </a>
+            </li>
+          </ul>
+        </nav>
+        <!-- /.sidebar-menu -->
+      </div>
+      <!-- /.sidebar -->
+    </aside>
+    <!-- #endregion Main Sidebar -->
+
+    <!-- #region Content Wrapper -->
+
+    <!-- <section>
+
+      <div class="content-wrapper iframe-mode ng-scope" data-widget="iframe" data-loading-screen="750">
+
+        <div class="nav navbar navbar-expand-lg navbar-white navbar-light border-bottom p-0 show-in-pc-only">
+          <a class="nav-link bg-danger" href="#" data-widget="iframe-close">Cerrar</a>
+          <a class="nav-link bg-light" href="#" data-widget="iframe-scrollleft"><i
+              class="fas fa-angle-double-left"></i></a>
+          <ul class="navbar-nav" role="tablist"></ul>
+          <a class="nav-link bg-light" href="#" data-widget="iframe-scrollright"><i
+              class="fas fa-angle-double-right"></i></a>
+          <a class="nav-link bg-light" href="#" data-widget="iframe-fullscreen"><i class="fas fa-expand"></i></a>
+        </div>
+
+        <div class="tab-content">
+
+          
+        </div>
+        
+      </div>
+      
+    </section> -->
+
+    <div class="content-wrapper">
+
+      <!-- #region inicio -->
+      <section id="inicio" ng-show="selectedWindow == 'start'">
+        <div class="tab-empty" style="text-align: center; padding-top: 10%; display: flow;">
+          <p><img src="dist/img/waiting.png" alt=""></p>
+          <h2 class="display-4">Seleccione una opción!</h2>
+        </div>
+      </section>
+      <!-- #endregion inicio -->
+
+      <!-- #region dashboard -->
+      <section id="inicio" ng-show="selectedWindow == 'dashboard'">
+        <div class="container-fluid">
+          <!-- #region Info boxes -->
+          <div class="row">
+            <div class="col-12 col-sm-6 col-md-3">
+              <div class="info-box">
+                <span class="info-box-icon bg-info elevation-1"><i class="far fa-object-group"></i></span>
+
+                <div class="info-box-content">
+                  <span class="info-box-text">Suelos (ha)</span>
+                  <span class="info-box-number" style="font-size: 1.2em;">{{ usuarios.length * 56 }}
+                    <small>ha</small></span>
+                </div>
+                <!-- /.info-box-content -->
+              </div>
+              <!-- /.info-box -->
+            </div>
+            <!-- /.col -->
+            <div class="col-12 col-sm-6 col-md-3">
+              <div class="info-box mb-3">
+                <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-tint"></i></span>
+
+                <div class="info-box-content">
+                  <span class="info-box-text">Ahorro (agua)</span>
+                  <span class="info-box-number" style="font-size: 1.2em;">18 <small>%</small></span>
+                </div>
+                <!-- /.info-box-content -->
+              </div>
+              <!-- /.info-box -->
+            </div>
+            <!-- /.col -->
+
+            <!-- fix for small devices only -->
+            <div class="clearfix hidden-md-up"></div>
+
+            <div class="col-12 col-sm-6 col-md-3">
+              <div class="info-box mb-3">
+                <span class="info-box-icon bg-success elevation-1"><i class="fas fa-shopping-cart"></i></span>
+
+                <div class="info-box-content">
+                  <span class="info-box-text">Ventas</span>
+                  <span class="info-box-number" style="font-size: 1.2em;"><small>$</small> {{ usuarios.length * 80 * 5
+                    }}.00</span>
+                </div>
+                <!-- /.info-box-content -->
+              </div>
+              <!-- /.info-box -->
+            </div>
+            <!-- /.col -->
+            <div class="col-12 col-sm-6 col-md-3">
+              <div class="info-box mb-3">
+                <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-users"></i></span>
+
+                <div class="info-box-content">
+                  <span class="info-box-text">Miembros</span>
+                  <span class="info-box-number" style="font-size: 1.2em;">{{ usuarios.length }}</span>
+                </div>
+                <!-- /.info-box-content -->
+              </div>
+              <!-- /.info-box -->
+            </div>
+            <!-- /.col -->
+          </div>
+          <!-- #endregion Info boxes -->
+
+          <!-- #region Reporte de consumo de agua -->
+          <div class="row">
+            <div class="col-md-12">
+              <div class="card">
+                <div class="card-header">
+                  <h5 class="card-title">Reporte de consumo de agua</h5>
+
+                  <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                      <i class="fas fa-minus"></i>
+                    </button>
+                    <div class="btn-group">
+                      <button type="button" class="btn btn-tool dropdown-toggle" data-toggle="dropdown">
+                        <i class="fas fa-wrench"></i>
+                      </button>
+                      <div class="dropdown-menu dropdown-menu-right" role="menu">
+                        <a href="#" class="dropdown-item">Capacidad de campo</a>
+                        <a href="#" class="dropdown-item">Salud del cultivo</a>
+                        <a href="#" class="dropdown-item">Índice vegetativo</a>
+                        <a class="dropdown-divider"></a>
+                        <a href="#" class="dropdown-item">Humedad relativa</a>
+                        <a href="#" class="dropdown-item">Temperatura</a>
+                        <a href="#" class="dropdown-item">Precipitaciones</a>
+                      </div>
+                    </div>
+                    <button type="button" class="btn btn-tool" data-card-widget="remove">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </div>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-md-8">
+                      <p class="text-center">
+                        <strong>Sales: 1 Jan, 2014 - 30 Jul, 2014</strong>
+                      </p>
+
+                      <div class="chart">
+                        <!-- Sales Chart Canvas -->
+                        <canvas id="salesChart" height="180" style="height: 180px;"></canvas>
+                      </div>
+                      <!-- /.chart-responsive -->
+                    </div>
+                    <!-- /.col -->
+                    <div class="col-md-4">
+                      <p class="text-center">
+                        <strong>Goal Completion</strong>
+                      </p>
+
+                      <div class="progress-group">
+                        Add Products to Cart
+                        <span class="float-right"><b>160</b>/200</span>
+                        <div class="progress progress-sm">
+                          <div class="progress-bar bg-primary" style="width: 80%"></div>
+                        </div>
+                      </div>
+                      <!-- /.progress-group -->
+
+                      <div class="progress-group">
+                        Complete Purchase
+                        <span class="float-right"><b>310</b>/400</span>
+                        <div class="progress progress-sm">
+                          <div class="progress-bar bg-danger" style="width: 75%"></div>
+                        </div>
+                      </div>
+
+                      <!-- /.progress-group -->
+                      <div class="progress-group">
+                        <span class="progress-text">Visit Premium Page</span>
+                        <span class="float-right"><b>480</b>/800</span>
+                        <div class="progress progress-sm">
+                          <div class="progress-bar bg-success" style="width: 60%"></div>
+                        </div>
+                      </div>
+
+                      <!-- /.progress-group -->
+                      <div class="progress-group">
+                        Send Inquiries
+                        <span class="float-right"><b>250</b>/500</span>
+                        <div class="progress progress-sm">
+                          <div class="progress-bar bg-warning" style="width: 50%"></div>
+                        </div>
+                      </div>
+                      <!-- /.progress-group -->
+                    </div>
+                    <!-- /.col -->
+                  </div>
+                  <!-- /.row -->
+                </div>
+                <!-- ./card-body -->
+                <div class="card-footer">
+                  <div class="row">
+                    <div class="col-sm-3 col-6">
+                      <div class="description-block border-right">
+                        <span class="description-percentage text-success"><i class="fas fa-caret-up"></i> 17%</span>
+                        <h5 class="description-header">$35,210.43</h5>
+                        <span class="description-text">CAPACIDAD DE CAMPO</span>
+                      </div>
+                      <!-- /.description-block -->
+                    </div>
+                    <!-- /.col -->
+                    <div class="col-sm-3 col-6">
+                      <div class="description-block border-right">
+                        <span class="description-percentage text-warning"><i class="fas fa-caret-left"></i> 0%</span>
+                        <h5 class="description-header">$10,390.90</h5>
+                        <span class="description-text">SALUD DEL CULTIVO</span>
+                      </div>
+                      <!-- /.description-block -->
+                    </div>
+                    <!-- /.col -->
+                    <div class="col-sm-3 col-6">
+                      <div class="description-block border-right">
+                        <span class="description-percentage text-success"><i class="fas fa-caret-up"></i> 20%</span>
+                        <h5 class="description-header">$24,813.53</h5>
+                        <span class="description-text">ÍNDICE VEGETATIVO</span>
+                      </div>
+                      <!-- /.description-block -->
+                    </div>
+                    <!-- /.col -->
+                    <div class="col-sm-3 col-6">
+                      <div class="description-block">
+                        <span class="description-percentage text-danger"><i class="fas fa-caret-down"></i> 18%</span>
+                        <h5 class="description-header">1200</h5>
+                        <span class="description-text">ESTADO AGROCLIMÁTICO</span>
+                      </div>
+                      <!-- /.description-block -->
+                    </div>
+                  </div>
+                  <!-- /.row -->
+                </div>
+                <!-- /.card-footer -->
+              </div>
+              <!-- /.card -->
+            </div>
+            <!-- /.col -->
+          </div>
+          <!-- #endregion Reporte de consumo de agua -->
+
+          <!-- #region Tabla productores -->
+          <div class="row">
+            <div class="col-md-12">
+              <div class="card">
+                <div class="card-header border-transparent">
+                  <h3 class="card-title">Productores</h3>
+
+                  <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                      <i class="fas fa-minus"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" data-card-widget="remove">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </div>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body p-0">
+                  <div class="table-responsive">
+                    <table class="table m-0">
+                      <thead>
+                        <tr>
+                          <th>Productor</th>
+                          <th>Localidad</th>
+                          <th>Estado</th>
+                          <th>Plan</th>
+                          <th>Sistemas</th>
+                          <th>Ahorro</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr ng-repeat="usuario in usuarios">
+                          <td>{{ usuario.profile && usuario.profile.nombre ? usuario.profile.nombre : usuario.key.split("@")[0] }}</td>
+                          <td>{{ usuario.profile && usuario.profile.localidad ? usuario.profile.localidad : "" }}</td>
+                          <td>{{ usuario.profile && usuario.profile.estado ? usuario.profile.estado : "" }}</td>
+                          <td>{{ (usuario.profile && usuario.profile.plan ? usuario.profile.plan : "") | uppercase }}</td>
+                          <td style="text-align: center;">{{ usuario.systems ? obj2Array(usuario.systems).length : 0 }}</td>
+                          <td></td>
+                          <td><a href="" class="btn btn-sm btn-secondary float-right">Ver</a></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <!-- /.table-responsive -->
+                </div>
+                <!-- /.card-body -->
+                <div class="card-footer clearfix">
+                  <a href="javascript:void(0)" class="btn btn-sm btn-info float-right">Agregar productor</a>
+                </div>
+                <!-- /.card-footer -->
+              </div>
+            </div>
+          </div>
+          <!-- #endregion Tabla productores -->
+        </div><!--/. container-fluid -->
+      </section>
+      <!-- #endregion dashboard -->
+
+      <!-- #region loading -->
+      <section id="loading" ng-show="selectedWindow == 'loading'">
+        <div class="tab-loading" style="text-align: center; padding-top: 10%; display: flow;">
+          <div>
+            <h2 class="display-4">Cargando...<i class="fa fa-sync fa-spin"></i></h2>
+          </div>
+        </div>
+      </section>
+      <!-- #endregion loading -->
+
+      <!-- #region login [Ok] -->
+      <section id="usuarios" ng-show="selectedWindow == 'login'">
+
+        <div class="content-wrapper">
+          <div class="login-box">
+            <div class="login-logo">
+              <span class="brand-text font-weight-light">Monitor v0.2</span>
+            </div>
+            <div class="card">
+              <div class="card-body login-card-body">
+                <p class="login-box-msg">Iniciar sesión</p>
+
+                <div id="firebaseui-auth-container"></div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+      <!-- #endregion login -->
+
+      <!-- #region empty (sin conexión) [Ok] -->
+      <section id="vacio" ng-show="selectedWindow == 'empty'">
+
+        <div class="content-wrapper">
+          <div class="tab-content">
+            <div class="tab-empty" style="text-align: center; margin-top: 10%; display: flow;">
+              <p><img src="dist/img/offline.jpg" alt="empty" style="width: 50%;"></p>
+              <h2 class="display-4">Sin conexión!</h2>
+            </div>
+          </div>
+        </div>
+
+      </section>
+      <!-- #endregion empty (sin conexión) -->
+
+    </div>
+
+    <!-- #endregion content-wrapper -->
+
+    <!-- #region footer -->
+    <footer class="main-footer">
+      <strong>&copy; 2023 by &nbsp;<a href="https://dtaamerica.com/dta-agricola"><img src="dist/img/DTA-Agrícola.png"
+            alt="DTA-America" style="width: 110px;"></a>.</strong>
+      Todos los derechos reservados.
+      <div class="float-right d-none d-sm-inline-block">
+        <b>Powered by &nbsp;&nbsp;&nbsp;<a href="https://dtaamerica.com"><img src="dist/img/DTA-America.png"
+              alt="DTA-America" style="width: 110px;"></a></b>
+      </div>
+    </footer>
+    <!-- #endregion footer -->
+
+    <!-- #region Control Sidebar -->
+    <aside class="control-sidebar control-sidebar-dark">
+      <!-- Control sidebar content goes here -->
+    </aside>
+    <!-- #endregion control-sidebar -->
+
+  </div>
+
+  <!-- #region SCRIPTS -->
+
+  <!-- jQuery -->
+  <script src="plugins/jquery/jquery.min.js"></script>
+  <!-- jQuery UI 1.11.4 -->
+  <script src="plugins/jquery-ui/jquery-ui.min.js"></script>
+  <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
+  <script>
+    $.widget.bridge('uibutton', $.ui.button)
+  </script>
+  <!-- Bootstrap 4 -->
+  <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <!-- overlayScrollbars -->
+  <script src="plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
+  <!-- AdminLTE App -->
+  <script src="dist/js/adminlte.js"></script>
+  <!-- AdminLTE for demo purposes -->
+  <script src="dist/js/demo.js"></script>
+
+  <!-- jQuery Mapael -->
+  <script src="plugins/jquery-mousewheel/jquery.mousewheel.js"></script>
+  <script src="plugins/raphael/raphael.min.js"></script>
+  <script src="plugins/jquery-mapael/jquery.mapael.min.js"></script>
+  <script src="plugins/jquery-mapael/maps/usa_states.min.js"></script>
+  <!-- ChartJS -->
+  <script src="plugins/chart.js/Chart.min.js"></script>
+
+  <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
+  <script src="dist/js/pages/dashboard2.js"></script>
+
+  <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/4.0.0/firebaseui.css" />
+  <script src="https://www.gstatic.com/firebasejs/5.10.1/firebase.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/ui/4.0.0/firebase-ui-auth__es_419.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.3.0/firebase-analytics.js"></script>
+
+  <script src="./plugins/leaflet/leaflet.js"></script>
+  <script src="./plugins/leaflet/leaflet-semicircle/semicircle.js"></script>
+
+  <script src="./dist/js/dta-scripts/angular.min.js"></script>
+  <script src="./dist/js/dta-scripts/angular-route.js"></script>
+  <script src="./dist/js/dta-scripts/firebaseComm.js"></script>
+  <script src="./dist/js/dta-scripts/fileComm.js"></script>
+  <script src="./dist/js/dta-scripts/geo.js"></script>
+  <script src="./dist/js/dta-scripts/commons.js"></script>
+  <script src="./dist/js/dta-scripts/wsData.js"></script>
+  <script src="./dist/js/dta-scripts/core.js"></script>
+
+  <!-- #endregion SCRIPTS -->
+
+</body>
+
+</html>
