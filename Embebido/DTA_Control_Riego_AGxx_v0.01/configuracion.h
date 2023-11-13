@@ -7,16 +7,16 @@
  ****************************************************************************/
 
 // Settings
-// const int config[] = {2, 3, 7, 11, 111, 111, 1111};          // Rx, Tx, Plots, Pais, Lada, Número
-const int config[] = {2, 3, 7, 52, 625, 102, 596};          // Rx, Tx, Plots, Pais, Lada, Número
+const int config[] = {2, 3, 7, 11, 111, 111, 1113};          // Rx, Tx, Plots, Pais, Lada, Número
+// const int config[] = {2, 3, 7, 52, 625, 102, 596};          // Rx, Tx, Plots, Pais, Lada, Número
 
 #pragma region Variables
 
 SoftwareSerial gprs(config[0], config[1]);                  // Rx, Tx
 static byte plots = config[2];
 #define telefono fillNumber(config[3], 2) + fillNumber(config[4], 3) + fillNumber(config[5], 3) + fillNumber(config[6], 4)
-#define httpServer F("AT+HTTPPARA=\"URL\",\"http://pprsar.com/cosme/commj_v2.php?id=")
-// #define httpServer F("AT+HTTPPARA=\"URL\",\"http://dtaamerica.com/ws/commj_v2.php?id=")
+// #define httpServer F("AT+HTTPPARA=\"URL\",\"http://pprsar.com/cosme/commj_v2.php?id=")
+#define httpServer F("AT+HTTPPARA=\"URL\",\"http://dtaamerica.com/ws/commj_v2.php?id=")
 
 // Actuadores y variables
 #define testFunc false

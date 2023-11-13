@@ -32,7 +32,7 @@ void setup() {
   apagarTodo();
   Serial.println(F(">>> DTA-Agrícola: Serie AGxx v0.2.2 A"));
   Serial.print(F("    «")); Serial.print(telefono); Serial.println(F("»"));
-  readEEPROM();
+  // readEEPROM();
   setActivationTime();
   activeTime = millis();
 }
@@ -41,9 +41,9 @@ void loop() {
   Serial.println(F("\n********************* New loop *********************\n"));
   gestionarComunicaciones();
   systemWatchDog();
+  showVars();
   if (cyclic || (!cyclic && (plot < plots - 1 || (plot == plots - 1 && (millis() - activeTime) < activationTime)))) {
     acciones();
-    showVars();
   }
   systemWatchDog();
   waitFor(3);                                                            // Demora de 30 segundos
@@ -60,7 +60,7 @@ void acciones() {
     // updateEEPROM(0);
   } else {
     apagarTodo();
-    deleteEEPROM();
+    // deleteEEPROM();
   }
 }
 
@@ -69,7 +69,7 @@ void setPlot() {
   // if ((millis() - activeTime) >= irrigationTime) {
   if ((millis() - activeTime) >= activationTime) {
     plot = (plot < plots - 1) ? plot + 1 : 0;
-    Serial.print(F("Change to plot: ")); Serial.println(plot);
+    Serial.print(F("Change to plot: ")); Serial.println(plot + 1);
     apagar();
     activationTime = 0;
     activeTime = 0;

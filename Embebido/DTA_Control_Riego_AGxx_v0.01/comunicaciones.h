@@ -178,7 +178,7 @@ void gestionarComunicaciones() {
 
 void showVars() {
   Serial.print(F("~ Status: ")); Serial.println(statusVar);
-  Serial.print(F("~ Actual plot: ")); Serial.println(plot); 
+  Serial.print(F("~ Actual plot: ")); Serial.println(plot + 1); 
   Serial.print(F("~ Irrigation time: ")); Serial.println(activationTime); 
   Serial.print(F("~ Remaining time: "));
   Serial.print(activationTime != 0 ? millis() - activeTime : 0);
