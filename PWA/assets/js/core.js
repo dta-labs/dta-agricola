@@ -550,6 +550,7 @@ app.controller("ControladorPrincipal", function ($scope) {
     $scope.createNewDevice = () => {
         getLocation();
         $scope.newDevice = {
+            "autoreverse": "OFF",
             "booleanStatus": false,
             "caudal": "0",
             "fertilization": "OFF",
@@ -575,7 +576,6 @@ app.controller("ControladorPrincipal", function ($scope) {
             case "PL":
                 Object.assign($scope.newDevice,
                     {
-                        "autoreverse": "OFF",
                         "brand": "",
                         "direction": "FF",
                         "plansLength": "1",
@@ -597,29 +597,35 @@ app.controller("ControladorPrincipal", function ($scope) {
             case "Estacionario":
                 Object.assign($scope.newDevice,
                     {
-                        "clyclic": "ON",
-                        "position": "1",
+                        "position": "0",
                         "plots": {
                             "p0": {
-                                "value": "0"
+                                "value": "0",
+                                "valvle": "F"
                             },
                             "p1": {
-                                "value": "0"
+                                "value": "0",
+                                "valvle": "F"
                             },
                             "p2": {
-                                "value": "0"
+                                "value": "0",
+                                "valvle": "F"
                             },
                             "p3": {
-                                "value": "0"
+                                "value": "0",
+                                "valvle": "F"
                             },
                             "p4": {
-                                "value": "0"
+                                "value": "0",
+                                "valvle": "F"
                             },
                             "p5": {
-                                "value": "0"
+                                "value": "0",
+                                "valvle": "F"
                             },
                             "p6": {
-                                "value": "0"
+                                "value": "0",
+                                "valvle": "F"
                             },
                         }
                     }
