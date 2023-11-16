@@ -1326,17 +1326,17 @@ app.controller("ControladorPrincipal", function ($scope) {
     }
 
     $scope.getDayFromMs = (duration) => {
-        let days = parseInt(duration / (1000 * 60 * 60 * 24));
+        let days = parseInt(parseInt(duration) / (1000 * 60 * 60 * 24));
         return (days < 10 ? "0" + days : days);
     }
 
     $scope.getHourFromMs = (duration) => {
-        let hours = parseInt((duration % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        let hours = parseInt((parseInt(duration) % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         return (hours < 10 ? "0" + hours : hours);
     }
 
     $scope.getMinutesFromMs = (duration) => {
-        let minutes = parseInt((duration % (1000 * 60 * 60)) / (1000 * 60));
+        let minutes = parseInt((parseInt(duration) % (1000 * 60 * 60)) / (1000 * 60));
         return (minutes < 10 ? "0" + minutes : minutes);
     }
 
