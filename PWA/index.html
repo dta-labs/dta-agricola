@@ -745,7 +745,7 @@
                                             style="color: {{ actualSystem.status && actualSystem.direction ? 'white' : 'grey' }};"></i>
                                     </div>
                                 </div>
-                                <div class="row" style="margin-bottom: 0px; width: 100%; margin: auto;">
+                                <div class="row" style="margin-bottom: 0px; width: 100%; margin: auto; margin-bottom: 0;">
                                     <div class="main-container map col s12 m8"> <!-- Mapa -->
                                         <div id="map" class="map" style="border-radius: 5px;"></div>
                                     </div>
@@ -787,7 +787,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="row"> <!-- Status General -->
+                                        <div class="row" style="margin-bottom: 0;"> <!-- Status General -->
                                             <div class="row" style="margin-bottom: 0;"
                                                 ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'">
                                                 <div class="bordered col s4 m10 row"
