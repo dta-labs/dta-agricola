@@ -2,7 +2,7 @@
 
 String parse(String dataString, char separator, int index) {
   byte found = 0;
-  byte strIndex[] = {0, -1};
+  int strIndex[] = {0, -1};
   int maxIndex = dataString.length()-1;
   for(int i = 0; i <= maxIndex && found <= index; i++) {
     if(dataString.charAt(i) == separator || i == maxIndex) {
