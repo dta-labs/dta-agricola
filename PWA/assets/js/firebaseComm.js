@@ -18,32 +18,50 @@ initializeFirebaseUI();
 function initializeFirebaseUI() {
     let uiConfig = {
         callbacks: {
-            signInSuccessWithAuthResult: function (currentUser, credential, redirectUrl) {
-                //setAuthUser(currentUser, credential, redirectUrl);
-                return false;
-            },
-            uiShown: function () {
-                //document.getElementById('loader').style.display = 'none';
+            signInFailure: function(error) {
+                // For merge conflicts, the error.code will be
+                // 'firebaseui/anonymous-upgrade-merge-conflict'.
+                if (error.code != 'firebaseui/anonymous-upgrade-merge-conflict') {
+                  return Promise.resolve();
+                }
+                // The credential the user tried to sign in with.
+                var cred = error.credential;
+                // Copy data from anonymous user to permanent user and delete anonymous
+                // user.
+                // ...
+                // Finish sign-in after data is copied.
+                return firebase.auth().signInWithCredential(cred);
             }
+        //     signInFailure: function(error) {
+        //         // For merge conflicts, the error.code will be
+        //         // 'firebaseui/anonymous-upgrade-merge-conflict'.
+        //         if (error.code != 'firebaseui/anonymous-upgrade-merge-conflict') {
+        //           return Promise.resolve();
+        //         }
+        //         // The credential the user tried to sign in with.
+        //         var cred = error.credential;
+        //         // Copy data from anonymous user to permanent user and delete anonymous
+        //         // user.
+        //         // ...
+        //         // Finish sign-in after data is copied.
+        //         return firebase.auth().signInWithCredential(cred);
+        //     },
+        //     signInSuccessWithAu  thResult: function (currentUser, credential, redirectUrl) {
+        //         //setAuthUser(currentUser, credential, redirectUrl);
+        //         return false;
+        //     },
+        //     uiShown: function () {
+        //         //document.getElementById('loader').style.display = 'none';
+        //     }
         },
-        signInSuccessUrl: 'https://dta-labs.droppages.com/privacidad-es.html',
         signInOptions: [
             firebase.auth.GoogleAuthProvider.PROVIDER_ID,
             firebase.auth.EmailAuthProvider.PROVIDER_ID,
-            // clientId: settings.clientId,
-            // {
-            //     provider: firebase.auth.PhoneAuthProvider.PROVIDER_ID,
-            //     recaptchaParameters: {
-            //         type: 'image',
-            //         //size: 'invisible',
-            //         badge: 'bottonleft'
-            //     }
-            // }
+            // firebase.auth.PhoneAuthProvider.PROVIDER_ID,
         ],
-        tosUrl: '<your-tos-url>',
-        privacyPolicyUrl: function () {
-            window.location.assign('<your-privacy-policy-url>');
-        }
+        signInSuccessUrl: './index.html',
+        tosUrl: 'https://dtaamerica.com/privacidad-es.html',
+        privacyPolicyUrl: 'https://dtaamerica.com/privacidad-es.html'
     };
     ui = new firebaseui.auth.AuthUI(firebase.auth());
     ui.start('#firebaseui-auth-container', uiConfig);

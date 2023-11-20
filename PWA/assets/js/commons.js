@@ -64,7 +64,7 @@ function transformItem(input) {
     return result;
 }
 
-function easyDate(dateTime) {
+function easyDate(_dateTime) {
 	let dateTime = new Date(_dateTime.replace(/\-0/g, "-"));
 	let year = dateTime.getFullYear();
 	let month = ('0' + (dateTime.getMonth() + 1)).substr(-2);

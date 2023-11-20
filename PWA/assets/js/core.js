@@ -146,10 +146,12 @@ app.controller("ControladorPrincipal", function ($scope) {
         firebase.auth().onAuthStateChanged(user => {
             if (user) {
                 // $scope.$apply(function () {
+                console.log("Intento de autenticación");
                 $scope.authUser = user;
                 getUserData();
                 // });
             } else {
+                console.log("Error de autenticación");
                 $scope.$apply(function () {
                     $scope.authUser = null;
                 });
@@ -180,15 +182,30 @@ app.controller("ControladorPrincipal", function ($scope) {
     };
 
     $scope.logout = () => {
-        firebase.auth().signOut().then(function () {
-            //ui = null;
+
+        firebase.auth().signOut().then(() => {
             $scope.authUser = null;
             $scope.tipoUsuario = 0;
             // ui.start("#firebaseui-auth-container", uiConfig);
             //logoutAutUser();
             //document.getElementById("logout").style.display = "none";
+        }).catch((error) => {
+            // An error happened.
         });
-        $scope.login();
+        
+        // firebase.auth().signOut().then(function () {
+        //     let provider = new firebase.auth.GoogleAuthProvider();
+        //     provider.setCustomParameters({
+        //         prompt: 'select_account'
+        //     });
+        //     //ui = null;
+        //     $scope.authUser = null;
+        //     $scope.tipoUsuario = 0;
+        //     // ui.start("#firebaseui-auth-container", uiConfig);
+        //     //logoutAutUser();
+        //     //document.getElementById("logout").style.display = "none";
+        // });
+        // $scope.login();
     };
 
     $scope.isSystemOfRole = (role) => {
@@ -440,6 +457,27 @@ app.controller("ControladorPrincipal", function ($scope) {
         }
     }
 
+    $scope.setMachineConfig = () => {
+        swal({
+            title: "Ajustes",
+            text: "¿Desea confirmar los cambios realizados?",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+          })
+        .then((confirm) => {
+            if (confirm) {
+                $scope.setMachineSettings($scope.actualSystem);
+                swal("Sistema actualizado correctamente!", {
+                    icon: "success",
+                });
+            } else {
+              swal("No se realizó la actualización!");
+            }
+        });
+
+    }
+
     showSpinner = () => {
         document.getElementById("spinner").style.display = "flex";
     }
@@ -550,6 +588,7 @@ app.controller("ControladorPrincipal", function ($scope) {
     $scope.createNewDevice = () => {
         getLocation();
         $scope.newDevice = {
+            "autoreverse": "OFF",
             "booleanStatus": false,
             "caudal": "0",
             "fertilization": "OFF",
@@ -575,7 +614,6 @@ app.controller("ControladorPrincipal", function ($scope) {
             case "PL":
                 Object.assign($scope.newDevice,
                     {
-                        "autoreverse": "OFF",
                         "brand": "",
                         "direction": "FF",
                         "plansLength": "1",
@@ -597,29 +635,35 @@ app.controller("ControladorPrincipal", function ($scope) {
             case "Estacionario":
                 Object.assign($scope.newDevice,
                     {
-                        "clyclic": "ON",
-                        "position": "1",
+                        "position": "0",
                         "plots": {
                             "p0": {
-                                "value": "0"
+                                "value": "0",
+                                "valvle": "F"
                             },
                             "p1": {
-                                "value": "0"
+                                "value": "0",
+                                "valvle": "F"
                             },
                             "p2": {
-                                "value": "0"
+                                "value": "0",
+                                "valvle": "F"
                             },
                             "p3": {
-                                "value": "0"
+                                "value": "0",
+                                "valvle": "F"
                             },
                             "p4": {
-                                "value": "0"
+                                "value": "0",
+                                "valvle": "F"
                             },
                             "p5": {
-                                "value": "0"
+                                "value": "0",
+                                "valvle": "F"
                             },
                             "p6": {
-                                "value": "0"
+                                "value": "0",
+                                "valvle": "F"
                             },
                         }
                     }
@@ -1320,17 +1364,17 @@ app.controller("ControladorPrincipal", function ($scope) {
     }
 
     $scope.getDayFromMs = (duration) => {
-        let days = parseInt(duration / (1000 * 60 * 60 * 24));
+        let days = parseInt(parseInt(duration) / (1000 * 60 * 60 * 24));
         return (days < 10 ? "0" + days : days);
     }
 
     $scope.getHourFromMs = (duration) => {
-        let hours = parseInt((duration % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        let hours = parseInt((parseInt(duration) % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         return (hours < 10 ? "0" + hours : hours);
     }
 
     $scope.getMinutesFromMs = (duration) => {
-        let minutes = parseInt((duration % (1000 * 60 * 60)) / (1000 * 60));
+        let minutes = parseInt((parseInt(duration) % (1000 * 60 * 60)) / (1000 * 60));
         return (minutes < 10 ? "0" + minutes : minutes);
     }
 
