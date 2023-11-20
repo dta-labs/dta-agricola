@@ -152,7 +152,7 @@
                                             <!-- </div> -->
                                         </a>
                                     </li>
-                                    <li ng-click="logout()" ng-show="authUser" ng-click="logout()">
+                                    <li ng-show="authUser" ng-click="logout()">
                                         <a href="#!/login" style="width: 100%;">
                                             <i class="fa fa-sign-out" aria-hidden="true"></i>
                                             &nbsp;Salir
@@ -1009,7 +1009,7 @@
                                                                     <input type="checkbox"
                                                                         ng-model="actualSystem.autoreverse"
                                                                         ng-checked="actualSystem.autoreverse"
-                                                                        ng-change="setMachineSettings()">
+                                                                        ng-change="setMachineSettings(actualSystem)">
                                                                     <span class="lever"></span>
                                                                     <span class="redBg"><b>&nbsp;On&nbsp;</b></span>
                                                                 </label>
@@ -1090,7 +1090,7 @@
                                                                         <input type="checkbox"
                                                                             ng-model="actualSystem.autoreverse"
                                                                             ng-checked="actualSystem.autoreverse"
-                                                                            ng-change="setMachineSettings()">
+                                                                            ng-change="setMachineSettings(actualSystem)">
                                                                         <span class="lever"></span>
                                                                         <span
                                                                             class="redBg"><b>&nbsp;Sí&nbsp;</b></span>
@@ -1489,7 +1489,7 @@
                                                 <td colspan="3" class="right-align">
                                                     <a href=""
                                                         class="modal-close waves-effect teal waves-green btn-flat white-text"
-                                                        ng-click="setMachineSettings()">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i
+                                                        ng-click="setMachineConfig()">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i
                                                             class="material-icons">check</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
                                                 </td>
                                             </tr>

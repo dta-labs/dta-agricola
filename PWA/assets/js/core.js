@@ -146,10 +146,12 @@ app.controller("ControladorPrincipal", function ($scope) {
         firebase.auth().onAuthStateChanged(user => {
             if (user) {
                 // $scope.$apply(function () {
+                console.log("Intento de autenticación");
                 $scope.authUser = user;
                 getUserData();
                 // });
             } else {
+                console.log("Error de autenticación");
                 $scope.$apply(function () {
                     $scope.authUser = null;
                 });
@@ -180,15 +182,30 @@ app.controller("ControladorPrincipal", function ($scope) {
     };
 
     $scope.logout = () => {
-        firebase.auth().signOut().then(function () {
-            //ui = null;
+
+        firebase.auth().signOut().then(() => {
             $scope.authUser = null;
             $scope.tipoUsuario = 0;
             // ui.start("#firebaseui-auth-container", uiConfig);
             //logoutAutUser();
             //document.getElementById("logout").style.display = "none";
+        }).catch((error) => {
+            // An error happened.
         });
-        $scope.login();
+        
+        // firebase.auth().signOut().then(function () {
+        //     let provider = new firebase.auth.GoogleAuthProvider();
+        //     provider.setCustomParameters({
+        //         prompt: 'select_account'
+        //     });
+        //     //ui = null;
+        //     $scope.authUser = null;
+        //     $scope.tipoUsuario = 0;
+        //     // ui.start("#firebaseui-auth-container", uiConfig);
+        //     //logoutAutUser();
+        //     //document.getElementById("logout").style.display = "none";
+        // });
+        // $scope.login();
     };
 
     $scope.isSystemOfRole = (role) => {
@@ -438,6 +455,27 @@ app.controller("ControladorPrincipal", function ($scope) {
                 hideTheSpinner();
             }, 15000);
         }
+    }
+
+    $scope.setMachineConfig = () => {
+        swal({
+            title: "Ajustes",
+            text: "¿Desea confirmar los cambios realizados?",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+          })
+        .then((confirm) => {
+            if (confirm) {
+                $scope.setMachineSettings($scope.actualSystem);
+                swal("Sistema actualizado correctamente!", {
+                    icon: "success",
+                });
+            } else {
+              swal("No se realizó la actualización!");
+            }
+        });
+
     }
 
     showSpinner = () => {
