@@ -113,20 +113,33 @@ void setupGSM() {
 
 String httpRequest() {
   gprs.listen();
-  String param1  = "&st=" + statusVar;
-  String param2  = "&sa=" + (String)(isSequrity ? "true" : "false");
-  String param3  = "&di=" + directionVar;
-  String param4  = "&vo=" + (String)(isVoltage ? "true" : "false");
-  String param5  = "&ar=" + autoreverseVar;
-  String param6  = "&sp=" + (String)velocityVar;
-  String param7  = "&pr=" + (String)actualPresure;
-  String param8  = "&po=" + String(positionVar, 1);
-  String param9  = "&la=" + String(lat_actual, 5);
-  String param10 = "&lo=" + String(lon_actual, 5);
-  String param11 = "&er=" + (String)errorGPS;
-  String param12 = "&rx=" + (String)(commRx ? "Ok" : "Er");
+  String param1  = F("&st=");
+  String param2  = F("&sa=");
+  String param3  = F("&di=");
+  String param4  = F("&vo=");
+  String param5  = F("&ar=");
+  String param6  = F("&sp=");
+  String param7  = F("&pr=");
+  String param8  = F("&po=");
+  String param9  = F("&la=");
+  String param10 = F("&lo=");
+  String param11 = F("&er=");
+  String param12 = F("&rx=");
+  String param13 = F("&si=");
   signalVar = getSignalValue();
-  String param13 = "&si=" + (String)signalVar + "\"";
+  param1  += statusVar;
+  param2  += (String)(isSequrity ? "true" : "false");
+  param3  += directionVar;
+  param4  += (String)(isVoltage ? "true" : "false");
+  param5  += autoreverseVar;
+  param6  += (String)velocityVar;
+  param7  += (String)actualPresure;
+  param8  += String(positionVar, 1);
+  param9  += String(lat_actual, 5);
+  param10 += String(lon_actual, 5);
+  param11 += (String)errorGPS;
+  param12 += (String)(commRx ? "Ok" : "Er");
+  param13 += (String)signalVar + "\"";
   gprs.println(F("AT+HTTPINIT"));
   getResponse(15, false); 
   gprs.println(httpServer + param1 + param2 + param3 + param4 + param5 + param6 + param7 + param8 + param9 + param10 + param11 + param12 + param13);
@@ -202,9 +215,10 @@ void comunicaciones() {
     testData = testData == true ? false : true;
   }
   if (data != "" && (data.indexOf("ON") != -1 || data.indexOf("OFF") != -1)) {
+    commRx = true;
     setVariables(data);
   } else {
-    commRx = (data != "") ? true : false;
+    commRx = false;
     Serial.print(F("lat_central: ")); Serial.print(lat_central, 2); Serial.print(F(" lon_central: ")); Serial.println(lon_central, 2);
     Serial.println(F("data: Error!"));
   }

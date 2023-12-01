@@ -63,12 +63,13 @@
             $endAngle = $data->plans->$p->endAngle;
             $value = $data->plans->$p->value;
             $endGun = "F";
-            if ($data->status == "ON" && $data->autoreverse == "ON") {
-                if (intval($_GET["po"]) >= intval($starAngle) && intval($_GET["po"]) < intval($endAngle) && $value == "0") {
-                    $dir = ($data->direction == "FF") ? "RR" : "FF";
-                    $value = "100";
-                }
-            }
+            // if ($data->status == "ON" && $data->autoreverse == "ON") {
+            //     $po = intval($_GET["po"]);
+            //     if (intval($starAngle) <= $po && $po < intval($endAngle) && $value == "0") {
+            //         $dir = ($data->direction == "FF") ? "RR" : "FF";
+            //         $value = "100";
+            //     }
+            // }
             if ($data->plans->$p->endGun && $data->plans->$p->endGun == "true") {
                 $endGun = "T";
             }

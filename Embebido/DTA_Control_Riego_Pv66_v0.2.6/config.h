@@ -33,6 +33,7 @@ const String httpServer = "AT+HTTPPARA=\"URL\",\"http://dtaamerica.com/ws/comm_v
 #define pinSensorVoltaje 10
 #define watchDogPin A3
 #define commFrec 30
+
 byte serie = config[0];
 
 #pragma endregion Definiciones
