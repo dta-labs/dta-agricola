@@ -347,6 +347,12 @@ app.controller("ControladorPrincipal", function ($scope) {
         sendSMS_XMLHttp(celular, msg);
     }
 
+    $scope.setProgramacionRiego = (programa) => {
+        $scope.actualSystem.autoreverse = programa;
+        $scope.actualSystem.isScheduled = !programa;
+        $scope.setMachineSettings();
+    }
+
     $scope.showSelectdSystem = (systemKey) => {
         showSpinner();
         $scope.selectSystem($scope.systems[systemKey]);
@@ -502,7 +508,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         document.getElementById("spinner").style.display = "none";
     }
 
-    $scope.setMachineSettings = (system) => {
+    $scope.setMachineSettings = (system = $scope.actualSystem) => {
         let key = system.key;
         system.status = system.status ? "ON" : "OFF";
         system.sensorSecurity = system.sensorSecurity ? "ON" : "OFF";
