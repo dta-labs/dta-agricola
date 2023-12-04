@@ -203,7 +203,7 @@
                         <div class="col navbar-option">
                             <a class="modal-trigger" href="#modalConfig" style="color: black;">
                                 <i class="material-icons" style="margin-top: 5px;">slow_motion_video</i>
-                                <p style="margin-top: -8px;">Riego</p>
+                                <p style="margin-top: -8px;">Planes</p>
                             </a>
                         </div>
                         <div class="col navbar-option">
@@ -221,7 +221,7 @@
                         <div class="col navbar-option">
                             <a class="modal-trigger" href="#modalHistorial" style="color: black;">
                                 <i class="fa fa-history" aria-hidden="true" style="margin-top: 5px;"></i>
-                                <p style="margin-top: -4px;">Históricos</p>
+                                <p style="margin-top: -4px;">Historial</p>
                             </a>
                         </div>
                         <div class="col navbar-option">
@@ -256,7 +256,7 @@
                         <div class="col navbar-option">
                             <a class="modal-trigger" href="#modalHistorial" style="color: black;">
                                 <i class="fa fa-history" aria-hidden="true" style="margin-top: 5px;"></i>
-                                <p style="margin-top: -4px;">Históricos</p>
+                                <p style="margin-top: -4px;">Historial</p>
                             </a>
                         </div>
                         <div class="col navbar-option">
@@ -645,8 +645,8 @@
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <a href="" class="modal-close waves-effect waves-green btn-flat">Cancelar</a>
-                            <a href="" class="waves-effect waves-green btn-flat"
+                            <a href="" class="modal-close waves-effect waves-green btn grey lighten-3 black-text">Cancelar</a>
+                            <a href="" class="waves-effect waves-green btn teal lighten-3"
                                 ng-click="updateNewDevice()">Agregar</a>
                         </div>
                     </div>
@@ -778,7 +778,7 @@
                                             </div>
                                         </div>
                                         <div class="row" style="margin-bottom: 0;"> <!-- Status General -->
-                                            <div class="row" style="margin-bottom: 0;"
+                                            <div class="row" style="margin-bottom: 0; color: lightslategray;"
                                                 ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'">
                                                 <div class="bordered col s4 m10 row"
                                                     style="border-bottom: 1px solid grey; margin-bottom: 15px; margin-right: -5px;">
@@ -826,7 +826,7 @@
                                         <div class="row" style="margin-bottom: 0;"
                                             ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'">
                                             <!-- Status Pivote -->
-                                            <div class="row">
+                                            <div class="row" style="color: lightslategray;">
                                                 <div class="bordered col s2 m10 row"
                                                     ng-click="actualSystemWindows('as_config')"
                                                     style="border-bottom: 1px solid grey; margin-bottom: 15px; cursor: pointer;">
@@ -859,7 +859,7 @@
                                                             aria-hidden="true"
                                                             style="font-size: 1.7em; margin: 2px 0 3px 0;"></i></div>
                                                     <div class="col s12 m12 center-align">
-                                                        <b>{{ actualSystem.log.presion ? actualSystem.log.presion : 0 }}</b>psi
+                                                        <b>{{ actualSystem.log.presion ? (actualSystem.log.presion | number : 1) : 0 }}</b>psi
                                                         <!-- <b>{{ actualSystem.log.presion ? actualSystem.log.presion * actualSystem.sensorPresion / 1024 : 0 }}</b>psi -->
                                                     </div>
                                                 </div>
@@ -875,7 +875,7 @@
                                             </div>
                                         </div>
                                         <div class="row" style="margin-bottom: 0;" ng-show="actualSystem.type == 'Estacionario'"> <!-- Status Estacionario -->
-                                            <div class="row">
+                                            <div class="row" style="color: lightslategray;">
                                                 <div id="hourglass_1" class="bordered col s4 m10 row"
                                                     ng-click="as_config = !as_config"
                                                     style="border-bottom: 1px solid grey; margin-bottom: 15px;">
@@ -941,6 +941,7 @@
                             <p style="margin-bottom: 70px;"></p>
 
                         </div>
+
                     </div>
 
                     <!-- Ventanas modales -->
@@ -1473,14 +1474,14 @@
                                         <div class="col s1 right-align">
                                             <i class="fa fa-trash-o" aria-hidden="true"
                                                 ng-click="deleteUser(actualSystem.key, reg.alias)"
-                                                ng-show="isSystemOfRole('propietario')"></i>
+                                                ng-show="isSystemOfRole('propietario') || isSystemOfRole('administrador')"></i>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <div
                                 ng-show="isSystemOfRole('propietario') || isSystemOfRole('administrador')">
-                                <div class="sercices-options gray-text white text-centered modal-trigger"
+                                <div class="sercices-options gray-text teal text-centered modal-trigger"
                                     href="#modalAddUser">
                                     <i class="fa fa-plus" aria-hidden="true"
                                         style="margin-top: 5px;"></i>
@@ -1775,10 +1776,15 @@
                                     style="background: #009688c4 !important">
                                     <i class="fa fa-list" aria-hidden="true"></i>Mis sistemas
                                 </li>
-                                <li ng-click="createNewDevice()"
-                                    class="sercices-options modal-trigger teal darken white-text"
-                                    href="#modalNuevoEquipo" style="background: #009688c4 !important">
-                                    <i class="fa fa-plus" aria-hidden="true"></i>Agregar equipo
+                                <li
+                                    class="sercices-options teal darken white-text"
+                                    style="background: #009688c4 !important">
+                                    <a class="modal-trigger" href="#modalNuevoEquipo" 
+                                        ng-click="createNewDevice()" style="color: white; text-decoration: none;">
+                                        <div>
+                                            <i class="fa fa-plus" aria-hidden="true"></i>Agregar equipo
+                                        </div>
+                                    </a>
                                 </li>
                                 <section style="display: block;">
                                     <li ng-click="loadCultures()" class="sercices-options teal darken white-text"
@@ -2061,28 +2067,26 @@
 
                 <section id="ayuda">
 
-                    <div class="container" ng-show="selectedWindow == 'ayuda'">
+                    <div class="container" ng-show="selectedWindow == 'ayuda'" style="height: 100vh; overflow: auto; background: #ffffffe0;">
                         <br>
                         <br>
-                        <div class="row sercices-options white">
+                        <div class="row" style="font-size: 1.3em; padding: 5px 10px; text-align: center;">
                             <div class="col s12">
-                                <h4 class="swal-title" style="border-bottom: solid 1px antiquewhite;">
+                                <h4 class="swal-title" style="border-bottom: solid 1px antiquewhite; margin-top: 0;">
                                     <strong>Ayuda</strong>
                                 </h4>
                                 <br>
                             </div>
                             <div class="col s12">
-                                <div class="center-align">
-                                    <i class="material-icons" style="font-size: 3em;">help_outline</i>
-                                </div>
-                                <h5 class="center-align"><strong>Generales</strong></h5>
+                                <i class="material-icons" style="font-size: 3em; width: 100%; margin: auto;">help_outline</i><br>
+                                <h5 class="center-align"><strong>Sistemas</strong></h5>
                                 <ul class="collapsible">
                                     <li>
                                         <div class="collapsible-header"><i class="material-icons">dashboard</i>Sistemas
                                             de estacionarios</div>
                                         <div class="collapsible-body">
                                             <h5><strong>DripControl</strong></h5>
-                                            <p>¿Cuenta con sistemas de riego por aspersión, por difusión, por goteo,
+                                            <p style="text-align: justify;">¿Cuenta con sistemas de riego por aspersión, por difusión, por goteo,
                                                 subterráneo o cintas de exudación? ¿Cuenta con un único pozo para
                                                 irrigar múltiples parcelas o cultivos? DripControl le permitirá
                                                 monitorear y controlar en tiempo real un pozo y hasta 3, 7 ó 15
@@ -2109,7 +2113,7 @@
                                         </div>
                                         <div class="collapsible-body">
                                             <h5><strong>PivotControl</strong></h5>
-                                            <p>¿Desea reducir el tiempo que consume revisando sus pivotes, el
+                                            <p style="text-align: justify;">¿Desea reducir el tiempo que consume revisando sus pivotes, el
                                                 combustible invertido y el mantenimiento de sus sistemas de riego debido
                                                 a fallas de funcionamiento? ¿Los sistemas de monitoreo y control de
                                                 pivotes en el mercado no le ofrecen todas las características que está
@@ -2209,7 +2213,7 @@
                                             </div>
                                             <hr>
                                             <h5><strong>PumpControl</strong></h5>
-                                            <p>¿Desea reducir el riesgo de fallas, averías y hasta roturas irreversibles
+                                            <p style="text-align: justify;">¿Desea reducir el riesgo de fallas, averías y hasta roturas irreversibles
                                                 de sus sitemas de bombeo? ¿Emplea una misma bomba para más de un sistema
                                                 de riego? PumpControl es un sistema de monitoreo y control en tiempo
                                                 real avanzado y a la vez sencillo de usar desde su teléfono celular o
@@ -2221,17 +2225,15 @@
                                     </li>
                                 </ul>
                             </div>
-                        </div>
-                        <div class="row sercices-options white">
                             <div class="col s12 m6 l3 row">
                                 <div class="col s12 center-align">
                                     <i class="material-icons" style="font-size: 3em;">devices</i>
                                 </div>
                                 <div class="col s12">
                                     <h5 class="center-align"><strong>Monitorea</strong></h5>
-                                    <p style="font-size: .85em;">
+                                    <p style="font-size: .85em; text-align: justify;">
                                         Mapea la información de tus sistemas de riego y bombeo. Conoce las condiciones
-                                        climáticas de tus parcelas.
+                                        climáticas de tus parcelas. <br>
                                         <a href="https://dtaamerica.com/dta-agricola/DTA-Control.html"><i
                                                 class="material-icons" style="font-size: .85em;">open_in_new</i>Ver
                                             más...</a>
@@ -2244,9 +2246,9 @@
                                 </div>
                                 <div class="col s12">
                                     <h5 class="center-align"><strong>Controla</strong></h5>
-                                    <p style="font-size: .85em;">
+                                    <p style="font-size: .85em; text-align: justify;">
                                         Automatización agrícola. Ajusta las prácticas de cultivo a las necesidades del
-                                        suelo y las plantas con la ayuda de IA.
+                                        suelo y las plantas con la ayuda de IA. <br>
                                         <a href="https://dtaamerica.com/dta-agricola/DTA-Planning.html"><i
                                                 class="material-icons" style="font-size: .85em;">open_in_new</i>Ver
                                             más...</a>
@@ -2259,9 +2261,9 @@
                                 </div>
                                 <div class="col s12">
                                     <h5 class="center-align"><strong>Procesa</strong></h5>
-                                    <p style="font-size: .85em;">
+                                    <p style="font-size: .85em; text-align: justify;">
                                         Inteligencia Artificial colectiva. Asistencia inteligente para la toma de
-                                        decisiones que el agricultor debe anticipar.
+                                        decisiones que el agricultor debe anticipar. <br>
                                         <a class="ttps://dtaamerica.com/dta-agricola/index.html#content6-n"><i
                                                 class="material-icons" style="font-size: .85em;">open_in_new</i>Ver
                                             más...</a>
@@ -2274,9 +2276,9 @@
                                 </div>
                                 <div class="col s12">
                                     <h5 class="center-align"><strong>Mejora</strong></h5>
-                                    <p style="font-size: .85em;">
+                                    <p style="font-size: .85em; text-align: justify;">
                                         Incrementa la productividad con la aplicación de buenas prácticas de manejo de
-                                        cultivos.
+                                        cultivos. <br>
                                         <a href="https://dtaamerica.com/dta-agricola/index.html#content6-m"><i
                                                 class="material-icons" style="font-size: .85em;">open_in_new</i>Ver
                                             más...</a>
@@ -2284,6 +2286,26 @@
 
                                 </div>
                             </div>
+                            <div class="sidebar-footer hidden-small" style="display: none;">
+                                <a href="https://dtaamerica.com/dta-agricola" target="_blank" title="DTA-Agrícola"
+                                    style="color: white;">
+                                    <img src="./assets/images/DTA-white.png" style="width: 55px;" alt="DTA-Agrícola">
+                                </a>
+                                <a href="https://wa.me/526251523176?text=DTA-Agr%C3%ADcola%20decide%20d%C3%B3nde,%20cu%C3%A1ndo%20y%20cu%C3%A1nto%20regar%20con%20un%20solo%20click.%20Especialmente%20dise%C3%B1ado%20para%20productores%20peque%C3%B1os,%20medianos%20y%20grandes%20que%20deseen%20producir%20m%C3%A1s%20con%20menor%20consumo%20de%20recursos"
+                                    target="_blank" title="WhatsApp" style="display: none;">
+                                    <img src="./assets/images/whatsapp.png" altstyle="width: 55px;"
+                                        style="width: 25px; border-radius: 4px;" alt="WhatsApp">
+                                </a>
+                                <a href="https://www.facebook.com/dtaagricola" target="_blank" title="Facebook"
+                                    style="color: white;">
+                                    <i class="fa fa-facebook-square" aria-hidden="true"></i>
+                                </a>
+                                <a href="https://www.youtube.com/channel/UCTaEslx6PsGZ8F87EIfNywA" target="_blank"
+                                    title="YouTube" style="color: white;">
+                                    <i class="fa fa-youtube-square" aria-hidden="true"></i>
+                                </a>
+                            </div>
+    
                         </div>
                         <br>
                         <br>

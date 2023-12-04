@@ -612,6 +612,7 @@ app.controller("ControladorPrincipal", function ($scope) {
             "type": "",
             "zona": ((new Date()).getTimezoneOffset() / 60) * -1
         };
+        $scope.showWindow('listado');
     }
 
     $scope.setNewDeviceParams = () => {
@@ -1413,10 +1414,8 @@ app.controller("ControladorPrincipal", function ($scope) {
             if (!$scope.authUser) {
                 $scope.showWindow('login');
                 $scope.$apply();
-            // } else {
-            //     $scope.showWindow('listado');
             }
-        }, 5000);
+        }, 2000);
     }
 
 });
