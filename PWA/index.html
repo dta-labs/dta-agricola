@@ -969,46 +969,29 @@
                                         <td>{{ plan.endGun == 'true' ? 'Sí' : 'No'}}
                                         <td>{{ plan.value }} %</td>
                                     </tr>
-                                    <tr>
-                                        <td colspan="5" class="right-align">
-                                            <div class="btn waves-effect waves-light grey modal-close">
-                                                &nbsp;&nbsp;
-                                                <i class="material-icons">reply</i>
-                                                &nbsp;&nbsp;
-                                            </div>
-                                            <div class="btn waves-effect waves-light red lighten-3 modal-trigger"
-                                                href="#modalResetRiego"
-                                                ng-show="actualSystem.plansLength > 1">
-                                                &nbsp;&nbsp;
-                                                <i class="material-icons">delete</i>
-                                                &nbsp;&nbsp;
-                                            </div>
-                                            <div class="btn waves-effect waves-light teal lighten-3 modal-trigger"
-                                                href="#modalRiego" ng-click="resetNewPlan()">
-                                                &nbsp;&nbsp;
-                                                <i class="material-icons">add</i>
-                                                &nbsp;&nbsp;
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr style="display: none;">
-                                        <td colspan="5" class="right-align">
-                                            <div class="switch">
-                                                Autoreverse
-                                                <label>
-                                                    <span class="blackBg"><b>Off</b></span>
-                                                    <input type="checkbox"
-                                                        ng-model="actualSystem.autoreverse"
-                                                        ng-checked="actualSystem.autoreverse"
-                                                        ng-change="setMachineSettings(actualSystem)">
-                                                    <span class="lever"></span>
-                                                    <span class="redBg"><b>&nbsp;On&nbsp;</b></span>
-                                                </label>
-                                            </div>
-                                        </td>
-                                    </tr>
                                 </tbody>
                             </table>
+                            <br>
+                            <div class="right-align">
+                                <div class="btn waves-effect waves-light grey modal-close">
+                                    &nbsp;&nbsp;
+                                    <i class="material-icons">reply</i>
+                                    &nbsp;&nbsp;
+                                </div>
+                                <div class="btn waves-effect waves-light red lighten-3 modal-trigger"
+                                    href="#modalResetRiego"
+                                    ng-show="actualSystem.plansLength > 1">
+                                    &nbsp;&nbsp;
+                                    <i class="material-icons">delete</i>
+                                    &nbsp;&nbsp;
+                                </div>
+                                <div class="btn waves-effect waves-light teal lighten-3 modal-trigger"
+                                    href="#modalRiego" ng-click="resetNewPlan()">
+                                    &nbsp;&nbsp;
+                                    <i class="material-icons">add</i>
+                                    &nbsp;&nbsp;
+                                </div>
+                            </div>
                         </div>
 
                         <div ng-show="actualSystem.type == 'Estacionario'"> <!-- Estacionarios -->
@@ -1093,7 +1076,7 @@
                                             </label>
                                         </p>
                                     </div>
-                                    <table class="striped highlight" style="margin-left: -20px;" 
+                                    <table class="striped highlight"  
                                         ng-show="!actualSystem.autoreverse">
                                         <thead>
                                             <tr>
@@ -1137,6 +1120,14 @@
                                             </tr>
                                         </tbody>
                                     </table>
+                                </div>
+                                <br>
+                                <div class="right-align">
+                                    <div class="btn waves-effect waves-light grey modal-close">
+                                        &nbsp;&nbsp;
+                                        <i class="material-icons">reply</i>
+                                        &nbsp;&nbsp;
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1306,19 +1297,23 @@
                                         </select>
                                     </td>
                                 </tr>
-                                <tr
-                                    ng-show="isSystemOfRole('propietario') || isSystemOfRole('desarrollador') || isSystemOfRole('administrador')">
-                                    <td colspan="3" class="right-align">
-
-                                        <i class="fa fa-pencil btn grey" aria-hidden="true" ng-click="edit = !edit"></i>
-
-                                        <a href=""
-                                            class="modal-close waves-effect teal waves-green btn"
-                                            ng-click="setMachineConfig()">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i
-                                                class="material-icons">check</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
-                                    </td>
-                                </tr>
                             </table>
+                            <br>
+                            <div class="right-align"
+                                ng-show="isSystemOfRole('propietario') || isSystemOfRole('desarrollador') || isSystemOfRole('administrador')">
+                                <div class="btn waves-effect waves-light grey modal-close">
+                                    &nbsp;&nbsp;
+                                    <i class="material-icons">reply</i>
+                                    &nbsp;&nbsp;
+                                </div>
+    
+                                <i class="fa fa-pencil btn blue" aria-hidden="true" ng-click="edit = !edit"></i>
+    
+                                <a href=""
+                                    class="modal-close waves-effect teal waves-green btn"
+                                    ng-click="setMachineConfig()">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i
+                                        class="material-icons">check</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
+                            </div>
                         </div>
                     </div>
 
@@ -1382,6 +1377,14 @@
                                     <td style="text-align: left;"><b>{{ meteo[actualSystem.key].wind.deg }}°</b></td>
                                 </tr>
                             </table>
+                            <br>
+                            <div class="right-align">
+                                <div class="btn waves-effect waves-light grey modal-close">
+                                    &nbsp;&nbsp;
+                                    <i class="material-icons">reply</i>
+                                    &nbsp;&nbsp;
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -1389,7 +1392,7 @@
                         <div class="swal-title" style="margin: 0px;">Historial</div>
 
                         <div class="modal-content">
-                            <ul class="row collapsible" style="font-size: .8em;">
+                            <ul class="row collapsible" >
                                 <li class="col s12" ng-repeat="reg in invertedRegisters">
                                     <div class="gray-text white collapsible-header row"
                                         ng-click="modalLogDetail_$index = !modalLogDetail_$index"
@@ -1398,13 +1401,13 @@
                                                 actualSystem.status == true && reg.safety == 'false' ? '#db7093a0 !important' : 
                                                 reg.state == 'ON' ? '#20b2aaa0 !important' : 'lightgray !important' }}; margin-bottom: 0px;">
                                         <div class="col s12">
-                                            <b>{{ actualSystem.status == true && reg.voltage == 'false' ?
+                                            <b style="font-size: 1.3em;">{{ actualSystem.status == true && reg.voltage == 'false' ?
                                                 'Falla de Electricidad' :
                                                 actualSystem.status == true && reg.safety == 'false' ?
                                                 'Falla de Seguridad' :
                                                 reg.state == 'ON' ? 'Sistema Encendido' : 'Sistema Apagado'
                                                 }}</b><br>
-                                            <span style="font-size: .9em;">[{{ reg.date }} - {{ reg.update
+                                            <span>[{{ reg.date.substr(4,13) }} - {{ reg.update.substr(4,13)
                                                 }}]</span> <br>
                                         </div>
                                     </div>
@@ -1413,10 +1416,10 @@
                                         ng-show="actualSystem.type == 'Estacionario'"
                                         style="background: {{ reg.state == 'ON' ? 'lightseagreen !important' : 'lightgray !important' }}; color: {{ reg.state == 'ON' ? 'white' : 'black' }};  margin-bottom: 0px;">
                                         <div class="col 12">
-                                            <span style="font-size: .9em;"><b>{{ reg.state == "ON" ?
+                                            <span style="font-size: 1.3em;"><b>{{ reg.state == "ON" ?
                                                     "Sistema Encendido" : "Sistema Apagado"
                                                     }}</b></span><br>
-                                            <span style="font-size: .9em;">[{{ reg.date }} - {{ reg.update
+                                            <span>[{{ reg.date.substr(4,13) }} - {{ reg.update.substr(4,13)
                                                 }}]</span> <br>
                                         </div>
                                     </div>
@@ -1456,6 +1459,13 @@
                                     </div>
                                 </li>
                             </ul>
+                            <div class="right-align">
+                                <div class="btn waves-effect waves-light grey modal-close">
+                                    &nbsp;&nbsp;
+                                    <i class="material-icons">reply</i>
+                                    &nbsp;&nbsp;
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -1488,6 +1498,14 @@
                                     Invitar a alguien
                                 </div>
                             </div>
+                            <div class="right-align">
+                                <div class="btn waves-effect waves-light grey modal-close">
+                                    &nbsp;&nbsp;
+                                    <i class="material-icons">reply</i>
+                                    &nbsp;&nbsp;
+                                </div>
+                            </div>
+                            <br>
                         </div>
                     </div>
 

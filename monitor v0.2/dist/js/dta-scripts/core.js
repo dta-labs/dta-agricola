@@ -141,7 +141,7 @@ app.controller("ControladorPrincipal", function ($scope) {
     $scope.setSelectedEnterprise = (key) => {
         for (idx in $scope.enterprises) {
             if ($scope.enterprises[idx].key == key) {
-                $scope.selectedEnterprise = $scope.selectedEnterprise != $scope.enterprises[idx] ? $scope.enterprises[idx] : {};
+                $scope.selectedEnterprise = $scope.selectedEnterprise != $scope.enterprises[idx] ? $scope.enterprises[idx] : $scope.selectedEnterprise;
             }
         }
         if ($scope.selectedEnterprise.partners) {
