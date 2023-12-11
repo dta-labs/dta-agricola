@@ -12,6 +12,20 @@
   height: calc(100vh - 215px);
 }
 
+.status {
+  border-bottom: 1px solid grey; 
+  margin-bottom: 5px; 
+  margin-right: -5px;
+}
+
+.statusBar {
+  margin-bottom: 0;
+  margin-top: -70px;
+  z-index: 10;
+  position: absolute;
+  color: white;
+  text-shadow: 2px 2px 2px black;
+}
 
 /* lg */
 @media (min-width: 1200px) {
@@ -441,7 +455,7 @@
 
   .map {
     margin-top: 0px;
-    height: calc(100vh - 440px);
+    height: calc(100vh - 315px);
   }
   
 }

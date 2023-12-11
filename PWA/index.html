@@ -280,11 +280,11 @@
                     <!-- Barra menú superior Celular -->
                     <div class="show-in-mobil-only top-navbar">
                         <div class="row">
-                            <div class="col s2" style="margin-left: -15px;">
+                            <div class="col s3" style="margin-left: -15px;">
                                 <img class="img-logo-cel" src="./assets/images/DTA.png" alt="DTA-Agricola">
                             </div>
-                            <div class="col {{ authUser ? 's7' : 's8'}} center-align">
-                                <p id="control_de_riego">Control de riego</p>
+                            <div class="col {{ authUser ? 's6' : 's7'}} center-align">
+                                <p id="control_de_riego" style="font-size: 1.2em; margin-top: 5px;">CONTROL DE RIEGO</p>
                             </div>
                             <div class="col s2 right-align">
                                 <div ng-show="!authUser">
@@ -415,7 +415,7 @@
                                                         </span>
                                                         <br>
                                                         <span><b>{{ !system.log ? "OFF" : system.log.state }}</b></span>
-                                                        <span>[{{ system.log.update ? system.log.update : "00000000 0000" }}]</span>
+                                                        <span>{{ system.log.update ? "[" + system.log.update.substr(4,13) + "]" : "" }}</span>
                                                         <!-- <span style="font-size: .8em;">
                                                             [{{ ((system.log.voltage == 'true' && system.log.safety == 'true' && system.log.commDelay == '-1') || system.status == 'OFF') && system.log.update ? system.log.update : "00000000 0000" }}]
                                                         </span> -->
@@ -463,8 +463,7 @@
                                                         </span>
                                                         <br>
                                                         <span><b>{{ system.status }}</b></span>
-                                                        <span>[{{ system.log.update ?
-                                                            system.log.update : "00000000 0000" }}]</span><br>
+                                                        <span>{{ system.log.update ? "[" + system.log.update.substr(4,13) + "]" : "" }}</span><br>
                                                         <!-- <span><strong>{{ system.culture }}</strong></span> -->
                                                     </div>
                                                 </div>
@@ -663,8 +662,6 @@
 
                         <div class="show-in-mobil-only" style="margin-top: 35px !important;"></div>
 
-                        <div class="show-in-pc-only" style="margin-top: 15px !important;"></div>
-
                         <div class="main-container text-center our-services">
 
                             <div class="switchControl waves-effect input-field" ng-click="showWindow('listado')" style="background: {{ actualSystem.type == 'Estacionario' && actualSystem.log.state == 'ON' ? '#20b2aab0' : 
@@ -735,11 +732,178 @@
                                             style="color: {{ actualSystem.status && actualSystem.direction ? 'white' : 'grey' }};"></i>
                                     </div>
                                 </div>
+
                                 <div class="row" style="margin-bottom: 0px; width: 100%; margin: auto; margin-bottom: 0;">
-                                    <div class="main-container map col s12 m8"> <!-- Mapa -->
+                                    
+                                    <!-- Mapa -->
+                                    <div class="main-container map col s12 m8" style="margin-bottom: 10px;"> 
                                         <div id="map" class="map" style="border-radius: 5px;"></div>
                                     </div>
-                                    <div class="input-field col s12 m4" style="margin-bottom: 0; margin-top: 0;">
+                                    
+                                    <!-- Movimiento continuo -->
+                                    <div class="input-field col s12 m4" ng-show="actualSystem.type != 'Estacionario'" 
+                                    style="margin-bottom: 0; margin-top: 0;">
+                                        <!-- Controles -->
+                                        <div class="row hide-on-small-only" style="margin-bottom: 0px; font-size: 2em !important;">
+                                            <div class="col s3 center-align" ng-click="playBackward()"
+                                                ng-show="actualSystem.type != 'Estacionario'"
+                                                style="border: 2px solid grey; border-radius: 5px 0 0 5px; background: {{ actualSystem.status && !actualSystem.direction ? '#04d604' : 'transparent' }}">
+                                                <i class="fa fa-reply" aria-hidden="true"
+                                                    style="color: {{ actualSystem.status && !actualSystem.direction ? 'white' : 'grey' }};"></i>
+                                            </div>
+                                            <div class="col s5 center-align" ng-click="stopSystem()"
+                                                style="border: 2px solid grey; margin: 0 2px; background: {{ actualSystem.status ? 'transparent' : 'red' }}">
+                                                <i class="fa fa-stop" aria-hidden="true"
+                                                    style="color: {{ actualSystem.status ? 'grey' : 'white' }};"></i>
+                                            </div>
+                                            <div class="col s3 center-align" ng-click="playForward()"
+                                                style="border: 2px solid grey; border-radius: 0 5px 5px 0; background: {{ actualSystem.status && actualSystem.direction ? '#04d604' : 'transparent' }}">
+                                                <i class="fa fa-share" aria-hidden="true"
+                                                    style="color: {{ actualSystem.status && actualSystem.direction ? 'white' : 'grey' }};"></i>
+                                            </div>
+                                        </div>
+                                        <!-- Status General -->
+                                        <!-- Status Movimiento continuo -->
+                                        <div class="row statusBar hide-on-med-and-up" style="margin-left: 12%; position: fixed; top: 310px;">
+                                            <div class="col s12">
+                                                <table>
+                                                    <tr>
+                                                        <td colspan="4" style="text-align: center;">
+                                                            <i class="material-icons"
+                                                                style="margin-top: 3px; color: {{ (actualSystem.log.safety == 'true') ? 'white' : 'red' }};">
+                                                                {{ (actualSystem.log.safety == "true") ? 'verified_user' : 'do_not_disturb_alt' }}
+                                                            </i><br>
+                                                            <b>Seguridad</b>
+                                                        </td>
+                                                        <td colspan="3" style="text-align: center;">
+                                                            <i class="material-icons"
+                                                                style="margin-top: 3px; color: {{ (actualSystem.log.reception == 'Ok' && actualSystem.log.commDelay == '-1') ? 'white' : 'red' }};">
+                                                                {{ (actualSystem.log.reception == 'Ok' &&
+                                                                actualSystem.log.commDelay == '-1') ? 'phonelink_ring' : 'do_not_disturb_alt' }}
+                                                            </i><br>
+                                                            <b>Conexión</b>
+                                                        </td>
+                                                        <td colspan="3" style="text-align: center;">
+                                                            <i class="material-icons"
+                                                                style="margin-top: 3px; color: {{ (actualSystem.log.latitude != '0.00000' && actualSystem.log.longitude != '0.00000') ? 'white' : 'red' }};">
+                                                                {{ (actualSystem.log.latitude != '0.00000' &&
+                                                                actualSystem.log.longitude != '0.00000') ? 'satellite' : 'do_not_disturb_alt' }}
+                                                            </i><br>
+                                                            <b>GPS</b>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="row statusBar hide-on-med-and-up" style="width: 100%;">
+                                            <div class="col s12">
+                                                <table>
+                                                    <tr style="border-top: 1px solid lightgrey;">
+                                                        <td colspan="2" style="text-align: center;">
+                                                            <div class="col s12 m12 center-align"><i
+                                                                class="material-icons">network_check</i>
+                                                            </div>
+                                                            <b>{{ actualSystem.log.speed ? actualSystem.log.speed : 0 }}</b>%
+                                                        </td>
+                                                        <td colspan="2" style="text-align: center;">
+                                                            <div class="col s12 m12 center-align"><i
+                                                                class="material-icons">near_me</i></div>
+                                                            <b>{{ actualSystem.log.position ? actualSystem.log.position : 0 }}</b>°
+                                                        </td>
+                                                        <td colspan="2" style="text-align: center;">
+                                                            <div class="col s12 m12 center-align"><i
+                                                                class="material-icons">search</i></div>
+                                                            <b>{{ actualSystem.log.error ? actualSystem.log.error : 0 }}</b>cm        
+                                                        </td>
+                                                        <td colspan="2" style="text-align: center;">
+                                                            <div class="col s12 m12 center-align"><i class="fa fa-tint"
+                                                                aria-hidden="true"
+                                                                style="font-size: 1.7em; margin: 2px 0 3px 0;"></i></div>
+                                                            <b>{{ actualSystem.log.presion ? (actualSystem.log.presion | number : 1) : 0 }}</b>psi        
+                                                        </td>
+                                                        <td colspan="2" style="text-align: center;">
+                                                            <div class="col s12 m12 center-align"><i
+                                                                class="material-icons">rss_feed</i>
+                                                            </div>
+                                                            <b>{{ actualSystem.log.signal ? actualSystem.log.signal : 0 }}</b>/30        
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="row hide-on-small-only" style="margin-top: 30px; width: 95%;">
+                                            <div class="col s12">
+                                                <table>
+                                                    <tr>
+                                                        <td colspan="2" class="valign-wrapper" style="text-align: left;" style="margin-top: 30px;">
+                                                            <i class="material-icons"
+                                                                style="margin-top: 3px; color: {{ (actualSystem.log.safety == 'true') ? 'green' : 'red' }};">
+                                                                {{ (actualSystem.log.safety == "true") ? 'verified_user' : 'do_not_disturb_alt' }}
+                                                            </i>&nbsp;
+                                                            <b>Seguridad</b>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td colspan="2" class="valign-wrapper" style="text-align: left;">
+                                                            <i class="material-icons"
+                                                                style="margin-top: 3px; color: {{ (actualSystem.log.reception == 'Ok' && actualSystem.log.commDelay == '-1') ? 'green' : 'red' }};">
+                                                                {{ (actualSystem.log.reception == 'Ok' &&
+                                                                actualSystem.log.commDelay == '-1') ? 'phonelink_ring' : 'do_not_disturb_alt' }}
+                                                            </i>&nbsp;
+                                                            <b>Conexión</b>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td colspan="2" class="valign-wrapper" style="text-align: left;">
+                                                            <i class="material-icons"
+                                                                style="margin-top: 3px; color: {{ (actualSystem.log.latitude != '0.00000' && actualSystem.log.longitude != '0.00000') ? 'green' : 'red' }};">
+                                                                {{ (actualSystem.log.latitude != '0.00000' &&
+                                                                actualSystem.log.longitude != '0.00000') ? 'satellite' : 'do_not_disturb_alt' }}
+                                                            </i>&nbsp;
+                                                            <b>GPS</b>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td colspan="2" style="text-align: center;">
+                                                            <div class="center-align"><i
+                                                                class="material-icons">network_check</i>
+                                                            </div>
+                                                            <b>{{ actualSystem.log.speed ? actualSystem.log.speed : 0 }}</b>%
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="text-align: center; width: 50%;">
+                                                            <div class="center-align"><i
+                                                                class="material-icons">near_me</i></div>
+                                                            <b>{{ actualSystem.log.position ? actualSystem.log.position : 0 }}</b>°
+                                                        </td>
+                                                        <td style="text-align: center; width: 50%;">
+                                                            <div class="center-align"><i
+                                                                class="material-icons">search</i></div>
+                                                            <b>{{ actualSystem.log.error ? actualSystem.log.error : 0 }}</b>cm        
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="text-align: center; width: 50%;">
+                                                            <div class="center-align"><i class="fa fa-tint"
+                                                                aria-hidden="true"
+                                                                style="font-size: 1.7em; margin: 2px 0 3px 0;"></i></div>
+                                                            <b>{{ actualSystem.log.presion ? (actualSystem.log.presion | number : 1) : 0 }}</b>psi        
+                                                        </td>
+                                                        <td style="text-align: center; width: 50%;">
+                                                            <div class="center-align"><i
+                                                                class="material-icons">rss_feed</i>
+                                                            </div>
+                                                            <b>{{ actualSystem.log.signal ? actualSystem.log.signal : 0 }}</b>/30        
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Estacionario -->
+                                    <div class="input-field col s12 m4" ng-show="actualSystem.type == 'Estacionario'">
                                         <!-- Controles y Variables -->
                                         <div class="row"> <!-- Control -->
                                             <div class="row hide-on-small-only" style="margin-bottom: 0px;">
@@ -777,168 +941,86 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="row" style="margin-bottom: 0;"> <!-- Status General -->
-                                            <div class="row" style="margin-bottom: 0; color: lightslategray;"
-                                                ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'">
-                                                <div class="bordered col s4 m10 row"
-                                                    style="border-bottom: 1px solid grey; margin-bottom: 15px; margin-right: -5px;">
-                                                    <div class="col s12 m2 center-align">
-                                                        <i class="material-icons"
-                                                            style="margin-top: 3px; color: {{ (actualSystem.log.safety == 'true') ? 'green' : 'red' }};">
-                                                            {{ (actualSystem.log.safety == "true") ? 'check_circle' :
-                                                            'do_not_disturb_alt' }}
-                                                        </i>
-                                                    </div>
-                                                    <div class="col s12 m10 center-align">
-                                                        <b>Seguridad</b>
-                                                    </div>
-                                                </div>
-                                                <div class="bordered col s3 m10 row"
-                                                    style="border-bottom: 1px solid grey; margin-bottom: 15px; margin-right: -5px;">
-                                                    <div class="col s12 m2 center-align">
-                                                        <i class="material-icons"
-                                                            style="margin-top: 3px; color: {{ (actualSystem.log.reception == 'Ok' && actualSystem.log.commDelay == '-1') ? 'green' : 'red' }};">
-                                                            {{ (actualSystem.log.reception == 'Ok' &&
-                                                            actualSystem.log.commDelay == '-1') ? 'check_circle' :
-                                                            'do_not_disturb_alt' }}
-                                                        </i>
-                                                    </div>
-                                                    <div class="col s12 m10 center-align">
-                                                        <b>Conexión</b>
-                                                    </div>
-                                                </div>
-                                                <div class="bordered col s3 m10 row"
-                                                    style="border-bottom: 1px solid grey; margin-bottom: 15px;">
-                                                    <div class="col s12 m2 center-align">
-                                                        <i class="material-icons"
-                                                            style="margin-top: 3px; color: {{ (actualSystem.log.latitude != '0.00000' && actualSystem.log.longitude != '0.00000') ? 'green' : 'red' }};">
-                                                            {{ (actualSystem.log.latitude != '0.00000' &&
-                                                            actualSystem.log.longitude != '0.00000') ? 'check_circle' :
-                                                            'do_not_disturb_alt' }}
-                                                        </i>
-                                                    </div>
-                                                    <div class="col s12 m10 center-align">
-                                                        <b>GPS</b>
-                                                    </div>
-                                                </div>
+                                        <!-- Status General -->
+                                        <div class="row statusBar hide-on-med-and-up" style="width: 100%; margin-top: -105px; background: #ffffff80;">
+                                            <div class="col s12">
+                                                <table>
+                                                    <tr style="border-top: 1px solid lightgrey;">
+                                                        <td colspan="2" style="text-align: center;">
+                                                            <div class="center-align">
+                                                                <i class="material-icons">alarm</i>
+                                                            </div>
+                                                            <div class="center-align">
+                                                                <b>{{ getDayFromMs(actualSystem.plots['p' + actualSystem.position].value) + ":" +
+                                                                    getHourFromMs(actualSystem.plots['p' + actualSystem.position].value) + ":" + 
+                                                                    getMinutesFromMs(actualSystem.plots['p' + actualSystem.position].value) }}</b>
+                                                            </div>
+                                                        </td>
+                                                        <td style="text-align: center;">
+                                                            <div class="center-align">
+                                                                <i class="material-icons">map</i>
+                                                            </div>
+                                                            <div class="center-align">
+                                                                <b>{{ actualSystem.position + 1 }}</b>
+                                                            </div>
+                                                        </td>
+                                                        <td style="text-align: center;">
+                                                            <div class="center-align">
+                                                                <i class="fa fa-tint" aria-hidden="true" style="font-size: 1.7em; margin: 2px 0 3px 0;"></i>
+                                                            </div>
+                                                            <div class="center-align">
+                                                                <b>{{ actualSystem.log.presion ? (actualSystem.log.presion | number : 1) : 0 }}</b>psi        
+                                                            </div>
+                                                        </td>
+                                                        <td style="text-align: center;">
+                                                            <div class="center-align">
+                                                                <i class="material-icons">rss_feed</i>
+                                                            </div>
+                                                            <div class="center-align">
+                                                                <b>{{ actualSystem.log.signal ? actualSystem.log.signal : 0 }}</b>/30
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </table>
                                             </div>
                                         </div>
-                                        <div class="row" style="margin-bottom: 0;"
-                                            ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'">
-                                            <!-- Status Pivote -->
-                                            <div class="row" style="color: lightslategray;">
-                                                <div class="bordered col s2 m10 row"
-                                                    ng-click="actualSystemWindows('as_config')"
-                                                    style="border-bottom: 1px solid grey; margin-bottom: 15px; cursor: pointer;">
-                                                    <div class="col s12 m12 center-align"><i
-                                                            class="material-icons">network_check</i>
-                                                    </div>
-                                                    <div class="col s12 m12 center-align">
-                                                        <b>{{ actualSystem.log.speed ? actualSystem.log.speed : 0 }}</b>%
-                                                    </div>
-                                                </div>
-                                                <div class="bordered col s2 m5 row"
-                                                    style="border-bottom: 1px solid grey; margin-bottom: 15px; margin-bottom: 10px;">
-                                                    <div class="col s12 m12 center-align"><i
-                                                            class="material-icons">near_me</i></div>
-                                                    <div class="col s12 m12 center-align">
-                                                        <b>{{ actualSystem.log.position ? actualSystem.log.position : 0 }}</b>°
-                                                    </div>
-                                                </div>
-                                                <div class="bordered col s2 m5 row"
-                                                    style="border-bottom: 1px solid grey; margin-bottom: 15px;">
-                                                    <div class="col s12 m12 center-align"><i
-                                                            class="material-icons">search</i></div>
-                                                    <div class="col s12 m12 center-align">
-                                                        <b>{{ actualSystem.log.error ? actualSystem.log.error : 0 }}</b>cm
-                                                    </div>
-                                                </div>
-                                                <div class="bordered col s2 m5 row"
-                                                    style="border-bottom: 1px solid grey; margin-bottom: 15px;">
-                                                    <div class="col s12 m12 center-align"><i class="fa fa-tint"
-                                                            aria-hidden="true"
-                                                            style="font-size: 1.7em; margin: 2px 0 3px 0;"></i></div>
-                                                    <div class="col s12 m12 center-align">
-                                                        <b>{{ actualSystem.log.presion ? (actualSystem.log.presion | number : 1) : 0 }}</b>psi
-                                                        <!-- <b>{{ actualSystem.log.presion ? actualSystem.log.presion * actualSystem.sensorPresion / 1024 : 0 }}</b>psi -->
-                                                    </div>
-                                                </div>
-                                                <div class="bordered col s2 m5 row"
-                                                    style="border-bottom: 1px solid grey; margin-bottom: 15px;">
-                                                    <div class="col s12 m12 center-align"><i
-                                                            class="material-icons">rss_feed</i>
-                                                    </div>
-                                                    <div class="col s12 m12 center-align">
-                                                        <b>{{ actualSystem.log.signal ? actualSystem.log.signal : 0 }}</b>/30
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="row" style="margin-bottom: 0;" ng-show="actualSystem.type == 'Estacionario'"> <!-- Status Estacionario -->
-                                            <div class="row" style="color: lightslategray;">
-                                                <div id="hourglass_1" class="bordered col s4 m10 row"
-                                                    ng-click="as_config = !as_config"
-                                                    style="border-bottom: 1px solid grey; margin-bottom: 15px;">
-                                                    <div class="col s12 m2 center-align">
-                                                        <i class="material-icons">alarm</i>
-                                                    </div>
-                                                    <div class="col s12 m10 center-align">
-                                                        <b>{{ getDayFromMs(actualSystem.plots['p' + actualSystem.position].value) + ":" +
-                                                            getHourFromMs(actualSystem.plots['p' + actualSystem.position].value) + ":" + 
-                                                            getMinutesFromMs(actualSystem.plots['p' + actualSystem.position].value) }}</b>
-                                                    </div>
-                                                </div>
-                                                <div id="hourglass_2" class="bordered col s4 m10 row"
-                                                    ng-click="as_config = !as_config"
-                                                    style="border-bottom: 1px solid grey; margin-bottom: 15px; display: none;">
-                                                    <div class="col s12 center-align"
-                                                        style="background: lightgreen; text-align: center;">
-                                                        <i class="material-icons" style="font-size: 3.2em;">alarm</i>
-                                                    </div>
-                                                </div>
-                                                <div class="bordered col s2 m10 row"
-                                                    style="border-bottom: 1px solid grey; margin-bottom: 15px;">
-                                                    <div class="col s12 m2 center-align"><i
-                                                            class="material-icons">map</i></div>
-                                                    <div class="col s12 m10 center-align">
-                                                        <b>{{ actualSystem.position + 1 }}</b>
-                                                    </div>
-                                                </div>
-                                                <div class="bordered col s2 m10 row"
-                                                    style="border-bottom: 1px solid grey; margin-bottom: 15px;">
-                                                    <div class="col s12 m2 center-align"><i class="fa fa-tint"
-                                                            aria-hidden="true"
-                                                            style="font-size: 1.7em; margin: 2px 0 3px 0;"></i></div>
-                                                    <div class="col s12 m10 center-align">
-                                                        <b>{{ actualSystem.log.presion ? actualSystem.log.presion : 0 }}</b>psi
-                                                        <!-- <b>{{ actualSystem.log.presion ? actualSystem.log.presion * actualSystem.sensorPresion / 1024 : 0 }}</b>psi -->
-                                                    </div>
-                                                </div>
-                                                <div class="bordered col s2 m10 row"
-                                                    style="border-bottom: 1px solid grey; margin-bottom: 15px;">
-                                                    <div class="col s12 m2 center-align"><i
-                                                            class="material-icons">rss_feed</i>
-                                                    </div>
-                                                    <div class="col s12 m10 center-align">
-                                                        <b>{{ actualSystem.log.signal ? actualSystem.log.signal : 0 }}</b>/30
-                                                    </div>
-                                                </div>
-                                                <!-- <div id="hourglass" class="bordered col s11 m10 row"
-                                                    style="border-bottom: 1px solid grey; margin-bottom: 15px; height: 60px; display: none;">
-                                                    <div class="col s5 center-align">
-                                                        <img src="./assets/images/reloj_arena.gif" alt="">
-                                                    </div>
-                                                    <div class="col s5 center-align">
-                                                        <b>Programación en curso</b>/30
-                                                    </div>
-                                                </div> -->
+                                        <div class="row hide-on-small-only" style="margin-top: 30px; width: 95%;">
+                                            <div class="col s12">
+                                                <table>
+                                                    <tr>
+                                                        <td class="valign-wrapper" style="text-align: left;" style="margin-top: 30px;">
+                                                            <i class="material-icons">alarm</i>&nbsp;
+                                                            <b>{{ getDayFromMs(actualSystem.plots['p' + actualSystem.position].value) + ":" +
+                                                                getHourFromMs(actualSystem.plots['p' + actualSystem.position].value) + ":" + 
+                                                                getMinutesFromMs(actualSystem.plots['p' + actualSystem.position].value) }}</b>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="valign-wrapper" style="text-align: left;">
+                                                            <i class="material-icons">map</i>&nbsp;
+                                                            <b>{{ actualSystem.position + 1 }}</b>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="valign-wrapper" style="text-align: left;">
+                                                            <i class="fa fa-tint" aria-hidden="true" style="font-size: 1.7em; margin: 2px 0 3px 5px;"></i>
+                                                            &nbsp;&nbsp;
+                                                            <b>{{ actualSystem.log.presion ? (actualSystem.log.presion | number : 1) : 0 }}</b>psi        
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="valign-wrapper" style="text-align: left;">
+                                                            <i class="material-icons">rss_feed</i>&nbsp;
+                                                            <b>{{ actualSystem.log.signal ? actualSystem.log.signal : 0 }}</b>/30
+                                                        </td>
+                                                    </tr>
+                                                </table>
                                             </div>
                                         </div>
                                     </div>
+
                                 </div>
                             </div>
-
-                            <p style="margin-bottom: 70px;"></p>
 
                         </div>
 
@@ -1000,11 +1082,11 @@
                                     <ul class="tabs">
                                         <li class="tab col s3 teal-text">
                                             <!-- <a class="active" href="#tiempos"><i class="material-icons">map</i> Tiempos</a> -->
-                                            <a class="active" href="#tiempos">Tiempos</a>
+                                            <a class="active" href="#tiempos" style="font-size: 1.2em;">Tiempos</a>
                                         </li>
                                         <li class="tab col s3 teal-text">
                                             <!-- <a href="#programas"><i class="material-icons">map</i> Programa</a> -->
-                                            <a href="#programas">Plan</a>
+                                            <a href="#programas" style="font-size: 1.2em;">Planes</a>
                                         </li>
                                     </ul>
                                 </div>
@@ -2085,10 +2167,8 @@
 
                 <section id="ayuda">
 
-                    <div class="container" ng-show="selectedWindow == 'ayuda'" style="height: 100vh; overflow: auto; background: #ffffffe0;">
-                        <br>
-                        <br>
-                        <div class="row" style="font-size: 1.3em; padding: 5px 10px; text-align: center;">
+                    <div class="container" ng-show="selectedWindow == 'ayuda'" style="height: calc(100vh - 70px); overflow: auto; background: #ffffffe0; margin-top: 50px; ">
+                        <div class="row" style="font-size: 1.3em; padding: 5px 10px; text-align: center; margin-bottom: 0;">
                             <div class="col s12">
                                 <h4 class="swal-title" style="border-bottom: solid 1px antiquewhite; margin-top: 0;">
                                     <strong>Ayuda</strong>
@@ -2100,11 +2180,12 @@
                                 <h5 class="center-align"><strong>Sistemas</strong></h5>
                                 <ul class="collapsible">
                                     <li>
-                                        <div class="collapsible-header"><i class="material-icons">dashboard</i>Sistemas
-                                            de estacionarios</div>
+                                        <div class="collapsible-header">
+                                            <i class="material-icons">dashboard</i>Sistemas de estacionarios</div>
                                         <div class="collapsible-body">
                                             <h5><strong>DripControl</strong></h5>
-                                            <p style="text-align: justify;">¿Cuenta con sistemas de riego por aspersión, por difusión, por goteo,
+                                            <p style="text-align: justify; padding: 0 10px; font-size: .8em;">
+                                                ¿Cuenta con sistemas de riego por aspersión, por difusión, por goteo,
                                                 subterráneo o cintas de exudación? ¿Cuenta con un único pozo para
                                                 irrigar múltiples parcelas o cultivos? DripControl le permitirá
                                                 monitorear y controlar en tiempo real un pozo y hasta 3, 7 ó 15
@@ -2126,12 +2207,13 @@
                                         </div>
                                     </li>
                                     <li>
-                                        <div class="collapsible-header"><i
-                                                class="material-icons">access_time</i>Sistemas de movimiento continuo
+                                        <div class="collapsible-header">
+                                            <i class="material-icons">access_time</i>Sistemas de movimiento continuo
                                         </div>
                                         <div class="collapsible-body">
                                             <h5><strong>PivotControl</strong></h5>
-                                            <p style="text-align: justify;">¿Desea reducir el tiempo que consume revisando sus pivotes, el
+                                            <p style="text-align: justify; padding: 0 10px; font-size: .8em;">
+                                                ¿Desea reducir el tiempo que consume revisando sus pivotes, el
                                                 combustible invertido y el mantenimiento de sus sistemas de riego debido
                                                 a fallas de funcionamiento? ¿Los sistemas de monitoreo y control de
                                                 pivotes en el mercado no le ofrecen todas las características que está
@@ -2229,16 +2311,22 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <hr>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="collapsible-header">
+                                            <i class="material-icons">local_drink</i>Sistemas de bombeo
+                                        </div>
+                                        <div class="collapsible-body">
                                             <h5><strong>PumpControl</strong></h5>
-                                            <p style="text-align: justify;">¿Desea reducir el riesgo de fallas, averías y hasta roturas irreversibles
+                                            <p style="text-align: justify; padding: 0 10px; font-size: .8em;">
+                                                ¿Desea reducir el riesgo de fallas, averías y hasta roturas irreversibles
                                                 de sus sitemas de bombeo? ¿Emplea una misma bomba para más de un sistema
                                                 de riego? PumpControl es un sistema de monitoreo y control en tiempo
                                                 real avanzado y a la vez sencillo de usar desde su teléfono celular o
                                                 computadora que le permite enlazarlo con los sistemas de riego que desee
                                                 y le previene de futuros desastres ante mal funcionamiento de sus
                                                 equipo.</p>
-                                            <hr>
                                         </div>
                                     </li>
                                 </ul>
@@ -2323,10 +2411,7 @@
                                     <i class="fa fa-youtube-square" aria-hidden="true"></i>
                                 </a>
                             </div>
-    
                         </div>
-                        <br>
-                        <br>
                     </div>
 
                     <div id="systemConfigModal" class="modal">
