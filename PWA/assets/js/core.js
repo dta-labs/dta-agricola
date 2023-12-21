@@ -347,9 +347,9 @@ app.controller("ControladorPrincipal", function ($scope) {
         sendSMS_XMLHttp(celular, msg);
     }
 
-    $scope.setProgramacionRiego = (programa) => {
-        $scope.actualSystem.autoreverse = programa;
-        $scope.actualSystem.isScheduled = !programa;
+    $scope.setProgramacionRiego = (ciclic, schedule) => {
+        $scope.actualSystem.autoreverse = ciclic;
+        $scope.actualSystem.isScheduled = schedule;
         $scope.setMachineSettings();
     }
 

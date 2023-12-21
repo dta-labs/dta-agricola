@@ -201,12 +201,6 @@
                     <div class="show-in-mobil-only row bottom-navbar" ng-show="authUser && selectedWindow == 'sistema'"
                         style="border-radius: 10px 10px 0 0;">
                         <div class="col navbar-option">
-                            <a class="modal-trigger" href="#modalConfig" style="color: black;">
-                                <i class="material-icons" style="margin-top: 5px;">slow_motion_video</i>
-                                <p style="margin-top: -8px;">Planes</p>
-                            </a>
-                        </div>
-                        <div class="col navbar-option">
                             <a class="modal-trigger" href="#modalAdjust" style="color: black;">
                                 <i class="fa fa-cog" aria-hidden="true" style="margin-top: 5px;"></i>
                                 <p style="margin-top: -4px;">Ajustes</p>
@@ -216,6 +210,12 @@
                             <a class="modal-trigger" href="#modalSuelo" style="color: black;">
                                 <i class="fa fa-leaf" aria-hidden="true" style="margin-top: 5px;"></i>
                                 <p style="margin-top: -4px;">Info</p>
+                            </a>
+                        </div>
+                        <div class="col navbar-option">
+                            <a class="modal-trigger" href="#modalConfig" style="color: black;">
+                                <i class="material-icons" style="margin-top: 5px;">{{ actualSystem.type == 'Estacionario' ? "view_list" : "slow_motion_video" }}</i>
+                                <p style="margin-top: -8px;">Planes</p>
                             </a>
                         </div>
                         <div class="col navbar-option">
@@ -236,12 +236,6 @@
                     <div class="show-in-pc-only row bottom-navbar systemMenuPC"
                         ng-show="authUser && selectedWindow == 'sistema'">
                         <div class="col navbar-option">
-                            <a class="modal-trigger" href="#modalConfig" style="color: black;">
-                                <i class="material-icons" style="margin-top: 5px;">slow_motion_video</i>
-                                <p style="margin-top: -8px;">Planes</p>
-                            </a>
-                        </div>
-                        <div class="col navbar-option">
                             <a class="modal-trigger" href="#modalAdjust" style="color: black;">
                                 <i class="fa fa-cog" aria-hidden="true" style="margin-top: 5px;"></i>
                                 <p style="margin-top: -4px;">Ajustes</p>
@@ -251,6 +245,12 @@
                             <a class="modal-trigger" href="#modalSuelo" style="color: black;">
                                 <i class="fa fa-leaf" aria-hidden="true" style="margin-top: 5px;"></i>
                                 <p style="margin-top: -4px;">Info</p>
+                            </a>
+                        </div>
+                        <div class="col navbar-option">
+                            <a class="modal-trigger" href="#modalConfig" style="color: black;">
+                                <i class="material-icons" style="margin-top: 5px;">{{ actualSystem.type == 'Estacionario' ? "view_list" : "slow_motion_video" }}</i>
+                                <p style="margin-top: -8px;">Plan de riego</p>
                             </a>
                         </div>
                         <div class="col navbar-option">
@@ -266,16 +266,6 @@
                             </a>
                         </div>
                     </div>
-
-                    <!-- Barra menú inferior Regresar -->
-                    <!-- <div class="show-in-mobil-only row bottom-navbar"
-                        ng-show="selectedWindow == 'mapas' || selectedWindow == 'estadisticas' || selectedWindow == 'notificaciones' || selectedWindow == 'ayuda' || selectedWindow == 'usuarios'"
-                        ng-click="showWindow('servicios')" style="border-radius: 10px 10px 0 0;">
-                        <div class="col s12 center-align" style="font-size: 1.3em; margin-top: 10px;">
-                            <i class="fa fa-arrow-left" aria-hidden="true" style="margin-top: 5px;"></i>
-                            <span style="margin-top: -4px;">Regresar</span>
-                        </div>
-                    </div> -->
 
                     <!-- Barra menú superior Celular -->
                     <div class="show-in-mobil-only top-navbar">
@@ -1081,14 +1071,86 @@
                                 <div>
                                     <ul class="tabs">
                                         <li class="tab col s3 teal-text">
-                                            <!-- <a class="active" href="#tiempos"><i class="material-icons">map</i> Tiempos</a> -->
-                                            <a class="active" href="#tiempos" style="font-size: 1.2em;">Tiempos</a>
+                                            <!-- <a href="#programas"><i class="material-icons">map</i> Programa</a> -->
+                                            <a class="active" href="#programas" style="font-size: 1.2em;">Planes</a>
                                         </li>
                                         <li class="tab col s3 teal-text">
-                                            <!-- <a href="#programas"><i class="material-icons">map</i> Programa</a> -->
-                                            <a href="#programas" style="font-size: 1.2em;">Planes</a>
+                                            <!-- <a class="active" href="#tiempos"><i class="material-icons">map</i> Tiempos</a> -->
+                                            <a href="#tiempos" style="font-size: 1.2em;">Duración</a>
                                         </li>
                                     </ul>
+                                </div>
+                                <div id="programas" ng-init="">
+                                    <div>
+                                        <p>
+                                            <label>
+                                                <input name="group1" type="radio" class="with-gap" 
+                                                    ng-checked="!actualSystem.autoreverse && !actualSystem.isScheduled"
+                                                    ng-click="setProgramacionRiego(false, false)" />
+                                                <span><i class="material-icons" style="font-size: 1em;">keyboard_tab</i> Ejecutar una vez</span>
+                                            </label>
+                                        </p>
+                                        <p>
+                                            <label>
+                                                <input name="group1" type="radio" class="with-gap" 
+                                                    ng-checked="actualSystem.autoreverse && !actualSystem.isScheduled"
+                                                    ng-click="setProgramacionRiego(true, false)" />
+                                                <span><i class="fa fa-refresh" aria-hidden="true"></i>&nbsp; Repetir la ejecución del riego</span>
+                                            </label>
+                                        </p>
+                                        <p>
+                                            <label>
+                                                <input name="group1" type="radio" class="with-gap" 
+                                                    ng-checked="!actualSystem.autoreverse && actualSystem.isScheduled"
+                                                    ng-click="setProgramacionRiego(false, true)" />
+                                                <span><i class="fa fa-calendar" aria-hidden="true"></i>&nbsp; Usar programa de riego</span>
+                                            </label>
+                                        </p>
+                                    </div>
+                                    <table class="striped highlight"  
+                                        ng-show="actualSystem.isScheduled">
+                                        <thead>
+                                            <tr>
+                                                <th width="10%">T</th>
+                                                <th width="40%">Fecha</th>
+                                                <th width="30%">Hora</th>
+                                                <th width="20%"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr class="modal-trigger row"
+                                            ng-repeat="schedule in actualSystem.schedule">
+                                                <td>{{ schedule.t }}</td>
+                                                <td>{{ schedule.date }}</td>
+                                                <td>{{ schedule.time }}</td>
+                                                <td>
+                                                    <a class="btn waves-effect waves-light red lighten-3"
+                                                        ng-click="deleteSchedule($index)">
+                                                        <i class="fa fa-trash-o" aria-hidden="true"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="2"><input type="date" id="schDate" name="schDate"></td>
+                                                <td><input type="time" id="schTime" name="schTime"></td>
+                                                <td>
+                                                    <a class="waves-effect waves-light btn"
+                                                        ng-click="addSchedule()">
+                                                        <i class="fa fa-arrow-up" aria-hidden="true"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="4">
+                                                    <a href="#modalDefineFechaHoraInicio"
+                                                        ng-click="actualizarListaCultivos()" style="width: 100%;"
+                                                        class="modal-close waves-effect teal btn-flat white-text modal-trigger">
+                                                        <i class="fa fa-calendar" aria-hidden="true"></i>&nbsp; Agregar plan de riego
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
                                 <div id="tiempos">
                                     <table class="striped highlight">
@@ -1134,70 +1196,6 @@
                                                                 class="redBg"><b>&nbsp;Sí&nbsp;</b></span>
                                                         </label>
                                                     </div>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                                <div id="programas" ng-init="">
-                                    <div>
-                                        <p>
-                                            <label>
-                                                <input name="group1" type="radio" class="with-gap" 
-                                                    ng-checked="actualSystem.autoreverse"
-                                                    ng-click="setProgramacionRiego(true)" />
-                                                <span>Repetir el patrón de riego</span>
-                                            </label>
-                                        </p>
-                                        <p>
-                                            <label>
-                                                <input name="group1" type="radio" class="with-gap" 
-                                                    ng-checked="!actualSystem.autoreverse"
-                                                    ng-click="setProgramacionRiego(false)" />
-                                                <span>Usar programa de riego</span>
-                                            </label>
-                                        </p>
-                                    </div>
-                                    <table class="striped highlight"  
-                                        ng-show="!actualSystem.autoreverse">
-                                        <thead>
-                                            <tr>
-                                                <th width="10%">T</th>
-                                                <th width="40%">Fecha</th>
-                                                <th width="30%">Hora</th>
-                                                <th width="20%"></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr class="modal-trigger row"
-                                            ng-repeat="schedule in actualSystem.schedule">
-                                                <td>{{ schedule.t }}</td>
-                                                <td>{{ schedule.date }}</td>
-                                                <td>{{ schedule.time }}</td>
-                                                <td>
-                                                    <a class="btn waves-effect waves-light red lighten-3"
-                                                        ng-click="deleteSchedule($index)">
-                                                        <i class="fa fa-trash-o" aria-hidden="true"></i>
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td colspan="2"><input type="date" id="schDate" name="schDate"></td>
-                                                <td><input type="time" id="schTime" name="schTime"></td>
-                                                <td>
-                                                    <a class="waves-effect waves-light btn"
-                                                        ng-click="addSchedule()">
-                                                        <i class="fa fa-arrow-up" aria-hidden="true"></i>
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td colspan="4">
-                                                    <a href="#modalDefineFechaHoraInicio"
-                                                        ng-click="actualizarListaCultivos()" style="width: 100%;"
-                                                        class="modal-close waves-effect teal btn-flat white-text modal-trigger">
-                                                        <i class="fa fa-calendar" aria-hidden="true"></i>&nbsp; Agregar plan de riego
-                                                    </a>
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -1479,7 +1477,7 @@
                                     <div class="gray-text white collapsible-header row"
                                         ng-click="modalLogDetail_$index = !modalLogDetail_$index"
                                         ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'"
-                                        style="background: {{ actualSystem.status == true && reg.voltage == 'false' ? '#ff0000a0 !important' : 
+                                        style="background: {{ actualSystem.status == true && reg.voltage == 'false' ? '#ff000070 !important' : 
                                                 actualSystem.status == true && reg.safety == 'false' ? '#db7093a0 !important' : 
                                                 reg.state == 'ON' ? '#20b2aaa0 !important' : 'lightgray !important' }}; margin-bottom: 0px;">
                                         <div class="col s12">
