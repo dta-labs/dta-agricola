@@ -42,9 +42,9 @@ void loop() {
   gestionarComunicaciones();
   systemWatchDog();
   showVars();
-  if (cyclic || (!cyclic && (plot < plots - 1 || (plot == plots - 1 && (millis() - activeTime) < activationTime)))) {
+  // if (cyclic || (!cyclic && (plot < plots - 1 || (plot == plots - 1 && (millis() - activeTime) < activationTime)))) {
     acciones();
-  }
+  // }
   systemWatchDog();
   waitFor(3);                                                            // Demora de 30 segundos
 }
