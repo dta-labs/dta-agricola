@@ -898,24 +898,6 @@
                                         <div class="row"> <!-- Control -->
                                             <div class="row hide-on-small-only" style="margin-bottom: 0px;">
                                                 <div class="col m12 row" style="font-size: 2em !important;">
-                                                    <!-- <div class="col s3 center-align" ng-click="playBackward()"
-                                                        ng-show="actualSystem.type != 'Estacionario'"
-                                                        style="border: 2px solid grey; border-radius: 5px 0 0 5px; background: {{ actualSystem.status && !actualSystem.direction ? '#04d604' : 'transparent' }}">
-                                                        <i class="fa fa-reply" aria-hidden="true"
-                                                            style="color: {{ actualSystem.status && !actualSystem.direction ? 'white' : 'grey' }};"></i>
-                                                    </div> -->
-                                                    <!-- <div class="col s5 center-align" ng-click="stopSystem()"
-                                                        ng-show="actualSystem.type != 'Estacionario'"
-                                                        style="border: 2px solid grey; margin: 0 2px; background: {{ actualSystem.status ? 'transparent' : 'red' }}">
-                                                        <i class="fa fa-stop" aria-hidden="true"
-                                                            style="color: {{ actualSystem.status ? 'grey' : 'white' }};"></i>
-                                                    </div> -->
-                                                    <!-- <div class="col s3 center-align" ng-click="playForward()"
-                                                        ng-show="actualSystem.type != 'Estacionario'"
-                                                        style="border: 2px solid grey; border-radius: 0 5px 5px 0; background: {{ actualSystem.status && actualSystem.direction ? '#04d604' : 'transparent' }}">
-                                                        <i class="fa fa-share" aria-hidden="true"
-                                                            style="color: {{ actualSystem.status && actualSystem.direction ? 'white' : 'grey' }};"></i>
-                                                    </div> -->
                                                     <div class="col s6 center-align" ng-click="stopSystem()"
                                                         ng-show="actualSystem.type == 'Estacionario'"
                                                         style="border: 2px solid grey; margin: 0 2px; border-radius: 5px 0 0 5px; background: {{ actualSystem.status ? 'transparent' : 'red' }}">
@@ -936,22 +918,24 @@
                                             <div class="col s12">
                                                 <table>
                                                     <tr style="border-top: 1px solid lightgrey;">
-                                                        <td colspan="2" style="text-align: center;">
-                                                            <div class="center-align">
-                                                                <i class="material-icons">alarm</i>
-                                                            </div>
-                                                            <div class="center-align">
-                                                                <b>{{ getDayFromMs(actualSystem.plots['p' + actualSystem.position].value) + ":" +
-                                                                    getHourFromMs(actualSystem.plots['p' + actualSystem.position].value) + ":" + 
-                                                                    getMinutesFromMs(actualSystem.plots['p' + actualSystem.position].value) }}</b>
-                                                            </div>
-                                                        </td>
                                                         <td style="text-align: center;">
                                                             <div class="center-align">
                                                                 <i class="material-icons">map</i>
                                                             </div>
                                                             <div class="center-align">
                                                                 <b>{{ actualSystem.position + 1 }}</b>
+                                                            </div>
+                                                        </td>
+                                                        <td colspan="2" style="text-align: center;">
+                                                            <div class="center-align">
+                                                                <span style="font-size: 1.3em;" ng-show="!actualSystem.autoreverse && !actualSystem.isScheduled"><i class="material-icons" style="font-size: 1em;">keyboard_tab</i></span>
+                                                                <span style="font-size: 1.3em;" ng-show="actualSystem.autoreverse && !actualSystem.isScheduled"><i class="fa fa-refresh" aria-hidden="true"></i></span>
+                                                                <span style="font-size: 1.3em;" ng-show="!actualSystem.autoreverse && actualSystem.isScheduled"><i class="fa fa-calendar" aria-hidden="true"></i></span>
+                                                            </div>
+                                                            <div class="center-align">
+                                                                <b>{{ getDayFromMs(actualSystem.plots['p' + actualSystem.position].value) + ":" +
+                                                                    getHourFromMs(actualSystem.plots['p' + actualSystem.position].value) + ":" + 
+                                                                    getMinutesFromMs(actualSystem.plots['p' + actualSystem.position].value) }}</b>
                                                             </div>
                                                         </td>
                                                         <td style="text-align: center;">
@@ -976,19 +960,22 @@
                                         </div>
                                         <div class="row hide-on-small-only" style="margin-top: 30px; width: 95%;">
                                             <div class="col s12">
-                                                <table>
-                                                    <tr>
-                                                        <td class="valign-wrapper" style="text-align: left;" style="margin-top: 30px;">
-                                                            <i class="material-icons">alarm</i>&nbsp;
-                                                            <b>{{ getDayFromMs(actualSystem.plots['p' + actualSystem.position].value) + ":" +
-                                                                getHourFromMs(actualSystem.plots['p' + actualSystem.position].value) + ":" + 
-                                                                getMinutesFromMs(actualSystem.plots['p' + actualSystem.position].value) }}</b>
-                                                        </td>
-                                                    </tr>
+                                                <table> <!-- Estado -->
                                                     <tr>
                                                         <td class="valign-wrapper" style="text-align: left;">
                                                             <i class="material-icons">map</i>&nbsp;
                                                             <b>{{ actualSystem.position + 1 }}</b>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="valign-wrapper" style="text-align: left;" style="margin-top: 30px;">
+                                                            <span style="font-size: 1.3em; margin-left: 5px;" ng-show="!actualSystem.autoreverse && !actualSystem.isScheduled"><i class="material-icons" style="font-size: 1em;">keyboard_tab</i></span>
+                                                            <span style="font-size: 1.3em; margin-left: 5px;" ng-show="actualSystem.autoreverse && !actualSystem.isScheduled"><i class="fa fa-refresh" aria-hidden="true"></i></span>
+                                                            <span style="font-size: 1.3em; margin-left: 5px;" ng-show="!actualSystem.autoreverse && actualSystem.isScheduled"><i class="fa fa-calendar" aria-hidden="true"></i></span>
+                                                            &nbsp;
+                                                            <b>{{ getDayFromMs(actualSystem.plots['p' + actualSystem.position].value) + ":" +
+                                                                getHourFromMs(actualSystem.plots['p' + actualSystem.position].value) + ":" + 
+                                                                getMinutesFromMs(actualSystem.plots['p' + actualSystem.position].value) }}</b>
                                                         </td>
                                                     </tr>
                                                     <tr>
@@ -1002,6 +989,20 @@
                                                         <td class="valign-wrapper" style="text-align: left;">
                                                             <i class="material-icons">rss_feed</i>&nbsp;
                                                             <b>{{ actualSystem.log.signal ? actualSystem.log.signal : 0 }}</b>/30
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                                <br>
+                                                <table> <!-- Programa -->
+                                                    <tr>
+                                                        <td class="valign-wrapper left truncate">
+                                                            <b>{{ actualSystem.culture }}</b>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="valign-wrapper center">
+                                                            <img id="hourglass_{{actualSystem.key}}" src="assets/images/hourglass.gif" alt="hourglass"
+                                                                style="width: 50%;" ng-show="!actualSystem.autoreverse && actualSystem.isScheduled && actualSystem.status">
                                                         </td>
                                                     </tr>
                                                 </table>
