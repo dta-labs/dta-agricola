@@ -42,9 +42,7 @@ void loop() {
   gestionarComunicaciones();
   systemWatchDog();
   showVars();
-  // if (cyclic || (!cyclic && (plot < plots - 1 || (plot == plots - 1 && (millis() - activeTime) < activationTime)))) {
-    acciones();
-  // }
+  acciones();
   systemWatchDog();
   waitFor(3);                                                            // Demora de 30 segundos
 }
@@ -53,11 +51,13 @@ void loop() {
 
 void acciones() {
   if (statusVar == "ON") {
-    digitalWrite(pinBomba, LOW);                                        // Bomba de agua encendida
-    setPlot();
-    setActivationTime();
-    activarPuerta();
-    // updateEEPROM(0);
+    if (cyclic || (!cyclic && (plot < plots - 1 || (plot == plots - 1 && (millis() - activeTime) < activationTime)))) {
+      digitalWrite(pinBomba, LOW);                                        // Bomba de agua encendida
+      setPlot();
+      setActivationTime();
+      activarPuerta();
+      // updateEEPROM(0);
+    }
   } else {
     apagarTodo();
     // deleteEEPROM();
@@ -100,6 +100,8 @@ void activarPuerta() {
 
 void apagarTodo() {
   digitalWrite(pinBomba, HIGH);  // Apagado
+  firstSettings = true;
+  activeTime = millis();
   apagar();
 }
 
