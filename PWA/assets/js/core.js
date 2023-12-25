@@ -425,41 +425,85 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     $scope.stopSystem = () => {
         if ($scope.actualSystem.status) {
-            $scope.actualSystem.status = false;
-            $scope.setMachineState();
-            hideHourglass();
+            swal({
+                title: "Control de riego",
+                text: "¿Desea detener el riego?",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            })
+            .then((confirm) => {
+                if (confirm) {
+                    $scope.actualSystem.status = false;
+                    $scope.setMachineState();
+                    hideHourglass();
+                    $scope.setMachineSettings($scope.actualSystem);
+                        swal("Orden confirmada!", {
+                        icon: "success",
+                    });
+                } else {
+                  swal("No se inició el riego!");
+                }
+            });
         }
     }
 
     $scope.playForward = () => {
         if (!$scope.actualSystem.direction || !$scope.actualSystem.status) {
-            $scope.actualSystem.status = true;
-            $scope.actualSystem.direction = true;
-            $scope.setMachineState();
+            swal({
+                title: "Control de riego",
+                text: "¿Desea iniciar el riego?",
+                icon: "warning",
+                buttons: true,
+            })
+            .then((confirm) => {
+                if (confirm) {
+                    $scope.actualSystem.position = $scope.actualSystem.type == "Estacionario" && !$scope.actualSystem.autoreverse && !$scope.actualSystem.isScheduled ? -1 : $scope.actualSystem.position;
+                    $scope.actualSystem.status = true;
+                    $scope.actualSystem.direction = true;
+                    $scope.setMachineState();
+                    $scope.setMachineSettings($scope.actualSystem);
+                        swal("El riego ha iniciado correctamente!", {
+                        icon: "success",
+                    });
+                } else {
+                  swal("No se inició el riego!");
+                }
+            });
         }
     }
 
     $scope.playBackward = () => {
         if ($scope.actualSystem.direction || !$scope.actualSystem.status) {
-            $scope.actualSystem.status = true;
-            $scope.actualSystem.direction = false;
-            $scope.setMachineState();
+            swal({
+                title: "Control de riego",
+                text: "¿Desea iniciar el riego?",
+                icon: "warning",
+                buttons: true,
+            })
+            .then((confirm) => {
+                if (confirm) {
+                    $scope.actualSystem.status = true;
+                    $scope.actualSystem.direction = false;
+                    $scope.setMachineState();
+                    $scope.setMachineSettings($scope.actualSystem);
+                        swal("El riego ha iniciado correctamente!", {
+                        icon: "success",
+                    });
+                } else {
+                  swal("No se inició el riego!");
+                }
+            });
         }
     }
 
     $scope.setMachineState = () => {                                       // New *******************
         $scope.setMachineSettings($scope.actualSystem);
         sendCommand[$scope.actualSystem.key] = $scope.actualSystem.status ? "ON" : "OFF";
-        if (!$scope.actualSystem.autoreverse && $scope.actualSystem.isScheduled) {
-            $scope.actualSystem.status ? showHourglass() : hideHourglass();
+        if ($scope.actualSystem.type == "Estacionario" && !$scope.actualSystem.autoreverse && $scope.actualSystem.isScheduled) {
+            $scope.actualSystem.status ? showHourglass($scope.actualSystem.key) : hideHourglass($scope.actualSystem.key);
         } else {
-            hideHourglass();
             showSpinner();
-        }
-        if ($scope.actualSystem.type == "Nogal") {
-            setTimeout(function () {
-                hideTheSpinner();
-            }, 15000);
         }
     }
 
@@ -494,14 +538,12 @@ app.controller("ControladorPrincipal", function ($scope) {
         }
     }
 
-    showHourglass = () => {
-        document.getElementById("hourglass_1").style.display = "none";
-        document.getElementById("hourglass_2").style.display = "block";
+    showHourglass = (key) => {
+        document.getElementById("hourglass_" + key).style.display = "block";
     }
     
-    hideHourglass = () => {
-        document.getElementById("hourglass_1").style.display = "block";
-        document.getElementById("hourglass_2").style.display = "none";
+    hideHourglass = (key) => {
+        document.getElementById("hourglass_" + key).style.display = "none";
     }
 
     hideTheSpinner = () => {
@@ -1410,12 +1452,12 @@ app.controller("ControladorPrincipal", function ($scope) {
         getLocation();
         initializeMap();
         listenUserStatus();
-        setTimeout(function () {
+        // setTimeout(function () {
             if (!$scope.authUser) {
                 $scope.showWindow('login');
-                $scope.$apply();
+                // $scope.$apply();
             }
-        }, 2000);
+        // }, 2000);
     }
 
 });

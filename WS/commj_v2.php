@@ -109,12 +109,12 @@
 	}
 
 	function updateStatus($baseUrl, $dataSettings, $autoreverse, $activationTime) {
-        $status = $dataSettings->status;
+		$status = $dataSettings->status;
         if ($autoreverse == "OFF" && !$dataSettings->isScheduled && $dataSettings->position == $dataSettings->length - 1) { 
             $p = "p" . ($dataSettings->position);
 			$plotTimer = $dataSettings->plots->$p->value;
             if ($plotTimer <= $activationTime) {
-                putcURLData($baseUrl . "settings/autoreverse.json", '"ON"');
+                // putcURLData($baseUrl . "settings/autoreverse.json", '"ON"');
                 putcURLData($baseUrl . "settings/status.json", '"OFF"');
                 return "OFF";
             }
@@ -160,15 +160,17 @@
 			if ($_GET["rx"] && ($_GET["rx"] == "Ok" || $_GET["rx"] == "Er")) { $dataUpdate .= ',"reception":"' . $_GET["rx"] . '"'; }
 			$dataUpdate .= '}';
 
-			$url = $baseUrl . "logs$key.json";              // 4.1.- cURL de actualización de Logs
+			$url = $baseUrl . "logs$key.json";              	// 5.1.- cURL de actualización de Logs
 			if ($key) {
-				putcURLData($url, $dataUpdate);             // Actualiza registro
+				putcURLData($url, $dataUpdate);             	// Actualiza registro
 			} else {
-				postcURLData($url, $dataUpdate);            // Nuevo registro
+				postcURLData($url, $dataUpdate);            	// Nuevo registro
 			}
 
-			$url = $baseUrl . "settings/position.json";     // 4.2.- cURL de actualización de Settings
-			putcURLData($url, $_GET["po"]);                 // Actualiza registro
+			if ($_GET["st"] == "ON") {
+				$url = $baseUrl . "settings/position.json";     // 5.2.- cURL de actualización de Settings
+				putcURLData($url, $_GET["po"]);                 // Actualiza registro
+			}
 		}
 	}
 
