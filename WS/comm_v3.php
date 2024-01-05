@@ -74,32 +74,23 @@
 
 	// 3.- Comprobar estado anterior (Logs):
 
-	$url = "https://dta-agricola.firebaseio.com/systems/$id/logs.json";
+	$url = "https://dta-agricola.firebaseio.com/systems/$id/logs.json?orderBy=\"update\"&limitToLast=1";
 	$ch = curl_init();
 	curl_setopt($ch, CURLOPT_URL, $url);
 	// curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 	$response = curl_exec($ch);
 	curl_close($ch);
-	$json = get_object_vars(json_decode($response));
-	$status = "";
-	$initialDate = "";
-	foreach ($json as $value) {
-		$item = (object) $value;
-		$status = $item->{'state'};
-		$initialDate = $item->{'date'};
-		$voltage = $item->{'voltage'};
-	}
+	$log = get_object_vars(json_decode($response));
+	$index = $log ? end(array_keys($log)) : "";
+	$status = $log ? $log[$index]->{'state'} : "";
+	$initialDate = $log ? $log[$index]->{'date'} : "";
+	$voltage = $log ? $log[$index]->{'voltage'} : "";
+
 	$zona = $localZone . ' hours';
 	$dateTime = new DateTime();
 	$dateTime->modify($zona);
 	$date = $dateTime->format('Ymd hia');
-
-	$indexes = array_keys($json);
-	$index = "";
-	foreach ($indexes as $value) {
-		$index = $value;
-	}
 
 	// 4.- Actualizar estado actual del dispositivo e información de los sensores
 

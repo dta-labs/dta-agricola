@@ -285,11 +285,11 @@
                                     </a>
                                 </div>
                                 <div ng-show="authUser">
-                                    <img id="imgAuthMobil" src="{{authUser.photoURL}}" class="img-auth"
+                                    <img id="imgAuthMobil" src="{{ authUser.photoURL }}" class="img-auth"
                                         style="width: 32px; height: 32px; border-radius: 50%; margin-top: 2px;"
-                                        ng-show="authUser.photoURL">
+                                        ng-show="authUser">
                                     <i class="fa fa-user" aria-hidden="true"
-                                        style="margin-top: 5px; margin-bottom: 4px;" ng-show="!authUser.photoURL"></i>
+                                        style="margin-top: 5px; margin-bottom: 4px;" ng-show="!authUser"></i>
                                     <!-- <p style="margin-top: -7px; color: black;">{{ authUser.displayName.split(" ")[0] }}</p> -->
                                 </div>
                             </div>
@@ -300,38 +300,6 @@
                                         style="font-size: 2em; margin-top: 5px;"></i>
                                 </a>
                             </div>
-                            <!-- <h5 style="margin-top: 8px;" ng-show="selectedWindow == 'listado'">
-                                <i class="fa fa-tasks" aria-hidden="true"></i>
-                                Mis sistemas
-                            </h5>
-                            <h5 style="margin-top: 8px;" ng-show="selectedWindow == 'sistema'">
-                                <i class="fa fa-sliders" aria-hidden="true"></i>
-                                Configuración
-                            </h5>
-                            <h5 style="margin-top: 8px;" ng-show="selectedWindow == 'mapas'">
-                                <i class="fa fa-map-marker" aria-hidden="true"></i>
-                                Vista general
-                            </h5>
-                            <h5 style="margin-top: 8px;" ng-show="selectedWindow == 'servicios'">
-                                <i class="fa fa-list-ul" aria-hidden="true"></i>
-                                Opciones
-                            </h5>
-                            <h5 style="margin-top: 8px;" ng-show="selectedWindow == 'estadisticas'">
-                                <i class="fa fa-bar-chart-o" aria-hidden="true"></i>
-                                Estadisticas
-                            </h5>
-                            <h5 style="margin-top: 8px;" ng-show="selectedWindow == 'notificaciones'">
-                                <i class="fa fa-bell-o" aria-hidden="true"></i>
-                                Notificaciones
-                            </h5>
-                            <h5 style="margin-top: 8px;" ng-show="selectedWindow == 'ayuda'">
-                                <i class="fa fa-question" aria-hidden="true"></i>
-                                Ayuda
-                            </h5>
-                            <h5 style="margin-top: 8px;" ng-show="selectedWindow == 'login'">
-                                <i class="fa fa-tasks" aria-hidden="true"></i>
-                                Seguridad
-                            </h5> -->
                         </div>
 
                         <!-- Ubicación actual -->
@@ -405,7 +373,7 @@
                                                         </span>
                                                         <br>
                                                         <span><b>{{ !system.log ? "OFF" : system.log.state }}</b></span>
-                                                        <span>{{ system.log.update ? "[" + system.log.update.substr(4,13) + "]" : "" }}</span>
+                                                        <span>{{ system.log.update ? "[" + system.log.update.substr(2,13) + "]" : "" }}</span>
                                                         <!-- <span style="font-size: .8em;">
                                                             [{{ ((system.log.voltage == 'true' && system.log.safety == 'true' && system.log.commDelay == '-1') || system.status == 'OFF') && system.log.update ? system.log.update : "00000000 0000" }}]
                                                         </span> -->
@@ -453,7 +421,7 @@
                                                         </span>
                                                         <br>
                                                         <span><b>{{ system.status }}</b></span>
-                                                        <span>{{ system.log.update ? "[" + system.log.update.substr(4,13) + "]" : "" }}</span><br>
+                                                        <span>{{ system.log.update ? "[" + system.log.update.substr(2,13) + "]" : "" }}</span><br>
                                                         <!-- <span><strong>{{ system.culture }}</strong></span> -->
                                                     </div>
                                                 </div>
@@ -2493,12 +2461,12 @@
                                                     </a>
                                                 </div>
                                                 <div class="col s12 m3" ng-show="authUser" style="text-align: center;">
-                                                    <img id="imgAuthMobil" src="{{authUser.photoURL}}" class="img-auth"
+                                                    <img id="imgAuthMobil" src="{{ authUser.photoURL }}" class="img-auth"
                                                         style="width: 100px; height: 100px; border-radius: 50%; margin-top: 2px;"
-                                                        ng-show="authUser.photoURL">
+                                                        ng-show="authUser">
                                                     <i class="fa fa-user" aria-hidden="true"
                                                         style="margin-top: 5px; margin-bottom: 4px;"
-                                                        ng-show="!authUser.photoURL"></i>
+                                                        ng-show="!authUser"></i>
                                                     <!-- <p style="margin-top: -7px; color: black;">{{ authUser.displayName.split(" ")[0] }}</p> -->
                                                 </div>
                                                 <div class="form-group col s12 m9">

@@ -7,7 +7,7 @@ bool controlSeguridad1() {
 }
 
 bool controlSeguridad2() {
-  int Sensibilidad = 185;       // 0.185
+  float Sensibilidad = .185;       // 5A = 0.185; 20A = 0.100; 30A = 0.66
   float voltajeSensor;
   float corriente = 0;
   float Imax = 0;
@@ -15,9 +15,9 @@ bool controlSeguridad2() {
   long tiempo = millis();
   while (millis() - tiempo < 500) {
     voltajeSensor = analogRead(A1) * (5.0 / 1023.0);
-    corriente = 0.9 * corriente + 0.1 * ((voltajeSensor - 2.5) / (Sensibilidad / 100));
-    if (corriente > Imax) { Imax = corriente; }
-    if (corriente < Imin) { Imin = corriente; }
+    corriente = 0.9 * corriente + 0.1 * ((voltajeSensor - 2.5) / Sensibilidad);
+    Imax = corriente > Imax ? corriente : Imax;
+    Imin = corriente < Imin ? corriente : Imin;
   }
   float Irms = (((Imax - Imin) / 2)) * 0.707;
   Serial.print(F("Irms: "));

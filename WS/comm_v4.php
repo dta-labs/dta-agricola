@@ -1,5 +1,8 @@
 <?php
-	function config(){
+
+    #region 0.- Configuración
+    
+    function config(){
         $apiKey = "AIzaSyBGhhdWhG7bD4QBkjK5IlXgiGVkoUv70KM";
         $headers = array('Authorization: key='.$apiKey,'Content-Type: application/json');
         $id = $_GET["id"];
@@ -7,9 +10,11 @@
         return $baseUrl;
     }
 
-    // 0.- Funciones cURLs
+    #endregion 0.- Configuración
 
-    function getcURLData($url) {
+    #region 1.- Funciones cURLs
+
+    function getcURLData($url) {                    // Leer registro
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         // curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -19,7 +24,7 @@
         return json_decode($response);
     }
 
-    function putcURLData($url, $data) {
+    function putcURLData($url, $data) {             // Actualizar registro
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
 		// curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -36,7 +41,7 @@
         return $response;
     }
 
-    function postcURLData($url, $data) {
+    function postcURLData($url, $data) {            // Nuevo registro
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
 		// curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -53,7 +58,9 @@
         return $response;
     }
 
-	// 1.- Consultar configuración (Settings) y enviar las órdenes al dispositivo:
+    #endregion 1.- Funciones cURLs
+
+    #region 2.- Consultar Settings
 
     function getPlans($data, $dir) {
         $plans = "";
@@ -98,7 +105,9 @@
         return [$dir, $localZone];
     }
 
-	// 2.- cURL de actualización de Autorreversa en los Settings
+    #endregion 2.- Consultar Settings
+
+    #region 3.- Actualización de Autorreversa en los Settings
 
     function autorreversa($dataSettings, $dir, $baseUrl) {
         if ($dataSettings->direction != $dir) {
@@ -107,32 +116,27 @@
         }
     }
 
-	// 3.- Comprobar estado anterior (Logs):
+    #endregion 3.- Actualización de Autorreversa en los Settings
+
+    #region 4.- Comprobar estado anterior (Logs)
 
     function checkLastState($baseUrl, $localZone) {
-        $json = get_object_vars(getcURLData($baseUrl . "logs.json"));
-        $status = "";
-        $initialDate = "";
-        foreach ($json as $value) {
-            $item = (object) $value;
-            $status = $item->{'state'};
-            $initialDate = $item->{'date'};
-            $voltage = $item->{'voltage'};
-        }
+        $log = get_object_vars(getcURLData($baseUrl . "logs.json?orderBy=\"update\"&limitToLast=1"));
+        $index = $log ? end(array_keys($log)) : "";
+        $status = $log ? $log[$index]->{'state'} : "";
+        $initialDate = $log ? $log[$index]->{'date'} : "";
+        $voltage = $log ? $log[$index]->{'voltage'} : "";
+
         $zona = $localZone . ' hours';
         $dateTime = new DateTime();
         $dateTime->modify($zona);
         $date = $dateTime->format('Ymd hia');
-
-        $indexes = array_keys($json);
-        $index = "";
-        foreach ($indexes as $value) {
-            $index = $value;
-        }
         return [$status, $voltage, $index, $initialDate, $date];
     }
 
-	// 4.- Actualizar estado actual del dispositivo e información de los sensores
+    #endregion 4.- Comprobar estado anterior (Logs)
+
+    #region 5.- Actualizar estado del dispositivo
 
     function updateLog($status, $voltage, $index, $initialDate, $date, $baseUrl) {
         if ($_GET["st"] && ($_GET["st"] == "ON" || $_GET["st"] == "OFF")) {
@@ -164,8 +168,10 @@
             }
         }
     }
-	
-    // 5.- Programa principal
+
+    #endregion 5.- Actualizar estado del dispositivo
+
+    #region 6.- Programa principal
     
     function main() {
         $baseUrl = config();
@@ -175,6 +181,8 @@
         list($status, $voltage, $index, $initialDate, $date) = checkLastState($baseUrl, $localZone);
         updateLog($status, $voltage, $index, $initialDate, $date, $baseUrl);
     }
+
+    #endregion 6.- Programa principal
 	
     main();
 

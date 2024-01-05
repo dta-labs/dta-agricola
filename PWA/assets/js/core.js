@@ -458,7 +458,7 @@ app.controller("ControladorPrincipal", function ($scope) {
             })
             .then((confirm) => {
                 if (confirm) {
-                    $scope.actualSystem.position = $scope.actualSystem.type == "Estacionario" && !$scope.actualSystem.autoreverse && !$scope.actualSystem.isScheduled ? -1 : $scope.actualSystem.position;
+                    $scope.actualSystem.position = $scope.actualSystem.type == "Estacionario" && !$scope.actualSystem.autoreverse && !$scope.actualSystem.isScheduled ? -1 : $scope.actualSystem.position ? $scope.actualSystem.position : 0;
                     $scope.actualSystem.status = true;
                     $scope.actualSystem.direction = true;
                     $scope.setMachineState();
@@ -539,11 +539,15 @@ app.controller("ControladorPrincipal", function ($scope) {
     }
 
     showHourglass = (key) => {
-        document.getElementById("hourglass_" + key).style.display = "block";
+        if (document.getElementById("hourglass_" + key)) {
+            document.getElementById("hourglass_" + key).style.display = "block";
+        }
     }
     
     hideHourglass = (key) => {
-        document.getElementById("hourglass_" + key).style.display = "none";
+        if (document.getElementById("hourglass_" + key)) {
+            document.getElementById("hourglass_" + key).style.display = "none";
+        }
     }
 
     hideTheSpinner = () => {
