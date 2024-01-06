@@ -88,6 +88,7 @@ void activeMachine() {
       }
     } else {
       apagar();
+      statusVar = isSequrity ? "ON" : "OFF";
       Serial.print(F("  * "));
       Serial.print(!isVoltage ? F("Voltage")  : 
                   !isSequrity ? F("Sequrity") :

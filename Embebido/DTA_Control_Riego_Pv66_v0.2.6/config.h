@@ -60,7 +60,7 @@ byte errorGPS = 0;
  
 bool testComm = false;                         // Para test
 bool testFunc = false;                         // Para test
-bool testData = false;                          // Para test
+bool testData = false;                         // Para test
 String deviceType = "PC";                      // PC | PL
 String statusVar = "OFF";
 String lastDirectionVar = "FF";

@@ -86,6 +86,7 @@
 	$status = $log ? $log[$index]->{'state'} : "";
 	$initialDate = $log ? $log[$index]->{'date'} : "";
 	$voltage = $log ? $log[$index]->{'voltage'} : "";
+	$safety = $log ? $log[$index]->{'safety'} : "";
 
 	$zona = $localZone . ' hours';
 	$dateTime = new DateTime();
@@ -130,21 +131,36 @@
 		// curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		if ($key) {
-			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
-			// print("PUT");	// Actualiza registro
+			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");	// Actualiza registro
 		} else {
-			curl_setopt($ch, CURLOPT_POST, 1);
-			// print("POST");	// Nuevo registro
+			curl_setopt($ch, CURLOPT_POST, 1);				// Nuevo registro
 		}
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $dataUpdate);
 		curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: text/plain'));
 		$response = curl_exec($ch);
 		if (curl_errno($ch)) {
-			// echo 'Error: '.curl_errno($ch);
 			echo 'Error';
 		}
 		curl_close($ch);
 
+		// 4.2.- cURL de actualización de Settings
+
+		if ($status != $_GET["st"] && $_GET["st"] == "OFF" && $_GET["sa"] == "false") {
+			$url = "https://dta-agricola.firebaseio.com/systems/$id/settings/status.json";
+			$newData = '"OFF"';
+			$ch = curl_init();
+			curl_setopt($ch, CURLOPT_URL, $url);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
+			curl_setopt($ch, CURLOPT_POSTFIELDS, $newData);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: text/plain'));
+			$response = curl_exec($ch);
+			if (curl_errno($ch)) {
+				echo 'Error';
+			}
+			curl_close($ch);
+		}
+	
 	}
 			
 	
