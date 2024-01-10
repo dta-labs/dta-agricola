@@ -1,7 +1,7 @@
 /****************************************************************************
  *                                                                          * 
  *                    Sistemas DTA Serie Pv66 v0.2.6 A                      *
- *                               2023.03.12                                 *
+ *                               2024.01.06                                 *
  *                                                                          *
  *   Sensores:                                                              *
  *   - Presión 150psi............. A0                                       *
@@ -37,7 +37,7 @@ void setup() {
   pinMode(pinMotorFF, OUTPUT);
   apagar();
   Serial.begin(115200);
-  Serial.print(F("\n>>> DTA-Agrícola: Serie Pv66 v0.2.6\n"));
+  Serial.print(F("\n>>> DTA-Agrícola: Serie Pv66 v0.2.6.240106 A\n"));
   Serial.print(F("    «")); Serial.print(telefono); Serial.print(F("»\n"));
   // wdt_enable(WDTO_8S);
 }
@@ -67,7 +67,7 @@ void machineControl() {
   } else {
     apagar();
     Serial.println(F("> System off!"));
-    waitFor(10);
+    waitFor(9);
   }
 }
 
@@ -112,6 +112,7 @@ void unactiveMachine() {
     if (!controlSeguridad()) {
       Serial.print(F(": Sequrity error!"));
       apagar();
+      statusVar = "OFF";
     }
     Serial.println();
   } else {

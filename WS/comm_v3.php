@@ -18,8 +18,6 @@
 	$summerHour = $dataSettings->summerHour; 			// Horario de verano
 	$localZone = intval($timeZone) + intval($summerHour);
 
-	$lectura  = "\"" . $dataSettings->status;
-
 	$dir = $dataSettings->direction;
 	$plans = "";
 	for ($i = 0; $i < intval($dataSettings->plansLength); $i++) {
@@ -28,21 +26,23 @@
 		$endAngle = $dataSettings->plans->$p->endAngle;
 		$value = $dataSettings->plans->$p->value;
 		$endGun = "F";
-		if ($dataSettings->status == "ON" && $dataSettings->autoreverse == "ON") {
-			if (intval($_GET["po"]) >= intval($starAngle) && intval($_GET["po"]) < intval($endAngle) && $value == "0") {
-				$dir = ($dataSettings->direction == "FF") ? "RR" : "FF";
-				$value = "100";
-			}
-		}
+		// if ($dataSettings->status == "ON" && $dataSettings->autoreverse == "ON") {
+		// 	if (intval($_GET["po"]) >= intval($starAngle) && intval($_GET["po"]) < intval($endAngle) && $value == "0") {
+		// 		$dir = ($dataSettings->direction == "FF") ? "RR" : "FF";
+		// 		$value = "100";
+		// 	}
+		// }
 		if ($dataSettings->plans->$p->endGun && $dataSettings->plans->$p->endGun == "true") {
 			$endGun = "T";
 		}
 		$plans .= "\"" . $starAngle . "\"" . $endAngle . "\"" . $value . "\"" . $endGun;
 	}
 
+	$lectura  = "\"" . $dataSettings->status;
 	$lectura .= "\"" . $dir;
 	$lectura .= "\"" . $dataSettings->sensorPresion;
-	$lectura .= "\"" . $dataSettings->autoreverse;
+	// $lectura .= "\"" . $dataSettings->autoreverse;
+	$lectura .= "\"OFF";
 	$lectura .= "\"" . $dataSettings->latitude;
 	$lectura .= "\"" . $dataSettings->longitude;
 	$lectura .= "\"" . $dataSettings->type;
@@ -54,23 +54,23 @@
 	
 	// 2.- cURL de actualización de Autorreversa en los Settings
 
-	if ($dataSettings->direction != $dir) {
-		$url = "https://dta-agricola.firebaseio.com/systems/$id/settings/direction.json";
-		$newData = '"' . $dir . '"';
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL, $url);
-		// curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $newData);
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: text/plain'));
-		$response = curl_exec($ch);
-		if (curl_errno($ch)) {
-			// echo 'Error: '.curl_errno($ch);
-			echo 'Error';
-		}
-		curl_close($ch);
-	}
+	// if ($dataSettings->direction != $dir) {
+	// 	$url = "https://dta-agricola.firebaseio.com/systems/$id/settings/direction.json";
+	// 	$newData = '"' . $dir . '"';
+	// 	$ch = curl_init();
+	// 	curl_setopt($ch, CURLOPT_URL, $url);
+	// 	// curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+	// 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	// 	curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
+	// 	curl_setopt($ch, CURLOPT_POSTFIELDS, $newData);
+	// 	curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: text/plain'));
+	// 	$response = curl_exec($ch);
+	// 	if (curl_errno($ch)) {
+	// 		// echo 'Error: '.curl_errno($ch);
+	// 		echo 'Error';
+	// 	}
+	// 	curl_close($ch);
+	// }
 
 	// 3.- Comprobar estado anterior (Logs):
 

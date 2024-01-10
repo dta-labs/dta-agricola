@@ -817,18 +817,20 @@ app.controller("ControladorPrincipal", function ($scope) {
     $scope.setEditPlan = (index) => {
         let idx = `p${index}`;
         let as = $scope.actualSystem.plans[idx];
+        $scope.editSelectedPlan = as;
+        $scope.editSelectedPlan.endGun = as.endGun == "true" ? true : false;
         document.getElementById("editPlanAnguloIni").value = as.starAngle;
         document.getElementById("editPlanAnduloFin").value = as.endAngle;
         document.getElementById("editPlanValue").value = as.value;
         document.getElementById("editEndGun").value = as.endGun;
         $scope.editedPlan = idx;
     }
-
+    
     $scope.setTimer = (value) => {
         document.getElementById("planValue").value = value;
         document.getElementById("editPlanValue").value = value;
     }
-
+    
     $scope.editPlan = () => {
         swal({
             title: "Plan de riego",
@@ -836,17 +838,16 @@ app.controller("ControladorPrincipal", function ($scope) {
             icon: "warning",
             buttons: true,
             dangerMode: true,
-          })
+        })
         .then((confirm) => {
             if (confirm) {
                 let ep = $scope.actualSystem.plans[$scope.editedPlan];
-                ep.starAngle = document.getElementById("editPlanAnguloIni").value;
-                ep.endAngle = document.getElementById("editPlanAnduloFin").value;
-                // ep.value = document.getElementById("editPlanValue").value;
-                ep.value = (document.getElementById("editPlanValue").value <= $scope.actualSystem.maxVelocity) ? document.getElementById("editPlanValue").value : $scope.actualSystem.maxVelocity;
-                ep.endGun = document.getElementById("editEndGun").value;
-                // showPlanRiegoPie();
+                ep2 = $scope.editSelectedPlan;
+                ep = ep2;
+                ep.endGun = ep2.endGun ? "true" : "false";
+                ep.value = ep2.value <= $scope.actualSystem.maxVelocity ? ep2.value : $scope.actualSystem.maxVelocity;
                 $scope.setMachineSettings($scope.actualSystem);
+                $scope.$apply();
                 swal("Plan de riego actualizado correctamente!", {
                     icon: "success",
                 });

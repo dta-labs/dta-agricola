@@ -1233,7 +1233,7 @@
                                         <input type="number" ng-model="edit.caudal" ng-readonly="editCaudal">
                                     </td>
                                 </tr>
-                                <tr>
+                                <tr ng-show="actualSystem.type != 'Estacionario'">
                                     <td style="text-align: left;">Max. val. sensor presión</td>
                                     <td style="text-align: left;">
                                         <input type="number"
@@ -1241,7 +1241,7 @@
                                             ng-readonly="edit">
                                     </td>
                                 </tr>
-                                <tr>
+                                <tr ng-show="actualSystem.type != 'Estacionario'">
                                     <td style="text-align: left;">Límite de velocidad</td>
                                     <td style="text-align: left;">
                                         <input type="number"
@@ -1637,24 +1637,31 @@
                             <div class="row" style="margin-top: 35px;">
                                 <div class="input-field col s6">
                                     <input id="editPlanAnguloIni" type="number" placeholder="0" min="0" max="360"
-                                        ng-model="editPlan.editPlanAnguloIni">
+                                        ng-model="editSelectedPlan.starAngle">
                                     <label>Ángulo inicial</label>
                                 </div>
                                 <div class="input-field col s6">
                                     <input id="editPlanAnduloFin" type="number" placeholder="360" min="0" max="360"
-                                        ng-model="editPlan.editPlanAnduloFin">
+                                        ng-model="editSelectedPlan.endAngle">
                                     <label>Ángulo final</label>
                                 </div>
                                 <div class="input-field col s4 m6">
-                                    <select id="editEndGun" ng-model="editPlan.editPlanType" style="display:block; ">
-                                        <option value="true">Sí</option>
-                                        <option value="false">No</option>
-                                    </select>
+                                    <div class="switch">
+                                        <label>
+                                            <br>
+                                            <span class="show-in-pc-only">No</span>
+                                            <input id="editEndGun" type="checkbox" 
+                                                ng-model="editSelectedPlan.endGun" 
+                                                ng-checked="editSelectedPlan.endGun">
+                                            <span class="lever"></span>
+                                            <span class="show-in-pc-only">Sí</span>
+                                        </label>
+                                    </div>
                                     <label style="top: -28px; font-size: .8em;">Activar Pistola</label>
                                 </div>
                                 <div class="input-field col s4 m4">
                                     <input id="editPlanValue" type="number" placeholder="0" min="0"
-                                        ng-model="editPlan.editPlanValue">
+                                        ng-model="editPlan.value">
                                     <label>Velocidad/Volumen</label>
                                 </div>
                                 <!-- <div class="input-field col s4 m4">
