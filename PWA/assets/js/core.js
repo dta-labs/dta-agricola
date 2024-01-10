@@ -817,7 +817,7 @@ app.controller("ControladorPrincipal", function ($scope) {
     $scope.setEditPlan = (index) => {
         let idx = `p${index}`;
         let as = $scope.actualSystem.plans[idx];
-        $scope.editSelectedPlan = as;
+        $scope.editSelectedPlan = structuredClone(as);
         $scope.editSelectedPlan.endGun = as.endGun == "true" ? true : false;
         document.getElementById("editPlanAnguloIni").value = as.starAngle;
         document.getElementById("editPlanAnduloFin").value = as.endAngle;
@@ -841,13 +841,13 @@ app.controller("ControladorPrincipal", function ($scope) {
         })
         .then((confirm) => {
             if (confirm) {
-                let ep = $scope.actualSystem.plans[$scope.editedPlan];
-                ep2 = $scope.editSelectedPlan;
-                ep = ep2;
-                ep.endGun = ep2.endGun ? "true" : "false";
-                ep.value = ep2.value <= $scope.actualSystem.maxVelocity ? ep2.value : $scope.actualSystem.maxVelocity;
+                let ep = $scope.editSelectedPlan;
+                $scope.actualSystem.plans[$scope.editedPlan] = ep;
+                $scope.actualSystem.plans[$scope.editedPlan].endGun = ep.endGun ? "true" : "false";
+                $scope.actualSystem.plans[$scope.editedPlan].value = ep.value <= $scope.actualSystem.maxVelocity ? ep.value : $scope.actualSystem.maxVelocity;
                 $scope.setMachineSettings($scope.actualSystem);
-                $scope.$apply();
+                $scope.setEditPlan($scope.editedPlan);
+                // $scope.$apply();
                 swal("Plan de riego actualizado correctamente!", {
                     icon: "success",
                 });
