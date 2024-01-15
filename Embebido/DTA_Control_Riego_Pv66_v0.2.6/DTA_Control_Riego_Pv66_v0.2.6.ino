@@ -85,6 +85,9 @@ void activeMachine() {
         digitalWrite(pinActivationTimer, HIGH);
         digitalWrite(pinEngGunControl, (endGunVar == "ON") ? (serie == 0 ? HIGH : LOW) : (serie == 0 ? LOW : HIGH));
         Serial.println(F("  * Position error!"));
+        if (lat_actual > 0.0f && lon_actual > 0.0f && errorGPS > 0) {
+          statusVar = "OFF";
+        }
       }
     } else {
       apagar();

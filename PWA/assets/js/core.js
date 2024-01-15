@@ -678,9 +678,6 @@ app.controller("ControladorPrincipal", function ($scope) {
                                 "value": "0"
                             }
                         },
-                        "sensorPosition": "ON",
-                        "sensorSecurity": "ON",
-                        "sensorVoltage": "ON",
                         "velocity": "0"
                     }
                 );
@@ -815,20 +812,14 @@ app.controller("ControladorPrincipal", function ($scope) {
     }
 
     $scope.setEditPlan = (index) => {
-        let idx = `p${index}`;
-        let as = $scope.actualSystem.plans[idx];
+        $scope.editedPlan = ('' + index).includes('p') ? index : `p${index}`;
+        let as = $scope.actualSystem.plans[$scope.editedPlan];
         $scope.editSelectedPlan = structuredClone(as);
         $scope.editSelectedPlan.endGun = as.endGun == "true" ? true : false;
-        document.getElementById("editPlanAnguloIni").value = as.starAngle;
-        document.getElementById("editPlanAnduloFin").value = as.endAngle;
-        document.getElementById("editPlanValue").value = as.value;
-        document.getElementById("editEndGun").value = as.endGun;
-        $scope.editedPlan = idx;
     }
     
     $scope.setTimer = (value) => {
-        document.getElementById("planValue").value = value;
-        document.getElementById("editPlanValue").value = value;
+        $scope.editSelectedPlan.value = value;
     }
     
     $scope.editPlan = () => {
@@ -847,7 +838,6 @@ app.controller("ControladorPrincipal", function ($scope) {
                 $scope.actualSystem.plans[$scope.editedPlan].value = ep.value <= $scope.actualSystem.maxVelocity ? ep.value : $scope.actualSystem.maxVelocity;
                 $scope.setMachineSettings($scope.actualSystem);
                 $scope.setEditPlan($scope.editedPlan);
-                // $scope.$apply();
                 swal("Plan de riego actualizado correctamente!", {
                     icon: "success",
                 });
