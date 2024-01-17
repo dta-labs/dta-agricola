@@ -52,18 +52,22 @@ void communications() {
   static unsigned long lastCommunication = 0;
   if (millis() - lastCommunication > commFrec * 1000) {
     lastCommunication = millis();
-    gprs.begin(9600);
-    setupGSM();
     comunicaciones();
     setActivationTimers();
     showVars();
-    gprs.end();
   }
 }
 
 void machineControl() {
   if (statusVar == "ON") {
-    activeMachine();
+    static unsigned long activeTime = 0;
+    unsigned long actualTime = millis() - activeTime;
+    if (actualTime < activationTimer) {
+      activeMachine();
+    } else {
+      unactiveMachine();
+    }
+    if (actualTime >= 60000) { activeTime = millis(); }
   } else {
     apagar();
     Serial.println(F("> System off!"));
@@ -72,38 +76,24 @@ void machineControl() {
 }
 
 void activeMachine() {
-  static unsigned long activeTime = 0;
-  unsigned long actualTime = millis() - activeTime;
-  if (actualTime < activationTimer) {
-    Serial.print(F("> Running ")); Serial.println(directionVar == "FF" ? F("forward") : F("reverse"));
-    setDirection(); 
-    if (getSensors()) {
-      if (isPosition) {
-        digitalWrite(pinActivationTimer, LOW);
-        digitalWrite(pinEngGunControl, (endGunVar == "ON") ? (serie == 0 ? LOW : HIGH) : (serie == 0 ? HIGH : LOW));
-      } else {
-        digitalWrite(pinActivationTimer, HIGH);
-        digitalWrite(pinEngGunControl, (endGunVar == "ON") ? (serie == 0 ? HIGH : LOW) : (serie == 0 ? LOW : HIGH));
-        Serial.println(F("  * Position error!"));
-        if (lat_actual > 0.0f && lon_actual > 0.0f && errorGPS > 0) {
-          statusVar = "OFF";
-        }
-      }
+  setDirection(); 
+  if (getSensors()) {
+    if (isPosition && isPresure) {
+      Serial.println(directionVar == "FF" ? F("> Running: forward") : F("> Running: reverse"));
+      digitalWrite(pinActivationTimer, LOW);
+      digitalWrite(pinEngGunControl, (endGunVar == "ON") ? (serie == 0 ? LOW : HIGH) : (serie == 0 ? HIGH : LOW));
     } else {
-      apagar();
-      statusVar = isSequrity ? "ON" : "OFF";
-      Serial.print(F("  * "));
-      Serial.print(!isVoltage ? F("Voltage")  : 
-                  !isSequrity ? F("Sequrity") :
-                  !isPresure  ? F("Presure")  :
-                  F("Unknow"));
-      Serial.println(F(" error!"));
+      digitalWrite(pinActivationTimer, HIGH);
+      digitalWrite(pinEngGunControl, (endGunVar == "ON") ? (serie == 0 ? HIGH : LOW) : (serie == 0 ? LOW : HIGH));
+      Serial.println(!isPresure ? F("> Stopped: Insuficient presure!") : F("> Stopped: Position error!"));
+      if ((lat_actual != 0.0f || lon_actual != 0.0f) && !isPosition) {
+        statusVar = "OFF";
+      }
     }
   } else {
-    unactiveMachine();
-  }
-  if (actualTime >= 60000) {
-    activeTime = millis();
+    apagar();
+    statusVar = !isVoltage ? "ON" : "OFF";
+    Serial.println(!isVoltage ? F("> Stopped: Voltage error!") : F("> Stopped: Sequrity error!"));
   }
 }
 

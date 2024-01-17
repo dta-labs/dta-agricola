@@ -63,8 +63,6 @@ float controlPresionAnalogica() {
   for (int i = 0; i < 3; i++) {
     float pAnalog = analogRead(A0);
     float temp = map(pAnalog, 100, 1023, 0.0, sensorPresionVar);
-    // float temp = presion.fmap(pAnalog, 0, 1023, 0.0, sensorPresionVar) - 1.25;
-    // temp = (temp + 0.4018) / 0.7373;
     presionActual += temp > 0 ? temp : 0;
     delay(10);
   }
@@ -75,8 +73,12 @@ float controlPresionAnalogica() {
 }
 
 bool controlPresion() {
-  actualPresure = controlPresionAnalogica();
-  return (sensorPresionVar == 0) || (sensorPresionVar > 0 && actualPresure >= 1) ? true : false;
+  if (sensorPresionVar > 0) { 
+    actualPresure = controlPresionAnalogica();
+    return actualPresure >= 1;
+  }
+  return true;
+  // return (sensorPresionVar == 0) || (sensorPresionVar > 0 && actualPresure >= 1) ? true : false;
 }
 
 #pragma endregion <<Presión>>
@@ -153,8 +155,7 @@ bool getSensors() {
   isPresure = controlPresion(); 
   isPosition = controlPosicion();
   isSequrity = controlSeguridad();
-  return isVoltage && isPresure && isSequrity;
-  // return isVoltage && isSequrity && isPresure && isPosition;
+  return isVoltage && isSequrity;
 }
 
 #pragma endregion Sensores

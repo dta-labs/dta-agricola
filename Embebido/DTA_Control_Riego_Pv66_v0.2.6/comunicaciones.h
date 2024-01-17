@@ -45,7 +45,7 @@ void commWatchDogReset(int signalValue) {
   commError += (signalValue < 6 || restartGSM) ? 1 : 0;
   Serial.print(F("commError: "));
   Serial.println(commError);
-  if (commError == 5) {
+  if (commError == 20) {
     while (true) { delay(1000); }
   }
 }
@@ -112,6 +112,7 @@ void setupGSM() {
 }
 
 String httpRequest() {
+  Serial.println(F("> Server communication"));
   gprs.listen();
   String param1  = F("&st=");
   String param2  = F("&sa=");
@@ -128,9 +129,9 @@ String httpRequest() {
   String param13 = F("&si=");
   signalVar = getSignalValue();
   param1  += statusVar;
-  param2  += (String)(isSequrity ? "true" : "false");
+  param2  += isSequrity ? F("true") : F("false");
   param3  += directionVar;
-  param4  += (String)(isVoltage ? "true" : "false");
+  param4  += isVoltage ? F("true") : F("false");
   param5  += autoreverseVar;
   param6  += (String)velocityVar;
   param7  += (String)actualPresure;
@@ -138,7 +139,7 @@ String httpRequest() {
   param9  += String(lat_actual, 5);
   param10 += String(lon_actual, 5);
   param11 += (String)errorGPS;
-  param12 += (String)(commRx ? "Ok" : "Er");
+  param12 += commRx ? F("Ok") : F("Er");
   param13 += (String)signalVar + "\"";
   gprs.println(F("AT+HTTPINIT"));
   getResponse(15, false); 
@@ -188,9 +189,9 @@ void setVariables(String data) {
   if (bindsNo > 0) {
     for (int i = 0; i < bindsNo; i++) {
       idx = data.indexOf('"', idx + 1);
-      positionIni = (data.substring(idx + 1, data.indexOf('"', idx + 1))).toInt();              // inicio
+      positionIni = (data.substring(idx + 1, data.indexOf('"', idx + 1))).toFloat();            // inicio
       idx = data.indexOf('"', idx + 1);
-      positionEnd = (data.substring(idx + 1, data.indexOf('"', idx + 1))).toInt();              // fin
+      positionEnd = (data.substring(idx + 1, data.indexOf('"', idx + 1))).toFloat();            // fin
       idx = data.indexOf('"', idx + 1);
       byte bindVel = (data.substring(idx + 1, data.indexOf('"', idx + 1))).toInt();             // velocidad
       idx = data.indexOf('"', idx + 1);
@@ -206,14 +207,16 @@ void setVariables(String data) {
 }
 
 void comunicaciones() {
-  Serial.println(F("> Server communication"));
+  gprs.begin(9600);
+  setupGSM();
+  getSensors();
   String data = httpRequest();                                                       // Get Settings from HTTP
   data = data.substring(data.indexOf('"'), data.indexOf("OK"));
-  if (testFunc) {                                                                    // Para test
-    data = (testData) ? F("\"ON\"FF\"0\"OFF\"30.73081\"-107.86308\"PC\"1\"0\"360\"50\"F\"") : F("\"ON\"RR\"0\"OFF\"30.73081\"-107.86308\"PC\"1\"0\"360\"50\"F\"");
-    commError = 0;
-    testData = testData == true ? false : true;
-  }
+  // if (testFunc) {                                                                    // Para test
+  //   data = (testData) ? F("\"ON\"FF\"0\"OFF\"30.73081\"-107.86308\"PC\"1\"0\"360\"50\"F\"") : F("\"ON\"RR\"0\"OFF\"30.73081\"-107.86308\"PC\"1\"0\"360\"50\"F\"");
+  //   commError = 0;
+  //   testData = testData == true ? false : true;
+  // }
   if (data != "" && (data.indexOf("ON") != -1 || data.indexOf("OFF") != -1)) {
     commRx = true;
     setVariables(data);
@@ -222,6 +225,7 @@ void comunicaciones() {
     Serial.print(F("lat_central: ")); Serial.print(lat_central, 2); Serial.print(F(" lon_central: ")); Serial.println(lon_central, 2);
     Serial.println(F("data: Error!"));
   }
+  gprs.end();
 }
 
 /****************************************************************

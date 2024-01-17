@@ -60,8 +60,8 @@ byte errorGPS = 0;
 #pragma region <<Variables Generales>>
  
 bool testComm = false;                         // Para test
-bool testFunc = false;                         // Para test
-bool testData = false;                         // Para test
+// bool testFunc = false;                         // Para test
+// bool testData = false;                         // Para test
 String deviceType = "PC";                      // PC | PL
 String statusVar = "OFF";
 String lastDirectionVar = "FF";
@@ -82,6 +82,7 @@ bool isSequrity = false;                       // Sensores
 bool isVoltage = false;
 bool isPresure = false;
 bool isPosition = false;
+bool isSensors = false;
 float sensorPresionVar = 0;
 float actualPresure = 0;
 
