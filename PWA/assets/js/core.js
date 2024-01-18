@@ -59,6 +59,7 @@ app.controller("ControladorPrincipal", function ($scope) {
     $scope.as_more = false;
     $scope.as_hist = false;
     $scope.as_users = false;
+    $scope.isPlanning = false;
     $scope.listPlanesRiego;
     $scope.selectedPlaneRiego;
 
@@ -115,7 +116,7 @@ app.controller("ControladorPrincipal", function ($scope) {
     }
 
     showContent = () => {
-        document.getElementById("intro").style.display = "none";
+        // document.getElementById("intro").style.display = "none";
         document.getElementById("contenido").style.display = "block";
         // $scope.$apply();
     }
@@ -418,7 +419,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         $scope.meteo[key] = {};
         $.ajax({url: `https://api.openweathermap.org/data/2.5/weather?lat=${$scope.systems[key].latitude}&lon=${$scope.systems[key].longitude}&appid=db9c92bd1f6d8d5db0aa0bae36ce093f`, success: function(result){
             $scope.meteo[key] = result;
-            $scope.meteo[key].weather["iconUrl"] = `http://openweathermap.org/img/w/${$scope.meteo[key].weather["0"].icon}.png`;
+            $scope.meteo[key].weather["iconUrl"] = `https://openweathermap.org/img/w/${$scope.meteo[key].weather["0"].icon}.png`;
             $scope.$apply();
         }});
     }
@@ -689,31 +690,31 @@ app.controller("ControladorPrincipal", function ($scope) {
                         "plots": {
                             "p0": {
                                 "value": "0",
-                                "valvle": "F"
+                                "valve": "F"
                             },
                             "p1": {
                                 "value": "0",
-                                "valvle": "F"
+                                "valve": "F"
                             },
                             "p2": {
                                 "value": "0",
-                                "valvle": "F"
+                                "valve": "F"
                             },
                             "p3": {
                                 "value": "0",
-                                "valvle": "F"
+                                "valve": "F"
                             },
                             "p4": {
                                 "value": "0",
-                                "valvle": "F"
+                                "valve": "F"
                             },
                             "p5": {
                                 "value": "0",
-                                "valvle": "F"
+                                "valve": "F"
                             },
                             "p6": {
                                 "value": "0",
-                                "valvle": "F"
+                                "valve": "F"
                             },
                         }
                     }
@@ -849,11 +850,12 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     $scope.setEditPlanEstacionario = (index) => {
         document.getElementById("planEstacionarioId").value = index;
+        document.getElementById("editName").value = $scope.actualSystem.plots[index].name ? $scope.actualSystem.plots[index].name : "";
         document.getElementById("editPoligon").innerHTML = $scope.actualSystem.plots[index].poligon ? $scope.actualSystem.plots[index].poligon : "";
         document.getElementById("editDay").value = $scope.getDayFromMs($scope.actualSystem.plots[index].value);
         document.getElementById("editHour").value = $scope.getHourFromMs($scope.actualSystem.plots[index].value);
         document.getElementById("editMinutes").value = $scope.getMinutesFromMs($scope.actualSystem.plots[index].value);
-        document.getElementById("editType").value = $scope.actualSystem.plots[index].valvle;
+        document.getElementById("editType").value = $scope.actualSystem.plots[index].valve ? $scope.actualSystem.plots[index].valve : "F";
         M.FormSelect.init(document.querySelectorAll('.select'));
     }
 
@@ -880,8 +882,11 @@ app.controller("ControladorPrincipal", function ($scope) {
     }
  
     $scope.addSchedule = () => {
-        let date = document.getElementById("schDate").value;
-        let time = document.getElementById("schTime").value;
+        // let date = document.getElementById("schDate").value;
+        // let time = document.getElementById("schTime").value;
+        let aux = document.getElementById("schDate").value.split("T");
+        let date = aux[0];
+        let time = aux[1];
         if (date && time) {
             let data = {
                 "t": "",
@@ -894,7 +899,7 @@ app.controller("ControladorPrincipal", function ($scope) {
             $scope.actualSystem.schedule.push(data);
             $scope.setMachineSettings($scope.actualSystem);
             document.getElementById("schDate").value = null;
-            document.getElementById("schTime").value = null;
+            // document.getElementById("schTime").value = null;
             // window.scrollTo(0, 1000000);
         }
     }
@@ -915,6 +920,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         let index = document.getElementById("planEstacionarioId").value;
         let arr1 = [];
         // let arr2 = document.getElementById("editPoligon").innerHTML.split(",");
+        $scope.actualSystem.plots[index].name = document.getElementById("editName").value;
         let arr2 = document.getElementById("editPoligon").value.split(",");
         if (arr2.length >= 2) {
             for (let i = 0; i < arr2.length; i += 2) {
@@ -932,7 +938,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         let minutes = document.getElementById("editMinutes").value != '' ? parseInt(document.getElementById("editMinutes").value) * (1000 * 60) : 0;
         let millis = day + hour + minutes;
         $scope.actualSystem.plots[index].value = millis;
-        $scope.actualSystem.plots[index].valvle = document.getElementById("editType").value;
+        $scope.actualSystem.plots[index].valve = document.getElementById("editType").value;
     }
 
     $scope.deleteEditedPlan = () => {
@@ -1033,8 +1039,9 @@ app.controller("ControladorPrincipal", function ($scope) {
             dangerMode: true,
         })
         .then((confirm) => {
-            let date = document.getElementById("startDate").value;
-            let time = document.getElementById("startTime").value;
+            let aux = document.getElementById("startDate").value.split("T");
+            let date = aux[0];
+            let time = aux[1];
             if (confirm && date && time) {
                 asignCulture(nombreCultivo, nombreSistema, date, time);
             } else {
@@ -1132,7 +1139,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         let north = L.control({position: "topright"});
         north.onAdd = function(map) {
             var div = L.DomUtil.create("div", "info legend");
-            div.innerHTML = '<img src="./assets/images/rosa-nautica.png" style="width: 45px;">';
+            div.innerHTML = '<img src="./assets/images/rosa-nautica.png" style="width: 45px;" alt="norte">';
             return div;
         }
         north.addTo(map);
@@ -1444,15 +1451,12 @@ app.controller("ControladorPrincipal", function ($scope) {
     $scope.inicializacion = () => {
         document.getElementById('contenido').style.display = 'none';
         requestWakeLock();
-        getLocation();
+        // getLocation();
         initializeMap();
         listenUserStatus();
-        // setTimeout(function () {
-            if (!$scope.authUser) {
-                $scope.showWindow('login');
-                // $scope.$apply();
-            }
-        // }, 2000);
+        if (!$scope.authUser) {
+            $scope.showWindow('login');
+        }
     }
 
 });

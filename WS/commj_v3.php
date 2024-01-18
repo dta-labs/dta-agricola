@@ -89,7 +89,7 @@
         for ($i = 0; $i < 7; $i++) {
             $p = "p" . $i;
             $lectura .= "\"" . $dataSettings->plots->$p->value;
-            $lectura .= "\"" . $dataSettings->plots->$p->valvle;
+            $lectura .= "\"" . $dataSettings->plots->$p->valve;
         }
         $lectura .=  "\"";
         print_r($lectura);
