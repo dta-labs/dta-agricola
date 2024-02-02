@@ -94,7 +94,7 @@
                                     <li ng-click="showWindow('listado')" class="modal-trigger" ng-show="authUser">
                                         <a href="#">
                                             <i class="fa fa-th-list" aria-hidden="true"></i>
-                                            &nbsp;&nbsp;Mis riegos
+                                            &nbsp;&nbsp;Mis equipos
                                         </a>
                                     </li>
                                     <li ng-show="authUser" style="display: block;">
@@ -454,11 +454,10 @@
 
                     <!-- Modal Nuevo Equipo -->
                     <div id="modalNuevoEquipo" class="modal">
-                        <div class="modal-header">
-                            Agregar equipo
-                        </div>
-                        <div class="modal-content">
-                            <div class="row" style="margin-top: 35px;">
+                        <div class="swal-title">Agregar equipo</div>
+
+                        <div class="modal-content" style="padding: 24px 24px 0 24px;">
+                            <div class="row" style="margin-bottom: 0;">
                                 <div class="input-field col s12">
                                     <input id="newDeviceName" type="text" placeholder="Nombre del equipo"
                                         ng-model="newDevice.name">
@@ -472,12 +471,9 @@
                                 <div class="input-field col s12">
                                     <select class="select" ng-model="newDevice.type" ng-change="setNewDeviceParams()">
                                         <option value="" disabled selected>Seleccione un tipo</option>
-                                        <option value="PC" data-icon="./assets/images/riegoPivote.png">Pivote central
-                                        </option>
-                                        <option value="PL" data-icon="./assets/images/riegoPivote.png">Pivote lineal
-                                        </option>
-                                        <option value="Estacionario" data-icon="./assets/images/riegoGoteo.png">
-                                            Estacionario</option>
+                                        <option value="PC" data-icon="./assets/images/riegoPivote.png">Pivote central</option>
+                                        <option value="PL" data-icon="./assets/images/riegoPivote.png">Pivote lineal</option>
+                                        <option value="Estacionario" data-icon="./assets/images/riegoGoteo.png">Estacionario</option>
                                         <option value="Pozo" data-icon="./assets/images/riegoPozo.png">Bombeo</option>
                                     </select>
                                     <label for="newDeviceType">Tipo de equipo</label>
@@ -494,16 +490,22 @@
                                 <div class="col s12"
                                     style="background: whitesmoke; box-shadow: 0 0 3px lightgrey; margin-bottom: 20px;">
                                     <label>Geolocalización</label>
-                                    <div class="row">
-                                        <div class="input-field col s6">
+                                    <div class="row" style="margin-bottom: 0;">
+                                        <div class="input-field col s5">
                                             <input id="newDeviceLatitude" type="text" placeholder="Latidud"
                                                 ng-model="newDevice.latitude">
                                             <label for="newDeviceLatitude">Latitud</label>
                                         </div>
-                                        <div class="input-field col s6">
+                                        <div class="input-field col s5">
                                             <input id="newDeviceLongitude" type="text" placeholder="Longitud"
                                                 ng-model="newDevice.longitude">
                                             <label for="newDeviceLongitude">Longitud</label>
+                                        </div>
+                                        <div class="input-field col s2 waves-effect grey waves-grey btn-flat white-text valign-wrapper">
+                                            <div id="btnLocation" style="text-align: center;" ng-click="setDevicePosition()">
+                                                <i class="material-icons">&nbsp;add_location&nbsp;</i>
+                                            </div>
+                                            <label for="btnLocation">&nbsp;</label>
                                         </div>
                                     </div>
                                 </div>
@@ -520,7 +522,7 @@
                                     <label for="newDeviceLarge">Límite de velocidad</label>
                                 </div>
                                 <div class="input-field col s6"
-                                    ng-show="newDevice.type != 'PC' && newDevice.type != 'PL' && newDevice.type != 'PL'">
+                                    ng-show="newDevice.type == 'Estacionario'">
                                     <select class="select" ng-model="newDevice.length">
                                         <option value="3">AG03 (3 válvulas + pozo)</option>
                                         <option value="6">AG06 (6 válvulas + pozo)</option>
@@ -529,78 +531,41 @@
                                     <label for="newDeviceLarge">Serie</label>
                                 </div>
                                 <div class="input-field col s6" ng-init="newDevice.zona = '0'">
-                                    <!-- <input id="newDeviceZona" type="number" placeholder="Zona" ng-model="newDevice.zona"> -->
-                                    <select ng-model="newDevice.zona" style="display: block !important;">
-                                        <option ng-selected="newDevice.zona == -11 ? true : false" value="-11">UTC-11
-                                            Pacific
-                                        </option>
-                                        <option ng-selected="newDevice.zona == -10 ? true : false" value="-10">UTC-10
-                                            America-Pacific</option>
-                                        <option ng-selected="newDevice.zona == -9 ? true : false" value="-9:30">UTC-9:30
-                                            Pacific
-                                        </option>
-                                        <option ng-selected="newDevice.zona == -9 ? true : false" value="-9">UTC-9
-                                            America-Pacific</option>
-                                        <option ng-selected="newDevice.zona == -8 ? true : false" value="-8">UTC-8
-                                            America-Pacific</option>
-                                        <option ng-selected="newDevice.zona == -7 ? true : false" value="-7">UTC-7
-                                            America
-                                        </option>
-                                        <option ng-selected="newDevice.zona == -6 ? true : false" value="-6">UTC-6
-                                            America-Pacific</option>
-                                        <option ng-selected="newDevice.zona == -5 ? true : false" value="-5">UTC-5
-                                            America
-                                        </option>
-                                        <option ng-selected="newDevice.zona == -4 ? true : false" value="-4">UTC-4
-                                            America-Atlantic</option>
-                                        <option ng-selected="newDevice.zona == -3 ? true : false" value="-3">UTC-3
-                                            America-Atlantic</option>
-                                        <option ng-selected="newDevice.zona == -2 ? true : false" value="-2">UTC-2
-                                            America-Atlantic</option>
-                                        <option ng-selected="newDevice.zona == -1 ? true : false" value="-1">UTC-1
-                                            America-Atlantic</option>
-                                        <option ng-selected="newDevice.zona == +0 ? true : false" value="+0">UTC+0
-                                            Africa-America-Atlantic-Europe</option>
-                                        <option ng-selected="newDevice.zona == +1 ? true : false" value="+1">UTC+1
-                                            Africa-Arctic-Europe</option>
-                                        <option ng-selected="newDevice.zona == +2 ? true : false" value="+2">UTC+2
-                                            Africa-Europe
-                                        </option>
-                                        <option ng-selected="newDevice.zona == +3 ? true : false" value="+3">UTC+3
-                                            Africa-Asia-Europe-Indian</option>
-                                        <option ng-selected="newDevice.zona == +4 ? true : false" value="+4">UTC+4
-                                            Asia-Europe-Indian</option>
-                                        <option ng-selected="newDevice.zona == +5 ? true : false" value="+5">UTC+5
-                                            Antarctica-Asia-Indian</option>
-                                        <option ng-selected="newDevice.zona == +6 ? true : false" value="+6">UTC+6
-                                            Antarctica-Asia-Indian</option>
-                                        <option ng-selected="newDevice.zona == +7 ? true : false" value="+7">UTC+7
-                                            Antarctica-Asia-Indian</option>
-                                        <option ng-selected="newDevice.zona == +8 ? true : false" value="+8">UTC+8
-                                            Asia-Australia </option>
-                                        <option ng-selected="newDevice.zona == +9 ? true : false" value="+9">UTC+9
-                                            Asia-Pacific
-                                        </option>
-                                        <option ng-selected="newDevice.zona == +10 ? true : false" value="+10">UTC+10
-                                            Antarctica-Asia-Australia </option>
-                                        <option ng-selected="newDevice.zona == +10 ? true : false" value="+10">UTC+10:30
-                                            Australia </option>
-                                        <option ng-selected="newDevice.zona == +11 ? true : false" value="+11">UTC+11
-                                            Antarctica-Asia </option>
-                                        <option ng-selected="newDevice.zona == +12 ? true : false" value="+12">UTC+12
-                                            Antarctica-Asia </option>
-                                        <option ng-selected="newDevice.zona == +13 ? true : false" value="+13">UTC+13
-                                            Pacific
-                                        </option>
-                                        <option ng-selected="newDevice.zona == +14 ? true : false" value="+14">UTC+14
-                                            Pacific
-                                        </option>
+                                    <select class="select" ng-model="newDevice.zona">
+                                        <option ng-selected="newDevice.zona == -11 ? true : false" value="-11">UTC-11 Pacific</option>
+                                        <option ng-selected="newDevice.zona == -10 ? true : false" value="-10">UTC-10 America-Pacific</option>
+                                        <option ng-selected="newDevice.zona == -9 ? true : false" value="-9:30">UTC-9:30 Pacific</option>
+                                        <option ng-selected="newDevice.zona == -9 ? true : false" value="-9">UTC-9 America-Pacific</option>
+                                        <option ng-selected="newDevice.zona == -8 ? true : false" value="-8">UTC-8 America-Pacific</option>
+                                        <option ng-selected="newDevice.zona == -7 ? true : false" value="-7">UTC-7 America</option>
+                                        <option ng-selected="newDevice.zona == -6 ? true : false" value="-6">UTC-6 America-Pacific</option>
+                                        <option ng-selected="newDevice.zona == -5 ? true : false" value="-5">UTC-5 America</option>
+                                        <option ng-selected="newDevice.zona == -4 ? true : false" value="-4">UTC-4 America-Atlantic</option>
+                                        <option ng-selected="newDevice.zona == -3 ? true : false" value="-3">UTC-3 America-Atlantic</option>
+                                        <option ng-selected="newDevice.zona == -2 ? true : false" value="-2">UTC-2 America-Atlantic</option>
+                                        <option ng-selected="newDevice.zona == -1 ? true : false" value="-1">UTC-1 America-Atlantic</option>
+                                        <option ng-selected="newDevice.zona == +0 ? true : false" value="+0">UTC+0 Africa-America-Atlantic-Europe</option>
+                                        <option ng-selected="newDevice.zona == +1 ? true : false" value="+1">UTC+1 Africa-Arctic-Europe</option>
+                                        <option ng-selected="newDevice.zona == +2 ? true : false" value="+2">UTC+2 Africa-Europe</option>
+                                        <option ng-selected="newDevice.zona == +3 ? true : false" value="+3">UTC+3 Africa-Asia-Europe-Indian</option>
+                                        <option ng-selected="newDevice.zona == +4 ? true : false" value="+4">UTC+4 Asia-Europe-Indian</option>
+                                        <option ng-selected="newDevice.zona == +5 ? true : false" value="+5">UTC+5 Antarctica-Asia-Indian</option>
+                                        <option ng-selected="newDevice.zona == +6 ? true : false" value="+6">UTC+6 Antarctica-Asia-Indian</option>
+                                        <option ng-selected="newDevice.zona == +7 ? true : false" value="+7">UTC+7 Antarctica-Asia-Indian</option>
+                                        <option ng-selected="newDevice.zona == +8 ? true : false" value="+8">UTC+8 Asia-Australia </option>
+                                        <option ng-selected="newDevice.zona == +9 ? true : false" value="+9">UTC+9 Asia-Pacific</option>
+                                        <option ng-selected="newDevice.zona == +10 ? true : false" value="+10">UTC+10 Antarctica-Asia-Australia </option>
+                                        <option ng-selected="newDevice.zona == +10 ? true : false" value="+10">UTC+10:30 Australia </option>
+                                        <option ng-selected="newDevice.zona == +11 ? true : false" value="+11">UTC+11 Antarctica-Asia </option>
+                                        <option ng-selected="newDevice.zona == +12 ? true : false" value="+12">UTC+12 Antarctica-Asia </option>
+                                        <option ng-selected="newDevice.zona == +13 ? true : false" value="+13">UTC+13 Pacific</option>
+                                        <option ng-selected="newDevice.zona == +14 ? true : false" value="+14">UTC+14 Pacific</option>
                                     </select>
                                     <!-- <label for="newDeviceZona">Zona</label> -->
                                 </div>
                             </div>
                         </div>
-                        <div class="modal-footer">
+                        <div class="modal-footer" style="margin-bottom: 10px;">
                             <a href="" class="modal-close waves-effect waves-green btn grey lighten-3 black-text">Cancelar</a>
                             <a href="" class="waves-effect waves-green btn teal lighten-3"
                                 ng-click="updateNewDevice()">Agregar</a>
@@ -986,7 +951,7 @@
 
                     <!-- Ventanas modales -->
                     <div id="modalConfig" class="modal" ng-init="as_config = true"> <!-- Modal Configurar Sistema -->
-                        <div class="swal-title" style="margin: 0px;">Programación del riego</div>
+                        <div class="swal-title">Plan de riego</div>
 
                         <div class="modal-content" ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'"> <!-- Pivotes -->
                             <table class="striped highlight">
@@ -1221,7 +1186,7 @@
                     </div>
 
                     <div id="modalAdjust" class="modal"> <!-- Modal Ajustes del Sistema -->
-                        <div class="swal-title" style="margin: 0px;">Ajustes del sistema</div>
+                        <div class="swal-title">Ajustes del sistema</div>
 
                         <div class="modal-content">
                             <table class="striped highlight" ng-init="edit = true">
@@ -1405,7 +1370,7 @@
                     </div>
 
                     <div id="modalSuelo" class="modal"> <!-- Modal Condiciones Agroclimáticas del Sistema -->
-                        <div class="swal-title" style="margin: 0px;">Condiciones Agroclimáticas</div>
+                        <div class="swal-title">Condiciones Agroclimáticas</div>
 
                         <div class="modal-content">
                             <table class="striped highlight">
@@ -1476,7 +1441,7 @@
                     </div>
 
                     <div id="modalHistorial" class="modal"> <!-- Modal Historial del Sistema -->
-                        <div class="swal-title" style="margin: 0px;">Historial</div>
+                        <div class="swal-title">Historial</div>
 
                         <div class="modal-content">
                             <ul class="row collapsible" >
@@ -1559,7 +1524,7 @@
                     <div id="modalUsuarios" class="modal"> <!-- Modal Usuarios del Sistema -->
                         <div class="swal-title">Usuarios</div>
 
-                        <div class="modal-content" style="padding: 5px;">
+                        <div class="modal-content" style="padding: 24px 5px 0 5px;">
                             <div ng-repeat="reg in users[actualSystem.key]"
                                 ng-show="reg.alias != authUser.displayName">
                                 <div class="sercices-options gray-text white">
@@ -1598,7 +1563,7 @@
 
                     <div id="modalAddUser" class="modal"> <!-- Modal adicionar usuario -->
                         <div class="modal-content">
-                            <div class="swal-title" style="margin-top: 0px;">Invitar a alguien</div>
+                            <div class="swal-title">Invitar a alguien</div>
                             <div class="row" style="margin-top: 35px;">
                                 <div class="input-field col s12">
                                     <input id="newUserEmail" type="text" ng-model="newUserEmail">
@@ -1629,7 +1594,7 @@
 
                     <div id="modalRiego" class="modal"> <!-- Modal plan de riego Pivote -->
                         <div class="modal-content">
-                            <div class="swal-title" style="margin-top: 0px;">Nuevo plan</div>
+                            <div class="swal-title">Nuevo plan</div>
                             <div class="row" style="margin-top: 35px;">
                                 <div class="input-field col s6">
                                     <input id="planAnguloIni" type="number" placeholder="0" min="0" max="360">
@@ -1671,7 +1636,7 @@
 
                     <div id="modalEditRiego" class="modal"> <!-- Modal editar plan de riego Pivote  -->
                         <div class="modal-content">
-                            <div class="swal-title" style="margin-top: 0px;">Planificación</div>
+                            <div class="swal-title">Planificación</div>
                             <div class="row" style="margin-top: 35px;">
                                 <div class="input-field col s6">
                                     <input id="editPlanAnguloIni" type="number" placeholder="0" min="0" max="360"
@@ -1727,9 +1692,9 @@
 
                     <div id="modalResetRiego" class="modal"> <!-- Modal reset plan de riego -->
                         <div class="modal-content">
-                            <div class="swal-title" style="margin-top: 0px;">Eliminar plan</div>
+                            <div class="swal-title">Eliminar plan</div>
                             <div class="row" style="margin-top: 35px;">
-                                Esto eliminará toda la programación del riego. ¿Seguro desea continuar?
+                                Esto eliminará toda la Plan de riego. ¿Seguro desea continuar?
                             </div>
                         </div>
                         <div class="modal-footer">
@@ -1741,8 +1706,8 @@
 
                     <div id="modalEditRiegoEstacionario" class="modal"> <!-- Modal editar áreas de riego Estacionarios  -->
                         <div class="modal-content">
-                            <div class="swal-title" style="margin-top: 0px;" ng-show="isPlanning">Editar plan</div>
-                            <div class="swal-title" style="margin-top: 0px;" ng-show="!isPlanning">Editar áreas</div>
+                            <div class="swal-title" ng-show="isPlanning">Editar plan</div>
+                            <div class="swal-title" ng-show="!isPlanning">Editar áreas</div>
                             <div class="row">
                                 <div class="input-field col s12" ng-show="!isPlanning">
                                     <input id="editName" type="text" placeholder="Área">
@@ -1797,7 +1762,7 @@
 
                     <div id="modalConfirmRiegoMovimiento" class="modal"> <!-- Modal confirmar plan de riego Pivote -->
                         <div class="modal-content">
-                            <div class="swal-title" style="margin-top: 0px;">Confirmar</div>
+                            <div class="swal-title">Confirmar</div>
                             <div class="row" style="margin-top: 35px;">
                                 <div class="col 4">
                                     <i class="material-icons">check_circle</i>
@@ -1818,7 +1783,7 @@
 
                     <div id="modalConfirmRiegoEstacionario" class="modal"> <!-- Modal confirmar plan de riego Estacionario -->
                         <div class="modal-content">
-                            <div class="swal-title" style="margin-top: 0px;">Confirmar</div>
+                            <div class="swal-title">Confirmar</div>
                             <div class="row" style="margin-top: 35px;">
                                 <div class="col 4">
                                     <i class="material-icons">check_circle</i>
@@ -1839,7 +1804,7 @@
 
                     <div id="modalDefineFechaHoraInicio" class="modal"> <!-- Modal definición de fecha y hora -->
                         <div class="modal-content">
-                            <div class="swal-title" style="margin-top: 0px;">Definir riego</div>
+                            <div class="swal-title">Definir riego</div>
                             <div class="row" style="margin-top: 35px;">
                                 <div class="col s12 center-align">
                                     <i class="material-icons" style="font-size: 5em;">access_alarm</i>
@@ -1873,7 +1838,7 @@
 
                     <div id="modalDefineFechaRiego" class="modal"> <!-- Modal definición de fecha y hora -->
                         <div class="modal-content">
-                            <div class="swal-title" style="margin-top: 0px;">Adicionar riego</div>
+                            <div class="swal-title">Adicionar riego</div>
                             <div class="row" style="margin-top: 35px;">
                                 <div class="col s12 center-align">
                                     <i class="material-icons" style="font-size: 5em;">access_alarm</i>
@@ -1911,7 +1876,7 @@
                                 <li ng-click="showWindow('listado')"
                                     class="sercices-options modal-trigger teal darken white-text"
                                     style="background: #009688c4 !important">
-                                    <i class="fa fa-list" aria-hidden="true"></i>Mis sistemas
+                                    <i class="fa fa-list" aria-hidden="true"></i>Mis equipos
                                 </li>
                                 <li
                                     class="sercices-options teal darken white-text"
@@ -1973,34 +1938,32 @@
 
                     <div id="fichasTecnicas" class="container ventanaServicios"
                         ng-show="selectedWindow == 'fichasTecnicas'">
-                        <p class="sercices-options teal darken white-text"><b>Fichas Tecnicas</b></p>
-                        <div>
-                            <div style="width: 90%; margin: auto;">
-                                <ul>
-                                    <li ng-repeat="plan in listPlanesRiego"
-                                        style="box-shadow: 1px 1px 3px grey; cursor: pointer; border-radius: 5px;">
-                                        <!-- <div class="row modal-trigger" href="#fichaTecnica" style="margin-bottom: 10px;"> -->
-                                        <div class="row" ng-click="showFichaTecnicaModal(plan)"
-                                            style="margin-bottom: 10px;">
-                                            <div class="col s2 center-align">
-                                                <i class="material-icons" style="font-size: 2.5em;">{{ plan.price !=
-                                                    "0.00" ? "art_track" : "done"}}</i>
-                                            </div>
-                                            <div class="col s8 left-align">
-                                                <span style="font-size: 1.5em;">{{ plan.culture }}</span>
-                                                <span>
-                                                    {{ plan.detail != "" ? "(" + plan.detail + ")" : "" }}
-                                                </span>
-                                            </div>
-                                            <div class="col s2"
-                                                style="color: {{ plan.price != '0.00' ? 'red' : 'green' }};">
-                                                <i class="material-icons" style="font-size: 1.8em; margin-top: 5px;">{{
-                                                    plan.price != '0.00' ? "attach_money" : "money_off" }}</i>
-                                            </div>
+                        <div class="swal-title">Fichas técnicas</div>
+                        <div style="width: 90%; margin: auto; margin-top: 35px !important;">
+                            <ul>
+                                <li ng-repeat="plan in listPlanesRiego"
+                                    style="border-bottom: solid 1px lightgrey;">
+                                    <!-- <div class="row modal-trigger" href="#fichaTecnica" style="margin-bottom: 10px;"> -->
+                                    <div class="row" ng-click="showFichaTecnicaModal(plan)"
+                                        style="margin-bottom: 0px;">
+                                        <div class="col s2 center-align">
+                                            <i class="material-icons" style="font-size: 2.5em;">{{ plan.price !=
+                                                "0.00" ? "art_track" : "done"}}</i>
                                         </div>
-                                    </li>
-                                </ul>
-                            </div>
+                                        <div class="col s8 left-align">
+                                            <span style="font-size: 1.5em;">{{ plan.culture }}</span>
+                                            <span>
+                                                {{ plan.detail != "" ? "(" + plan.detail + ")" : "" }}
+                                            </span>
+                                        </div>
+                                        <div class="col s2"
+                                            style="color: {{ plan.price != '0.00' ? 'red' : 'green' }};">
+                                            <i class="material-icons" style="font-size: 1.8em; margin-top: 5px;">{{
+                                                plan.price != '0.00' ? "attach_money" : "money_off" }}</i>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
                         </div>
                         <br>
                         <br>
@@ -2204,355 +2167,348 @@
 
                 <section id="ayuda">
 
-                    <div class="container" ng-show="selectedWindow == 'ayuda'" style="height: calc(100vh - 70px); overflow: auto; background: #ffffffe0; margin-top: 50px; ">
-                        <div class="row" style="font-size: 1.3em; padding: 5px 10px; text-align: center; margin-bottom: 0;">
-                            <div class="col s12">
-                                <h4 class="swal-title" style="border-bottom: solid 1px antiquewhite; margin-top: 0;">
-                                    <strong>Ayuda</strong>
-                                </h4>
-                                <br>
-                            </div>
-                            <div class="col s12">
-                                <ul class="collapsible">
-                                    <li>    <!-- Empezar a utilizar -->
-                                        <div class="collapsible-header">Empezar a utilizar la aplicación</div>
-                                        <div class="collapsible-body">
-                                            <ul class="collapsible" style="text-align: justify; margin: 10px; font-size: .8em;">
-                                                <li>    <!-- Controles -->
-                                                    <div class="collapsible-header">Controles</div>
-                                                    <div class="collapsible-body" style="text-align: justify; margin: 10px; font-size: .8em;">
-                                                        <div class="row"> <!-- Listado de equipos -->
-                                                            <div class="col s12"><strong>Listado de equipos</strong></div>
-                                                            <div class="col s12 m6">
-                                                                <img src="assets/images/help/controles_listado.png" alt="Controles" style="width: 100%;">
-                                                            </div>
-                                                            <div class="col s12 m6">
-                                                                <img src="assets/images/help/controles_listado_descripcion.png" alt="Controles" style="width: 70%;">
-                                                            </div>
+                    <div id="ayuda" class="container ventanaServicios" ng-show="selectedWindow == 'ayuda'">
+                        <div class="swal-title">Ayuda</div>
+                        <div style="width: 90%; margin: auto; margin-top: 35px !important; font-size: 1.3em;">
+                            <ul class="collapsible">
+                                <li class="active">    <!-- Empezar a utilizar -->
+                                    <div class="collapsible-header"><i class="fa fa-plus-square-o" aria-hidden="true"></i> Empezar a utilizar la aplicación</div>
+                                    <div class="collapsible-body">
+                                        <ul class="collapsible" style="text-align: justify; margin: 10px; font-size: .8em;">
+                                            <li>    <!-- Controles -->
+                                                <div class="collapsible-header"><i class="fa fa-plus-square-o" aria-hidden="true"></i> Controles</div>
+                                                <div class="collapsible-body" style="text-align: justify; margin: 10px; font-size: .8em;">
+                                                    <div class="row"> <!-- Listado de equipos -->
+                                                        <div class="col s12"><strong>Listado de equipos</strong></div>
+                                                        <div class="col s12 m6">
+                                                            <img src="assets/images/help/controles_listado.png" alt="Controles" style="width: 100%;">
                                                         </div>
-                                                        <div class="row"> <!-- Estacionarios -->
-                                                            <div class="col s12"><strong>Estacionarios</strong></div>
-                                                            <div class="col s12 m6">
-                                                                <img src="assets/images/help/controles_estacionario.png" alt="Controles" style="width: 85%;">
-                                                            </div>
-                                                            <div class="col s12 m6">
-                                                                <img src="assets/images/help/controles_estacionario_descripcion.png" alt="Controles" style="width: 70%;">
-                                                            </div>
-                                                        </div>
-                                                        <div class="row"> <!-- Continuos -->
-                                                            <div class="col s12"><strong>Continuos</strong></div>
-                                                            <div class="col s12 m6">
-                                                                <img src="assets/images/help/controles_continuo.png" alt="Controles" style="width: 85%;">
-                                                            </div>
-                                                            <div class="col s12 m6">
-                                                                <img src="assets/images/help/controles_continuo_descripcion.png" alt="Controles" style="width: 70%;">
-                                                            </div>
+                                                        <div class="col s12 m6">
+                                                            <img src="assets/images/help/controles_listado_descripcion.png" alt="Controles" style="width: 70%;">
                                                         </div>
                                                     </div>
-                                                </li>
-                                                <li>    <!-- Agregar sistemas de riego -->
-                                                    <div class="collapsible-header">Agregar sistemas de riego</div>
-                                                    <div class="collapsible-body" style="text-align: justify; margin: 10px; font-size: .8em;">
+                                                    <div class="row"> <!-- Estacionarios -->
+                                                        <div class="col s12"><strong>Estacionarios</strong></div>
+                                                        <div class="col s12 m6">
+                                                            <img src="assets/images/help/controles_estacionario.png" alt="Controles" style="width: 85%;">
+                                                        </div>
+                                                        <div class="col s12 m6">
+                                                            <img src="assets/images/help/controles_estacionario_descripcion.png" alt="Controles" style="width: 70%;">
+                                                        </div>
+                                                    </div>
+                                                    <div class="row"> <!-- Continuos -->
+                                                        <div class="col s12"><strong>Continuos</strong></div>
+                                                        <div class="col s12 m6">
+                                                            <img src="assets/images/help/controles_continuo.png" alt="Controles" style="width: 85%;">
+                                                        </div>
+                                                        <div class="col s12 m6">
+                                                            <img src="assets/images/help/controles_continuo_descripcion.png" alt="Controles" style="width: 70%;">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                            <li>    <!-- Agregar sistemas de riego -->
+                                                <div class="collapsible-header"><i class="fa fa-plus-square-o" aria-hidden="true"></i> Agregar sistemas de riego</div>
+                                                <div class="collapsible-body" style="text-align: justify; margin: 10px; font-size: .8em;">
+                                                    <div class="row">
+                                                        <div class="col s12 m6">
+                                                            <img src="assets/images/help/nuevo.png" alt="Controles" style="width: 100%;">
+                                                        </div>
+                                                        <div class="col s12 m6">
+                                                            <img src="assets/images/help/nuevo_descripcion.png" alt="Controles" style="width: 70%;">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                            <li>    <!-- Programar el riego -->
+                                                <div class="collapsible-header"><i class="fa fa-plus-square-o" aria-hidden="true"></i> Programar el riego</div>
+                                                <div class="collapsible-body" style="text-align: justify; margin: 10px; font-size: .8em;">
+                                                    <div class="row">   <!-- Estacionarios -->
+                                                        <div class="col s12"><strong>Estacionarios</strong></div>
+                                                        <div class="col s12 m6">
+                                                            <img src="assets/images/help/planes_estacionario1.png" alt="Planes" style="width: 100%;">
+                                                            <br>
+                                                            <img src="assets/images/help/planes_estacionario2.png" alt="Planes" style="width: 100%;">
+                                                        </div>
+                                                        <div class="col s12 m6">
+                                                            <img src="assets/images/help/planes_estacionario_descripcion.png" alt="Planes" style="width: 70%;">
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">   <!-- Continuos -->
+                                                        <div class="col s12"><strong>Muvimiento Continuo</strong></div>
+                                                        <div class="col s12 m6">
+                                                            <img src="assets/images/help/planes_continuo.png" alt="Planes" style="width: 100%;">
+                                                        </div>
+                                                        <div class="col s12 m6">
+                                                            <img src="assets/images/help/planes_continuo_descripcion.png" alt="Planes" style="width: 70%;">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                            <li>    <!-- Fichas técnicas -->
+                                                <div class="collapsible-header"><i class="fa fa-plus-square-o" aria-hidden="true"></i> Fichas técnicas</div>
+                                                <div class="collapsible-body" style="text-align: justify; margin: 10px; font-size: .8em;">
+                                                    <div class="row">
+                                                        <div class="col s12 m6">
+                                                            <img src="assets/images/help/ficha1.png" alt="Fichas técnicas" style="width: 100%;">
+                                                            <br>
+                                                            <img src="assets/images/help/ficha2.png" alt="Fichas técnicas" style="width: 100%;">
+                                                        </div>
+                                                        <div class="col s12 m6">
+                                                            <img src="assets/images/help/ficha_descripcion.png" alt="Fichas técnicas" style="width: 100%;">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                            <li>    <!-- Instalar la aplicación -->
+                                                <div class="collapsible-header"><i class="fa fa-plus-square-o" aria-hidden="true"></i> Instalar la aplicación</div>
+                                                <div class="collapsible-body" style="text-align: justify; margin: 10px; font-size: .8em;">
+                                                    <div class="row">
+                                                        <div class="col s12 m6">
+                                                            <img src="assets/images/help/instalar.png" alt="Instalar" style="width: 100%;">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                            <li>    <!-- Actualizar la aplicación -->
+                                                <div class="collapsible-header"><i class="fa fa-plus-square-o" aria-hidden="true"></i> Actualizar la aplicación</div>
+                                                <div class="collapsible-body" style="text-align: justify; margin: 10px; font-size: .8em;">
+                                                    <div class="row">
+                                                        <div class="col s12 m6">
+                                                            <img src="assets/images/help/actualizar.png" alt="Actualizar" style="width: 100%;">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </li>
+                                <li>    <!-- Instalación de dispositivos -->
+                                    <div class="collapsible-header"><i class="fa fa-plus-square-o" aria-hidden="true"></i> Instalación de dispositivos</div>
+                                    <div class="collapsible-body">
+                                        <ul class="collapsible" style="text-align: justify; margin: 10px; font-size: .8em;">
+                                            <li>
+                                                <div class="collapsible-header"><i class="fa fa-plus-square-o" aria-hidden="true"></i> Estacionarios</div>
+                                                <div class="collapsible-body" style="text-align: justify; margin: 10px;">
+                                                    <p>
+                                                        <strong>DripControl</strong>: ¿Cuenta con sistemas de riego por aspersión, por difusión, por goteo,
+                                                        subterráneo o cintas de exudación? ¿Cuenta con un único pozo para
+                                                        irrigar múltiples parcelas o cultivos? DripControl le permitirá
+                                                        monitorear y controlar en tiempo real un pozo y hasta 3, 7 ó 15
+                                                        electroválvulas en dependencia de la versión de que disponga. Así como
+                                                        implementar tu propio plan de riego.
+                                                    </p>
+                                                    <div class="row">
+                                                        <div class="col s6 m3"><strong>Instalación:</strong></div>
+                                                        <div class="col s6 m9">
+                                                            <a href="./assets/documents/Cableado - Estacionario 1.webp">
+                                                                <i class="material-icons">photo_library</i></a> &nbsp;
+                                                            <a href="./assets/documents/Cableado - Estacionario 2.webp">
+                                                                <i class="material-icons">photo_library</i></a> &nbsp;
+                                                            <a href="./assets/documents/Cableado - Estacionarios.pdf">
+                                                                <i class="material-icons">picture_as_pdf</i></a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <div class="collapsible-header"><i class="fa fa-plus-square-o" aria-hidden="true"></i> Movimiento continuo</div>
+                                                <div class="collapsible-body" style="text-align: justify; margin: 10px;">
+                                                    <p>
+                                                        <strong>PivotControl</strong>: ¿Desea reducir el tiempo que consume revisando sus pivotes, el
+                                                        combustible invertido y el mantenimiento de sus sistemas de riego debido
+                                                        a fallas de funcionamiento? ¿Los sistemas de monitoreo y control de
+                                                        pivotes en el mercado no le ofrecen todas las características que está
+                                                        buscando o resultan demasiado complejos y costosos? PivotControl es un
+                                                        sistema de monitoreo y control en tiempo real, basado en tecnología GPS,
+                                                        avanzado y sencillo de usar desde su teléfono celular o computadora.
+                                                    </p>
+                                                    <div>
+                                                        <u><strong>Instalación:</strong></u>
                                                         <div class="row">
-                                                            <div class="col s12 m6">
-                                                                <img src="assets/images/help/nuevo.png" alt="Controles" style="width: 100%;">
-                                                            </div>
-                                                            <div class="col s12 m6">
-                                                                <img src="assets/images/help/nuevo_descripcion.png" alt="Controles" style="width: 70%;">
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </li>
-                                                <li>    <!-- Programar el riego -->
-                                                    <div class="collapsible-header">Programar el riego</div>
-                                                    <div class="collapsible-body" style="text-align: justify; margin: 10px; font-size: .8em;">
-                                                        <div class="row">   <!-- Estacionarios -->
-                                                            <div class="col s12"><strong>Estacionarios</strong></div>
-                                                            <div class="col s12 m6">
-                                                                <img src="assets/images/help/planes_estacionario1.png" alt="Planes" style="width: 100%;">
-                                                                <br>
-                                                                <img src="assets/images/help/planes_estacionario2.png" alt="Planes" style="width: 100%;">
-                                                            </div>
-                                                            <div class="col s12 m6">
-                                                                <img src="assets/images/help/planes_estacionario_descripcion.png" alt="Planes" style="width: 70%;">
-                                                            </div>
-                                                        </div>
-                                                        <div class="row">   <!-- Continuos -->
-                                                            <div class="col s12"><strong>Muvimiento Continuo</strong></div>
-                                                            <div class="col s12 m6">
-                                                                <img src="assets/images/help/planes_continuo.png" alt="Planes" style="width: 100%;">
-                                                            </div>
-                                                            <div class="col s12 m6">
-                                                                <img src="assets/images/help/planes_continuo_descripcion.png" alt="Planes" style="width: 70%;">
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </li>
-                                                <li>    <!-- Fichas técnicas -->
-                                                    <div class="collapsible-header">Fichas técnicas</div>
-                                                    <div class="collapsible-body" style="text-align: justify; margin: 10px; font-size: .8em;">
-                                                        <div class="row">
-                                                            <div class="col s12 m6">
-                                                                <img src="assets/images/help/ficha1.png" alt="Fichas técnicas" style="width: 100%;">
-                                                                <br>
-                                                                <img src="assets/images/help/ficha2.png" alt="Fichas técnicas" style="width: 100%;">
-                                                            </div>
-                                                            <div class="col s12 m6">
-                                                                <img src="assets/images/help/ficha_descripcion.png" alt="Fichas técnicas" style="width: 100%;">
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </li>
-                                                <li>    <!-- Instalar la aplicación -->
-                                                    <div class="collapsible-header">Instalar la aplicación</div>
-                                                    <div class="collapsible-body" style="text-align: justify; margin: 10px; font-size: .8em;">
-                                                        <div class="row">
-                                                            <div class="col s12 m6">
-                                                                <img src="assets/images/help/instalar.png" alt="Instalar" style="width: 100%;">
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </li>
-                                                <li>    <!-- Actualizar la aplicación -->
-                                                    <div class="collapsible-header">Actualizar la aplicación</div>
-                                                    <div class="collapsible-body" style="text-align: justify; margin: 10px; font-size: .8em;">
-                                                        <div class="row">
-                                                            <div class="col s12 m6">
-                                                                <img src="assets/images/help/actualizar.png" alt="Actualizar" style="width: 100%;">
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </li>
-                                    <li>    <!-- Instalación de dispositivos -->
-                                        <div class="collapsible-header">Instalación de dispositivos</div>
-                                        <div class="collapsible-body">
-                                            <ul class="collapsible" style="text-align: justify; margin: 10px; font-size: .8em;">
-                                                <li>
-                                                    <div class="collapsible-header">Estacionarios</div>
-                                                    <div class="collapsible-body" style="text-align: justify; margin: 10px;">
-                                                        <p>
-                                                            <strong>DripControl</strong>: ¿Cuenta con sistemas de riego por aspersión, por difusión, por goteo,
-                                                            subterráneo o cintas de exudación? ¿Cuenta con un único pozo para
-                                                            irrigar múltiples parcelas o cultivos? DripControl le permitirá
-                                                            monitorear y controlar en tiempo real un pozo y hasta 3, 7 ó 15
-                                                            electroválvulas en dependencia de la versión de que disponga. Así como
-                                                            implementar tu propio plan de riego.
-                                                        </p>
-                                                        <div class="row">
-                                                            <div class="col s6 m3"><strong>Instalación:</strong></div>
+                                                            <div class="col s6 m3"><strong>Panel:</strong></div>
                                                             <div class="col s6 m9">
-                                                                <a href="./assets/documents/Cableado - Estacionario 1.webp">
-                                                                    <i class="material-icons">photo_library</i></a> &nbsp;
-                                                                <a href="./assets/documents/Cableado - Estacionario 2.webp">
-                                                                    <i class="material-icons">photo_library</i></a> &nbsp;
-                                                                <a href="./assets/documents/Cableado - Estacionarios.pdf">
-                                                                    <i class="material-icons">picture_as_pdf</i></a>
+                                                                <a href="./assets/documents/Cableado - Panel.webp"><i
+                                                                        class="material-icons">photo_library</i></a> &nbsp;
+                                                                &nbsp;
+                                                                <a href="./assets/documents/Cableado.pdf"><i
+                                                                        class="material-icons">picture_as_pdf</i></a>
+                                                            </div>
+                                                            <div class="col s6 m3"><strong>Valley:</strong></div>
+                                                            <div class="col s6 m9">
+                                                                <a href="./assets/documents/Cableado - Valley.webp"><i
+                                                                        class="material-icons">photo_library</i></a> &nbsp;
+                                                                &nbsp;
+                                                                <a href="./assets/documents/Cableado - Valley.pdf"><i
+                                                                        class="material-icons">picture_as_pdf</i></a>
+                                                            </div>
+                                                            <div class="col s6 m3"><strong>ZIMMATIC:</strong></div>
+                                                            <div class="col s6 m9">
+                                                                <a href="./assets/documents/Cableado - ZIMMATIC.webp"><i
+                                                                        class="material-icons">photo_library</i></a> &nbsp;
+                                                                &nbsp;
+                                                                <a href="./assets/documents/Cableado - ZIMMATIC.pdf"><i
+                                                                        class="material-icons">picture_as_pdf</i></a> <br>
+                                                            </div>
+                                                            <div class="col s6 m3"><strong>REINTIC:</strong></div>
+                                                            <div class="col s6 m9">
+                                                                <a href="./assets/documents/Cableado - REINTIC.webp"><i
+                                                                        class="material-icons">photo_library</i></a> &nbsp;
+                                                                &nbsp;
+                                                                <a href="./assets/documents/Cableado - REINTIC.pdf"><i
+                                                                        class="material-icons">picture_as_pdf</i></a>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                </li>
-                                                <li>
-                                                    <div class="collapsible-header">Movimiento continuo</div>
-                                                    <div class="collapsible-body" style="text-align: justify; margin: 10px;">
-                                                        <p>
-                                                            <strong>PivotControl</strong>: ¿Desea reducir el tiempo que consume revisando sus pivotes, el
-                                                            combustible invertido y el mantenimiento de sus sistemas de riego debido
-                                                            a fallas de funcionamiento? ¿Los sistemas de monitoreo y control de
-                                                            pivotes en el mercado no le ofrecen todas las características que está
-                                                            buscando o resultan demasiado complejos y costosos? PivotControl es un
-                                                            sistema de monitoreo y control en tiempo real, basado en tecnología GPS,
-                                                            avanzado y sencillo de usar desde su teléfono celular o computadora.
-                                                        </p>
+                                                        <u><strong>Código de colores</strong></u>
                                                         <div>
-                                                            <u><strong>Instalación:</strong></u>
-                                                            <div class="row">
-                                                                <div class="col s6 m3"><strong>Panel:</strong></div>
-                                                                <div class="col s6 m9">
-                                                                    <a href="./assets/documents/Cableado - Panel.webp"><i
-                                                                            class="material-icons">photo_library</i></a> &nbsp;
-                                                                    &nbsp;
-                                                                    <a href="./assets/documents/Cableado.pdf"><i
-                                                                            class="material-icons">picture_as_pdf</i></a>
+                                                            <div class="row"
+                                                                style="border-bottom: 1px solid antiquewhite; margin-bottom: 0;">
+                                                                <div class="col s2">
+                                                                    <i class="material-icons"
+                                                                        style="color: lightseagreen; margin-top: 4px;">brightness_1</i>
                                                                 </div>
-                                                                <div class="col s6 m3"><strong>Valley:</strong></div>
-                                                                <div class="col s6 m9">
-                                                                    <a href="./assets/documents/Cableado - Valley.webp"><i
-                                                                            class="material-icons">photo_library</i></a> &nbsp;
-                                                                    &nbsp;
-                                                                    <a href="./assets/documents/Cableado - Valley.pdf"><i
-                                                                            class="material-icons">picture_as_pdf</i></a>
-                                                                </div>
-                                                                <div class="col s6 m3"><strong>ZIMMATIC:</strong></div>
-                                                                <div class="col s6 m9">
-                                                                    <a href="./assets/documents/Cableado - ZIMMATIC.webp"><i
-                                                                            class="material-icons">photo_library</i></a> &nbsp;
-                                                                    &nbsp;
-                                                                    <a href="./assets/documents/Cableado - ZIMMATIC.pdf"><i
-                                                                            class="material-icons">picture_as_pdf</i></a> <br>
-                                                                </div>
-                                                                <div class="col s6 m3"><strong>REINTIC:</strong></div>
-                                                                <div class="col s6 m9">
-                                                                    <a href="./assets/documents/Cableado - REINTIC.webp"><i
-                                                                            class="material-icons">photo_library</i></a> &nbsp;
-                                                                    &nbsp;
-                                                                    <a href="./assets/documents/Cableado - REINTIC.pdf"><i
-                                                                            class="material-icons">picture_as_pdf</i></a>
+                                                                <div class="col s10">
+                                                                    Sistema encendido
                                                                 </div>
                                                             </div>
-                                                            <u><strong>Código de colores</strong></u>
-                                                            <div>
-                                                                <div class="row"
-                                                                    style="border-bottom: 1px solid antiquewhite; margin-bottom: 0;">
-                                                                    <div class="col s2">
-                                                                        <i class="material-icons"
-                                                                            style="color: lightseagreen; margin-top: 4px;">brightness_1</i>
-                                                                    </div>
-                                                                    <div class="col s10">
-                                                                        Sistema encendido
-                                                                    </div>
+                                                            <div class="row"
+                                                                style="border-bottom: 1px solid antiquewhite; margin-bottom: 0;">
+                                                                <div class="col s2">
+                                                                    <i class="material-icons"
+                                                                        style="color: lightgrey; margin-top: 4px;">brightness_1</i>
                                                                 </div>
-                                                                <div class="row"
-                                                                    style="border-bottom: 1px solid antiquewhite; margin-bottom: 0;">
-                                                                    <div class="col s2">
-                                                                        <i class="material-icons"
-                                                                            style="color: lightgrey; margin-top: 4px;">brightness_1</i>
-                                                                    </div>
-                                                                    <div class="col s10">
-                                                                        Sistema apagado
-                                                                    </div>
+                                                                <div class="col s10">
+                                                                    Sistema apagado
                                                                 </div>
-                                                                <div class="row"
-                                                                    style="border-bottom: 1px solid antiquewhite; margin-bottom: 0;">
-                                                                    <div class="col s2">
-                                                                        <i class="material-icons"
-                                                                            style="color: grey; margin-top: 4px;">brightness_1</i>
-                                                                    </div>
-                                                                    <div class="col s10">
-                                                                        Comunicación inestable
-                                                                    </div>
+                                                            </div>
+                                                            <div class="row"
+                                                                style="border-bottom: 1px solid antiquewhite; margin-bottom: 0;">
+                                                                <div class="col s2">
+                                                                    <i class="material-icons"
+                                                                        style="color: grey; margin-top: 4px;">brightness_1</i>
                                                                 </div>
-                                                                <div class="row"
-                                                                    style="border-bottom: 1px solid antiquewhite; margin-bottom: 0;">
-                                                                    <div class="col s2">
-                                                                        <i class="material-icons"
-                                                                            style="color: palevioletred; margin-top: 4px;">brightness_1</i>
-                                                                    </div>
-                                                                    <div class="col s10">
-                                                                        ¡Alarma: falla de seguridad!
-                                                                    </div>
+                                                                <div class="col s10">
+                                                                    Comunicación inestable
                                                                 </div>
-                                                                <div class="row"
-                                                                    style="border-bottom: 1px solid antiquewhite; margin-bottom: 0;">
-                                                                    <div class="col s2">
-                                                                        <i class="material-icons"
-                                                                            style="color: red; margin-top: 4px;">brightness_1</i>
-                                                                    </div>
-                                                                    <div class="col s10">
-                                                                        Falla eléctrica
-                                                                    </div>
+                                                            </div>
+                                                            <div class="row"
+                                                                style="border-bottom: 1px solid antiquewhite; margin-bottom: 0;">
+                                                                <div class="col s2">
+                                                                    <i class="material-icons"
+                                                                        style="color: palevioletred; margin-top: 4px;">brightness_1</i>
+                                                                </div>
+                                                                <div class="col s10">
+                                                                    ¡Alarma: falla de seguridad!
+                                                                </div>
+                                                            </div>
+                                                            <div class="row"
+                                                                style="border-bottom: 1px solid antiquewhite; margin-bottom: 0;">
+                                                                <div class="col s2">
+                                                                    <i class="material-icons"
+                                                                        style="color: red; margin-top: 4px;">brightness_1</i>
+                                                                </div>
+                                                                <div class="col s10">
+                                                                    Falla eléctrica
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </li>
-                                                <li>
-                                                    <div class="collapsible-header">Bombeo</div>
-                                                    <div class="collapsible-body">
-                                                        <p>
-                                                            <strong>PumpControl</strong>: ¿Desea reducir el riesgo de fallas, averías y hasta roturas irreversibles
-                                                            de sus sitemas de bombeo? ¿Emplea una misma bomba para más de un sistema
-                                                            de riego? PumpControl es un sistema de monitoreo y control en tiempo
-                                                            real avanzado y a la vez sencillo de usar desde su teléfono celular o
-                                                            computadora que le permite enlazarlo con los sistemas de riego que desee
-                                                            y le previene de futuros desastres ante mal funcionamiento de sus
-                                                            equipo.
-                                                        </p>
-                                                    </div>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </li>
-                                    <li>    <!-- Temas generales -->  
-                                        <div class="collapsible-header">Temas generales</div>
-                                        <div class="collapsible-body">
-                                            <ul class="collapsible" style="text-align: justify; margin: 10px; font-size: .8em;">
-                                                <li>
-                                                    <div class="collapsible-header">Monitorea</div>
-                                                    <div class="collapsible-body">
-                                                        <p style="text-align: justify; padding: 0 10px; font-size: .8em;">
-                                                            Mapea la información de tus sistemas de riego y bombeo. Conoce las condiciones
-                                                            climáticas de tus parcelas.
-                                                            <a href="https://dtaamerica.com/dta-agricola/DTA-Control.html">
-                                                                <i class="material-icons" style="font-size: .85em;">open_in_new</i>Ver más...
-                                                            </a>
-                                                        </p>
-                                                    </div>
-                                                </li>
-                                                <li>
-                                                    <div class="collapsible-header">Controla</div>
-                                                    <div class="collapsible-body">
-                                                        <p style="text-align: justify; padding: 0 10px; font-size: .8em;">
-                                                            Automatización agrícola. Ajusta las prácticas de cultivo a las necesidades del
-                                                            suelo y las plantas con la ayuda de IA.
-                                                            <a href="https://dtaamerica.com/dta-agricola/DTA-Planning.html">
-                                                                <i
-                                                                    class="material-icons" style="font-size: .85em;">open_in_new</i>Ver más...
-                                                            </a>
-                                                        </p>
-                                                    </div>
-                                                </li>
-                                                <li>
-                                                    <div class="collapsible-header">Procesa</div>
-                                                    <div class="collapsible-body">
-                                                        <p style="text-align: justify; padding: 0 10px; font-size: .8em;">
-                                                            Inteligencia Artificial colectiva. Asistencia inteligente para la toma de
-                                                            decisiones que el agricultor debe anticipar.
-                                                            <a class="ttps://dtaamerica.com/dta-agricola/index.html#content6-n" aria-label="Ver más">
-                                                                <i class="material-icons" style="font-size: .85em;">open_in_new</i>Ver más...
-                                                            </a>
-                                                        </p>
-                                                    </div>
-                                                </li>
-                                                <li>
-                                                    <div class="collapsible-header">Mejora</div>
-                                                    <div class="collapsible-body">
-                                                        <p style="text-align: justify; padding: 0 10px; font-size: .8em;">
-                                                            Incrementa la productividad con la aplicación de buenas prácticas de manejo de
-                                                            cultivos.
-                                                            <a href="https://dtaamerica.com/dta-agricola/index.html#content6-m">
-                                                                <i class="material-icons" style="font-size: .85em;">open_in_new</i>Ver más...
-                                                            </a>
-                                                        </p>
-                                                    </div>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </div>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <div class="collapsible-header"><i class="fa fa-plus-square-o" aria-hidden="true"></i> Bombeo</div>
+                                                <div class="collapsible-body" style="text-align: justify; margin: 10px;">
+                                                    <p>
+                                                        <strong>PumpControl</strong>: ¿Desea reducir el riesgo de fallas, averías y hasta roturas irreversibles
+                                                        de sus sitemas de bombeo? ¿Emplea una misma bomba para más de un sistema
+                                                        de riego? PumpControl es un sistema de monitoreo y control en tiempo
+                                                        real avanzado y a la vez sencillo de usar desde su teléfono celular o
+                                                        computadora que le permite enlazarlo con los sistemas de riego que desee
+                                                        y le previene de futuros desastres ante mal funcionamiento de sus
+                                                        equipo.
+                                                    </p>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </li>
+                                <li>    <!-- Temas generales -->  
+                                    <div class="collapsible-header"><i class="fa fa-plus-square-o" aria-hidden="true"></i> Temas generales</div>
+                                    <div class="collapsible-body">
+                                        <ul class="collapsible" style="text-align: justify; margin: 10px; font-size: .8em;">
+                                            <li>
+                                                <div class="collapsible-header"><i class="fa fa-plus-square-o" aria-hidden="true"></i> Monitorea</div>
+                                                <div class="collapsible-body">
+                                                    <p style="text-align: justify; padding: 0 10px; font-size: .8em;">
+                                                        Mapea la información de tus sistemas de riego y bombeo. Conoce las condiciones
+                                                        climáticas de tus parcelas.
+                                                        <a href="https://dtaamerica.com/dta-agricola/DTA-Control.html">
+                                                            <i class="material-icons" style="font-size: .85em;">open_in_new</i>Ver más...
+                                                        </a>
+                                                    </p>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <div class="collapsible-header">Controla</div>
+                                                <div class="collapsible-body">
+                                                    <p style="text-align: justify; padding: 0 10px; font-size: .8em;">
+                                                        Automatización agrícola. Ajusta las prácticas de cultivo a las necesidades del
+                                                        suelo y las plantas con la ayuda de IA.
+                                                        <a href="https://dtaamerica.com/dta-agricola/DTA-Planning.html">
+                                                            <i
+                                                                class="material-icons" style="font-size: .85em;">open_in_new</i>Ver más...
+                                                        </a>
+                                                    </p>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <div class="collapsible-header"><i class="fa fa-plus-square-o" aria-hidden="true"></i> Procesa</div>
+                                                <div class="collapsible-body">
+                                                    <p style="text-align: justify; padding: 0 10px; font-size: .8em;">
+                                                        Inteligencia Artificial colectiva. Asistencia inteligente para la toma de
+                                                        decisiones que el agricultor debe anticipar.
+                                                        <a class="ttps://dtaamerica.com/dta-agricola/index.html#content6-n" aria-label="Ver más">
+                                                            <i class="material-icons" style="font-size: .85em;">open_in_new</i>Ver más...
+                                                        </a>
+                                                    </p>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <div class="collapsible-header"><i class="fa fa-plus-square-o" aria-hidden="true"></i> Mejora</div>
+                                                <div class="collapsible-body">
+                                                    <p style="text-align: justify; padding: 0 10px; font-size: .8em;">
+                                                        Incrementa la productividad con la aplicación de buenas prácticas de manejo de
+                                                        cultivos.
+                                                        <a href="https://dtaamerica.com/dta-agricola/index.html#content6-m">
+                                                            <i class="material-icons" style="font-size: .85em;">open_in_new</i>Ver más...
+                                                        </a>
+                                                    </p>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
 
-                            <div class="sidebar-footer hidden-small" style="display: none;">
-                                <a href="https://dtaamerica.com/dta-agricola" target="_blank" title="DTA-Agrícola"
-                                    style="color: white;">
-                                    <img src="./assets/images/DTA-white.png" style="width: 55px;" alt="DTA-Agrícola">
-                                </a>
-                                <a href="https://wa.me/526251523176?text=DTA-Agr%C3%ADcola%20decide%20d%C3%B3nde,%20cu%C3%A1ndo%20y%20cu%C3%A1nto%20regar%20con%20un%20solo%20click.%20Especialmente%20dise%C3%B1ado%20para%20productores%20peque%C3%B1os,%20medianos%20y%20grandes%20que%20deseen%20producir%20m%C3%A1s%20con%20menor%20consumo%20de%20recursos"
-                                    target="_blank" title="WhatsApp" style="display: none;">
-                                    <img src="./assets/images/whatsapp.png" altstyle="width: 55px;"
-                                        style="width: 25px; border-radius: 4px;" alt="WhatsApp">
-                                </a>
-                                <a href="https://www.facebook.com/dtaagricola" target="_blank" title="Facebook"
-                                    style="color: white;">
-                                    <i class="fa fa-facebook-square" aria-hidden="true"></i>
-                                </a>
-                                <a href="https://www.youtube.com/channel/UCTaEslx6PsGZ8F87EIfNywA" target="_blank"
-                                    title="YouTube" style="color: white;">
-                                    <i class="fa fa-youtube-square" aria-hidden="true"></i>
-                                </a>
-                            </div>
+                        <div class="sidebar-footer hidden-small" style="display: none;">
+                            <a href="https://dtaamerica.com/dta-agricola" target="_blank" title="DTA-Agrícola"
+                                style="color: white;">
+                                <img src="./assets/images/DTA-white.png" style="width: 55px;" alt="DTA-Agrícola">
+                            </a>
+                            <a href="https://wa.me/526251523176?text=DTA-Agr%C3%ADcola%20decide%20d%C3%B3nde,%20cu%C3%A1ndo%20y%20cu%C3%A1nto%20regar%20con%20un%20solo%20click.%20Especialmente%20dise%C3%B1ado%20para%20productores%20peque%C3%B1os,%20medianos%20y%20grandes%20que%20deseen%20producir%20m%C3%A1s%20con%20menor%20consumo%20de%20recursos"
+                                target="_blank" title="WhatsApp" style="display: none;">
+                                <img src="./assets/images/whatsapp.png" altstyle="width: 55px;"
+                                    style="width: 25px; border-radius: 4px;" alt="WhatsApp">
+                            </a>
+                            <a href="https://www.facebook.com/dtaagricola" target="_blank" title="Facebook"
+                                style="color: white;">
+                                <i class="fa fa-facebook-square" aria-hidden="true"></i>
+                            </a>
+                            <a href="https://www.youtube.com/channel/UCTaEslx6PsGZ8F87EIfNywA" target="_blank"
+                                title="YouTube" style="color: white;">
+                                <i class="fa fa-youtube-square" aria-hidden="true"></i>
+                            </a>
                         </div>
                     </div>
 
@@ -2607,138 +2563,88 @@
                         </div>
                     </div>
 
-                    <div class="row" style="margin-top: 50px;" ng-show="selectedWindow == 'users'">
-                        <div class="col s12" ng-init="more1 = true" style="margin-bottom: 20px;" ng-show="authUser">
-                            <div style="background-color: rgba(255,255,255,0.9); box-shadow: 4px 4px 4px grey;">
-                                <div class="btn" ng-click="more1 = !more1" style="width: 100%;">
-                                    <span style="position: absolute; left: 20px;">
-                                        <i class="material-icons">perm_identity</i>
-                                    </span>
-                                    <span>
-                                        Perfil de usuario
-                                    </span>
-                                    <span style="position: absolute;right: 20px;">
-                                        <i class="fa fa-chevron-down" aria-hidden="true" ng-show="!more1"></i>
-                                        <i class="fa fa-chevron-up" aria-hidden="true" ng-show="more1"></i>
-                                    </span>
+                    <div if="perfilUsuario" class="container ventanaServicios" ng-show="authUser && selectedWindow == 'users'">
+                        <div class="swal-title">Perfil de usuario</div>
+
+                        <div style="margin-top: 35px !important; width: 90%; margin: auto;">
+                            <div>
+                                <h6><b>Datos personales</b></h6>
+                                <div class="row" style="margin: 10px;">
+                                    <div class="col s12 m3" ng-show="!authUser" style="text-align: center;">
+                                        <a href="#!login" ng-click="login()"
+                                            style="color: black; width: 100px; height: 100px;">
+                                            <i class="fa fa-user" aria-hidden="true"
+                                                style="margin-top: 5px;"></i>
+                                            <p style="margin-top: -5px;">Acceso</p>
+                                        </a>
+                                    </div>
+                                    <div class="col s12 m3" ng-show="authUser" style="text-align: center;">
+                                        <img id="imgAuthMobil" src="{{ authUser.photoURL }}" class="img-auth"
+                                            style="width: 100px; height: 100px; border-radius: 50%; margin-top: 2px;"
+                                            ng-show="authUser">
+                                        <i class="fa fa-user" aria-hidden="true"
+                                            style="margin-top: 5px; margin-bottom: 4px;"
+                                            ng-show="!authUser"></i>
+                                        <!-- <p style="margin-top: -7px; color: black;">{{ authUser.displayName.split(" ")[0] }}</p> -->
+                                    </div>
+                                    <div class="form-group col s12 m9">
+                                        <label for="inputName">Nombre completo</label>
+                                        <input type="text" class=" form-control form-control-sm"
+                                            id="inputName" ng-model="authUser.displayName"
+                                            placeholder="Nombre y Apellidos" readonly>
+                                    </div>
+                                    <div class="form-group col s12 m9">
+                                        <label for="inputEmail">Correo electrónico</label>
+                                        <input type="email" class=" form-control form-control-sm"
+                                            id="inputEmail" ng-model="authUser.email" placeholder="Email"
+                                            readonly>
+                                    </div>
                                 </div>
-                                <div ng-show="more1">
-                                    <div class="container">
-                                        <div class="row">
-                                            <h6>Datos personales</h6>
-                                            <div class="row">
-                                                <div class="col s12 m3" ng-show="!authUser" style="text-align: center;">
-                                                    <a href="#!login" ng-click="login()"
-                                                        style="color: black; width: 100px; height: 100px;">
-                                                        <i class="fa fa-user" aria-hidden="true"
-                                                            style="margin-top: 5px;"></i>
-                                                        <p style="margin-top: -5px;">Acceso</p>
-                                                    </a>
-                                                </div>
-                                                <div class="col s12 m3" ng-show="authUser" style="text-align: center;">
-                                                    <img id="imgAuthMobil" src="{{ authUser.photoURL }}" class="img-auth"
-                                                        style="width: 100px; height: 100px; border-radius: 50%; margin-top: 2px;"
-                                                        ng-show="authUser">
-                                                    <i class="fa fa-user" aria-hidden="true"
-                                                        style="margin-top: 5px; margin-bottom: 4px;"
-                                                        ng-show="!authUser"></i>
-                                                    <!-- <p style="margin-top: -7px; color: black;">{{ authUser.displayName.split(" ")[0] }}</p> -->
-                                                </div>
-                                                <div class="form-group col s12 m9">
-                                                    <label for="inputName">Nombre completo</label>
-                                                    <input type="text" class=" form-control form-control-sm"
-                                                        id="inputName" ng-model="authUser.displayName"
-                                                        placeholder="Nombre y Apellidos" readonly>
-                                                </div>
-                                                <div class="form-group col s12 m9">
-                                                    <label for="inputEmail">Correo electrónico</label>
-                                                    <input type="email" class=" form-control form-control-sm"
-                                                        id="inputEmail" ng-model="authUser.email" placeholder="Email"
-                                                        readonly>
-                                                </div>
-                                            </div>
-                                            <h6>Ubicación</h6>
-                                            <div class="row">
-                                                <div class="form-group col s12">
-                                                    <label for="inputAddress">Dirección</label>
-                                                    <input type="text" class=" form-control form-control-sm"
-                                                        id="inputAddress" placeholder="Calle y número"
-                                                        ng-model="userProfile.direccion">
-                                                </div>
-                                                <div class="form-group col s12">
-                                                    <label for="inputLocation">Localidad</label>
-                                                    <input type="text" class=" form-control form-control-sm"
-                                                        id="inputLocation" placeholder="Estado, localidad"
-                                                        ng-model="userProfile.estado">
-                                                </div>
-                                                <div class="form-group col s12">
-                                                    <label for="inputZip">Código postal</label>
-                                                    <input type="text" class="form-control form-control-sm"
-                                                        id="inputZip" placeholder="Código ZIP"
-                                                        ng-model="userProfile.zipCode">
-                                                </div>
-                                            </div>
-                                            <h6>Datos de pago</h6>
-                                            <div class="row">
-                                                <div class="form-group col x12">
-                                                    <label for="inputCBancaria">No tarjeta</label>
-                                                    <input type="text" class=" form-control form-control-sm"
-                                                        id="inputCBancaria" placeholder="XXXX-XXXX-XXXX-XXXX"
-                                                        ng-model="userProfile.bankAccount">
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <p id="profileErrorMessage" style="display: none; clear: both; color: red;">Por
-                                            favor,
-                                            complete
-                                            todos los campos correctamente!</p>
-                                        <p id="profileToS" style="clear: both;">Al continuar con el contrato, estaría
-                                            aceptando
-                                            nuestros <a href="tos.html" target="blank">términos y condiciones</a></p>
-                                        <div class="modal-footer right-align">
-                                            <!-- <button type="button" class="waves-effect waves-light btn-small"
-                                                ng-click="showWindow('services')">Cancelar</button> -->
-                                            <button type="button" class="waves-effect waves-light btn-small red"
-                                                ng-click="logout()">Cerrar
-                                                sesión</button>
-                                            <button type="button" class="waves-effect waves-light btn-small"
-                                                ng-click="updateUserInfo()">Actualizar datos</button>
-                                        </div>
-                                        <br>
-                                        <br>
+                                <h6><b>Ubicación</b></h6>
+                                <div class="row" style="margin: 10px;">
+                                    <div class="form-group col s12">
+                                        <label for="inputAddress">Dirección</label>
+                                        <input type="text" class=" form-control form-control-sm"
+                                            id="inputAddress" placeholder="Calle y número"
+                                            ng-model="userProfile.direccion">
+                                    </div>
+                                    <div class="form-group col s12">
+                                        <label for="inputLocation">Localidad</label>
+                                        <input type="text" class=" form-control form-control-sm"
+                                            id="inputLocation" placeholder="Estado, localidad"
+                                            ng-model="userProfile.estado">
+                                    </div>
+                                    <div class="form-group col s12">
+                                        <label for="inputZip">Código postal</label>
+                                        <input type="text" class="form-control form-control-sm"
+                                            id="inputZip" placeholder="Código ZIP"
+                                            ng-model="userProfile.zipCode">
+                                    </div>
+                                </div>
+                                <h6><b>Datos de pago</b></h6>
+                                <div class="row" style="margin: 10px;">
+                                    <div class="form-group col x12">
+                                        <label for="inputCBancaria">No tarjeta</label>
+                                        <input type="text" class=" form-control form-control-sm"
+                                            id="inputCBancaria" placeholder="XXXX-XXXX-XXXX-XXXX"
+                                            ng-model="userProfile.bankAccount">
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col s12" ng-init="more2 = false"
-                            style="margin-bottom: 20px; display: none !important;" ng-show="authUser">
-                            <div class="btn" ng-click="more2 = !more2" style="width: 100%;">
-                                <span style="position: absolute; left: 20px;">
-                                    <i class="material-icons">people_outline</i>
-                                </span>
-                                <span>
-                                    Usuarios por sistema
-                                </span>
-                                <span style="position: absolute;right: 20px;">
-                                    <i class="fa fa-chevron-down" aria-hidden="true" ng-show="!more2"></i>
-                                    <i class="fa fa-chevron-up" aria-hidden="true" ng-show="more2"></i>
-                                </span>
+                            <p id="profileErrorMessage" style="display: none; clear: both; color: red;">Por
+                                favor, complete todos los campos correctamente!</p>
+                            <p id="profileToS" style="clear: both;">Al continuar con el contrato, estaría
+                                aceptando nuestros <a href="tos.html" target="blank">términos y condiciones</a></p>
+                            <div class="modal-footer right-align">
+                                <a href="" class="btn waves-effect waves-light red lighten-3"
+                                    ng-click="logout()">
+                                    &nbsp;&nbsp;<i class="fa fa-sign-out" aria-hidden="true"></i> Salir&nbsp;&nbsp;</a>
+                                <a href="" class="btn waves-effect waves-light teal lighten-3"
+                                    ng-click="updateUserInfo()">
+                                    &nbsp;&nbsp;<i class="fa fa-check" aria-hidden="true"></i> Aceptar&nbsp;&nbsp;</a>
                             </div>
-                            <div ng-show="more2">
-                                <div class="container">
-                                    <div class="row" ng-repeat="user in systemUsers">
-                                        <div class="form-group col s2">
-                                            <i class="material-icons">people_outline</i>
-                                        </div>
-                                        <div class="form-group col s10">
-                                            <span class="limitar">user.name</span>
-                                            <span>user.role</span>
-                                        </div>
-                                    </div>
-                                    <br>
-                                    <br>
-                                </div>
-                            </div>
+                            <br>
+                            <br>
                         </div>
                     </div>
 
