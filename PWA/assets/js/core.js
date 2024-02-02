@@ -95,6 +95,11 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     $scope.showWindow = windowsName => {
         $scope.showMore = false;
+        if (!$scope.authUser) {
+            $scope.selectedWindow = 'login';
+            showContent();
+            return;
+        }
         $scope.selectedWindow = windowsName;
         if (windowsName == "listado") {
             systemsETL();
