@@ -425,6 +425,7 @@ th {
 h6 {
   background: lightgray;
   padding: 2px 10px 4px 10px;
+  border-radius: 5px;
 }
 
 .left_col {
@@ -451,4 +452,24 @@ h6 {
   font-size: 1.3em;
   padding: 15px 10px;
   color: white;
+}
+
+.firebaseui-idp-button {
+  border-radius: 20px !important;
+}
+
+.swal-title {
+  margin: 0px !important; 
+  font-size: 1.5em !important;
+}
+
+.collapsible {
+  border-top: 1px solid #ddd;
+  border-right: none !important;
+  border-left: none !important;
+  margin: 0.5rem 0 1rem 0;
+}
+.z-depth-1, nav, .card-panel, .card, .toast, .btn, .btn-large, .btn-small, .btn-floating, .dropdown-content, .collapsible, .sidenav {
+  -webkit-box-shadow: none !important;
+  box-shadow: none !important;
 }

@@ -155,6 +155,7 @@ app.controller("ControladorPrincipal", function ($scope) {
                 console.log("Error de autenticación");
                 $scope.$apply(function () {
                     $scope.authUser = null;
+                    localStorage.clear();
                 });
                 //location.href = "./landing/index.html"
             }
@@ -187,6 +188,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         firebase.auth().signOut().then(() => {
             $scope.authUser = null;
             $scope.tipoUsuario = 0;
+            localStorage.clear();
             // ui.start("#firebaseui-auth-container", uiConfig);
             //logoutAutUser();
             //document.getElementById("logout").style.display = "none";
@@ -608,7 +610,13 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     $scope.setNewPoligonNode = () => {
         getLocation();
-        document.getElementById("editPoligon").innerHTML += `,${milatitud},${milongitud}`
+        document.getElementById("editPoligon").innerHTML += `,${milatitud},${milongitud}`;
+    }
+
+    $scope.setDevicePosition = () => {
+        getLocation();
+        document.getElementById("newDeviceLatitude").value = `${milatitud}`;
+        document.getElementById("newDeviceLongitude").value = `${milongitud}`;
     }
 
     // #endregion DEVICES
