@@ -10,15 +10,16 @@ Protocolo de instalación del sistema de automatización de riego DTA-Agrícola
 			1.2.1.- Al 100% (No se detiene)
 			1.2.2.- Al 50% (retrocede por 30seg y se detiene otros 30seg)
 	1.3.- Seguridad: 
-			1.3.1.- Cortarla en una de las torres
+			1.3.1.- Cortarla en cada una de las torres
 			1.3.2.- Revisar si hay varilla de seguridad en la última torre y probar su funcionamiento
 	1.4.- Arranque automático
-			1.4.1.- Mover el equipo en dirección de avance, cortar la corriente, esperar unos segundos y concectar nuevamente. El equipo debe iniciar automáticamente en la misma dirección.
-			1.4.2.- Mover el equipo en dirección de retroceso, y repetir los pasos de 1.4.1
+			1.4.1.- Mover el equipo en dirección de avance
+			1.4.2.- Cortar la corriente, esperar unos segundos y concectar nuevamente. El equipo debe iniciar automáticamente en la misma dirección.
+			1.4.3.- Mover el equipo en dirección de retroceso, y repetir los pasos de 1.4.2
 	1.5.- Revisar el correcto funcionamiento de los motores:
 			1.5.1.- Revisar en las etiquetas de los motores las RPM
 					1.5.1.1.- Todos deben ser de baja o de alta
-					1.5.1.2.- En caso de que no sean todos similares, fijarse si el de alta está en la última torre
+					1.5.1.2.- En caso de que no sean todos similares, fijarse si el(los) de alta está en la(s) última(s) torre(s)
 	1.6.- Revisar si tiene control de pistola (cañón) en la torre final y si está concectado
 	
 2.- Montaje del módulo de control auxiliar en la torre central
