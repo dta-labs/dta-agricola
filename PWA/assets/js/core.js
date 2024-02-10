@@ -218,7 +218,7 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     $scope.isSystemOfRole = (role) => {
         let userRole = "";
-        if ($scope.actualSystem) {
+        if ($scope.actualSystem && $scope.authUser) {
             userRole = $scope.userLocations[convertDotToDash($scope.authUser.email)].systems[$scope.actualSystem.key];
         }
         let result = (userRole  == role) ? true : false;
@@ -580,7 +580,6 @@ app.controller("ControladorPrincipal", function ($scope) {
         system.velocity = "" + system.velocity && !isNaN(system.velocity) ? system.velocity : "";
         system.maxVelocity = "" + system.maxVelocity <= 100 ? system.maxVelocity : 100;
         system.sensorPresion = "" + system.sensorPresion && !isNaN(system.sensorPresion) ? system.sensorPresion : "";
-        system.irrigation = "a";
         // system.irrigation = document.querySelector('input[name=groupRiego]:checked').getAttribute("data");
         setMachineSettings(system);
         system.status = system.status == "ON" || system.status == true ? true : false;
@@ -659,7 +658,7 @@ app.controller("ControladorPrincipal", function ($scope) {
             "caudal": "0",
             "fertilization": "OFF",
             "installation": new Date(),
-            "irrigation": "a",
+            "irrigation": "0",
             "key": "",
             "latitude": milatitud,
             "length": "",
@@ -729,7 +728,27 @@ app.controller("ControladorPrincipal", function ($scope) {
                                 "value": "0",
                                 "valve": "F"
                             },
-                        }
+                        },
+                        "irrigationPlan": {
+                            "irrigationConfig": {
+                                "incrementPercent": 50,
+                                "isAdjustFrecuency": true,
+                                "isAdjustIncrement": true,
+                                "isAdjustReduction": true,
+                                "isStopByRainDay": true,
+                                "isStopByRainProbability": true,
+                                "isStopByRainWeek": true,
+                                "isStopByTemp": true,
+                                "isStopByWind": true,
+                                "reductionPercent": -30,
+                                "reductionTemp": 25,
+                                "stopByRainDay": 3,
+                                "stopByRainProbability": 80,
+                                "stopByRainWeek": 25,
+                                "stopByTemp": 20,
+                                "stopByWind": 100
+                            }
+                        },
                     }
                 );
                 break;
@@ -831,6 +850,28 @@ app.controller("ControladorPrincipal", function ($scope) {
         $scope.editSelectedPlan = structuredClone(as);
         $scope.editSelectedPlan.endGun = as.endGun == "true" ? true : false;
     }
+
+    selectProgram = (programId) => {
+        $scope.actualSystem.irrigation = programId;
+        switch(programId) {
+            case "1":
+                $scope.actualSystem.autoreverse = false;
+                $scope.actualSystem.isScheduled = false;
+                break;
+            case "2":
+                $scope.actualSystem.autoreverse = true; 
+                $scope.actualSystem.isScheduled = false;
+                break;
+            case "3":
+                $scope.actualSystem.autoreverse = false;
+                $scope.actualSystem.isScheduled = true;
+                break;
+            default:
+                $scope.actualSystem.autoreverse = false;
+                $scope.actualSystem.isScheduled = false;
+        }
+        $scope.$apply();
+    }
     
     $scope.setTimer = (value) => {
         $scope.editSelectedPlan.value = value;
@@ -906,10 +947,10 @@ app.controller("ControladorPrincipal", function ($scope) {
                 "date": date,
                 "time": time
             }
-            if (!$scope.actualSystem.schedule) {
-                $scope.actualSystem.schedule = [];
+            if (!$scope.actualSystem.irrigationPlan.schedule) {
+                $scope.actualSystem.irrigationPlan.schedule = [];
             }
-            $scope.actualSystem.schedule.push(data);
+            $scope.actualSystem.irrigationPlan.schedule.push(data);
             $scope.setMachineSettings($scope.actualSystem);
             document.getElementById("schDate").value = null;
             // document.getElementById("schTime").value = null;
@@ -918,14 +959,14 @@ app.controller("ControladorPrincipal", function ($scope) {
     }
     
     $scope.deleteSchedule = (idx) => {
-        if ($scope.actualSystem.schedule) {
-            delete $scope.actualSystem.schedule[idx];
-            let data = [].concat($scope.actualSystem.schedule);
-            $scope.actualSystem.schedule = [];
+        if ($scope.actualSystem.irrigationPlan.schedule) {
+            delete $scope.actualSystem.irrigationPlan.schedule[idx];
+            let data = [].concat($scope.actualSystem.irrigationPlan.schedule);
+            $scope.actualSystem.irrigationPlan.schedule = [];
             data.forEach(function(item) {
-                $scope.actualSystem.schedule.push(item);
+                $scope.actualSystem.irrigationPlan.schedule.push(item);
             });
-            $scope.setMachineSettings($scope.actualSystem);
+            // $scope.setMachineSettings($scope.actualSystem);
         }
     }
    
@@ -1100,7 +1141,10 @@ app.controller("ControladorPrincipal", function ($scope) {
     }
 
     setCulturePlanningToSystem = (sistema, cultivo, date, time) => {
-        sistema.schedule = []; 
+        if (!sistema.irrigationPlan) {
+            sistema.irrigationPlan = {};
+            sistema.irrigationPlan.schedule = []; 
+        }
         for (idx in cultivo.plan) {
             if (cultivo.plan[idx].action.toUpperCase().includes("RIEGO")) {
                 let newDate = new Date(date);
@@ -1110,7 +1154,7 @@ app.controller("ControladorPrincipal", function ($scope) {
                     "date": newDate.getFullYear() + '-' + (newDate.getMonth() + 1) + '-' + newDate.getDate(),
                     "time": time
                 }
-                sistema.schedule.push(data);
+                sistema.irrigationPlan.schedule.push(data);
             }
         }
     }
