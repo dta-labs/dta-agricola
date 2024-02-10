@@ -11,13 +11,10 @@ Q: Pivote Valley, con nuestro equipo conectado, enclava y desenclava seguidament
 A: Retirar el relay de propósito DTD
 
 Q: Pivote Valley, con nuestro equipo conectado, solo camina en una dirección
-A: Se debe al relay de propósito DTD. La solución es conectar adecuadamente el módulo de control auxiliar (ver protocolo de instalación)
+A: Se debe al relay de propósito DTD. 
 
 Q: Pivote Valley, con nuestro equipo conectado, tiene problemas de alineación cuando se cambia de dirección.
-A: Conectar adecuadamente el módulo de control auxiliar (ver protocolo de instalación)
-
-Q: Pivote Valley, no cuenta con cable de pistola final.
-A: Invertir la conexión de la seguridad de salida y la de entrada (esto hará que se pueda medir la seguridad en la última torre)
+A: ***
 
 Q: Contactores de avance y/o retroceso zumban.
 A: Revisar que la señal de salida para la torre final no esté conectada a fase, en caso de que sí, desconectar.
