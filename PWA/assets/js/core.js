@@ -872,6 +872,7 @@ app.controller("ControladorPrincipal", function ($scope) {
                 $scope.actualSystem.autoreverse = false;
                 $scope.actualSystem.isScheduled = false;
         }
+        $scope.setMachineSettings($scope.actualSystem);
         $scope.$apply();
     }
     
@@ -1508,6 +1509,7 @@ app.controller("ControladorPrincipal", function ($scope) {
     }
 
     $scope.inicializacion = () => {
+        console.log(window.navigator.userAgent);
         document.getElementById('contenido').style.display = 'none';
         requestWakeLock();
         // getLocation();

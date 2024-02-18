@@ -469,7 +469,26 @@ h6 {
   border-left: none !important;
   margin: 0.5rem 0 1rem 0;
 }
+
 .z-depth-1, nav, .card-panel, .card, .toast, .btn, .btn-large, .btn-small, .btn-floating, .dropdown-content, .collapsible, .sidenav {
   -webkit-box-shadow: none !important;
   box-shadow: none !important;
+}
+
+.icono {
+  height: 50px;
+  width: 50px;
+}
+
+.vibrar:active .icono {
+  -webkit-animation: tiembla 0.2s 1;
+  -moz-animation: tiembla 0.2s 1;
+  -o-animation: tiembla 0.2s 1;
+ -ms-animation: tiembla 0.2s 1;
+}
+
+@-webkit-keyframes tiembla {
+  0%  { -webkit-transform:rotateZ(-5deg); }
+  50% { -webkit-transform:rotateZ( 0deg) scale(1.4); }
+  100%{ -webkit-transform:rotateZ( 5deg);
 }
