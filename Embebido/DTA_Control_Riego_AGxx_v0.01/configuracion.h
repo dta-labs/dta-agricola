@@ -7,8 +7,8 @@
  ****************************************************************************/
 
 // Settings
-const int config[] = {2, 3, 7, 11, 111, 111, 1111};          // Rx, Tx, Plots, Pais, Lada, Número
-// const int config[] = {2, 3, 7, 52, 625, 102, 596};          // Rx, Tx, Plots, Pais, Lada, Número
+// const int config[] = {2, 3, 7, 11, 111, 111, 1111};          // Rx, Tx, Plots, Pais, Lada, Número
+const int config[] = {2, 3, 7, 52, 625, 102, 596};          // Rx, Tx, Plots, Pais, Lada, Número
 
 #pragma region Variables
 
