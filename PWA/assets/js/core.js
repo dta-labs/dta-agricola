@@ -792,8 +792,8 @@ app.controller("ControladorPrincipal", function ($scope) {
     // #region PLAN DE RIEGO
 
     $scope.resetNewPlan = () => {
-        let length = Object.keys($scope.actualSystem.plans).length;
-        let index = `p${length - 1}`;
+        let length = $scope.actualSystem.plans ? Object.keys($scope.actualSystem.plans).length : 0;
+        let index = `p${length > 0 ? length - 1 : length }`;
         document.getElementById("planAnguloIni").value = length > 0 ? $scope.actualSystem.plans[index].endAngle : 0;
         length > 0 ? document.getElementById("planAnguloIni").setAttribute("min", $scope.actualSystem.plans[index].endAngle) : null;
         document.getElementById("planAnduloFin").value = 360;
@@ -846,9 +846,11 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     $scope.setEditPlan = (index) => {
         $scope.editedPlan = ('' + index).includes('p') ? index : `p${index}`;
-        let as = $scope.actualSystem.plans[$scope.editedPlan];
-        $scope.editSelectedPlan = structuredClone(as);
-        $scope.editSelectedPlan.endGun = as.endGun == "true" ? true : false;
+        $scope.editSelectedPlan = {};
+        $scope.editSelectedPlan["starAngle"] = parseInt($scope.actualSystem.plans[$scope.editedPlan].starAngle);
+        $scope.editSelectedPlan["endAngle"] = parseInt($scope.actualSystem.plans[$scope.editedPlan].endAngle);
+        $scope.editSelectedPlan["value"] = parseFloat($scope.actualSystem.plans[$scope.editedPlan].value);
+        $scope.editSelectedPlan["endGun"] = $scope.actualSystem.plans[$scope.editedPlan].endGun == "true" ? true : false;
     }
 
     selectProgram = (programId) => {
@@ -875,6 +877,7 @@ app.controller("ControladorPrincipal", function ($scope) {
     
     $scope.setTimer = (value) => {
         $scope.editSelectedPlan.value = value;
+        document.getElementById("planValue").value = value;
     }
     
     $scope.editPlan = () => {
@@ -936,8 +939,6 @@ app.controller("ControladorPrincipal", function ($scope) {
     }
  
     $scope.addSchedule = () => {
-        // let date = document.getElementById("schDate").value;
-        // let time = document.getElementById("schTime").value;
         let aux = document.getElementById("schDate").value.split("T");
         let date = aux[0];
         let time = aux[1];
@@ -1203,10 +1204,6 @@ app.controller("ControladorPrincipal", function ($scope) {
     }
 
     addLayers = () => {
-        // L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-        //     attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
-        // }).addTo(map);
-
         let Satelite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
             attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
         }).addTo(map);
@@ -1324,13 +1321,17 @@ app.controller("ControladorPrincipal", function ($scope) {
                     map.removeLayer(shape[campo.key + i]);
                 }
                 // if (campo.plans[i].value > 0) {
-                    // shape[campo.key + i] = semiCircle(coord, radius, parseInt(campo.plans[i].starAngle), parseInt(campo.plans[i].endAngle), getRandomColor(campo.plans[i].value));
                     shape[campo.key + i] = semiCircle(coord, radius, parseInt(campo.plans[i].starAngle), parseInt(campo.plans[i].endAngle), getRandomColor(campo.plans[i].value));
+                    shape[campo.key + i].bindPopup("<a class='modal-trigger' href='#modalConfig' style='color: black;'>" + campo.plans[i].value + "% </a>");
                     map.addLayer(shape[campo.key + i]);
                 // }
             }
         }
         showPCPosition(campo);
+    }
+
+    messageShape = (key) => {
+        console.log("clinck en shape: ", key);
     }
 
     showPCPosition = (campo) => {
@@ -1360,6 +1361,7 @@ app.controller("ControladorPrincipal", function ($scope) {
                     }
                     let color = campo.position == i ? "lightgreen" : "blue";
                     poligons[campo.key + idx] = L.polygon(newPoligon, {color: color});
+                    poligons[campo.key + idx].bindPopup("<a class='modal-trigger' href='#modalConfig' style='color: black;'>" + campo.plots[idx].name + "</a>");
                     map.addLayer(poligons[campo.key + idx]);
                 }
             }
