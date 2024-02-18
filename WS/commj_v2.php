@@ -2,8 +2,6 @@
 
     #region 0.- Configuración
 	function config() {
-        $apiKey = "AIzaSyBGhhdWhG7bD4QBkjK5IlXgiGVkoUv70KM";
-		$headers = array('Authorization: key=' . $apiKey, 'Content-Type: application/json');
 		$id = $_GET["id"];
 		$baseUrl = "https://dta-agricola.firebaseio.com/systems/$id/";
 		return $baseUrl;
@@ -16,7 +14,6 @@
         function getcURLData($url) {                    // Lee registro
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $url);
-            // curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             $response = curl_exec($ch);
             curl_close($ch);
@@ -26,7 +23,6 @@
         function putcURLData($url, $data) {             // Actualiza registro
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $url);
-            // curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
             curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
@@ -43,7 +39,6 @@
         function postcURLData($url, $data) {            // Nuevo registro
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $url);
-            // curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
@@ -93,16 +88,26 @@
     #region 4.- Enviar Settings al dispositivo 
 
 	function getAutoreverse($dataSettings, $localZone) {
-		$autoreverse = $dataSettings->autoreverse;
-		if ($autoreverse == "OFF" && $dataSettings->isScheduled) {
-			$date = getDateTime($localZone)->format('Y-m-d');
-			$time = getDateTime($localZone)->format('H:i');
-			if ($dataSettings->position == 0 || $dataSettings->position == $dataSettings->length) {
-				foreach ($dataSettings->schedule as $schedule) {
-					if ($date == $schedule->date && $time == $schedule->time) {
-						return "ON";
+		$autoreverse = $dataSettings->autoreverse;				// Opción 2.- Repetir el riego
+		if ($autoreverse == "OFF" ) {
+			switch ($dataSettings->irrigation) {
+				case 1:											// Opción 1.- Regar una vez
+					break;
+				case 3:											// Opción 3.- Programa de riego
+					$date = getDateTime($localZone)->format('Y-m-d');
+					$time = getDateTime($localZone)->format('H:i');
+					if ($dataSettings->position == 0 || $dataSettings->position == $dataSettings->length) {
+						foreach ($dataSettings->irrigationPlan->schedule as $schedule) {
+							if ($date == $schedule->date && $time == $schedule->time) {
+								return "ON";
+							}
+						}
 					}
-				}
+					break;
+				case 4:											// Opción 4.- Riego a demanda
+					break;
+				case 5:											// Opción 5.- IA
+					break;
 			}
 		}
 		return $autoreverse;
@@ -129,7 +134,7 @@
 		for ($i = 0; $i < $dataSettings->length; $i++) {
 			$p = "p" . $i;
 			$lectura .= "\"" . $dataSettings->plots->$p->value;
-			$lectura .= "\"" . $dataSettings->plots->$p->valvle;
+			$lectura .= "\"" . $dataSettings->plots->$p->valve;
 		}
 		$lectura .=  "\"";
 		print_r($lectura);
@@ -141,23 +146,17 @@
 
 	function updateLog($status, $index, $initialDate, $localZone, $baseUrl) {
 		if ($_GET["st"] && ($_GET["st"] == "ON" || $_GET["st"] == "OFF")) {
-			$key = "";
-			if ($status == $_GET["st"]) {
-				$key = "/$index";
-			}
+			$key = ($status == $_GET["st"]) ? "/$index" : "";
             $date = getDateTime($localZone)->format('Ymd hia');
+
 			$dataUpdate = '{';
-			if ($key) {
-				$dataUpdate .= '"date":"' . $initialDate . '"';
-			} else {
-				$dataUpdate .= '"date":"' . $date . '"';
-			}
+			$dataUpdate .= '"date":"' . (($key) ? $initialDate : $date) . '"';
 			$dataUpdate .= ',"update":"' . $date . '"';
-			if ($_GET["st"] && ($_GET["st"] == "ON" || $_GET["st"] == "OFF")) { $dataUpdate .= ',"state":"' . $_GET["st"] . '"'; }
-			if ($_GET["tm"]) { $dataUpdate .= ',"activationTime":"' . $_GET["tm"] . '"'; }
-			if ($_GET["po"]) { $dataUpdate .= ',"plot":"' . $_GET["po"] . '"'; }
-			if ($_GET["si"]) { $dataUpdate .= ',"signal":"' . $_GET["si"] . '"'; }
-			if ($_GET["rx"] && ($_GET["rx"] == "Ok" || $_GET["rx"] == "Er")) { $dataUpdate .= ',"reception":"' . $_GET["rx"] . '"'; }
+			$dataUpdate .= ',"state":"' . $_GET["st"] . '"'; 
+			$dataUpdate .= ',"activationTime":"' . ($_GET["tm"] ? $_GET["tm"] : "") . '"';
+			$dataUpdate .= ',"plot":"' . ($_GET["po"] ? $_GET["po"] : "") . '"';
+			$dataUpdate .= ',"signal":"' . ($_GET["si"] ? $_GET["si"] : "") . '"';
+			$dataUpdate .= ',"reception":"' . (($_GET["rx"] && ($_GET["rx"] == "Ok" || $_GET["rx"] == "Er")) ? $_GET["rx"] : "") . '"';
 			$dataUpdate .= '}';
 
 			$url = $baseUrl . "logs$key.json";              	// 5.1.- cURL de actualización de Logs
@@ -179,12 +178,12 @@
     #region 6.- Programa principal
 
 	function main() {
-		$baseUrl = config();                                                                            // 0. Configuración
-		$dataSettings = getcURLData($baseUrl . "settings.json");                                        // 1. Optener settings
-        $localZone = getLocalZone($dataSettings);                                                       // 2. Zona horaria
-		list($status, $index, $initialDate, $activationTime) = checkLastState($baseUrl, $localZone);    // 3. Estado anterior
-		sendSettings($baseUrl, $dataSettings, $localZone, $activationTime);                             // 4. Enviar settings
-		updateLog($status, $index, $initialDate, $localZone, $baseUrl);                                 // 5. Actualizar estado
+		$baseUrl = config();                                                                // 0. Configuración
+		$dataSettings = getcURLData($baseUrl . "settings.json");                            // 1. Optener settings
+        $localZone = getLocalZone($dataSettings);                                           // 2. Zona horaria
+		list($status, $index, $initialDate, $activationTime) = checkLastState($baseUrl);    // 3. Estado anterior
+		sendSettings($baseUrl, $dataSettings, $localZone, $activationTime);                 // 4. Enviar settings
+		updateLog($status, $index, $initialDate, $localZone, $baseUrl);                     // 5. Actualizar estado
 	}
     
     #endregion 6.- Programa principal

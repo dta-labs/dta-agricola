@@ -51,7 +51,7 @@ void loop() {
 
 void acciones() {
   if (statusVar == "ON") {
-    if (cyclic || (!cyclic && (plot < plots - 1 || (plot == plots - 1 && (millis() - activeTime) < activationTime)))) {
+    if (cyclic || plot < plots - 1 || (plot == plots - 1 && (millis() - activeTime) < activationTime)) {
       digitalWrite(pinBomba, LOW);                                        // Bomba de agua encendida
       setPlot();
       setActivationTime();
@@ -82,7 +82,7 @@ void setActivationTime() {
   aux = parse(commStr, '"', (plot * 2) + offSet + 1); 
   char arrType[1];
   aux.toCharArray(arrType, 1);
-  systemType = (arrType[0] == 'F' || arrType[0] == 'P') ? arrType[0] : 'F'; // Valvle type
+  systemType = (arrType[0] == 'F' || arrType[0] == 'P') ? arrType[0] : 'F'; // Valve type
   activeTime = activeTime == 0 & activationTime > 0 ? millis() : activeTime;
 }
 
