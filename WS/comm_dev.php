@@ -3,8 +3,6 @@
     #region 0.- Configuración
     
     function config(){
-        // $apiKey = "AIzaSyBGhhdWhG7bD4QBkjK5IlXgiGVkoUv70KM";
-        // $headers = array('Authorization: key='.$apiKey,'Content-Type: application/json');
         $id = $_GET["id"];
         $baseUrl = "https://dta-agricola.firebaseio.com/systems/$id/";
         return $baseUrl;
@@ -17,7 +15,6 @@
     function getcURLData($url) {                    // Leer registro
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
-        // curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $response = curl_exec($ch);
         curl_close($ch);
@@ -27,14 +24,12 @@
     function putcURLData($url, $data) {             // Actualizar registro
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
-		// curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
 		curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: text/plain'));
 		$response = curl_exec($ch);
 		if (curl_errno($ch)) {
-			// echo 'Error: '.curl_errno($ch);
 			echo 'Error';
 		}
 		curl_close($ch);
@@ -44,14 +39,12 @@
     function postcURLData($url, $data) {            // Nuevo registro
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
-		// curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_POST, 1);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
 		curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: text/plain'));
 		$response = curl_exec($ch);
 		if (curl_errno($ch)) {
-			// echo 'Error: '.curl_errno($ch);
 			echo 'Error';
 		}
 		curl_close($ch);
@@ -96,37 +89,37 @@
 
     #region 3.- Comprobar estado anterior (Logs)
 
-    function checkLastState($baseUrl, $dataSettings) {
+    function checkLastStatus($baseUrl, $dataSettings) {
         $timeZone = $dataSettings->zona; 					// Zona horaria
         $summerHour = $dataSettings->summerHour; 			// Horario de verano
         $localZone = intval($timeZone) + intval($summerHour);
 
         $log = get_object_vars(getcURLData($baseUrl . "logs.json?orderBy=\"update\"&limitToLast=1"));
-        $index = $log ? end(array_keys($log)) : "";
-        $status = $log ? $log[$index]->{'state'} : "";
-        $safety = $log ? $log[$index]->{'safety'} : "";
-        $voltage = $log ? $log[$index]->{'voltage'} : "";
-        $initialDate = $log ? $log[$index]->{'date'} : "";
+        $lastStatus->index = $log ? end(array_keys($log)) : "";
+        $lastStatus->status = $log ? $log[$index]->{'state'} : "";
+        $lastStatus->safety = $log ? $log[$index]->{'safety'} : "";
+        $lastStatus->voltage = $log ? $log[$index]->{'voltage'} : "";
+        $lastStatus->initialDate = $log ? $log[$index]->{'date'} : "";
 
         $zona = $localZone . ' hours';
         $dateTime = new DateTime();
         $dateTime->modify($zona);
-        $date = $dateTime->format('Ymd H:i');
-        return [$index, $status, $safety, $voltage, $initialDate, $date];
+        $lastStatus->date = $dateTime->format('Ymd H:i');
+        return $lastStatus;
     }
 
     #endregion 3.- Comprobar estado anterior (Logs)
 
     #region 4.- Actualizar estado del dispositivo
 
-    function updateLog($index, $status, $safety, $voltage, $initialDate, $date, $baseUrl) {
+    function updateLog($lastStatus, $baseUrl) {
         if ($_GET["st"] && ($_GET["st"] == "ON" || $_GET["st"] == "OFF")) {
             $key = "";
-            if ($status == $_GET["st"] && $voltage == $_GET["vo"]) { $key = "/$index"; }
+            if ($lastStatus->status == $_GET["st"] && $lastStatus->voltage == $_GET["vo"] && $lastStatus->safety == $_GET["sa"]) { $key = "/$lastStatus->index"; }
             $dataUpdate = '{';
-            $dataUpdate .= '"date":"' . ($key ? $initialDate : $date) . '"';
-            $dataUpdate .= ',"update":"' . $date . '"';
-            $dataUpdate .= ',"state":"' . $_GET["st"] . '"';
+            $dataUpdate .= '"date":"' . ($key ? $lastStatus->initialDate : $lastStatus->date) . '"';
+            $dataUpdate .= ',"update":"' . $lastStatus->date . '"';
+            $dataUpdate .= ',"status":"' . $_GET["st"] . '"';
             $dataUpdate .= ($_GET["sa"] && ($_GET["sa"] == "true" || $_GET["sa"] == "false")) ? ',"safety":"' . $_GET["sa"] . '"' : ""; 
             $dataUpdate .= ($_GET["di"] && ($_GET["di"] == "FF" || $_GET["di"] == "RR")) ? ',"direction":"' . $_GET["di"] . '"' : ""; 
             $dataUpdate .= ($_GET["vo"] && ($_GET["vo"] == "true" || $_GET["vo"] == "false")) ? ',"voltage":"' . $_GET["vo"] . '"' : ""; 
@@ -139,16 +132,17 @@
             $dataUpdate .= ($_GET["si"]) ? ',"signal":"' . $_GET["si"] . '"' : ""; 
             $dataUpdate .= ($_GET["ar"] && ($_GET["ar"] == "ON" || $_GET["ar"] == "OFF")) ? ',"autoreverse":"' . $_GET["ar"] . '"' : ""; 
             $dataUpdate .= ($_GET["rx"] && ($_GET["rx"] == "Ok" || $_GET["rx"] == "Er")) ? ',"reception":"' . $_GET["rx"] . '"' : ""; 
+            $dataUpdate .= ',"log":"' . ($_GET["vo"] == "false" ? "Voltage" : $_GET["sa"] == "false" ? "Security" : $_GET["er"] == 0 ? "Position" : $_GET["pr"] == 0 ? "Presure" : $_GET["rx"] == "Er" ? "Reception" : "") . '"'; 
             $dataUpdate .= '}';
     
-            $url = $baseUrl . "logs$key.json";                                                      // 5.1.- cURL de actualización de Logs
+            $url = $baseUrl . "logs$key.json";                                                      		// 5.1.- cURL de actualización de Logs
             if ($key) {
-                putcURLData($url, $dataUpdate);                                                     // Actualiza registro
+                putcURLData($url, $dataUpdate);                                                     		// Actualiza registro
             } else {
-                postcURLData($url, $dataUpdate);                                                    // Nuevo registro
+                postcURLData($url, $dataUpdate);                                                    		// Nuevo registro
             }
 
-            if ($status != $_GET["st"] && $_GET["st"] == "OFF" && $_GET["sa"] == "false") {         // 5.2.- cURL de actualización de Settings
+            if ($lastStatus->status != $_GET["st"] && $_GET["st"] == "OFF" && $_GET["sa"] == "false") {		// 5.2.- cURL de actualización de Settings
                 $url = $baseUrl . "settings/status.json";
                 putcURLData($url, '"OFF"');
             }
@@ -164,8 +158,8 @@
         $baseUrl = config();
         $dataSettings = getcURLData($baseUrl . "settings.json");
         sendSettings($dataSettings);
-        list($index, $status, $safety ,$voltage, $initialDate, $date) = checkLastState($baseUrl, $dataSettings);
-        updateLog($index, $status, $safety, $voltage, $initialDate, $date, $baseUrl);
+        $lastStatus = checkLastStatus($baseUrl, $dataSettings);
+        updateLog($lastStatus, $baseUrl);
     }
 
     #endregion 5.- Programa principal
