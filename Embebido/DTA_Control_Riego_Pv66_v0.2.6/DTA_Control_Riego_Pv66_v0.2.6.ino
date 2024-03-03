@@ -1,12 +1,12 @@
 /****************************************************************************
  *                                                                          * 
  *                    Sistemas DTA Serie Pv66 v0.2.6 A                      *
- *                               2024.02.09                                 *
+ *                               2024.03.02                                 *
  *                                                                          *
  *   Sensores:                                                              *
- *   - Presión 150psi............. A0                                       *
- *   - Seguridad efecto Hall...... A1                                       *
- *   - Seguridad lectura directa.. D9                                       *
+ *   - Presión ................... A0                                       *
+ *   - Seguridad ................. D9                                       *
+ *   - Electricidad .............. D10                                      *
  *   - Comunicación............... D2, D3                      				      *
  *   - GPS........................ D11, D12, D13 (Tarjetas amarillas)       *
  *                                                                          *
@@ -40,7 +40,7 @@ void setup() {
   controlPosicion();
   sensorKalman.setDistance(commFrec);
   Serial.begin(115200);
-  Serial.print(F("\n>>> DTA-Agrícola: Serie Pv66 v0.2.6.240106 A\n"));
+  Serial.print(F("\n>>> DTA-Agrícola: Serie Pv66 v0.2.6.240302 A\n"));
   Serial.print(F("    «")); Serial.print(telefono); Serial.print(F("»\n"));
   // wdt_enable(WDTO_8S);
   dtKalman = millis();
@@ -90,28 +90,29 @@ void activeMachine() {
       digitalWrite(pinActivationTimer, HIGH);
       digitalWrite(pinEngGunControl, (endGunVar == "ON") ? (serie == 0 ? HIGH : LOW) : (serie == 0 ? LOW : HIGH));
       Serial.println(!isPresure ? F("> Stopped: Insuficient presure!") : F("> Stopped: Position error!"));
-      statusVar = !isPosition ? "OFF" : "ON";
+      statusVar = !isPosition ? "OFF" : statusVar;
       // if ((lat_actual != 0.0f || lon_actual != 0.0f) && !isPosition) {  // <- Esto qué es???
       //   statusVar = !isPosition ? F("OFF") : F("ON");
       // }
     }
   } else {
     apagar();
-    statusVar = !isVoltage ? "ON" : "OFF";
+    statusVar = !isVoltage ? statusVar : "OFF";
     Serial.println(!isVoltage ? F("> Stopped: Voltage error!") : F("> Stopped: Sequrity error!"));
   }
 }
 
 void unactiveMachine() {
   static unsigned long unactiveTime = 0;
+  if (!controlSeguridad()) {
+    Serial.print(F(": Sequrity error!"));
+    apagar();
+    statusVar = "OFF";
+  }
+  statusVar = !controlPosicion() ? "OFF" : statusVar;
   if (millis() - unactiveTime < deactivationTimer) {
     Serial.print(F("> Stopped"));
     digitalWrite(pinActivationTimer, HIGH);
-    if (!controlSeguridad()) {
-      Serial.print(F(": Sequrity error!"));
-      apagar();
-      statusVar = "OFF";
-    }
     Serial.println();
   } else {
     unactiveTime = millis();
