@@ -42,21 +42,12 @@ int getSignalValue() {
 }
 
 void commWatchDogReset() {
-  commError += (restartGSM) ? 1 : 0;
+  commError += (restartGSM) ? 1 : commError = 0;
   Serial.print(F("commError: ")); Serial.println(commError);
-  if (commError == 20) {
+  if (commError == 10) {
     while (true) { delay(1000); }
   }
 }
-
-// void commWatchDogReset(int signalValue) {
-//   commError += (signalValue < 6 || restartGSM) ? 1 : 0;
-//   Serial.print(F("commError: "));
-//   Serial.println(commError);
-//   if (commError == 20) {
-//     while (true) { delay(1000); }
-//   }
-// }
 
 void testComunicaciones() {
   gprs.println(F("AT+IPR=9600"));
@@ -155,14 +146,13 @@ String httpRequest() {
   getResponse(25, true); 
   systemWatchDog();
   gprs.println(F("AT+HTTPACTION=0"));
-  String result = getResponse(3000, false); 
-  // gprs.println(F("AT+HTTPREAD"));
-  // result = getResponse(0, false);
+  getResponse(3000, false); 
+  gprs.println(F("AT+HTTPREAD"));
+  String result = getResponse(0, false);
   systemWatchDog();
   commRx = (result != "" && (result.indexOf("ON") != -1 || result.indexOf("OFF") != -1)) ? true : false;
-  restartGSM = (!commRx || result.indexOf("ERROR") != -1 || result.indexOf("601") != -1  || result.indexOf("604") != -1) ? true : false;
-  // gprs.println(F("AT+HTTPREAD"));
-  // result = getResponse(0, false);
+  restartGSM = (!commRx || result.indexOf("200") != -1) ? true : false;
+  // restartGSM = (!commRx || result.indexOf("ERROR") != -1 || result.indexOf("601") != -1  || result.indexOf("604") != -1) ? true : false;
   gprs.println(F("AT+HTTPTERM"));
   getResponse(30, false); 
   commWatchDogReset();
@@ -223,7 +213,7 @@ void comunicaciones() {
   setupGSM();
   getSensors();
   String data = httpRequest();                                                       // Get Settings from HTTP
-  data = data.substring(data.indexOf('"'), data.indexOf("OK"));
+  // data = data.substring(data.indexOf('"'), data.indexOf("OK"));
   // if (testFunc) {                                                                    // Para test
   //   data = (testData) ? F("\"ON\"FF\"0\"OFF\"30.73081\"-107.86308\"PC\"1\"0\"360\"50\"F\"") : F("\"ON\"RR\"0\"OFF\"30.73081\"-107.86308\"PC\"1\"0\"360\"50\"F\"");
   //   commError = 0;

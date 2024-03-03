@@ -2,33 +2,6 @@
 
 #pragma region <<Seguridad>>
 
-// bool controlSeguridad1() {
-//   return digitalRead(pinSensorSeguridad);
-// }
-
-// bool controlSeguridad2() {
-//   float Sensibilidad = .185;       // 5A = 0.185; 20A = 0.100; 30A = 0.66
-//   float voltajeSensor;
-//   float corriente = 0;
-//   float Imax = 0;
-//   float Imin = 0;
-//   long tiempo = millis();
-//   while (millis() - tiempo < 500) {
-//     voltajeSensor = analogRead(A1) * (5.0 / 1023.0);
-//     corriente = 0.9 * corriente + 0.1 * ((voltajeSensor - 2.5) / Sensibilidad);
-//     Imax = corriente > Imax ? corriente : Imax;
-//     Imin = corriente < Imin ? corriente : Imin;
-//   }
-//   float Irms = (((Imax - Imin) / 2)) * 0.707;
-//   Serial.print(F("Irms: "));
-//   Serial.println(Irms, 2);
-//   return Irms >= 0.1 ? true : false;
-// }
-
-// bool isSequre2() {
-//   return (config[5] == 0) ? controlSeguridad1() : controlSeguridad2();
-// }
-
 bool isSequre() {
   return digitalRead(pinSensorSeguridad);
 }
@@ -142,7 +115,8 @@ bool controlPosicion() {
   // return true; 
   ssGPS.begin(9600);
   ssGPS.listen();
-  positionVar = sensorKalman.getDistance(getPosition(), (double)(millis() - dtKalman)/1000);
+  positionVar = getPosition();
+  // positionVar = sensorKalman.getDistance(getPosition(), (double)(millis() - dtKalman)/1000);
   dtKalman = millis();
   ssGPS.end();
   return (lat_actual == 0.0f && lon_actual == 0.0f) ? false : 

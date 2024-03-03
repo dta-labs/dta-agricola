@@ -57,67 +57,25 @@ https://www.alibaba.com/product-detail/DL181-Portable-DC-UPS-USB-5V_160015921535
 BackLog
 =============================================
 
-[—] Equipo:
-       [ x ] Agregar filtro Kalman
-       [ x ] Mejoras en la comunicación
-              [ x ] Eliminar comando “AT+HTTPREAD”
-              [ x ] Modificar commRx()
-              [—] Modificar commWatchDogReset()
-       [—] Revisar:
-              [—]  -Rx  -Pre  -Pos  -Sec  -Vol  -Ini : st=ON    lg=Ini
-              [ x ]  -Rx  -Pre  -Pos  -Sec  -Vol +Ini : st=ON    lg=Vol
-              [ x ]  -Rx  -Pre  -Pos  -Sec +Vol +Ini : st=OFF  lg=Sec
-              [ x ]  -Rx  -Pre  -Pos +Sec +Vol +Ini : st=OFF  lg=Pos
-              [ x ]  -Rx  -Pre +Pos +Sec +Vol +Ini : st=ON    lg=Pre
-              [—]  -Rx +Pre +Pos +Sec +Vol +Ini : st=ON    lg=Rx
-       [—] lg: {“Ini”, “Sec”, “Vol”, “Pos”, “Pre”, “Rx”, “Ok”}
-       [—] Reinicio por comunicaciones:
-              [—] Si   1 rx=“Er” consecutivos -> Setup comunicaciones
-              [—] Si 10 rx=“Er” consecutivos -> Reiniciar sistema
+[?] Equipo:
+	[?] Agregar filtro Kalman
+	[x] Mejoras en la comunicación
+		[x] Eliminar comando “AT+HTTPREAD”
+		[x] Modificar commRx()
+		[x] Modificar commWatchDogReset()
+	[ ] Revisar:
+		[ ]  -Rx  -Pre  -Pos  -Sec  -Vol  -Ini : st=ON   lg=Ini
+		[x]  -Rx  -Pre  -Pos  -Sec  -Vol  +Ini : st=ON   lg=Vol
+		[x]  -Rx  -Pre  -Pos  -Sec  +Vol  +Ini : st=OFF  lg=Sec
+		[x]  -Rx  -Pre  -Pos  +Sec  +Vol  +Ini : st=OFF  lg=Pos
+		[x]  -Rx  -Pre  +Pos  +Sec  +Vol  +Ini : st=ON   lg=Pre
+		[x]  -Rx  +Pre  +Pos  +Sec  +Vol  +Ini : st=ON   lg=Rx
+	[—] lg: {“Ini”, “Sec”, “Vol”, “Pos”, “Pre”, “Rx”, “Ok”}
+	[x] Reinicio por comunicaciones:
+		[x] Si  1 rx=“Er” consecutivos -> Setup comunicaciones
+		[x] Si 20 rx=“Er” consecutivos -> Reiniciar sistema
 
 [—] WS:
-       [—] Actualizar
-              [—] st_ant ≠ st_act -> actualizar log
-              [—] st_ant = “ON” y st_act = “OFF” -> actualizar {“settings”: “status”}
-
-
-#include <SoftwareSerial.h>
-
-// Configuración del puerto serie para la comunicación con el módulo SIM800L
-SoftwareSerial sim800l(7, 8); // RX, TX
-
-void setup() {
-  Serial.begin(9600);
-  sim800l.begin(9600);
-
-  delay(1000);
-
-  // Configuración del módulo SIM800L en modo texto
-  sim800l.println("AT+CMGF=1");
-  delay(1000);
-
-  // Establecer conexión GPRS
-  sim800l.println("AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\"");
-  delay(1000);
-
-  // Configurar el APN de tu operador móvil
-  sim800l.println("AT+SAPBR=3,1,\"APN\",\"tu_apn\"");
-  delay(1000);
-
-  // Abrir una conexión HTTP
-  sim800l.println("AT+HTTPINIT");
-  delay(1000);
-
-  // Configurar el contenido a descargar
-  sim800l.println("AT+HTTPPARA=\"URL\",\"http://www.example.com\"");
-  delay(1000);
-
-  // Iniciar la descarga del contenido
-  sim800l.println("AT+HTTPACTION=0");
-}
-
-void loop() {
-  while (sim800l.available()) {
-    Serial.write(sim800l.read());
-  }
-}
+	[—] Actualizar
+		[—] st_ant ≠ st_act -> actualizar log
+		[—] st_ant = “ON” y st_act = “OFF” -> actualizar {“settings”: “status”}
