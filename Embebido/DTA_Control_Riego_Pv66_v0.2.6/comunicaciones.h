@@ -62,7 +62,7 @@ void testComunicaciones() {
   // getResponse(15, testComm); 
   // gprs.println(F("AT+IPR?"));          // Velocidad en baudios?
   // getResponse(15, testComm); 
-  // gprs.println(F("AT+CBC"));           // Estado de la bateriía
+  // gprs.println(F("AT+CBC"));           // Estado de la batería
   // getResponse(15, testComm); 
   gprs.println(F("AT+CFUN?"));         // Funcionalidad 0 mínima 1 máxima
   getResponse(15, testComm); 
@@ -152,11 +152,9 @@ String httpRequest() {
   systemWatchDog();
   commRx = (result != "" && (result.indexOf("ON") != -1 || result.indexOf("OFF") != -1)) ? true : false;
   restartGSM = (!commRx || result.indexOf("200") != -1) ? true : false;
-  // restartGSM = (!commRx || result.indexOf("ERROR") != -1 || result.indexOf("601") != -1  || result.indexOf("604") != -1) ? true : false;
   gprs.println(F("AT+HTTPTERM"));
   getResponse(30, false); 
   commWatchDogReset();
-  // commWatchDogReset(signalVar);
   systemWatchDog();
   return result.substring(result.indexOf('"'), result.indexOf("OK"));
 }
@@ -199,7 +197,6 @@ void setVariables(String data) {
       idx = data.indexOf('"', idx + 1);
       String bindEndGun = (data.substring(idx + 1, data.indexOf('"', idx + 1)));                // end gun
       if (positionIni <= positionVar && positionVar < positionEnd) {
-        // Serial.print(F("\nPos: ")); Serial.print(positionIni); Serial.print(F(",")); Serial.print(positionEnd);  Serial.print(F(" "));  Serial.println(positionVar); 
         velocityVar = (bindVel > 100) ? 100 : (bindVel < 0) ? 0 : bindVel;
         endGunVar = (bindEndGun == "T") ? "ON" : "OFF";
         break;
@@ -212,18 +209,10 @@ void comunicaciones() {
   gprs.begin(9600);
   setupGSM();
   getSensors();
-  String data = httpRequest();                                                       // Get Settings from HTTP
-  // data = data.substring(data.indexOf('"'), data.indexOf("OK"));
-  // if (testFunc) {                                                                    // Para test
-  //   data = (testData) ? F("\"ON\"FF\"0\"OFF\"30.73081\"-107.86308\"PC\"1\"0\"360\"50\"F\"") : F("\"ON\"RR\"0\"OFF\"30.73081\"-107.86308\"PC\"1\"0\"360\"50\"F\"");
-  //   commError = 0;
-  //   testData = testData == true ? false : true;
-  // }
-  // if (data != "" && (data.indexOf("ON") != -1 || data.indexOf("OFF") != -1)) {
+  String data = httpRequest();            // Get Settings from HTTP
   if (commRx) {
     setVariables(data);
   } else {
-    // commRx = false;
     Serial.print(F("lat_central: ")); Serial.print(lat_central, 2); Serial.print(F(" lon_central: ")); Serial.println(lon_central, 2);
     Serial.println(F("data: Error!"));
   }

@@ -1,7 +1,7 @@
 /****************************************************************************
  *                                                                          * 
  *                    Sistemas DTA Serie Pv66 v0.2.6 A                      *
- *                               2024.03.02                                 *
+ *                               2024.03.03                                 *
  *                                                                          *
  *   Sensores:                                                              *
  *   - Presión ................... A0                                       *
@@ -40,7 +40,7 @@ void setup() {
   controlPosicion();
   sensorKalman.setDistance(commFrec);
   Serial.begin(115200);
-  Serial.print(F("\n>>> DTA-Agrícola: Serie Pv66 v0.2.6.240302 A\n"));
+  Serial.print(F("\n>>> DTA-Agrícola: Serie Pv66 v0.2.6.240303 A\n"));
   Serial.print(F("    «")); Serial.print(telefono); Serial.print(F("»\n"));
   // wdt_enable(WDTO_8S);
   dtKalman = millis();
