@@ -142,7 +142,8 @@ bool controlPosicion() {
   // return true; 
   ssGPS.begin(9600);
   ssGPS.listen();
-  positionVar = getPosition();
+  positionVar = sensorKalman.getDistance(getPosition(), (double)(millis() - dtKalman)/1000);
+  dtKalman = millis();
   ssGPS.end();
   return (lat_actual == 0.0f && lon_actual == 0.0f) ? false : 
          (positionIni <= positionVar && positionVar < positionEnd) ? true : false;

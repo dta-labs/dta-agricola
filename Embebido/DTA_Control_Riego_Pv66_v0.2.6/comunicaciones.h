@@ -41,14 +41,22 @@ int getSignalValue() {
   return result;
 }
 
-void commWatchDogReset(int signalValue) {
-  commError += (signalValue < 6 || restartGSM) ? 1 : 0;
-  Serial.print(F("commError: "));
-  Serial.println(commError);
+void commWatchDogReset() {
+  commError += (restartGSM) ? 1 : 0;
+  Serial.print(F("commError: ")); Serial.println(commError);
   if (commError == 20) {
     while (true) { delay(1000); }
   }
 }
+
+// void commWatchDogReset(int signalValue) {
+//   commError += (signalValue < 6 || restartGSM) ? 1 : 0;
+//   Serial.print(F("commError: "));
+//   Serial.println(commError);
+//   if (commError == 20) {
+//     while (true) { delay(1000); }
+//   }
+// }
 
 void testComunicaciones() {
   gprs.println(F("AT+IPR=9600"));
@@ -148,15 +156,19 @@ String httpRequest() {
   systemWatchDog();
   gprs.println(F("AT+HTTPACTION=0"));
   String result = getResponse(3000, false); 
+  // gprs.println(F("AT+HTTPREAD"));
+  // result = getResponse(0, false);
   systemWatchDog();
-  restartGSM = (result == "" || result.indexOf("ERROR") != -1 || result.indexOf("601") != -1  || result.indexOf("604") != -1 || signalVar < 6) ? true : false;
-  gprs.println(F("AT+HTTPREAD"));
-  result = getResponse(0, false);
+  commRx = (result != "" && (result.indexOf("ON") != -1 || result.indexOf("OFF") != -1)) ? true : false;
+  restartGSM = (!commRx || result.indexOf("ERROR") != -1 || result.indexOf("601") != -1  || result.indexOf("604") != -1) ? true : false;
+  // gprs.println(F("AT+HTTPREAD"));
+  // result = getResponse(0, false);
   gprs.println(F("AT+HTTPTERM"));
   getResponse(30, false); 
-  commWatchDogReset(signalVar);
+  commWatchDogReset();
+  // commWatchDogReset(signalVar);
   systemWatchDog();
-  return result;
+  return result.substring(result.indexOf('"'), result.indexOf("OK"));
 }
 
 void setVariables(String data) {
@@ -217,11 +229,11 @@ void comunicaciones() {
   //   commError = 0;
   //   testData = testData == true ? false : true;
   // }
-  if (data != "" && (data.indexOf("ON") != -1 || data.indexOf("OFF") != -1)) {
-    commRx = true;
+  // if (data != "" && (data.indexOf("ON") != -1 || data.indexOf("OFF") != -1)) {
+  if (commRx) {
     setVariables(data);
   } else {
-    commRx = false;
+    // commRx = false;
     Serial.print(F("lat_central: ")); Serial.print(lat_central, 2); Serial.print(F(" lon_central: ")); Serial.println(lon_central, 2);
     Serial.println(F("data: Error!"));
   }

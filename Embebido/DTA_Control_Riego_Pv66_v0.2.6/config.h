@@ -35,13 +35,15 @@ const String httpServer = "AT+HTTPPARA=\"URL\",\"http://dtaamerica.com/ws/comm_v
 #define watchDogPin A3
 #define commFrec 30
 
-byte serie = config[0];
-
 #pragma endregion Definiciones
 
 #pragma region <<GSM/GPRS>>
 
 SoftwareSerial gprs(config[1], config[2]);
+bool restartGSM = true;                        // Comunicaciones
+byte signalVar = 0;
+byte commError = 0;
+bool commRx = true;
 
 #pragma endregion <<GSM/GPRS>>
 
@@ -49,10 +51,14 @@ SoftwareSerial gprs(config[1], config[2]);
 
 TinyGPS gps;
 SoftwareSerial ssGPS(config[3], config[4]);
+SensorKalman sensorKalman;
 float lat_central = 0.0f;
 float lon_central = 0.0f;
 float lat_actual = 0.0f;
 float lon_actual = 0.0f;
+float positionVar = 0.0f;
+int positionIni = 0;
+int positionEnd = 0;
 byte errorGPS = 0;
 
 #pragma endregion <<GPS>>
@@ -60,8 +66,6 @@ byte errorGPS = 0;
 #pragma region <<Variables Generales>>
  
 bool testComm = false;                         // Para test
-// bool testFunc = false;                         // Para test
-// bool testData = false;                         // Para test
 String deviceType = "PC";                      // PC | PL
 String statusVar = "OFF";
 String lastDirectionVar = "FF";
@@ -69,15 +73,9 @@ String directionVar = "FF";
 String autoreverseVar = "OFF";
 String endGunVar = "OFF";
 byte velocityVar = 0;
-float positionVar = 0.0f;                      // Posición
-int positionIni = 0;
-int positionEnd = 0;
 unsigned int activationTimer = 0;              // Temporizadores
 unsigned int deactivationTimer = 60000;
-bool restartGSM = true;                        // Comunicaciones
-byte signalVar = 0;
-byte commError = 0;
-bool commRx = true;
+unsigned long dtKalman = 0;
 bool isSequrity = false;                       // Sensores
 bool isVoltage = false;
 bool isPresure = false;
@@ -85,6 +83,7 @@ bool isPosition = false;
 bool isSensors = false;
 float sensorPresionVar = 0;
 float actualPresure = 0;
+byte serie = config[0];
 
 #pragma endregion <<Variables Generales>>
 

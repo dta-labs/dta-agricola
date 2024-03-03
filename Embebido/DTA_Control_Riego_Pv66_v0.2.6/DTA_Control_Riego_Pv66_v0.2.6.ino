@@ -18,6 +18,7 @@
 #include <SoftwareSerial.h>
 #include <avr/wdt.h>
 
+#include "SensorKalman.h"
 #include "config.h"
 #include "sensores.h"
 #include "acciones.h"
@@ -36,10 +37,13 @@ void setup() {
   pinMode(pinMotorRR, OUTPUT);
   pinMode(pinMotorFF, OUTPUT);
   apagar();
+  controlPosicion();
+  sensorKalman.setDistance(commFrec);
   Serial.begin(115200);
   Serial.print(F("\n>>> DTA-Agrícola: Serie Pv66 v0.2.6.240106 A\n"));
   Serial.print(F("    «")); Serial.print(telefono); Serial.print(F("»\n"));
   // wdt_enable(WDTO_8S);
+  dtKalman = millis();
 }
 
 void loop(){
@@ -86,9 +90,10 @@ void activeMachine() {
       digitalWrite(pinActivationTimer, HIGH);
       digitalWrite(pinEngGunControl, (endGunVar == "ON") ? (serie == 0 ? HIGH : LOW) : (serie == 0 ? LOW : HIGH));
       Serial.println(!isPresure ? F("> Stopped: Insuficient presure!") : F("> Stopped: Position error!"));
-      if ((lat_actual != 0.0f || lon_actual != 0.0f) && !isPosition) {
-        statusVar = "OFF";
-      }
+      statusVar = !isPosition ? "OFF" : "ON";
+      // if ((lat_actual != 0.0f || lon_actual != 0.0f) && !isPosition) {  // <- Esto qué es???
+      //   statusVar = !isPosition ? F("OFF") : F("ON");
+      // }
     }
   } else {
     apagar();
