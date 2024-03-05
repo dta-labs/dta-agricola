@@ -78,4 +78,5 @@ BackLog
 [—] WS:
 	[—] Actualizar
 		[—] st_ant ≠ st_act -> actualizar log
-		[—] st_ant = “ON” y st_act = “OFF” -> actualizar {“settings”: “status”}
+		[x] st_ant = “ON” y st_act = “OFF” -> actualizar {“settings”: “status”}
+		[x] log: {"Voltage", "Security", "Position", "Reception", "Presure", "Ok"}

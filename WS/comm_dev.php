@@ -96,10 +96,10 @@
 
         $log = get_object_vars(getcURLData($baseUrl . "logs.json?orderBy=\"update\"&limitToLast=1"));
         $lastStatus->index = $log ? end(array_keys($log)) : "";
-        $lastStatus->status = $log ? $log[$index]->{'state'} : "";
-        $lastStatus->safety = $log ? $log[$index]->{'safety'} : "";
-        $lastStatus->voltage = $log ? $log[$index]->{'voltage'} : "";
-        $lastStatus->initialDate = $log ? $log[$index]->{'date'} : "";
+        $lastStatus->status = $log ? $log[$lastStatus->index]->{'status'} : "";
+        $lastStatus->safety = $log ? $log[$lastStatus->index]->{'safety'} : "";
+        $lastStatus->voltage = $log ? $log[$lastStatus->index]->{'voltage'} : "";
+        $lastStatus->initialDate = $log ? $log[$lastStatus->index]->{'date'} : "";
 
         $zona = $localZone . ' hours';
         $dateTime = new DateTime();
@@ -112,10 +112,11 @@
 
     #region 4.- Actualizar estado del dispositivo
 
-    function updateLog($lastStatus, $baseUrl) {
+    function updateLog($lastStatus, $sensorPresion, $baseUrl) {
         if ($_GET["st"] && ($_GET["st"] == "ON" || $_GET["st"] == "OFF")) {
             $key = "";
-            if ($lastStatus->status == $_GET["st"] && $lastStatus->voltage == $_GET["vo"] && $lastStatus->safety == $_GET["sa"]) { $key = "/$lastStatus->index"; }
+            $index = $lastStatus->index;
+            if ($lastStatus->status == $_GET["st"] && $lastStatus->voltage == $_GET["vo"] && $lastStatus->safety == $_GET["sa"]) { $key = "/$index"; }
             $dataUpdate = '{';
             $dataUpdate .= '"date":"' . ($key ? $lastStatus->initialDate : $lastStatus->date) . '"';
             $dataUpdate .= ',"update":"' . $lastStatus->date . '"';
@@ -132,7 +133,7 @@
             $dataUpdate .= ($_GET["si"]) ? ',"signal":"' . $_GET["si"] . '"' : ""; 
             $dataUpdate .= ($_GET["ar"] && ($_GET["ar"] == "ON" || $_GET["ar"] == "OFF")) ? ',"autoreverse":"' . $_GET["ar"] . '"' : ""; 
             $dataUpdate .= ($_GET["rx"] && ($_GET["rx"] == "Ok" || $_GET["rx"] == "Er")) ? ',"reception":"' . $_GET["rx"] . '"' : ""; 
-            $dataUpdate .= ',"log":"' . ($_GET["vo"] == "false" ? "Voltage" : $_GET["sa"] == "false" ? "Security" : $_GET["er"] == 0 ? "Position" : $_GET["pr"] == 0 ? "Presure" : $_GET["rx"] == "Er" ? "Reception" : "") . '"'; 
+            $dataUpdate .= ',"log":"' . ($_GET["vo"] == "false" ? "Voltage" : ($_GET["sa"] == "false" ? "Security" : ($_GET["er"] == 0 ? "Position" : ($_GET["rx"] == "Er" ? "Reception" : ($sensorPresion != 0 && $_GET["pr"] == 0 ? "Presure" : "Ok"))))) . ' "'; 
             $dataUpdate .= '}';
     
             $url = $baseUrl . "logs$key.json";                                                      		// 5.1.- cURL de actualización de Logs
@@ -159,7 +160,7 @@
         $dataSettings = getcURLData($baseUrl . "settings.json");
         sendSettings($dataSettings);
         $lastStatus = checkLastStatus($baseUrl, $dataSettings);
-        updateLog($lastStatus, $baseUrl);
+        updateLog($lastStatus, $dataSettings->sensorPresion, $baseUrl);
     }
 
     #endregion 5.- Programa principal
