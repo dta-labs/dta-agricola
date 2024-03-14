@@ -4,17 +4,18 @@
 
 #include <SPI.h>
 #include <LoRa.h>
+#include "LowPower.h"
 
+#define SLEEP 60 
 #define gatewayAddress "DTA_192.168.1.0"
 String nodeAddress = "DTA_192.168.1.";
 
 const int numSensors = 5;
 
-float temperature[254];
+float temperature[numSensors];
 
 void setup() {
   Serial.begin(115200);
-  
   while (!Serial);  
   Serial.print("LoRa Gateway: "); Serial.println(gatewayAddress);
   if (!LoRa.begin(433E6)) { // 433E6 or 915E6, the MHz speed of module
@@ -30,11 +31,16 @@ void loop() {
 void sendRequests() {
   static int i = 1;
   String newNodeAddress = nodeAddress + String(i);
-  Serial.print("nodeAddress: "); Serial.print(newNodeAddress);
-  temperature[i - 1] = requestNode(newNodeAddress, "Moinsture");
+  Serial.print(F("nodeAddress: ")); Serial.print(newNodeAddress);
+  temperature[i - 1] = requestNode(newNodeAddress, F("Moinsture"));
   Serial.println();
-  i = i < numSensors ? i + 1 : 1;
-  delay(50);
+  i++;
+  if (i > numSensors) {
+    i = 1;
+    sendDataHTTP();
+    sleepFor(SLEEP);
+    Serial.println(F("Nuevo ciclo..."));
+  }
 }
 
 float requestNode(String nodeAddress, String measure) {
@@ -42,28 +48,27 @@ float requestNode(String nodeAddress, String measure) {
   String data = receiveData();
   float value = getDataValue(data, nodeAddress);
   int iter = 1;
-  while (value == -999 && iter < 10) { 
+  while (value == -99 && iter <= 10) { 
     sendSingleRequest(nodeAddress, measure);
     data = receiveData();
     value = getDataValue(data, nodeAddress); 
     iter++;
     delay(5);
   }
-  if (value != -999) { Serial.print(" = "); Serial.print(value); }
+  if (value != -99) {  Serial.print(F(" = ")); Serial.print(value); }
   return value;
 }
 
 void sendSingleRequest(String nodeAddress, String measure) {
   String data = String(gatewayAddress) + "," + String(nodeAddress) + "," + measure;
-  // Serial.print("sending request "); Serial.println(data);
   LoRa.beginPacket();
   LoRa.print(data);  
   LoRa.endPacket();
 }
  
 String receiveData() {
-  String inString = "";    // string to hold input
-  for (int loop = 1; loop < 100; loop++) {
+  String inString = "";
+  for (int loop = 1; loop < 25; loop++) {
     int packetSize = LoRa.parsePacket();
     if (packetSize) { 
       while (LoRa.available()) {
@@ -83,6 +88,21 @@ float getDataValue(String data, String nodeAddress) {
   String to = data.substring(idx + 1, data.indexOf(',', idx + 1));
   idx = data.indexOf(',', idx + 1);
   float dataValue = data.substring(idx + 1, data.length()).toFloat();
-  // Serial.print(" dato: "); Serial.println(data);
-  return from == nodeAddress && to == gatewayAddress ? dataValue : -999;
+  return from == nodeAddress && to == gatewayAddress ? dataValue : -99;
+}
+
+void sendDataHTTP() {
+  Serial.print(F("["));
+  for (int j = 0; j < numSensors; j++) {
+      Serial.print(temperature[j]); 
+      if (j < numSensors - 1) Serial.print(F(", ")); 
+  } 
+  Serial.println(F("]")); 
+}
+
+void sleepFor(float minutes) {
+  Serial.print(F("Sleeping for ")); Serial.print(minutes); Serial.println(F(" minutes..."));
+  delay(10);
+  for (int i = 0;  i  <=  15 * minutes; i++)
+    LowPower.powerDown(SLEEP_4S, ADC_OFF, BOD_OFF);
 }

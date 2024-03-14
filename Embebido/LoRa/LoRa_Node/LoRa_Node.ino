@@ -4,7 +4,9 @@
 
 #include <SPI.h>
 #include <LoRa.h>
+#include "LowPower.h"
 
+#define SLEEP 55
 #define gatewayAddress "DTA_192.168.1.0"
 #define nodeAddress "DTA_192.168.1.2"
 #define sensor A0
@@ -23,8 +25,12 @@ void setup() {
  
 void loop() {
   String data = receiveData();
-  if (checkData(data)) sendMeasurement();
-  delay(100);
+  if (checkData(data)) {
+    sendMeasurement();
+    sleepFor(SLEEP);
+    Serial.println(F("Nuevo ciclo..."));
+  }
+  delay(50);
 }
  
 String receiveData() {
@@ -60,4 +66,11 @@ void sendMeasurement() {
   LoRa.beginPacket();  
   LoRa.print(data);
   LoRa.endPacket();
+}
+
+void sleepFor(float minutes) {
+  Serial.print(F("Sleeping for ")); Serial.print(minutes); Serial.println(F(" minutes..."));
+  delay(10);
+  for (int i = 0;  i  <=  15 * (minutes - 0.2); i++)
+    LowPower.powerDown(SLEEP_4S, ADC_OFF, BOD_OFF);
 }
