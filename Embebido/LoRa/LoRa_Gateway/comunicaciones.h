@@ -4,10 +4,9 @@
 void(* resetSoftware)(void) = 0;
 
 void commWatchDogReset() {
-  commError = ((signalVar < 6 || restartGSM) && !testFunc) ? commError + 1 : 0;
-  Serial.print(F("commError: "));
-  Serial.println(commError);
-  if (commError == 5) {
+  commError += (restartGSM) ? 1 : commError = 0;
+  Serial.print(F("commError: ")); Serial.println(commError);
+  if (commError == 10) {
     resetSoftware();
   }
 }
@@ -114,76 +113,56 @@ void setupGSM() {
   }
 }
 
+void addMeasurements() {
+  for (int j = 0; j < numSensors; j++) {
+    gprs.print(F("&S"));
+    gprs.print((String)j);
+    gprs.print(F("="));
+    gprs.print((String)measurement[j]);
+  } 
+}
+
 String httpRequest() {
-  if (testFunc) { return F("\"ON\"OFF\"7\"1\"60000\"F\"180000\"F\"0\"F\"45000\"F\"50000\"F\"120000\"F\"190000\"F\""); }
   signalVar = getSignalValue();
   gprs.println(F("AT+HTTPINIT"));
   getResponse(15, true); 
   gprs.print(httpServer);
   gprs.print(telefono);
-  gprs.print(F("&st="));
-  gprs.print(statusVar);
-  unsigned long enlapsedTime = (millis() - activeTime);
-  gprs.print(F("&tm="));
-  gprs.print((String)(enlapsedTime));
-  gprs.print(F("&po="));
-  gprs.print((String)plot);
+  gprs.print(F("&no="));
+  gprs.print((String)numSensors);
+  addMeasurements();
   gprs.print(F("&rx="));
   gprs.print((String)(commRx ? "Ok" : "Er"));
   gprs.print(F("&si="));
   gprs.println((String)signalVar + "\"");
   getResponse(25, true); 
   gprs.println(F("AT+HTTPACTION=0"));
-  String result = getResponse(4000, true); 
-  restartGSM = (result.indexOf("ERROR") != -1 || result.indexOf("601") != -1  || result.indexOf("604") != -1 || signalVar < 6) ? true : false;
   gprs.println(F("AT+HTTPREAD"));
-  result = getResponse(0, false);
+  String result = getResponse(0, false);
+  getResponse(4000, true); 
+  commRx = (result != "") ? true : false;
+  restartGSM = (!commRx || result.indexOf("200") != -1) ? true : false;
   gprs.println(F("AT+HTTPTERM"));
-  commWatchDogReset();
   getResponse(30, false); 
-  return result;
+  commWatchDogReset();
+  return result.substring(result.indexOf('"'), result.indexOf("OK"));
+}
+
+void setVariables(String data) {
+  Serial.print(F("data: ")); Serial.println(data);
+  String aux = "";
+  aux = parse(data, '"', 1); 
+  SLEEP = aux != "" ? aux.toInt() : SLEEP;
 }
 
 void comunicaciones() {
   Serial.println(F("Comunicación con el servidor"));
-  String data = httpRequest();                                                    // Get Settings from HTTP
-  data = data.substring(data.indexOf('"'), data.indexOf(OK));
-  Serial.print(F("data: ")); Serial.println(data);
-  commRx = (data != "") ? true : false;
-  String aux = "";
-  aux = parse(data, '"', 1);                                                      // status
-  statusVar = (aux == ON || aux == OFF) ? aux : statusVar;
-  aux = parse(data, '"', 2);                                                      // cyclic
-  cyclic = (aux == ON || aux == OFF) ? aux == ON ? true : false : cyclic;
-  aux = parse(data, '"', 3);                                                      // number of plots
-  plots = (aux != "") ? aux.toInt() : plots;
-  if (firstSettings) {                                                            // Avisar del cambio de parcela
-    aux = parse(data, '"', 4);                                                    // initial plot
-    plot = (aux != "") ? aux.toInt() : plot;
-    firstSettings = false;
-  }
-  commStr = data;
-}
-
-void gestionarComunicaciones() {
-  if (commLoops == 0) {
-    setupGSM();
-    comunicaciones();
-    // updateEEPROM(statusVar == "ON" ? millis() - activeTime : 0);
-    commLoops++;
-  } else {
-    commLoops = commLoops < 10 ? commLoops + 1 : 0;
-  }
+  String data = httpRequest(); 
+  setVariables(data);
 }
 
 void showVars() {
-  Serial.print(F("~ Status: ")); Serial.println(statusVar);
-  Serial.print(F("~ Actual plot: ")); Serial.println(plot + 1); 
-  Serial.print(F("~ Irrigation time: ")); Serial.println(activationTime); 
-  Serial.print(F("~ Remaining time: "));
-  Serial.print(activationTime != 0 ? millis() - activeTime : 0);
-  Serial.print(F("/"));
-  Serial.println(activationTime);
+  Serial.print(F("~ Sleeping time: ")); Serial.print(SLEEP); Serial.println(F("min"));
 }
 
 #pragma endregion Comunicaciones

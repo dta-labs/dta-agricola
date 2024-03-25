@@ -4,20 +4,16 @@
 
 #include <SPI.h>
 #include <LoRa.h>
+#include <SoftwareSerial.h>
 #include "LowPower.h"
-
-#define SLEEP 60 
-#define gatewayAddress "DTA_192.168.1.0"
-String nodeAddress = "DTA_192.168.1.";
-
-const int numSensors = 5;
-
-float temperature[numSensors];
+#include "miscelaneas.h"
+#include "configuracion.h"
+#include "comunicaciones.h"
 
 void setup() {
   Serial.begin(115200);
   while (!Serial);  
-  Serial.print("LoRa Gateway: "); Serial.println(gatewayAddress);
+  Serial.print("\nLoRa Gateway: "); Serial.println(gatewayAddress);
   if (!LoRa.begin(433E6)) { // 433E6 or 915E6, the MHz speed of module
     Serial.println("Starting LoRa failed!");
     while (1);
@@ -29,17 +25,17 @@ void loop() {
 }
 
 void sendRequests() {
-  static int i = 1;
-  String newNodeAddress = nodeAddress + String(i);
+  static int idx = 1;
+  String newNodeAddress = nodeAddress + String(idx);
   Serial.print(F("nodeAddress: ")); Serial.print(newNodeAddress);
-  temperature[i - 1] = requestNode(newNodeAddress, F("Moinsture"));
+  measurement[idx - 1] = requestNode(newNodeAddress, F("Moinsture"));
   Serial.println();
-  i++;
-  if (i > numSensors) {
-    i = 1;
+  idx++;
+  if (idx > numSensors) {
+    idx = 1;
     sendDataHTTP();
     sleepFor(SLEEP);
-    Serial.println(F("Nuevo ciclo..."));
+    Serial.println(F("\nNuevo ciclo..."));
   }
 }
 
@@ -94,10 +90,11 @@ float getDataValue(String data, String nodeAddress) {
 void sendDataHTTP() {
   Serial.print(F("["));
   for (int j = 0; j < numSensors; j++) {
-      Serial.print(temperature[j]); 
-      if (j < numSensors - 1) Serial.print(F(", ")); 
+    Serial.print(measurement[j]); 
+    if (j < numSensors - 1) Serial.print(F(", ")); 
   } 
   Serial.println(F("]")); 
+  comunicaciones();
 }
 
 void sleepFor(float minutes) {
