@@ -137,9 +137,9 @@ String httpRequest() {
   gprs.println((String)signalVar + "\"");
   getResponse(25, true); 
   gprs.println(F("AT+HTTPACTION=0"));
+  getResponse(4000, true); 
   gprs.println(F("AT+HTTPREAD"));
   String result = getResponse(0, false);
-  getResponse(4000, true); 
   commRx = (result != "") ? true : false;
   restartGSM = (!commRx || result.indexOf("200") != -1) ? true : false;
   gprs.println(F("AT+HTTPTERM"));
@@ -152,17 +152,15 @@ void setVariables(String data) {
   Serial.print(F("data: ")); Serial.println(data);
   String aux = "";
   aux = parse(data, '"', 1); 
-  SLEEP = aux != "" ? aux.toInt() : SLEEP;
+  sleepingTime = aux != "" ? aux.toInt() : sleepingTime;
 }
 
 void comunicaciones() {
   Serial.println(F("Comunicación con el servidor"));
+  gprs.begin(9600);
+  setupGSM();
   String data = httpRequest(); 
   setVariables(data);
-}
-
-void showVars() {
-  Serial.print(F("~ Sleeping time: ")); Serial.print(SLEEP); Serial.println(F("min"));
 }
 
 #pragma endregion Comunicaciones

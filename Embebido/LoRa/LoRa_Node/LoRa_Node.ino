@@ -6,10 +6,11 @@
 #include <LoRa.h>
 #include "LowPower.h"
 
-#define SLEEP 55
 #define gatewayAddress "DTA_192.168.1.0"
 #define nodeAddress "DTA_192.168.1.2"
 #define sensor A0
+
+int sleepingTime = 1;
 
 void setup() {
   Serial.begin(115200);
@@ -27,7 +28,7 @@ void loop() {
   String data = receiveData();
   if (checkData(data)) {
     sendMeasurement();
-    sleepFor(SLEEP);
+    sleepFor(sleepingTime);
     Serial.println(F("Nuevo ciclo..."));
   }
   delay(50);
@@ -52,14 +53,14 @@ bool checkData(String data) {
   String from = data.substring(0, idx);
   String to = data.substring(idx + 1, data.indexOf(',', idx + 1));
   idx = data.indexOf(',', idx + 1);
-  String dataType = data.substring(idx + 1, data.length());
+  sleepingTime = (data.substring(idx + 1, data.length()).toInt());
   bool result = from == gatewayAddress && to == nodeAddress;
   // Serial.print(" "); Serial.print(result ? "* " : "");
   return from == gatewayAddress && to == nodeAddress;
 }
 
 void sendMeasurement() {
-  int measure = map(analogRead(sensor), 14, 1023, 0, 100);
+  int measure = analogRead(sensor);
   String data = String(nodeAddress) + "," + String(gatewayAddress) + "," + measure;
 
   Serial.println(data);
@@ -69,7 +70,7 @@ void sendMeasurement() {
 }
 
 void sleepFor(float minutes) {
-  Serial.print(F("Sleeping for ")); Serial.print(minutes); Serial.println(F(" minutes..."));
+  Serial.print(F("Sleeping for ")); Serial.print(minutes); Serial.println(F(" min"));
   delay(10);
   for (int i = 0;  i  <=  15 * (minutes - 0.2); i++)
     LowPower.powerDown(SLEEP_4S, ADC_OFF, BOD_OFF);

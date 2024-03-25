@@ -22,28 +22,27 @@
  ****************************************************************************/
 
 // Settings
-const int config[] = {3, 2, 1, 33, 333, 333, 3333};
+const int config[] = {2, 3, 1, 33, 333, 333, 3333};
 
 #pragma region Variables
 
-SoftwareSerial gprs(config[0], config[1]);
 #define telefono fillNumber(config[3], 2) + fillNumber(config[4], 3) + fillNumber(config[5], 3) + fillNumber(config[6], 4)
 #define httpServer F("AT+HTTPPARA=\"URL\",\"http://dtaamerica.com/ws/sensor_v1.php?id=")
 
 #define gatewayAddress "DTA_192.168.1.0"
-String nodeAddress = "DTA_192.168.1.";
+#define baseNodeAddress "DTA_192.168.1."
+String nodeAddress = String(baseNodeAddress);
 
+#define sensor A0
 const int numSensors = 5;
-static String PHASE = "Unknow";
-static int SLEEP = config[2];
-static String IRRIGATION = "OFF";
-
 float measurement[numSensors];
+static int sleepingTime = config[2];
 
-#define testComm false
-static byte signalVar = 0;
-static byte commError = 0; 
-static bool commRx = true;
-static bool restartGSM = true;
+SoftwareSerial gprs(config[0], config[1]);     // Comunicaciones
+bool restartGSM = true;
+byte signalVar = 0;
+byte commError = 0;
+bool commRx = true;
+bool testComm = false;
 
 #pragma endregion Variables

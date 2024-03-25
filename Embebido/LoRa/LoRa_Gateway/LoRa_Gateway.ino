@@ -28,40 +28,45 @@ void sendRequests() {
   static int idx = 1;
   String newNodeAddress = nodeAddress + String(idx);
   Serial.print(F("nodeAddress: ")); Serial.print(newNodeAddress);
-  measurement[idx - 1] = requestNode(newNodeAddress, F("Moinsture"));
+  measurement[idx - 1] = requestNode(newNodeAddress);
   Serial.println();
   idx++;
   if (idx > numSensors) {
     idx = 1;
     sendDataHTTP();
-    sleepFor(SLEEP);
+    sleepFor(sleepingTime);
     Serial.println(F("\nNuevo ciclo..."));
   }
 }
 
-float requestNode(String nodeAddress, String measure) {
-  sendSingleRequest(nodeAddress, measure);
-  String data = receiveData();
-  float value = getDataValue(data, nodeAddress);
-  int iter = 1;
-  while (value == -99 && iter <= 10) { 
-    sendSingleRequest(nodeAddress, measure);
-    data = receiveData();
-    value = getDataValue(data, nodeAddress); 
-    iter++;
-    delay(5);
+float requestNode(String nodeAddress) {
+  float value = 0;
+  if (nodeAddress == String(baseNodeAddress) + "1") {
+    value = analogRead(sensor);
+  } else {
+    sendSingleRequest(nodeAddress);
+    String data = receiveData();
+    value = getDataValue(data, nodeAddress);
+    int iter = 1;
+    while (value == -99 && iter <= 10) { 
+      sendSingleRequest(nodeAddress);
+      data = receiveData();
+      value = getDataValue(data, nodeAddress); 
+      iter++;
+      delay(5);
+    }
   }
   if (value != -99) {  Serial.print(F(" = ")); Serial.print(value); }
   return value;
 }
 
-void sendSingleRequest(String nodeAddress, String measure) {
-  String data = String(gatewayAddress) + "," + String(nodeAddress) + "," + measure;
+void sendSingleRequest(String nodeAddress) {
+  String data = String(gatewayAddress) + "," + String(nodeAddress) + "," + String(sleepingTime);
   LoRa.beginPacket();
   LoRa.print(data);  
   LoRa.endPacket();
 }
- 
+
 String receiveData() {
   String inString = "";
   for (int loop = 1; loop < 25; loop++) {
