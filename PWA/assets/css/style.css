@@ -11,6 +11,16 @@ body {
   user-select: none;                /* Prevenir selección por parte de los usuariosStandard syntax */
 }
 
+#contenido {
+  position: fixed;
+  width: 100%;
+}
+
+.showContent {
+  overflow-y: scroll;
+  height: 100vh;
+}
+
 #control_de_riego {
   margin-top: 2px; 
   font-size: 1.5em;
@@ -151,8 +161,8 @@ body {
 
 .systemMenuPC {
   border-radius: 10px 10px 10px 10px;
-  width: Calc(100vw - 240px) !important;
-  margin-left: 205px !important;
+  /* width: Calc(`100vw - 240px) !important; */
+  /* margin-left: 205px !important; */
   margin-bottom: 5px !important;
   box-shadow: 2px 2px 2px grey;
 }
@@ -206,7 +216,7 @@ body {
 }
 
 .bottom-navbar {
-  position: fixed;
+  /* position: fixed; */
   bottom: 0;
   left: 10px;
   width: 100%;
@@ -233,7 +243,7 @@ body {
 .main-container {
   /* margin-top: 40px; */
   /* height: calc(90vh - 30px); */
-  overflow-y: auto;
+  /* overflow-y: auto; */
 }
 
 .modal {
@@ -449,9 +459,14 @@ h6 {
 .side-menu li a {
   text-align: center !important;
   font-weight: 400;
-  font-size: 1.3em;
+  font-size: 1.5em;
   padding: 15px 10px;
   color: white;
+}
+
+.side-menu li ul li {
+  cursor: pointer;
+  font-size: 1.3em;
 }
 
 .firebaseui-idp-button {
