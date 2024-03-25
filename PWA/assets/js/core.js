@@ -621,6 +621,8 @@ app.controller("ControladorPrincipal", function ($scope) {
         getLocation();
         document.getElementById("newDeviceLatitude").value = `${milatitud}`;
         document.getElementById("newDeviceLongitude").value = `${milongitud}`;
+        $scope.newDevice.latitude = milatitud;
+        $scope.newDevice.longitude = milongitud;
     }
 
     // #endregion DEVICES
@@ -656,12 +658,10 @@ app.controller("ControladorPrincipal", function ($scope) {
             "autoreverse": "OFF",
             "booleanStatus": false,
             "caudal": "0",
-            "fertilization": "OFF",
             "installation": new Date(),
             "irrigation": "0",
             "key": "",
             "latitude": milatitud,
-            "length": "",
             "longitude": milongitud,
             "name": "",
             "password": "",
@@ -678,83 +678,83 @@ app.controller("ControladorPrincipal", function ($scope) {
         switch ($scope.newDevice.type) {
             case "PC":
             case "PL":
-                Object.assign($scope.newDevice,
-                    {
-                        "brand": "",
-                        "direction": "FF",
-                        "plansLength": "1",
-                        "plans": {
-                            "p0": {
-                                "endAngle": "360",
-                                "starAngle": "0",
-                                "type": "velocity",
-                                "value": "0"
-                            }
-                        },
-                        "velocity": "0"
-                    }
-                );
+                newPivot();
                 break;
             case "Estacionario":
-                Object.assign($scope.newDevice,
-                    {
-                        "position": "0",
-                        "plots": {
-                            "p0": {
-                                "value": "0",
-                                "valve": "F"
-                            },
-                            "p1": {
-                                "value": "0",
-                                "valve": "F"
-                            },
-                            "p2": {
-                                "value": "0",
-                                "valve": "F"
-                            },
-                            "p3": {
-                                "value": "0",
-                                "valve": "F"
-                            },
-                            "p4": {
-                                "value": "0",
-                                "valve": "F"
-                            },
-                            "p5": {
-                                "value": "0",
-                                "valve": "F"
-                            },
-                            "p6": {
-                                "value": "0",
-                                "valve": "F"
-                            },
-                        },
-                        "irrigationPlan": {
-                            "irrigationConfig": {
-                                "incrementPercent": 50,
-                                "isAdjustFrecuency": true,
-                                "isAdjustIncrement": true,
-                                "isAdjustReduction": true,
-                                "isStopByRainDay": true,
-                                "isStopByRainProbability": true,
-                                "isStopByRainWeek": true,
-                                "isStopByTemp": true,
-                                "isStopByWind": true,
-                                "reductionPercent": -30,
-                                "reductionTemp": 25,
-                                "stopByRainDay": 3,
-                                "stopByRainProbability": 80,
-                                "stopByRainWeek": 25,
-                                "stopByTemp": 20,
-                                "stopByWind": 100
-                            }
-                        },
-                    }
-                );
+                newStationary();
                 break;
             case "Pozo":
+                newPump();
+                break;
+            case "Sensor":
+                newSensor();
                 break;
         }
+    }
+
+    newPivot = () => {
+        Object.assign($scope.newDevice, {
+            "brand": "",
+            "direction": "FF",
+            "fertilization": "OFF",
+            "length": "",
+            "plansLength": "1",
+            "plans": {
+                "p0": {
+                    "endAngle": "360",
+                    "starAngle": "0",
+                    "type": "velocity",
+                    "value": "0"
+                }
+            },
+            "velocity": "0"
+        });
+    }
+
+    newStationary = () => {
+        Object.assign($scope.newDevice, {
+            "position": "0",
+            "plots": {
+                "p0": {"value": "0", "valve": "F"},
+                "p1": {"value": "0", "valve": "F"},
+                "p2": {"value": "0", "valve": "F"},
+                "p3": {"value": "0", "valve": "F"},
+                "p4": {"value": "0", "valve": "F"},
+                "p5": {"value": "0", "valve": "F"},
+                "p6": {"value": "0", "valve": "F"},
+            },
+            "irrigationPlan": {
+                "irrigationConfig": {
+                    "incrementPercent": 50,
+                    "isAdjustFrecuency": true,
+                    "isAdjustIncrement": true,
+                    "isAdjustReduction": true,
+                    "isStopByRainDay": true,
+                    "isStopByRainProbability": true,
+                    "isStopByRainWeek": true,
+                    "isStopByTemp": true,
+                    "isStopByWind": true,
+                    "reductionPercent": -30,
+                    "reductionTemp": 25,
+                    "stopByRainDay": 3,
+                    "stopByRainProbability": 80,
+                    "stopByRainWeek": 25,
+                    "stopByTemp": 20,
+                    "stopByWind": 100
+                }
+            },
+        });
+    }
+
+    newPump = () => {
+        // No requiere información extra
+    }
+
+    newSensor = () => {
+        Object.assign($scope.newDevice, {
+            "sensorType": "",
+            "ip": ""
+        });
     }
 
     $scope.updateNewDevice = () => {

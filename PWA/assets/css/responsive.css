@@ -9,7 +9,8 @@
 
 .map {
   margin-top: 0px;
-  height: calc(100vh - 215px);
+  height: calc(100vh - 235px);
+  /* height: calc(100vh - 215px); */
 }
 
 .status {
@@ -25,6 +26,19 @@
   position: absolute;
   color: white;
   text-shadow: 2px 2px 2px black;
+}
+
+.left_col {
+  width: 100%;
+  position: relative;
+  height: calc(100vh - 5px);
+}
+
+
+.contentEstacionario {
+  margin-bottom: 0px; width: 100%; 
+  margin: auto !important; 
+  margin-bottom: 0; 
 }
 
 /* lg */
@@ -455,9 +469,15 @@
 
   .map {
     margin-top: 0px;
-    height: calc(100vh - 315px);
+    height: calc(100vh - 330px);
+    /* height: calc(100vh - 315px); */
+    /* height: calc(100vh - 250px); */
   }
-  
+
+  .contentEstacionario {
+    /* height: calc(100vh - 330px); */
+    height:100%;
+  }
 }
 
 /* XS Portrait */
