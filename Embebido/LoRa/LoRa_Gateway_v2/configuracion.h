@@ -39,8 +39,8 @@ const int config[] = {2, 3, 33, 333, 333, 3333};
 
 #define sensor A0
 static int numSensors = 1;
-int* measurement = malloc(numSensors * sizeof(int));
-String* sensorsID = malloc(numSensors * 5 * sizeof(char));
+List<int> measurement;       // https://www.luisllamas.es/libreria-arduino-list/
+List<String> sensorsID;
 // float measurement[numSensors];
 static int sleepingTime = config[2];
 static int idx = 0;

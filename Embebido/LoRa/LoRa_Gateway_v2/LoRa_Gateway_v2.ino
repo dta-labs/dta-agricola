@@ -6,6 +6,7 @@
 #include <LoRa.h>
 #include <SoftwareSerial.h>
 #include "LowPower.h"
+#include "ListLib.h"
 #include "miscelaneas.h"
 #include "configuracion.h"
 #include "comunicaciones.h"
@@ -13,8 +14,8 @@
 void setup() {
   Serial.begin(115200);
   while (!Serial);  
-  measurement[0] = -99;
-  sensorsID[0] = "00000";
+  measurement.Add(-99);
+  sensorsID.Add("00000");
   Serial.print("\nLoRa Gateway: "); Serial.println(gatewayAddress);
   if (!LoRa.begin(433E6)) { // 433E6 or 915E6, the MHz speed of module
     Serial.println("Starting LoRa failed!");
@@ -28,9 +29,11 @@ void loop() {
 
 void sendRequests() {
   String newNodeAddress = "DTA_" + sensorsID[idx];
-  Serial.print(F("nodeAddress: ")); Serial.print(newNodeAddress);
-  measurement[idx - 1] = requestNode(newNodeAddress);
-  Serial.println();
+  if (newNodeAddress != "DTA_") {
+    Serial.print(F("nodeAddress: ")); Serial.print(newNodeAddress);
+    measurement.Add(requestNode(newNodeAddress));
+    Serial.println();
+  }
   idx++;
   if (idx > numSensors) {
     sendDataHTTP();
@@ -106,6 +109,7 @@ void sendDataHTTP() {
 void sleepFor(float minutes) {
   Serial.print(F("Sleeping for ")); Serial.print(minutes); Serial.println(F(" minutes..."));
   delay(10);
-  for (int i = 0;  i  <=  15 * minutes; i++)
+  int timeToSleep = 15 * minutes;
+  for (int i = 0; i <= timeToSleep; i++)
     LowPower.powerDown(SLEEP_4S, ADC_OFF, BOD_OFF);
 }

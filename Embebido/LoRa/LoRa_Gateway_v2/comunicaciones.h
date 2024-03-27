@@ -132,13 +132,6 @@ String httpRequest() {
   return result.substring(result.indexOf('"'), result.indexOf("OK"));
 }
 
-void resizeArrays(String aux) {
-  free(numSensors);
-  free(measurement);
-  measurement = malloc(numSensors * sizeof(int));
-  sensorsID = malloc(numSensors * 5 * sizeof(char));
-}
-
 void setVariables(String data) {
   Serial.print(F("data: ")); Serial.println(data);
   String aux = "";
@@ -146,9 +139,10 @@ void setVariables(String data) {
   sleepingTime = aux != "" ? aux.toInt() : sleepingTime;
   aux = parse(data, '"', 2); 
   numSensors = aux != "" ? aux.toInt() : numSensors;
-  resizeArrays(aux);
+  measurement.Clear();
+  sensorsID.Clear();
   for (int i = 3; i < numSensors + 3; i++) {
-    sensorsID[i - 3] = parse(data, '"', i);
+    sensorsID.Add(parse(data, '"', i));
   }
 }
 
