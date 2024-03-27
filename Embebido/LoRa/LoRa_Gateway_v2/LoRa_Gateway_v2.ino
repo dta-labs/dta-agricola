@@ -5,17 +5,19 @@
 #include <SPI.h>
 #include <LoRa.h>
 #include <SoftwareSerial.h>
+#include <EEPROM.h>
 #include "LowPower.h"
 #include "ListLib.h"
 #include "miscelaneas.h"
 #include "configuracion.h"
+#include "persistent.h"
 #include "comunicaciones.h"
 
 void setup() {
   Serial.begin(115200);
   while (!Serial);  
-  measurement.Add(-99);
-  sensorsID.Add("00000");
+  sysConfig.measurement.Add(-99);
+  sysConfig.sensorsID.Add("00000");
   Serial.print("\nLoRa Gateway: "); Serial.println(gatewayAddress);
   if (!LoRa.begin(433E6)) { // 433E6 or 915E6, the MHz speed of module
     Serial.println("Starting LoRa failed!");
@@ -28,24 +30,31 @@ void loop() {
 }
 
 void sendRequests() {
-  String newNodeAddress = "DTA_" + sensorsID[idx];
+  getSleepingTime();
+  String newNodeAddress = "DTA_" + sysConfig.sensorsID[sysConfig.idx];
   if (newNodeAddress != "DTA_") {
     Serial.print(F("nodeAddress: ")); Serial.print(newNodeAddress);
-    measurement.Add(requestNode(newNodeAddress));
+    sysConfig.measurement.Add(requestNode(newNodeAddress));
     Serial.println();
   }
-  idx++;
-  if (idx > numSensors) {
+  sysConfig.idx++;
+  if (sysConfig.idx > sysConfig.numSensors) {
     sendDataHTTP();
-    sleepFor(sleepingTime);
+    sleepFor(sysConfig.sleepingTime);
     Serial.println(F("\nNuevo ciclo..."));
-    idx = 0;
+    sysConfig.idx = 0;
+    resetSoftware();
   }
+}
+
+void getSleepingTime() {
+  getDataFromEEPROM();
+  sysConfig.sleepingTime = (1 <= sysConfig.sleepingTime && sysConfig.sleepingTime <= 1440) ? sysConfig.sleepingTime : 1;
 }
 
 float requestNode(String nodeAddress) {
   float value = 0;
-  if (idx == 0) {
+  if (sysConfig.idx == 0) {
     value = analogRead(sensor);
   } else {
     sendSingleRequest(nodeAddress);
@@ -65,7 +74,7 @@ float requestNode(String nodeAddress) {
 }
 
 void sendSingleRequest(String nodeAddress) {
-  String data = String(gatewayAddress) + "," + String(nodeAddress) + "," + String(sleepingTime);
+  String data = String(gatewayAddress) + "," + String(nodeAddress) + "," + String(sysConfig.sleepingTime);
   LoRa.beginPacket();
   LoRa.print(data);  
   LoRa.endPacket();
@@ -88,19 +97,19 @@ String receiveData() {
 }
 
 float getDataValue(String data, String nodeAddress) {
-  byte idx = data.indexOf(',');
-  String from = data.substring(0, idx);
-  String to = data.substring(idx + 1, data.indexOf(',', idx + 1));
-  idx = data.indexOf(',', idx + 1);
-  float dataValue = data.substring(idx + 1, data.length()).toFloat();
+  sysConfig.idx = data.indexOf(',');
+  String from = data.substring(0, sysConfig.idx);
+  String to = data.substring(sysConfig.idx + 1, data.indexOf(',', sysConfig.idx + 1));
+  sysConfig.idx = data.indexOf(',', sysConfig.idx + 1);
+  float dataValue = data.substring(sysConfig.idx + 1, data.length()).toFloat();
   return from == nodeAddress && to == gatewayAddress ? dataValue : -99;
 }
 
 void sendDataHTTP() {
   Serial.print(F("["));
-  for (int j = 0; j < numSensors; j++) {
-    Serial.print(measurement[j]); 
-    if (j < numSensors - 1) Serial.print(F(", ")); 
+  for (int j = 0; j < sysConfig.numSensors; j++) {
+    Serial.print(sysConfig.measurement[j]); 
+    if (j < sysConfig.numSensors - 1) Serial.print(F(", ")); 
   } 
   Serial.println(F("]")); 
   comunicaciones();

@@ -98,12 +98,12 @@ void setupGSM() {
 }
 
 void addMeasurements() {
-  for (int j = 0; j < numSensors; j++) {
-    gprs.print(F("&S"));
-    gprs.print((String)j);
-    gprs.print(F("="));
-    gprs.print((String)measurement[j]);
+  gprs.print(F("&data=["));
+  for (int j = 0; j < sysConfig.numSensors; j++) {
+    if (j != 0) gprs.print(F(","));
+    gprs.print((String)sysConfig.measurement[j]);
   } 
+  gprs.print(F("]"));
 }
 
 String httpRequest() {
@@ -113,7 +113,7 @@ String httpRequest() {
   gprs.print(httpServer);
   gprs.print(telefono);
   gprs.print(F("&no="));
-  gprs.print((String)numSensors);
+  gprs.print((String)sysConfig.numSensors);
   addMeasurements();
   gprs.print(F("&rx="));
   gprs.print((String)(commRx ? "Ok" : "Er"));
@@ -136,13 +136,14 @@ void setVariables(String data) {
   Serial.print(F("data: ")); Serial.println(data);
   String aux = "";
   aux = parse(data, '"', 1); 
-  sleepingTime = aux != "" ? aux.toInt() : sleepingTime;
+  sysConfig.sleepingTime = aux != "" ? aux.toInt() : sysConfig.sleepingTime;
+  setDataToEEPROM();
   aux = parse(data, '"', 2); 
-  numSensors = aux != "" ? aux.toInt() : numSensors;
-  measurement.Clear();
-  sensorsID.Clear();
-  for (int i = 3; i < numSensors + 3; i++) {
-    sensorsID.Add(parse(data, '"', i));
+  sysConfig.numSensors = aux != "" ? aux.toInt() : sysConfig.numSensors;
+  sysConfig.measurement.Clear();
+  sysConfig.sensorsID.Clear();
+  for (int i = 3; i < sysConfig.numSensors + 3; i++) {
+    sysConfig.sensorsID.Add(parse(data, '"', i));
   }
 }
 

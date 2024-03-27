@@ -38,12 +38,6 @@ const int config[] = {2, 3, 33, 333, 333, 3333};
 #define gatewayAddress "DTA_00000"
 
 #define sensor A0
-static int numSensors = 1;
-List<int> measurement;       // https://www.luisllamas.es/libreria-arduino-list/
-List<String> sensorsID;
-// float measurement[numSensors];
-static int sleepingTime = config[2];
-static int idx = 0;
 
 SoftwareSerial gprs(config[0], config[1]);     // Comunicaciones
 bool restartGSM = true;
@@ -51,5 +45,16 @@ byte signalVar = 0;
 byte commError = 0;
 bool commRx = true;
 bool testComm = false;
+const int eeAddress = 0;
+
+struct Config {
+  List<int> measurement;       // https://www.luisllamas.es/libreria-arduino-list/
+  List<String> sensorsID;
+  int numSensors = 1;
+  int sleepingTime = 1;
+  int idx = 0;
+};
+
+Config sysConfig;
 
 #pragma endregion Variables
