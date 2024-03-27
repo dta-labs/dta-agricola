@@ -39,7 +39,7 @@ const int config[] = {2, 3, 33, 333, 333, 3333};
 
 #define sensor A0
 static int numSensors = 1;
-float* measurement = malloc(numSensors * sizeof(int));
+int* measurement = malloc(numSensors * sizeof(int));
 String* sensorsID = malloc(numSensors * 5 * sizeof(char));
 // float measurement[numSensors];
 static int sleepingTime = config[2];

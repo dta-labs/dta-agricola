@@ -13,6 +13,8 @@
 void setup() {
   Serial.begin(115200);
   while (!Serial);  
+  measurement[0] = -99;
+  sensorsID[0] = "00000";
   Serial.print("\nLoRa Gateway: "); Serial.println(gatewayAddress);
   if (!LoRa.begin(433E6)) { // 433E6 or 915E6, the MHz speed of module
     Serial.println("Starting LoRa failed!");
