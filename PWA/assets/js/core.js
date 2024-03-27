@@ -655,9 +655,7 @@ app.controller("ControladorPrincipal", function ($scope) {
     $scope.createNewDevice = () => {
         getLocation();
         $scope.newDevice = {
-            "autoreverse": "OFF",
             "booleanStatus": false,
-            "caudal": "0",
             "installation": new Date(),
             "irrigation": "0",
             "key": "",
@@ -665,7 +663,6 @@ app.controller("ControladorPrincipal", function ($scope) {
             "longitude": milongitud,
             "name": "",
             "password": "",
-            "sensorPresion": "0",
             "status": "OFF",
             "summerHour": "0",
             "type": "",
@@ -694,7 +691,9 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     newPivot = () => {
         Object.assign($scope.newDevice, {
+            "autoreverse": "OFF",
             "brand": "",
+            "caudal": "0",
             "direction": "FF",
             "fertilization": "OFF",
             "length": "",
@@ -707,22 +706,15 @@ app.controller("ControladorPrincipal", function ($scope) {
                     "value": "0"
                 }
             },
+            "sensorPresion": "0",
             "velocity": "0"
         });
     }
 
     newStationary = () => {
         Object.assign($scope.newDevice, {
-            "position": "0",
-            "plots": {
-                "p0": {"value": "0", "valve": "F"},
-                "p1": {"value": "0", "valve": "F"},
-                "p2": {"value": "0", "valve": "F"},
-                "p3": {"value": "0", "valve": "F"},
-                "p4": {"value": "0", "valve": "F"},
-                "p5": {"value": "0", "valve": "F"},
-                "p6": {"value": "0", "valve": "F"},
-            },
+            "autoreverse": "OFF",
+            "caudal": "0",
             "irrigationPlan": {
                 "irrigationConfig": {
                     "incrementPercent": 50,
@@ -743,17 +735,49 @@ app.controller("ControladorPrincipal", function ($scope) {
                     "stopByWind": 100
                 }
             },
+            "plots": {
+                "p0": {"value": "0", "valve": "F"},
+                "p1": {"value": "0", "valve": "F"},
+                "p2": {"value": "0", "valve": "F"},
+                "p3": {"value": "0", "valve": "F"},
+                "p4": {"value": "0", "valve": "F"},
+                "p5": {"value": "0", "valve": "F"},
+                "p6": {"value": "0", "valve": "F"}
+            },
+            "position": "0",
+            "sensorPresion": "0"
         });
     }
 
     newPump = () => {
-        // No requiere información extra
+        Object.assign($scope.newDevice, {
+            "caudal": "0",
+            "sensorPresion": "0"
+        });
     }
 
     newSensor = () => {
         Object.assign($scope.newDevice, {
-            "sensorType": "",
-            "ip": ""
+            "sensorLength": "1",
+            "sensors": {
+                "Group0": {
+                    "operation": "mean",
+                    "type": "moinsture",
+                    "S0": {
+                        "minValue": "0",
+                        "maxValue": "1024",
+                        "latitude": "",
+                        "longitude": ""
+                    },
+                    "S1": {
+                        "minValue": "0",
+                        "maxValue": "1024",
+                        "latitude": "",
+                        "longitude": ""
+                    }
+                }
+            },
+            "sleepingTime": "1"
         });
     }
 
@@ -1267,7 +1291,9 @@ app.controller("ControladorPrincipal", function ($scope) {
             campo.log && campo.log.voltage == 'false' ? 'red' : 
             campo.log && campo.log.safety == 'false' ? 'palevioletred' : 
             campo.log && campo.log.commDelay != '-1' ? 'grey' : 'lightseagreen'};">${campo.name}</h6>
-            Estado: <b>${campo.status ? "Encendido" : "Apagado"}</b><br>
+            <span><b>${campo.type != 'Sensor' && campo.status ? "Estado: Encendido" : 
+            campo.type != 'Sensor' && !campo.status ? "Apagado" : 
+            "Valor: " + $scope.getMean(campo.log.dataRaw)}</b></span></br>
             `;
         if (campo.type == "PC" || campo.type == "PL") {
             text += `
@@ -1495,6 +1521,19 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     $scope.dotToDash = (input) => {
         return convertDotToDash(input);
+    }
+
+    $scope.getMean = (txt) => {
+        const obj = JSON.parse(txt);
+        let mean = 0;
+        let i = 0;
+        obj.forEach(element => {
+            if (element != -99) {
+                i++;
+                mean += element;
+            }
+        });
+        return mean/i;
     }
 
     // #endregion SCRIPTS GENERALES

@@ -75,7 +75,7 @@
     #region 3.- Enviar Settings al dispositivo 
 
 	function sendSettings($dataSettings) {
-		print_r("\"" . $sleepingTime . "\"");
+		print_r("\"" . $dataSettings->sleepingTime . "\"");
 	}
 
     #endregion 3.- Enviar Settings al dispositivo
@@ -88,8 +88,9 @@
             $date = getDateTime($localZone)->format('Ymd hia');
 			$dataUpdate = '{';
 			$dataUpdate .= '"date":"' . $date . '"';
-			$dataUpdate .= ',"dataRaw":"['; 
 			$lenght = $_GET["no"];
+			$dataUpdate .= ',"lenght":"' . $lenght . '"';
+			$dataUpdate .= ',"dataRaw":"['; 
 			for ($i = 0; $i < $lenght; $i++) {
 				$idx = "S" . $i;
 				$dataUpdate .= $_GET[$idx]; 

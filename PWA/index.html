@@ -198,7 +198,7 @@
                                     <div class="row" style="margin-left: 0; margin-right: 0;">
                                         <div class="col s12 m6 xl4" id="{{ system.key }}" ng-repeat="system in systems"
                                             ng-click="selectSystem(system)" ng-show="system.name">
-                                            <div class="sercices-options waves-effect" style="background: {{ system.type == 'Estacionario' && system.log.state == 'ON' ? '#20b2aab0' : 
+                                            <div class="sercices-options waves-effect" style="background: {{ (system.type == 'Estacionario' && system.log.state == 'ON' || system.type == 'Sensor') ? '#20b2aab0' : 
                                                 system.log.state == 'OFF' ? '#d3d3d3e0' : system.log.voltage == 'false' ? '#ff0000c0' : 
                                                 system.log.safety == 'false' ? '#db7093c0' : system.log.commDelay != '-1' ? '#808080e0' : '#20b2aab0' }};
                                                 display: block !important; padding-bottom: 0;">
@@ -208,7 +208,7 @@
                                                     style="color: {{ system.log.state == 'OFF' ? 'grey' : 'white' }};">
                                                     <div class="row" style="margin-bottom: 0;">
                                                         <div class="col s3" style="margin-top: 10px; height: 80px;">
-                                                            <div class="pivote" ng-show="system.type != 'Estacionario'">
+                                                            <div class="pivote" ng-show="system.type == 'PC' || system.type == 'PL'">
                                                                 <div class="esfera"
                                                                     style="border-color: {{ system.log.state == 'OFF' ? 'grey' : 'white' }};">
                                                                     <div id="pos_{{ system.key }}" class="brazo"
@@ -220,9 +220,17 @@
                                                                 <img src="./assets/images/{{ system.log.state == 'OFF' ? 'parcela-grey.png' : 'parcela.png' }}"
                                                                     class="parcela_icon" alt="parcela">
                                                             </div>
+                                                            <div ng-show="system.type == 'Pozo'" style="margin-top: -5px; margin-left: -10px;">
+                                                                <img src="./assets/images/pozo.png"
+                                                                    class="parcela_icon" alt="parcela">
+                                                            </div>
+                                                            <div ng-show="system.type == 'Sensor'" style="margin-top: -5px; margin-left: -10px;">
+                                                                <img src="./assets/images/Red-Sensores.png" class="parcela_icon" 
+                                                                    style="height: 50px; opacity: 0.7; filter: grayscale(100%);" alt="sensor">
+                                                            </div>
                                                         </div>
 
-                                                        <div class="col s7 limitar" ng-show="system.type != 'Estacionario'">
+                                                        <div class="col s7 limitar" ng-show="system.type == 'PC' || system.type == 'PL'">
                                                             <div style="font-size: 1em;"><b>{{ system.name }}</b> </div>
                                                             <div style="font-size: .7em;">
                                                                 <i class="fa fa-undo" ng-show="system.direction == 'RR'"></i>
@@ -292,6 +300,41 @@
                                                                 <span><b>{{ system.status }}</b></span>
                                                                 <span>{{ system.log.update ? "[" + system.log.update.substr(2,13) + "]" : "" }}</span><br>
                                                                 <!-- <span><strong>{{ system.culture }}</strong></span> -->
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col s7 limitar" ng-show="system.type == 'Pozo'">
+                                                            <div style="font-size: 1em;"><b>{{ system.name }}</b></div>
+                                                            <div style="font-size: .7em;">
+                                                                <span>
+                                                                    <i class="material-icons" style="font-size: 1em;">alarm</i>
+                                                                    {{ getDayFromMs(system.plots['p' + system.position].value) + ":" +
+                                                                    getHourFromMs(system.plots['p' + system.position].value) + ":" + 
+                                                                    getMinutesFromMs(system.plots['p' + system.position].value) }}
+                                                                </span>
+                                                                <span>
+                                                                    <i class="material-icons" style="font-size: 1em;">map</i>
+                                                                    {{ system.position + 1 }}
+                                                                </span>
+                                                                <span>
+                                                                    <i class="fa fa-tint" aria-hidden="true"></i>
+                                                                    {{ system.log.presion ? system.log.presion : 0 }}psi
+                                                                </span>
+                                                                <br>
+                                                                <span><b>{{ system.status }}</b></span>
+                                                                <span>{{ system.log.update ? "[" + system.log.update.substr(2,13) + "]" : "" }}</span><br>
+                                                                <!-- <span><strong>{{ system.culture }}</strong></span> -->
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col s7 limitar" ng-show="system.type == 'Sensor'">
+                                                            <div style="font-size: 1em;"><b>{{ system.name }}</b></div>
+                                                            <div style="font-size: .7em;">
+                                                                <span>
+                                                                    <i class="fa fa-tint" aria-hidden="true"></i>
+                                                                    {{ system.log.dataRaw ? getMean(system.log.dataRaw) : "0" }} <b>%</b>
+                                                                </span><br>
+                                                                <span>{{ system.log.date ? "[" + system.log.date.substr(2,13) + "]" : "" }}</span>
                                                             </div>
                                                         </div>
 
@@ -475,7 +518,8 @@
 
                                 <div class="main-container text-center our-services">
 
-                                    <div class="switchControl waves-effect input-field" ng-click="showWindow('listado')" style="background: {{ actualSystem.type == 'Estacionario' && actualSystem.log.state == 'ON' ? '#20b2aab0' : 
+                                    <div class="switchControl waves-effect input-field" ng-click="showWindow('listado')" 
+                                                style="background: {{ (actualSystem.type == 'Estacionario' && actualSystem.log.state == 'ON') || actualSystem.type == 'Sensor' ? '#20b2aab0' : 
                                                 actualSystem.log.state == 'OFF' ? '#d3d3d3e0' : actualSystem.log.voltage == 'false' ? '#ff0000c0' : 
                                                 actualSystem.log.safety == 'false' ? '#db7093c0' : actualSystem.log.commDelay != '-1' ? '#808080e0' : '#20b2aab0' }}; 
                                                 cursor: pointer; display: block !important;">
@@ -488,7 +532,7 @@
                                                 <div class="limitar" style="font-size: 1.5em;">
                                                     <b>{{ actualSystem.name }}</b>
                                                 </div>
-                                                <span>{{ actualSystem.log.update }}</span>
+                                                <span>{{ actualSystem.log.update ? actualSystem.log.update : actualSystem.log.date }}</span>
                                             </div>
                                             <div class="col s2 m3" style="margin: 2px 0 0 -10px; text-align: center;">
                                                 <p style="margin: 0; margin-top: -10px;"><img
@@ -509,21 +553,21 @@
                                     <div class="switchControl input-field"
                                         style="background: rgba(255,255,255,.9); min-height: calc(100vh - 225px);">
                                         <div class="row hide-on-med-and-up"
-                                            style="margin-left: 10px; font-size: 2em !important;">
+                                            style="margin-left: 10px; font-size: 2em !important;" ng-show="actualSystem.type != 'Sensor'">
                                             <div class="col s3 center-align" ng-click="playBackward()"
-                                                ng-show="actualSystem.type != 'Estacionario'"
+                                                ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'"
                                                 style="border: 2px solid grey; border-radius: 5px 0 0 5px; background: {{ actualSystem.status && !actualSystem.direction ? '#04d604' : 'transparent' }}">
                                                 <i class="fa fa-reply" aria-hidden="true"
                                                     style="color: {{ actualSystem.status && !actualSystem.direction ? 'white' : 'grey' }};"></i>
                                             </div>
                                             <div class="col s5 center-align" ng-click="stopSystem()"
-                                                ng-show="actualSystem.type != 'Estacionario'"
+                                                ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'"
                                                 style="border: 2px solid grey; margin: 0 2px; background: {{ actualSystem.status ? 'transparent' : 'red' }}">
                                                 <i class="fa fa-stop" aria-hidden="true"
                                                     style="color: {{ actualSystem.status ? 'grey' : 'white' }};"></i>
                                             </div>
                                             <div class="col s3 center-align" ng-click="playForward()"
-                                                ng-show="actualSystem.type != 'Estacionario'"
+                                                ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'"
                                                 style="border: 2px solid grey; border-radius: 0 5px 5px 0; background: {{ actualSystem.status && actualSystem.direction ? '#04d604' : 'transparent' }}">
                                                 <i class="fa fa-share" aria-hidden="true"
                                                     style="color: {{ actualSystem.status && actualSystem.direction ? 'white' : 'grey' }};"></i>
@@ -550,12 +594,12 @@
                                             </div>
                                             
                                             <!-- Movimiento continuo -->
-                                            <div class="col s12 m4" ng-show="actualSystem.type != 'Estacionario'" 
+                                            <div class="col s12 m4" ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'" 
                                             style="margin-bottom: 0; margin-top: 0;">
                                                 <!-- Controles -->
                                                 <div class="row hide-on-small-only" style="margin-bottom: 0px; font-size: 2em !important;">
                                                     <div class="col s3 center-align" ng-click="playBackward()"
-                                                        ng-show="actualSystem.type != 'Estacionario'"
+                                                        ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'"
                                                         style="border: 2px solid grey; border-radius: 5px 0 0 5px; background: {{ actualSystem.status && !actualSystem.direction ? '#04d604' : 'transparent' }}">
                                                         <i class="fa fa-reply" aria-hidden="true"
                                                             style="color: {{ actualSystem.status && !actualSystem.direction ? 'white' : 'grey' }};"></i>
@@ -949,27 +993,8 @@
 
                                             <!-- Sensor -->
                                             <div class="col s12 m4" ng-show="actualSystem.type == 'Sensor'">
-                                                <!-- Controles y Variables -->
-                                                <div class="row hide-on-small-only"> <!-- Control -->
-                                                    <div class="row" style="margin-bottom: 0px;">
-                                                        <div class="col m12 row" style="font-size: 2em !important;">
-                                                            <div class="col s6 center-align" ng-click="stopSystem()"
-                                                                ng-show="actualSystem.type == 'Estacionario'"
-                                                                style="border: 2px solid grey; margin: 0 2px; border-radius: 5px 0 0 5px; background: {{ actualSystem.status ? 'transparent' : 'red' }}">
-                                                                <i class="fa fa-stop" aria-hidden="true"
-                                                                    style="color: {{ actualSystem.status ? 'grey' : 'white' }};"></i>
-                                                            </div>
-                                                            <div class="col s5 center-align" ng-click="playForward()"
-                                                                ng-show="actualSystem.type == 'Estacionario'"
-                                                                style="border: 2px solid grey; border-radius: 0 5px 5px 0; background: {{ actualSystem.status && actualSystem.direction ? '#04d604' : 'transparent' }}">
-                                                                <i class="fa fa-play" aria-hidden="true"
-                                                                    style="color: {{ actualSystem.status && actualSystem.direction ? 'white' : 'grey' }};"></i>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
                                                 <!-- Status General -->
-                                                <div class="row statusBar hide-on-med-and-up" style="width: 100%; margin-top: -85px;">
+                                                <div class="row hide-on-med-and-up" style="width: 100%; position: absolute;">
                                                     <div class="col s12">
                                                         <table>
                                                             <tr style="border-top: 2px solid lightgrey;">
@@ -1440,19 +1465,19 @@
                                                     ng-model="actualSystem.longitude" ng-readonly="edit">
                                             </td>
                                         </tr>
-                                        <tr ng-show="actualSystem.type != 'Estacionario'">
+                                        <tr ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'">
                                             <td style="text-align: left;">Radio</td>
                                             <td style="text-align: left;">
                                                 <input type="number" ng-model="actualSystem.length" ng-readonly="edit">
                                             </td>
                                         </tr>
-                                        <tr>
+                                        <tr ng-show="actualSystem.type != 'Sensor'">
                                             <td style="text-align: left;">Caudal</td>
                                             <td style="text-align: left;">
                                                 <input type="number" ng-model="edit.caudal" ng-readonly="editCaudal">
                                             </td>
                                         </tr>
-                                        <tr ng-show="actualSystem.type != 'Estacionario'">
+                                        <tr ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'">
                                             <td style="text-align: left;">Max. val. sensor presión</td>
                                             <td style="text-align: left;">
                                                 <input type="number"
@@ -1460,7 +1485,7 @@
                                                     ng-readonly="edit">
                                             </td>
                                         </tr>
-                                        <tr ng-show="actualSystem.type != 'Estacionario'">
+                                        <tr ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'">
                                             <td style="text-align: left;">Límite de velocidad</td>
                                             <td style="text-align: left;">
                                                 <input type="number"
@@ -3027,7 +3052,7 @@
         <script src="./assets/modules/leaflet-semicircle/semicircle.js"></script>
         <script src="./assets/js/commons.js"></script>
         <!-- <script src="./assets/cultures/listPlanesRiego.js"></script> -->
-        <script src="./assets/js/core.js?v=1.7"></script>
+        <script src="./assets/js/core.js?v=1.8"></script>
         <!-- <script src="monitor/js/chartjs/chart.min.js"></script> -->
         <script type="text/javascript" src="./assets/modules/datepicker/daterangepicker.js"></script>
         <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
