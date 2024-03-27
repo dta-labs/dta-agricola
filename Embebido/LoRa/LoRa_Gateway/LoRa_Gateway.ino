@@ -25,17 +25,17 @@ void loop() {
 }
 
 void sendRequests() {
-  static int idx = 1;
   String newNodeAddress = nodeAddress + String(idx);
   Serial.print(F("nodeAddress: ")); Serial.print(newNodeAddress);
   measurement[idx - 1] = requestNode(newNodeAddress);
   Serial.println();
   idx++;
   if (idx > numSensors) {
-    idx = 1;
     sendDataHTTP();
     sleepFor(sleepingTime);
     Serial.println(F("\nNuevo ciclo..."));
+    // resetSoftware();
+    idx = 1;
   }
 }
 
@@ -69,7 +69,7 @@ void sendSingleRequest(String nodeAddress) {
 
 String receiveData() {
   String inString = "";
-  for (int loop = 1; loop < 25; loop++) {
+  for (int loop = 1; loop < 50; loop++) {
     int packetSize = LoRa.parsePacket();
     if (packetSize) { 
       while (LoRa.available()) {

@@ -37,6 +37,7 @@ String nodeAddress = String(baseNodeAddress);
 const int numSensors = 5;
 float measurement[numSensors];
 static int sleepingTime = config[2];
+static int idx = 1;
 
 SoftwareSerial gprs(config[0], config[1]);     // Comunicaciones
 bool restartGSM = true;

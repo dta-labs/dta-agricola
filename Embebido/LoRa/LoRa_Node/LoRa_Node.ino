@@ -72,6 +72,6 @@ void sendMeasurement() {
 void sleepFor(float minutes) {
   Serial.print(F("Sleeping for ")); Serial.print(minutes); Serial.println(F(" min"));
   delay(10);
-  for (int i = 0;  i  <=  15 * (minutes - 0.2); i++)
+  for (int i = 0;  i  <=  15 * (minutes - 2); i++)
     LowPower.powerDown(SLEEP_4S, ADC_OFF, BOD_OFF);
 }
