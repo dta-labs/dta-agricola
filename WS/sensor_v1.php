@@ -75,7 +75,13 @@
     #region 3.- Enviar Settings al dispositivo 
 
 	function sendSettings($dataSettings) {
-		print_r("\"" . $dataSettings->sleepingTime . "\"");
+        $sendData = "\"" . $dataSettings->sleepingTime . "\"" . $dataSettings->sensors->sensorNumber;
+        for ($i = 0; $i < $dataSettings->sensors->sensorNumber; $i++) {
+            $idx = "S" . $i;
+            $sendData .= "\"" . $dataSettings->sensors->$idx->id; 
+        }
+        $sendData .= "\"";
+		print_r($sendData);
 	}
 
     #endregion 3.- Enviar Settings al dispositivo
