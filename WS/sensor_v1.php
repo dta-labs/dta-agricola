@@ -89,20 +89,15 @@
 	#region 4.- Actualizar estado del dispositivo e información de los sensores
 
 	function updateLog($localZone, $baseUrl) {
-		if ($_GET["no"]) {
+		if ($_GET["data"] && $_GET["data"] != "[]") {
 			$key = "";
             $date = getDateTime($localZone)->format('Ymd hia');
 			$dataUpdate = '{';
 			$dataUpdate .= '"date":"' . $date . '"';
 			$lenght = $_GET["no"];
 			$dataUpdate .= ',"lenght":"' . $lenght . '"';
-			$dataUpdate .= ',"dataRaw":"['; 
-			for ($i = 0; $i < $lenght; $i++) {
-				$idx = "S" . $i;
-				$dataUpdate .= $_GET[$idx]; 
-				$dataUpdate .= $i < $lenght - 1 ? ',' : ''; 
-			}
-			$dataUpdate .= ']"'; 
+			$dataUpdate .= ',"dataRaw":"' . $_GET["data"] . '"'; 
+			$dataUpdate .= ',"voltages":"' . $_GET["vi"] . '"'; 
 			$dataUpdate .= ',"signal":"' . ($_GET["si"] ? $_GET["si"] : "") . '"';
 			$dataUpdate .= ',"reception":"' . (($_GET["rx"] && ($_GET["rx"] == "Ok" || $_GET["rx"] == "Er")) ? $_GET["rx"] : "") . '"';
 			$dataUpdate .= '}';
