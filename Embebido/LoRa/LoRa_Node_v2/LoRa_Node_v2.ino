@@ -6,6 +6,7 @@
 #include <LoRa.h>
 #include "LowPower.h"
 #include "configuracion.h"
+#include "analogicSensor.h"
 
 #define gatewayAddress "DTA_00000"
 #define sensor A0
@@ -18,9 +19,9 @@ void setup() {
   
   while (!Serial);  
   Serial.print("LoRa Node: "); Serial.println(nodeAddress);
-  if (!LoRa.begin(433E6)) { // 433E6 or 915E6, the MHz speed of module
+  while (!LoRa.begin(433E6)) { // 433E6 or 915E6, the MHz speed of module
     Serial.println("Starting LoRa failed!");
-    while (1);
+    delay(10);
   }
 }
  
@@ -57,8 +58,10 @@ bool checkData(String data) {
 }
 
 void sendMeasurement() {
-  int measure = analogRead(sensor);
-  String data = String(nodeAddress) + "," + String(gatewayAddress) + "," + measure;
+  float measure = readAnalogicData(sensor);
+  measure = map(measure, 2.79, 1.19, 100, 0);
+  float vcc = readVcc() / 1000.0;
+  String data = String(nodeAddress) + "," + String(gatewayAddress) + "," + measure + "," + vcc;
   Serial.println(data);
   LoRa.beginPacket();  
   LoRa.print(data);
