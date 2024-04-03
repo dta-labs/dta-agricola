@@ -271,6 +271,7 @@ app.controller("ControladorPrincipal", function ($scope) {
                 $scope.logs[locationKey] = logs.val();
                 $scope.logsArray = {};
                 $scope.logsArray = Object.values($scope.logs);
+                processingSensors(locationKey);
                 let keys = Object.keys($scope.logs[locationKey]);
                 let length = keys.length;
                 let myLogs = $scope.logs[locationKey];
@@ -295,6 +296,35 @@ app.controller("ControladorPrincipal", function ($scope) {
                 // $scope.$apply();
             }
         });
+    }
+
+    processingSensors = (locationKey) => {
+        if ($scope.systems[locationKey].type == "Sensor") {
+            $scope.logsArray.forEach((log) => {
+                let index = Object.keys(log);
+                if (log[index].dataRaw != null) {
+                    log[index].dataRaw = normalize(JSON.parse(log[index].dataRaw), locationKey);
+                    log[index].minVal = getMin(log[index].dataRaw);
+                    log[index].meanVal = getMean(log[index].dataRaw);
+                    log[index].maxVal = getMax(log[index].dataRaw);
+                    log[index].voltages = JSON.parse(log[index].voltages);
+                }
+            })
+        }
+    }
+
+    normalize = (arr, key) => {
+        arr.forEach((val, idx) => {
+            if (val != -99) {
+                let index = "S" + idx;
+                let system =$scope.systems[key];
+                let min = parseFloat(system.sensors[index].minValue);
+                let max = parseFloat(system.sensors[index].maxValue);
+                let result = ((val - min) / (max - min)) * 100;
+                arr[idx] = 100 - (result > 100 ? 100 : result);
+            }
+        });
+        return arr;
     }
 
     showAlert = (locationKey, log) => {
@@ -393,6 +423,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         updateCompass();
         initializeSystemMap($scope.actualSystem);
         getMetorologicalData($scope.actualSystem.key);
+        if ($scope.actualSystem.type == "Sensor") $scope.showChart();
     }
 
     setActualSystemPlans = () => {
@@ -1286,15 +1317,20 @@ app.controller("ControladorPrincipal", function ($scope) {
     addMarker = (campo) => {
         let coord = [campo.latitude, campo.longitude];
         let text = "";
-        text += `
-            <h6 style="background: ${campo.status == false ? 'lightgrey' : 
-            campo.log && campo.log.voltage == 'false' ? 'red' : 
-            campo.log && campo.log.safety == 'false' ? 'palevioletred' : 
-            campo.log && campo.log.commDelay != '-1' ? 'grey' : 'lightseagreen'};">${campo.name}</h6>
-            <span><b>${campo.type != 'Sensor' && campo.status ? "Estado: Encendido" : 
-            campo.type != 'Sensor' && !campo.status ? "Apagado" : 
-            "Valor: " + $scope.getMean(campo.log.dataRaw)}</b></span></br>
-            `;
+        if (campo.type != "Sensor") {
+            text += `
+                <h6 style="background: ${campo.status == false ? 'lightgrey' : 
+                campo.log && campo.log.voltage == 'false' ? 'red' : 
+                campo.log && campo.log.safety == 'false' ? 'palevioletred' : 
+                campo.log && campo.log.commDelay != '-1' ? 'grey' : 'lightseagreen'};">${campo.name}</h6>
+                <span><b>${campo.status ? "Estado: Encendido" : "Apagado" }</b></span></br>
+                `;
+        } else {
+            text += `
+                <h6 style="background: lightgrey">${campo.name}</h6>
+                <span>Hs: <b>${campo.log.meanVal.toFixed(0)}</b>%</span></br>
+                `;
+        }
         if (campo.type == "PC" || campo.type == "PL") {
             text += `
                 Config: <b>${campo.direction ? "Avanzar" : "Retroceder"} ${campo.log ? campo.log.speed : 0}%</b><br>
@@ -1485,6 +1521,35 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     // #endregion Leaflet
 
+    // #region Chart.js
+
+    $scope.showChart = () => {
+        const ctx = document.getElementById('myChart');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'],
+                    datasets: [{
+                    label: 'Humedad del suelo',
+                    data: [15, 80, 70, 50, 30, 25, 20],
+                    cubicInterpolationMode: 'monotone',
+                    tension: 0.4,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+
+    // #endregion Chart.js
+
     // #region SCRIPTS GENERALES
 
     $scope.strToInt = (data) => {
@@ -1523,8 +1588,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         return convertDotToDash(input);
     }
 
-    $scope.getMean = (txt) => {
-        const obj = JSON.parse(txt);
+    getMean = (obj) => {
         let mean = 0;
         let i = 0;
         obj.forEach(element => {
@@ -1533,7 +1597,27 @@ app.controller("ControladorPrincipal", function ($scope) {
                 mean += element;
             }
         });
-        return mean/i;
+        return mean / i;
+    }
+
+    getMin = (obj) => {
+        let min = Number.MAX_VALUE;
+        obj.forEach(element => {
+            if (element != -99 && element < min) {
+                min = element;
+            }
+        });
+        return min;
+    }
+
+    getMax = (obj) => {
+        let min = -99;
+        obj.forEach(element => {
+            if (element != -99 && element > min) {
+                min = element;
+            }
+        });
+        return min;
     }
 
     // #endregion SCRIPTS GENERALES
