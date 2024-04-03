@@ -27,4 +27,3 @@ String parse(String dataString, char separator, int index) {
 }
 
 #pragma endregion Common
-
