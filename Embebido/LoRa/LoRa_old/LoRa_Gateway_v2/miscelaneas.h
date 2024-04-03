@@ -26,4 +26,10 @@ String parse(String dataString, char separator, int index) {
   return found > index ? dataString.substring(strIndex[0], strIndex[1]) : "";
 }
 
+uint64_t StrToHex(String str) {
+  char arr[2];
+  str.toCharArray(arr, 3);
+  return (uint64_t)strtoul(arr, 0, 16);
+}
+
 #pragma endregion Common

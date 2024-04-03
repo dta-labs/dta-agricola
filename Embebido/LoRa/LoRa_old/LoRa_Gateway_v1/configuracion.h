@@ -22,7 +22,7 @@
  ****************************************************************************/
 
 // Settings
-const int config[] = {2, 3, 1, 33, 333, 333, 3333};
+const int config[] = {2, 3, 0, 33, 333, 333, 3333};
 
 #pragma region Variables
 
@@ -34,10 +34,13 @@ const int config[] = {2, 3, 1, 33, 333, 333, 3333};
 String nodeAddress = String(baseNodeAddress);
 
 #define sensor A0
-const int numSensors = 5;
-float measurement[numSensors];
+const int maxNumSensors = 10;
+int numSensors = 3;
+float measurements[maxNumSensors];
+float voltages[maxNumSensors];
+String nodesID[maxNumSensors] = {"DTA_192.168.1.1", "DTA_192.168.1.2", "DTA_192.168.1.3"};
 static int sleepingTime = config[2];
-static int idx = 1;
+static int idx = 0;
 
 SoftwareSerial gprs(config[0], config[1]);     // Comunicaciones
 bool restartGSM = true;

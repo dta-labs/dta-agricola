@@ -1,5 +1,7 @@
 #pragma region Common
 
+void(* resetSoftware)(void) = 0;
+
 String fillNumber(int number, byte positions) {
   String numberStr = ((String) number);
   byte cerosLength = positions - numberStr.length();
@@ -24,5 +26,10 @@ String parse(String dataString, char separator, int index) {
   return found > index ? dataString.substring(strIndex[0], strIndex[1]) : "";
 }
 
-#pragma endregion Common
+uint64_t StrToHex(String str) {
+  char arr[2];
+  str.toCharArray(arr, 3);
+  return (uint64_t)strtoul(arr, 0, 16);
+}
 
+#pragma endregion Common

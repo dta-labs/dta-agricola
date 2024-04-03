@@ -15,10 +15,13 @@ void setup() {
 }
  
 void loop() {
-  int val = map(analogRead(pot),0,1024,0,255);
+  int val = analogRead(pot);
   Serial.println(val);
   LoRa.beginPacket();  
-  LoRa.print(val);
+  LoRa.print("DTA");        // Prefijo
+  LoRa.write(0x02);         // De
+  LoRa.write(0xFF);         // Para
+  LoRa.print(val);          // Analógico
   LoRa.endPacket();
   delay(1000);
  

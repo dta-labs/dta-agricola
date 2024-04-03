@@ -5,12 +5,10 @@
 #include <SPI.h>
 #include <LoRa.h>
 #include "LowPower.h"
+#include "configuracion.h"
+#include "analogicSensor.h"
 
-#define gatewayAddress "DTA_192.168.1.0"
-#define nodeAddress "DTA_192.168.1.2"
-#define sensor A0
-
-int sleepingTime = 1;
+int sleepingTime = 0;
 
 void setup() {
   Serial.begin(115200);
@@ -60,8 +58,9 @@ bool checkData(String data) {
 }
 
 void sendMeasurement() {
-  int measure = analogRead(sensor);
-  String data = String(nodeAddress) + "," + String(gatewayAddress) + "," + measure;
+  float measure = readAnalogicData(sensor);
+  float voltage = readVcc();
+  String data = String(nodeAddress) + "," + String(gatewayAddress) + "," + measure + "," + voltage;
 
   Serial.println(data);
   LoRa.beginPacket();  
@@ -72,6 +71,6 @@ void sendMeasurement() {
 void sleepFor(float minutes) {
   Serial.print(F("Sleeping for ")); Serial.print(minutes); Serial.println(F(" min"));
   delay(10);
-  for (int i = 0;  i  <=  15 * (minutes - 2); i++)
+  for (int i = 0;  i  <=  (15 * minutes * .8); i++)
     LowPower.powerDown(SLEEP_4S, ADC_OFF, BOD_OFF);
 }

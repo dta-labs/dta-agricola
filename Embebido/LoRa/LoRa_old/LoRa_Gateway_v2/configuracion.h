@@ -35,15 +35,18 @@ const int config[] = {2, 3, 33, 333, 333, 3333};
 #define telefono fillNumber(config[2], 2) + fillNumber(config[3], 3) + fillNumber(config[4], 3) + fillNumber(config[5], 4)
 #define httpServer F("AT+HTTPPARA=\"URL\",\"http://dtaamerica.com/ws/sensor_v1.php?id=")
 
-#define gatewayAddress "DTA_00000"
+#define gatewayAddress "0xFF"
 
 #define sensor A0
-List<float> measurement;       // https://www.luisllamas.es/libreria-arduino-list/
-List<float> voltages;
-List<String> sensorsID;
+static String measurement = "";
+static String voltages = "";
+static String sensorsID = "";
 int idx = 0;
 int numSensors = 1;
-int sleepingTime = 1;
+int sleepingTime = 0;
+int iterator = 0;
+float value[2] = {-99, -99};
+String newNodeAddress = "";
 
 SoftwareSerial gprs(config[0], config[1]);     // Comunicaciones
 bool restartGSM = true;
