@@ -95,6 +95,7 @@
         $localZone = intval($timeZone) + intval($summerHour);
 
         $log = get_object_vars(getcURLData($baseUrl . "logs.json?orderBy=\"update\"&limitToLast=1"));
+		$lastStatus = new stdClass();
         $lastStatus->index = !is_null($log) ? end(array_keys($log)) : "";
         $lastStatus->status = !is_null($log) ? $log[$lastStatus->index]->{'status'} : "";
         $lastStatus->safety = !is_null($log) ? $log[$lastStatus->index]->{'safety'} : "";
