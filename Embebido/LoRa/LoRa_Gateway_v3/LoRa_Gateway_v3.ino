@@ -9,14 +9,15 @@
 #include "miscelaneas.h"
 #include "configuracion.h"
 #include "comunicaciones.h"
+#include "analogicSensor.h"
 
 void setup() {
   Serial.begin(115200);
   while (!Serial);  
-  Serial.print("\nLoRa Gateway: "); Serial.println(gatewayAddress);
-  if (!LoRa.begin(433E6)) { // 433E6 or 915E6, the MHz speed of module
-    Serial.println("Starting LoRa failed!");
-    while (1);
+  Serial.print(F("\n[[[ LoRa Gateway: ")); Serial.print(gatewayAddress); Serial.println(F(" ]]]"));
+  while (!LoRa.begin(433E6)) { // 433E6 or 915E6, the MHz speed of module
+    Serial.println(F("Starting LoRa failed!"));
+    delay(1);
   }
   comunicaciones(false);
 }
@@ -28,9 +29,8 @@ void loop() {
 void sendRequests() {
   String newNodeAddress = "DTA_" + sensorsID.substring(idx * 2, idx * 2 + 2);
   Serial.print(F("nodeAddress: ")); Serial.print(newNodeAddress);
-  measurements[idx] = requestNode(newNodeAddress);
+  requestNode(newNodeAddress);
   Serial.println();
-  idx++;
   if (idx >= numSensors) {
     sendDataHTTP();
     sleepFor(sleepingTime);
@@ -40,25 +40,24 @@ void sendRequests() {
   }
 }
 
-float requestNode(String nodeAddress) {
-  float value = 0;
+void requestNode(String nodeAddress) {
   if (nodeAddress == (String)gatewayAddress) {
-    value = analogRead(sensor);
+    measurements[idx] = readAnalogicData(sensor);
+    voltages[idx] = readVcc();
+    Serial.print(F(" = ")); Serial.print(measurements[idx]); 
+    idx++;
   } else {
-    sendSingleRequest(nodeAddress);
-    String data = receiveData();
-    value = getDataValue(data, nodeAddress);
+    bool result =  false;
     int iter = 1;
-    while (value == -99 && iter <= 10) { 
+    do { 
       sendSingleRequest(nodeAddress);
-      data = receiveData();
-      value = getDataValue(data, nodeAddress); 
+      String data = receiveData();
+      result = getDataValue(data, nodeAddress); 
       iter++;
       delay(5);
-    }
+    } while (!result && iter <= 10);
+    idx += (result || iter > 10) ? 1 : 0;
   }
-  if (value != -99) {  Serial.print(F(" = ")); Serial.print(value); }
-  return value;
 }
 
 void sendSingleRequest(String nodeAddress) {
@@ -84,13 +83,19 @@ String receiveData() {
   return inString;   
 }
 
-float getDataValue(String data, String nodeAddress) {
-  byte idx = data.indexOf(',');
-  String from = data.substring(0, idx);
-  String to = data.substring(idx + 1, data.indexOf(',', idx + 1));
-  idx = data.indexOf(',', idx + 1);
-  float dataValue = data.substring(idx + 1, data.length()).toFloat();
-  return from == nodeAddress && to == gatewayAddress ? dataValue : -99;
+bool getDataValue(String data, String nodeAddress) {
+  byte index = data.indexOf(',');
+  String from = data.substring(0, index);
+  String to = data.substring(index + 1, data.indexOf(',', index + 1));
+  if (from == nodeAddress && to == gatewayAddress) {
+    index = data.indexOf(',', index + 1);
+    measurements[idx] = data.substring(index + 1, data.indexOf(',', index + 1)).toFloat();
+    index = data.indexOf(',', index + 1);
+    voltages[idx] = data.substring(index + 1, data.length()).toFloat();
+    Serial.print(F(" = ")); Serial.print(measurements[idx]); 
+    return true;
+  }
+  return false;
 }
 
 void sendDataHTTP() {
@@ -106,6 +111,7 @@ void sendDataHTTP() {
 void sleepFor(float minutes) {
   Serial.print(F("Sleeping for ")); Serial.print(minutes); Serial.println(F(" minutes..."));
   delay(10);
-  for (int i = 0;  i  <=  15 * minutes; i++)
+  int time = 15 * minutes;
+  for (int i = 0; i <= time; i++)
     LowPower.powerDown(SLEEP_4S, ADC_OFF, BOD_OFF);
 }

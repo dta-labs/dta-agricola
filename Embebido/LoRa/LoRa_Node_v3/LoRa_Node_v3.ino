@@ -5,22 +5,19 @@
 #include <SPI.h>
 #include <LoRa.h>
 #include "LowPower.h"
-
-#define gatewayAddress "DTA_FF"
-#define nodeAddress "DTA_02"
-#define sensor A0
+#include "analogicSensor.h"
+#include "configuracion.h"
 
 int sleepingTime = 1;
 
 void setup() {
   Serial.begin(115200);
   pinMode(sensor, INPUT);
-  
   while (!Serial);  
-  Serial.print("LoRa Node: "); Serial.println(nodeAddress);
-  if (!LoRa.begin(433E6)) { // 433E6 or 915E6, the MHz speed of module
-    Serial.println("Starting LoRa failed!");
-    while (1);
+  Serial.print(F("\n[[[ LoRa Node: ")); Serial.print(nodeAddress); Serial.println(F(" ]]]"));
+  while (!LoRa.begin(433E6)) { // 433E6 or 915E6, the MHz speed of module
+    Serial.println(F("Starting LoRa failed!"));
+    delay(1);
   }
 }
  
@@ -44,7 +41,6 @@ String receiveData() {
     }
     LoRa.packetRssi(); 
   }
-  // Serial.print("\ndata: "); Serial.print(inString); 
   return inString;   
 }
 
@@ -60,8 +56,9 @@ bool checkData(String data) {
 }
 
 void sendMeasurement() {
-  int measure = analogRead(sensor);
-  String data = String(nodeAddress) + "," + String(gatewayAddress) + "," + measure;
+  float measure = readAnalogicData(sensor);
+  float voltage = readVcc();
+  String data = String(nodeAddress) + "," + String(gatewayAddress) + "," + measure + "," + voltage;
 
   Serial.println(data);
   LoRa.beginPacket();  
@@ -72,6 +69,7 @@ void sendMeasurement() {
 void sleepFor(float minutes) {
   Serial.print(F("Sleeping for ")); Serial.print(minutes); Serial.println(F(" min"));
   delay(10);
-  for (int i = 0;  i  <=  15 * (minutes * .9); i++)
+  int time = 15 * (minutes * .9);
+  for (int i = 0; i <= time; i++)
     LowPower.powerDown(SLEEP_4S, ADC_OFF, BOD_OFF);
 }
