@@ -95,11 +95,11 @@
         $localZone = intval($timeZone) + intval($summerHour);
 
         $log = get_object_vars(getcURLData($baseUrl . "logs.json?orderBy=\"update\"&limitToLast=1"));
-        $lastStatus->index = $log ? end(array_keys($log)) : "";
-        $lastStatus->status = $log ? $log[$lastStatus->index]->{'status'} : "";
-        $lastStatus->safety = $log ? $log[$lastStatus->index]->{'safety'} : "";
-        $lastStatus->voltage = $log ? $log[$lastStatus->index]->{'voltage'} : "";
-        $lastStatus->initialDate = $log ? $log[$lastStatus->index]->{'date'} : "";
+        $lastStatus->index = !is_null($log) ? end(array_keys($log)) : "";
+        $lastStatus->status = !is_null($log) ? $log[$lastStatus->index]->{'status'} : "";
+        $lastStatus->safety = !is_null($log) ? $log[$lastStatus->index]->{'safety'} : "";
+        $lastStatus->voltage = !is_null($log) ? $log[$lastStatus->index]->{'voltage'} : "";
+        $lastStatus->initialDate = !is_null($log) ? $log[$lastStatus->index]->{'date'} : "";
 
         $zona = $localZone . ' hours';
         $dateTime = new DateTime();

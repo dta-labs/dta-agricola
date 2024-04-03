@@ -69,7 +69,7 @@ void sendSingleRequest(String nodeAddress) {
 
 String receiveData() {
   String inString = "";
-  for (int loop = 1; loop < 50; loop++) {
+  for (int loop = 1; loop < 100; loop++) {
     int packetSize = LoRa.parsePacket();
     if (packetSize) { 
       while (LoRa.available()) {
@@ -77,8 +77,9 @@ String receiveData() {
         inString += (char)inChar;
       }
       LoRa.packetRssi(); 
+      break;
     }
-    delay(10);
+    delay(5);
   }
   return inString;   
 }
