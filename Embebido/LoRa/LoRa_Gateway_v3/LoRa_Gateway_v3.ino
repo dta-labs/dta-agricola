@@ -5,6 +5,8 @@
 #include <SPI.h>
 #include <LoRa.h>
 #include <SoftwareSerial.h>
+#include <avr/wdt.h>
+
 #include "LowPower.h"
 #include "miscelaneas.h"
 #include "configuracion.h"
@@ -12,6 +14,7 @@
 #include "analogicSensor.h"
 
 void setup() {
+  wdt_disable();                // Disable WDT
   Serial.begin(115200);
   while (!Serial);  
   Serial.print(F("\n[[[ LoRa Gateway: ")); Serial.print(gatewayAddress); Serial.println(F(" ]]]"));
@@ -19,6 +22,7 @@ void setup() {
     Serial.println(F("Starting LoRa failed!"));
     delay(1);
   }
+  wdt_enable(WDTO_8S);          // Enable WDT with a timeout of 8 seconds
   comunicaciones(false);
 }
  
@@ -27,15 +31,18 @@ void loop() {
 }
 
 void sendRequests() {
+  delay(10);
   String newNodeAddress = "DTA_" + sensorsID.substring(idx * 2, idx * 2 + 2);
   Serial.print(F("nodeAddress: ")); Serial.print(newNodeAddress);
   requestNode(newNodeAddress);
   Serial.println();
+  wdt_reset();
   if (idx >= numSensors) {
     sendDataHTTP();
     sleepFor(sleepingTime);
     Serial.println(F("\nNuevo ciclo..."));
-    // resetSoftware();
+    delay(10);
+    resetSoftware();
     idx = 0;
   }
 }
@@ -55,6 +62,7 @@ void requestNode(String nodeAddress) {
       result = getDataValue(data, nodeAddress); 
       iter++;
       delay(5);
+      wdt_reset();
     } while (!result && iter <= 10);
     idx += (result || iter > 10) ? 1 : 0;
   }
@@ -113,6 +121,8 @@ void sleepFor(float minutes) {
   Serial.print(F("Sleeping for ")); Serial.print(minutes); Serial.println(F(" minutes..."));
   delay(10);
   int time = 15 * minutes;
-  for (int i = 0; i <= time; i++)
+  for (int i = 0; i <= time; i++) {
     LowPower.powerDown(SLEEP_4S, ADC_OFF, BOD_OFF);
+    wdt_reset();
+  }
 }

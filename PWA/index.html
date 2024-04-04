@@ -1035,7 +1035,8 @@
                                                                 <table>
                                                                     <tr>
                                                                         <td width="20%" class="switchControl waves-effect teal" 
-                                                                            style="font-size: 3em; padding: 0 !important; color: white;">
+                                                                            style="font-size: 3em; padding: 0 !important; 
+                                                                            color: white; display: table-cell;">
                                                                             <i class="fa fa-tint" aria-hidden="true"></i>
                                                                         </td>
                                                                         <td width="40%" style="font-size: 2.5em; text-align: center;">
@@ -3164,9 +3165,13 @@
                                     </a>
                                 </div>
                                 <div class="col navbar-option">
-                                    <a class="modal-trigger" href="#modalHistorial" style="color: black;">
+                                    <a class="modal-trigger" href="#modalHistorial" style="color: black;" ng-show="actualSystem.type != 'Sensor'">
                                         <i class="fa fa-history" aria-hidden="true" style="margin-top: 5px;"></i>
                                         <p style="margin-top: -4px;">Historial</p>
+                                    </a>
+                                    <a class="modal-trigger" href="#modalHistorial" style="color: black;" ng-show=" actualSystem.type == 'Sensor'">
+                                        <i class="material-icons" style="margin-top: 5px;">timeline</i>
+                                        <p style="margin-top: -8px;">{{ actualSystem.type == 'Sensor' ? "Gráficas" : "Historial" }}</p>
                                     </a>
                                 </div>
                                 <div class="col navbar-option">
@@ -3200,9 +3205,13 @@
                                     </a>
                                 </div>
                                 <div class="col navbar-option">
-                                    <a class="modal-trigger" href="#modalHistorial" style="color: black;">
+                                    <a class="modal-trigger" href="#modalHistorial" style="color: black;" ng-show="actualSystem.type != 'Sensor'">
                                         <i class="fa fa-history" aria-hidden="true" style="margin-top: 5px;"></i>
                                         <p style="margin-top: -4px;">Historial</p>
+                                    </a>
+                                    <a class="modal-trigger" href="#modalHistorial" style="color: black;" ng-show=" actualSystem.type == 'Sensor'">
+                                        <i class="material-icons" style="margin-top: 5px;">timeline</i>
+                                        <p style="margin-top: -8px;">{{ actualSystem.type == 'Sensor' ? "Gráficas" : "Historial" }}</p>
                                     </a>
                                 </div>
                                 <div class="col navbar-option">

@@ -347,14 +347,16 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     findCommErrors = () => {
         for (let systemId in $scope.systems) {
-            let log = $scope.systems[systemId].log;
-            if (log) {
-                let dif = getTimeDiference(log.update, null);
-                let commDelay = "-1";
-                if ((dif.day >= 1 || dif.hour >= 1 || dif.min >= 10) && log.safety == "true" && log.voltage == "true") {
-                    commDelay = dif.day >= 1 ? ("+" + dif.day + "d") : dif.hour >= 1 ? ("+" + dif.hour + "h") : ("" + dif.min + "m");
+            if ($scope.systems[systemId].type != "Sensor") {
+                let log = $scope.systems[systemId].log;
+                if (log) {
+                    let dif = getTimeDiference(log.update, null);
+                    let commDelay = "-1";
+                    if ((dif.day >= 1 || dif.hour >= 1 || dif.min >= 10) && log.safety == "true" && log.voltage == "true") {
+                        commDelay = dif.day >= 1 ? ("+" + dif.day + "d") : dif.hour >= 1 ? ("+" + dif.hour + "h") : ("" + dif.min + "m");
+                    }
+                    $scope.systems[systemId].log["commDelay"] = commDelay;
                 }
-                $scope.systems[systemId].log["commDelay"] = commDelay;
             }
         }
     }

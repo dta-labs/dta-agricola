@@ -1,12 +1,10 @@
 #include "Arduino.h"
 #pragma region Comunicaciones
 
-void(* resetSoftware)(void) = 0;
-
 void commWatchDogReset() {
-  commError += (restartGSM) ? 1 : commError = 0;
-  Serial.print(F("commError: ")); Serial.println(commError);
-  if (commError == 10) {
+  if (restartGSM) {
+    Serial.println(F("Communication Error!"));
+    delay(10);
     resetSoftware();
   }
 }
@@ -28,6 +26,14 @@ String getResponse(int wait, bool response){
   return result;
 }
 
+String getDataStream(String dataSetream) {
+  dataSetream = dataSetream.substring(dataSetream.indexOf('"'), dataSetream.indexOf("OK"));
+  commRx = dataSetream != "" && dataSetream.indexOf("\"") != -1 && dataSetream.indexOf("Ok") == -1 ? true : false;
+  restartGSM = !commRx ? true : false;
+  commWatchDogReset();
+  return dataSetream;
+}
+
 int getSignalValue() {
   gprs.println(F("AT+CSQ"));           // Calidad de la señal -  debe ser 9 o superior: +CSQ: 14,0 OK
   String aux1 = getResponse(15, false);
@@ -38,6 +44,7 @@ int getSignalValue() {
 }
 
 void testComunicaciones() {
+  wdt_reset();
   gprs.println(F("AT+IPR=9600"));      // Velocidad en baudios?
   getResponse(15, testComm); 
   gprs.println(F("AT"));               // Tarjeta SIM Lista? OK
@@ -60,6 +67,7 @@ void testComunicaciones() {
   getResponse(15, testComm); 
   gprs.println(F("AT+WIND=1"));        // Indicación de tarjeta SIM insetada? +CPIN: READY OK
   getResponse(15, testComm); 
+  wdt_reset();
   gprs.println(F("AT+CREG?"));         // Tarjeta SIM registrada? +CREG: 0,1 OK 
   getResponse(15, testComm); 
   gprs.println(F("AT+CGATT?"));        // Tiene GPRS? +CGATT: 1 OK
@@ -96,6 +104,7 @@ void setupGSM() {
     getResponse(15, testComm); 
     gprs.println(F("AT+SAPBR=2,1"));
     getResponse(15, testComm); 
+    wdt_reset();
   }
 }
 
@@ -124,14 +133,12 @@ String httpRequest(bool setup) {
   getResponse(25, true); 
   gprs.println(F("AT+HTTPACTION=0"));
   getResponse(4000, false); 
+  wdt_reset();
   gprs.println(F("AT+HTTPREAD"));
   String result = getResponse(0, false);
-  commRx = (result != "") ? true : false;
-  restartGSM = (!commRx || result.indexOf("200") != -1) ? true : false;
   gprs.println(F("AT+HTTPTERM"));
   getResponse(30, false); 
-  commWatchDogReset();
-  return result.substring(result.indexOf('"'), result.indexOf("OK"));
+  return getDataStream(result);
 }
 
 void setVariables(String data) {
@@ -150,7 +157,7 @@ void setVariables(String data) {
 }
 
 void comunicaciones(bool setup) {
-  Serial.println(F("Comunicación con el servidor"));
+  Serial.println(F("Server Communication"));
   gprs.begin(9600);
   setupGSM();
   String data = httpRequest(setup); 

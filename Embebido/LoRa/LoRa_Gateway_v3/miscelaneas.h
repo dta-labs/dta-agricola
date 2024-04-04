@@ -1,5 +1,7 @@
 #pragma region Common
 
+void(* resetSoftware)(void) = 0;
+
 String fillNumber(int number, byte positions) {
   String numberStr = ((String) number);
   byte cerosLength = positions - numberStr.length();
