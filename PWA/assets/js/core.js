@@ -271,7 +271,6 @@ app.controller("ControladorPrincipal", function ($scope) {
                 $scope.logs[locationKey] = logs.val();
                 $scope.logsArray = {};
                 $scope.logsArray = Object.values($scope.logs);
-                processingSensors(locationKey);
                 let keys = Object.keys($scope.logs[locationKey]);
                 let length = keys.length;
                 let myLogs = $scope.logs[locationKey];
@@ -283,6 +282,7 @@ app.controller("ControladorPrincipal", function ($scope) {
                 log.position = position;
                 log["statusTime"] = calcStatusTime(log.date, log.update);
                 $scope.systems[locationKey]["log"] = log;
+                processingSensors(locationKey);
                 findCommErrors();
                 if (document.getElementById('pos_' + locationKey)) {
                     document.getElementById('pos_' + locationKey).style.transform = 'rotate(' + position + 'deg)';
@@ -300,16 +300,12 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     processingSensors = (locationKey) => {
         if ($scope.systems[locationKey].type == "Sensor") {
-            $scope.logsArray.forEach((log) => {
-                let index = Object.keys(log);
-                if (log[index].dataRaw != null) {
-                    log[index].dataRaw = normalize(JSON.parse(log[index].dataRaw), locationKey);
-                    log[index].minVal = getMin(log[index].dataRaw);
-                    log[index].meanVal = getMean(log[index].dataRaw);
-                    log[index].maxVal = getMax(log[index].dataRaw);
-                    log[index].voltages = JSON.parse(log[index].voltages);
-                }
-            })
+            let log = $scope.systems[locationKey].log;
+            log.dataRaw = normalize(JSON.parse(log.dataRaw), locationKey);
+            log.minVal = getMin(log.dataRaw);
+            log.meanVal = getMean(log.dataRaw);
+            log.maxVal = getMax(log.dataRaw);
+            log.voltages = JSON.parse(log.voltages);
         }
     }
 
@@ -658,6 +654,14 @@ app.controller("ControladorPrincipal", function ($scope) {
         $scope.newDevice.longitude = milongitud;
     }
 
+    $scope.setSensorPosition = () => {
+        getLocation();
+        document.getElementById("newSensorLatitude").value = `${milatitud}`;
+        document.getElementById("newSensorLongitude").value = `${milongitud}`;
+        $scope.newSensorlatitude = milatitud;
+        $scope.newSensorLongitude = milongitud;
+    }
+
     // #endregion DEVICES
 
     // #region CONFIGURACIONES
@@ -829,6 +833,44 @@ app.controller("ControladorPrincipal", function ($scope) {
         updateDeviceUsers(convertDotToDash($scope.newUserEmail), $scope.actualSystem.key, $scope.newUserName, $scope.newUserRole);
         //location.reload();
         document.getElementById("modalAddUser").style.display = "none";
+    }
+
+    $scope.addNewSensorToNet = () => {
+        swal({
+            title: "",
+            text: "Agrear nuevo sensor",
+            icon: "warning",
+            buttons: ["Cancelar", true],
+            dangerMode: true,
+        })
+        .then((confirm) => {
+            if (confirm) {
+                let newSensor = {
+                    "id": $scope.newSensorID,
+                    "latitude": $scope.newSensorLatitude,
+                    "longitude": $scope.newSensorLongitude,
+                    "maxValue": $scope.newSensorMaxVal,
+                    "minValue": $scope.newSensorMinVal,
+                    "type": $scope.newSensorType
+                }
+                let sensorNumber = 1;
+                let idx = "S0";
+                if ($scope.actualSystem.sensors) {
+                    sensorNumber = parseInt($scope.actualSystem.sensors.sensorNumber) + 1;
+                    idx = "S" + sensorNumber;
+                } else {
+                    $scope.actualSystem["sensors"] = {};
+                    $scope.actualSystem.sensors["sensorNumber"] = 1;    
+                }
+                $scope.actualSystem.sensors[idx] = newSensor;
+                $scope.actualSystem.sensors.sensorNumber = sensorNumber;
+                updateSensorNet($scope.actualSystem.key, $scope.actualSystem.sensors);
+                //location.reload();
+                document.getElementById("modalNuevoSensor").style.display = "none";
+            } else {
+                swal("Asignación cancelada!");
+            }
+        });
     }
 
     $scope.deleteUser = (key, user) => {

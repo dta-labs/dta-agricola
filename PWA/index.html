@@ -1036,7 +1036,7 @@
                                                                     <tr>
                                                                         <td width="20%" class="switchControl waves-effect teal" 
                                                                             style="font-size: 3em; padding: 0 !important; 
-                                                                            color: white; display: table-cell;">
+                                                                            color: white; display: table-cell; width: 20%;">
                                                                             <i class="fa fa-tint" aria-hidden="true"></i>
                                                                         </td>
                                                                         <td width="40%" style="font-size: 2.5em; text-align: center;">
@@ -1425,10 +1425,10 @@
                                                                     <td width="20%" class="switchControl waves-effect teal" 
                                                                         style="color: white;">
                                                                         <i class="fa fa-tint" aria-hidden="true" 
-                                                                            ng-show="sensor.type == 'moinsture'"
+                                                                            ng-show="sensor.type == 'Ms'"
                                                                             style="font-size: 2em; margin-top: 5px;"></i>
                                                                     </td>
-                                                                    <td width="60%" style="text-align: left;">
+                                                                    <td width="60%" style="text-align: left; color: black; font-size: 1.3em; padding: 0 0 0 10px;">
                                                                         ID: <b>{{ sensor.id }}</b> <br>
                                                                         Tipo: <b>{{ sensor.type }}</b>
                                                                     </td>
@@ -1441,202 +1441,186 @@
                                                     </ul>
                                                 </div>
                                                 
-                                                <div class="col s12 sercices-options waves-effect white-text teal lighten-3 center-align modal-trigger" style="width: 100%; padding: 10px 0; background: #80cbc4f0 !important;">
-                                                    <a class="modal-trigger" href="#modalNuevoEquipo" style="color: white !important;" ng-click="createNewSensor()">
+                                                <a class="modal-trigger" href="#modalNuevoSensor" style="color: white !important;" ng-click="createNewSensor()">
+                                                    <div class="col s12 sercices-options waves-effect white-text teal lighten-3 center-align" 
+                                                    style="width: 100%; padding: 10px 0; background: #80cbc4f0 !important;">
                                                         <i class="material-icons" style="font-size: 1.5em;">add</i><br>
                                                         <span style="font-size: 1em;">Agregar sensor</span>
-                                                    </a>
-                                                </div>
+                                                    </div>
+                                                </a>
                                             </div>
                                         </div>
                                         <div id="mediciones">
                                             <div id="selectPlan">
-                                                <div class="input-field col s12">
-                                                    <select id="selectProgram" onchange="selectProgram(this.value)" ng-selected="actualSystem.irrigation" ng-model="actualSystem.irrigation">
-                                                    <option value="" disabled selected>Seleccione un modo {{ actualSystem.irrigation }}</option>
-                                                    <option value="1">Regar una vez</option>
-                                                    <option value="2">Repetir el riego</option>
-                                                    <option value="3">Programa de riego</option>
-                                                    <option value="4">Riego a demanda (maX)</option>
-                                                    <option value="5">Riego predictivo (maX)</option>
+                                                <div class="input-field">
+                                                    <p>Procesamiento de las lecturas</p>
+                                                    <p>
+                                                        <label>
+                                                            <input type="checkbox" class="filled-in" checked="checked" ng-model="!actualSystem.sensingProcess"/>
+                                                            <span>Promediar todas las lecturas</span>
+                                                        </label>
+                                                    </p>
+                                                    <p>
+                                                        <label>
+                                                            <input type="checkbox" class="filled-in" checked="checked" ng-model="actualSystem.sensingProcess"/>
+                                                            <span>La menor de todas las lecturas</span>
+                                                        </label>
+                                                    </p>
+                                                </div>
+                                                <br>
+                                                <div class="input-field">
+                                                    <p>Modos de sensado</p>
+                                                    <select id="selectProgram" onchange="selectSenseMode(this.value)" 
+                                                        ng-selected="actualSystem.sensingMode" ng-model="actualSystem.sensingMode">
+                                                        <option value="" disabled selected>Seleccione un modo</option>
+                                                        <option value="1">Definir frecuencia</option>
+                                                        <option value="2">Esquema de sensado</option>
+                                                        <option value="3">Sensado Inteligente</option>
                                                     </select>
-                                                    <label>Modos de riego</label>
                                                 </div>
                                             </div>
                                             <div style="border: solid 1px; border-radius: 5px; padding: 3px;">
-                                                <!-- Duración del riego -->
-                                                <table class="striped highlight" ng-show="actualSystem.irrigation == 1 || actualSystem.irrigation == 2">  
-                                                    <thead>
-                                                        <tr>
-                                                            <th width="5%">#</th>
-                                                            <th width="15%">Área</th>
-                                                            <th width="50%">Nombre</span>
-                                                            </th>
-                                                            <th width="30%">
-                                                                Tiempo <span style="font-size: .6em;">(DD:HH:mm)
-                                                            </th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <tr class="modal-trigger"
-                                                            href="#modalEditRiegoEstacionario"
-                                                            ng-repeat="plot in actualSystem.plots"
-                                                            ng-click="setEditPlanEstacionario('p' + $index)">
-                                                            <td width="5%">{{ $index + 1 }}{{ index }}</td>
-                                                            <td width="15%"><i class="material-icons">map</i></td>
-                                                            <td width="50%">{{ plot.name }}</td>
-                                                            <td width="30%" style="font-size: .9em;">
-                                                                {{ getDayFromMs(plot.value) }}:
-                                                                {{ getHourFromMs(plot.value) }}:
-                                                                {{ getMinutesFromMs(plot.value) }}
-                                                            </td>
-                                                        </tr>
-                                                        <tr style="display: none;">
-                                                            <td colspan="4" class="right-align">
-                                                                <div class="switch">
-                                                                    Cíclico
-                                                                    <label>
-                                                                        <span class="blackBg"><b>No</b></span>
-                                                                        <input type="checkbox"
-                                                                            ng-model="actualSystem.autoreverse"
-                                                                            ng-checked="actualSystem.autoreverse"
-                                                                            ng-change="setMachineSettings(actualSystem)">
-                                                                        <span class="lever"></span>
-                                                                        <span
-                                                                            class="redBg"><b>&nbsp;Sí&nbsp;</b></span>
-                                                                    </label>
-                                                                </div>
-                                                            </td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                                <!-- Programa del riego -->
-                                                <table class="striped highlight" ng-show="actualSystem.irrigation == 3">  
-                                                    <thead>
-                                                        <tr>
-                                                            <th width="10%">T</th>
-                                                            <th width="40%">Fecha</th>
-                                                            <th width="30%">Hora</th>
-                                                            <th width="20%"></th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <tr class="modal-trigger row"
-                                                        ng-repeat="schedule in actualSystem.irrigationPlan.schedule">
-                                                            <td>{{ schedule.t ? schedule.t : "#" }}</td>
-                                                            <td>{{ schedule.date }}</td>
-                                                            <td>{{ schedule.time }}</td>
-                                                            <td>
-                                                                <a class="btn waves-effect waves-light red lighten-3"
-                                                                    ng-click="deleteSchedule($index)">
-                                                                    <i class="fa fa-trash-o" aria-hidden="true"></i>
-                                                                </a>
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td colspan="4">
-                                                                <a href="#modalDefineFechaHoraInicio" ng-click="actualizarListaCultivos()"
-                                                                    class="waves-effect teal btn modal-trigger">
-                                                                    <i class="material-icons">spa</i>&nbsp;Cultivo
-                                                                </a>
-                                                                <a href="#modalDefineFechaRiego" 
-                                                                    class="waves-effect waves-light btn modal-trigger">
-                                                                    <i class="material-icons">event</i>&nbsp;Riego
-                                                                </a>
-                                                            </td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                                <!-- Riego a demanda -->
-                                                <div style="margin-left: 5px;" ng-show="actualSystem.irrigation == 4" ng-init="editParamRiego = false">
-                                                    <p>Ajustar el riego cuando:</p>
-                                                    <p>
-                                                        <label>
-                                                            <input type="checkbox" class="filled-in" checked="checked" ng-model="actualSystem.irrigationPlan.irrigationConfig.isAdjustReduction"/>
-                                                            <span>
-                                                                <b style="color: blue" ng-show="!editParamRiego" ng-init="actualSystem.irrigationPlan.irrigationConfig.reductionPercent = -30">{{ actualSystem.irrigationPlan.irrigationConfig.reductionPercent }}</b>
-                                                                <input type="number" min="-100" max="0" style="width: 60px; text-align: right;" ng-model="actualSystem.irrigationPlan.irrigationConfig.reductionPercent" ng-show="editParamRiego"/>%
-                                                                para t ≤ 
-                                                                <b ng-show="!editParamRiego" ng-init="actualSystem.irrigationPlan.irrigationConfig.reductionTemp = 25">{{ actualSystem.irrigationPlan.irrigationConfig.reductionTemp }}</b>
-                                                                <input type="number" min="-10" max="70" style="width: 60px; text-align: right;" ng-model="actualSystem.irrigationPlan.irrigationConfig.reductionTemp" ng-show="editParamRiego"/>°C
-                                                            </span>
-                                                        </label>
-                                                    </p>
-                                                    <p>
-                                                        <label>
-                                                            <input type="checkbox" class="filled-in" checked="checked" ng-model="actualSystem.irrigationPlan.irrigationConfig.isAdjustIncrement"/>
-                                                            <span>
-                                                                <b style="color: red" ng-show="!editParamRiego" ng-init="actualSystem.irrigationPlan.irrigationConfig.incrementPercent = 50">+{{ actualSystem.irrigationPlan.irrigationConfig.incrementPercent }}</b>
-                                                                <input type="number" min="-10" max="70" style="width: 60px; text-align: right;" ng-model="actualSystem.irrigationPlan.irrigationConfig.incrementPercent" ng-show="editParamRiego"/>
-                                                                % en días calurosos
-                                                            </span>
-                                                        </label>
-                                                    </p>
-                                                    <p>
-                                                        <label>
-                                                            <input type="checkbox" class="filled-in" checked="checked" ng-model="actualSystem.irrigationPlan.irrigationConfig.isAdjustFrecuency"/>
-                                                            <span>Aumentar frecuencia en calor</span>
-                                                        </label>
-                                                    </p>
+                                                <!-- Frecuencia de sensado -->
+                                                <div ng-show="actualSystem.sensingMode == 1">
+                                                    <h6>Definción de la frecuencia de sensado</h6>
+                                                    <select id="selectSleepingTime" onchange="selectSleepingTime(this.value)" 
+                                                        ng-selected="actualSystem.sleepingTime" ng-model="actualSystem.sleepingTime">
+                                                        <option value="" disabled selected>Seleccione tiempo</option>
+                                                        <option value="15">Cada 15 minutos</option>
+                                                        <option value="30">Cada 30 minutos</option>
+                                                        <option value="45">Cada 45 minutos</option>
+                                                        <option value="60">Cada 1 hora</option>
+                                                        <option value="90">Cada 1½ horas</option>
+                                                        <option value="120">Cada 2 horas</option>
+                                                        <option value="480">Tres veces al día</option>
+                                                        <option value="720">Dos veces al día</option>
+                                                        <option value="1440">Diario</option>
+                                                    </select>
+                                                </div>
+                                                <!-- Esquema de sensado -->
+                                                <div style="margin-left: 5px;" ng-show="actualSystem.sensingMode == 2" ng-init="editParamSensing = false">
+                                                    <h6>Definición del esquema de sensado</h6>
+                                                    <p class="teal-text"><b>F1: Siembra</b></p>
                                                     <hr>
-                                                    <p>Detener el riego cuando:</p>
                                                     <p>
                                                         <label>
-                                                            <input type="checkbox" class="filled-in" checked="checked" ng-model="actualSystem.irrigationPlan.irrigationConfig.isStopByTemp"/>
+                                                            <input class="with-gap" name="group1" type="radio" class="filled-in" checked="checked" ng-model="actualSystem.sensigPlan.F1_dry"/>
                                                             <span>
-                                                                Temperatura ≤ <b ng-show="!editParamRiego" ng-init="actualSystem.irrigationPlan.irrigationConfig.stopByTemp = 20">{{ actualSystem.irrigationPlan.irrigationConfig.stopByTemp }}</b>
-                                                                <input type="number" min="-10" max="70" style="width: 60px; text-align: right;" ng-model="actualSystem.irrigationPlan.irrigationConfig.stopByTemp" ng-show="editParamRiego"/>°C
+                                                                Seco 
+                                                                <span ng-show="!editParamSensing">{{ actualSystem.sensigPlan.F1_dry_value }}</span>
+                                                                <input type="number" min="15" max="1440" style="width: 60px; text-align: right;" ng-model="actualSystem.sensigPlan.F1_dry_value" ng-show="editParamSensing"/>
                                                             </span>
                                                         </label>
                                                     </p>
                                                     <p>
                                                         <label>
-                                                            <input type="checkbox" class="filled-in" checked="checked" ng-model="actualSystem.irrigationPlan.irrigationConfig.isStopByRainProbability"/>
+                                                            <input class="with-gap" name="group1" type="radio" class="filled-in" checked="checked" ng-model="actualSystem.sensigPlan.F1_wet"/>
                                                             <span>
-                                                                Probabilidad de lluvia ≥ <b ng-show="!editParamRiego" ng-init="actualSystem.irrigationPlan.irrigationConfig.stopByRainProbability = 80">{{ actualSystem.irrigationPlan.irrigationConfig.stopByRainProbability }}</b>
-                                                                <input type="number" min="0" max="100" style="width: 60px; text-align: right;" ng-model="actualSystem.irrigationPlan.irrigationConfig.stopByRainProbability" ng-show="editParamRiego"/>%
+                                                                Riego | Lloviendo 
+                                                                <span ng-show="!editParamSensing">{{ actualSystem.sensigPlan.F1_wet_value }}</span>
+                                                                <input type="number" min="15" max="1440" style="width: 60px; text-align: right;" ng-model="actualSystem.sensigPlan.F1_wet_value" ng-show="editParamSensing"/>min
+                                                            </span>
+                                                        </label>
+                                                    </p>
+                                                    <p class="teal-text"><b>F2: Germinación</b></p>
+                                                    <hr>
+                                                    <p>
+                                                        <label>
+                                                            <input class="with-gap" name="group2" type="radio" class="filled-in" checked="checked" ng-model="actualSystem.sensigPlan.F2_dry"/>
+                                                            <span>
+                                                                Seco
+                                                                <span ng-show="!editParamSensing">{{ actualSystem.sensigPlan.F2_dry_value }}</span>
+                                                                <input type="number" min="15" max="1440" style="width: 60px; text-align: right;" ng-model="actualSystem.sensigPlan.F2_dry_value" ng-show="editParamSensing"/>min
                                                             </span>
                                                         </label>
                                                     </p>
                                                     <p>
                                                         <label>
-                                                            <input type="checkbox" class="filled-in" checked="checked" ng-model="actualSystem.irrigationPlan.irrigationConfig.isStopByWind"/>
+                                                            <input class="with-gap" name="group2" type="radio" class="filled-in" checked="checked" ng-model="actualSystem.sensigPlan.F2_wet"/>
                                                             <span>
-                                                                Vientos ≥ <b ng-show="!editParamRiego" ng-init="actualSystem.irrigationPlan.irrigationConfig.stopByWind = 100">{{ actualSystem.irrigationPlan.irrigationConfig.stopByWind }}</b>
-                                                                <input type="number" min="0" max="100" style="width: 60px; text-align: right;" ng-model="actualSystem.irrigationPlan.irrigationConfig.stopByWind" ng-show="editParamRiego"/>km/h
+                                                                Riego | Lloviendo
+                                                                <span ng-show="!editParamSensing">{{ actualSystem.sensigPlan.F2_wet_value }}</span>
+                                                                <input type="number" min="15" max="1440" style="width: 60px; text-align: right;" ng-model="actualSystem.sensigPlan.F2_wet_value" ng-show="editParamSensing"/>min
+                                                            </span>
+                                                        </label>
+                                                    </p>
+                                                    <p class="teal-text"><b>F3: Emergencia</b></p>
+                                                    <hr>
+                                                    <p>
+                                                        <label>
+                                                            <input class="with-gap" name="group3" type="radio" class="filled-in" checked="checked" ng-model="actualSystem.sensigPlan.F3_dry"/>
+                                                            <span>
+                                                                Seco
+                                                                <span ng-show="!editParamSensing">{{ actualSystem.sensigPlan.F3_dry_value }}</span>
+                                                                <input type="number" min="15" max="1440" style="width: 60px; text-align: right;" ng-model="actualSystem.sensigPlan.F3_dry_value" ng-show="editParamSensing"/>min
                                                             </span>
                                                         </label>
                                                     </p>
                                                     <p>
                                                         <label>
-                                                            <input type="checkbox" class="filled-in" checked="checked" ng-model="actualSystem.irrigationPlan.irrigationConfig.isStopByRainDay"/>
+                                                            <input class="with-gap" name="group3" type="radio" class="filled-in" checked="checked" ng-model="actualSystem.sensigPlan.F3_wet"/>
                                                             <span>
-                                                                Precipitaciones superiors a <b ng-show="!editParamRiego" ng-init="actualSystem.irrigationPlan.irrigationConfig.stopByRainDay = 3">{{ actualSystem.irrigationPlan.irrigationConfig.stopByRainDay }}</b>
-                                                                <input type="number" min="0" max="50" style="width: 60px; text-align: right;" ng-model="actualSystem.irrigationPlan.irrigationConfig.stopByRainDay" ng-show="editParamRiego"/> 
-                                                                mm (día anterior)
+                                                                Riego | Lloviendo
+                                                                <span ng-show="!editParamSensing">{{ actualSystem.sensigPlan.F3_wet_value }}</span>
+                                                                <input type="number" min="15" max="1440" style="width: 60px; text-align: right;" ng-model="actualSystem.sensigPlan.F3_wet_value" ng-show="editParamSensing"/>min
+                                                            </span>
+                                                        </label>
+                                                    </p>
+                                                    <p class="teal-text"><b>F4: Floración</b></p>
+                                                    <hr>
+                                                    <p>
+                                                        <label>
+                                                            <input class="with-gap" name="group4" type="radio" class="filled-in" checked="checked" ng-model="actualSystem.sensigPlan.F4_dry"/>
+                                                            <span>
+                                                                Seco
+                                                                <span ng-show="!editParamSensing">{{ actualSystem.sensigPlan.F4_dry_value }}</span>
+                                                                <input type="number" min="15" max="1440" style="width: 60px; text-align: right;" ng-model="actualSystem.sensigPlan.F4_dry_value" ng-show="editParamSensing"/>min
                                                             </span>
                                                         </label>
                                                     </p>
                                                     <p>
                                                         <label>
-                                                            <input type="checkbox" class="filled-in" checked="checked" ng-model="actualSystem.irrigationPlan.irrigationConfig.isStopByRainWeek"/>
+                                                            <input class="with-gap" name="group4" type="radio" class="filled-in" checked="checked" ng-model="actualSystem.sensigPlan.F4_wet"/>
                                                             <span>
-                                                                Precipitaciones superiors a <b ng-show="!editParamRiego" ng-init="actualSystem.irrigationPlan.irrigationConfig.stopByRainWeek = 30">{{ actualSystem.irrigationPlan.irrigationConfig.stopByRainWeek }}</b>
-                                                                <input type="number" min="0" max="50" style="width: 60px; text-align: right;" ng-model="actualSystem.irrigationPlan.irrigationConfig.stopByRainWeek" ng-show="editParamRiego"/> 
-                                                                mm (semana anterior)
+                                                                Riego | Lloviendo
+                                                                <span ng-show="!editParamSensing">{{ actualSystem.sensigPlan.F4_wet_value }}</span>
+                                                                <input type="number" min="15" max="1440" style="width: 60px; text-align: right;" ng-model="actualSystem.sensigPlan.F4_wet_value" ng-show="editParamSensing"/>min
+                                                            </span>
+                                                        </label>
+                                                    </p>
+                                                    <p class="teal-text"><b>F5: Cosecha</b></p>
+                                                    <hr>
+                                                    <p>
+                                                        <label>
+                                                            <input class="with-gap" name="group5" type="radio" class="filled-in" checked="checked" ng-model="actualSystem.sensigPlan.F5_dry"/>
+                                                            <span>
+                                                                Seco
+                                                                <span ng-show="!editParamSensing">{{ actualSystem.sensigPlan.F5_dry_value }}</span>
+                                                                <input type="number" min="15" max="1440" style="width: 60px; text-align: right;" ng-model="actualSystem.sensigPlan.F5_dry_value" ng-show="editParamSensing"/>min
+                                                            </span>
+                                                        </label>
+                                                    </p>
+                                                    <p>
+                                                        <label>
+                                                            <input class="with-gap" name="group5" type="radio" class="filled-in" checked="checked" ng-model="actualSystem.sensigPlan.F5_wet"/>
+                                                            <span>
+                                                                Riego | Lloviendo
+                                                                <span ng-show="!editParamSensing">{{ actualSystem.sensigPlan.F5_wet_value }}</span>
+                                                                <input type="number" min="15" max="1440" style="width: 60px; text-align: right;" ng-model="actualSystem.sensigPlan.F5_wet_value" ng-show="editParamSensing"/>min
                                                             </span>
                                                         </label>
                                                     </p>
                                                     <div class="right-align">
-                                                        <div class="btn waves-effect waves-light blue lighten-3" ng-click="editParamRiego = !editParamRiego">
+                                                        <div class="btn waves-effect waves-light blue lighten-3" ng-click="editParamSensing = !editParamSensing">
                                                             &nbsp; <i class="material-icons">edit</i> &nbsp;
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <!-- Riego predictivo -->
-                                                <div style="padding: 5px; color: #9e9e9e;" ng-show="actualSystem.irrigation == 5">
-                                                    <p>En la modalidad de <b>Riego predictivo</b> su <i style="color: green;"><b>Asistente Agrícola Inteligente</b></i> 
-                                                        se encargará de sugerir las mejores condiciones de riego para su <b>suelo</b>, <b>cultivo</b> y <b>clima</b>.</p>
+                                                <!-- Sensado Inteligente -->
+                                                <div style="padding: 5px; color: #9e9e9e;" ng-show="actualSystem.sensingMode == 3">
+                                                    <p>En la modalidad de <b>Sensado Inteligente</b> su <i style="color: green;"><b>Asistente Agrícola Inteligente</b></i> 
+                                                        se encargará de sugerir las mejores condiciones de sensado para su <b>suelo</b>, <b>cultivo</b>, <b>clima</b> y 
+                                                        <b>fase fenológica</b> con la intención de reducir el consumo de batería sin perder detalles del comportamieno del suelo.</p>
                                                     <p style="text-align: center;">
                                                         <a class="icono btn-floating pulse" id="verclientes" data-toggle="modal" data-target="#modalverclientes">
                                                             <img class="icono" src="assets/images/DTA-Agricola.png" />
@@ -1644,7 +1628,7 @@
                                                     </p>
                                                 </div>
                                                 <!-- Programa no seleccionado -->
-                                                <div style="text-align: center;" ng-show="actualSystem.irrigation < 1 || actualSystem.irrigation == 'a'">
+                                                <div style="text-align: center;" ng-show="!actualSystem.sensingMode || actualSystem.sensingMode < 1">
                                                     <img src="assets/images/options.png" alt="options" style="width: 80%;">
                                                 </div>
                                             </div>
@@ -2337,6 +2321,65 @@
                                         <i class="material-icons">&nbsp;&nbsp;reply&nbsp;&nbsp;</i></a>
                                     <a href="" class="modal-close waves-effect teal waves-green btn-flat white-text"
                                         ng-click="addSchedule()"><i
+                                            class="material-icons">&nbsp;&nbsp;check&nbsp;&nbsp;</i></a>
+                                </div>
+                            </div>
+
+                            <div id="modalNuevoSensor" class="modal"> <!-- Modal adicionar sensor -->
+                                <div class="modal-content">
+                                    <div class="swal-title">Agregar sensor</div>
+                                    <div class="row" style="margin-top: 35px;">
+                                        <div class="input-field col s12">
+                                            <input id="newSensorID" type="text" ng-model="newSensorID">
+                                            <label>Identificador</label>
+                                        </div>
+                                        <div class="col s12"
+                                            style="background: whitesmoke; box-shadow: 0 0 3px lightgrey; margin-bottom: 20px;">
+                                            <label>Geolocalización</label>
+                                            <div class="row" style="margin-bottom: 0;">
+                                                <div class="input-field col s5">
+                                                    <input id="newSensorLatitude" type="text" placeholder="Latidud"
+                                                        ng-model="newSensorLatitude">
+                                                    <label for="newSensorLatitude">Latitud</label>
+                                                </div>
+                                                <div class="input-field col s5">
+                                                    <input id="newSensorLongitude" type="text" placeholder="Longitud"
+                                                        ng-model="newSensorLongitude">
+                                                    <label for="newSensorLongitude">Longitud</label>
+                                                </div>
+                                                <div class="input-field col s2 waves-effect grey waves-grey btn-flat white-text valign-wrapper">
+                                                    <div id="btnLocation" style="text-align: center;" ng-click="setSensorPosition()">
+                                                        <i class="material-icons">&nbsp;add_location&nbsp;</i>
+                                                    </div>
+                                                    <label for="btnLocation">&nbsp;</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="input-field col s12 row" style="border: 1px solid lightgrey; border-radius: 5px;">
+                                            <div class="input-field col s6">
+                                                <input id="newSensorMinVal" type="text" ng-model="newSensorMinVal">
+                                                <label>Mínimo</label>
+                                            </div>
+                                            <div class="input-field col s6">
+                                                <input id="newSensorMaxVal" type="text" ng-model="newSensorMaxVal">
+                                                <label>Máximo</label>
+                                            </div>
+                                        </div>
+                                        <div class="input-field col s12">
+                                            <select id="newSensorType" ng-model="newSensorType">
+                                                <option value="Ms" selected="selected">Humedad suelo</option>
+                                                <option value="Tr">Temperatura</option>
+                                                <option value="Fl">Flujo de agua</option>
+                                            </select>
+                                            <label style="top: -28px; font-size: .8em;">Role</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <a href="" class="modal-close waves-effect grey waves-grey btn-flat white-text">
+                                        <i class="material-icons">&nbsp;&nbsp;reply&nbsp;&nbsp;</i></a>
+                                    <a href="" class="modal-close waves-effect teal waves-green btn-flat white-text"
+                                        ng-click="addNewSensorToNet()"><i
                                             class="material-icons">&nbsp;&nbsp;check&nbsp;&nbsp;</i></a>
                                 </div>
                             </div>
@@ -3137,7 +3180,9 @@
 
                     </div>
 
-                    <div class="col s12"> <!-- MENUES -->
+                    <!-- #region: MENUES -->
+
+                    <div class="col s12">
 
                         <!-- #region: MENUES -->
         
@@ -3270,6 +3315,8 @@
                         <!-- #endregion: MENUES -->
 
                     </div>   
+
+                    <!-- #endregion: MENUES -->
 
                 </div>    
 
