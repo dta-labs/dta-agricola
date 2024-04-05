@@ -310,7 +310,8 @@ app.controller("ControladorPrincipal", function ($scope) {
     }
 
     normalize = (arr, key) => {
-        arr.forEach((val, idx) => {
+        for(let idx = 0, idx < arr.length() - 1; idx++) {
+            let val = arr[idx];
             if (val != -99) {
                 let index = "S" + idx;
                 let system =$scope.systems[key];
@@ -319,7 +320,7 @@ app.controller("ControladorPrincipal", function ($scope) {
                 let result = ((val - min) / (max - min)) * 100;
                 arr[idx] = 100 - (result > 100 ? 100 : result);
             }
-        });
+        }
         return arr;
     }
 
