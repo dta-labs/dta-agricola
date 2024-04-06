@@ -450,16 +450,10 @@
                                             ng-show="newDevice.type == 'Sensor'">
                                             <select id="newDeviceSensorType" class="select" ng-model="newDevice.sensorType">
                                                 <option value="" disabled selected>Seleccione un tipo</option>
-                                                <option value="sensorBluetooth">Bluetooth (presencial)</option>
-                                                <option value="sensorLoRa">LoRa (remoto)</option>
+                                                <option value="sensorBluetooth">Corto alcance (Bluetooth)</option>
+                                                <option value="sensorLoRa">Largo alcance (LoRa)</option>
                                             </select>
                                             <label for="newDeviceSensorType">Serie</label>
-                                        </div>
-                                        <div class="input-field col s6"
-                                            ng-show="newDevice.type == 'Sensor'">
-                                            <input id="newDeviceIP" type="text" placeholder="192.168.1.1"
-                                                ng-model="newDevice.ip">
-                                            <label for="newDeviceIP">IP v4</label>
                                         </div>
                                         <div class="input-field col s12 m6" ng-init="newDevice.zona = '0'">
                                             <select id="newDeviceZone" class="select" ng-model="newDevice.zona">
@@ -1456,13 +1450,13 @@
                                                     <p>Procesamiento de las lecturas</p>
                                                     <p>
                                                         <label>
-                                                            <input type="checkbox" class="filled-in" checked="checked" ng-model="!actualSystem.sensingProcess"/>
+                                                            <input type="radio" class="filled-in" value="mean" ng-model="actualSystem.sensors.operation"/>
                                                             <span>Promediar todas las lecturas</span>
                                                         </label>
                                                     </p>
                                                     <p>
                                                         <label>
-                                                            <input type="checkbox" class="filled-in" checked="checked" ng-model="actualSystem.sensingProcess"/>
+                                                            <input type="radio" class="filled-in" value="min" ng-model="actualSystem.sensors.operation"/>
                                                             <span>La menor de todas las lecturas</span>
                                                         </label>
                                                     </p>
@@ -1483,7 +1477,7 @@
                                                 <!-- Frecuencia de sensado -->
                                                 <div ng-show="actualSystem.sensingMode == 1">
                                                     <h6>Definción de la frecuencia de sensado</h6>
-                                                    <select id="selectSleepingTime" onchange="selectSleepingTime(this.value)" 
+                                                    <select id="selectSleepingTime"
                                                         ng-selected="actualSystem.sleepingTime" ng-model="actualSystem.sleepingTime">
                                                         <option value="" disabled selected>Seleccione tiempo</option>
                                                         <option value="15">Cada 15 minutos</option>
@@ -1503,112 +1497,62 @@
                                                     <p class="teal-text"><b>F1: Siembra</b></p>
                                                     <hr>
                                                     <p>
-                                                        <label>
-                                                            <input class="with-gap" name="group1" type="radio" class="filled-in" checked="checked" ng-model="actualSystem.sensigPlan.F1_dry"/>
-                                                            <span>
-                                                                Seco 
-                                                                <span ng-show="!editParamSensing">{{ actualSystem.sensigPlan.F1_dry_value }}</span>
-                                                                <input type="number" min="15" max="1440" style="width: 60px; text-align: right;" ng-model="actualSystem.sensigPlan.F1_dry_value" ng-show="editParamSensing"/>
-                                                            </span>
-                                                        </label>
+                                                        ~ Seco 
+                                                        <span ng-show="!editParamSensing">{{ actualSystem.sensingScheme.F1_dry_value }}</span>
+                                                        <input type="number" min="15" max="1440" style="width: 60px; text-align: right;" ng-model="actualSystem.sensingScheme.F1_dry_value" ng-show="editParamSensing"/>
                                                     </p>
                                                     <p>
-                                                        <label>
-                                                            <input class="with-gap" name="group1" type="radio" class="filled-in" checked="checked" ng-model="actualSystem.sensigPlan.F1_wet"/>
-                                                            <span>
-                                                                Riego | Lloviendo 
-                                                                <span ng-show="!editParamSensing">{{ actualSystem.sensigPlan.F1_wet_value }}</span>
-                                                                <input type="number" min="15" max="1440" style="width: 60px; text-align: right;" ng-model="actualSystem.sensigPlan.F1_wet_value" ng-show="editParamSensing"/>min
-                                                            </span>
-                                                        </label>
+                                                        ~ Riego | Lloviendo 
+                                                        <span ng-show="!editParamSensing">{{ actualSystem.sensingScheme.F1_wet_value }}</span>
+                                                        <input type="number" min="15" max="1440" style="width: 60px; text-align: right;" ng-model="actualSystem.sensingScheme.F1_wet_value" ng-show="editParamSensing"/>min
                                                     </p>
                                                     <p class="teal-text"><b>F2: Germinación</b></p>
                                                     <hr>
                                                     <p>
-                                                        <label>
-                                                            <input class="with-gap" name="group2" type="radio" class="filled-in" checked="checked" ng-model="actualSystem.sensigPlan.F2_dry"/>
-                                                            <span>
-                                                                Seco
-                                                                <span ng-show="!editParamSensing">{{ actualSystem.sensigPlan.F2_dry_value }}</span>
-                                                                <input type="number" min="15" max="1440" style="width: 60px; text-align: right;" ng-model="actualSystem.sensigPlan.F2_dry_value" ng-show="editParamSensing"/>min
-                                                            </span>
-                                                        </label>
+                                                        ~ Seco
+                                                        <span ng-show="!editParamSensing">{{ actualSystem.sensingScheme.F2_dry_value }}</span>
+                                                        <input type="number" min="15" max="1440" style="width: 60px; text-align: right;" ng-model="actualSystem.sensingScheme.F2_dry_value" ng-show="editParamSensing"/>min
                                                     </p>
                                                     <p>
-                                                        <label>
-                                                            <input class="with-gap" name="group2" type="radio" class="filled-in" checked="checked" ng-model="actualSystem.sensigPlan.F2_wet"/>
-                                                            <span>
-                                                                Riego | Lloviendo
-                                                                <span ng-show="!editParamSensing">{{ actualSystem.sensigPlan.F2_wet_value }}</span>
-                                                                <input type="number" min="15" max="1440" style="width: 60px; text-align: right;" ng-model="actualSystem.sensigPlan.F2_wet_value" ng-show="editParamSensing"/>min
-                                                            </span>
-                                                        </label>
+                                                        ~ Riego | Lloviendo
+                                                        <span ng-show="!editParamSensing">{{ actualSystem.sensingScheme.F2_wet_value }}</span>
+                                                        <input type="number" min="15" max="1440" style="width: 60px; text-align: right;" ng-model="actualSystem.sensingScheme.F2_wet_value" ng-show="editParamSensing"/>min
                                                     </p>
                                                     <p class="teal-text"><b>F3: Emergencia</b></p>
                                                     <hr>
                                                     <p>
-                                                        <label>
-                                                            <input class="with-gap" name="group3" type="radio" class="filled-in" checked="checked" ng-model="actualSystem.sensigPlan.F3_dry"/>
-                                                            <span>
-                                                                Seco
-                                                                <span ng-show="!editParamSensing">{{ actualSystem.sensigPlan.F3_dry_value }}</span>
-                                                                <input type="number" min="15" max="1440" style="width: 60px; text-align: right;" ng-model="actualSystem.sensigPlan.F3_dry_value" ng-show="editParamSensing"/>min
-                                                            </span>
-                                                        </label>
+                                                        ~ Seco
+                                                        <span ng-show="!editParamSensing">{{ actualSystem.sensingScheme.F3_dry_value }}</span>
+                                                        <input type="number" min="15" max="1440" style="width: 60px; text-align: right;" ng-model="actualSystem.sensingScheme.F3_dry_value" ng-show="editParamSensing"/>min
                                                     </p>
                                                     <p>
-                                                        <label>
-                                                            <input class="with-gap" name="group3" type="radio" class="filled-in" checked="checked" ng-model="actualSystem.sensigPlan.F3_wet"/>
-                                                            <span>
-                                                                Riego | Lloviendo
-                                                                <span ng-show="!editParamSensing">{{ actualSystem.sensigPlan.F3_wet_value }}</span>
-                                                                <input type="number" min="15" max="1440" style="width: 60px; text-align: right;" ng-model="actualSystem.sensigPlan.F3_wet_value" ng-show="editParamSensing"/>min
-                                                            </span>
-                                                        </label>
+                                                        ~ Riego | Lloviendo
+                                                        <span ng-show="!editParamSensing">{{ actualSystem.sensingScheme.F3_wet_value }}</span>
+                                                        <input type="number" min="15" max="1440" style="width: 60px; text-align: right;" ng-model="actualSystem.sensingScheme.F3_wet_value" ng-show="editParamSensing"/>min
                                                     </p>
                                                     <p class="teal-text"><b>F4: Floración</b></p>
                                                     <hr>
                                                     <p>
-                                                        <label>
-                                                            <input class="with-gap" name="group4" type="radio" class="filled-in" checked="checked" ng-model="actualSystem.sensigPlan.F4_dry"/>
-                                                            <span>
-                                                                Seco
-                                                                <span ng-show="!editParamSensing">{{ actualSystem.sensigPlan.F4_dry_value }}</span>
-                                                                <input type="number" min="15" max="1440" style="width: 60px; text-align: right;" ng-model="actualSystem.sensigPlan.F4_dry_value" ng-show="editParamSensing"/>min
-                                                            </span>
-                                                        </label>
+                                                        ~ Seco
+                                                        <span ng-show="!editParamSensing">{{ actualSystem.sensingScheme.F4_dry_value }}</span>
+                                                        <input type="number" min="15" max="1440" style="width: 60px; text-align: right;" ng-model="actualSystem.sensingScheme.F4_dry_value" ng-show="editParamSensing"/>min
                                                     </p>
                                                     <p>
-                                                        <label>
-                                                            <input class="with-gap" name="group4" type="radio" class="filled-in" checked="checked" ng-model="actualSystem.sensigPlan.F4_wet"/>
-                                                            <span>
-                                                                Riego | Lloviendo
-                                                                <span ng-show="!editParamSensing">{{ actualSystem.sensigPlan.F4_wet_value }}</span>
-                                                                <input type="number" min="15" max="1440" style="width: 60px; text-align: right;" ng-model="actualSystem.sensigPlan.F4_wet_value" ng-show="editParamSensing"/>min
-                                                            </span>
-                                                        </label>
+                                                        ~ Riego | Lloviendo
+                                                        <span ng-show="!editParamSensing">{{ actualSystem.sensingScheme.F4_wet_value }}</span>
+                                                        <input type="number" min="15" max="1440" style="width: 60px; text-align: right;" ng-model="actualSystem.sensingScheme.F4_wet_value" ng-show="editParamSensing"/>min
                                                     </p>
                                                     <p class="teal-text"><b>F5: Cosecha</b></p>
                                                     <hr>
                                                     <p>
-                                                        <label>
-                                                            <input class="with-gap" name="group5" type="radio" class="filled-in" checked="checked" ng-model="actualSystem.sensigPlan.F5_dry"/>
-                                                            <span>
-                                                                Seco
-                                                                <span ng-show="!editParamSensing">{{ actualSystem.sensigPlan.F5_dry_value }}</span>
-                                                                <input type="number" min="15" max="1440" style="width: 60px; text-align: right;" ng-model="actualSystem.sensigPlan.F5_dry_value" ng-show="editParamSensing"/>min
-                                                            </span>
-                                                        </label>
+                                                        ~ Seco
+                                                        <span ng-show="!editParamSensing">{{ actualSystem.sensingScheme.F5_dry_value }}</span>
+                                                        <input type="number" min="15" max="1440" style="width: 60px; text-align: right;" ng-model="actualSystem.sensingScheme.F5_dry_value" ng-show="editParamSensing"/>min
                                                     </p>
                                                     <p>
-                                                        <label>
-                                                            <input class="with-gap" name="group5" type="radio" class="filled-in" checked="checked" ng-model="actualSystem.sensigPlan.F5_wet"/>
-                                                            <span>
-                                                                Riego | Lloviendo
-                                                                <span ng-show="!editParamSensing">{{ actualSystem.sensigPlan.F5_wet_value }}</span>
-                                                                <input type="number" min="15" max="1440" style="width: 60px; text-align: right;" ng-model="actualSystem.sensigPlan.F5_wet_value" ng-show="editParamSensing"/>min
-                                                            </span>
-                                                        </label>
+                                                        ~ Riego | Lloviendo
+                                                        <span ng-show="!editParamSensing">{{ actualSystem.sensingScheme.F5_wet_value }}</span>
+                                                        <input type="number" min="15" max="1440" style="width: 60px; text-align: right;" ng-model="actualSystem.sensingScheme.F5_wet_value" ng-show="editParamSensing"/>min
                                                     </p>
                                                     <div class="right-align">
                                                         <div class="btn waves-effect waves-light blue lighten-3" ng-click="editParamSensing = !editParamSensing">
@@ -1640,11 +1584,8 @@
                                                 <i class="material-icons">reply</i>
                                                 &nbsp;&nbsp;
                                             </div>
-                                            <div class="btn waves-effect waves-light teal lighten-3"
-                                                ng-click="setMachineConfig()" ng-show="isPlanning && (actualSystem.irrigation == 3 || actualSystem.irrigation == 4 || actualSystem.irrigation == 5)">
-                                                &nbsp;&nbsp;
-                                                <i class="material-icons">check</i>
-                                                &nbsp;&nbsp;
+                                            <div class="btn waves-effect waves-light teal lighten-3" ng-click="updateSensingScheme()">
+                                                &nbsp; <i class="material-icons">check</i> &nbsp;
                                             </div>
                                         </div>
                                     </div>
@@ -3350,7 +3291,7 @@
         <script src="./assets/modules/chart.js/chart.js"></script>
         <script src="./assets/js/commons.js"></script>
         <!-- <script src="./assets/cultures/listPlanesRiego.js"></script> -->
-        <script src="./assets/js/core.js?v=1"></script>
+        <script src="./assets/js/core.js?v=1.1"></script>
         <!-- <script src="monitor/js/chartjs/chart.min.js"></script> -->
         <script type="text/javascript" src="./assets/modules/datepicker/daterangepicker.js"></script>
         <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>

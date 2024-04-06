@@ -310,8 +310,8 @@ app.controller("ControladorPrincipal", function ($scope) {
     }
 
     normalize = (arr, key) => {
-        for(let idx = 0, idx < arr.length() - 1; idx++) {
-            let val = arr[idx];
+        for(idx = 0; idx < arr.length; idx++) {
+            val = arr[idx];
             if (val != -99) {
                 let index = "S" + idx;
                 let system =$scope.systems[key];
@@ -795,28 +795,57 @@ app.controller("ControladorPrincipal", function ($scope) {
     }
 
     newSensor = () => {
+        // $scope.actualSystem[sensingScheme][F1_dry_value] = 15;
+        // $scope.actualSystem[sensingScheme][F1_wet_value] = 30;
+        // $scope.actualSystem[sensingScheme][F2_wet_value] = 15;
+        // $scope.actualSystem[sensingScheme][F2_wet_value] = 30;
+        // $scope.actualSystem[sensingScheme][F3_dry_value] = 15;
+        // $scope.actualSystem[sensingScheme][F3_wet_value] = 30;
+        // $scope.actualSystem[sensingScheme][F4_dry_value] = 15;
+        // $scope.actualSystem[sensingScheme][F4_wet_value] = 30;
+        // $scope.actualSystem[sensingScheme][F5_dry_value] = 15;
+        // $scope.actualSystem[sensingScheme][F5_wet_value] = 30;
+        // $scope.actualSystem[sensingProcess] = false;
+        // $scope.actualSystem[sleepingTime] = "1";
         Object.assign($scope.newDevice, {
-            "sensorLength": "1",
             "sensors": {
-                "Group0": {
-                    "operation": "mean",
-                    "type": "moinsture",
-                    "S0": {
-                        "minValue": "0",
-                        "maxValue": "1024",
-                        "latitude": "",
-                        "longitude": ""
-                    },
-                    "S1": {
-                        "minValue": "0",
-                        "maxValue": "1024",
-                        "latitude": "",
-                        "longitude": ""
-                    }
+                "operation": "mean",
+                "sensorNumber": "1",
+                "S0": {
+                    "id": "FF",
+                    "minValue": "0",
+                    "latitude": "0",
+                    "longitude": "0",
+                    "maxValue": "0",
+                    "type": "Ms"
                 }
             },
+            "sensingScheme": {
+                "F1_dry_value": 15,
+                "F1_wet_value": 30,
+                "F2_dry_value": 15,
+                "F2_wet_value": 30,
+                "F3_dry_value": 15,
+                "F3_wet_value": 30,
+                "F4_dry_value": 15,
+                "F4_wet_value": 30,
+                "F5_dry_value": 15,
+                "F5_wet_value": 30
+            },
+            "sensingProcess": false,
             "sleepingTime": "1"
         });
+    }
+
+    $scope.updateSensingScheme = () => {
+        delete $scope.actualSystem.caudal;
+        delete $scope.actualSystem.delayTime;
+        delete $scope.actualSystem.direction;
+        delete $scope.actualSystem.length;
+        delete $scope.actualSystem.plansLength;
+        delete $scope.actualSystem.sensorPresion;
+        delete $scope.actualSystem.velocity;
+        updateNewDevice($scope.actualSystem);
     }
 
     $scope.updateNewDevice = () => {
@@ -1373,7 +1402,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         } else {
             text += `
                 <h6 style="background: lightgrey">${campo.name}</h6>
-                <span>Hs: <b>${campo.log.meanVal.toFixed(0)}</b>%</span></br>
+                <span>Hs: <b>${ campo.log ? campo.log.meanVal.toFixed(0) : "" }</b>%</span></br>
                 `;
         }
         if (campo.type == "PC" || campo.type == "PL") {
@@ -1570,6 +1599,7 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     $scope.showChart = () => {
         const ctx = document.getElementById('myChart');
+        if (myChart) myChart = null;
         new Chart(ctx, {
             type: 'line',
             data: {
@@ -1642,7 +1672,8 @@ app.controller("ControladorPrincipal", function ($scope) {
                 mean += element;
             }
         });
-        return mean / i;
+        result = mean / i;
+        return result > 100 ? 100 : result < 0 ? 0 : result;
     }
 
     getMin = (obj) => {
