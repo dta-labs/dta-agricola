@@ -28,7 +28,7 @@ void loop() {
     sleepFor(sleepingTime);
     Serial.println(F("Nuevo ciclo..."));
   }
-  delay(50);
+  delay(5);
 }
  
 String receiveData() {

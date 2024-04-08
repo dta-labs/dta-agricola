@@ -8,6 +8,7 @@ var poligons = {};
 var milatitud;
 var milongitud;
 var miaccuracy;
+var myChart;
 
 // #region Controlador Angular
 
@@ -795,18 +796,6 @@ app.controller("ControladorPrincipal", function ($scope) {
     }
 
     newSensor = () => {
-        // $scope.actualSystem[sensingScheme][F1_dry_value] = 15;
-        // $scope.actualSystem[sensingScheme][F1_wet_value] = 30;
-        // $scope.actualSystem[sensingScheme][F2_wet_value] = 15;
-        // $scope.actualSystem[sensingScheme][F2_wet_value] = 30;
-        // $scope.actualSystem[sensingScheme][F3_dry_value] = 15;
-        // $scope.actualSystem[sensingScheme][F3_wet_value] = 30;
-        // $scope.actualSystem[sensingScheme][F4_dry_value] = 15;
-        // $scope.actualSystem[sensingScheme][F4_wet_value] = 30;
-        // $scope.actualSystem[sensingScheme][F5_dry_value] = 15;
-        // $scope.actualSystem[sensingScheme][F5_wet_value] = 30;
-        // $scope.actualSystem[sensingProcess] = false;
-        // $scope.actualSystem[sleepingTime] = "1";
         Object.assign($scope.newDevice, {
             "sensors": {
                 "operation": "mean",
@@ -838,14 +827,32 @@ app.controller("ControladorPrincipal", function ($scope) {
     }
 
     $scope.updateSensingScheme = () => {
-        delete $scope.actualSystem.caudal;
-        delete $scope.actualSystem.delayTime;
-        delete $scope.actualSystem.direction;
-        delete $scope.actualSystem.length;
-        delete $scope.actualSystem.plansLength;
-        delete $scope.actualSystem.sensorPresion;
-        delete $scope.actualSystem.velocity;
-        updateNewDevice($scope.actualSystem);
+
+        swal({
+            title: "",
+            text: "Actualizar esquema de sensado",
+            icon: "warning",
+            buttons: ["Cancelar", true],
+            dangerMode: true,
+        })
+        .then((confirm) => {
+            if (confirm) {
+                delete $scope.actualSystem.caudal;
+                delete $scope.actualSystem.delayTime;
+                delete $scope.actualSystem.direction;
+                delete $scope.actualSystem.length;
+                delete $scope.actualSystem.plansLength;
+                delete $scope.actualSystem.sensorPresion;
+                delete $scope.actualSystem.velocity;
+                updateNewDevice($scope.actualSystem);
+                document.getElementById("modalConfig").style.display = "none";
+                swal("Esquema actualizado correctamente!", {
+                    icon: "success",
+                });
+            } else {
+                swal("Actualización cancelada!");
+            }
+        });
     }
 
     $scope.updateNewDevice = () => {
@@ -897,6 +904,9 @@ app.controller("ControladorPrincipal", function ($scope) {
                 updateSensorNet($scope.actualSystem.key, $scope.actualSystem.sensors);
                 //location.reload();
                 document.getElementById("modalNuevoSensor").style.display = "none";
+                swal("Asignación completada!", {
+                    icon: "success",
+                });
             } else {
                 swal("Asignación cancelada!");
             }
@@ -963,7 +973,7 @@ app.controller("ControladorPrincipal", function ($scope) {
                     $scope.actualSystem.plansLength = length + 1;
                     // showPlanRiegoPie();
                     $scope.setMachineSettings($scope.actualSystem);
-                        swal("Plan de riego actualizado correctamente!", {
+                    swal("Plan de riego actualizado correctamente!", {
                         icon: "success",
                     });
                 } else {
@@ -1599,8 +1609,8 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     $scope.showChart = () => {
         const ctx = document.getElementById('myChart');
-        if (myChart) myChart = null;
-        new Chart(ctx, {
+        if (myChart) myChart.destroy();
+        myChart = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'],
