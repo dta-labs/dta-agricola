@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Firebase Login</title>
+
+  <!-- Compiled and minified CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+</head>
+
+<body>
+  <nav>
+    <div class="nav-wrapper">
+      <a href="#" class="brand-logo">Logo</a>
+      <ul id="nav-mobile" class="right hide-on-med-and-down">
+        <li><a class="waves-effect waves-light modal-trigger" href="#modalSignin">Signin</a></li>
+        <li><a class="waves-effect waves-light modal-trigger" href="#modalSignup">Signup</a></li>
+        <li><a class="waves-effect waves-light" href="#" id="signOut">Logout</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Modal Structure -->
+  <div id="modalSignin" class="modal">
+    <div class="modal-content">
+      <h4>Signin</h4>
+      
+      <p></p>
+      <div class="row">
+        <div class="input-field col s6 m12">
+          <input placeholder="Placeholder" id="signinMail" type="email" class="validate">
+          <label for="signinMail">Mail</label>
+        </div>
+        <div class="input-field col s6 m12">
+          <input id="signinPassword" type="password" class="validate">
+          <label for="signinPassword">Password</label>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <a id="signinBtn" href="#!" class="modal-close waves-effect waves-green btn-flat">Agree</a>
+    </div>
+    <div class="modal-footer">
+      <a id="signinGoogle" href="#!" class="modal-close waves-effect waves-red btn-flat">Google</a>
+    </div>
+  </div>
+
+  <div id="modalSignup" class="modal">
+    <div class="modal-content">
+      <h4>Signup</h4>
+
+      <p></p>
+      <div class="row">
+        <div class="input-field col s6 m12">
+          <input placeholder="Placeholder" id="signupMail" type="email" class="validate">
+          <label for="signupMail">Mail</label>
+        </div>
+        <div class="input-field col s6 m12">
+          <input id="signupPassword" type="password" class="validate">
+          <label for="signupPassword">Password</label>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <a id="signupBtn" href="#!" class="modal-close waves-effect waves-green btn-flat">Agree</a>
+    </div>
+  </div>
+
+  <!-- Compiled and minified JavaScript -->
+  <script src="./main.js" type="module"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+</body>
+
+</html>
