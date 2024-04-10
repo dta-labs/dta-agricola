@@ -140,7 +140,7 @@
                                         </a>
                                     </li>
                                     <li ng-show="authUser" ng-click="logout()">
-                                        <a href="#!/login" style="width: 100%;">
+                                        <a id="signOut" href="#!/login" style="width: 100%;">
                                             <i class="fa fa-sign-out" aria-hidden="true"></i>
                                             &nbsp;Salir
                                         </a>
@@ -3016,10 +3016,64 @@
 
                         <section id="usuarios">
 
-                            <div class="container" style="margin-top: 50px;" ng-show="selectedWindow == 'login'">
-                                <p class="sercices-options teal darken white-text">Acceder</p>
+                            <div class="container ventanaServicios" style="width: 80%; min-height: calc(100vh - 360px);" ng-show="selectedWindow == 'login'">
+                                <div class="swal-title">Acceder</div>
                                 <br>
-                                <div id="firebaseui-auth-container"></div>
+
+                                <div style="padding: 0 50px;">
+                                    <div class="modal-content">
+                                        <p></p>
+                                        <div class="row">
+                                            <div class="input-field col s6 m12">
+                                                <input placeholder="Placeholder" id="signinMail" type="email" class="validate">
+                                                <label for="signinMail">Correo electrónico</label>
+                                            </div>
+                                            <div class="input-field col s6 m12">
+                                                <input id="signinPassword" type="password" class="validate">
+                                                <label for="signinPassword">Contraseña</label>
+                                            </div>
+                                        </div>
+                                
+                                    </div>
+                                    <div class="modal-footer">
+                                        <!-- <a href="#!" class="modal-close waves-effect waves-green btn-flat">Ingresar</a> -->
+                                        <a id="signinBtn" class="waves-effect waves-light btn"><i class="material-icons left">cloud</i>Ingresar</a>
+
+                                    </div>
+                                    <div class="modal-footer">
+                                        <!-- <a id="signinGoogle" href="#!" class="modal-close waves-effect waves-red btn-flat">Google</a> -->
+                                        <a id="signinGoogle" class="waves-effect waves-light btn red">
+                                            <img src="./assets/images/google-icon-1.png" alt="Google" style="width: 32px;">Google
+                                        </a>
+
+                                    </div>
+                                </div>
+                                
+                                <div id="modalSignup" class="modal">
+                                    <div class="modal-content">
+                                        <h4>Signup</h4>
+                                
+                                        <p></p>
+                                        <div class="row">
+                                            <div class="input-field col s6 m12">
+                                                <input placeholder="Placeholder" id="signupMail" type="email" class="validate">
+                                                <label for="signupMail">Mail</label>
+                                            </div>
+                                            <div class="input-field col s6 m12">
+                                                <input id="signupPassword" type="password" class="validate">
+                                                <label for="signupPassword">Password</label>
+                                            </div>
+                                        </div>
+                                
+                                    </div>
+                                    <div class="modal-footer">
+                                        <a id="signupBtn" href="#!" class="modal-close waves-effect waves-green btn-flat">Agree</a>
+                                    </div>
+                                </div>
+                                
+                                
+
+                                <!-- <div id="firebaseui-auth-container"></div>
                                 <br>
                                 <hr>
                                 <br>
@@ -3028,7 +3082,7 @@
                                     mdl-button--raised firebaseui-idp-google firebaseui-id-idp-button">
                                         <i class="material-icons">exit_to_app</i> Salir
                                     </button>
-                                </div>
+                                </div> -->
                             </div>
 
                             <div if="perfilUsuario" class="container ventanaServicios" ng-show="authUser && selectedWindow == 'users'">
@@ -3125,8 +3179,6 @@
                     <!-- #region: MENUES -->
 
                     <div class="col s12">
-
-                        <!-- #region: MENUES -->
         
                         <header>
         
@@ -3253,8 +3305,6 @@
                             </div>
         
                         </header>
-        
-                        <!-- #endregion: MENUES -->
 
                     </div>   
 
@@ -3280,7 +3330,9 @@
         <script src="https://www.gstatic.com/firebasejs/5.10.1/firebase.js"></script>
         <script src="https://www.gstatic.com/firebasejs/ui/4.0.0/firebase-ui-auth__es_419.js"></script>
         <script src="https://www.gstatic.com/firebasejs/7.3.0/firebase-analytics.js"></script>
+        <script src="./assets/js/firebaseConfig.js"></script>
         <script src="./assets/js/firebaseComm.js?v=1.2"></script>
+        <script src="./assets/js/autentication.js" type="module"></script>
         <script src="./assets/js/notifications.js"></script>
         <!-- <script src="./assets/modules/angularjs/angular.min.js"></script> -->
         <script src="./assets/js/jquery.min.js"></script>
