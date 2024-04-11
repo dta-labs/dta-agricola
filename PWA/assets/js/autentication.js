@@ -5,19 +5,26 @@ import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, on
 const firebaseApp = initializeApp(config);
 const auth = getAuth(firebaseApp);
 
+const signupBtn = document.querySelector('#signupBtn');
+const signupMail = document.querySelector('#signupMail');
+const signupPassword = document.querySelector('#signupPassword');
+const signinBtn = document.querySelector('#signinBtn');
+const signinMail = document.querySelector('#signinMail');
+const signinPassword = document.querySelector('#signinPassword');
+const signout1 = document.querySelector('#signoutBtn1');
+const signout2 = document.querySelector('#signoutBtn2');
+
 // #region Auth State Changed
 
 onAuthStateChanged(auth, async (user) => {
     console.log(user);
+    signinMail.value = "";
+    signinPassword.value = "";
 });
 
 // #endregion Auth State Changed
 
 // #region SignUp with email
-
-const signupBtn = document.querySelector('#signupBtn');
-const signupMail = document.querySelector('#signupMail');
-const signupPassword = document.querySelector('#signupPassword');
 
 signupBtn.addEventListener('click', async (e) => {
     e.preventDefault();
@@ -45,10 +52,6 @@ signupBtn.addEventListener('click', async (e) => {
 
 // #region SignIn with email
 
-const signinBtn = document.querySelector('#signinBtn');
-const signinMail = document.querySelector('#signinMail');
-const signinPassword = document.querySelector('#signinPassword');
-
 signinBtn.addEventListener('click', async (e) => {
     e.preventDefault();
     const email = signinMail.value;
@@ -59,10 +62,13 @@ signinBtn.addEventListener('click', async (e) => {
     } catch (err) {
         switch (err.code) {
             case "auth/wrong_password":
-                alert("Contraseña incorrecta...");
+                console.error("Contraseña incorrecta...");
                 break;
             case "auth/user_not_found":
-                alert("Usuario no encontrado...");
+                console.error("Usuario no encontrado...");
+                break;
+            case "auth/network-request-failed":
+                console.error("Fallo en la solicitud de red...");
                 break;
         }
     }
@@ -72,14 +78,22 @@ signinBtn.addEventListener('click', async (e) => {
 
 // #region SignOut
 
-const signout = document.querySelector('#signOut');
-
-signout.addEventListener('click', async (e) => {
+signout1.addEventListener('click', async (e) => {
     e.preventDefault();
-
     try {
         await signOut(auth);
-    } catch (err) {}
+    } catch (err) {
+        console.log(err);
+    }
+});
+
+signout2.addEventListener('click', async (e) => {
+    e.preventDefault();
+    try {
+        await signOut(auth);
+    } catch (err) {
+        console.log(err);
+    }
 });
 
 // #endregion SignOut
@@ -100,11 +114,3 @@ signinGoogle.addEventListener('click', async (e) => {
 
 // #endregion SignIn with Google
 
-// #region Materialize
-
-document.addEventListener('DOMContentLoaded', function () {
-    M.Modal.init(document.querySelectorAll('.sidenav'));
-    M.Modal.init(document.querySelectorAll('.modal'));
-});
-
-// #endregion Materialize

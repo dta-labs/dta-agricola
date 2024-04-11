@@ -140,7 +140,7 @@
                                         </a>
                                     </li>
                                     <li ng-show="authUser" ng-click="logout()">
-                                        <a id="signOut" href="#!/login" style="width: 100%;">
+                                        <a id="signoutBtn1" href="#!/login" style="width: 100%;">
                                             <i class="fa fa-sign-out" aria-hidden="true"></i>
                                             &nbsp;Salir
                                         </a>
@@ -332,7 +332,8 @@
                                                             <div style="font-size: .7em;">
                                                                 <span>
                                                                     <i class="fa fa-tint" aria-hidden="true"></i>
-                                                                    {{ system.log.dataRaw ? (system.log.meanVal | number : 0) : "0" }} <b>%</b>
+                                                                    {{ system.log.dataRaw ? (system.log.meanVal | number : 0) : "0" }} <b>%</b> 
+                                                                    <span ng-show="system.type == 'Sensor'"> «{{ system.sleepingTime }}min» </span>
                                                                 </span><br>
                                                                 <span>{{ system.log.date ? "[" + system.log.date.substr(2,13) + "]" : "" }}</span>
                                                             </div>
@@ -528,7 +529,7 @@
                                                     <b>{{ actualSystem.name }}</b>
                                                 </div>
                                                 <span>{{ actualSystem.log.update ? actualSystem.log.update : actualSystem.log.date }}</span>
-                                                <span ng-show="actualSystem.type == 'Sensor'"> « {{ actualSystem.sleepingTime }} min » </span>
+                                                <span ng-show="actualSystem.type == 'Sensor'"> «{{ actualSystem.sleepingTime }}min» </span>
                                             </div>
                                             <div class="col s2 m3" style="margin: 2px 0 0 -10px; text-align: center;">
                                                 <p style="margin: 0; margin-top: -10px;"><img
@@ -2399,6 +2400,14 @@
                                                 </div>
                                             </a>
                                         </li>
+                                        <li class="sercices-options teal darken white-text"
+                                            style="background: #009688c4 !important">
+                                            <a id="signoutBtn2" href="#!/login" style="color: white; text-decoration: none;">
+                                                <div>
+                                                    <i class="fa fa-sign-out" aria-hidden="true"></i>Salir
+                                                </div>
+                                            </a>
+                                        </li>
                                     </ul>
                                 </div>
                                 <hr style="width: 30%" ng-show="selectedWindow == 'home'">
@@ -3016,19 +3025,17 @@
 
                         <section id="usuarios">
 
-                            <div class="container ventanaServicios" style="width: 80%; min-height: calc(100vh - 360px);" ng-show="selectedWindow == 'login'">
+                            <div class="container ventanaServicios" style="width: 80%; min-height: calc(100vh - 300px);" ng-show="selectedWindow == 'login'">
                                 <div class="swal-title">Acceder</div>
-                                <br>
 
-                                <div style="padding: 0 50px;">
+                                <div style="padding: 0 20px;">
                                     <div class="modal-content">
-                                        <p></p>
-                                        <div class="row">
-                                            <div class="input-field col s6 m12">
-                                                <input placeholder="Placeholder" id="signinMail" type="email" class="validate">
-                                                <label for="signinMail">Correo electrónico</label>
+                                        <div class="row" >
+                                            <div class="input-field col s12">
+                                                <input id="signinMail" type="email" class="validate">
+                                                <label for="signinMail">Correo</label>
                                             </div>
-                                            <div class="input-field col s6 m12">
+                                            <div class="input-field col s12">
                                                 <input id="signinPassword" type="password" class="validate">
                                                 <label for="signinPassword">Contraseña</label>
                                             </div>
@@ -3036,38 +3043,48 @@
                                 
                                     </div>
                                     <div class="modal-footer">
-                                        <!-- <a href="#!" class="modal-close waves-effect waves-green btn-flat">Ingresar</a> -->
-                                        <a id="signinBtn" class="waves-effect waves-light btn"><i class="material-icons left">cloud</i>Ingresar</a>
-
+                                        <a id="signinBtn" class="waves-effect waves-light btn valign-wrapper" style="width: 100%; border-radius: 5px;">
+                                            <div class="row  valign-wrapper" style="width: 100%;">
+                                                <div class="col s2 right-align"></div>
+                                                <div class="col s4 right-align"><i class="material-icons">cloud</i></div>
+                                                <div class="col s6 left-align">Ingresar</div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                    <div style="text-align: right; margin: 15px 0 5px 0; width: 100%;">
+                                        <a class="modal-trigger" href="#modalSignup">Registrarse</a>
                                     </div>
                                     <div class="modal-footer">
-                                        <!-- <a id="signinGoogle" href="#!" class="modal-close waves-effect waves-red btn-flat">Google</a> -->
-                                        <a id="signinGoogle" class="waves-effect waves-light btn red">
-                                            <img src="./assets/images/google-icon-1.png" alt="Google" style="width: 32px;">Google
+                                        <a id="signinGoogle" class="waves-effect waves-light btn valign-wrapper white" 
+                                            style="border: 1px solid black; border-radius: 5px; margin-top: 10px; width: 100%;">
+                                            <div class="row  valign-wrapper" style="width: 100%;">
+                                                <div class="col s2 valign-wrapper"></div>
+                                                <div class="col s4 valign-wrapper"><img src="./assets/images/google-icon-1.png" alt="Google" style="width: 24px;"></div>
+                                                <div class="col s6 left-align" style="color: black;">Google</div>
+                                            </div>
                                         </a>
-
                                     </div>
                                 </div>
                                 
                                 <div id="modalSignup" class="modal">
                                     <div class="modal-content">
-                                        <h4>Signup</h4>
+                                        <div class="swal-title">Registrarse</div>
                                 
                                         <p></p>
                                         <div class="row">
-                                            <div class="input-field col s6 m12">
-                                                <input placeholder="Placeholder" id="signupMail" type="email" class="validate">
-                                                <label for="signupMail">Mail</label>
+                                            <div class="input-field col s12">
+                                                <input id="signupMail" type="email" class="validate">
+                                                <label for="signupMail">Correo</label>
                                             </div>
-                                            <div class="input-field col s6 m12">
+                                            <div class="input-field col s12">
                                                 <input id="signupPassword" type="password" class="validate">
-                                                <label for="signupPassword">Password</label>
+                                                <label for="signupPassword">Contraseña</label>
                                             </div>
                                         </div>
                                 
                                     </div>
                                     <div class="modal-footer">
-                                        <a id="signupBtn" href="#!" class="modal-close waves-effect waves-green btn-flat">Agree</a>
+                                        <a id="signupBtn" href="#!" class="modal-close waves-effect waves-green btn valign-wrapper">Aceptar</a>
                                     </div>
                                 </div>
                                 

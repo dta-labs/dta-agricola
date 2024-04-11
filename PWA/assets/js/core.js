@@ -152,10 +152,11 @@ app.controller("ControladorPrincipal", function ($scope) {
     listenUserStatus = () => {
         firebase.auth().onAuthStateChanged(user => {
             if (user) {
-                // $scope.$apply(function () {
+                // `$scope.$apply(function () {
                 console.log("Intento de autenticación");
-                $scope.authUser = user;
+                $scope.authUser = user.email ? user : user.user;
                 getUserData();
+                $scope.showWindow('listado');
                 // });
             } else {
                 console.log("Error de autenticación");
@@ -163,6 +164,7 @@ app.controller("ControladorPrincipal", function ($scope) {
                     $scope.authUser = null;
                     localStorage.clear();
                 });
+                $scope.showWindow('login');
                 //location.href = "./landing/index.html"
             }
         });
@@ -176,16 +178,19 @@ app.controller("ControladorPrincipal", function ($scope) {
     getUserLocations = () => {
         loadUserLocations($scope.authUser.email).then(result => {
             $scope.userLocations = result;
-            $scope.userProfile = result[convertDotToDash($scope.authUser.email)].profile;
-            loadSystems();
+            if (result[convertDotToDash($scope.authUser.email)]) {
+                $scope.userProfile = result[convertDotToDash($scope.authUser.email)].profile;
+                loadSystems();
+            }
+            $scope.showWindow('listado');
             $scope.$apply();
         });
     }
 
     $scope.login = () => {
-        if (!ui) {
-            initializeFirebaseUI();
-        }
+        // if (!ui) {
+        //     initializeFirebaseUI();
+        // }
         $scope.showWindow("login");
     };
 
@@ -253,7 +258,6 @@ app.controller("ControladorPrincipal", function ($scope) {
                     });
                 }
             }
-            $scope.showWindow('listado');
         }
     }
 
@@ -844,6 +848,7 @@ app.controller("ControladorPrincipal", function ($scope) {
                 delete $scope.actualSystem.plansLength;
                 delete $scope.actualSystem.sensorPresion;
                 delete $scope.actualSystem.velocity;
+                delete $scope.actualSystem.log;
                 updateNewDevice($scope.actualSystem);
                 document.getElementById("modalConfig").style.display = "none";
                 swal("Esquema actualizado correctamente!", {
