@@ -332,7 +332,7 @@
                                                             <div style="font-size: .7em;">
                                                                 <span>
                                                                     <i class="fa fa-tint" aria-hidden="true"></i>
-                                                                    {{ system.log.dataRaw ? (system.log.meanVal | number : 0) : "0" }} <b>%</b> 
+                                                                    {{ system.log.dataRaw ? ((getstandarizeValue(system.log.meanVal)) | number : 0) : "0" }} <b>%</b> 
                                                                     <span ng-show="system.type == 'Sensor'"> «{{ system.sleepingTime }}min» </span>
                                                                 </span><br>
                                                                 <span>{{ system.log.date ? "[" + system.log.date.substr(2,13) + "]" : "" }}</span>
@@ -993,7 +993,7 @@
                                                 <!-- Status General -->
                                                 <div class="row hide-on-med-and-up" style="width: 100%; position: absolute; margin-top: -15px;">
                                                     <div class="col s12">
-                                                        <a class="modal-trigger" href="#modalHistorial" style="color: black;">
+                                                        <!-- <a class="modal-trigger" href="#modalHistorial" style="color: black;"> -->
                                                             <ul>
                                                                 <li style="border: solid; border-radius: 5px; background: #5acaca">
                                                                     <table>
@@ -1003,29 +1003,29 @@
                                                                                 <i class="fa fa-tint" aria-hidden="true"></i>
                                                                             </td>
                                                                             <td width="40%" style="font-size: 2.5em; text-align: center;">
-                                                                                {{ actualSystem.log.meanVal | number : 0 }}%
+                                                                                {{ (getstandarizeValue(actualSystem.log.meanVal)) | number : 0 }}%
                                                                             </td>
                                                                             <td width="25%" style="text-align: left;">
-                                                                                min: {{ actualSystem.log.minVal | number : 0 }}% <br>
-                                                                                max: {{ actualSystem.log.maxVal | number : 0 }}%
+                                                                                min: {{ (getstandarizeValue(actualSystem.log.minVal)) | number : 0 }}% <br>
+                                                                                max: {{ (getstandarizeValue(actualSystem.log.maxVal)) | number : 0 }}%
                                                                             </td>
                                                                             <td width="15%" style="text-align: center;" ng-init="bat = 0">
                                                                                 <i class="material-icons">
-                                                                                    {{ actualSystem.log.voltages[0] >= 4.2 ? "battery_charging_full" : 
-                                                                                        actualSystem.log.voltages[0] >= 3.7 ? "battery_full" : 
+                                                                                    {{ parseJSON(actualSystem.log.voltages)[0] >= 4.2 ? "battery_charging_full" : 
+                                                                                        parseJSON(actualSystem.log.voltages)[0] >= 3.7 ? "battery_full" : 
                                                                                         "battery_alert"}}
                                                                                     </i> <br>
-                                                                                <span style="font-size: .8em;">{{  actualSystem.log.voltages[0] | number : 1 }}</span>v   
+                                                                                <span style="font-size: .8em;">{{  parseJSON(actualSystem.log.voltages)[0] | number : 1 }}</span>v   
                                                                             </td>
                                                                         </tr>
                                                                     </table>
                                                                 </li>
                                                             </ul>
-                                                        </a>
+                                                        <!-- </a> -->
                                                     </div>
                                                 </div>
                                                 <div class="hide-on-small-only" style="width: 100%; margin-top: -15px;">
-                                                    <a class="modal-trigger" href="#modalHistorial" style="color: black;">
+                                                    <!-- <a class="modal-trigger" href="#modalHistorial" style="color: black;"> -->
                                                         <ul>
                                                             <li style="border: solid; border-radius: 5px; background: #5acaca">
                                                                 <table>
@@ -1036,25 +1036,25 @@
                                                                             <i class="fa fa-tint" aria-hidden="true"></i>
                                                                         </td>
                                                                         <td width="40%" style="font-size: 2.5em; text-align: center;">
-                                                                            {{ actualSystem.log.meanVal | number : 0 }}%
+                                                                            {{ (getstandarizeValue(actualSystem.log.meanVal)) | number : 0 }}%
                                                                         </td>
                                                                         <td width="25%" style="font-size: .9em; text-align: left;">
-                                                                            min: {{ actualSystem.log.minVal | number : 0 }}% <br>
-                                                                            max: {{ actualSystem.log.maxVal | number : 0 }}%
+                                                                            min: {{ (getstandarizeValue(actualSystem.log.minVal)) | number : 0 }}% <br>
+                                                                            max: {{ (getstandarizeValue(actualSystem.log.maxVal)) | number : 0 }}%
                                                                         </td>
                                                                         <td width="15%" style="text-align: center;" ng-init="bat = 0">
                                                                             <i class="material-icons">
-                                                                                {{ actualSystem.log.voltages[0] >= 4.2 ? "battery_charging_full" : 
-                                                                                    actualSystem.log.voltages[0] >= 3.7 ? "battery_full" : 
+                                                                                {{ parseJSON(actualSystem.log.voltages)[0] >= 4.2 ? "battery_charging_full" : 
+                                                                                    parseJSON(actualSystem.log.voltages)[0] >= 3.7 ? "battery_full" : 
                                                                                     "battery_alert"}}
                                                                                 </i> <br>
-                                                                            <span style="font-size: .8em;">{{  actualSystem.log.voltages[0] | number : 1 }}</span>v   
+                                                                            <span style="font-size: .8em;">{{  parseJSON(actualSystem.log.voltages)[0] | number : 1 }}</span>v   
                                                                         </td>
                                                                     </tr>
                                                                 </table>
                                                             </li>
                                                         </ul>
-                                                    </a>
+                                                    <!-- </a> -->
                                                 </div>
                                             </div>
 
@@ -1853,6 +1853,7 @@
                                 <div class="swal-title">Historial</div>
 
                                 <div class="modal-content">
+
                                     <ul class="row collapsible" ng-show="actualSystem.type != 'Sensor'">
                                         <li class="col s12" ng-repeat="reg in invertedRegisters">
                                             <div class="gray-text white collapsible-header row"
@@ -1920,7 +1921,23 @@
                                             </div>
                                         </li>
                                     </ul>
+
                                     <canvas id="myChart" ng-show="actualSystem.type == 'Sensor'"></canvas>
+                                    <p class="range-field">
+                                        <input type="range" id="chartZoom" min="10" max="100" value="10"/>
+                                    </p>
+                                    <ul class="row collapsible" ng-show="actualSystem.type == 'Sensor'">
+                                        <li class="col s12" ng-repeat="reg in invertedRegisters">
+                                            <div class="gray-text row" style="border-bottom: 1px solid lightgray; margin-bottom: 0px;">
+                                                <div class="col s12">
+                                                    {{ reg.date.substr(4,13) }}: <br class="show-in-mobil-only">
+                                                    <b style="font-size: 1.3em;">{{ (getstandarizeValue(reg.meanVal)) | number : 0 }}%</b> 
+                                                    [{{ (getstandarizeValue(reg.minVal)) | number : 0 }}%  ~ {{ (getstandarizeValue(reg.maxVal)) | number : 0 }}%] 
+                                                    <span>Batería: {{ parseJSON(reg.voltages)[0] | number : 1 }}v</span>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </ul>
                                     <div class="right-align">
                                         <div class="btn waves-effect waves-light grey modal-close">
                                             &nbsp;&nbsp;
@@ -3025,7 +3042,7 @@
 
                         <section id="usuarios">
 
-                            <div class="container ventanaServicios" style="width: 80%; min-height: calc(100vh - 300px);" ng-show="selectedWindow == 'login'">
+                            <div class="container ventanaServicios" style="width: 80%; min-height: 380px; margin-top: 100px;" ng-show="selectedWindow == 'login'">
                                 <div class="swal-title">Acceder</div>
 
                                 <div style="padding: 0 20px;">
@@ -3044,10 +3061,11 @@
                                     </div>
                                     <div class="modal-footer">
                                         <a id="signinBtn" class="waves-effect waves-light btn valign-wrapper" style="width: 100%; border-radius: 5px;">
-                                            <div class="row  valign-wrapper" style="width: 100%;">
-                                                <div class="col s2 right-align"></div>
-                                                <div class="col s4 right-align"><i class="material-icons">cloud</i></div>
-                                                <div class="col s6 left-align">Ingresar</div>
+                                            <div class="row valign-wrapper" style="width: fit-content; margin: auto;">
+                                                <div class="col s12 valign-wrapper">
+                                                    <div style="margin: 5px 20px 0 0;"><img src="./assets/images/DTA-Agricola.png" alt="Google" style="width: 24px;"></div>
+                                                    <div style="margin-top: -5px;">Ingresar</div>
+                                                </div>
                                             </div>
                                         </a>
                                     </div>
@@ -3057,10 +3075,11 @@
                                     <div class="modal-footer">
                                         <a id="signinGoogle" class="waves-effect waves-light btn valign-wrapper white" 
                                             style="border: 1px solid black; border-radius: 5px; margin-top: 10px; width: 100%;">
-                                            <div class="row  valign-wrapper" style="width: 100%;">
-                                                <div class="col s2 valign-wrapper"></div>
-                                                <div class="col s4 valign-wrapper"><img src="./assets/images/google-icon-1.png" alt="Google" style="width: 24px;"></div>
-                                                <div class="col s6 left-align" style="color: black;">Google</div>
+                                            <div class="row valign-wrapper" style="width: fit-content; margin: auto;">
+                                                <div class="col s12 valign-wrapper">
+                                                    <div style="margin: 5px 20px 0 0;"><img src="./assets/images/google-icon-1.png" alt="Google" style="width: 24px;"></div>
+                                                    <div style="margin-top: -5px; color: black;">Google</div>
+                                                </div>
                                             </div>
                                         </a>
                                     </div>
@@ -3087,19 +3106,6 @@
                                         <a id="signupBtn" href="#!" class="modal-close waves-effect waves-green btn valign-wrapper">Aceptar</a>
                                     </div>
                                 </div>
-                                
-                                
-
-                                <!-- <div id="firebaseui-auth-container"></div>
-                                <br>
-                                <hr>
-                                <br>
-                                <div class="center">
-                                    <button ng-click="logout()" class="firebaseui-idp-button mdl-button mdl-js-button 
-                                    mdl-button--raised firebaseui-idp-google firebaseui-id-idp-button">
-                                        <i class="material-icons">exit_to_app</i> Salir
-                                    </button>
-                                </div> -->
                             </div>
 
                             <div if="perfilUsuario" class="container ventanaServicios" ng-show="authUser && selectedWindow == 'users'">
@@ -3124,8 +3130,10 @@
                                                 <i class="fa fa-user" aria-hidden="true"
                                                     style="margin-top: 5px; margin-bottom: 4px;"
                                                     ng-show="!authUser"></i>
-                                                <!-- <p style="margin-top: -7px; color: black;">{{ authUser.displayName.split(" ")[0] }}</p> -->
-                                            </div>
+                                                    <!-- <p style="margin-top: 3px;color: black;border-radius: 50%;border: 2px solid;width: 30px;height: 30px;text-align: center;margin-left: 10px;font-variant-caps: small-caps;font-size: 1.2em;" ng-show="!authUser.photoURL">
+                                                        {{ authUser.displayName ? authUser.displayName[0] : authUser.email[0] }}
+                                                    </p> -->
+                                                    </div>
                                             <div class="form-group col s12 m9">
                                                 <label for="inputName">Nombre completo</label>
                                                 <input type="text" class=" form-control form-control-sm"
@@ -3221,13 +3229,9 @@
                                     </a>
                                 </div>
                                 <div class="col navbar-option">
-                                    <a class="modal-trigger" href="#modalHistorial" style="color: black;" ng-show="actualSystem.type != 'Sensor'">
+                                    <a class="modal-trigger" href="#modalHistorial" style="color: black;">
                                         <i class="fa fa-history" aria-hidden="true" style="margin-top: 5px;"></i>
                                         <p style="margin-top: -4px;">Historial</p>
-                                    </a>
-                                    <a class="modal-trigger" href="#modalHistorial" style="color: black;" ng-show=" actualSystem.type == 'Sensor'">
-                                        <i class="material-icons" style="margin-top: 5px;">timeline</i>
-                                        <p style="margin-top: -8px;">{{ actualSystem.type == 'Sensor' ? "Gráficas" : "Historial" }}</p>
                                     </a>
                                 </div>
                                 <div class="col navbar-option">
@@ -3261,13 +3265,9 @@
                                     </a>
                                 </div>
                                 <div class="col navbar-option">
-                                    <a class="modal-trigger" href="#modalHistorial" style="color: black;" ng-show="actualSystem.type != 'Sensor'">
+                                    <a class="modal-trigger" href="#modalHistorial" style="color: black;">
                                         <i class="fa fa-history" aria-hidden="true" style="margin-top: 5px;"></i>
                                         <p style="margin-top: -4px;">Historial</p>
-                                    </a>
-                                    <a class="modal-trigger" href="#modalHistorial" style="color: black;" ng-show=" actualSystem.type == 'Sensor'">
-                                        <i class="material-icons" style="margin-top: 5px;">timeline</i>
-                                        <p style="margin-top: -8px;">{{ actualSystem.type == 'Sensor' ? "Gráficas" : "Historial" }}</p>
                                     </a>
                                 </div>
                                 <div class="col navbar-option">
@@ -3299,15 +3299,17 @@
                                             <img id="imgAuthMobil" src="{{ authUser.photoURL }}" class="img-auth" 
                                             style="width: 32px; height: 32px; border-radius: 50%; margin-top: 2px;" 
                                             ng-show="authUser.photoURL" alt="usuario">
-                                            <i class="fa fa-user" aria-hidden="true" style="margin-top: 5px; margin-bottom: 4px;" ng-show="!authUser.photoURL"></i>
-                                            <!-- <p style="margin-top: -7px; color: black;">{{ authUser.displayName.split(" ")[0] }}</p> -->
-                                        </div>
+                                            <!-- <i class="fa fa-user" aria-hidden="true" style="margin-top: 5px; margin-bottom: 4px;" ng-show="!authUser.photoURL"></i> -->
+                                            <p style="margin-top: 3px;color: black;border-radius: 50%;border: 2px solid;width: 30px;height: 30px;text-align: center;margin-left: 10px;font-variant-caps: small-caps;font-size: 1.2em;" ng-show="!authUser.photoURL">
+                                                {{ authUser.displayName ? authUser.displayName[0] : authUser.email[0] }}
+                                            </p>
+                                    </div>
                                     </div>
                                     <div class="col s1 right-align" ng-show="authUser">
                                         <a href="#!servicios" ng-click="showWindow('servicios')" style="color: black;">
-                                            <!-- <i class="material-icons" style="margin-top: 5px; margin-left: -15px;">menu</i> -->
-                                            <i class="fa fa-ellipsis-v" aria-hidden="true"
-                                                style="font-size: 2em; margin-top: 5px;"></i>
+                                            <i class="material-icons" style="margin-top: 5px; margin-left: -15px;">menu</i>
+                                            <!-- <i class="fa fa-ellipsis-v" aria-hidden="true"
+                                                style="font-size: 2em; margin-top: 5px;"></i> -->
                                         </a>
                                     </div>
                                 </div>
@@ -3361,7 +3363,7 @@
         <script src="./assets/modules/chart.js/chart.js"></script>
         <script src="./assets/js/commons.js"></script>
         <!-- <script src="./assets/cultures/listPlanesRiego.js"></script> -->
-        <script src="./assets/js/core.js?v=1.3"></script>
+        <script src="./assets/js/core.js?v=1.5"></script>
         <!-- <script src="monitor/js/chartjs/chart.min.js"></script> -->
         <script type="text/javascript" src="./assets/modules/datepicker/daterangepicker.js"></script>
         <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>

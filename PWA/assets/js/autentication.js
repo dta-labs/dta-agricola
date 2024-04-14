@@ -1,4 +1,3 @@
-// import { firebaseApp } from "./firebaseConfig.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-auth.js";
 
@@ -18,8 +17,6 @@ const signout2 = document.querySelector('#signoutBtn2');
 
 onAuthStateChanged(auth, async (user) => {
     console.log(user);
-    signinMail.value = "";
-    signinPassword.value = "";
 });
 
 // #endregion Auth State Changed
@@ -32,7 +29,7 @@ signupBtn.addEventListener('click', async (e) => {
     const password = signupPassword.value;
     try {
         const authCredentials = await createUserWithEmailAndPassword(auth, email, password);
-        console.log(email, password, authCredentials);
+        alert(email, password, authCredentials);
     } catch (err) {
         switch (err.code) {
             case "auth/email-already-in-use":
@@ -58,17 +55,17 @@ signinBtn.addEventListener('click', async (e) => {
     const password = signinPassword.value;
     try {
         const authCredentials = await signInWithEmailAndPassword(auth, email, password);
-        console.log(email, password, authCredentials);
+        console.log(authCredentials);
     } catch (err) {
         switch (err.code) {
             case "auth/wrong_password":
-                console.error("Contraseña incorrecta...");
+                alert("Contraseña incorrecta...");
                 break;
             case "auth/user_not_found":
-                console.error("Usuario no encontrado...");
+                alert("Usuario no encontrado...");
                 break;
             case "auth/network-request-failed":
-                console.error("Fallo en la solicitud de red...");
+                alert("Fallo en la solicitud de red...");
                 break;
         }
     }
@@ -81,18 +78,26 @@ signinBtn.addEventListener('click', async (e) => {
 signout1.addEventListener('click', async (e) => {
     e.preventDefault();
     try {
+        signinMail.value = "";
+        signinPassword.value = "";
         await signOut(auth);
+        swal("Sesión cerra con éxito!", { icon: "success" });
+        setTimeout(location.reload(), 5000);
     } catch (err) {
-        console.log(err);
+        alert(err.message);
     }
 });
 
 signout2.addEventListener('click', async (e) => {
     e.preventDefault();
     try {
+        signinMail.value = "";
+        signinPassword.value = "";
         await signOut(auth);
+        swal("Sesión cerra con éxito!", { icon: "success" });
+        setTimeout(location.reload(), 5000);
     } catch (err) {
-        console.log(err);
+        alert(err.message);
     }
 });
 

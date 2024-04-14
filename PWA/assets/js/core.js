@@ -304,14 +304,11 @@ app.controller("ControladorPrincipal", function ($scope) {
     }
 
     processingSensors = (locationKey) => {
-        if ($scope.systems[locationKey].type == "Sensor") {
-            let log = $scope.systems[locationKey].log;
-            log.dataRaw = normalize(JSON.parse(log.dataRaw), locationKey);
-            log.minVal = getMin(log.dataRaw);
-            log.meanVal = getMean(log.dataRaw);
-            log.maxVal = getMax(log.dataRaw);
-            log.voltages = JSON.parse(log.voltages);
-        }
+        // if ($scope.systems[locationKey].type == "Sensor") {
+        //     let log = $scope.systems[locationKey].log;
+        //     log.dataRaw = normalize(JSON.parse(log.dataRaw), locationKey);
+        //     log.voltages = JSON.parse(log.voltages);
+        // }
     }
 
     normalize = (arr, key) => {
@@ -427,7 +424,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         updateCompass();
         initializeSystemMap($scope.actualSystem);
         getMetorologicalData($scope.actualSystem.key);
-        if ($scope.actualSystem.type == "Sensor") $scope.showChart();
+        if ($scope.actualSystem.type == "Sensor") $scope.showChart("meanVal", 10);
     }
 
     setActualSystemPlans = () => {
@@ -1417,7 +1414,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         } else {
             text += `
                 <h6 style="background: lightgrey">${campo.name}</h6>
-                <span>Hs: <b>${ campo.log ? campo.log.meanVal.toFixed(0) : "" }</b>%</span></br>
+                <span>Hs: <b>${ campo.log ? parseFloat(campo.log.meanVal).toFixed(0) : "" }</b>%</span></br>
                 `;
         }
         if (campo.type == "PC" || campo.type == "PL") {
@@ -1612,16 +1609,37 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     // #region Chart.js
 
-    $scope.showChart = () => {
+    const chartZoom = document.querySelector("#chartZoom");
+    chartZoom.addEventListener("change", e => {
+        $scope.showChart("meanVal", parseInt(chartZoom.value));
+    });
+
+    $scope.showChart = (child, registers) => {
+        getMeassurementValues($scope.actualSystem.key, registers).then(result => {
+            min = $scope.actualSystem.sensors.S0.minValue;
+            max = $scope.actualSystem.sensors.S0.maxValue;
+            data = [];
+            labels = [];
+            result.forEach(element => {
+                data.push(100 - ((element.meanVal - min) / (max - min)) * 100);
+                labels.push(element.date.substr(4, 2) + "/" + element.date.substr(2, 2));
+            });
+            factorDeSuavizado = 0.3;
+            data = filtroPasoBajo(data, factorDeSuavizado);
+            chart(data, labels);
+        });
+    }
+
+    chart = (data, labels) => {
         const ctx = document.getElementById('myChart');
         if (myChart) myChart.destroy();
         myChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'],
-                    datasets: [{
+                labels: labels,
+                datasets: [{
                     label: 'Humedad del suelo',
-                    data: [15, 80, 70, 50, 30, 25, 20],
+                    data: data,
                     cubicInterpolationMode: 'monotone',
                     tension: 0.4,
                     borderWidth: 1
@@ -1636,6 +1654,15 @@ app.controller("ControladorPrincipal", function ($scope) {
                 }
             }
         });
+    }
+
+    filtroPasoBajo = (valores, factorDeSuavizado) => {
+        let valorSuavizado = valores[0];
+        for (let i = 1; i < valores.length; i++) {
+          valorSuavizado = valorSuavizado * factorDeSuavizado + valores[i] * (1 - factorDeSuavizado);
+          valores[i] = valorSuavizado;
+        }
+        return valores;
     }
 
     // #endregion Chart.js
@@ -1678,38 +1705,25 @@ app.controller("ControladorPrincipal", function ($scope) {
         return convertDotToDash(input);
     }
 
-    getMean = (obj) => {
-        let mean = 0;
-        let i = 0;
-        obj.forEach(element => {
-            if (element != -99) {
-                i++;
-                mean += element;
-            }
-        });
-        result = mean / i;
-        return result > 100 ? 100 : result < 0 ? 0 : result;
+    $scope.parseJSON = (strArray) => {
+        if (strArray)
+            return JSON.parse(strArray);
+        return {};
     }
 
-    getMin = (obj) => {
-        let min = Number.MAX_VALUE;
-        obj.forEach(element => {
-            if (element != -99 && element < min) {
-                min = element;
-            }
-        });
-        return min;
+    $scope.getstandarizeValue = (value) => {
+        if (value && $scope.actualSystem.sensors) {
+            std = standarize(value);
+            std = std > 100 ? 100 : std < 0 ? 0 : std;
+            return 100 - std;
+        }
+        return 0;
     }
 
-    getMax = (obj) => {
-        let min = -99;
-        obj.forEach(element => {
-            if (element != -99 && element > min) {
-                min = element;
-            }
-        });
-        return min;
-    }
+    standarize = (val) => {
+        S0 = $scope.actualSystem.sensors.S0;
+        return ((val - S0.minValue) / (S0.maxValue - S0.minValue)) * 100;
+    }      
 
     // #endregion SCRIPTS GENERALES
 
