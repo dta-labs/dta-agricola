@@ -7,6 +7,7 @@
 #include <SoftwareSerial.h>
 #include <avr/wdt.h>
 
+#include "LowPower.h"
 #include "miscelaneas.h"
 #include "configuracion.h"
 #include "comunicaciones.h"
@@ -25,10 +26,10 @@ void setup() {
 
 void loop() {
   onReceive();
-  if (runEvery(5000)) {
+  if (runEvery(3000)) {
     String message = "DTA_FF," + nodes[idx] + "," + String(sleepingTime);
-    Serial.print("\n[" + String(idx) + "] Send Message to " + nodes[idx]);
     LoRa_sendMessage(message);
+    Serial.print("\nSend Message to " + nodes[idx]);
     repeat++;
     if (repeat == 2) {
       setCounters();
@@ -43,6 +44,8 @@ void LoRa_sendMessage(String message) {
 }
 
 void onReceive() {
+  measurements[idx] = -99.0;
+  voltages[idx] = -99.0;
   if (nodes[idx] == String(nodeAddress) && repeat > 0) {
     measurements[idx] = readAnalogicData(sensor);
     voltages[idx] = readVcc();
@@ -54,24 +57,37 @@ void onReceive() {
       while (LoRa.available()) {
         message += (char)LoRa.read();
       }
-      setData(message, 14);
-      setCounters();
+      if (message.length() > 14 && message.substring(0, 6) == nodes[idx] && message.substring(7, 13) == String(gatewayAddress)) {
+        setData(message, 14);
+        setCounters();
+      }
     } 
   }
 }
 
 void setData(String data, byte offSet) {
-  byte i = data.indexOf(',', offSet);
-  measurements[idx] = data.substring(offSet, i).toFloat();
-  voltages[idx] = data.substring(i + 1, data.length()).toFloat();
-  Serial.print(" -> " + nodes[idx] + "," + String(gatewayAddress) + "," + measurements[idx] + "," + String(voltages[idx]));  
+  Serial.print(F(" -> "));
+  if (offSet == 0) {
+    Serial.print(nodes[idx] + "," + String(gatewayAddress));
+  } else {
+    Serial.print(data.substring(0, offSet - 1));
+    byte i = data.indexOf(',', offSet);
+    measurements[idx] = data.substring(offSet, i).toFloat();
+    voltages[idx] = data.substring(i + 1, data.length()).toFloat();
+  }
+  Serial.print("," + String(measurements[idx]) + "," + String(voltages[idx]));  
 }
 
 void setCounters() {
   idx++;
   idx = idx < numSensors ? idx : 0;
   repeat = 0;
-  if (idx == 0) showAndTxData();
+  if (idx == 0) {
+    showAndTxData();
+    delay(50);
+    sleepFor(sleepingTime);
+    Serial.println(F("\n[[[ Nuevo ciclo... ]]]"));
+  }
 }
 
 void showAndTxData() {
@@ -92,4 +108,14 @@ boolean runEvery(unsigned long interval) {
     return true;
   }
   return false;
+}
+
+void sleepFor(float minutes) {
+  Serial.print(F("Sleeping for ")); Serial.print(minutes); Serial.println(F(" minutes..."));
+  delay(10);
+  int timeToSleep = 15 * minutes;
+  for (int i = 0; i <= timeToSleep; i++) {
+    LowPower.powerDown(SLEEP_4S, ADC_OFF, BOD_OFF);
+    wdt_reset();
+  }
 }

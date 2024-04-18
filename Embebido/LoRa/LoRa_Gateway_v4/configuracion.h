@@ -28,7 +28,7 @@
  ****************************************************************************/
 
 // Settings
-const int config[] = {2, 3, 33, 333, 333, 3333};
+const int config[] = {3, 2, 33, 333, 333, 3333};
 
 #pragma region Variables
 
@@ -42,14 +42,13 @@ const int config[] = {2, 3, 33, 333, 333, 3333};
 const long frequency = 433E6; // 433E6 or 915E6, the MHz speed of module
 
 static String sensorsID = "";
-// String nodes[50];
-float measurements[50];
-float voltages[50];
-String nodes[] = {"DTA_00","DTA_01","DTA_02","DTA_03","DTA_04"};
+String nodes[10];
+float measurements[10];
+float voltages[10];
 byte idx = 0;
-byte numSensors = 5;
+byte numSensors = 1;
 byte repeat = 0;
-int sleepingTime = 0;
+int sleepingTime = 1;
 
 SoftwareSerial gprs(config[0], config[1]);     // Comunicaciones
 bool restartGSM = true;

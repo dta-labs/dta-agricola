@@ -1,4 +1,5 @@
 #include "Arduino.h"
+
 #pragma region Comunicaciones
 
 void commWatchDogReset() {
@@ -134,28 +135,26 @@ String httpRequest(String strMeasurements, String strVoltages, bool setup) {
 
 void setVariables(String data) {
   Serial.print(F("data: ")); Serial.println(data);
-  String aux = parse(data, '"', 1); 
-  sleepingTime = aux != "" ? aux.toInt() : sleepingTime;
-  aux = parse(data, '"', 2); 
-  numSensors = aux != "" ? aux.toInt() : numSensors;
-  for (int i = 3; i < numSensors + 3; i++) nodes[i] = parse(data, '"', i);
+  sleepingTime = parse(data, '"', 1).toInt();
+  numSensors = parse(data, '"', 2).toInt();
+  for (int i = 0; i < numSensors; i++) nodes[i] = parse(data, '"', i + 3).substring(0, 6);
 }
 
 void showVariables() {
-  Serial.println(F("\n[[[ Nuevo ciclo... ]]]\n"));
-  Serial.println(F("Main variables: \n================")); 
+  Serial.println(F("\nMain variables: \n================")); 
   Serial.print(F("  :: Sleeping Time: ")); Serial.print(sleepingTime); Serial.println(" min"); 
   Serial.print(F("  :: Num. Sensors: ")); Serial.println(numSensors); 
   Serial.print(F("  :: Sensors IDs: ")); 
-  for (int i = 0; i < numSensors; i++) Serial.print(i == 0 ? nodes[i] : "," + nodes[i]);
+  for (int i = 0; i < numSensors; i++) Serial.print(i > 0 ? "," + nodes[i] : nodes[i]);
   Serial.println();
 }
 
 void comunicaciones(String strMeasurements, String strVoltages, bool setup) {
   Serial.println(F("\nComunicación con el servidor"));
-  gprs.begin(9600);
   setupGSM();
   String data = httpRequest(strMeasurements, strVoltages, setup); 
+  Serial.println("Mockup data...");
+  data = "\"0\"3\"DTA_00\"DTA_01\"DTA_02\"DTA_03\"DTA_04\"DTA_05\"DTA_06\"DTA_07\"DTA_08\"DTA_09\"";
   if (data != "") {
     setVariables(data);
     showVariables();
