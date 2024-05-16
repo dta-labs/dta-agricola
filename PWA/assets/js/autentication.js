@@ -31,17 +31,19 @@ signupBtn.addEventListener('click', async (e) => {
         const authCredentials = await createUserWithEmailAndPassword(auth, email, password);
         alert(email, password, authCredentials);
     } catch (err) {
+        msg = "";
         switch (err.code) {
             case "auth/email-already-in-use":
-                alert("Correo registrado con anterioridad...");
+                msg = "Correo registrado con anterioridad...";
                 break;
             case "auth/invalid-email":
-                alert("Correo no válido...");
+                msg = "Correo no válido...";
                 break;
             case "auth/weak-password":
-                alert("Contraseña muy débil...");
+                msg = "Contraseña muy débil...";
                 break;
         }
+        swal(msg, { warning: "alert" });
     }
 });
 
@@ -57,17 +59,19 @@ signinBtn.addEventListener('click', async (e) => {
         const authCredentials = await signInWithEmailAndPassword(auth, email, password);
         console.log(authCredentials);
     } catch (err) {
+        msg = "";
         switch (err.code) {
             case "auth/wrong_password":
-                alert("Contraseña incorrecta...");
+                msg = "Contraseña incorrecta...";
                 break;
             case "auth/user_not_found":
-                alert("Usuario no encontrado...");
+                msg = "Usuario no encontrado...";
                 break;
             case "auth/network-request-failed":
-                alert("Fallo en la solicitud de red...");
+                msg = "Fallo en la solicitud de red...";
                 break;
         }
+        swal(msg, { warning: "alert" });
     }
 });
 
@@ -81,7 +85,7 @@ signout1.addEventListener('click', async (e) => {
         signinMail.value = "";
         signinPassword.value = "";
         await signOut(auth);
-        swal("Sesión cerra con éxito!", { icon: "success" });
+        swal("Sesión cerrada con éxito!", { icon: "success" });
         setTimeout(location.reload(), 5000);
     } catch (err) {
         alert(err.message);
@@ -94,7 +98,7 @@ signout2.addEventListener('click', async (e) => {
         signinMail.value = "";
         signinPassword.value = "";
         await signOut(auth);
-        swal("Sesión cerra con éxito!", { icon: "success" });
+        swal("Sesión cerrada con éxito!", { icon: "success" });
         setTimeout(location.reload(), 5000);
     } catch (err) {
         alert(err.message);

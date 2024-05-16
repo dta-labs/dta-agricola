@@ -1,7 +1,7 @@
 /****************************************************************************
  *                                                                          * 
  *   Configuración: {GSMr, GSMt, PLT, Pais, Lada, Número(3), Número(4)}     *
- *   - GSM: Rx, Tx (D2, D3) <= Chip azul | (D3, D2) <= Chip rojo            *
+ *   - GSM: Rx, Tx (D3, D2) <= Chip azul | (D2, D3) <= Chip rojo            *
  *   - A0: Entrada analógica                                                *
  *   - Comunicación LoRA                                                    *
  *     . D9 : RST                                                           *
@@ -28,7 +28,7 @@
  ****************************************************************************/
 
 // Settings
-const int config[] = {3, 2, 33, 333, 333, 3333};
+const int config[] = {2, 3, 33, 333, 333, 3333};
 
 #pragma region Variables
 

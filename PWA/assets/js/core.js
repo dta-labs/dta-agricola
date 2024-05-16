@@ -1620,9 +1620,16 @@ app.controller("ControladorPrincipal", function ($scope) {
             max = $scope.actualSystem.sensors.S0.maxValue;
             data = [];
             labels = [];
+            lastDate = "";
             result.forEach(element => {
                 data.push(100 - ((element.meanVal - min) / (max - min)) * 100);
-                labels.push(element.date.substr(4, 2) + "/" + element.date.substr(2, 2));
+                date = element.date.substr(6, 2) + "/" + element.date.substr(4, 2);
+                if (lastDate != date) {
+                    lastDate = date;
+                } else {
+                    date = "";
+                }
+                labels.push(date + " " + element.date.substr(9, 14));
             });
             factorDeSuavizado = 0.3;
             data = filtroPasoBajo(data, factorDeSuavizado);

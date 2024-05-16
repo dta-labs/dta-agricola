@@ -332,7 +332,7 @@
                                                             <div style="font-size: .7em;">
                                                                 <span>
                                                                     <i class="fa fa-tint" aria-hidden="true"></i>
-                                                                    {{ system.log.dataRaw ? ((getstandarizeValue(system.log.meanVal)) | number : 0) : "0" }} <b>%</b> 
+                                                                    {{ system.log.dataRaw ? (100 - ((system.log.meanVal - system.sensors.S0.minValue) / (system.sensors.S0.maxValue - system.sensors.S0.minValue) * 100) | number : 0) : "0" }} <b>%</b> 
                                                                     <span ng-show="system.type == 'Sensor'"> «{{ system.sleepingTime }}min» </span>
                                                                 </span><br>
                                                                 <span>{{ system.log.date ? "[" + system.log.date.substr(2,13) + "]" : "" }}</span>
@@ -993,7 +993,7 @@
                                                 <!-- Status General -->
                                                 <div class="row hide-on-med-and-up" style="width: 100%; position: absolute; margin-top: -15px;">
                                                     <div class="col s12">
-                                                        <!-- <a class="modal-trigger" href="#modalHistorial" style="color: black;"> -->
+                                                        <a class="modal-trigger" href="#modalHistorial" style="color: black;">
                                                             <ul>
                                                                 <li style="border: solid; border-radius: 5px; background: #5acaca">
                                                                     <table>
@@ -1003,11 +1003,11 @@
                                                                                 <i class="fa fa-tint" aria-hidden="true"></i>
                                                                             </td>
                                                                             <td width="40%" style="font-size: 2.5em; text-align: center;">
-                                                                                {{ (getstandarizeValue(actualSystem.log.meanVal)) | number : 0 }}%
+                                                                                {{ actualSystem.log.dataRaw ? (100 - ((actualSystem.log.meanVal - actualSystem.sensors.S0.minValue) / (actualSystem.sensors.S0.maxValue - actualSystem.sensors.S0.minValue) * 100) | number : 0) : "0" }}%
                                                                             </td>
                                                                             <td width="25%" style="text-align: left;">
-                                                                                min: {{ (getstandarizeValue(actualSystem.log.minVal)) | number : 0 }}% <br>
-                                                                                max: {{ (getstandarizeValue(actualSystem.log.maxVal)) | number : 0 }}%
+                                                                                min: {{ actualSystem.log.dataRaw ? (100 - ((actualSystem.log.minVal - actualSystem.sensors.S0.minValue) / (actualSystem.sensors.S0.maxValue - actualSystem.sensors.S0.minValue) * 100) | number : 0) : "0" }}% <br>
+                                                                                max: {{ actualSystem.log.dataRaw ? (100 - ((actualSystem.log.maxVal - actualSystem.sensors.S0.minValue) / (actualSystem.sensors.S0.maxValue - actualSystem.sensors.S0.minValue) * 100) | number : 0) : "0" }}%
                                                                             </td>
                                                                             <td width="15%" style="text-align: center;" ng-init="bat = 0">
                                                                                 <i class="material-icons">
@@ -1021,11 +1021,11 @@
                                                                     </table>
                                                                 </li>
                                                             </ul>
-                                                        <!-- </a> -->
+                                                        </a>
                                                     </div>
                                                 </div>
                                                 <div class="hide-on-small-only" style="width: 100%; margin-top: -15px;">
-                                                    <!-- <a class="modal-trigger" href="#modalHistorial" style="color: black;"> -->
+                                                    <a class="modal-trigger" href="#modalHistorial" style="color: black;">
                                                         <ul>
                                                             <li style="border: solid; border-radius: 5px; background: #5acaca">
                                                                 <table>
@@ -1036,11 +1036,11 @@
                                                                             <i class="fa fa-tint" aria-hidden="true"></i>
                                                                         </td>
                                                                         <td width="40%" style="font-size: 2.5em; text-align: center;">
-                                                                            {{ (getstandarizeValue(actualSystem.log.meanVal)) | number : 0 }}%
+                                                                            {{ actualSystem.log.dataRaw ? (100 - ((actualSystem.log.meanVal - actualSystem.sensors.S0.minValue) / (actualSystem.sensors.S0.maxValue - actualSystem.sensors.S0.minValue) * 100) | number : 0) : "0" }}%
                                                                         </td>
-                                                                        <td width="25%" style="font-size: .9em; text-align: left;">
-                                                                            min: {{ (getstandarizeValue(actualSystem.log.minVal)) | number : 0 }}% <br>
-                                                                            max: {{ (getstandarizeValue(actualSystem.log.maxVal)) | number : 0 }}%
+                                                                        <td width="25%" style="text-align: left;">
+                                                                            min: {{ actualSystem.log.dataRaw ? (100 - ((actualSystem.log.minVal - actualSystem.sensors.S0.minValue) / (actualSystem.sensors.S0.maxValue - actualSystem.sensors.S0.minValue) * 100) | number : 0) : "0" }}% <br>
+                                                                            max: {{ actualSystem.log.dataRaw ? (100 - ((actualSystem.log.maxVal - actualSystem.sensors.S0.minValue) / (actualSystem.sensors.S0.maxValue - actualSystem.sensors.S0.minValue) * 100) | number : 0) : "0" }}%
                                                                         </td>
                                                                         <td width="15%" style="text-align: center;" ng-init="bat = 0">
                                                                             <i class="material-icons">
@@ -1054,7 +1054,7 @@
                                                                 </table>
                                                             </li>
                                                         </ul>
-                                                    <!-- </a> -->
+                                                    </a>
                                                 </div>
                                             </div>
 
@@ -1924,15 +1924,15 @@
 
                                     <canvas id="myChart" ng-show="actualSystem.type == 'Sensor'"></canvas>
                                     <p class="range-field">
-                                        <input type="range" id="chartZoom" min="10" max="100" value="10"/>
+                                        <input type="range" id="chartZoom" min="10" max="500" value="10"/>
                                     </p>
                                     <ul class="row collapsible" ng-show="actualSystem.type == 'Sensor'">
                                         <li class="col s12" ng-repeat="reg in invertedRegisters">
                                             <div class="gray-text row" style="border-bottom: 1px solid lightgray; margin-bottom: 0px;">
                                                 <div class="col s12">
-                                                    {{ reg.date.substr(4,13) }}: <br class="show-in-mobil-only">
-                                                    <b style="font-size: 1.3em;">{{ (getstandarizeValue(reg.meanVal)) | number : 0 }}%</b> 
-                                                    [{{ (getstandarizeValue(reg.minVal)) | number : 0 }}%  ~ {{ (getstandarizeValue(reg.maxVal)) | number : 0 }}%] 
+                                                    {{ reg.date.substr(6,2) }}/{{ reg.date.substr(4,2) }} {{ reg.date.substr(9,2) }}:{{ reg.date.substr(11,5) }}: <br class="show-in-mobil-only">
+                                                    <b style="font-size: 1.3em;">{{ (100 - ((reg.meanVal - actualSystem.sensors.S0.minValue) / (actualSystem.sensors.S0.maxValue - actualSystem.sensors.S0.minValue) * 100)) | number : 0 }}%</b> 
+                                                    [{{ (100 - ((reg.minVal - actualSystem.sensors.S0.minValue) / (actualSystem.sensors.S0.maxValue - actualSystem.sensors.S0.minValue) * 100)) | number : 0 }}%  ~ {{ (100 - ((reg.maxVal - actualSystem.sensors.S0.minValue) / (actualSystem.sensors.S0.maxValue - actualSystem.sensors.S0.minValue) * 100)) | number : 0 }}%] 
                                                     <span>Batería: {{ parseJSON(reg.voltages)[0] | number : 1 }}v</span>
                                                 </div>
                                             </div>
@@ -3284,12 +3284,15 @@
                                     <div class="col s3" style="margin-left: -15px;">
                                         <img class="img-logo-cel" src="./assets/images/DTA.png" alt="DTA-Agricola">
                                     </div>
-                                    <div class="col {{ authUser ? 's6' : 's7'}} center-align">
+                                    <div class="col {{ authUser ? 's6' : 's7' }} center-align">
                                         <p id="control_de_riego" style="font-size: 1.2em; margin-top: 5px;">CONTROL DE RIEGO</p>
                                     </div>
-                                    <div class="col s2 right-align">
+                                    <div class="col s1 right-align" ng-click="reload()">
+                                        <i class="material-icons" style="margin-top: 5px; margin-left: -15px;" ng-click="reload()">refresh</i>
+                                    </div>
+                                    <div class="col s1 right-align" style="margin-left: -25px;">
                                         <div ng-show="!authUser">
-                                            <a href="#!/login" ng-click="login()" aria-label="User" style="color: black;">
+                                            <a href="#!/login" ng-click="login()" aria-label="User" style="color: black; margin-left: 15px;">
                                                 <i class="fa fa-user" aria-hidden="true"
                                                     style="margin-top: 5px; font-size: 2em;"></i>
                                                 <!-- <p style="margin-top: -5px;">Acceso</p> -->
@@ -3303,9 +3306,9 @@
                                             <p style="margin-top: 3px;color: black;border-radius: 50%;border: 2px solid;width: 30px;height: 30px;text-align: center;margin-left: 10px;font-variant-caps: small-caps;font-size: 1.2em;" ng-show="!authUser.photoURL">
                                                 {{ authUser.displayName ? authUser.displayName[0] : authUser.email[0] }}
                                             </p>
+                                        </div>
                                     </div>
-                                    </div>
-                                    <div class="col s1 right-align" ng-show="authUser">
+                                    <div class="col s1 right-align" style="margin-left: 25px;" ng-show="authUser">
                                         <a href="#!servicios" ng-click="showWindow('servicios')" style="color: black;">
                                             <i class="material-icons" style="margin-top: 5px; margin-left: -15px;">menu</i>
                                             <!-- <i class="fa fa-ellipsis-v" aria-hidden="true"
@@ -3344,6 +3347,7 @@
         <link rel="stylesheet" href="./assets/css/responsive.css">
         <!-- <link rel="stylesheet" href="./assets/css/meteocons-font/FONT/Font-face/stylesheet.css"> -->
 
+        <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
         <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/4.0.0/firebaseui.css" />
 
         <script src="https://www.gstatic.com/firebasejs/5.10.1/firebase.js"></script>
@@ -3366,7 +3370,6 @@
         <script src="./assets/js/core.js?v=1.5"></script>
         <!-- <script src="monitor/js/chartjs/chart.min.js"></script> -->
         <script type="text/javascript" src="./assets/modules/datepicker/daterangepicker.js"></script>
-        <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 
         <!-- #endregion: CSS Y SCRIPTS -->
 

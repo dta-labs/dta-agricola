@@ -7,9 +7,9 @@ void commWatchDogReset() {
   if (commError > 0) {
     Serial.print(F("commError: ")); Serial.println(commError);
   }
-  // if (commError == 10) {
-  //   resetSoftware();
-  // }
+  if (commError == 10) {
+    resetSoftware();
+  }
 }
 
 String getResponse(int wait, bool response){
@@ -83,7 +83,7 @@ void testComunicaciones() {
 }
 
 void setupGSM() {
-  if (restartGSM) {
+  // if (restartGSM) {
     Serial.println(F("Setup GSM"));
     gprs.begin(9600);
     gprs.listen();
@@ -107,7 +107,7 @@ void setupGSM() {
     gprs.println(F("AT+SAPBR=2,1"));
     getResponse(15, testComm); 
     wdt_reset();                                // Reset the watchdog
-  }
+  // }
 }
 
 String httpRequest(String strMeasurements, String strVoltages, bool setup) {
@@ -153,8 +153,8 @@ void comunicaciones(String strMeasurements, String strVoltages, bool setup) {
   Serial.println(F("\nComunicación con el servidor"));
   setupGSM();
   String data = httpRequest(strMeasurements, strVoltages, setup); 
-  Serial.println("Mockup data...");
-  data = "\"0\"3\"DTA_00\"DTA_01\"DTA_02\"DTA_03\"DTA_04\"DTA_05\"DTA_06\"DTA_07\"DTA_08\"DTA_09\"";
+  // Serial.println("Mockup data...");
+  // data = "\"0\"3\"DTA_00\"DTA_01\"DTA_02\"DTA_03\"DTA_04\"DTA_05\"DTA_06\"DTA_07\"DTA_08\"DTA_09\"";
   if (data != "") {
     setVariables(data);
     showVariables();
