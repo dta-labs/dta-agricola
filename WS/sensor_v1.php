@@ -98,7 +98,7 @@
                 $mean += floatval($arr[$i]);
              }
         }
-        return $mean / $j;
+        return $j > 0 ? $mean / $j : -99;
     }
 
     function getMaxValue($arr) {
@@ -127,26 +127,26 @@
 
 	function updateLog($localZone, $baseUrl) {
 		if ($_GET["data"] && $_GET["data"] != "[]") {
-			$key = "";
-            $date = getDateTime($localZone)->format('Ymd hia');
-			$dataUpdate = '{';
-			$dataUpdate .= '"date":"' . $date . '"';
-			$lenght = $_GET["no"];
-			$dataUpdate .= ',"lenght":"' . $lenght . '"';
-			$dataUpdate .= ',"dataRaw":"' . $_GET["data"] . '"'; 
-			$dataUpdate .= ',"voltages":"' . $_GET["vi"] . '"'; 
-			$dataUpdate .= ',"signal":"' . ($_GET["si"] ? $_GET["si"] : "") . '"';
-			$dataUpdate .= ',"reception":"' . (($_GET["rx"] && ($_GET["rx"] == "Ok" || $_GET["rx"] == "Er")) ? $_GET["rx"] : "") . '"';
-			
             $arr = json_decode($_GET["data"], true);
-            
-            $dataUpdate .= ',"meanVal":"' . getMeanValue($arr) . '"';
-			$dataUpdate .= ',"minVal":"' . getMinValue($arr) . '"';
-			$dataUpdate .= ',"maxVal":"' . getMaxValue($arr) . '"';
-			$dataUpdate .= '}';
-
-			$url = $baseUrl . "logs$key.json";              // 4.1.- cURL de actualización de Logs
-			postcURLData($url, $dataUpdate);            	// Nuevo registro
+            $meanVal = getMeanValue($arr);
+            if ($meanVal != -99){
+                $key = "";
+                $date = getDateTime($localZone)->format('Ymd hia');
+                $dataUpdate = '{';
+                $dataUpdate .= '"date":"' . $date . '"';
+                $lenght = $_GET["no"];
+                $dataUpdate .= ',"lenght":"' . $lenght . '"';
+                $dataUpdate .= ',"dataRaw":"' . $_GET["data"] . '"'; 
+                $dataUpdate .= ',"voltages":"' . $_GET["vi"] . '"'; 
+                $dataUpdate .= ',"signal":"' . ($_GET["si"] ? $_GET["si"] : "") . '"';
+                $dataUpdate .= ',"reception":"' . (($_GET["rx"] && ($_GET["rx"] == "Ok" || $_GET["rx"] == "Er")) ? $_GET["rx"] : "") . '"';
+                $dataUpdate .= ',"meanVal":"' . $meanVal . '"';
+                $dataUpdate .= ',"minVal":"' . getMinValue($arr) . '"';
+                $dataUpdate .= ',"maxVal":"' . getMaxValue($arr) . '"';
+                $dataUpdate .= '}';
+                $url = $baseUrl . "logs$key.json";              // 4.1.- cURL de actualización de Logs
+                postcURLData($url, $dataUpdate);            	// Nuevo registro
+            }
 		}
 	}
 
