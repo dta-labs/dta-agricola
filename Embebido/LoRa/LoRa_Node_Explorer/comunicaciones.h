@@ -152,10 +152,10 @@ void showVariables() {
 
 void comunicaciones(String strMeasurements, String strVoltages, bool setup) {
   Serial.println(F("\nComunicación con el servidor"));
-  setupGSM();
-  String data = httpRequest(strMeasurements, strVoltages, setup); 
+  // setupGSM();
+  // String data = httpRequest(strMeasurements, strVoltages, setup); 
   // Serial.println("Mockup data...");
-  // data = "\"0\"3\"DTA_00\"DTA_01\"DTA_02\"DTA_03\"DTA_04\"DTA_05\"DTA_06\"DTA_07\"DTA_08\"DTA_09\"";
+  String data = "\"0\"10\"DTA_00\"DTA_01\"DTA_02\"DTA_03\"DTA_04\"DTA_05\"DTA_06\"DTA_07\"DTA_08\"DTA_09\"";
   if (data != "") {
     setVariables(data);
     showVariables();
