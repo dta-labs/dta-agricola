@@ -63,8 +63,8 @@
 
             <!-- #region: MENU PC -->
 
-            <div class="col s0 m3 l3" style="height: 100%;">
-                <div class="left_col show-in-pc-only">
+            <div class="col s0 m3 l2 show-in-pc-only" style="height: 100%; font-size: .8em;">
+                <div class="left_col">
                     <div class="main-menu">
 
                         <div class="navbar nav_title" style="border: 0; border-bottom: 3px solid;">
@@ -178,7 +178,7 @@
 
             <!-- #endregion: MENU PC -->
 
-            <div class="col s12 m9 l9" style="height: 100%;">
+            <div class="col s12 m9 l10" style="height: 100%;">
 
                 <div class="row" style="height: 100%;">
 
@@ -1923,7 +1923,7 @@
                                     </ul>
 
                                     <canvas id="myChart" ng-show="actualSystem.type == 'Sensor'"></canvas>
-                                    <p class="range-field">
+                                    <p class="range-field" ng-show="actualSystem.type == 'Sensor'">
                                         <input type="range" id="chartZoom" min="10" max="500" value="10"/>
                                     </p>
                                     <ul class="row collapsible" ng-show="actualSystem.type == 'Sensor'">
@@ -1970,8 +1970,7 @@
                                     </div>
                                     <div
                                         ng-show="isSystemOfRole('propietario') || isSystemOfRole('administrador')">
-                                        <div class="sercices-options gray-text teal text-centered modal-trigger"
-                                            href="#modalAddUser">
+                                        <div class="sercices-options gray-text teal text-centered modal-trigger lighten-3" href="#modalAddUser" style="padding: 25px;">
                                             <i class="fa fa-plus" aria-hidden="true"
                                                 style="margin-top: 5px;"></i>
                                             Invitar a alguien
@@ -2032,7 +2031,7 @@
                                             <label>Ángulo final</label>
                                         </div>
                                         <div class="input-field col s4 m6">
-                                            <select id="planEndGun" style="display:block; ">
+                                            <select id="planEndGun">
                                                 <option value="true">Sí</option>
                                                 <option value="false">No</option>
                                             </select>
@@ -2049,6 +2048,20 @@
                                                     ng-click="showSystemTable(actualSystem.brand)">help_outline</i>
                                             </div>
                                         </div>
+                                        <div class="col s12 m6" ng-init="planSetCulture = ''">
+                                            <select id="planSetCulture" class="select" ng-model="planSetCulture">
+                                                <option value="" disabled selected>Cultivo</option>
+                                                <option value="{{ culture.culture }}" ng-repeat="culture in listPlanesRiego">{{ culture.culture }}</option>
+                                            </select>
+                                            <label style="top: -28px; font-size: .8em;">Seleccionar Cultivo</label>
+                                        </div>
+                                        <div class="col s12 m6" ng-init="planSetSensor = ''">
+                                            <select id="planSetSensor" class="select" ng-model="planSetSensor">
+                                                <option value="" disabled selected>Sensor</option>
+                                                <option value="{{ sensor.name }}" ng-repeat="sensor in systems" ng-if="sensor.type == 'Sensor'">{{ sensor.name }}</option>
+                                            </select>
+                                            <label style="top: -28px; font-size: .8em;">Asignar sensor</label>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="modal-footer">
@@ -2056,7 +2069,7 @@
                                         ng-click="resetNewPlan()"><i
                                             class="material-icons">&nbsp;&nbsp;reply&nbsp;&nbsp;</i></a>
                                     <a href="" class="modal-close waves-effect teal waves-green btn-flat white-text"
-                                        ng-click="setNewPlan(-1, -1, -1, false)"><i
+                                        ng-click="setNewPlan(-1, -1, -1, false, planSetCulture, planSetSensor )"><i
                                             class="material-icons">&nbsp;&nbsp;check&nbsp;&nbsp;</i></a>
                                 </div>
                             </div>
@@ -2106,6 +2119,18 @@
                                                 <i class="material-icons"
                                                     ng-click="showSystemTable(actualSystem.brand)">help_outline</i>
                                             </div>
+                                        </div>
+                                        <div class="input-field col s12 m6">
+                                            <select id="editPlanSetCulture" ng-model="editSelectedPlan.culture">
+                                                <option value="{{ culture.culture }}" ng-repeat="culture in listPlanesRiego">{{ culture.culture }}</option>
+                                            </select>
+                                            <label style="top: -28px; font-size: .8em;">Seleccionar Cultivo</label>
+                                        </div>
+                                        <div class="input-field col s12 m6">
+                                            <select id="editPlanSetSensor" ng-model="editSelectedPlan.sensor">
+                                                <option value="{{ sensor.name }}" ng-repeat="sensor in systems" ng-if="sensor.type == 'Sensor'">{{ sensor.name }}</option>
+                                            </select>
+                                            <label style="top: -28px; font-size: .8em;">Asignar sensor</label>
                                         </div>
                                     </div>
                                 </div>
@@ -2517,7 +2542,6 @@
                                                     </td>
                                                     <td>
                                                         <a href="#modalDefineFechaHoraInicio"
-                                                            ng-click="actualizarListaCultivos()"
                                                             class="modal-close waves-effect teal btn-flat white-text modal-trigger">
                                                             <i class="material-icons">create</i>
                                                         </a>
@@ -3030,7 +3054,7 @@
                                     </div>
                                 </div>
                                 <div class="modal-footer">
-                                    <a href="" class="modal-close waves-effect waves-green btn-flat">Cancelar</a>
+                                    <a href="" class="modal-close waves-effect waves-green btn">Cancelar</a>
                                 </div>
                             </div>
 
@@ -3207,6 +3231,56 @@
         
                         <header>
         
+                            <!-- Barra menú superior Celular -->
+                            <div class="show-in-mobil-only top-navbar">
+                                <div class="row">
+                                    <div class="col s3" style="margin-left: -15px;">
+                                        <img class="img-logo-cel" src="./assets/images/DTA.png" alt="DTA-Agricola">
+                                    </div>
+                                    <div class="col s6 center-align">
+                                        <p id="control_de_riego" style="font-size: 1.2em; margin-top: 5px;">CONTROL DE RIEGO</p>
+                                    </div>
+                                    <!-- <div class="col s1 right-align" ng-click="reload()">
+                                        <i class="material-icons" style="margin-top: 5px; margin-left: -15px;" ng-click="reload()">refresh</i>
+                                    </div> -->
+                                    <div class="col s3" style="margin-left: 10px;">
+                                        <span ng-show="!authUser">
+                                            <a href="#!/login" ng-click="login()" aria-label="User" style="color: black; margin-left: 15px;">
+                                                <i class="fa fa-user" aria-hidden="true"
+                                                    style="margin-top: 5px; font-size: 2em;"></i>
+                                                <!-- <p style="margin-top: -5px;">Acceso</p> -->
+                                            </a>
+                                        </span>
+                                        <span ng-show="authUser" class="valign-wrapper">
+                                            <img id="imgAuthMobil" src="{{ authUser.photoURL }}" class="img-auth" 
+                                            style="width: 32px; height: 32px; border-radius: 50%; margin-top: 2px;" 
+                                            ng-show="authUser.photoURL" alt="usuario">
+                                            <!-- <i class="fa fa-user" aria-hidden="true" style="margin-top: 5px; margin-bottom: 4px;" ng-show="!authUser.photoURL"></i> -->
+                                            <p style="margin-top: 3px;color: black;border-radius: 50%;border: 2px solid;width: 30px;height: 30px;text-align: center;margin-left: 10px;font-variant-caps: small-caps;font-size: 1.2em;" ng-show="!authUser.photoURL">
+                                                {{ authUser.displayName ? authUser.displayName[0] : authUser.email[0] }}
+                                            </p>
+                                        <!-- </span>
+                                    </div>
+                                    <div class="col s1 right-align" style="margin-left: 25px;" ng-show="authUser">
+                                        <span ng-show="authUser"> -->
+                                            <a href="#!servicios" ng-click="showWindow('servicios')" style="color: black;">
+                                                <i class="material-icons" style="margin-top: 7px;margin-left: 10px;">menu</i>
+                                                <!-- <i class="fa fa-ellipsis-v" aria-hidden="true"
+                                                    style="font-size: 2em; margin-top: 5px;"></i> -->
+                                            </a>
+                                        </span>
+                                    </div>
+                                </div>
+        
+                                <!-- Ubicación actual -->
+        
+                                <!-- <div class="fixed-action-btn">
+                                    <a class="btn-floating white" ng-click="setMyPossition()">
+                                        <i class="fa fa-crosshairs black-text" aria-hidden="true"></i>
+                                    </a>
+                                </div> -->
+                            </div>
+        
                             <!-- Barra menú inferior Celular -->
                             <div class="show-in-mobil-only row bottom-navbar" ng-show="authUser && selectedWindow == 'sistema'"
                                 style="border-radius: 10px 10px 0 0; width: 100vw;">
@@ -3223,7 +3297,7 @@
                                     </a>
                                 </div>
                                 <div class="col navbar-option">
-                                    <a class="modal-trigger" href="#modalConfig" style="color: black;">
+                                    <a class="modal-trigger" href="#modalConfig" style="color: black;" ng-click="">
                                         <i class="material-icons" style="margin-top: 5px;">{{ actualSystem.type == 'Estacionario' || actualSystem.type == 'Sensor' ? "view_list" : "slow_motion_video" }}</i>
                                         <p style="margin-top: -8px;">{{ actualSystem.type == 'Sensor' ? "Sensores" : "Planes" }}</p>
                                     </a>
@@ -3276,54 +3350,6 @@
                                         <p style="margin-top: -4px;">Usuarios</p>
                                     </a>
                                 </div>
-                            </div>
-        
-                            <!-- Barra menú superior Celular -->
-                            <div class="show-in-mobil-only top-navbar">
-                                <div class="row">
-                                    <div class="col s3" style="margin-left: -15px;">
-                                        <img class="img-logo-cel" src="./assets/images/DTA.png" alt="DTA-Agricola">
-                                    </div>
-                                    <div class="col {{ authUser ? 's6' : 's7' }} center-align">
-                                        <p id="control_de_riego" style="font-size: 1.2em; margin-top: 5px;">CONTROL DE RIEGO</p>
-                                    </div>
-                                    <div class="col s1 right-align" ng-click="reload()">
-                                        <i class="material-icons" style="margin-top: 5px; margin-left: -15px;" ng-click="reload()">refresh</i>
-                                    </div>
-                                    <div class="col s1 right-align" style="margin-left: -25px;">
-                                        <div ng-show="!authUser">
-                                            <a href="#!/login" ng-click="login()" aria-label="User" style="color: black; margin-left: 15px;">
-                                                <i class="fa fa-user" aria-hidden="true"
-                                                    style="margin-top: 5px; font-size: 2em;"></i>
-                                                <!-- <p style="margin-top: -5px;">Acceso</p> -->
-                                            </a>
-                                        </div>
-                                        <div ng-show="authUser">
-                                            <img id="imgAuthMobil" src="{{ authUser.photoURL }}" class="img-auth" 
-                                            style="width: 32px; height: 32px; border-radius: 50%; margin-top: 2px;" 
-                                            ng-show="authUser.photoURL" alt="usuario">
-                                            <!-- <i class="fa fa-user" aria-hidden="true" style="margin-top: 5px; margin-bottom: 4px;" ng-show="!authUser.photoURL"></i> -->
-                                            <p style="margin-top: 3px;color: black;border-radius: 50%;border: 2px solid;width: 30px;height: 30px;text-align: center;margin-left: 10px;font-variant-caps: small-caps;font-size: 1.2em;" ng-show="!authUser.photoURL">
-                                                {{ authUser.displayName ? authUser.displayName[0] : authUser.email[0] }}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div class="col s1 right-align" style="margin-left: 25px;" ng-show="authUser">
-                                        <a href="#!servicios" ng-click="showWindow('servicios')" style="color: black;">
-                                            <i class="material-icons" style="margin-top: 5px; margin-left: -15px;">menu</i>
-                                            <!-- <i class="fa fa-ellipsis-v" aria-hidden="true"
-                                                style="font-size: 2em; margin-top: 5px;"></i> -->
-                                        </a>
-                                    </div>
-                                </div>
-        
-                                <!-- Ubicación actual -->
-        
-                                <!-- <div class="fixed-action-btn">
-                                    <a class="btn-floating white" ng-click="setMyPossition()">
-                                        <i class="fa fa-crosshairs black-text" aria-hidden="true"></i>
-                                    </a>
-                                </div> -->
                             </div>
         
                         </header>

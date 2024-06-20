@@ -415,6 +415,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         $scope.actualSystem.autoreverse = $scope.actualSystem.autoreverse == "ON" || $scope.actualSystem.autoreverse == true ? true : false;
         $scope.actualSystem.direction = $scope.actualSystem.direction == "FF" || $scope.actualSystem.direction == true ? true : false;
         setActualSystemPlans();
+        $scope.actualizarListaCultivos();
         $scope.loadSystemLog(system.key, 10);
         // invertLog();
         // $scope.actualSystem.posicionActual = parseInt($scope.actualSystem.log.position ? $scope.actualSystem.log.position : "0") + parseInt($scope.actualSystem.summerHour ? $scope.actualSystem.summerHour : "0");
@@ -939,10 +940,13 @@ app.controller("ControladorPrincipal", function ($scope) {
         length > 0 ? document.getElementById("planAnguloIni").setAttribute("min", $scope.actualSystem.plans[index].endAngle) : null;
         document.getElementById("planAnduloFin").value = 360;
         document.getElementById("planValue").value = 0;
-        // document.getElementById("planType").value = "velocity";
+        $scope.actualizarListaCultivos();
+        M.FormSelect.init(document.querySelectorAll('.select'));
+        M.AutoInit();
+    // document.getElementById("planType").value = "velocity";
     }
 
-    $scope.setNewPlan = (starAngle, endAngle, value, endGun) => {
+    $scope.setNewPlan = (starAngle, endAngle, value, endGun, culture, sensor) => {
         if (!$scope.actualSystem.plans) {
             $scope.actualSystem["plans"] = {};
         }
@@ -960,7 +964,9 @@ app.controller("ControladorPrincipal", function ($scope) {
                 starAngle: "" + starAngle,
                 endAngle: "" + endAngle,
                 value: "" + finalValue,
-                endGun: endGun
+                endGun: endGun,
+                culture: culture, 
+                sensor: sensor
             }
             swal({
                 title: "Plan de riego",
@@ -992,6 +998,8 @@ app.controller("ControladorPrincipal", function ($scope) {
         $scope.editSelectedPlan["endAngle"] = parseInt($scope.actualSystem.plans[$scope.editedPlan].endAngle);
         $scope.editSelectedPlan["value"] = parseFloat($scope.actualSystem.plans[$scope.editedPlan].value);
         $scope.editSelectedPlan["endGun"] = $scope.actualSystem.plans[$scope.editedPlan].endGun == "true" ? true : false;
+        $scope.editSelectedPlan["culture"] = $scope.actualSystem.plans[$scope.editedPlan].culture ? $scope.actualSystem.plans[$scope.editedPlan].culture : "";
+        $scope.editSelectedPlan["sensor"] = $scope.actualSystem.plans[$scope.editedPlan].sensor ? $scope.actualSystem.plans[$scope.editedPlan].sensor : "";
     }
 
     selectProgram = (programId) => {
@@ -1222,6 +1230,8 @@ app.controller("ControladorPrincipal", function ($scope) {
     loadCultures = () => {
         firebase.database().ref("cultivos").once("value", cultivos => {
             $scope.listPlanesRiego = cultivos.val();
+            M.FormSelect.init(document.querySelectorAll('.select'));
+            M.AutoInit();
             $scope.$apply();
         });
     }
@@ -1484,7 +1494,7 @@ app.controller("ControladorPrincipal", function ($scope) {
     }
 
     showPCPosition = (campo) => {
-        if (campo.log && campo.log.latitude != "NaN" && campo.log.longitude != "NaN" && campo.log.latitude != "0.00000" && campo.log.longitude != "0.00000") {
+        if (campo.log && campo.log.latitude && campo.log.longitude && campo.log.latitude != "0.00000" && campo.log.longitude != "0.00000") {
             polygon = [
                 [campo.latitude, campo.longitude],
                 [campo.log.latitude, campo.log.longitude]
@@ -1742,6 +1752,8 @@ app.controller("ControladorPrincipal", function ($scope) {
             console.log(`${err.name}, ${err.message}`);
         }
     }
+
+    $scope.refresh = () => { $scope.$apply(); };
 
     $scope.inicializacion = () => {
         console.log(window.navigator.userAgent);
