@@ -1624,6 +1624,19 @@ app.controller("ControladorPrincipal", function ($scope) {
         $scope.showChart("meanVal", parseInt(chartZoom.value));
     });
 
+    getMean = (data) => {
+        mean = 0;
+        data.forEach( element => {
+            mean += element;
+        });
+        mean /= data.length;
+        means = [];
+        data.forEach( element => {
+            means.push(mean);
+        });
+        return means;
+    }
+
     $scope.showChart = (child, registers) => {
         getMeassurementValues($scope.actualSystem.key, registers).then(result => {
             min = $scope.actualSystem.sensors.S0.minValue;
@@ -1643,34 +1656,71 @@ app.controller("ControladorPrincipal", function ($scope) {
             });
             factorDeSuavizado = 0.3;
             data = filtroPasoBajo(data, factorDeSuavizado);
-            chart(data, labels);
+            means = getMean(data);
+            chart(data, means, labels);
         });
     }
 
-    chart = (data, labels) => {
+    chart = (data, means, labels) => {
         const ctx = document.getElementById('myChart');
         if (myChart) myChart.destroy();
+        let type = data.length < 14 ? 'bar' : 'line';
         myChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Humedad del suelo',
-                    data: data,
-                    cubicInterpolationMode: 'monotone',
-                    tension: 0.4,
-                    borderWidth: 1
-                }]
+            type: type,
+            data: getDataArray(data, means, labels),
+            options: getOptions()
+        });
+    }
+
+    getDataArray = (data, means, labels) => {
+        return {
+            labels: labels,
+            datasets: [{
+                label: 'Hs',
+                data: data,
+                cubicInterpolationMode: 'monotone',
+                tension: 0.4,
+                borderWidth: 1,
+                type: 'bar'
             },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true
+            {
+                data: data,
+                cubicInterpolationMode: 'monotone',
+                tension: 0.4,
+                borderWidth: 1,
+                type: 'line'
+            },
+            {
+                label: 'Media',
+                data: means,
+                cubicInterpolationMode: 'monotone',
+                tension: 0.4,
+                borderWidth: 1,
+                type: 'line'
+            }]
+        }
+    }
+
+    getOptions = () => {
+        return {
+            responsive: true,
+            //maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    type: 'linear',
+                    ticks: {
+                        min: 0,
+                        max: 100,
+                        stepSize: 10
                     }
                 }
-            }
-        });
+            },
+            plugins: {
+                legend: false
+            },
+            //height: '50vw'
+        }
     }
 
     filtroPasoBajo = (valores, factorDeSuavizado) => {
