@@ -13,12 +13,14 @@ long readVcc() {
 }
 
 float readAnalogicData(int port) {
-  int reads = 100;
+  long reads = 0;
   float vcc = readVcc();
   float value = 0;
-  for (int i = 0; i < reads; i++) {
+  unsigned long startMillis = millis();
+  while (millis() - startMillis < 1000) {
     value += analogRead(port);
-    delay(1);
+    reads++;
+    delayMicroseconds(33);
   }
   value /= reads;
   return (value / 1024.0) * vcc;
