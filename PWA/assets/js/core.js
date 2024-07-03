@@ -415,6 +415,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         $scope.actualSystem.autoreverse = $scope.actualSystem.autoreverse == "ON" || $scope.actualSystem.autoreverse == true ? true : false;
         $scope.actualSystem.direction = $scope.actualSystem.direction == "FF" || $scope.actualSystem.direction == true ? true : false;
         setActualSystemPlans();
+        $scope.actualizarListaCultivos();
         $scope.loadSystemLog(system.key, 10);
         // invertLog();
         // $scope.actualSystem.posicionActual = parseInt($scope.actualSystem.log.position ? $scope.actualSystem.log.position : "0") + parseInt($scope.actualSystem.summerHour ? $scope.actualSystem.summerHour : "0");
@@ -939,10 +940,13 @@ app.controller("ControladorPrincipal", function ($scope) {
         length > 0 ? document.getElementById("planAnguloIni").setAttribute("min", $scope.actualSystem.plans[index].endAngle) : null;
         document.getElementById("planAnduloFin").value = 360;
         document.getElementById("planValue").value = 0;
-        // document.getElementById("planType").value = "velocity";
+        $scope.actualizarListaCultivos();
+        M.FormSelect.init(document.querySelectorAll('.select'));
+        M.AutoInit();
+    // document.getElementById("planType").value = "velocity";
     }
 
-    $scope.setNewPlan = (starAngle, endAngle, value, endGun) => {
+    $scope.setNewPlan = (starAngle, endAngle, value, endGun, culture, sensor) => {
         if (!$scope.actualSystem.plans) {
             $scope.actualSystem["plans"] = {};
         }
@@ -960,7 +964,9 @@ app.controller("ControladorPrincipal", function ($scope) {
                 starAngle: "" + starAngle,
                 endAngle: "" + endAngle,
                 value: "" + finalValue,
-                endGun: endGun
+                endGun: endGun,
+                culture: culture, 
+                sensor: sensor
             }
             swal({
                 title: "Plan de riego",
@@ -992,6 +998,8 @@ app.controller("ControladorPrincipal", function ($scope) {
         $scope.editSelectedPlan["endAngle"] = parseInt($scope.actualSystem.plans[$scope.editedPlan].endAngle);
         $scope.editSelectedPlan["value"] = parseFloat($scope.actualSystem.plans[$scope.editedPlan].value);
         $scope.editSelectedPlan["endGun"] = $scope.actualSystem.plans[$scope.editedPlan].endGun == "true" ? true : false;
+        $scope.editSelectedPlan["culture"] = $scope.actualSystem.plans[$scope.editedPlan].culture ? $scope.actualSystem.plans[$scope.editedPlan].culture : "";
+        $scope.editSelectedPlan["sensor"] = $scope.actualSystem.plans[$scope.editedPlan].sensor ? $scope.actualSystem.plans[$scope.editedPlan].sensor : "";
     }
 
     selectProgram = (programId) => {
@@ -1222,6 +1230,8 @@ app.controller("ControladorPrincipal", function ($scope) {
     loadCultures = () => {
         firebase.database().ref("cultivos").once("value", cultivos => {
             $scope.listPlanesRiego = cultivos.val();
+            M.FormSelect.init(document.querySelectorAll('.select'));
+            M.AutoInit();
             $scope.$apply();
         });
     }
@@ -1484,7 +1494,7 @@ app.controller("ControladorPrincipal", function ($scope) {
     }
 
     showPCPosition = (campo) => {
-        if (campo.log && campo.log.latitude != "NaN" && campo.log.longitude != "NaN" && campo.log.latitude != "0.00000" && campo.log.longitude != "0.00000") {
+        if (campo.log && campo.log.latitude && campo.log.longitude && campo.log.latitude != "0.00000" && campo.log.longitude != "0.00000") {
             polygon = [
                 [campo.latitude, campo.longitude],
                 [campo.log.latitude, campo.log.longitude]
@@ -1614,6 +1624,19 @@ app.controller("ControladorPrincipal", function ($scope) {
         $scope.showChart("meanVal", parseInt(chartZoom.value));
     });
 
+    getMean = (data) => {
+        mean = 0;
+        data.forEach( element => {
+            mean += element;
+        });
+        mean /= data.length;
+        means = [];
+        data.forEach( element => {
+            means.push(mean);
+        });
+        return means;
+    }
+
     $scope.showChart = (child, registers) => {
         getMeassurementValues($scope.actualSystem.key, registers).then(result => {
             min = $scope.actualSystem.sensors.S0.minValue;
@@ -1633,34 +1656,71 @@ app.controller("ControladorPrincipal", function ($scope) {
             });
             factorDeSuavizado = 0.3;
             data = filtroPasoBajo(data, factorDeSuavizado);
-            chart(data, labels);
+            means = getMean(data);
+            chart(data, means, labels);
         });
     }
 
-    chart = (data, labels) => {
+    chart = (data, means, labels) => {
         const ctx = document.getElementById('myChart');
         if (myChart) myChart.destroy();
+        let type = data.length < 14 ? 'bar' : 'line';
         myChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Humedad del suelo',
-                    data: data,
-                    cubicInterpolationMode: 'monotone',
-                    tension: 0.4,
-                    borderWidth: 1
-                }]
+            type: type,
+            data: getDataArray(data, means, labels),
+            options: getOptions()
+        });
+    }
+
+    getDataArray = (data, means, labels) => {
+        return {
+            labels: labels,
+            datasets: [{
+                label: 'Hs',
+                data: data,
+                cubicInterpolationMode: 'monotone',
+                tension: 0.4,
+                borderWidth: 1,
+                type: 'bar'
             },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true
+            {
+                data: data,
+                cubicInterpolationMode: 'monotone',
+                tension: 0.4,
+                borderWidth: 1,
+                type: 'line'
+            },
+            {
+                label: 'Media',
+                data: means,
+                cubicInterpolationMode: 'monotone',
+                tension: 0.4,
+                borderWidth: 1,
+                type: 'line'
+            }]
+        }
+    }
+
+    getOptions = () => {
+        return {
+            responsive: true,
+            //maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    type: 'linear',
+                    ticks: {
+                        min: 0,
+                        max: 100,
+                        stepSize: 10
                     }
                 }
-            }
-        });
+            },
+            plugins: {
+                legend: false
+            },
+            //height: '50vw'
+        }
     }
 
     filtroPasoBajo = (valores, factorDeSuavizado) => {
@@ -1742,6 +1802,8 @@ app.controller("ControladorPrincipal", function ($scope) {
             console.log(`${err.name}, ${err.message}`);
         }
     }
+
+    $scope.refresh = () => { $scope.$apply(); };
 
     $scope.inicializacion = () => {
         console.log(window.navigator.userAgent);
