@@ -87,54 +87,55 @@
 
     #region 4.- Enviar Settings al dispositivo 
 
-	function getAutoreverse($dataSettings, $localZone) {
-		$autoreverse = $dataSettings->autoreverse;				// Opción 2.- Repetir el riego
-		if ($autoreverse == "OFF" ) {
-			switch ($dataSettings->irrigation) {
-				case 1:											// Opción 1.- Regar una vez
-					break;
-				case 3:											// Opción 3.- Programa de riego
-					$date = getDateTime($localZone)->format('Y-m-d');
-					$time = getDateTime($localZone)->format('H:i');
-					if ($dataSettings->position == 0 || $dataSettings->position == $dataSettings->length) {
-						foreach ($dataSettings->irrigationPlan->schedule as $schedule) {
-							if ($date == $schedule->date && $time == $schedule->time) {
-								return "ON";
-							}
-						}
-					}
-					break;
-				case 4:											// Opción 4.- Riego a demanda
-					break;
-				case 5:											// Opción 5.- IA
-					break;
-			}
-		}
-		return $autoreverse;
+	function getNewHour($hour, $millis) {
+		$newHour = new DateTime($hour);
+		$newHour->modify("+{$millis} milliseconds");
+		$newHour = $newHour->format('H:i');
+		return $newHour;
 	}
 
-	function updateStatus($baseUrl, $dataSettings, $autoreverse, $activationTime) {
+	function getStatus($dataSettings) {
 		$status = $dataSettings->status;
-        if ($autoreverse == "OFF" && !$dataSettings->isScheduled && $dataSettings->position == $dataSettings->length - 1) { 
-            $p = "p" . ($dataSettings->position);
-			$plotTimer = $dataSettings->plots->$p->value;
-            if ($plotTimer <= $activationTime) {
-                // putcURLData($baseUrl . "settings/autoreverse.json", '"ON"');
-                putcURLData($baseUrl . "settings/status.json", '"OFF"');
-                return "OFF";
-            }
+		if ($status) {
+			$date = getDateTime($localZone)->format('Y-m-d');
+			$time = getDateTime($localZone)->format('H:i');
+			for ($i = 0; $i < $dataSettings->length; $i++) {
+				$p = "p" . $i;
+				$plot = $dataSettings->plots->$p;
+				if ($plot->schedule) {
+					foreach ($plot->schedule as $schedule) {
+						$newHour = getNewHour($schedule->time, $schedule->value ? $schedule->value : 0);
+						if ($schedule->date == $date && $schedule->time <= $time && $time < $newHour) {
+							return "ON";
+						}
+					}
+				}
+			}
+			return "OFF";
 		}
-        return $status;
+		return $status;
 	}
     
 	function sendSettings($baseUrl, $dataSettings, $localZone, $activationTime) {
-        $autoreverse = getAutoreverse($dataSettings, $localZone);
-		$status = updateStatus($baseUrl, $dataSettings, $autoreverse, $activationTime);
-		$lectura = "\"" . $status . "\"" . $autoreverse . "\"" . $dataSettings->length . "\"" . $dataSettings->position;
+		$status = getStatus($dataSettings);
+		$lectura = "\"" . $status . "\"" . $dataSettings->length;
+		$date = getDateTime($localZone)->format('Y-m-d');
+		$time = getDateTime($localZone)->format('H:i');
 		for ($i = 0; $i < $dataSettings->length; $i++) {
 			$p = "p" . $i;
-			$lectura .= "\"" . $dataSettings->plots->$p->value;
-			$lectura .= "\"" . $dataSettings->plots->$p->valve;
+			$plot = $dataSettings->plots->$p;
+			$value = 0;
+			if ($status && $plot->schedule) {
+				foreach ($plot->schedule as $schedule) {
+					$newHour = getNewHour($schedule->time, $schedule->value ? $schedule->value : 0);
+					// print_r($schedule->time . "<=" . $time . "<" . $newHour . " => " . ($schedule->date == $date && $schedule->time <= $time && $time < $newHour) . " | ");
+					if ($schedule->date == $date && $schedule->time <= $time && $time < $newHour) {
+						$value = $schedule->value;
+					}
+				}
+			}
+			$lectura .= "\"" . $value;
+			$lectura .= "\"" . $plot->valve;
 		}
 		$lectura .=  "\"";
 		print_r($lectura);
@@ -153,8 +154,6 @@
 			$dataUpdate .= '"date":"' . (($key) ? $initialDate : $date) . '"';
 			$dataUpdate .= ',"update":"' . $date . '"';
 			$dataUpdate .= ',"state":"' . $_GET["st"] . '"'; 
-			$dataUpdate .= ',"activationTime":"' . ($_GET["tm"] ? $_GET["tm"] : "") . '"';
-			$dataUpdate .= ',"plot":"' . ($_GET["po"] ? $_GET["po"] : "") . '"';
 			$dataUpdate .= ',"signal":"' . ($_GET["si"] ? $_GET["si"] : "") . '"';
 			$dataUpdate .= ',"reception":"' . (($_GET["rx"] && ($_GET["rx"] == "Ok" || $_GET["rx"] == "Er")) ? $_GET["rx"] : "") . '"';
 			$dataUpdate .= '}';
@@ -164,11 +163,6 @@
 				putcURLData($url, $dataUpdate);             	// Actualiza registro
 			} else {
 				postcURLData($url, $dataUpdate);            	// Nuevo registro
-			}
-
-			if ($_GET["st"] == "ON") {
-				$url = $baseUrl . "settings/position.json";     // 5.2.- cURL de actualización de Settings
-				putcURLData($url, $_GET["po"]);                 // Actualiza registro
 			}
 		}
 	}

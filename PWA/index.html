@@ -675,7 +675,7 @@
                                                                     <div class="col s12 m12 center-align"><i
                                                                         class="material-icons">rss_feed</i>
                                                                     </div>
-                                                                    <b>{{ actualSystem.log.signal ? actualSystem.log.signal : 0 }}</b>/30        
+                                                                    <b>{{ actualSystem.log.signal ? (actualSystem.log.signal * 100 / 30 | number : 0) : 0 | number : 0 }}</b>%      
                                                                 </td>
                                                             </tr>
                                                         </table>
@@ -744,7 +744,7 @@
                                                                     <div class="center-align"><i
                                                                         class="material-icons">rss_feed</i>
                                                                     </div>
-                                                                    <b>{{ actualSystem.log.signal ? actualSystem.log.signal : 0 }}</b>/30        
+                                                                    <b>{{ actualSystem.log.signal ? (actualSystem.log.signal * 100 / 30 | number : 0) : 0 }}</b>%        
                                                                 </td>
                                                             </tr>
                                                         </table>
@@ -811,7 +811,7 @@
                                                                         <i class="material-icons">rss_feed</i>
                                                                     </div>
                                                                     <div class="center-align">
-                                                                        <b>{{ actualSystem.log.signal ? actualSystem.log.signal : 0 }}</b>/30
+                                                                        <b>{{ actualSystem.log.signal ? (actualSystem.log.signal * 100 / 30 | number : 0) : 0 }}</b>%
                                                                     </div>
                                                                 </td>
                                                             </tr>
@@ -824,7 +824,10 @@
                                                             <tr>
                                                                 <td class="valign-wrapper" style="text-align: left;">
                                                                     <i class="material-icons">map</i>&nbsp;
-                                                                    <b>{{ actualSystem.position + 1 }}</b>
+                                                                    <b>
+                                                                        [{{ actualSystem.position + 1 }}] 
+                                                                        <span>{{ actualSystem.plots["p" + actualSystem.position].name }}</span>
+                                                                    </b>
                                                                 </td>
                                                             </tr>
                                                             <tr>
@@ -848,7 +851,7 @@
                                                             <tr>
                                                                 <td class="valign-wrapper" style="text-align: left;">
                                                                     <i class="material-icons">rss_feed</i>&nbsp;
-                                                                    <b>{{ actualSystem.log.signal ? actualSystem.log.signal : 0 }}</b>/30
+                                                                    <b>{{ actualSystem.log.signal ? (actualSystem.log.signal * 100 / 30 | number : 0) : 0 }}</b>%
                                                                 </td>
                                                             </tr>
                                                         </table>
@@ -929,7 +932,7 @@
                                                                         <i class="material-icons">rss_feed</i>
                                                                     </div>
                                                                     <div class="center-align">
-                                                                        <b>{{ actualSystem.log.signal ? actualSystem.log.signal : 0 }}</b>/30
+                                                                        <b>{{ actualSystem.log.signal ? (actualSystem.log.signal * 100 / 30 | number : 0) : 0 }}</b>%
                                                                     </div>
                                                                 </td>
                                                             </tr>
@@ -942,7 +945,10 @@
                                                             <tr>
                                                                 <td class="valign-wrapper" style="text-align: left;">
                                                                     <i class="material-icons">map</i>&nbsp;
-                                                                    <b>{{ actualSystem.position + 1 }}</b>
+                                                                    <b>
+                                                                        [{{ actualSystem.position + 1 }}]
+                                                                        <span>{{ actualSystem.plots["p" + actualSystem.position].name }}</span>
+                                                                    </b>
                                                                 </td>
                                                             </tr>
                                                             <tr>
@@ -966,7 +972,7 @@
                                                             <tr>
                                                                 <td class="valign-wrapper" style="text-align: left;">
                                                                     <i class="material-icons">rss_feed</i>&nbsp;
-                                                                    <b>{{ actualSystem.log.signal ? actualSystem.log.signal : 0 }}</b>/30
+                                                                    <b>{{ actualSystem.log.signal ? (actualSystem.log.signal * 100 /30 | number : 0) : 0 }}</b>%
                                                                 </td>
                                                             </tr>
                                                         </table>
@@ -1117,7 +1123,7 @@
 
                                 <div ng-show="actualSystem.type == 'Estacionario'"> <!-- Estacionarios -->
                                     <div class="modal-content">
-                                        <div id="tabsPlan">
+                                        <!-- <div id="tabsPlan">
                                             <ul class="tabs">
                                                 <li class="tab col s3 teal-text">
                                                     <a class="active" href="#parcelas" style="font-size: 1.2em;" ng-click="isPlanning = false">
@@ -1130,31 +1136,31 @@
                                                     </a>
                                                 </li>
                                             </ul>
-                                        </div>
+                                        </div> -->
                                         <div id="parcelas">
                                             <table class="striped highlight"> <!-- Áreas -->
                                                 <thead>
                                                     <tr>
                                                         <th width="5%">#</th>
                                                         <th width="15%">Áreas</th>
-                                                        <th width="50%">Nombre</th>
-                                                        <th width="30%">Válvula</th>
+                                                        <th width="60%">Nombre</th>
+                                                        <th width="20%">Cultivo</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     <tr class="modal-trigger"
                                                         href="#modalEditRiegoEstacionario"
                                                         ng-repeat="plot in actualSystem.plots"
-                                                        ng-click="setEditPlanEstacionario('p' + $index)">
-                                                        <td width="5%">{{ $index + 1 }}{{ index }}</td>
+                                                        ng-click="setEditPlanEstacionario('p' + $index)"
+                                                        style="color: {{ $index == actualSystem.position ? 'green' : 'black' }}">
+                                                        <td width="5%">{{ $index + 1 }}</td>
                                                         <td width="15%">
                                                             <i class="material-icons">
                                                                 {{ plot.poligon ? "map" : "location_off" }}
                                                             </i>
                                                         </td>
-                                                        <td width="50%">{{ plot.name }}</td>
-                                                        <td width="30%">{{ plot.valve == "F" ? "Solenoide"
-                                                            : "Pulso" }}</td>
+                                                        <td class="left-align" width="60%">{{ plot.name }}</td>
+                                                        <td width="20%">{{ plot.culture ? plot.culture : "-"}}</td>
                                                     </tr>
                                                     <tr style="display: none;">
                                                         <td colspan="4" class="right-align">
@@ -1176,7 +1182,7 @@
                                                 </tbody>
                                             </table>
                                         </div>
-                                        <div id="programas">
+                                        <!-- <div id="programas">
                                             <div id="selectPlan">
                                                 <div class="input-field col s12">
                                                     <select id="selectProgram" onchange="selectProgram(this.value)" ng-selected="actualSystem.irrigation" ng-model="actualSystem.irrigation">
@@ -1191,7 +1197,7 @@
                                                 </div>
                                             </div>
                                             <div style="border: solid 1px; border-radius: 5px; padding: 3px;">
-                                                <!-- Duración del riego -->
+                                                < !-- Duración del riego -- >
                                                 <table class="striped highlight" ng-show="actualSystem.irrigation == 1 || actualSystem.irrigation == 2">  
                                                     <thead>
                                                         <tr>
@@ -1237,7 +1243,7 @@
                                                         </tr>
                                                     </tbody>
                                                 </table>
-                                                <!-- Programa del riego -->
+                                                < !-- Programa del riego -- >
                                                 <table class="striped highlight" ng-show="actualSystem.irrigation == 3">  
                                                     <thead>
                                                         <tr>
@@ -1274,7 +1280,7 @@
                                                         </tr>
                                                     </tbody>
                                                 </table>
-                                                <!-- Riego a demanda -->
+                                                < !-- Riego a demanda -- >
                                                 <div style="margin-left: 5px;" ng-show="actualSystem.irrigation == 4" ng-init="editParamRiego = false">
                                                     <p>Ajustar el riego cuando:</p>
                                                     <p>
@@ -1360,7 +1366,7 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <!-- Riego predictivo -->
+                                                < !-- Riego predictivo -- >
                                                 <div style="padding: 5px; color: #9e9e9e;" ng-show="actualSystem.irrigation == 5">
                                                     <p>En la modalidad de <b>Riego predictivo</b> su <i style="color: green;"><b>Asistente Agrícola Inteligente</b></i> 
                                                         se encargará de sugerir las mejores condiciones de riego para su <b>suelo</b>, <b>cultivo</b> y <b>clima</b>.</p>
@@ -1370,12 +1376,12 @@
                                                         </a>
                                                     </p>
                                                 </div>
-                                                <!-- Programa no seleccionado -->
+                                                < !-- Programa no seleccionado -- >
                                                 <div style="text-align: center;" ng-show="actualSystem.irrigation < 1 || actualSystem.irrigation == 'a'">
                                                     <img src="assets/images/options.png" alt="options" style="width: 80%;">
                                                 </div>
                                             </div>
-                                        </div>
+                                        </div> -->
                                         <br>
                                         <div id="btnsPlan" class="right-align">
                                             <div class="btn waves-effect waves-light grey modal-close">
@@ -2158,9 +2164,10 @@
 
                             <div id="modalEditRiegoEstacionario" class="modal"> <!-- Modal editar áreas de riego Estacionarios  -->
                                 <div class="modal-content">
-                                    <div class="swal-title" ng-show="isPlanning">Editar plan</div>
-                                    <div class="swal-title" ng-show="!isPlanning">Editar áreas</div>
-                                    <div class="row">
+                                    <div class="swal-title center-align">
+                                        Editar <b>{{ actualSystem.plots[editedPlan].name }}</b>
+                                    </div>
+                                    <!-- <div class="row">
                                         <div class="input-field col s12" ng-show="!isPlanning">
                                             <input id="editName" type="text" placeholder="Área">
                                             <label>Nombre</label>
@@ -2200,15 +2207,255 @@
                                             </select>
                                             <label>Tipo de electroválvula</label>
                                         </div>
-                                    </div>
+                                    </div> -->
+
+                                    <ul class="collapsible">
+                                        <li>
+                                            <div class="collapsible-header"><i class="material-icons">spa</i>Cultivo</div>
+                                            <div class="collapsible-body">
+                                                <!-- Selecionar cultivo y fecha de siembra -->
+                                                <div style="padding: 10px; border: 1px solid grey; border-radius: 5px; margin: 5px;">
+                                                    <div class="row">
+                                                        <div class="input-field col s12 m6">
+                                                            <select id="selectPlotCulture" ng-model="plan.culture">
+                                                                <option value="" disabled>Seleccionar nuevo cultivo</option>
+                                                                <option value="{{ plan.culture }}" ng-repeat="plan in listPlanesRiego">{{ plan.culture }}</option>
+                                                            </select>
+                                                            <label>Cultivo actual: <b style="font-size: 1.2em;">{{ actualSystem.plots[editedPlan].culture }}</b></label>
+                                                        </div>
+                                                        <div class="input-field col s12 m6">
+                                                            <input type="datetime-local" id="startDate" name="schDate"
+                                                                ng-model="actualSystem.plots[editedPlan].plantingDate" value="{{ actualSystem.plots[editedPlan].plantingDate }}">
+                                                            <label class="active" for="startDate">Fecha de siembra: <b style="font-size: 1.2em;">{{ actualSystem.plots[editedPlan].plantingDate.substr(0,10) }}</b></label>
+                                                        </div>
+                                                        <div class="input-field col s12 m3 center-align" style="width: 100%;">
+                                                            <a href="" ng-click="selectCulture(actualSystem.name, plan.culture)" style="width: 100%;"
+                                                                class="waves-effect waves-light btn modal-trigger teal lighten-3">
+                                                                <i class="material-icons">check</i> Crear plan de riego
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <br>                                                        
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="collapsible-header"><i class="material-icons">tune</i>Estrategia de riego</div>
+                                            <div class="collapsible-body">
+                                                <!-- Estrateia de riego -->
+                                                <div class="row" style="border: 1px solid grey; border-radius: 5px; margin: 5px;">
+                                                    <div class="input-field col s12">
+                                                        <select id="selectProgram" onchange="selectProgram(this.value)">
+                                                            <option value="" disabled selected>Seleccione un modo</option>
+                                                            <option ng-selected="actualSystem.plots[editedPlan].irrigationPlan == 1" value="1">Definir duración del riego</option>
+                                                            <option ng-selected="actualSystem.plots[editedPlan].irrigationPlan == 2" value="2">Riego a demanda (maX)</option>
+                                                            <option ng-selected="actualSystem.plots[editedPlan].irrigationPlan == 3" value="3">Riego predictivo (maX)</option>
+                                                        </select>
+                                                        <label>Modos de riego</label>
+                                                    </div>
+                                                    <div class="col s12" style="padding: 3px;">
+                                                        <!-- Definir duración del riego -->
+                                                        <div class="row" style="margin: 0 5px;" ng-show="actualSystem.plots[editedPlan].irrigationPlan == 1">
+                                                            <label>Plan de riego</label>
+                                                            <table class="striped highlight" style="font-size: .9em;">  
+                                                                <thead ng-show="actualSystem.plots[editedPlan].schedule.length">
+                                                                    <tr>
+                                                                        <th width="10%">T</th>
+                                                                        <th width="50%">Fecha/Hora</th>
+                                                                        <th width="40%">Tiempo</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    <tr class="modal-trigger" href="#modalEditFechaRiego" ng-click="editFechaRiego(schedule, $index)"
+                                                                        ng-repeat="schedule in actualSystem.plots[editedPlan].schedule">
+                                                                        <td>{{ schedule.t ? schedule.t : "#" }}</td>
+                                                                        <td>{{ schedule.date }}<br>{{ schedule.time }}</td>
+                                                                        <td>{{ schedule.value }}</td>
+                                                                        <!-- <td>
+                                                                            <a class="btn waves-effect waves-light red lighten-3"
+                                                                                ng-click="deleteSchedule($index)">
+                                                                                <i class="fa fa-trash-o" aria-hidden="true"></i>
+                                                                            </a>
+                                                                        </td> -->
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td colspan="3" style="text-align: right;">
+                                                                            <a href="#modalDefineFechaRiego"
+                                                                                class="waves-effect waves-light btn modal-trigger blue lighten-3 right-align">
+                                                                                <i class="material-icons">add</i>&nbsp;<span class="show-in-pc-only">Agregar riego</span>
+                                                                            </a>
+                                                                        </td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+
+                                                        <!-- Riego a demanda -->
+                                                        <div style="margin-left: 5px;" ng-show="actualSystem.plots[editedPlan].irrigationPlan == 2" ng-init="editParamRiego = false">
+                                                            <p>Ajustar el riego cuando:</p>
+                                                            <p>
+                                                                <label>
+                                                                    <input type="checkbox" class="filled-in" checked="checked" ng-model="actualSystem.plots[editedPlan].irrigationConfig['isAdjustReduction']"/>
+                                                                    <span>
+                                                                        <b style="color: blue" ng-show="!editParamRiego" ng-init="actualSystem.plots[editedPlan].irrigationConfig['reductionPercent'] = -30">{{ actualSystem.plots[editedPlan].irrigationConfig['reductionPercent'] }}</b>
+                                                                        <input type="number" min="-100" max="0" style="width: 60px; text-align: right;" ng-model="actualSystem.plots[editedPlan].irrigationConfig['reductionPercent']" placeholder="-100 ~ 0"ng-show="editParamRiego"/>%
+                                                                        para t ≤ 
+                                                                        <b ng-show="!editParamRiego" ng-init="actualSystem.plots[editedPlan].irrigationConfig['reductionTemp'] = 25">{{ actualSystem.plots[editedPlan].irrigationConfig['reductionTemp'] }}</b>
+                                                                        <input type="number" min="-10" max="70" style="width: 60px; text-align: right;" ng-model="actualSystem.plots[editedPlan].irrigationConfig['reductionTemp']" ng-show="editParamRiego"/>°C
+                                                                    </span>
+                                                                </label>
+                                                            </p>
+                                                            <p>
+                                                                <label>
+                                                                    <input type="checkbox" class="filled-in" checked="checked" ng-model="actualSystem.plots[editedPlan].irrigationConfig['isAdjustIncrement']"/>
+                                                                    <span>
+                                                                        <b style="color: red" ng-show="!editParamRiego" ng-init="actualSystem.plots[editedPlan].irrigationConfig['incrementPercent'] = 50">+{{ actualSystem.plots[editedPlan].irrigationConfig['incrementPercent'] }}</b>
+                                                                        <input type="number" min="0" max="100" style="width: 60px; text-align: right;" ng-model="actualSystem.plots[editedPlan].irrigationConfig['incrementPercent']" ng-show="editParamRiego"/>
+                                                                        % en días calurosos
+                                                                    </span>
+                                                                </label>
+                                                            </p>
+                                                            <p>
+                                                                <label>
+                                                                    <input type="checkbox" class="filled-in" checked="checked" ng-model="actualSystem.plots[editedPlan].irrigationConfig['isAdjustFrecuency']"/>
+                                                                    <span>Aumentar frecuencia en calor</span>
+                                                                </label>
+                                                            </p>
+                                                            <hr>
+                                                            <p>Detener el riego cuando:</p>
+                                                            <p>
+                                                                <label>
+                                                                    <input type="checkbox" class="filled-in" checked="checked" ng-model="actualSystem.plots[editedPlan].irrigationConfig['isStopByTemp']"/>
+                                                                    <span>
+                                                                        Temperatura ≤ <b ng-show="!editParamRiego" ng-init="actualSystem.plots[editedPlan].irrigationConfig['stopByTemp'] = 20">{{ actualSystem.plots[editedPlan].irrigationConfig['stopByTemp'] }}</b>
+                                                                        <input type="number" min="-10" max="70" style="width: 60px; text-align: right;" placeholder="-10 ~ 70"ng-model="actualSystem.plots[editedPlan].irrigationConfig['stopByTemp']" ng-show="editParamRiego"/>°C
+                                                                    </span>
+                                                                </label>
+                                                            </p>
+                                                            <p>
+                                                                <label>
+                                                                    <input type="checkbox" class="filled-in" checked="checked" ng-model="actualSystem.plots[editedPlan].irrigationConfig['isStopByRainProbability']"/>
+                                                                    <span>
+                                                                        Probabilidad de lluvia ≥ <b ng-show="!editParamRiego" ng-init="actualSystem.plots[editedPlan].irrigationConfig['stopByRainProbability'] = 80">{{ actualSystem.plots[editedPlan].irrigationConfig['stopByRainProbability'] }}</b>
+                                                                        <input type="number" min="0" max="100" style="width: 60px; text-align: right;" ng-model="actualSystem.plots[editedPlan].irrigationConfig['stopByRainProbability']" placeholder="0 ~ 100" ng-show="editParamRiego"/>% 
+                                                                    </span>
+                                                                </label>
+                                                            </p>
+                                                            <p>
+                                                                <label>
+                                                                    <input type="checkbox" class="filled-in" checked="checked" ng-model="actualSystem.plots[editedPlan].irrigationConfig['isStopByWind']"/>
+                                                                    <span>
+                                                                        Vientos ≥ <b ng-show="!editParamRiego" ng-init="actualSystem.plots[editedPlan].irrigationConfig['stopByWind'] = 100">{{ actualSystem.plots[editedPlan].irrigationConfig['stopByWind'] }}</b>
+                                                                        <input type="number" min="0" style="width: 60px; text-align: right;" ng-model="actualSystem.plots[editedPlan].irrigationConfig['stopByWind']" ng-show="editParamRiego"/>km/h
+                                                                    </span>
+                                                                </label>
+                                                            </p>
+                                                            <p>
+                                                                <label>
+                                                                    <input type="checkbox" class="filled-in" checked="checked" ng-model="actualSystem.plots[editedPlan].irrigationConfig['isStopByRainDay']"/>
+                                                                    <span>
+                                                                        Precipitaciones superiors a <b ng-show="!editParamRiego" ng-init="actualSystem.plots[editedPlan].irrigationConfig['stopByRainDay'] = 3">{{ actualSystem.plots[editedPlan].irrigationConfig['stopByRainDay'] }}</b>
+                                                                        <input type="number" min="0"style="width: 60px; text-align: right;" ng-model="actualSystem.plots[editedPlan].irrigationConfig['stopByRainDay']" ng-show="editParamRiego"/> 
+                                                                        mm el día anterior
+                                                                    </span>
+                                                                </label>
+                                                            </p>
+                                                            <p>
+                                                                <label>
+                                                                    <input type="checkbox" class="filled-in" checked="checked" ng-model="actualSystem.plots[editedPlan].irrigationConfig['isStopByRainWeek']"/>
+                                                                    <span>
+                                                                        Precipitaciones superiors a <b ng-show="!editParamRiego" ng-init="actualSystem.plots[editedPlan].irrigationConfig['stopByRainWeek'] = 30">{{ actualSystem.plots[editedPlan].irrigationConfig['stopByRainWeek'] }}</b>
+                                                                        <input type="number" min="0" style="width: 60px; text-align: right;" ng-model="actualSystem.plots[editedPlan].irrigationConfig['stopByRainWeek']" ng-show="editParamRiego"/> 
+                                                                        mm la semana anterior
+                                                                    </span>
+                                                                </label>
+                                                            </p>
+                                                            <div class="right-align">
+                                                                <div class="btn waves-effect waves-light blue lighten-3" ng-click="editParamRiego = !editParamRiego">
+                                                                    &nbsp; <i class="material-icons">edit</i> &nbsp;
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Riego predictivo -->
+                                                        <div style="padding: 5px; color: #9e9e9e;" ng-show="actualSystem.plots[editedPlan].irrigationPlan == 3">
+                                                            <p>En la modalidad de <b>Riego predictivo</b> su <i style="color: green;"><b>Asistente Agrícola Inteligente</b></i> 
+                                                                se encargará de sugerir las mejores condiciones de riego para su <b>suelo</b>, <b>cultivo</b> y <b>clima</b>.</p>
+                                                            <p style="text-align: center;">
+                                                                <a class="icono btn-floating pulse" id="verclientes" data-toggle="modal" data-target="#modalverclientes">
+                                                                    <img class="icono" src="assets/images/DTA-Agricola.png" />
+                                                                </a>
+                                                            </p>
+                                                        </div>
+
+                                                        <!-- Programa no seleccionado -->
+                                                        <div style="text-align: center;" ng-show="actualSystem.plots[editedPlan].irrigationPlan < 1 || actualSystem.plots[editedPlan].irrigationPlan == 'a'">
+                                                            <img src="assets/images/options.png" alt="options" style="width: 80%;">
+                                                        </div>
+                                                    </div>
+                                                    <div class="input-field col s12 m3 right-align" style="width: 100%;">
+                                                        <a href="" ng-click="editPlanEstacionario()"
+                                                            class="waves-effect waves-light btn modal-trigger teal lighten-3">
+                                                            <i class="material-icons">check</i> Seleccionar estrategia de riego
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                                <br>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="collapsible-header"><i class="material-icons">place</i>Parcela</div>
+                                            <div class="collapsible-body">
+                                                <!-- Configurar parcela -->
+                                                <div class="row" style="border: 1px solid grey; border-radius: 5px; margin: 5px;">
+                                                    <div class="input-field col s12">
+                                                        <input id="editName" type="text" placeholder="Parcela" ng-model="actualSystem.plots[editedPlan].name">
+                                                        <label>Parcela</label>
+                                                    </div>
+                                                    <div class="input-field col s12">
+                                                        <div class="row">
+                                                            <div class="col s8 m10">
+                                                                <label>Polígono</label>
+                                                                <textarea id="editPoligon" rows="4" cols="100%"
+                                                                    placeholder="lat1, lon1, lat2, lon2"></textarea>
+                                                            </div>
+                                                            <div class="col s2 m1">
+                                                                <label>Agregar</label>
+                                                                <div class="waves-effect grey waves-grey btn-flat white-text valign-wrapper"
+                                                                    ng-click="setNewPoligonNode()">
+                                                                    <i class="material-icons">&nbsp;add_location&nbsp;</i>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="input-field col s12 m6">
+                                                        <select id="editType" class="select">
+                                                            <option value="F" selected>Solenoide</option>
+                                                            <option value="P">Pulso</option>
+                                                        </select>
+                                                        <label>Tipo de electroválvula</label>
+                                                    </div>
+                                                    <div class="input-field col s12 m3 center-align" style="width: 100%;">
+                                                        <a href="" ng-click="editPlanEstacionario()" style="width: 100%;"
+                                                            class="waves-effect waves-light btn modal-trigger teal lighten-3">
+                                                            <i class="material-icons">check</i> Aceptar
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </ul>
                                 </div>
                                 <div class="modal-footer">
                                     <input id="planEstacionarioId" type="hidden">
                                     <a href="" class="modal-close waves-effect grey waves-grey btn-flat white-text">
                                         <i class="material-icons">&nbsp;&nbsp;reply&nbsp;&nbsp;</i></a>
-                                    <a href="" class="modal-close waves-effect teal waves-green btn-flat white-text"
+                                    <a href="" class="modal-close waves-effect red waves-grey btn-flat white-text"
+                                        ng-click="clearPlanEstacionario()">
+                                        <i class="material-icons">&nbsp;&nbsp;close&nbsp;&nbsp;</i>Eliminar parcela</a>
+                                    <!-- <a href="" class="modal-close waves-effect teal waves-green btn-flat white-text"
                                         ng-click="editPlanEstacionario()"><i
-                                            class="material-icons">&nbsp;&nbsp;check&nbsp;&nbsp;</i></a>
+                                            class="material-icons">&nbsp;&nbsp;check&nbsp;&nbsp;</i></a> -->
                                 </div>
                             </div>
 
@@ -2305,7 +2552,44 @@
                                     <a href="" class="modal-close waves-effect grey waves-grey btn-flat white-text">
                                         <i class="material-icons">&nbsp;&nbsp;reply&nbsp;&nbsp;</i></a>
                                     <a href="" class="modal-close waves-effect teal waves-green btn-flat white-text"
-                                        ng-click="addSchedule()"><i
+                                        ng-click="addNewDateToSchedule()"><i
+                                            class="material-icons">&nbsp;&nbsp;check&nbsp;&nbsp;</i></a>
+                                </div>
+                            </div>
+
+                            <div id="modalEditFechaRiego" class="modal"> <!-- Modal Editar de fecha y hora -->
+                                <div class="modal-content">
+                                    <div class="swal-title">Editar fecha de riego</div>
+                                    <div class="row" style="margin-top: 35px;">
+                                        <div class="col s12 center-align">
+                                            <i class="material-icons" style="font-size: 5em;">access_alarm</i>
+                                        </div>
+                                        <div class="input-field col s12 m6">
+                                            <input type="datetime-local" id="scheduleDate" name="scheduleDate" ng-model="schedule.date">
+                                            <label class="active" for="startDate">Fecha de riego: <b>{{ schedule.date }}</b></label>
+                                        </div>
+                                        <div class="input-field col s12 m6">
+                                            <div class="input-field col s4">
+                                                <input id="editDay" type="number" placeholder="0" min="0" max="365" value="0" readonly>
+                                                <label>Días</label>
+                                            </div>
+                                            <div class="input-field col s4">
+                                                <input id="editHour" type="number" placeholder="0" min="0" max="24" value="0">
+                                                <label>Horas</label>
+                                            </div>
+                                            <div class="input-field col s4">
+                                                <input id="editMinutes" type="number" placeholder="0" min="0" max="60" value="0">
+                                                <label>Minutos</label>
+                                                <input id="editScheduleIndex" type="hidden">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <a href="" class="modal-close waves-effect grey waves-grey btn-flat white-text">
+                                        <i class="material-icons">&nbsp;&nbsp;reply&nbsp;&nbsp;</i></a>
+                                    <a href="" class="modal-close waves-effect teal waves-green btn-flat white-text"
+                                        ng-click="dataEditionPlanEstacionario()"><i
                                             class="material-icons">&nbsp;&nbsp;check&nbsp;&nbsp;</i></a>
                                 </div>
                             </div>
