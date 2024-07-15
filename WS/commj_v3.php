@@ -94,7 +94,7 @@
 		return $newHour;
 	}
 
-	function getStatus($dataSettings) {
+	function getStatus($dataSettings, $localZone) {
 		$status = $dataSettings->status;
 		if ($status) {
 			$date = getDateTime($localZone)->format('Y-m-d');
@@ -103,12 +103,15 @@
 				$p = "p" . $i;
 				$plot = $dataSettings->plots->$p;
 				if ($plot->schedule) {
+					// print_r("Status: ");
 					foreach ($plot->schedule as $schedule) {
 						$newHour = getNewHour($schedule->time, $schedule->value ? $schedule->value : 0);
+						// print_r($schedule->time . "<=" . $time . "<" . $newHour . " => " . ($schedule->date == $date && $schedule->time <= $time && $time < $newHour) . " | ");
 						if ($schedule->date == $date && $schedule->time <= $time && $time < $newHour) {
 							return "ON";
 						}
 					}
+					// print_r("\n\r");
 				}
 			}
 			return "OFF";
@@ -117,7 +120,7 @@
 	}
     
 	function sendSettings($baseUrl, $dataSettings, $localZone, $activationTime) {
-		$status = getStatus($dataSettings);
+		$status = getStatus($dataSettings, $localZone);
 		$lectura = "\"" . $status . "\"" . $dataSettings->length;
 		$date = getDateTime($localZone)->format('Y-m-d');
 		$time = getDateTime($localZone)->format('H:i');
@@ -126,6 +129,7 @@
 			$plot = $dataSettings->plots->$p;
 			$value = 0;
 			if ($status && $plot->schedule) {
+				// print_r("Timer: ");
 				foreach ($plot->schedule as $schedule) {
 					$newHour = getNewHour($schedule->time, $schedule->value ? $schedule->value : 0);
 					// print_r($schedule->time . "<=" . $time . "<" . $newHour . " => " . ($schedule->date == $date && $schedule->time <= $time && $time < $newHour) . " | ");

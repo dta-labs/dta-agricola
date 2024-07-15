@@ -675,7 +675,7 @@
                                                                     <div class="col s12 m12 center-align"><i
                                                                         class="material-icons">rss_feed</i>
                                                                     </div>
-                                                                    <b>{{ actualSystem.log.signal ? (actualSystem.log.signal * 100 / 30 | number : 0) : 0 | number : 0 }}</b>%      
+                                                                    <b>{{ actualSystem.log.signal ? ((actualSystem.log.signal * 100 / 30) > 100 ? 100 : (actualSystem.log.signal * 100 / 30) | number : 0) : 0 | number : 0 }}</b>%      
                                                                 </td>
                                                             </tr>
                                                         </table>
@@ -2210,7 +2210,7 @@
                                     </div> -->
 
                                     <ul class="collapsible">
-                                        <li>
+                                        <li class="active">
                                             <div class="collapsible-header"><i class="material-icons">spa</i>Cultivo</div>
                                             <div class="collapsible-body">
                                                 <!-- Selecionar cultivo y fecha de siembra -->
@@ -2225,8 +2225,8 @@
                                                         </div>
                                                         <div class="input-field col s12 m6">
                                                             <input type="datetime-local" id="startDate" name="schDate"
-                                                                ng-model="actualSystem.plots[editedPlan].plantingDate" value="{{ actualSystem.plots[editedPlan].plantingDate }}">
-                                                            <label class="active" for="startDate">Fecha de siembra: <b style="font-size: 1.2em;">{{ actualSystem.plots[editedPlan].plantingDate.substr(0,10) }}</b></label>
+                                                                ng-model="actualSystem.plots[editedPlan].startDate" value="{{ actualSystem.plots[editedPlan].startDate }}">
+                                                            <label class="active" for="startDate">Fecha de siembra: </label>
                                                         </div>
                                                         <div class="input-field col s12 m3 center-align" style="width: 100%;">
                                                             <a href="" ng-click="selectCulture(actualSystem.name, plan.culture)" style="width: 100%;"
@@ -2246,8 +2246,8 @@
                                                 <div class="row" style="border: 1px solid grey; border-radius: 5px; margin: 5px;">
                                                     <div class="input-field col s12">
                                                         <select id="selectProgram" onchange="selectProgram(this.value)">
-                                                            <option value="" disabled selected>Seleccione un modo</option>
-                                                            <option ng-selected="actualSystem.plots[editedPlan].irrigationPlan == 1" value="1">Definir duración del riego</option>
+                                                            <option value="" disabled selected>Seleccione una estrategia</option>
+                                                            <option ng-selected="actualSystem.plots[editedPlan].irrigationPlan == 1" value="1">Definir plan de riego</option>
                                                             <option ng-selected="actualSystem.plots[editedPlan].irrigationPlan == 2" value="2">Riego a demanda (maX)</option>
                                                             <option ng-selected="actualSystem.plots[editedPlan].irrigationPlan == 3" value="3">Riego predictivo (maX)</option>
                                                         </select>
@@ -2270,7 +2270,11 @@
                                                                         ng-repeat="schedule in actualSystem.plots[editedPlan].schedule">
                                                                         <td>{{ schedule.t ? schedule.t : "#" }}</td>
                                                                         <td>{{ schedule.date }}<br>{{ schedule.time }}</td>
-                                                                        <td>{{ schedule.value }}</td>
+                                                                        <td>
+                                                                            {{ getDayFromMs(schedule.value) && getDayFromMs(schedule.value) != 0 ? getDayFromMs(schedule.value) + 'd' : '' }}
+                                                                            {{ getHourFromMs(schedule.value) ? getHourFromMs(schedule.value) : "00"}}h
+                                                                            {{ getMinutesFromMs(schedule.value) ? getMinutesFromMs(schedule.value) : "00"}}min
+                                                                        </td>
                                                                         <!-- <td>
                                                                             <a class="btn waves-effect waves-light red lighten-3"
                                                                                 ng-click="deleteSchedule($index)">
@@ -2393,12 +2397,12 @@
                                                             <img src="assets/images/options.png" alt="options" style="width: 80%;">
                                                         </div>
                                                     </div>
-                                                    <div class="input-field col s12 m3 right-align" style="width: 100%;">
+                                                    <!-- <div class="input-field col s12 m3 right-align" style="width: 100%;">
                                                         <a href="" ng-click="editPlanEstacionario()"
                                                             class="waves-effect waves-light btn modal-trigger teal lighten-3">
                                                             <i class="material-icons">check</i> Seleccionar estrategia de riego
                                                         </a>
-                                                    </div>
+                                                    </div> -->
                                                 </div>
                                                 <br>
                                             </div>
@@ -2435,6 +2439,22 @@
                                                         </select>
                                                         <label>Tipo de electroválvula</label>
                                                     </div>
+                                                    <div class="input-field col s12 m6">
+                                                        <select id="editSoil" class="select">
+                                                            <option value="1">Arcilloso limoso</option>
+                                                            <option value="2">Arcilloso arenoso</option>
+                                                            <option value="3">Franco arcilloso</option>
+                                                            <option value="4">Franco arcillo limoso</option>
+                                                            <option value="5">Franco arcillo arenoso</option>
+                                                            <option value="6">Franco</option>
+                                                            <option value="7">Franco limoso</option>
+                                                            <option value="8">Franco arenoso</option>
+                                                            <option value="9">Limoso</option>
+                                                            <option value="10">Areno Franco</option>
+                                                            <option value="11">Arenoso</option>
+                                                        </select>
+                                                        <label>Tipo de suelo</label>
+                                                    </div>
                                                     <div class="input-field col s12 m3 center-align" style="width: 100%;">
                                                         <a href="" ng-click="editPlanEstacionario()" style="width: 100%;"
                                                             class="waves-effect waves-light btn modal-trigger teal lighten-3">
@@ -2450,9 +2470,9 @@
                                     <input id="planEstacionarioId" type="hidden">
                                     <a href="" class="modal-close waves-effect grey waves-grey btn-flat white-text">
                                         <i class="material-icons">&nbsp;&nbsp;reply&nbsp;&nbsp;</i></a>
-                                    <a href="" class="modal-close waves-effect red waves-grey btn-flat white-text"
+                                    <!-- <a href="" class="modal-close waves-effect red waves-grey btn-flat white-text"
                                         ng-click="clearPlanEstacionario()">
-                                        <i class="material-icons">&nbsp;&nbsp;close&nbsp;&nbsp;</i>Eliminar parcela</a>
+                                        <i class="material-icons">&nbsp;&nbsp;close&nbsp;&nbsp;</i>Eliminar parcela</a> -->
                                     <!-- <a href="" class="modal-close waves-effect teal waves-green btn-flat white-text"
                                         ng-click="editPlanEstacionario()"><i
                                             class="material-icons">&nbsp;&nbsp;check&nbsp;&nbsp;</i></a> -->
@@ -2588,6 +2608,9 @@
                                 <div class="modal-footer">
                                     <a href="" class="modal-close waves-effect grey waves-grey btn-flat white-text">
                                         <i class="material-icons">&nbsp;&nbsp;reply&nbsp;&nbsp;</i></a>
+                                    <a class="btn waves-effect waves-light red lighten-3"
+                                        ng-click="deleteSchedule()">
+                                        <i class="fa fa-trash-o" aria-hidden="true"></i></a>
                                     <a href="" class="modal-close waves-effect teal waves-green btn-flat white-text"
                                         ng-click="dataEditionPlanEstacionario()"><i
                                             class="material-icons">&nbsp;&nbsp;check&nbsp;&nbsp;</i></a>

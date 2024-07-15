@@ -629,6 +629,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         system.autoreverse = system.autoreverse == "ON" || system.autoreverse == true ? true : false;
         system.direction = system.direction == "FF" || system.direction == true ? true : false;
         system.key = key;
+        $scope.$apply();
         //sendSMS_XMLHttp($scope.campoActual.cell, cmd);
         // sendSMS_XMLHttp("+526251208106", cmd);
     }
@@ -654,7 +655,15 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     $scope.setNewPoligonNode = () => {
         getLocation();
-        document.getElementById("editPoligon").innerHTML += `,${milatitud},${milongitud}`;
+        let iter = 0;
+        while ((!milatitud || !milongitud) && iter < 5) {
+            getLocation();
+            iter++;
+        }
+        if (milatitud && milongitud) {
+            document.getElementById("editPoligon").innerHTML += `,${milatitud},${milongitud}`;
+            $scope.$apply();
+        }
     }
 
     $scope.setDevicePosition = () => {
@@ -1080,7 +1089,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         M.Dropdown.init(document.querySelectorAll('.dropdown-trigger'));
         document.getElementById("planEstacionarioId").value = index;
         document.getElementById("editName").value = $scope.actualSystem.plots[index].name ? $scope.actualSystem.plots[index].name : "";
-        document.getElementById("startDate").value = $scope.actualSystem.plots[index].startDate ? $scope.actualSystem.plots[index].startDate : "";
+        document.getElementById("startDate").value = $scope.actualSystem.plots[index].startDate ? dateTimeToString($scope.actualSystem.plots[index].startDate.substr(0,16)) : "";
         document.getElementById("editPoligon").innerHTML = $scope.actualSystem.plots[index].poligon ? $scope.actualSystem.plots[index].poligon : "";
         // document.getElementById("editDay").value = $scope.getDayFromMs($scope.actualSystem.plots[index].value);
         // document.getElementById("editHour").value = $scope.getHourFromMs($scope.actualSystem.plots[index].value);
@@ -1149,16 +1158,34 @@ app.controller("ControladorPrincipal", function ($scope) {
         }
     }
 
-    $scope.deleteSchedule = (idx) => {
-        if ($scope.actualSystem.plots[$scope.editedPlan].schedule) {
-            delete $scope.actualSystem.plots[$scope.editedPlan].schedule[idx];
-            let data = [].concat($scope.actualSystem.plots[$scope.editedPlan].schedule);
-            $scope.actualSystem.plots[$scope.editedPlan].schedule = [];
-            data.forEach((item) => {
-                $scope.actualSystem.plots[$scope.editedPlan].schedule.push(item);
+    $scope.deleteSchedule = () => {
+        swal({
+            title: "Eliminar riego",
+            text: "¿Seguro desea eliminar este riego?",
+            icon: "error",
+            buttons: ["Cancelar", true],
+            dangerMode: true,
+        })
+            .then((confirm) => {
+                if (confirm) {
+                    $scope.$apply();
+                    if ($scope.actualSystem.plots[$scope.editedPlan].schedule) {
+                        let idx = document.getElementById("editScheduleIndex").value;
+                        delete $scope.actualSystem.plots[$scope.editedPlan].schedule[idx];
+                        let data = [].concat($scope.actualSystem.plots[$scope.editedPlan].schedule);
+                        $scope.actualSystem.plots[$scope.editedPlan].schedule = [];
+                        data.forEach((item) => {
+                            $scope.actualSystem.plots[$scope.editedPlan].schedule.push(item);
+                        });
+                        $scope.setMachineSettings($scope.actualSystem);
+                    }
+                    swal("Plan de riego actualizado correctamente!", {
+                        icon: "success",
+                    });
+                } else {
+                    swal("No se realizó la actualización!");
+                }
             });
-            // $scope.setMachineSettings($scope.actualSystem);
-        }
     }
 
     $scope.dataEditionPlanEstacionario = () => {
@@ -1170,7 +1197,13 @@ app.controller("ControladorPrincipal", function ($scope) {
         let millis = day + hour + minutes;
         let index = document.getElementById("editScheduleIndex").value != '' ? parseInt(document.getElementById("editScheduleIndex").value) : 0;
         $scope.actualSystem.plots[$scope.editedPlan].schedule[index].value = millis;
+        let aux = document.getElementById("scheduleDate").value.split("T");
+        let date = aux[0];
+        let time = aux[1];
+        $scope.actualSystem.plots[$scope.editedPlan].schedule[index].date = date;
+        $scope.actualSystem.plots[$scope.editedPlan].schedule[index].time = time;
         $scope.actualSystem.plots[$scope.editedPlan].valve = document.getElementById("editType").value;
+        $scope.actualSystem.plots[$scope.editedPlan].soil = document.getElementById("editSoil").value;
         $scope.setMachineSettings($scope.actualSystem);
         // let cultureList = document.getElementById("selectPlotCulture");
         // $scope.actualSystem.plots[$scope.editedPlan].culture = cultureList.options[cultureList.selectedIndex].text;
@@ -1389,9 +1422,11 @@ app.controller("ControladorPrincipal", function ($scope) {
                 if (cultivo.plan[idx].action.toUpperCase().includes("RIEGO")) {
                     let newDate = new Date(date);
                     newDate.setDate(newDate.getDate() + 1 + parseInt(cultivo.plan[idx].day))
+                    let month = newDate.getMonth() + 1;
+                    let day = newDate.getDate();
                     let data = {
                         "t": parseInt(cultivo.plan[idx].day),
-                        "date": newDate.getFullYear() + '-' + (newDate.getMonth() + 1) + '-' + newDate.getDate(),
+                        "date": dateTimeToString(newDate.getFullYear() + '-' + month + '-' + day),
                         "time": time
                     }
                     sistema.plots[plot].schedule.push(data);
@@ -1412,12 +1447,19 @@ app.controller("ControladorPrincipal", function ($scope) {
     }
 
     $scope.editFechaRiego = (schedule, index) => {
-        // $scope.schedule = schedule;      
         let data = schedule.value ? schedule.value : 0;
         document.getElementById("editDay").value = $scope.getDayFromMs();
         document.getElementById("editHour").value = $scope.getHourFromMs(data);
         document.getElementById("editMinutes").value = $scope.getMinutesFromMs(data);
         document.getElementById("editScheduleIndex").value = index;
+        document.getElementById("scheduleDate").value = dateTimeToString(schedule.date) + "T" + schedule.time;
+    }
+
+    dateTimeToString = dateTime => {
+        let date = dateTime.split("-");
+        let month = date[1] < 10 && date[1].length < 2 ? "0" + date[1] : date[1];
+        let day = date[2] < 10 && date[2].length < 2 ? "0" + date[2] : date[2]; 
+        return date[0] + "-" + month + "-" + day;
     }
 
     // #endregion PLAN DE RIEGO
