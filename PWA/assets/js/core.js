@@ -1329,6 +1329,9 @@ app.controller("ControladorPrincipal", function ($scope) {
     $scope.showFichaTecnicaModal = (plan) => {
         if (plan.price == "0.00") {
             $scope.selectedPlaneRiego = plan;
+            $scope.selectedPlaneRiego.plan.forEach((plan) => {
+                plan.day = plan.day.split("~")[0];
+            });
             M.Modal.getInstance($('#fichaTecnica')).open();
         } else {
             swal({
@@ -1460,6 +1463,12 @@ app.controller("ControladorPrincipal", function ($scope) {
         let month = date[1] < 10 && date[1].length < 2 ? "0" + date[1] : date[1];
         let day = date[2] < 10 && date[2].length < 2 ? "0" + date[2] : date[2]; 
         return date[0] + "-" + month + "-" + day;
+    }
+
+    $scope.splitStr = (str, sep, pos) => {
+        // let data = "" + string;
+        // return string.split(sep)[pos];
+        return str;
     }
 
     // #endregion PLAN DE RIEGO
