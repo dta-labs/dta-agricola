@@ -853,7 +853,6 @@ app.controller("ControladorPrincipal", function ($scope) {
     }
 
     $scope.updateSensingScheme = () => {
-
         swal({
             title: "",
             text: "Actualizar esquema de sensado",
@@ -1026,28 +1025,32 @@ app.controller("ControladorPrincipal", function ($scope) {
         $scope.editSelectedPlan["sensor"] = $scope.actualSystem.plans[$scope.editedPlan].sensor ? $scope.actualSystem.plans[$scope.editedPlan].sensor : "";
     }
 
+    $scope.selectProgram = (programId) => {
+        selectProgram(programId);
+    }
+
     selectProgram = (programId) => {
         let plot = document.getElementById("planEstacionarioId").value;
         $scope.actualSystem.plots[plot]["irrigationPlan"] =  programId;
-        switch (programId) {
-            case "1":
-                $scope.actualSystem.autoreverse = false;
-                $scope.actualSystem.isScheduled = false;
-                break;
-            case "2":
-                $scope.actualSystem.autoreverse = true;
-                $scope.actualSystem.isScheduled = false;
-                break;
-            case "3":
-                $scope.actualSystem.autoreverse = false;
-                $scope.actualSystem.isScheduled = true;
-                break;
-            default:
-                $scope.actualSystem.autoreverse = false;
-                $scope.actualSystem.isScheduled = false;
-        }
+        // switch (programId) {
+        //     case "1":
+        //         $scope.actualSystem.autoreverse = false;
+        //         $scope.actualSystem.isScheduled = false;
+        //         break;
+        //     case "2":
+        //         $scope.actualSystem.autoreverse = true;
+        //         $scope.actualSystem.isScheduled = false;
+        //         break;
+        //     case "3":
+        //         $scope.actualSystem.autoreverse = false;
+        //         $scope.actualSystem.isScheduled = true;
+        //         break;
+        //     default:
+        //         $scope.actualSystem.autoreverse = false;
+        //         $scope.actualSystem.isScheduled = false;
+        // }
         $scope.setMachineSettings($scope.actualSystem);
-        $scope.$apply();
+        // $scope.$apply();
     }
 
     $scope.setTimer = (value) => {
@@ -1158,7 +1161,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         }
     }
 
-    $scope.deleteSchedule = () => {
+    $scope.deleteSchedule = (index = "") => {
         swal({
             title: "Eliminar riego",
             text: "¿Seguro desea eliminar este riego?",
@@ -1168,9 +1171,9 @@ app.controller("ControladorPrincipal", function ($scope) {
         })
             .then((confirm) => {
                 if (confirm) {
-                    $scope.$apply();
+                    // $scope.$apply();
                     if ($scope.actualSystem.plots[$scope.editedPlan].schedule) {
-                        let idx = document.getElementById("editScheduleIndex").value;
+                        let idx = index != "" || index == 0? index : document.getElementById("editScheduleIndex").value;
                         delete $scope.actualSystem.plots[$scope.editedPlan].schedule[idx];
                         let data = [].concat($scope.actualSystem.plots[$scope.editedPlan].schedule);
                         $scope.actualSystem.plots[$scope.editedPlan].schedule = [];
@@ -1178,10 +1181,11 @@ app.controller("ControladorPrincipal", function ($scope) {
                             $scope.actualSystem.plots[$scope.editedPlan].schedule.push(item);
                         });
                         $scope.setMachineSettings($scope.actualSystem);
+                        swal("Plan de riego actualizado correctamente!", {
+                            icon: "success",
+                        });
+                        M.Modal.getInstance(document.querySelector('#modalEditFechaRiego')).close();
                     }
-                    swal("Plan de riego actualizado correctamente!", {
-                        icon: "success",
-                    });
                 } else {
                     swal("No se realizó la actualización!");
                 }
@@ -1245,6 +1249,37 @@ app.controller("ControladorPrincipal", function ($scope) {
         irrConfig.stopByWind = !irrConfig.stopByWind ? 100 : irrConfig.stopByWind < 0 ? 0 : irrConfig.stopByWind;
         irrConfig.stopByRainDay = !irrConfig.stopByRainDay ? 3 : irrConfig.stopByRainDay < 0 ? 0 : irrConfig.stopByRainDay;
         irrConfig.stopByRainWeek = !irrConfig.stopByRainWeek ? 30 : irrConfig.stopByRainWeek < 0 ? 0 : irrConfig.stopByRainWeek;
+    }
+    
+    $scope.starPlotIrrigation = () => {
+        let plot = $scope.actualSystem.plots[$scope.editedPlan];
+        plot["forcedStart"] = 1;
+        $scope.setMachineSettings($scope.actualSystem);
+    }
+    
+    $scope.stopPlotIrrigation = () => {
+        let plot = $scope.actualSystem.plots[$scope.editedPlan];
+        plot["forcedStart"] = -1;
+        $scope.setMachineSettings($scope.actualSystem);
+    }
+
+    $scope.isPlotActive = (index) => {
+        let active = false;
+        if (index) {
+            let dateTime = getDateAndTime();
+            let plot = $scope.actualSystem.plots[index];
+            if (plot.forcedStart && plot.forcedStart == 1) {
+                active = true;
+            } else if (plot.schedule) {
+                plot.schedule.forEach ((sch, index) => {
+                    let newTime = $scope.msToTime(sch.value).split(":");
+                    if (sch.value > 0 && ((sch.date == dateTime.date) && (dateTime.time <= sch.time || sch.time <= sumTimes(dateTime.time, "" + newTime[1] + ":" + newTime[2])))) {
+                        active = true;
+                    }
+                });
+            }
+        }
+        return active;
     }
 
     $scope.deleteEditedPlan = () => {
@@ -1463,12 +1498,6 @@ app.controller("ControladorPrincipal", function ($scope) {
         let month = date[1] < 10 && date[1].length < 2 ? "0" + date[1] : date[1];
         let day = date[2] < 10 && date[2].length < 2 ? "0" + date[2] : date[2]; 
         return date[0] + "-" + month + "-" + day;
-    }
-
-    $scope.splitStr = (str, sep, pos) => {
-        // let data = "" + string;
-        // return string.split(sep)[pos];
-        return str;
     }
 
     // #endregion PLAN DE RIEGO
@@ -1891,6 +1920,35 @@ app.controller("ControladorPrincipal", function ($scope) {
         return parseInt(data);
     };
 
+    getDateAndTime = () => {
+        const fecha = new Date();
+        const año = fecha.getFullYear();
+        const mes = String(fecha.getMonth() + 1).padStart(2, '0'); // Los meses son 0-11
+        const dia = String(fecha.getDate()).padStart(2, '0');
+        const horas = String(fecha.getHours()).padStart(2, '0');
+        const minutos = String(fecha.getMinutes()).padStart(2, '0');
+        const fechaFormateada = `${año}-${mes}-${dia}`;
+        const horaFormateada = `${horas}:${minutos}`;
+        return {
+            date: fechaFormateada,
+            time: horaFormateada
+        };
+    }
+
+    sumTimes = (time1, time2) => {
+        const hour1 = parseInt(time1.split(":")[0]);
+        const minutes1 = parseInt(time1.split(":")[1]);
+        const hour2 = parseInt(time2.split(":")[0]);
+        const minutes2 = parseInt(time2.split(":")[1]);
+        let totalHours = hour1 + hour2;
+        let totalMinutes = minutes1 + minutes2;
+        if (totalMinutes >= 60) {
+            totalHours += Math.floor(totalMinutes / 60);
+            totalMinutes %= 60;
+        }     
+        return "" + totalHours + ":" + totalMinutes;   
+    }
+
     $scope.getNumber = function (data) {
         return parseInt(data.day);
     };
@@ -1902,17 +1960,17 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     $scope.getDayFromMs = (duration) => {
         let days = parseInt(parseInt(duration) / (1000 * 60 * 60 * 24));
-        return (days < 10 ? "0" + days : days);
+        return String(days).padStart(2, '0');
     }
 
     $scope.getHourFromMs = (duration) => {
         let hours = parseInt((parseInt(duration) % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        return (hours < 10 ? "0" + hours : hours);
+        return String(hours).padStart(2, '0');
     }
 
     $scope.getMinutesFromMs = (duration) => {
         let minutes = parseInt((parseInt(duration) % (1000 * 60 * 60)) / (1000 * 60));
-        return (minutes < 10 ? "0" + minutes : minutes);
+        return String(minutes).padStart(2, '0');
     }
 
     $scope.dashToDot = (input) => {

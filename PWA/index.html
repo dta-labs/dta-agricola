@@ -616,7 +616,7 @@
                                                 <!-- Status Movimiento continuo -->
                                                 <div class="row statusBar hide-on-med-and-up" style="margin-left: 12%; position: fixed; top: 310px;">
                                                     <div class="col s12">
-                                                        <table>
+                                                        <table style="background: #0000003d;">
                                                             <tr>
                                                                 <td colspan="4" style="text-align: center;">
                                                                     <i class="material-icons"
@@ -647,7 +647,7 @@
                                                 </div>
                                                 <div class="row statusBar hide-on-med-and-up" style="width: 100%;">
                                                     <div class="col s12">
-                                                        <table>
+                                                        <table style="background: #0000003d;">
                                                             <tr style="border-top: 1px solid lightgrey;">
                                                                 <td colspan="2" style="text-align: center;">
                                                                     <div class="col s12 m12 center-align"><i
@@ -774,28 +774,17 @@
                                                     </div>
                                                 </div>
                                                 <!-- Status General -->
-                                                <div class="row statusBar hide-on-med-and-up" style="width: 100%; margin-top: -85px;">
+                                                <div class="row statusBar hide-on-med-and-up" style="width: 100%; margin-top: -70px;">
                                                     <div class="col s12">
-                                                        <table>
+                                                        <table style="background: #0000003d;">
                                                             <tr style="border-top: 2px solid lightgrey;">
-                                                                <td style="text-align: center;">
-                                                                    <div class="center-align">
-                                                                        <i class="material-icons">map</i>
+                                                                <td colspan="3" style="text-align: center;">
+                                                                    <div class="center-align"> 
+                                                                        <i class="material-icons" style="color: {{ isPlotActive('p' + $index) ? 'springgreen' : 'darkgrey' }}; font-size: 2em;" 
+                                                                            ng-repeat="plot in actualSystem.plots">filter_{{ $index + 1 }}</i>
                                                                     </div>
                                                                     <div class="center-align">
-                                                                        <b>{{ actualSystem.position + 1 }}</b>
-                                                                    </div>
-                                                                </td>
-                                                                <td colspan="2" style="text-align: center;">
-                                                                    <div class="center-align">
-                                                                        <span style="font-size: 1.3em;" ng-show="!actualSystem.autoreverse && !actualSystem.isScheduled"><i class="material-icons" style="font-size: 1em;">keyboard_tab</i></span>
-                                                                        <span style="font-size: 1.3em;" ng-show="actualSystem.autoreverse && !actualSystem.isScheduled"><i class="fa fa-refresh" aria-hidden="true"></i></span>
-                                                                        <span style="font-size: 1.3em;" ng-show="!actualSystem.autoreverse && actualSystem.isScheduled"><i class="fa fa-calendar" aria-hidden="true"></i></span>
-                                                                    </div>
-                                                                    <div class="center-align">
-                                                                        <b>{{ getDayFromMs(actualSystem.plots['p' + actualSystem.position].value) + ":" +
-                                                                            getHourFromMs(actualSystem.plots['p' + actualSystem.position].value) + ":" + 
-                                                                            getMinutesFromMs(actualSystem.plots['p' + actualSystem.position].value) }}</b>
+                                                                        <b>Parcelas</b>    
                                                                     </div>
                                                                 </td>
                                                                 <td style="text-align: center;">
@@ -803,7 +792,7 @@
                                                                         <i class="fa fa-tint" aria-hidden="true" style="font-size: 1.7em; margin: 2px 0 3px 0;"></i>
                                                                     </div>
                                                                     <div class="center-align">
-                                                                        <b>{{ actualSystem.log.presion ? (actualSystem.log.presion | number : 1) : 0 }}</b>psi        
+                                                                        <b>{{ actualSystem.log.presion ? (actualSystem.log.presion | number : 1) : 0 }}</b>mm<sup>3</sup>        
                                                                     </div>
                                                                 </td>
                                                                 <td style="text-align: center;">
@@ -895,7 +884,7 @@
                                                     </div>
                                                 </div>
                                                 <!-- Status General -->
-                                                <div class="row statusBar hide-on-med-and-up" style="width: 100%; margin-top: -85px;">
+                                                <div class="row statusBar hide-on-med-and-up" style="width: 100%; margin-top: -70px;">
                                                     <div class="col s12">
                                                         <table>
                                                             <tr style="border-top: 2px solid lightgrey;">
@@ -2211,7 +2200,7 @@
 
                                     <ul class="collapsible">
                                         <li class="active">
-                                            <div class="collapsible-header"><i class="material-icons">spa</i>Cultivo</div>
+                                            <div class="collapsible-header"><i class="material-icons">spa</i>Cultivo: &nbsp;&nbsp;<b style="font-size: 1.2em;">{{ actualSystem.plots[editedPlan].culture }}</b></div>
                                             <div class="collapsible-body">
                                                 <!-- Selecionar cultivo y fecha de siembra -->
                                                 <div style="padding: 10px; border: 1px solid grey; border-radius: 5px; margin: 5px;">
@@ -2221,18 +2210,12 @@
                                                                 <option value="" disabled>Seleccionar nuevo cultivo</option>
                                                                 <option value="{{ plan.culture }}" ng-repeat="plan in listPlanesRiego">{{ plan.culture }}</option>
                                                             </select>
-                                                            <label>Cultivo actual: <b style="font-size: 1.2em;">{{ actualSystem.plots[editedPlan].culture }}</b></label>
+                                                            <label>Cultivo actual</label>
                                                         </div>
                                                         <div class="input-field col s12 m6">
                                                             <input type="datetime-local" id="startDate" name="schDate"
                                                                 ng-model="actualSystem.plots[editedPlan].startDate" value="{{ actualSystem.plots[editedPlan].startDate }}">
                                                             <label class="active" for="startDate">Fecha de siembra: </label>
-                                                        </div>
-                                                        <div class="input-field col s12 m3 center-align" style="width: 100%;">
-                                                            <a href="" ng-click="selectCulture(actualSystem.name, plan.culture)" style="width: 100%;"
-                                                                class="waves-effect waves-light btn modal-trigger teal lighten-3">
-                                                                <i class="material-icons">check</i> Crear plan de riego
-                                                            </a>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -2244,17 +2227,53 @@
                                             <div class="collapsible-body">
                                                 <!-- Estrateia de riego -->
                                                 <div class="row" style="border: 1px solid grey; border-radius: 5px; margin: 5px;">
-                                                    <div class="input-field col s12">
-                                                        <select id="selectProgram" onchange="selectProgram(this.value)">
-                                                            <option value="" disabled selected>Seleccione una estrategia</option>
-                                                            <option ng-selected="actualSystem.plots[editedPlan].irrigationPlan == 1" value="1">Definir plan de riego</option>
-                                                            <option ng-selected="actualSystem.plots[editedPlan].irrigationPlan == 2" value="2">Riego a demanda (maX)</option>
-                                                            <option ng-selected="actualSystem.plots[editedPlan].irrigationPlan == 3" value="3">Riego predictivo (maX)</option>
-                                                        </select>
-                                                        <label>Modos de riego</label>
+                                                    <div class="input-field col s12" style="padding: 0;">
+                                                        <table>
+                                                            <tr>
+                                                                <td style="width: 25%;">
+                                                                    <div class="teal {{ actualSystem.plots[editedPlan].irrigationPlan == 0 ? 'white-text' : 'lighten-3' }}" ng-click="selectProgram(0)" style="width: 100%; border: 1px solid grey; border-radius: 5px; padding: 2px;">
+                                                                        <i class="material-icons">touch_app</i>&nbsp;
+                                                                        <span class="show-in-pc-only">Manual</span>
+                                                                    </div>
+                                                                </td>
+                                                                <td style="width: 25%;">
+                                                                    <div class="teal {{ actualSystem.plots[editedPlan].irrigationPlan == 1 ? 'white-text' : 'lighten-3' }}" ng-click="selectProgram(1)" style="width: 100%; border: 1px solid grey; border-radius: 5px; padding: 2px;">
+                                                                        <i class="material-icons">date_range</i>&nbsp;
+                                                                        <span class="show-in-pc-only">Plan</span>
+                                                                    </div>
+                                                                </td>
+                                                                <td style="width: 25%;">
+                                                                    <div class="teal {{ actualSystem.plots[editedPlan].irrigationPlan == 2 ? 'white-text' : 'lighten-3' }}" ng-click="selectProgram(2)" style="width: 100%; border: 1px solid grey; border-radius: 5px; padding: 2px;">
+                                                                        <i class="material-icons">wb_sunny</i>&nbsp;
+                                                                        <span class="show-in-pc-only">Demanda</span>
+                                                                    </div>
+                                                                </td>
+                                                                <td style="width: 25%;">
+                                                                    <div class="teal {{ actualSystem.plots[editedPlan].irrigationPlan == 3 ? 'white-text' : 'lighten-3' }}" ng-click="selectProgram(3)" style="width: 100%; border: 1px solid grey; border-radius: 5px; padding: 2px;">
+                                                                        <i class="material-icons">streetview</i>&nbsp;
+                                                                        <span class="show-in-pc-only">Predictivo</span>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
                                                     </div>
                                                     <div class="col s12" style="padding: 3px;">
-                                                        <!-- Definir duración del riego -->
+                                                        <!-- Riego manual -->
+                                                        <div style="text-align: center;" ng-show="actualSystem.plots[editedPlan].irrigationPlan == 0">
+                                                            <a style="width: 100%; border: 2px solid grey; border-radius: 5px; height: 40px;" 
+                                                                ng-click="starPlotIrrigation()" ng-show="!isPlotActive(editedPlan)"
+                                                                class="waves-effect waves-light btn modal-trigger green lighten-3 right-align">
+                                                                <i class="material-icons" style="font-size: 3em;">play_arrow</i>
+                                                            </a>
+                                                            <a style="width: 100%; border: 2px solid grey; border-radius: 5px; height: 40px;" 
+                                                                ng-click="stopPlotIrrigation()" ng-show="isPlotActive(editedPlan)"
+                                                                class="waves-effect waves-light btn modal-trigger red lighten-3 right-align">
+                                                                <i class="material-icons" style="font-size: 3em;">stop</i>
+                                                            </a>
+                                                            <img src="assets/images/options.png" alt="options" style="width: 80%;">
+                                                        </div>
+
+                                                        <!-- Plan de riego -->
                                                         <div class="row" style="margin: 0 5px;" ng-show="actualSystem.plots[editedPlan].irrigationPlan == 1">
                                                             <label>Plan de riego</label>
                                                             <table class="striped highlight" style="font-size: .9em;">  
@@ -2262,31 +2281,36 @@
                                                                     <tr>
                                                                         <th width="10%">T</th>
                                                                         <th width="50%">Fecha/Hora</th>
-                                                                        <th width="40%">Tiempo</th>
+                                                                        <th width="30%">Tiempo</th>
+                                                                        <th width="10%"></th>
                                                                     </tr>
                                                                 </thead>
                                                                 <tbody>
-                                                                    <tr class="modal-trigger" href="#modalEditFechaRiego" ng-click="editFechaRiego(schedule, $index)"
+                                                                    <tr class="modal-trigger" href="#modalEditFechaRiego"
                                                                         ng-repeat="schedule in actualSystem.plots[editedPlan].schedule">
-                                                                        <td>{{ schedule.t ? schedule.t : "#" }}</td>
-                                                                        <td>{{ schedule.date }}<br>{{ schedule.time }}</td>
-                                                                        <td>
+                                                                        <td ng-click="editFechaRiego(schedule, $index)">{{ schedule.t ? schedule.t : "#" }}</td>
+                                                                        <td ng-click="editFechaRiego(schedule, $index)">{{ schedule.date }}<br>{{ schedule.time }}</td>
+                                                                        <td ng-click="editFechaRiego(schedule, $index)">
                                                                             {{ getDayFromMs(schedule.value) && getDayFromMs(schedule.value) != 0 ? getDayFromMs(schedule.value) + 'd' : '' }}
                                                                             {{ getHourFromMs(schedule.value) ? getHourFromMs(schedule.value) : "00"}}h
                                                                             {{ getMinutesFromMs(schedule.value) ? getMinutesFromMs(schedule.value) : "00"}}min
                                                                         </td>
-                                                                        <!-- <td>
+                                                                        <td>
                                                                             <a class="btn waves-effect waves-light red lighten-3"
                                                                                 ng-click="deleteSchedule($index)">
                                                                                 <i class="fa fa-trash-o" aria-hidden="true"></i>
                                                                             </a>
-                                                                        </td> -->
+                                                                        </td>
                                                                     </tr>
                                                                     <tr>
-                                                                        <td colspan="3" style="text-align: right;">
+                                                                        <td colspan="4" style="text-align: right;">
+                                                                            <a href="" ng-click="selectCulture(actualSystem.name, plan.culture)"
+                                                                                class="waves-effect waves-light btn modal-trigger teal lighten-3">
+                                                                                <i class="material-icons">playlist_add</i>&nbsp;Plan&nbsp;<span class="show-in-pc-only"> de riego</span>
+                                                                            </a>
                                                                             <a href="#modalDefineFechaRiego"
                                                                                 class="waves-effect waves-light btn modal-trigger blue lighten-3 right-align">
-                                                                                <i class="material-icons">add</i>&nbsp;<span class="show-in-pc-only">Agregar riego</span>
+                                                                                <i class="material-icons">add</i>&nbsp;Nuevo&nbsp;<span class="show-in-pc-only"> riego</span>
                                                                             </a>
                                                                         </td>
                                                                     </tr>
@@ -2392,23 +2416,13 @@
                                                             </p>
                                                         </div>
 
-                                                        <!-- Programa no seleccionado -->
-                                                        <div style="text-align: center;" ng-show="actualSystem.plots[editedPlan].irrigationPlan < 1 || actualSystem.plots[editedPlan].irrigationPlan == 'a'">
-                                                            <img src="assets/images/options.png" alt="options" style="width: 80%;">
-                                                        </div>
                                                     </div>
-                                                    <!-- <div class="input-field col s12 m3 right-align" style="width: 100%;">
-                                                        <a href="" ng-click="editPlanEstacionario()"
-                                                            class="waves-effect waves-light btn modal-trigger teal lighten-3">
-                                                            <i class="material-icons">check</i> Seleccionar estrategia de riego
-                                                        </a>
-                                                    </div> -->
                                                 </div>
                                                 <br>
                                             </div>
                                         </li>
                                         <li>
-                                            <div class="collapsible-header"><i class="material-icons">place</i>Parcela</div>
+                                            <div class="collapsible-header"><i class="material-icons">map</i>Parcela</div>
                                             <div class="collapsible-body">
                                                 <!-- Configurar parcela -->
                                                 <div class="row" style="border: 1px solid grey; border-radius: 5px; margin: 5px;">
