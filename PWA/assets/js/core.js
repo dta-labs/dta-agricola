@@ -44,6 +44,8 @@ app.config(function ($routeProvider) {
 
 app.controller("ControladorPrincipal", function ($scope) {
 
+    // #region Variables
+    
     $scope.selectedWindow = 'intro';
     let listeners = {};
     $scope.systems = {};
@@ -63,6 +65,8 @@ app.controller("ControladorPrincipal", function ($scope) {
     $scope.isPlanning = false;
     $scope.listPlanesRiego;
     $scope.selectedPlaneRiego;
+    
+    // #endregion Variables
 
     // #region NAVEGACION
 
@@ -206,7 +210,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         }).catch((error) => {
             // An error happened.
         });
-        
+
         // firebase.auth().signOut().then(function () {
         //     let provider = new firebase.auth.GoogleAuthProvider();
         //     provider.setCustomParameters({
@@ -227,7 +231,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         if ($scope.actualSystem && $scope.authUser) {
             userRole = $scope.userLocations[convertDotToDash($scope.authUser.email)].systems[$scope.actualSystem.key];
         }
-        let result = (userRole  == role) ? true : false;
+        let result = (userRole == role) ? true : false;
         return result;
     }
 
@@ -312,11 +316,11 @@ app.controller("ControladorPrincipal", function ($scope) {
     }
 
     normalize = (arr, key) => {
-        for(idx = 0; idx < arr.length; idx++) {
+        for (idx = 0; idx < arr.length; idx++) {
             val = arr[idx];
             if (val != -99) {
                 let index = "S" + idx;
-                let system =$scope.systems[key];
+                let system = $scope.systems[key];
                 let min = parseFloat(system.sensors[index].minValue);
                 let max = parseFloat(system.sensors[index].maxValue);
                 let result = ((val - min) / (max - min)) * 100;
@@ -334,9 +338,9 @@ app.controller("ControladorPrincipal", function ($scope) {
                 localStorage.setItem(name, log.date);
                 let txt = log.voltage == "false" ? "electricidad" : "seguridad";
                 let htmlMsg = '<b>' + name + ': Falla de ' + txt + '!</b>';
-                M.toast({html: htmlMsg});
+                M.toast({ html: htmlMsg });
                 let alertSound = document.getElementById("alertSound");
-                alertSound.play(); 
+                alertSound.play();
                 setTimeout(function () {
                     alertSound.pause();
                 }, 5000);
@@ -414,6 +418,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         $scope.actualSystem.sensorPosition = $scope.actualSystem.sensorPosition == "ON" || $scope.actualSystem.sensorPosition == true ? true : false;
         $scope.actualSystem.autoreverse = $scope.actualSystem.autoreverse == "ON" || $scope.actualSystem.autoreverse == true ? true : false;
         $scope.actualSystem.direction = $scope.actualSystem.direction == "FF" || $scope.actualSystem.direction == true ? true : false;
+        $scope.loadCultures();
         setActualSystemPlans();
         $scope.actualizarListaCultivos();
         $scope.loadSystemLog(system.key, 10);
@@ -457,11 +462,13 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     getMetorologicalData = (key) => {
         $scope.meteo[key] = {};
-        $.ajax({url: `https://api.openweathermap.org/data/2.5/weather?lat=${$scope.systems[key].latitude}&lon=${$scope.systems[key].longitude}&appid=db9c92bd1f6d8d5db0aa0bae36ce093f`, success: function(result){
-            $scope.meteo[key] = result;
-            $scope.meteo[key].weather["iconUrl"] = `https://openweathermap.org/img/w/${$scope.meteo[key].weather["0"].icon}.png`;
-            $scope.$apply();
-        }});
+        $.ajax({
+            url: `https://api.openweathermap.org/data/2.5/weather?lat=${$scope.systems[key].latitude}&lon=${$scope.systems[key].longitude}&appid=db9c92bd1f6d8d5db0aa0bae36ce093f`, success: function (result) {
+                $scope.meteo[key] = result;
+                $scope.meteo[key].weather["iconUrl"] = `https://openweathermap.org/img/w/${$scope.meteo[key].weather["0"].icon}.png`;
+                $scope.$apply();
+            }
+        });
     }
 
     $scope.stopSystem = () => {
@@ -473,19 +480,19 @@ app.controller("ControladorPrincipal", function ($scope) {
                 buttons: true,
                 dangerMode: true,
             })
-            .then((confirm) => {
-                if (confirm) {
-                    $scope.actualSystem.status = false;
-                    $scope.setMachineState();
-                    hideHourglass();
-                    $scope.setMachineSettings($scope.actualSystem);
+                .then((confirm) => {
+                    if (confirm) {
+                        $scope.actualSystem.status = false;
+                        $scope.setMachineState();
+                        hideHourglass();
+                        $scope.setMachineSettings($scope.actualSystem);
                         swal("Orden confirmada!", {
-                        icon: "success",
-                    });
-                } else {
-                  swal("No se inició el riego!");
-                }
-            });
+                            icon: "success",
+                        });
+                    } else {
+                        swal("No se inició el riego!");
+                    }
+                });
         }
     }
 
@@ -497,20 +504,20 @@ app.controller("ControladorPrincipal", function ($scope) {
                 icon: "warning",
                 buttons: true,
             })
-            .then((confirm) => {
-                if (confirm) {
-                    $scope.actualSystem.position = $scope.actualSystem.type == "Estacionario" && !$scope.actualSystem.autoreverse && !$scope.actualSystem.isScheduled ? -1 : $scope.actualSystem.position ? $scope.actualSystem.position : 0;
-                    $scope.actualSystem.status = true;
-                    $scope.actualSystem.direction = true;
-                    $scope.setMachineState();
-                    $scope.setMachineSettings($scope.actualSystem);
+                .then((confirm) => {
+                    if (confirm) {
+                        $scope.actualSystem.position = $scope.actualSystem.type == "Estacionario" && !$scope.actualSystem.autoreverse && !$scope.actualSystem.isScheduled ? -1 : $scope.actualSystem.position ? $scope.actualSystem.position : 0;
+                        $scope.actualSystem.status = true;
+                        $scope.actualSystem.direction = true;
+                        $scope.setMachineState();
+                        $scope.setMachineSettings($scope.actualSystem);
                         swal("El riego ha iniciado correctamente!", {
-                        icon: "success",
-                    });
-                } else {
-                  swal("No se inició el riego!");
-                }
-            });
+                            icon: "success",
+                        });
+                    } else {
+                        swal("No se inició el riego!");
+                    }
+                });
         }
     }
 
@@ -522,19 +529,19 @@ app.controller("ControladorPrincipal", function ($scope) {
                 icon: "warning",
                 buttons: true,
             })
-            .then((confirm) => {
-                if (confirm) {
-                    $scope.actualSystem.status = true;
-                    $scope.actualSystem.direction = false;
-                    $scope.setMachineState();
-                    $scope.setMachineSettings($scope.actualSystem);
+                .then((confirm) => {
+                    if (confirm) {
+                        $scope.actualSystem.status = true;
+                        $scope.actualSystem.direction = false;
+                        $scope.setMachineState();
+                        $scope.setMachineSettings($scope.actualSystem);
                         swal("El riego ha iniciado correctamente!", {
-                        icon: "success",
-                    });
-                } else {
-                  swal("No se inició el riego!");
-                }
-            });
+                            icon: "success",
+                        });
+                    } else {
+                        swal("No se inició el riego!");
+                    }
+                });
         }
     }
 
@@ -555,17 +562,17 @@ app.controller("ControladorPrincipal", function ($scope) {
             icon: "warning",
             buttons: true,
             dangerMode: true,
-          })
-        .then((confirm) => {
-            if (confirm) {
-                $scope.setMachineSettings($scope.actualSystem);
-                swal("Sistema actualizado correctamente!", {
-                    icon: "success",
-                });
-            } else {
-              swal("No se realizó la actualización!");
-            }
-        });
+        })
+            .then((confirm) => {
+                if (confirm) {
+                    $scope.setMachineSettings($scope.actualSystem);
+                    swal("Sistema actualizado correctamente!", {
+                        icon: "success",
+                    });
+                } else {
+                    swal("No se realizó la actualización!");
+                }
+            });
 
     }
 
@@ -584,7 +591,7 @@ app.controller("ControladorPrincipal", function ($scope) {
             document.getElementById("hourglass_" + key).style.display = "block";
         }
     }
-    
+
     hideHourglass = (key) => {
         if (document.getElementById("hourglass_" + key)) {
             document.getElementById("hourglass_" + key).style.display = "none";
@@ -622,6 +629,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         system.autoreverse = system.autoreverse == "ON" || system.autoreverse == true ? true : false;
         system.direction = system.direction == "FF" || system.direction == true ? true : false;
         system.key = key;
+        $scope.$apply();
         //sendSMS_XMLHttp($scope.campoActual.cell, cmd);
         // sendSMS_XMLHttp("+526251208106", cmd);
     }
@@ -647,7 +655,15 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     $scope.setNewPoligonNode = () => {
         getLocation();
-        document.getElementById("editPoligon").innerHTML += `,${milatitud},${milongitud}`;
+        let iter = 0;
+        while ((!milatitud || !milongitud) && iter < 5) {
+            getLocation();
+            iter++;
+        }
+        if (milatitud && milongitud) {
+            document.getElementById("editPoligon").innerHTML += `,${milatitud},${milongitud}`;
+            $scope.$apply();
+        }
     }
 
     $scope.setDevicePosition = () => {
@@ -747,43 +763,51 @@ app.controller("ControladorPrincipal", function ($scope) {
                     "value": "0"
                 }
             },
+            "startDate": " ",
             "sensorPresion": "0",
             "velocity": "0"
         });
     }
 
+    let newPlot = {
+        "culture": " ",
+        "value": "0",
+        "valve": "F",
+        "irrigationPlan":  1,
+        "irrigationConfig": {
+            "incrementPercent": 50,
+            "isAdjustFrecuency": true,
+            "isAdjustIncrement": true,
+            "isAdjustReduction": true,
+            "isStopByRainDay": true,
+            "isStopByRainProbability": true,
+            "isStopByRainWeek": true,
+            "isStopByTemp": true,
+            "isStopByWind": true,
+            "reductionPercent": -30,
+            "reductionTemp": 25,
+            "stopByRainDay": 3,
+            "stopByRainProbability": 80,
+            "stopByRainWeek": 25,
+            "stopByTemp": 20,
+            "stopByWind": 100
+        },
+        "startDate": " ",
+        "schedule": {}
+    };
+
     newStationary = () => {
         Object.assign($scope.newDevice, {
             "autoreverse": "OFF",
             "caudal": "0",
-            "irrigationPlan": {
-                "irrigationConfig": {
-                    "incrementPercent": 50,
-                    "isAdjustFrecuency": true,
-                    "isAdjustIncrement": true,
-                    "isAdjustReduction": true,
-                    "isStopByRainDay": true,
-                    "isStopByRainProbability": true,
-                    "isStopByRainWeek": true,
-                    "isStopByTemp": true,
-                    "isStopByWind": true,
-                    "reductionPercent": -30,
-                    "reductionTemp": 25,
-                    "stopByRainDay": 3,
-                    "stopByRainProbability": 80,
-                    "stopByRainWeek": 25,
-                    "stopByTemp": 20,
-                    "stopByWind": 100
-                }
-            },
             "plots": {
-                "p0": {"value": "0", "valve": "F"},
-                "p1": {"value": "0", "valve": "F"},
-                "p2": {"value": "0", "valve": "F"},
-                "p3": {"value": "0", "valve": "F"},
-                "p4": {"value": "0", "valve": "F"},
-                "p5": {"value": "0", "valve": "F"},
-                "p6": {"value": "0", "valve": "F"}
+                "p0":newPlot,
+                "p1": newPlot,
+                "p2": newPlot,
+                "p3": newPlot,
+                "p4": newPlot,
+                "p5": newPlot,
+                "p6": newPlot
             },
             "position": "0",
             "sensorPresion": "0"
@@ -829,7 +853,6 @@ app.controller("ControladorPrincipal", function ($scope) {
     }
 
     $scope.updateSensingScheme = () => {
-
         swal({
             title: "",
             text: "Actualizar esquema de sensado",
@@ -837,25 +860,25 @@ app.controller("ControladorPrincipal", function ($scope) {
             buttons: ["Cancelar", true],
             dangerMode: true,
         })
-        .then((confirm) => {
-            if (confirm) {
-                delete $scope.actualSystem.caudal;
-                delete $scope.actualSystem.delayTime;
-                delete $scope.actualSystem.direction;
-                delete $scope.actualSystem.length;
-                delete $scope.actualSystem.plansLength;
-                delete $scope.actualSystem.sensorPresion;
-                delete $scope.actualSystem.velocity;
-                delete $scope.actualSystem.log;
-                updateNewDevice($scope.actualSystem);
-                document.getElementById("modalConfig").style.display = "none";
-                swal("Esquema actualizado correctamente!", {
-                    icon: "success",
-                });
-            } else {
-                swal("Actualización cancelada!");
-            }
-        });
+            .then((confirm) => {
+                if (confirm) {
+                    delete $scope.actualSystem.caudal;
+                    delete $scope.actualSystem.delayTime;
+                    delete $scope.actualSystem.direction;
+                    delete $scope.actualSystem.length;
+                    delete $scope.actualSystem.plansLength;
+                    delete $scope.actualSystem.sensorPresion;
+                    delete $scope.actualSystem.velocity;
+                    delete $scope.actualSystem.log;
+                    updateNewDevice($scope.actualSystem);
+                    document.getElementById("modalConfig").style.display = "none";
+                    swal("Esquema actualizado correctamente!", {
+                        icon: "success",
+                    });
+                } else {
+                    swal("Actualización cancelada!");
+                }
+            });
     }
 
     $scope.updateNewDevice = () => {
@@ -883,37 +906,37 @@ app.controller("ControladorPrincipal", function ($scope) {
             buttons: ["Cancelar", true],
             dangerMode: true,
         })
-        .then((confirm) => {
-            if (confirm) {
-                let newSensor = {
-                    "id": $scope.newSensorID,
-                    "latitude": $scope.newSensorLatitude,
-                    "longitude": $scope.newSensorLongitude,
-                    "maxValue": $scope.newSensorMaxVal,
-                    "minValue": $scope.newSensorMinVal,
-                    "type": $scope.newSensorType
-                }
-                let sensorNumber = 1;
-                let idx = "S0";
-                if ($scope.actualSystem.sensors) {
-                    sensorNumber = parseInt($scope.actualSystem.sensors.sensorNumber) + 1;
-                    idx = "S" + sensorNumber;
+            .then((confirm) => {
+                if (confirm) {
+                    let newSensor = {
+                        "id": $scope.newSensorID,
+                        "latitude": $scope.newSensorLatitude,
+                        "longitude": $scope.newSensorLongitude,
+                        "maxValue": $scope.newSensorMaxVal,
+                        "minValue": $scope.newSensorMinVal,
+                        "type": $scope.newSensorType
+                    }
+                    let sensorNumber = 1;
+                    let idx = "S0";
+                    if ($scope.actualSystem.sensors) {
+                        sensorNumber = parseInt($scope.actualSystem.sensors.sensorNumber) + 1;
+                        idx = "S" + sensorNumber;
+                    } else {
+                        $scope.actualSystem["sensors"] = {};
+                        $scope.actualSystem.sensors["sensorNumber"] = 1;
+                    }
+                    $scope.actualSystem.sensors[idx] = newSensor;
+                    $scope.actualSystem.sensors.sensorNumber = sensorNumber;
+                    updateSensorNet($scope.actualSystem.key, $scope.actualSystem.sensors);
+                    //location.reload();
+                    document.getElementById("modalNuevoSensor").style.display = "none";
+                    swal("Asignación completada!", {
+                        icon: "success",
+                    });
                 } else {
-                    $scope.actualSystem["sensors"] = {};
-                    $scope.actualSystem.sensors["sensorNumber"] = 1;    
+                    swal("Asignación cancelada!");
                 }
-                $scope.actualSystem.sensors[idx] = newSensor;
-                $scope.actualSystem.sensors.sensorNumber = sensorNumber;
-                updateSensorNet($scope.actualSystem.key, $scope.actualSystem.sensors);
-                //location.reload();
-                document.getElementById("modalNuevoSensor").style.display = "none";
-                swal("Asignación completada!", {
-                    icon: "success",
-                });
-            } else {
-                swal("Asignación cancelada!");
-            }
-        });
+            });
     }
 
     $scope.deleteUser = (key, user) => {
@@ -935,7 +958,7 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     $scope.resetNewPlan = () => {
         let length = $scope.actualSystem.plans ? Object.keys($scope.actualSystem.plans).length : 0;
-        let index = `p${length > 0 ? length - 1 : length }`;
+        let index = `p${length > 0 ? length - 1 : length}`;
         document.getElementById("planAnguloIni").value = length > 0 ? $scope.actualSystem.plans[index].endAngle : 0;
         length > 0 ? document.getElementById("planAnguloIni").setAttribute("min", $scope.actualSystem.plans[index].endAngle) : null;
         document.getElementById("planAnduloFin").value = 360;
@@ -943,7 +966,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         $scope.actualizarListaCultivos();
         M.FormSelect.init(document.querySelectorAll('.select'));
         M.AutoInit();
-    // document.getElementById("planType").value = "velocity";
+        // document.getElementById("planType").value = "velocity";
     }
 
     $scope.setNewPlan = (starAngle, endAngle, value, endGun, culture, sensor) => {
@@ -952,9 +975,9 @@ app.controller("ControladorPrincipal", function ($scope) {
         }
         if (starAngle == -1 || endAngle == -1) {
             starAngle = document.getElementById('planAnguloIni').value,
-            endAngle = document.getElementById('planAnduloFin').value,
-            value = document.getElementById('planValue').value,
-            endGun = document.getElementById('planEndGun').value
+                endAngle = document.getElementById('planAnduloFin').value,
+                value = document.getElementById('planValue').value,
+                endGun = document.getElementById('planEndGun').value
         }
         if (starAngle != endAngle) {
             let length = Object.keys($scope.actualSystem.plans).length;
@@ -965,7 +988,7 @@ app.controller("ControladorPrincipal", function ($scope) {
                 endAngle: "" + endAngle,
                 value: "" + finalValue,
                 endGun: endGun,
-                culture: culture, 
+                culture: culture,
                 sensor: sensor
             }
             swal({
@@ -974,20 +997,20 @@ app.controller("ControladorPrincipal", function ($scope) {
                 icon: "warning",
                 buttons: true,
                 dangerMode: true,
-              })
-            .then((confirm) => {
-                if (confirm) {
-                    $scope.actualSystem.plans[index] = newPlan;
-                    $scope.actualSystem.plansLength = length + 1;
-                    // showPlanRiegoPie();
-                    $scope.setMachineSettings($scope.actualSystem);
-                    swal("Plan de riego actualizado correctamente!", {
-                        icon: "success",
-                    });
-                } else {
-                  swal("No se realizó la actualización!");
-                }
-            });
+            })
+                .then((confirm) => {
+                    if (confirm) {
+                        $scope.actualSystem.plans[index] = newPlan;
+                        $scope.actualSystem.plansLength = length + 1;
+                        // showPlanRiegoPie();
+                        $scope.setMachineSettings($scope.actualSystem);
+                        swal("Plan de riego actualizado correctamente!", {
+                            icon: "success",
+                        });
+                    } else {
+                        swal("No se realizó la actualización!");
+                    }
+                });
         }
     }
 
@@ -1002,34 +1025,39 @@ app.controller("ControladorPrincipal", function ($scope) {
         $scope.editSelectedPlan["sensor"] = $scope.actualSystem.plans[$scope.editedPlan].sensor ? $scope.actualSystem.plans[$scope.editedPlan].sensor : "";
     }
 
-    selectProgram = (programId) => {
-        $scope.actualSystem.irrigation = programId;
-        switch(programId) {
-            case "1":
-                $scope.actualSystem.autoreverse = false;
-                $scope.actualSystem.isScheduled = false;
-                break;
-            case "2":
-                $scope.actualSystem.autoreverse = true; 
-                $scope.actualSystem.isScheduled = false;
-                break;
-            case "3":
-                $scope.actualSystem.autoreverse = false;
-                $scope.actualSystem.isScheduled = true;
-                break;
-            default:
-                $scope.actualSystem.autoreverse = false;
-                $scope.actualSystem.isScheduled = false;
-        }
-        $scope.setMachineSettings($scope.actualSystem);
-        $scope.$apply();
+    $scope.selectProgram = (programId) => {
+        selectProgram(programId);
     }
-    
+
+    selectProgram = (programId) => {
+        let plot = document.getElementById("planEstacionarioId").value;
+        $scope.actualSystem.plots[plot]["irrigationPlan"] =  programId;
+        // switch (programId) {
+        //     case "1":
+        //         $scope.actualSystem.autoreverse = false;
+        //         $scope.actualSystem.isScheduled = false;
+        //         break;
+        //     case "2":
+        //         $scope.actualSystem.autoreverse = true;
+        //         $scope.actualSystem.isScheduled = false;
+        //         break;
+        //     case "3":
+        //         $scope.actualSystem.autoreverse = false;
+        //         $scope.actualSystem.isScheduled = true;
+        //         break;
+        //     default:
+        //         $scope.actualSystem.autoreverse = false;
+        //         $scope.actualSystem.isScheduled = false;
+        // }
+        $scope.setMachineSettings($scope.actualSystem);
+        // $scope.$apply();
+    }
+
     $scope.setTimer = (value) => {
         $scope.editSelectedPlan.value = value;
         document.getElementById("planValue").value = value;
     }
-    
+
     $scope.editPlan = () => {
         swal({
             title: "Plan de riego",
@@ -1038,57 +1066,81 @@ app.controller("ControladorPrincipal", function ($scope) {
             buttons: true,
             dangerMode: true,
         })
-        .then((confirm) => {
-            if (confirm) {
-                let ep = $scope.editSelectedPlan;
-                $scope.actualSystem.plans[$scope.editedPlan] = ep;
-                $scope.actualSystem.plans[$scope.editedPlan].endGun = ep.endGun ? "true" : "false";
-                $scope.actualSystem.plans[$scope.editedPlan].value = ep.value <= $scope.actualSystem.maxVelocity ? ep.value : $scope.actualSystem.maxVelocity;
-                $scope.setMachineSettings($scope.actualSystem);
-                $scope.setEditPlan($scope.editedPlan);
-                swal("Plan de riego actualizado correctamente!", {
-                    icon: "success",
-                });
-            } else {
-              swal("No se realizó la actualización!");
-            }
-        });
+            .then((confirm) => {
+                if (confirm) {
+                    let ep = $scope.editSelectedPlan;
+                    $scope.actualSystem.plans[$scope.editedPlan] = ep;
+                    $scope.actualSystem.plans[$scope.editedPlan].endGun = ep.endGun ? "true" : "false";
+                    $scope.actualSystem.plans[$scope.editedPlan].value = ep.value <= $scope.actualSystem.maxVelocity ? ep.value : $scope.actualSystem.maxVelocity;
+                    $scope.setMachineSettings($scope.actualSystem);
+                    $scope.setEditPlan($scope.editedPlan);
+                    swal("Plan de riego actualizado correctamente!", {
+                        icon: "success",
+                    });
+                } else {
+                    swal("No se realizó la actualización!");
+                }
+            });
     }
 
     $scope.setEditPlanEstacionario = (index) => {
+        $scope.editedPlan = index;
+        let asEpPlot = $scope.actualSystem.plots[index];
+        asEpPlot["startDate"] = asEpPlot["startDate"] ? asEpPlot["startDate"] : " ";
+        $scope.actualizarListaCultivos();
+        $scope.editedCulture = $scope.actualSystem.plots[index].culture ? $scope.actualSystem.plots[index].culture : "";
+        M.Dropdown.init(document.querySelectorAll('.dropdown-trigger'));
         document.getElementById("planEstacionarioId").value = index;
         document.getElementById("editName").value = $scope.actualSystem.plots[index].name ? $scope.actualSystem.plots[index].name : "";
+        document.getElementById("startDate").value = $scope.actualSystem.plots[index].startDate ? dateTimeToString($scope.actualSystem.plots[index].startDate.substr(0,16)) : "";
         document.getElementById("editPoligon").innerHTML = $scope.actualSystem.plots[index].poligon ? $scope.actualSystem.plots[index].poligon : "";
-        document.getElementById("editDay").value = $scope.getDayFromMs($scope.actualSystem.plots[index].value);
-        document.getElementById("editHour").value = $scope.getHourFromMs($scope.actualSystem.plots[index].value);
-        document.getElementById("editMinutes").value = $scope.getMinutesFromMs($scope.actualSystem.plots[index].value);
+        // document.getElementById("editDay").value = $scope.getDayFromMs($scope.actualSystem.plots[index].value);
+        // document.getElementById("editHour").value = $scope.getHourFromMs($scope.actualSystem.plots[index].value);
+        // document.getElementById("editMinutes").value = $scope.getMinutesFromMs($scope.actualSystem.plots[index].value);
         document.getElementById("editType").value = $scope.actualSystem.plots[index].valve ? $scope.actualSystem.plots[index].valve : "F";
         M.FormSelect.init(document.querySelectorAll('.select'));
     }
 
+    $scope.createPlanEstacionario = () => {
+        let aux = document.getElementById("schDate").value.split("T");
+        let date = aux[0];
+        let time = aux[1];
+        let cultureList = document.getElementById("selectPlotCulture");
+        let nombreCultivo = cultureList.options[cultureList.selectedIndex].text;
+        nombreCultivo = nombreCultivo == "Seleccionar nuevo cultivo" ? ($scope.editedCulture != "" ? $scope.editedCulture : "") : nombreCultivo;
+        if (date && time && nombreCultivo) {
+            $scope.dataEditionPlanEstacionario();
+            $scope.confirmPlanEstacionario();
+        }
+    }
+
     $scope.editPlanEstacionario = () => {
-        dataEditionPlanEstacionario();
+        $scope.dataEditionPlanEstacionario();
+        $scope.confirmPlanEstacionario();
+    }
+
+    $scope.confirmPlanEstacionario = () => {
         swal({
             title: "Plan de riego",
             text: "¿Desea confirmar los cambios realizados?",
             icon: "warning",
             buttons: ["Cancelar", true],
             dangerMode: true,
-          })
-        .then((confirm) => {
-            if (confirm) {
-                $scope.setMachineSettings($scope.actualSystem);
-                $scope.$apply();
-                swal("Plan de riego actualizado correctamente!", {
-                    icon: "success",
-                });
-            } else {
-                swal("No se realizó la actualización!");
-            }
-        });
+        })
+            .then((confirm) => {
+                if (confirm) {
+                    $scope.setMachineSettings($scope.actualSystem);
+                    $scope.$apply();
+                    swal("Plan de riego actualizado correctamente!", {
+                        icon: "success",
+                    });
+                } else {
+                    swal("No se realizó la actualización!");
+                }
+            });
     }
- 
-    $scope.addSchedule = () => {
+
+    $scope.addNewDateToSchedule = () => {
         let aux = document.getElementById("schDate").value.split("T");
         let date = aux[0];
         let time = aux[1];
@@ -1098,34 +1150,72 @@ app.controller("ControladorPrincipal", function ($scope) {
                 "date": date,
                 "time": time
             }
-            if (!$scope.actualSystem.irrigationPlan.schedule) {
-                $scope.actualSystem.irrigationPlan.schedule = [];
+            if (!$scope.actualSystem.plots[$scope.editedPlan].schedule) {
+                $scope.actualSystem.plots[$scope.editedPlan].schedule = [];
             }
-            $scope.actualSystem.irrigationPlan.schedule.push(data);
+            $scope.actualSystem.plots[$scope.editedPlan].schedule.push(data);
             $scope.setMachineSettings($scope.actualSystem);
             document.getElementById("schDate").value = null;
             // document.getElementById("schTime").value = null;
             // window.scrollTo(0, 1000000);
         }
     }
-    
-    $scope.deleteSchedule = (idx) => {
-        if ($scope.actualSystem.irrigationPlan.schedule) {
-            delete $scope.actualSystem.irrigationPlan.schedule[idx];
-            let data = [].concat($scope.actualSystem.irrigationPlan.schedule);
-            $scope.actualSystem.irrigationPlan.schedule = [];
-            data.forEach(function(item) {
-                $scope.actualSystem.irrigationPlan.schedule.push(item);
+
+    $scope.deleteSchedule = (index = "") => {
+        swal({
+            title: "Eliminar riego",
+            text: "¿Seguro desea eliminar este riego?",
+            icon: "error",
+            buttons: ["Cancelar", true],
+            dangerMode: true,
+        })
+            .then((confirm) => {
+                if (confirm) {
+                    // $scope.$apply();
+                    if ($scope.actualSystem.plots[$scope.editedPlan].schedule) {
+                        let idx = index != "" || index == 0? index : document.getElementById("editScheduleIndex").value;
+                        delete $scope.actualSystem.plots[$scope.editedPlan].schedule[idx];
+                        let data = [].concat($scope.actualSystem.plots[$scope.editedPlan].schedule);
+                        $scope.actualSystem.plots[$scope.editedPlan].schedule = [];
+                        data.forEach((item) => {
+                            $scope.actualSystem.plots[$scope.editedPlan].schedule.push(item);
+                        });
+                        $scope.setMachineSettings($scope.actualSystem);
+                        swal("Plan de riego actualizado correctamente!", {
+                            icon: "success",
+                        });
+                        M.Modal.getInstance(document.querySelector('#modalEditFechaRiego')).close();
+                    }
+                } else {
+                    swal("No se realizó la actualización!");
+                }
             });
-            // $scope.setMachineSettings($scope.actualSystem);
-        }
     }
-   
-    dataEditionPlanEstacionario = () => {
-        let index = document.getElementById("planEstacionarioId").value;
+
+    $scope.dataEditionPlanEstacionario = () => {
+        updatePoligon();
+        validateIrrigationconfig();
+        let day = document.getElementById("editDay").value != '' ? parseInt(document.getElementById("editDay").value) * (1000 * 60 * 60 * 24) : 0;
+        let hour = document.getElementById("editHour").value != '' ? parseInt(document.getElementById("editHour").value) * (1000 * 60 * 60) : 0;
+        let minutes = document.getElementById("editMinutes").value != '' ? parseInt(document.getElementById("editMinutes").value) * (1000 * 60) : 0;
+        let millis = day + hour + minutes;
+        let index = document.getElementById("editScheduleIndex").value != '' ? parseInt(document.getElementById("editScheduleIndex").value) : 0;
+        $scope.actualSystem.plots[$scope.editedPlan].schedule[index].value = millis;
+        let aux = document.getElementById("scheduleDate").value.split("T");
+        let date = aux[0];
+        let time = aux[1];
+        $scope.actualSystem.plots[$scope.editedPlan].schedule[index].date = date;
+        $scope.actualSystem.plots[$scope.editedPlan].schedule[index].time = time;
+        $scope.actualSystem.plots[$scope.editedPlan].valve = document.getElementById("editType").value;
+        $scope.actualSystem.plots[$scope.editedPlan].soil = document.getElementById("editSoil").value;
+        $scope.setMachineSettings($scope.actualSystem);
+        // let cultureList = document.getElementById("selectPlotCulture");
+        // $scope.actualSystem.plots[$scope.editedPlan].culture = cultureList.options[cultureList.selectedIndex].text;
+        // asignCulture($scope.actualSystem.plots[$scope.editedPlan].culture);
+    }
+    
+    updatePoligon = () => {
         let arr1 = [];
-        // let arr2 = document.getElementById("editPoligon").innerHTML.split(",");
-        $scope.actualSystem.plots[index].name = document.getElementById("editName").value;
         let arr2 = document.getElementById("editPoligon").value.split(",");
         if (arr2.length >= 2) {
             for (let i = 0; i < arr2.length; i += 2) {
@@ -1134,16 +1224,62 @@ app.controller("ControladorPrincipal", function ($scope) {
                 arr3.push(parseFloat(arr2[i + 1]));
                 arr1.push(arr3);
             }
-            $scope.actualSystem.plots[index].poligon = arr1;
+            $scope.actualSystem.plots[$scope.editedPlan].poligon = arr1;
         } else {
-            $scope.actualSystem.plots[index].poligon = "";
+            $scope.actualSystem.plots[$scope.editedPlan].poligon = "";
         }
-        let day = document.getElementById("editDay").value != '' ? parseInt(document.getElementById("editDay").value) * (1000 * 60 * 60 * 24) : 0;
-        let hour = document.getElementById("editHour").value != '' ? parseInt(document.getElementById("editHour").value) * (1000 * 60 * 60) : 0;
-        let minutes = document.getElementById("editMinutes").value != '' ? parseInt(document.getElementById("editMinutes").value) * (1000 * 60) : 0;
-        let millis = day + hour + minutes;
-        $scope.actualSystem.plots[index].value = millis;
-        $scope.actualSystem.plots[index].valve = document.getElementById("editType").value;
+    }
+
+    validateIrrigationconfig = () => {
+        $scope.actualSystem.plots[$scope.editedPlan].irrigationConfig = $scope.actualSystem.plots[$scope.editedPlan].irrigationConfig ? $scope.actualSystem.plots[$scope.editedPlan].irrigationConfig : {};
+        let irrConfig = $scope.actualSystem.plots[$scope.editedPlan].irrigationConfig;
+        irrConfig.isAdjustReduction = !irrConfig.isAdjustReduction ? false : true;
+        irrConfig.isAdjustFrecuency = !irrConfig.isAdjustFrecuency ? false : true;
+        irrConfig.isAdjustIncrement = !irrConfig.isAdjustIncrement ? false : true;
+        irrConfig.isStopByRainDay = !irrConfig.isStopByRainDay ? false : true;
+        irrConfig.isStopByRainWeek = !irrConfig.isStopByRainWeek ? false : true;
+        irrConfig.isStopByTemp = !irrConfig.isStopByTemp ? false : true;
+        irrConfig.isStopByWind = !irrConfig.isStopByWind ? false : true;
+        irrConfig.isStopByRainProbability = !irrConfig.isStopByRainProbability ? false : true;
+        irrConfig.reductionPercent = !irrConfig.reductionPercent ? -30 : irrConfig.reductionPercent < -100 ? -100 : irrConfig.reductionPercent > 0 ? 0 : irrConfig.reductionPercent;
+        irrConfig.reductionTemp = !irrConfig.reductionTemp ? 25 : irrConfig.reductionTemp < -10 ? -10 : irrConfig.reductionTemp > 70 ? 70 : irrConfig.reductionTemp;
+        irrConfig.incrementPercent = !irrConfig.incrementPercent ? 50 : irrConfig.incrementPercent < 0 ? 0 : irrConfig.incrementPercent > 100 ? 100 : irrConfig.incrementPercent;
+        irrConfig.stopByTemp = !irrConfig.stopByTemp ? 20 : irrConfig.stopByTemp < -10 ? -10 : irrConfig.stopByTemp > 70 ? 70 : irrConfig.stopByTemp;
+        irrConfig.stopByRainProbability = !irrConfig.stopByRainProbability ? 80 : irrConfig.stopByRainProbability < 0 ? 0 : irrConfig.stopByRainProbability > 100 ? 100 : irrConfig.stopByRainProbability;
+        irrConfig.stopByWind = !irrConfig.stopByWind ? 100 : irrConfig.stopByWind < 0 ? 0 : irrConfig.stopByWind;
+        irrConfig.stopByRainDay = !irrConfig.stopByRainDay ? 3 : irrConfig.stopByRainDay < 0 ? 0 : irrConfig.stopByRainDay;
+        irrConfig.stopByRainWeek = !irrConfig.stopByRainWeek ? 30 : irrConfig.stopByRainWeek < 0 ? 0 : irrConfig.stopByRainWeek;
+    }
+    
+    $scope.starPlotIrrigation = () => {
+        let plot = $scope.actualSystem.plots[$scope.editedPlan];
+        plot["forcedStart"] = 1;
+        $scope.setMachineSettings($scope.actualSystem);
+    }
+    
+    $scope.stopPlotIrrigation = () => {
+        let plot = $scope.actualSystem.plots[$scope.editedPlan];
+        plot["forcedStart"] = -1;
+        $scope.setMachineSettings($scope.actualSystem);
+    }
+
+    $scope.isPlotActive = (index) => {
+        let active = false;
+        if (index) {
+            let dateTime = getDateAndTime();
+            let plot = $scope.actualSystem.plots[index];
+            if (plot.forcedStart && plot.forcedStart == 1) {
+                active = true;
+            } else if (plot.schedule) {
+                plot.schedule.forEach ((sch, index) => {
+                    let newTime = $scope.msToTime(sch.value).split(":");
+                    if (sch.value > 0 && ((sch.date == dateTime.date) && (dateTime.time <= sch.time || sch.time <= sumTimes(dateTime.time, "" + newTime[1] + ":" + newTime[2])))) {
+                        active = true;
+                    }
+                });
+            }
+        }
+        return active;
     }
 
     $scope.deleteEditedPlan = () => {
@@ -1157,6 +1293,29 @@ app.controller("ControladorPrincipal", function ($scope) {
             $scope.actualSystem.plans = "";
         }
         $scope.setNewPlan(0, 360, 0, false);
+    }
+
+    $scope.clearPlanEstacionario = () => {
+        swal({
+            title: "Eliminar parcela",
+            text: "Todos los dato de la parcela serán eliminados. ¿Seguro desea continuar?",
+            icon: "error",
+            buttons: ["Cancelar", true],
+            dangerMode: true,
+        })
+            .then((confirm) => {
+                if (confirm) {
+                    $scope.actualSystem.plots[$scope.editedPlan] = newPlot;
+                    $scope.setMachineSettings($scope.actualSystem);
+                    $scope.$apply();
+                    swal("Parcela eliminada!", {
+                        icon: "success",
+                    });
+                } else {
+                    swal("No se realizó la acción!");
+                }
+            });
+
     }
 
     showPlanRiegoPie = () => {
@@ -1199,12 +1358,15 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     $scope.loadCultures = () => {
         if (!$scope.listPlanesRiego) { loadCultures(); };
-        $scope.showWindow('fichasTecnicas'); 
+        $scope.showWindow('fichasTecnicas');
     }
 
     $scope.showFichaTecnicaModal = (plan) => {
-        if (plan.price == "0.00") { 
+        if (plan.price == "0.00") {
             $scope.selectedPlaneRiego = plan;
+            $scope.selectedPlaneRiego.plan.forEach((plan) => {
+                plan.day = plan.day.split("~")[0];
+            });
             M.Modal.getInstance($('#fichaTecnica')).open();
         } else {
             swal({
@@ -1236,37 +1398,40 @@ app.controller("ControladorPrincipal", function ($scope) {
         });
     }
 
-    $scope.selectCulture = (nombreSistema, nombreCultivo) => {
+    $scope.selectCulture = (_nombreSistema, _nombreCultivo) => {
+        let cultureList = document.getElementById("selectPlotCulture");
+        let nombreCultivo = cultureList.options[cultureList.selectedIndex].text;
+        nombreCultivo = nombreCultivo == "Seleccionar nuevo cultivo" ? ($scope.editedCulture != "" ? $scope.editedCulture : "") : nombreCultivo;
         swal({
-            title: nombreSistema,
+            title: $scope.actualSystem.plots[$scope.editedPlan].name,
             text: "Asignar el plan de riego de " + nombreCultivo,
             icon: "warning",
             icon: "warning",
             buttons: ["Cancelar", true],
             dangerMode: true,
         })
-        .then((confirm) => {
-            let aux = document.getElementById("startDate").value.split("T");
-            let date = aux[0];
-            let time = aux[1];
-            if (confirm && date && time) {
-                asignCulture(nombreCultivo, nombreSistema, date, time);
-            } else {
-                if (!date || !time) {
-                    swal("Debe definir la fecha y la hora para realizar la asignación!");
+            .then((confirm) => {
+                let aux = document.getElementById("startDate").value.split("T");
+                let date = aux[0];
+                let time = aux[1];
+                if (confirm && date && time && nombreCultivo) {
+                    $scope.actualSystem.plots[$scope.editedPlan].culture = nombreCultivo;
+                    let cultivo = getCultivo($scope.actualSystem.plots[$scope.editedPlan].culture);
+                    let plot = document.getElementById("planEstacionarioId").value;
+                    setCulturePlanningToSystem($scope.actualSystem, plot, cultivo);
+                    $scope.setMachineSettings($scope.actualSystem);
                 } else {
-                    swal("Asignación cancelada!");
+                    if (!date || !time || !nombreCultivo) {
+                        swal("Debe definir el cultivo, la fecha y la hora para generar la planificación!");
+                    } else {
+                        swal("Asignación cancelada!");
+                    }
                 }
-            }
-        });
+            });
     }
 
-    asignCulture = (nombreCultivo, nombreSistema, date, time) => {
-        let cultivo = getCultivo(nombreCultivo);
-        let sistema = getSistema(nombreSistema);
-        setCulturePlanningToSystem(sistema, cultivo, date, time);
-        sistema.culture = nombreCultivo;
-        $scope.setMachineSettings(sistema);
+    asignCulture = () => {
+        $scope.setMachineSettings($scope.actualSystem);
         $scope.$apply();
         swal("Plan de riego actualizado correctamente!", {
             icon: "success",
@@ -1283,32 +1448,29 @@ app.controller("ControladorPrincipal", function ($scope) {
         return cultivo;
     }
 
-    getSistema = (nombreSistema) => {
-        let sistema = {};
-        for (idx in $scope.systems) {
-            if ($scope.systems[idx].name == nombreSistema) {
-                sistema = $scope.systems[idx];
+    setCulturePlanningToSystem = (sistema, plot, cultivo) => {
+        let aux = document.getElementById("startDate").value.split("T");
+        let date = aux[0];
+        let time = aux[1];
+        if (date && time) {
+            if (!sistema.plots[plot].schedule) {
+                sistema.plots[plot].schedule = [];
             }
-        }
-        return sistema;
-    }
-
-    setCulturePlanningToSystem = (sistema, cultivo, date, time) => {
-        if (!sistema.irrigationPlan) {
-            sistema.irrigationPlan = {};
-            sistema.irrigationPlan.schedule = []; 
-        }
-        for (idx in cultivo.plan) {
-            if (cultivo.plan[idx].action.toUpperCase().includes("RIEGO")) {
-                let newDate = new Date(date);
-                newDate.setDate(newDate.getDate() + parseInt(cultivo.plan[idx].day))
-                let data = {
-                    "t": parseInt(cultivo.plan[idx].day),
-                    "date": newDate.getFullYear() + '-' + (newDate.getMonth() + 1) + '-' + newDate.getDate(),
-                    "time": time
+            for (idx in cultivo.plan) {
+                if (cultivo.plan[idx].action.toUpperCase().includes("RIEGO")) {
+                    let newDate = new Date(date);
+                    newDate.setDate(newDate.getDate() + 1 + parseInt(cultivo.plan[idx].day))
+                    let month = newDate.getMonth() + 1;
+                    let day = newDate.getDate();
+                    let data = {
+                        "t": parseInt(cultivo.plan[idx].day),
+                        "date": dateTimeToString(newDate.getFullYear() + '-' + month + '-' + day),
+                        "time": time
+                    }
+                    sistema.plots[plot].schedule.push(data);
                 }
-                sistema.irrigationPlan.schedule.push(data);
             }
+            $scope.$apply();
         }
     }
 
@@ -1320,6 +1482,22 @@ app.controller("ControladorPrincipal", function ($scope) {
             button: true,
             dangerMode: true,
         });
+    }
+
+    $scope.editFechaRiego = (schedule, index) => {
+        let data = schedule.value ? schedule.value : 0;
+        document.getElementById("editDay").value = $scope.getDayFromMs();
+        document.getElementById("editHour").value = $scope.getHourFromMs(data);
+        document.getElementById("editMinutes").value = $scope.getMinutesFromMs(data);
+        document.getElementById("editScheduleIndex").value = index;
+        document.getElementById("scheduleDate").value = dateTimeToString(schedule.date) + "T" + schedule.time;
+    }
+
+    dateTimeToString = dateTime => {
+        let date = dateTime.split("-");
+        let month = date[1] < 10 && date[1].length < 2 ? "0" + date[1] : date[1];
+        let day = date[2] < 10 && date[2].length < 2 ? "0" + date[2] : date[2]; 
+        return date[0] + "-" + month + "-" + day;
     }
 
     // #endregion PLAN DE RIEGO
@@ -1344,10 +1522,10 @@ app.controller("ControladorPrincipal", function ($scope) {
             rosanautica();
         }
     }
-    
+
     rosanautica = () => {
-        let north = L.control({position: "topright"});
-        north.onAdd = function(map) {
+        let north = L.control({ position: "topright" });
+        north.onAdd = function (map) {
             var div = L.DomUtil.create("div", "info legend");
             div.innerHTML = '<img src="./assets/images/rosa-nautica.png" style="width: 45px;" alt="norte">';
             return div;
@@ -1397,7 +1575,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         }
 
         // L.control.layers(baseLayers).addTo(map);
-        
+
     }
 
     initializeSystemMap = (system) => {
@@ -1415,16 +1593,16 @@ app.controller("ControladorPrincipal", function ($scope) {
         let text = "";
         if (campo.type != "Sensor") {
             text += `
-                <h6 style="background: ${campo.status == false ? 'lightgrey' : 
-                campo.log && campo.log.voltage == 'false' ? 'red' : 
-                campo.log && campo.log.safety == 'false' ? 'palevioletred' : 
-                campo.log && campo.log.commDelay != '-1' ? 'grey' : 'lightseagreen'};">${campo.name}</h6>
-                <span><b>${campo.status ? "Estado: Encendido" : "Apagado" }</b></span></br>
+                <h6 style="background: ${campo.status == false ? 'lightgrey' :
+                    campo.log && campo.log.voltage == 'false' ? 'red' :
+                        campo.log && campo.log.safety == 'false' ? 'palevioletred' :
+                            campo.log && campo.log.commDelay != '-1' ? 'grey' : 'lightseagreen'};">${campo.name}</h6>
+                <span><b>${campo.status ? "Estado: Encendido" : "Apagado"}</b></span></br>
                 `;
         } else {
             text += `
                 <h6 style="background: lightgrey">${campo.name}</h6>
-                <span>Hs: <b>${ campo.log ? parseFloat(campo.log.meanVal).toFixed(0) : "" }</b>%</span></br>
+                <span>Hs: <b>${campo.log ? parseFloat(campo.log.meanVal).toFixed(0) : ""}</b>%</span></br>
                 `;
         }
         if (campo.type == "PC" || campo.type == "PL") {
@@ -1436,23 +1614,23 @@ app.controller("ControladorPrincipal", function ($scope) {
             Lat: <b>${campo.latitude}</b><br>
             Lng: <b>${campo.longitude}</b>
         `;
-        
+
         let greenIcon = L.icon({
             iconUrl: './assets/images/marcador.png',
             shadowUrl: '',
-        
-            iconSize:     [52, 52], // size of the icon
-            shadowSize:   [50, 64], // size of the shadow
-            iconAnchor:   [26, 52], // point of the icon which will correspond to marker's location
+
+            iconSize: [52, 52], // size of the icon
+            shadowSize: [50, 64], // size of the shadow
+            iconAnchor: [26, 52], // point of the icon which will correspond to marker's location
             shadowAnchor: [4, 62],  // the same for the shadow
-            popupAnchor:  [0, -52] // point from which the popup should open relative to the iconAnchor
+            popupAnchor: [0, -52] // point from which the popup should open relative to the iconAnchor
         });
 
         if (!marker[campo.key]) {
             // map.removeLayer(marker[campo.key]);
             // marker[campo.key] = L.marker(coord);
 
-            marker[campo.key] = L.marker(coord, {icon: greenIcon});
+            marker[campo.key] = L.marker(coord, { icon: greenIcon });
             map.addLayer(marker[campo.key]);
         }
         marker[campo.key].bindPopup(text);
@@ -1480,9 +1658,9 @@ app.controller("ControladorPrincipal", function ($scope) {
                     map.removeLayer(shape[campo.key + i]);
                 }
                 // if (campo.plans[i].value > 0) {
-                    shape[campo.key + i] = semiCircle(coord, radius, parseInt(campo.plans[i].starAngle), parseInt(campo.plans[i].endAngle), getRandomColor(campo.plans[i].value));
-                    shape[campo.key + i].bindPopup("<a class='modal-trigger' href='#modalConfig' style='color: black;'>" + campo.plans[i].value + "% </a>");
-                    map.addLayer(shape[campo.key + i]);
+                shape[campo.key + i] = semiCircle(coord, radius, parseInt(campo.plans[i].starAngle), parseInt(campo.plans[i].endAngle), getRandomColor(campo.plans[i].value));
+                shape[campo.key + i].bindPopup("<a class='modal-trigger' href='#modalConfig' style='color: black;'>" + campo.plans[i].value + "% </a>");
+                map.addLayer(shape[campo.key + i]);
                 // }
             }
         }
@@ -1519,8 +1697,10 @@ app.controller("ControladorPrincipal", function ($scope) {
                         map.removeLayer(poligons[campo.key + idx]);
                     }
                     let color = campo.position == i ? "lightgreen" : "blue";
-                    poligons[campo.key + idx] = L.polygon(newPoligon, {color: color});
-                    poligons[campo.key + idx].bindPopup("<a class='modal-trigger' href='#modalConfig' style='color: black;'>" + campo.plots[idx].name + "</a>");
+                    poligons[campo.key + idx] = L.polygon(newPoligon, { color: color });
+                    // poligons[campo.key + idx].bindPopup("<a class='modal-trigger' href='#modalConfig' style='color: black;'>" + campo.plots[idx].name + "</a>");
+                    // poligons[campo.key + idx].bindPopup(`<a class="modal-trigger" href="#modalEditRiegoEstacionario" style="color: black;" ng-click="setEditPlanEstacionario('${idx}')">${campo.plots[idx].name}</a>`);
+                    poligons[campo.key + idx].bindPopup(`<a class="modal-trigger" style="color: black;">${campo.plots[idx].name}</a>`);
                     map.addLayer(poligons[campo.key + idx]);
                 }
             }
@@ -1626,12 +1806,12 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     getMean = (data) => {
         mean = 0;
-        data.forEach( element => {
+        data.forEach(element => {
             mean += element;
         });
         mean /= data.length;
         means = [];
-        data.forEach( element => {
+        data.forEach(element => {
             means.push(mean);
         });
         return means;
@@ -1726,8 +1906,8 @@ app.controller("ControladorPrincipal", function ($scope) {
     filtroPasoBajo = (valores, factorDeSuavizado) => {
         let valorSuavizado = valores[0];
         for (let i = 1; i < valores.length; i++) {
-          valorSuavizado = valorSuavizado * factorDeSuavizado + valores[i] * (1 - factorDeSuavizado);
-          valores[i] = valorSuavizado;
+            valorSuavizado = valorSuavizado * factorDeSuavizado + valores[i] * (1 - factorDeSuavizado);
+            valores[i] = valorSuavizado;
         }
         return valores;
     }
@@ -1740,7 +1920,36 @@ app.controller("ControladorPrincipal", function ($scope) {
         return parseInt(data);
     };
 
-    $scope.getNumber = function(data){
+    getDateAndTime = () => {
+        const fecha = new Date();
+        const año = fecha.getFullYear();
+        const mes = String(fecha.getMonth() + 1).padStart(2, '0'); // Los meses son 0-11
+        const dia = String(fecha.getDate()).padStart(2, '0');
+        const horas = String(fecha.getHours()).padStart(2, '0');
+        const minutos = String(fecha.getMinutes()).padStart(2, '0');
+        const fechaFormateada = `${año}-${mes}-${dia}`;
+        const horaFormateada = `${horas}:${minutos}`;
+        return {
+            date: fechaFormateada,
+            time: horaFormateada
+        };
+    }
+
+    sumTimes = (time1, time2) => {
+        const hour1 = parseInt(time1.split(":")[0]);
+        const minutes1 = parseInt(time1.split(":")[1]);
+        const hour2 = parseInt(time2.split(":")[0]);
+        const minutes2 = parseInt(time2.split(":")[1]);
+        let totalHours = hour1 + hour2;
+        let totalMinutes = minutes1 + minutes2;
+        if (totalMinutes >= 60) {
+            totalHours += Math.floor(totalMinutes / 60);
+            totalMinutes %= 60;
+        }     
+        return "" + totalHours + ":" + totalMinutes;   
+    }
+
+    $scope.getNumber = function (data) {
         return parseInt(data.day);
     };
 
@@ -1751,17 +1960,17 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     $scope.getDayFromMs = (duration) => {
         let days = parseInt(parseInt(duration) / (1000 * 60 * 60 * 24));
-        return (days < 10 ? "0" + days : days);
+        return String(days).padStart(2, '0');
     }
 
     $scope.getHourFromMs = (duration) => {
         let hours = parseInt((parseInt(duration) % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        return (hours < 10 ? "0" + hours : hours);
+        return String(hours).padStart(2, '0');
     }
 
     $scope.getMinutesFromMs = (duration) => {
         let minutes = parseInt((parseInt(duration) % (1000 * 60 * 60)) / (1000 * 60));
-        return (minutes < 10 ? "0" + minutes : minutes);
+        return String(minutes).padStart(2, '0');
     }
 
     $scope.dashToDot = (input) => {
@@ -1790,7 +1999,7 @@ app.controller("ControladorPrincipal", function ($scope) {
     standarize = (val) => {
         S0 = $scope.actualSystem.sensors.S0;
         return ((val - S0.minValue) / (S0.maxValue - S0.minValue)) * 100;
-    }      
+    }
 
     // #endregion SCRIPTS GENERALES
 
@@ -1959,13 +2168,13 @@ installBtn2.style.display = 'none';
 
 window.addEventListener("beforeinstallprompt", eventHandler, errorHandler);
 
-function eventHandler(event){
-    beforeInstallPrompt = event; 
+function eventHandler(event) {
+    beforeInstallPrompt = event;
     installBtn1.style.display = 'block';
     installBtn2.style.display = 'block';
 }
 
-function errorHandler(e){
+function errorHandler(e) {
     console.log('error: ' + e);
 }
 
@@ -1985,7 +2194,7 @@ function serviceWorker() {
 
 serviceWorker();
 
-window.addEventListener('online',  showListado);
+window.addEventListener('online', showListado);
 window.addEventListener('offline', showOffLine);
 
 function showListado() {
@@ -2002,11 +2211,11 @@ function showOffLine() {
     console.log(window.navigator.onLine);
 }
 
-window.addEventListener("beforeunload",function(e){
+window.addEventListener("beforeunload", function (e) {
     document.getElementById("mensaje").innerHTML = "Si se va no se guardarán los datos";
     (e || window.event).returnValue = null;
     return null;
-},true);
+}, true);
 
 // Set the badge
 const unreadCount = 24;

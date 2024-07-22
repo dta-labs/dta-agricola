@@ -1,5 +1,187 @@
+-------------------------------------------------
+				  COMUNICACIONES
+-------------------------------------------------
+
+
 Pruebas:
-ON:			 http://pprsar.com/cosme/comm.php?id=526251003555&status=ON&safety=true&direction=FF&speed=25&autorreverse=false
-OFF:		 http://pprsar.com/cosme/comm.php?id=526251003555&status=OFF&safety=true&direction=FF&speed=25&autorreverse=false
-LOGS:		 http://pprsar.com/cosme/getlogs.php?id=526251003555
-SETTINGS:	 http://pprsar.com/cosme/consultardatos.php?id=526251003555
+ON:			 http://dtaamerica.com/ws/comm.php?id=526251003555&status=ON&safety=true&direction=FF&speed=25&autorreverse=false
+OFF:		 http://dtaamerica.com/ws/comm.php?id=526251003555&status=OFF&safety=true&direction=FF&speed=25&autorreverse=false
+LOGS:		 http://dtaamerica.com/ws/getlogs.php?id=526251003555
+SETTINGS:	 http://dtaamerica.com/ws/consultardatos.php?id=526251003555
+
+
+
+http://dtaamerica.com/ws/comm_v3.php?id=526251201079&st=OFF&sa=false&di=FF&vo=true&ar=OFF&sp=100&pr=0.00&po=80.0&la=28.63819&lo=-106.05230&er=206&rx=Ok&si=27
+
+http://dtaamerica.com/ws/sensor_v1.php?id=333333333333&no=3&data=[]&vi=[]&rx=Ok&si=21
+
+
+
+https://dtaamerica.com/ws/commj_v3.php?id=111111111111&st=ON&si=25&rx=Ok
+"1""7"-1"6000000"F"120000"F"60000"F"60000"F"60000"F"60000"F"60000"F"
+
+
+
+-------------------------------------------------
+					SCRUM
+-------------------------------------------------
+
+
+SCRUM - Sensores:
+========================================
+[x] Adicionar equipo (Red de sensores)
+	[x] UI
+		[x] Eliminar IP
+		[x] Modificar tipo de equipo
+	[ ] Sensor por defecto
+		[ ] id
+		[ ] latitude
+		[ ] longitude
+		[ ] maxValue
+		[ ] minValue
+		[ ] type
+[x] Adicionar nuevo sensor
+	[x] Formato no válido
+		[x] Eliminar el grupo de sensores
+		[x] Agregar "sensorNumber"
+		[x] Para cada sensor agregar
+			[x] id
+			[x] latitude
+			[x] longitude
+			[x] maxValue
+			[x] minValue
+			[x] type
+
+
+SCRUM - Estacionarios:
+========================================
+[ ] Programación del riego
+	[ ] Nombre del cultivo más visible
+	[ ] Interfaz más intuitiva
+		[ ] Definir cultivo y fecha de siembra
+			[ ] Actualizar cultivo al seleccionarlo
+			[ ] Actualizar fecha de siembra al seleccionarla
+		[ ] Selección de esquema de riego más sencillo
+			[x] Agregar un riego manualmente
+				[x] Iniciar riego
+				[x] Detener riego
+			[x] Agregar un plan de riego
+			[x] Riego por demanda
+			[ ] Riego predictivo
+		[x] Configurar parcela
+	[ ] Agregar restricciones
+		[ ] Número de parcelas a la vez (2)
+[ ] Visualización en el mapa
+	[ ] Parcelas activas
+		[x] Método para saber si una parcela está activa
+		[ ] Visualización de cada parcela
+	[ ] Volumen de agua consumida
+
+
+
+			
+Apagar el módulo: AT+CPOWD=1. Esto pondrá el módulo en modo de bajo consumo (modo de espera). Asegúrate de que no haya ninguna llamada o conexión activa antes de apagarlo.
+Volver a encender el módulo: AT. El módulo debería responder con “OK”.
+
+#include <SoftwareSerial.h>
+
+SoftwareSerial sim800l(10, 11); // RX, TX pins
+
+void setup() {
+  Serial.begin(9600);
+  sim800l.begin(9600);
+  delay(1000);
+  sim800l.println("AT"); // Verifica que el módulo responda con OK
+  delay(1000);
+  sim800l.println("AT+CSCLK=2"); // Activa el modo de bajo consumo
+}
+
+void loop() {
+  // Tu código principal aquí
+
+  // Espera 5 minutos antes de despertar
+  delay(300000); // 5 minutos en milisegundos
+
+  // Despierta el módulo
+  sim800l.println("AT"); // Verifica que el módulo esté activo
+}
+
+
+
+
+-------------------------------------------------
+					SENSORES
+-------------------------------------------------
+
+
+
+
+ =|=|=
+ | | +- Gnd (Cobre)
+ | +--- Dato (Azul)
+ +----- Vcc (Rojo)
+
+
+
+-------------------------------------------------
+					CULTIVOS
+-------------------------------------------------
+
+
+| Estado 	| Principales Cultivos
+| Sinaloa 	| Maíz, trigo, tomate, chile, sorgo
+| Jalisco 	| Agave (tequila), maíz, frijol, agave (mezcal)
+| Veracruz 	| Caña de azúcar, café, plátano, cítricos
+| Oaxaca 	| Café, agave (mezcal), maíz, frijol
+| Chihuahua | Algodón, nuez, chile, tomate
+| Michoacán | Aguacate, fresa, frambuesa
+| Guanajuato| Brócoli, lechuga, zanahoria
+| Edo México| Papa, cebolla, tomate
+| California| Vid, tomate, hortalizas
+| Puebla 	| Café, maíz, frijol
+
+Maíz, trigo, tomate, chile, sorgo, Agave (tequila), maíz, frijol, agave (mezcal), Caña de azúcar, café, plátano, cítricos, Café, agave (mezcal), maíz, frijol, Algodón, nuez, chile, tomate, Aguacate, fresa, frambuesa, Brócoli, lechuga, zanahoria, Papa, cebolla, tomate, Vid, tomate, hortalizas, Café, maíz, frijol
+
+Horas frío
+Temperatura
+
+Punto de marchitez
+
+Datos de manejo 
+- Cajones producidos
+- Tonelajes de la huerta (sobre todo para los asesores conocer las aplicaciones)
+
+
+
+-------------------------------------------------
+					VENJAS
+-------------------------------------------------
+
+
+Ventajas de nuestro sistema:
+- Mayor eficiencia y uniformidad del riego
+- Proporciona un crecimiento óptimo del aplanta 
+- Contribuye a disminuir:
+  - La evaporación de la cubierta vegetal
+  - Las quemaduras de las hojas
+  - El choque de la planta ante los cabios bruscos de temperatura
+  - El potencial de enfermedades de las plantas
+- Adaptable a cultivos de perfil alto, medio y bajo
+- Menor gasto de combustible por concepto de monitoreo del riego
+
+Pérdida por evaporación por textura del suelo y cantidad de agua superficial  
+aplicado en suelo desnudo con riego convencional
+
+Resultados de la aplicación de 1,2" (30,5 mm) de agua por riego en riego de primavera. 
+Luego midió la pérdida de agua fácilmente evaporable durante 1 a 2 días durante un estudio de 2 años
+
+			Tipos de suelo 							Pérdida de agua fácilmente evaporable
+- Franco arcilloso (Pullman), matorral 			0,67 - 0,79 pulgadas /  17 -  20 mm (55% - 65%)
+- Limo franco (Ulises), Ciudad Jardín 			0,60 - 0,70 pulgadas /  15 -  18 mm (50% - 58%)
+- Franco arenoso (Amarillo), Big Spring 		0,47 - 0.60 pulgadas /  12 -  15 mm (39% - 50%)
+- Arena fina (Vingo), Dalhart 					0,27 - 0,32 pulgadas / 6,9 - 8,1 mm (23% - 27%)
+
+Agua evaporable total (en promedio)
+- 47% de pérdida de agua con cada aplicación de riego de más de 1,2 pulgadas (30,5 mm)
+- 72% de pérdida de agua con cada riego si la aplicación es inferior a 1,2 pulgadas (30,5 mm)
+

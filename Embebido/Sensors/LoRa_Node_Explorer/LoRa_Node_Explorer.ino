@@ -26,12 +26,12 @@ void setup() {
 
 void loop() {
   onReceive();
-  if (runEvery(3000)) {
+  if (runEvery(1000)) {
     String message = "DTA_FF," + nodes[idx] + "," + String(sleepingTime);
     LoRa_sendMessage(message);
     Serial.print("\nSend Message to " + nodes[idx]);
     repeat++;
-    if (repeat == 5) {
+    if (repeat == 3) {
       setCounters();
     }
   }
