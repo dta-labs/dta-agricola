@@ -1251,16 +1251,18 @@ app.controller("ControladorPrincipal", function ($scope) {
         irrConfig.stopByRainWeek = !irrConfig.stopByRainWeek ? 30 : irrConfig.stopByRainWeek < 0 ? 0 : irrConfig.stopByRainWeek;
     }
     
-    $scope.starPlotIrrigation = () => {
+    $scope.startPlotIrrigation = () => {
         let plot = $scope.actualSystem.plots[$scope.editedPlan];
         plot["forcedStart"] = 1;
         $scope.setMachineSettings($scope.actualSystem);
+        initializeSystemMap($scope.actualSystem);
     }
     
     $scope.stopPlotIrrigation = () => {
         let plot = $scope.actualSystem.plots[$scope.editedPlan];
         plot["forcedStart"] = -1;
         $scope.setMachineSettings($scope.actualSystem);
+        initializeSystemMap($scope.actualSystem);
     }
 
     $scope.isPlotActive = (index) => {
@@ -1268,15 +1270,17 @@ app.controller("ControladorPrincipal", function ($scope) {
         if (index) {
             let dateTime = getDateAndTime();
             let plot = $scope.actualSystem.plots[index];
-            if (plot.forcedStart && plot.forcedStart == 1) {
-                active = true;
-            } else if (plot.schedule) {
-                plot.schedule.forEach ((sch, index) => {
-                    let newTime = $scope.msToTime(sch.value).split(":");
-                    if (sch.value > 0 && ((sch.date == dateTime.date) && (dateTime.time <= sch.time || sch.time <= sumTimes(dateTime.time, "" + newTime[1] + ":" + newTime[2])))) {
-                        active = true;
-                    }
-                });
+            if (plot) {
+                if (plot.forcedStart && plot.forcedStart == 1) {
+                    active = true;
+                } else if (plot.schedule) {
+                    plot.schedule.forEach ((sch, index) => {
+                        let newTime = $scope.msToTime(sch.value).split(":");
+                        if (sch.value > 0 && ((sch.date == dateTime.date) && (dateTime.time <= sch.time || sch.time <= sumTimes(dateTime.time, "" + newTime[1] + ":" + newTime[2])))) {
+                            active = true;
+                        }
+                    });
+                }
             }
         }
         return active;
@@ -1457,21 +1461,36 @@ app.controller("ControladorPrincipal", function ($scope) {
                 sistema.plots[plot].schedule = [];
             }
             for (idx in cultivo.plan) {
-                if (cultivo.plan[idx].action.toUpperCase().includes("RIEGO")) {
+                if (cultivo.plan[idx].type == "r") {
                     let newDate = new Date(date);
                     newDate.setDate(newDate.getDate() + 1 + parseInt(cultivo.plan[idx].day))
                     let month = newDate.getMonth() + 1;
                     let day = newDate.getDate();
+                    let dose = convertDoseToTime(sistema, parseInt(cultivo.plan[idx].dose.split("~")[0]));
                     let data = {
                         "t": parseInt(cultivo.plan[idx].day),
                         "date": dateTimeToString(newDate.getFullYear() + '-' + month + '-' + day),
-                        "time": time
+                        "time": time,
+                        "value": dose
                     }
                     sistema.plots[plot].schedule.push(data);
                 }
             }
             $scope.$apply();
         }
+    }
+
+    convertDoseToTime = (sistema, dose) => {
+        let time = "00:00:" + dose;
+        if (sistema.caudal) {
+            // Caudal (Q) = Volumen (litros) / Tiempo (segundos)
+            // Tiempo (segundos) = Volumen (litros) / Caudal (Q)
+            // 1 mm de agua = 1 l/m2 
+            //let auxTime = dose / sistema.caudal;
+            // time = $scope.getDayFromMs(auxTime) + ":" + $scope.getHourFromMs(auxTime) + ":" + $scope.getMinutesFromMs(auxTime);
+            time = dose / sistema.caudal;
+        }
+        return time;
     }
 
     $scope.automatizaciones = () => {
@@ -1696,7 +1715,8 @@ app.controller("ControladorPrincipal", function ($scope) {
                     if (poligons[campo.key + idx]) {
                         map.removeLayer(poligons[campo.key + idx]);
                     }
-                    let color = campo.position == i ? "lightgreen" : "blue";
+                    let color = $scope.isPlotActive("p" + i) ? "lightgreen" : "blue";
+                    // let color = campo.position == i ? "lightgreen" : "blue";
                     poligons[campo.key + idx] = L.polygon(newPoligon, { color: color });
                     // poligons[campo.key + idx].bindPopup("<a class='modal-trigger' href='#modalConfig' style='color: black;'>" + campo.plots[idx].name + "</a>");
                     // poligons[campo.key + idx].bindPopup(`<a class="modal-trigger" href="#modalEditRiegoEstacionario" style="color: black;" ng-click="setEditPlanEstacionario('${idx}')">${campo.plots[idx].name}</a>`);
