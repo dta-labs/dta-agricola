@@ -178,7 +178,7 @@
 
             <!-- #endregion: MENU PC -->
 
-            <div class="col s12 m9 l10" style="height: 100%;">
+            <div class="col s12 m9 l10 center-align" style="height: 100%;">
 
                 <div class="row" style="height: 100%;">
 
@@ -196,7 +196,7 @@
 
                                 <div class="main-container text-center our-services">
                                     <div class="row" style="margin-left: 0; margin-right: 0;">
-                                        <div class="col s12 m6 xl4" id="{{ system.key }}" ng-repeat="system in systems"
+                                        <div class="col s12 m6 l4 xl3" id="{{ system.key }}" ng-repeat="system in systems"
                                             ng-click="selectSystem(system)" ng-show="system.name">
                                             <div class="sercices-options waves-effect" style="background: {{ (system.type == 'Estacionario' && system.log.state == 'ON' || system.type == 'Sensor') ? '#20b2aab0' : 
                                                 system.log.state == 'OFF' ? '#d3d3d3e0' : system.log.voltage == 'false' ? '#ff0000c0' : 
@@ -230,7 +230,7 @@
                                                             </div>
                                                         </div>
 
-                                                        <div class="col s7 limitar" ng-show="system.type == 'PC' || system.type == 'PL'">
+                                                        <div class="col s7 limitar left-align" ng-show="system.type == 'PC' || system.type == 'PL'">
                                                             <div style="font-size: 1em;"><b>{{ system.name }}</b> </div>
                                                             <div style="font-size: .7em;">
                                                                 <i class="fa fa-undo" ng-show="system.direction == 'RR'"></i>
@@ -279,7 +279,20 @@
                                                             </div>
                                                         </div>
 
-                                                        <div class="col s7 limitar" ng-show="system.type == 'Estacionario'">
+                                                        <div class="col s7 limitar left-align" ng-show="system.type == 'Estacionario'">
+                                                            <div style="font-size: 1em;"><b>{{ system.name }}</b></div>
+                                                            <div style="font-size: .7em;">
+                                                                <span ng-repeat="plot in system.plots" style="color: {{ isPlotActive('p' + $index) ? 'black' : 'white' }}; font-size: 1.2em;">
+                                                                    <i class="material-icons">filter_{{ $index + 1 }}</i>&nbsp;
+                                                                </span>
+                                                                <br>
+                                                                <span><b>{{ system.status }}</b></span>
+                                                                <span>{{ system.log.update ? "[" + system.log.update.substr(2,13) + "]" : "" }}</span><br>
+                                                                <!-- <span><strong>{{ system.culture }}</strong></span> -->
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col s7 limitar left-align" ng-show="system.type == 'Pozo'">
                                                             <div style="font-size: 1em;"><b>{{ system.name }}</b></div>
                                                             <div style="font-size: .7em;">
                                                                 <span>
@@ -303,31 +316,7 @@
                                                             </div>
                                                         </div>
 
-                                                        <div class="col s7 limitar" ng-show="system.type == 'Pozo'">
-                                                            <div style="font-size: 1em;"><b>{{ system.name }}</b></div>
-                                                            <div style="font-size: .7em;">
-                                                                <span>
-                                                                    <i class="material-icons" style="font-size: 1em;">alarm</i>
-                                                                    {{ getDayFromMs(system.plots['p' + system.position].value) + ":" +
-                                                                    getHourFromMs(system.plots['p' + system.position].value) + ":" + 
-                                                                    getMinutesFromMs(system.plots['p' + system.position].value) }}
-                                                                </span>
-                                                                <span>
-                                                                    <i class="material-icons" style="font-size: 1em;">map</i>
-                                                                    {{ system.position + 1 }}
-                                                                </span>
-                                                                <span>
-                                                                    <i class="fa fa-tint" aria-hidden="true"></i>
-                                                                    {{ system.log.presion ? system.log.presion : 0 }}psi
-                                                                </span>
-                                                                <br>
-                                                                <span><b>{{ system.status }}</b></span>
-                                                                <span>{{ system.log.update ? "[" + system.log.update.substr(2,13) + "]" : "" }}</span><br>
-                                                                <!-- <span><strong>{{ system.culture }}</strong></span> -->
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="col s7 limitar" ng-show="system.type == 'Sensor'">
+                                                        <div class="col s7 limitar left-align" ng-show="system.type == 'Sensor'">
                                                             <div style="font-size: 1em;"><b>{{ system.name }}</b></div>
                                                             <div style="font-size: .7em;">
                                                                 <span>
@@ -780,7 +769,7 @@
                                                             <tr style="border-top: 2px solid lightgrey;">
                                                                 <td colspan="3" style="text-align: center;">
                                                                     <div class="center-align"> 
-                                                                        <i class="material-icons" style="color: {{ isPlotActive('p' + $index) ? 'springgreen' : 'darkgrey' }}; font-size: 2em;" 
+                                                                        <i class="material-icons" style="color: {{ isPlotActive('p' + $index) ? 'springgreen' : 'lightgray' }}; font-size: 2em;" 
                                                                             ng-repeat="plot in actualSystem.plots">filter_{{ $index + 1 }}</i>
                                                                     </div>
                                                                     <div class="center-align">
@@ -1053,22 +1042,24 @@
                                     <table class="striped highlight">
                                         <thead>
                                             <tr>
-                                                <th>#</th>
-                                                <th><span class="angle">A</span> Inicial</th>
-                                                <th><span class="angle">A</span> Final</th>
+                                                <!-- <th>#</th> -->
+                                                <th><span class="angle">A</span> i</th>
+                                                <th><span class="angle">A</span> f</th>
                                                 <th>Pistola</th>
-                                                <th>Vel/Vol</th>
+                                                <th>Vel</th>
+                                                <th>Vol</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr ng-repeat="plan in actualSystemPlans" ng-show="plan"
                                                 class="modal-trigger" href="#modalEditRiego"
                                                 ng-click="setEditPlan($index)" style="cursor: pointer;">
-                                                <td><i class='fa fa-clock-o' aria-hidden='true'></i></td>
+                                                <!-- <td><i class='fa fa-clock-o' aria-hidden='true'></i></td> -->
                                                 <td>{{ plan.starAngle }}</td>
                                                 <td>{{ plan.endAngle }}</td>
                                                 <td>{{ plan.endGun == 'true' ? 'Sí' : 'No'}}
-                                                <td>{{ plan.value }} %</td>
+                                                <td>{{ plan.value }}% </td>
+                                                <td style="text-align: right;">{{ showSystemVelocity(plan.value) }}"</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -1810,8 +1801,9 @@
                                         <div class="input-field col s4 m2">
                                             <div class="btn waves-effect waves-light modal-trigger" href="#systemConfigModal"
                                                 style="width: 100%; margin-top: 5px;">
-                                                <i class="material-icons"
-                                                    ng-click="showSystemTable(actualSystem.brand)">help_outline</i>
+                                                <i class="material-icons">help_outline</i>
+                                                <!-- <i class="material-icons"
+                                                    ng-click="showSystemTable(actualSystem.brand)">help_outline</i> -->
                                             </div>
                                         </div>
                                         <div class="col s12 m6" ng-init="planSetCulture = ''">
