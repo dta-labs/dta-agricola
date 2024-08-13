@@ -1,5 +1,21 @@
 #pragma region Sensores
 
+int cmp_desc(const void *c1, const void *c2) {  
+  return *((int *)c2) - *((int *)c1);
+}
+ 
+int cmp_asc(const void *c1, const void *c2) {  
+  return *((int *)c1) - *((int *)c2);
+}
+
+float meanArray(float arr[]) {
+  float result = 0;
+  for (int i = 1; i < 99; i++) {
+    result += arr[i];
+  }
+  return result / 98;
+}
+ 
 long readVcc() {
   ADMUX = _BV(REFS0) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);
   delay(2);
@@ -13,18 +29,15 @@ long readVcc() {
 }
 
 float readAnalogicData(int port) {
-  long reads = 0;
   float vcc = readVcc();
-  float value = 0;
-  unsigned long startMillis = millis();
-  while (millis() - startMillis < 1000) {
-    value += analogRead(port);
-    reads++;
-    delayMicroseconds(33);
+  float values[100];
+  for (int i = 0; i < 100; i++) {
+    values[i] = analogRead(port);
+    delayMicroseconds(30);
   }
-  value /= reads;
-  return (value / 1024.0) * vcc;
+  qsort(values, 100, sizeof(float), cmp_asc);
+  float result = meanArray(values);
+  return (result / 1024.0) * vcc;
 }
-
 
 #pragma endregion Sensores

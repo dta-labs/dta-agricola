@@ -125,8 +125,8 @@ String httpRequest(String strMeasurements, String strVoltages, bool setup) {
   gprs.println(F("AT+HTTPACTION=0"));
   getResponse(6000, testComm); 
   gprs.println(F("AT+HTTPREAD"));
-  String result = getResponse(0, true);
-  Serial.println(result);
+  String result = getResponse(0, testComm);
+  // Serial.println(result);
   gprs.println(F("AT+HTTPTERM"));
   getResponse(30, testComm); 
   wdt_reset();                                // Reset the watchdog
