@@ -10,6 +10,10 @@
     <meta name="description"
         content='"DTA - Irrigation Control\" es la aplicacón de DTA-Agricola para el monitoreo y control inteligente y en tiempo real de sistemas de riego y bombeo.'>
     <meta name="author" content="DTA-Labs (Laboratorio de Desarrollos Tecnológicos Avanzados) https://dtaamerica.com/">
+    <meta name="keywords" content="Automatización, riego, automation, irrigation, IoT, Pivoe central, central privot, invernaderos, 
+                                    greenhouse, hidrponia, jardinería, landscape, Inteligencia artificial, Artificial Intelligence,
+                                    goteo, aspersión, tiempo real, monitoreo, control, agricultura">
+Fuente: https://www.ejemplode.com/17-html/530-ejemplo_de_keywords_o_palabras_clave_en_html.html#ixzz8ic2WS6tz
     <meta name="theme-color" content="#0000EF" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
@@ -208,13 +212,17 @@
                                                     style="color: {{ system.log.state == 'OFF' ? 'grey' : 'white' }};">
                                                     <div class="row" style="margin-bottom: 0;">
                                                         <div class="col s3" style="margin-top: 10px; height: 80px;">
-                                                            <div class="pivote" ng-show="system.type == 'PC' || system.type == 'PL'">
+                                                            <div class="pivote" ng-show="system.type == 'PC'">
                                                                 <div class="esfera"
                                                                     style="border-color: {{ system.log.state == 'OFF' ? 'grey' : 'white' }};">
                                                                     <div id="pos_{{ system.key }}" class="brazo"
                                                                         style="border-color: {{ system.log.state == 'OFF' ? 'grey' : 'white' }};">
                                                                     </div>
                                                                 </div>
+                                                            </div>
+                                                            <div ng-show="system.type == 'PL'">
+                                                                <i class="large material-icons angle_30" style="font-size: 3.5em; margin-left: -55px;
+                                                                margin-top: 10px; color: {{ system.log.state == 'OFF' ? 'grey' : 'white' }};">flip</i>
                                                             </div>
                                                             <div ng-show="system.type == 'Estacionario'" style="margin-top: -5px; margin-left: -10px;">
                                                                 <img src="./assets/images/{{ system.log.state == 'OFF' ? 'parcela-grey.png' : 'parcela.png' }}"
@@ -230,9 +238,9 @@
                                                             </div>
                                                         </div>
 
-                                                        <div class="col s7 limitar left-align" ng-show="system.type == 'PC' || system.type == 'PL'">
+                                                        <div class="col s7 limitar left-align" ng-show="system.type == 'PC'">
                                                             <div style="font-size: 1em;"><b>{{ system.name }}</b> </div>
-                                                            <div style="font-size: .7em;">
+                                                            <div style="font-size: .8em;">
                                                                 <i class="fa fa-undo" ng-show="system.direction == 'RR'"></i>
                                                                 <i class="fa fa-repeat" ng-show="system.direction == 'FF'"></i>
                                                                 <span>
@@ -279,15 +287,64 @@
                                                             </div>
                                                         </div>
 
-                                                        <div class="col s7 limitar left-align" ng-show="system.type == 'Estacionario'">
-                                                            <div style="font-size: 1em;"><b>{{ system.name }}</b></div>
-                                                            <div style="font-size: .7em;">
-                                                                <span ng-repeat="plot in system.plots" style="color: {{ isPlotActive('p' + $index) ? 'black' : 'white' }}; font-size: 1.2em;">
-                                                                    <i class="material-icons">filter_{{ $index + 1 }}</i>&nbsp;
+                                                        <div class="col s7 limitar left-align" ng-show="system.type == 'PL'">
+                                                            <div style="font-size: 1em;"><b>{{ system.name }}</b> </div>
+                                                            <div style="font-size: .8em;">
+                                                                <i class="material-icons" style="font-size: 1em;" ng-show="system.direction == 'RR'">arrow_back</i>
+                                                                <i class="material-icons" style="font-size: 1em;" ng-show="system.direction == 'FF'">arrow_forward</i>
+                                                                <span>
+                                                                    <!-- <i class="material-icons" style="font-size: .9em;">near_me</i> -->
+                                                                    {{ system.log.position ? system.log.position : 0 }}%
+                                                                </span>
+                                                                <span>
+                                                                    <i class="material-icons"
+                                                                        style="font-size: .9em;">network_check</i>
+                                                                    {{ system.log.speed ? system.log.speed : 0}}%
+                                                                </span>
+                                                                <span>
+                                                                    <i class="fa fa-tint" aria-hidden="true"></i>
+                                                                    {{ system.log.presion ? system.log.presion : 0 }}psi
                                                                 </span>
                                                                 <br>
-                                                                <span><b>{{ system.status }}</b></span>
-                                                                <span>{{ system.log.update ? "[" + system.log.update.substr(2,13) + "]" : "" }}</span><br>
+                                                                <span><b>{{ !system.log ? "OFF" : system.log.state }}</b></span>
+                                                                <span>{{ system.log.update ? "[" + system.log.update.substr(2,13) + "]" : "" }}</span>
+                                                                <!-- <span style="font-size: .8em;">
+                                                                    [{{ ((system.log.voltage == 'true' && system.log.safety == 'true' && system.log.commDelay == '-1') || system.status == 'OFF') && system.log.update ? system.log.update : "00000000 0000" }}]
+                                                                </span> -->
+                                                                <span
+                                                                    ng-show="(system.log.voltage == 'false' || system.log.safety == 'false' || (system.log.commDelay != '-1' && system.log.voltage == 'true' && system.log.safety == 'true')) && system.status == 'ON'">
+                                                                    <b><i>
+                                                                            <span>{{ system.log.voltage == 'false' ? 'Falla de
+                                                                                electricidad!' :
+                                                                                system.log.safety == 'false' ? '¡Alarma: falla de
+                                                                                seguridad!' :
+                                                                                system.log.commDelay != '-1' ? '¡Falla de
+                                                                                comunicación!' : ''
+                                                                                }}</span>
+                                                                            <span
+                                                                                ng-show="system.log.voltage == 'false' || system.log.safety == 'false'">{{
+                                                                                system.log.statusTime }}</span>
+                                                                            <span
+                                                                                ng-show="system.log.commDelay != '-1' && system.log.voltage == 'true' && system.log.safety == 'true'">
+                                                                                {{ system.log.commDelay }}
+                                                                            </span>
+                                                                        </i></b>
+                                                                </span>
+                                                                <span
+                                                                    ng-show="system.log.voltage == 'false' || system.log.safety == 'false'"><span
+                                                                        id="errorTime_{{ system.key }}"></span></span>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col s7 limitar left-align" ng-show="system.type == 'Estacionario'">
+                                                            <div style="font-size: 1em;"><b>{{ system.name }}</b></div>
+                                                            <div style="font-size: .6em;">
+                                                                <span ng-repeat="plot in system.plots" style="color: {{ isPlotActive('p' + $index) ? 'black' : system.log.state == 'OFF' ? 'grey' : 'white' }}; font-size: 1.2em;">
+                                                                    <i class="material-icons" style="margin-top: 3px;">filter_{{ $index + 1 }}</i>&nbsp;
+                                                                </span>
+                                                                <br>
+                                                                <span style="font-size: 1.3em;"><b>{{ system.status }}</b></span>
+                                                                <span style="font-size: 1.3em;">{{ system.log.update ? "[" + system.log.update.substr(2,13) + "]" : "" }}</span><br>
                                                                 <!-- <span><strong>{{ system.culture }}</strong></span> -->
                                                             </div>
                                                         </div>
@@ -318,7 +375,7 @@
 
                                                         <div class="col s7 limitar left-align" ng-show="system.type == 'Sensor'">
                                                             <div style="font-size: 1em;"><b>{{ system.name }}</b></div>
-                                                            <div style="font-size: .7em;">
+                                                            <div style="font-size: .8em;">
                                                                 <span>
                                                                     <i class="fa fa-tint" aria-hidden="true"></i>
                                                                     {{ system.log.dataRaw ? (100 - ((system.log.meanVal - system.sensors.S0.minValue) / (system.sensors.S0.maxValue - system.sensors.S0.minValue) * 100) | number : 0) : "0" }} <b>%</b> 
@@ -580,7 +637,7 @@
                                             </div>
                                             
                                             <!-- Movimiento continuo -->
-                                            <div class="col s12 m4" ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'" 
+                                            <div class="col s12 m4" ng-show="actualSystem.type == 'PC'" 
                                             style="margin-bottom: 0; margin-top: 0;">
                                                 <!-- Controles -->
                                                 <div class="row hide-on-small-only" style="margin-bottom: 0px; font-size: 2em !important;">
@@ -589,6 +646,167 @@
                                                         style="border: 2px solid grey; border-radius: 5px 0 0 5px; background: {{ actualSystem.status && !actualSystem.direction ? '#04d604' : 'transparent' }}">
                                                         <i class="fa fa-reply" aria-hidden="true"
                                                             style="color: {{ actualSystem.status && !actualSystem.direction ? 'white' : 'grey' }};"></i>
+                                                    </div>
+                                                    <div class="col s5 center-align" ng-click="stopSystem()"
+                                                        style="border: 2px solid grey; margin: 0 2px; background: {{ actualSystem.status ? 'transparent' : 'red' }}">
+                                                        <i class="fa fa-stop" aria-hidden="true"
+                                                            style="color: {{ actualSystem.status ? 'grey' : 'white' }};"></i>
+                                                    </div>
+                                                    <div class="col s3 center-align" ng-click="playForward()"
+                                                        style="border: 2px solid grey; border-radius: 0 5px 5px 0; background: {{ actualSystem.status && actualSystem.direction ? '#04d604' : 'transparent' }}">
+                                                        <i class="fa fa-share" aria-hidden="true"
+                                                            style="color: {{ actualSystem.status && actualSystem.direction ? 'white' : 'grey' }};"></i>
+                                                    </div>
+                                                </div>
+                                                <!-- Status General -->
+                                                <!-- Status Movimiento continuo -->
+                                                <div class="row statusBar hide-on-med-and-up" style="margin-left: 12%; position: fixed; top: 310px;">
+                                                    <div class="col s12">
+                                                        <table style="background: #0000003d;">
+                                                            <tr>
+                                                                <td colspan="4" style="text-align: center;">
+                                                                    <i class="material-icons"
+                                                                        style="margin-top: 3px; color: {{ (actualSystem.log.safety == 'true') ? 'white' : 'red' }};">
+                                                                        {{ (actualSystem.log.safety == "true") ? 'verified_user' : 'do_not_disturb_alt' }}
+                                                                    </i><br>
+                                                                    <b>Seguridad</b>
+                                                                </td>
+                                                                <td colspan="3" style="text-align: center;">
+                                                                    <i class="material-icons"
+                                                                        style="margin-top: 3px; color: {{ (actualSystem.log.reception == 'Ok' && actualSystem.log.commDelay == '-1') ? 'white' : 'red' }};">
+                                                                        {{ (actualSystem.log.reception == 'Ok' &&
+                                                                        actualSystem.log.commDelay == '-1') ? 'phonelink_ring' : 'do_not_disturb_alt' }}
+                                                                    </i><br>
+                                                                    <b>Conexión</b>
+                                                                </td>
+                                                                <td colspan="3" style="text-align: center;">
+                                                                    <i class="material-icons"
+                                                                        style="margin-top: 3px; color: {{ (actualSystem.log.latitude != '0.00000' && actualSystem.log.longitude != '0.00000') ? 'white' : 'red' }};">
+                                                                        {{ (actualSystem.log.latitude != '0.00000' &&
+                                                                        actualSystem.log.longitude != '0.00000') ? 'satellite' : 'do_not_disturb_alt' }}
+                                                                    </i><br>
+                                                                    <b>GPS</b>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                                <div class="row statusBar hide-on-med-and-up" style="width: 100%;">
+                                                    <div class="col s12">
+                                                        <table style="background: #0000003d;">
+                                                            <tr style="border-top: 1px solid lightgrey;">
+                                                                <td colspan="2" style="text-align: center;">
+                                                                    <div class="col s12 m12 center-align"><i
+                                                                        class="material-icons">network_check</i>
+                                                                    </div>
+                                                                    <b>{{ actualSystem.log.speed ? actualSystem.log.speed : 0 }}</b>%
+                                                                </td>
+                                                                <td colspan="2" style="text-align: center;">
+                                                                    <div class="col s12 m12 center-align"><i
+                                                                        class="material-icons">near_me</i></div>
+                                                                    <b>{{ actualSystem.log.position ? actualSystem.log.position : 0 }}</b>°
+                                                                </td>
+                                                                <td colspan="2" style="text-align: center;">
+                                                                    <div class="col s12 m12 center-align"><i
+                                                                        class="material-icons">search</i></div>
+                                                                    <b>{{ actualSystem.log.error ? actualSystem.log.error : 0 }}</b>cm        
+                                                                </td>
+                                                                <td colspan="2" style="text-align: center;">
+                                                                    <div class="col s12 m12 center-align"><i class="fa fa-tint"
+                                                                        aria-hidden="true"
+                                                                        style="font-size: 1.7em; margin: 2px 0 3px 0;"></i></div>
+                                                                    <b>{{ actualSystem.log.presion ? (actualSystem.log.presion | number : 1) : 0 }}</b>psi        
+                                                                </td>
+                                                                <td colspan="2" style="text-align: center;">
+                                                                    <div class="col s12 m12 center-align"><i
+                                                                        class="material-icons">rss_feed</i>
+                                                                    </div>
+                                                                    <b>{{ actualSystem.log.signal ? ((actualSystem.log.signal * 100 / 30) > 100 ? 100 : (actualSystem.log.signal * 100 / 30) | number : 0) : 0 | number : 0 }}</b>%      
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                                <div class="row hide-on-small-only" style="margin-top: 30px; width: 95%;">
+                                                    <div class="col s12">
+                                                        <table>
+                                                            <tr>
+                                                                <td colspan="2" class="valign-wrapper" style="text-align: left;" style="margin-top: 30px;">
+                                                                    <i class="material-icons"
+                                                                        style="margin-top: 3px; color: {{ (actualSystem.log.safety == 'true') ? 'green' : 'red' }};">
+                                                                        {{ (actualSystem.log.safety == "true") ? 'verified_user' : 'do_not_disturb_alt' }}
+                                                                    </i>&nbsp;
+                                                                    <b>Seguridad</b>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td colspan="2" class="valign-wrapper" style="text-align: left;">
+                                                                    <i class="material-icons"
+                                                                        style="margin-top: 3px; color: {{ (actualSystem.log.reception == 'Ok' && actualSystem.log.commDelay == '-1') ? 'green' : 'red' }};">
+                                                                        {{ (actualSystem.log.reception == 'Ok' &&
+                                                                        actualSystem.log.commDelay == '-1') ? 'phonelink_ring' : 'do_not_disturb_alt' }}
+                                                                    </i>&nbsp;
+                                                                    <b>Conexión</b>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td colspan="2" class="valign-wrapper" style="text-align: left;">
+                                                                    <i class="material-icons"
+                                                                        style="margin-top: 3px; color: {{ (actualSystem.log.latitude != '0.00000' && actualSystem.log.longitude != '0.00000') ? 'green' : 'red' }};">
+                                                                        {{ (actualSystem.log.latitude != '0.00000' &&
+                                                                        actualSystem.log.longitude != '0.00000') ? 'satellite' : 'do_not_disturb_alt' }}
+                                                                    </i>&nbsp;
+                                                                    <b>GPS</b>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td colspan="2" style="text-align: center;">
+                                                                    <div class="center-align"><i
+                                                                        class="material-icons">network_check</i>
+                                                                    </div>
+                                                                    <b>{{ actualSystem.log.speed ? actualSystem.log.speed : 0 }}</b>%
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td style="text-align: center; width: 50%;">
+                                                                    <div class="center-align"><i
+                                                                        class="material-icons">near_me</i></div>
+                                                                    <b>{{ actualSystem.log.position ? actualSystem.log.position : 0 }}</b>°
+                                                                </td>
+                                                                <td style="text-align: center; width: 50%;">
+                                                                    <div class="center-align"><i
+                                                                        class="material-icons">search</i></div>
+                                                                    <b>{{ actualSystem.log.error ? actualSystem.log.error : 0 }}</b>cm        
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td style="text-align: center; width: 50%;">
+                                                                    <div class="center-align"><i class="fa fa-tint"
+                                                                        aria-hidden="true"
+                                                                        style="font-size: 1.7em; margin: 2px 0 3px 0;"></i></div>
+                                                                    <b>{{ actualSystem.log.presion ? (actualSystem.log.presion | number : 1) : 0 }}</b>psi        
+                                                                </td>
+                                                                <td style="text-align: center; width: 50%;">
+                                                                    <div class="center-align"><i
+                                                                        class="material-icons">rss_feed</i>
+                                                                    </div>
+                                                                    <b>{{ actualSystem.log.signal ? (actualSystem.log.signal * 100 / 30 | number : 0) : 0 }}</b>%        
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col s12 m4" ng-show="actualSystem.type == 'PL'" 
+                                            style="margin-bottom: 0; margin-top: 0;">
+                                                <!-- Controles -->
+                                                <div class="row hide-on-small-only" style="margin-bottom: 0px; font-size: 2em !important;">
+                                                    <div class="col s3 center-align" ng-click="playBackward()"
+                                                        ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'"
+                                                        style="border: 2px solid grey; border-radius: 5px 0 0 5px; background: {{ actualSystem.status && !actualSystem.direction ? '#04d604' : 'transparent' }}">
+                                                        <i class="large material-icons"
+                                                         style="color: {{ actualSystem.status && !actualSystem.direction ? 'white' : 'grey' }};">flip</i>
                                                     </div>
                                                     <div class="col s5 center-align" ng-click="stopSystem()"
                                                         style="border: 2px solid grey; margin: 0 2px; background: {{ actualSystem.status ? 'transparent' : 'red' }}">
@@ -972,17 +1190,17 @@
                                                                                 <i class="fa fa-tint" aria-hidden="true"></i>
                                                                             </td>
                                                                             <td width="40%" style="font-size: 2.5em; text-align: center;">
-                                                                                {{ actualSystem.log.dataRaw ? (100 - ((actualSystem.log.meanVal - actualSystem.sensors.S0.minValue) / (actualSystem.sensors.S0.maxValue - actualSystem.sensors.S0.minValue) * 100) | number : 0) : "0" }}%
+                                                                                {{ actualSystem.log.meanValue | number : 0 }}%
                                                                             </td>
                                                                             <td width="25%" style="text-align: left;">
-                                                                                min: {{ actualSystem.log.dataRaw ? (100 - ((actualSystem.log.minVal - actualSystem.sensors.S0.minValue) / (actualSystem.sensors.S0.maxValue - actualSystem.sensors.S0.minValue) * 100) | number : 0) : "0" }}% <br>
-                                                                                max: {{ actualSystem.log.dataRaw ? (100 - ((actualSystem.log.maxVal - actualSystem.sensors.S0.minValue) / (actualSystem.sensors.S0.maxValue - actualSystem.sensors.S0.minValue) * 100) | number : 0) : "0" }}%
+                                                                                min: {{ actualSystem.log.minValue | number : 0 }}% <br>
+                                                                                max: {{ actualSystem.log.maxValue | number : 0 }}%
                                                                             </td>
                                                                             <td width="15%" style="text-align: center;" ng-init="bat = 0">
                                                                                 <i class="material-icons">
                                                                                     {{ parseJSON(actualSystem.log.voltages)[0] >= 4.2 ? "battery_charging_full" : 
                                                                                         parseJSON(actualSystem.log.voltages)[0] >= 3.7 ? "battery_full" : 
-                                                                                        "battery_alert"}}
+                                                                                        "battery_alert" }}
                                                                                     </i> <br>
                                                                                 <span style="font-size: .8em;">{{  parseJSON(actualSystem.log.voltages)[0] | number : 1 }}</span>v   
                                                                             </td>
@@ -1172,6 +1390,7 @@
                                                     <ul>
                                                         <li class="waves-effect white-text teal lighten-3 center-align modal-trigger"
                                                             style="width: 100%; border-radius: 5px; margin-bottom: 10px;" 
+                                                            href="#modalEditSensor" ng-click="editSensor(sensor)"
                                                             ng-repeat="sensor in actualSystem.sensors" ng-show="sensor.id != null">
                                                             <table>
                                                                 <tr>
@@ -1652,22 +1871,14 @@
                                                 <p ng-show="actualSystem.type == 'PC'">Presión: <b>{{ reg.presion <
                                                             1 ? "Presión Baja" : "Presión Normal" }}</b>
                                                 </p>
-                                                <p ng-show="actualSystem.type == 'PC'">Dirección: <b>{{
-                                                        reg.direction }}</b></p>
-                                                <p ng-show="actualSystem.type == 'PC'">Velocidad: <b>{{ reg.speed
-                                                        }}</b></p>
-                                                <p ng-show="actualSystem.type == 'PC'">Latitud: <b>{{ reg.latitude
-                                                        }}</b></p>
-                                                <p ng-show="actualSystem.type == 'PC'">Longitud: <b>{{ reg.longitude
-                                                        }}</b></p>
-                                                <p ng-show="actualSystem.type == 'PC'">Posición: <b>{{ reg.position
-                                                        }}</b></p>
-                                                <p ng-show="actualSystem.type == 'PC'">Presión: <b>{{ reg.presion
-                                                        }}</b></p>
-                                                <p ng-show="actualSystem.type == 'PC'">Recepción: <b>{{
-                                                        reg.reception }}</b></p>
-                                                <p ng-show="actualSystem.type == 'PC'">Autoreversa: <b>{{
-                                                        reg.autoreverse }}</b></p>
+                                                <p ng-show="actualSystem.type == 'PC'">Dirección: <b>{{ reg.direction }}</b></p>
+                                                <p ng-show="actualSystem.type == 'PC'">Velocidad: <b>{{ reg.speed }}</b></p>
+                                                <p ng-show="actualSystem.type == 'PC'">Latitud: <b>{{ reg.latitude }}</b></p>
+                                                <p ng-show="actualSystem.type == 'PC'">Longitud: <b>{{ reg.longitude }}</b></p>
+                                                <p ng-show="actualSystem.type == 'PC'">Posición: <b>{{ reg.position }}</b></p>
+                                                <p ng-show="actualSystem.type == 'PC'">Presión: <b>{{ reg.presion }}</b></p>
+                                                <p ng-show="actualSystem.type == 'PC'">Recepción: <b>{{ reg.reception }}</b></p>
+                                                <p ng-show="actualSystem.type == 'PC'">Autoreversa: <b>{{ reg.autoreverse }}</b></p>
                                                 <p ng-show="actualSystem.type == 'PC'">Seguridad: 
                                                     <b><span style="color:{{ reg.safety == 'true' ? 'black' : 'red' }};">{{ reg.safety }}</span></b>
                                                 </p>
@@ -1679,22 +1890,33 @@
                                         </li>
                                     </ul>
 
-                                    <canvas id="myChart" ng-show="actualSystem.type == 'Sensor'"></canvas>
+                                    <canvas id="myChart" ng-show="actualSystem.type == 'Sensor'" style="position: relative; height:30vh; width:40vw;"></canvas>
+                                    
                                     <p class="range-field" ng-show="actualSystem.type == 'Sensor'">
                                         <input type="range" id="chartZoom" min="10" max="500" value="10"/>
                                     </p>
-                                    <ul class="row collapsible" ng-show="actualSystem.type == 'Sensor'">
+
+                                    <!-- <ul class="row collapsible" ng-show="actualSystem.type == 'Sensor'">
                                         <li class="col s12" ng-repeat="reg in invertedRegisters">
                                             <div class="gray-text row" style="border-bottom: 1px solid lightgray; margin-bottom: 0px;">
-                                                <div class="col s12">
-                                                    {{ reg.date.substr(6,2) }}/{{ reg.date.substr(4,2) }} {{ reg.date.substr(9,2) }}:{{ reg.date.substr(11,5) }}: <br class="show-in-mobil-only">
-                                                    <b style="font-size: 1.3em;">{{ (100 - ((reg.meanVal - actualSystem.sensors.S0.minValue) / (actualSystem.sensors.S0.maxValue - actualSystem.sensors.S0.minValue) * 100)) | number : 0 }}%</b> 
-                                                    [{{ (100 - ((reg.minVal - actualSystem.sensors.S0.minValue) / (actualSystem.sensors.S0.maxValue - actualSystem.sensors.S0.minValue) * 100)) | number : 0 }}%  ~ {{ (100 - ((reg.maxVal - actualSystem.sensors.S0.minValue) / (actualSystem.sensors.S0.maxValue - actualSystem.sensors.S0.minValue) * 100)) | number : 0 }}%] 
-                                                    <span>Batería: {{ parseJSON(reg.voltages)[0] | number : 1 }}v</span>
+                                                <div class="col s3 m1 valign-wrapper">
+                                                    {{ reg.date.substr(6,2) }}/{{ reg.date.substr(4,2) }} {{ reg.date.substr(9,2) }}:{{ reg.date.substr(11,5) }}
+                                                </div>
+                                                <div class="col s9 m11 left-align">
+                                                    <b style="font-size: 1.5em;">{{ (100 - ((reg.meanVal - actualSystem.sensors.S0.minValue) / (actualSystem.sensors.S0.maxValue - actualSystem.sensors.S0.minValue) * 100)) | number : 0 }}%</b> 
+                                                    <! -- <span class="show-in-pc-only">&nbsp;&nbsp;&nbsp;</span> -- >
+                                                    <span>
+                                                        [{{ (100 - ((reg.minVal - actualSystem.sensors.S0.minValue) / (actualSystem.sensors.S0.maxValue - actualSystem.sensors.S0.minValue) * 100)) | number : 0 }}%  ~ {{ (100 - ((reg.maxVal - actualSystem.sensors.S0.minValue) / (actualSystem.sensors.S0.maxValue - actualSystem.sensors.S0.minValue) * 100)) | number : 0 }}%] 
+                                                    </span>
+                                                    <! -- <span class="show-in-pc-only">&nbsp;&nbsp;&nbsp;</span> -- >
+                                                    <! -- <span class="show-in-pc-only" style="display: inline;">Batería:</span> -- >
+                                                    <! -- <br class="show-in-mobil-only"> -- >
+                                                    <span> [{{ parseJSON(reg.voltages)[0] | number : 1 }}v]</span>
                                                 </div>
                                             </div>
                                         </li>
-                                    </ul>
+                                    </ul> -->
+
                                     <div class="right-align">
                                         <div class="btn waves-effect waves-light grey modal-close">
                                             &nbsp;&nbsp;
@@ -1702,6 +1924,7 @@
                                             &nbsp;&nbsp;
                                         </div>
                                     </div>
+                                    <br>
                                 </div>
                             </div>
 
@@ -2411,6 +2634,66 @@
                                 </div>
                             </div>
 
+                            <div id="modalEditSensor" class="modal"> <!-- Modal adicionar sensor -->
+                                <div class="modal-content">
+                                    <div class="swal-title">Editar sensor {{ actualSensor.id }}</div>
+                                    <div class="row" style="margin-top: 35px;">
+                                        <div class="input-field col s12">
+                                            <input id="editSensorID" type="text" ng-model="actualSensor.id">
+                                            <label for="editSensorID">Identificador</label>
+                                        </div>
+                                        <div class="col s12"
+                                            style="background: whitesmoke; box-shadow: 0 0 3px lightgrey; margin-bottom: 20px;">
+                                            <label>Geolocalización</label>
+                                            <div class="row" style="margin-bottom: 0;">
+                                                <div class="input-field col s5">
+                                                    <input id="editSensorLatitude" type="text" placeholder="Latidud"
+                                                        ng-model="actualSensor.latitude">
+                                                    <label for="editSensorLatitude">Latitud</label>
+                                                </div>
+                                                <div class="input-field col s5">
+                                                    <input id="editSensorLongitude" type="text" placeholder="Longitud"
+                                                        ng-model="actualSensor.longitude">
+                                                    <label for="editSensorLongitude">Longitud</label>
+                                                </div>
+                                                <div class="input-field col s2 waves-effect grey waves-grey btn-flat white-text valign-wrapper">
+                                                    <div id="btneditLocation" style="text-align: center;" ng-click="setSensorPosition()">
+                                                        <i class="material-icons">&nbsp;add_location&nbsp;</i>
+                                                    </div>
+                                                    <label for="btneditLocation">&nbsp;</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col s12 row" style="border: 1px solid lightgrey; border-radius: 5px;">
+                                            <div class="input-field col s6">
+                                                <input id="editSensorMinVal" type="text" ng-model="actualSensor.minValue">
+                                                <label for="editSensorMinVal">Mínimo</label>
+                                            </div>
+                                            <div class="input-field col s6">
+                                                <input id="editSensorMaxVal" type="text" ng-model="actualSensor.maxValue">
+                                                <label for="editSensorMaxVal">Máximo</label>
+                                            </div>
+                                        </div>
+                                        <div class="input-field col s12">
+                                            <select id="editSensorType" ng-model="actualSensor.type">
+                                                <option value="Ms" selected="selected">Humedad suelo</option>
+                                                <option value="Tr">Temperatura</option>
+                                                <option value="Fl">Flujo de agua</option>
+                                            </select>
+                                            <label style="top: -28px; font-size: .8em;">Tipo</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer" style="padding-right: 20px;">
+                                    <a href="" class="modal-close waves-effect grey waves-grey btn-flat white-text">
+                                        <i class="material-icons">&nbsp;&nbsp;reply&nbsp;&nbsp;</i></a>
+                                    <a href="" class="modal-close waves-effect teal waves-green btn-flat white-text"
+                                        ng-click="addNewSensorToNet()"><i
+                                            class="material-icons">&nbsp;&nbsp;check&nbsp;&nbsp;</i></a>
+                                </div>
+                                <br>
+                            </div>
+
                         </section>
 
                         <!-- #endregion: SISTEMA -->
@@ -2527,6 +2810,13 @@
                                     </ul>
                                 </div>
                                 <br>
+                                <div class="right-align">
+                                    <div class="btn waves-effect waves-light grey" ng-click="showWindow('servicios')" style="margin-right: 20px;">
+                                        &nbsp;&nbsp;
+                                        <i class="material-icons">reply</i>
+                                        &nbsp;&nbsp;
+                                    </div>
+                                </div>
                                 <br>
                             </div>
 
@@ -2727,7 +3017,7 @@
 
                         <section id="ayuda">
 
-                            <div id="ayuda" class="container ventanaServicios" ng-show="selectedWindow == 'ayuda'">
+                            <div id="ayuda" class="container ventanaServicios" ng-show="selectedWindow == 'ayuda'" style="overflow: scroll; height: calc(100vh - 160px);">
                                 <div class="swal-title">Ayuda</div>
                                 <div style="width: 90%; margin: auto; margin-top: 35px !important; font-size: 1.3em;">
                                     <ul class="collapsible">
@@ -3049,6 +3339,15 @@
                                             </div>
                                         </li>
                                     </ul>
+                                    <br>
+                                    <div class="right-align">
+                                        <div class="btn waves-effect waves-light grey" ng-click="showWindow('servicios')" style="margin-right: 20px;">
+                                            &nbsp;&nbsp;
+                                            <i class="material-icons">reply</i>
+                                            &nbsp;&nbsp;
+                                        </div>
+                                    </div>
+                                    <br>
                                 </div>
 
                                 <div class="sidebar-footer hidden-small" style="display: none;">

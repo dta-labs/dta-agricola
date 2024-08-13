@@ -1,5 +1,6 @@
 body {
   background: whitesmoke;
+  background-color: whitesmoke;
   background-image: url(/assets/images/fondo-web.png);
   background-repeat: no-repeat;
   background-attachment: fixed;
@@ -133,6 +134,30 @@ body {
   -moz-transform: rotate(-110deg);
   -o-transform: rotate(-110deg);
   transform: rotate(-110deg);
+  display: inline-block;
+}
+
+.angle_30 {
+  -webkit-transform: rotate(-30deg);
+  -moz-transform: rotate(-30deg);
+  -o-transform: rotate(-30deg);
+  transform: rotate(-30deg);
+  display: inline-block;
+}
+
+.angle_90 {
+  -webkit-transform: rotate(-90deg);
+  -moz-transform: rotate(-90deg);
+  -o-transform: rotate(-90deg);
+  transform: rotate(-90deg);
+  display: inline-block;
+}
+
+.angle_270 {
+  -webkit-transform: rotate(-270deg);
+  -moz-transform: rotate(-270deg);
+  -o-transform: rotate(-270deg);
+  transform: rotate(-270deg);
   display: inline-block;
 }
 

@@ -302,6 +302,7 @@ app.controller("ControladorPrincipal", function ($scope) {
                 // if ($scope.actualSystem && locationKey == $scope.actualSystem.key) { $scope.selectSystem($scope.systems[locationKey]); }
                 // if (registers == 1000) { invertLog() }
                 invertLog();
+                setDeviceSpecificData();
                 // $scope.$apply();
             }
         });
@@ -402,6 +403,23 @@ app.controller("ControladorPrincipal", function ($scope) {
     }
 
     $scope.selectSystem = (system) => {
+        setDeviceData(system);
+        $scope.loadCultures();
+        setActualSystemPlans();
+        $scope.actualizarListaCultivos();
+        $scope.loadSystemLog(system.key, 10);
+        // invertLog();
+        // $scope.actualSystem.posicionActual = parseInt($scope.actualSystem.log.position ? $scope.actualSystem.log.position : "0") + parseInt($scope.actualSystem.summerHour ? $scope.actualSystem.summerHour : "0");
+        // showPlanRiegoPie();
+        hideTheSpinner();
+        $scope.showWindow('sistema');
+        updateCompass();
+        initializeSystemMap($scope.actualSystem);
+        getMetorologicalData($scope.actualSystem.key);
+        setDeviceSpecificData();
+    }
+
+    setDeviceData = system => {
         system.caudal = parseInt(system.caudal);
         system.delayTime = parseInt(system.delayTime);
         system.latitude = parseFloat(system.latitude);
@@ -418,20 +436,27 @@ app.controller("ControladorPrincipal", function ($scope) {
         $scope.actualSystem.sensorPosition = $scope.actualSystem.sensorPosition == "ON" || $scope.actualSystem.sensorPosition == true ? true : false;
         $scope.actualSystem.autoreverse = $scope.actualSystem.autoreverse == "ON" || $scope.actualSystem.autoreverse == true ? true : false;
         $scope.actualSystem.direction = $scope.actualSystem.direction == "FF" || $scope.actualSystem.direction == true ? true : false;
-        $scope.loadCultures();
-        setActualSystemPlans();
-        $scope.actualizarListaCultivos();
-        $scope.loadSystemLog(system.key, 10);
-        // invertLog();
-        // $scope.actualSystem.posicionActual = parseInt($scope.actualSystem.log.position ? $scope.actualSystem.log.position : "0") + parseInt($scope.actualSystem.summerHour ? $scope.actualSystem.summerHour : "0");
-        // showPlanRiegoPie();
-        hideTheSpinner();
-        $scope.showWindow('sistema');
-        updateCompass();
-        initializeSystemMap($scope.actualSystem);
-        getMetorologicalData($scope.actualSystem.key);
-        if ($scope.actualSystem.type == "Sensor") $scope.showChart("meanVal", 10);
-        if ($scope.actualSystem.type == "PC" || scope.actualSystem.type == "PL") $scope.showSystemTable($scope.actualSystem.brand);
+    }
+
+    setDeviceSpecificData = () => {
+        switch ($scope.actualSystem.type) {
+            case "Sensor":
+                $scope.showChart("meanVal", 24);
+                let deltaVal = $scope.actualSystem.sensors.S0.maxValue - $scope.actualSystem.sensors.S0.minValue;
+                let meanVal = 100 - (($scope.actualSystem.log.meanVal - $scope.actualSystem.sensors.S0.minValue) / deltaVal * 100);
+                $scope.actualSystem.log["meanValue"] = meanVal < 0 ? 0 : meanVal > 100 ? 100 : meanVal;
+                let minVal = 100 - (($scope.actualSystem.log.meanVal - $scope.actualSystem.sensors.S0.minValue) / deltaVal * 100);
+                $scope.actualSystem.log["minValue"] = minVal < 0 ? 0 : minVal > 100 ? 100 : minVal;
+                let maxVal = 100 - (($scope.actualSystem.log.meanVal - $scope.actualSystem.sensors.S0.minValue) / deltaVal * 100);
+                $scope.actualSystem.log["maxValue"] = maxVal < 0 ? 0 : maxVal > 100 ? 100 : maxVal;
+                break;
+            case "PC":
+                $scope.showSystemTable($scope.actualSystem.brand);
+                break;
+            case "PL":
+                $scope.showSystemTable($scope.actualSystem.brand);
+                break;
+        }
     }
 
     setActualSystemPlans = () => {
@@ -949,6 +974,10 @@ app.controller("ControladorPrincipal", function ($scope) {
                     swal("Asignación cancelada!");
                 }
             });
+    }
+
+    $scope.editSensor = (sensor) => {
+        $scope.actualSensor = sensor;
     }
 
     $scope.deleteUser = (key, user) => {
@@ -1832,91 +1861,79 @@ app.controller("ControladorPrincipal", function ($scope) {
     // #region Chart.js
 
     const chartZoom = document.querySelector("#chartZoom");
+
     chartZoom.addEventListener("change", e => {
         $scope.showChart("meanVal", parseInt(chartZoom.value));
     });
 
-    getMean = (data) => {
-        mean = 0;
-        data.forEach(element => {
-            mean += element;
-        });
-        mean /= data.length;
-        means = [];
-        data.forEach(element => {
-            means.push(mean);
-        });
-        return means;
-    }
-
     $scope.showChart = (child, registers) => {
         getMeassurementValues($scope.actualSystem.key, registers).then(result => {
-            min = $scope.actualSystem.sensors.S0.minValue;
-            max = $scope.actualSystem.sensors.S0.maxValue;
-            data = [];
-            labels = [];
+            const items = result[0] ? JSON.parse(result[0].dataRaw).length : 0;
+            let labels = [];
+            let data = [];
+            let means = [];
             lastDate = "";
-            result.forEach(element => {
-                data.push(100 - ((element.meanVal - min) / (max - min)) * 100);
-                date = element.date.substr(6, 2) + "/" + element.date.substr(4, 2);
-                if (lastDate != date) {
-                    lastDate = date;
-                } else {
-                    date = "";
-                }
-                labels.push(date + " " + element.date.substr(9, 14));
-            });
-            factorDeSuavizado = 0.3;
-            data = filtroPasoBajo(data, factorDeSuavizado);
-            means = getMean(data);
-            chart(data, means, labels);
+            for (let i = 0; i < items; i++) {
+                let idx = "S" + i;
+                let min = $scope.actualSystem.sensors[idx].minValue;
+                let max = $scope.actualSystem.sensors[idx].maxValue;
+                data[i] = [];
+                result.forEach(element => {
+                    let dataValue = JSON.parse(element.dataRaw)[i];
+                    let value = dataValue != -99.00 ? 100 - ((dataValue - min) / (max - min) * 100) : "";
+                    data[i].push(value < 0 ? 0 : value > 100 ? 100 : value);
+                    if (i == 0) {
+                        date = element.date.substr(6, 2) + "/" + element.date.substr(4, 2);
+                        if (lastDate != date) {
+                            lastDate = date;
+                        } else {
+                            date = "";
+                        }
+                        labels.push(date + " " + element.date.substr(9, 14));
+                        means.push(100 - ((element.meanVal - min) / (max - min)) * 100);
+                    }
+                });
+            }
+            chart(items, data, means, labels);
         });
     }
 
-    chart = (data, means, labels) => {
+    chart = (graphs, data, means, labels) => {
         const ctx = document.getElementById('myChart');
         if (myChart) myChart.destroy();
         let type = data.length < 14 ? 'bar' : 'line';
         myChart = new Chart(ctx, {
             type: type,
-            data: getDataArray(data, means, labels),
+            data: getDataArray(graphs, data, means, labels),
             options: getOptions()
         });
+        myChart.canvas.parentNode.style.height = '400px';
     }
 
-    getDataArray = (data, means, labels) => {
+    getDataArray = (graphs, data, means, labels) => {
+        let datasets = [];
+        for (let i = 0; i < graphs; i++) {
+            let myJSON = {
+                label: 'Hs' + i,
+                data: data[i],
+                cubicInterpolationMode: 'monotone',
+                tension: 0.4,
+                borderWidth: 1,
+                type: 'line'
+            }
+            datasets[i] = myJSON;
+        }
         return {
             labels: labels,
-            datasets: [{
-                label: 'Hs',
-                data: data,
-                cubicInterpolationMode: 'monotone',
-                tension: 0.4,
-                borderWidth: 1,
-                type: 'bar'
-            },
-            {
-                data: data,
-                cubicInterpolationMode: 'monotone',
-                tension: 0.4,
-                borderWidth: 1,
-                type: 'line'
-            },
-            {
-                label: 'Media',
-                data: means,
-                cubicInterpolationMode: 'monotone',
-                tension: 0.4,
-                borderWidth: 1,
-                type: 'line'
-            }]
+            datasets: datasets
         }
     }
 
     getOptions = () => {
         return {
             responsive: true,
-            //maintainAspectRatio: false,
+            maintainAspectRatio: false,
+            responsive: true,
             scales: {
                 y: {
                     beginAtZero: true,
@@ -1928,10 +1945,9 @@ app.controller("ControladorPrincipal", function ($scope) {
                     }
                 }
             },
-            plugins: {
-                legend: false
-            },
-            //height: '50vw'
+            // plugins: {
+            //     legend: false
+            // },
         }
     }
 
