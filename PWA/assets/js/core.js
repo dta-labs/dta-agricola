@@ -431,6 +431,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         initializeSystemMap($scope.actualSystem);
         getMetorologicalData($scope.actualSystem.key);
         if ($scope.actualSystem.type == "Sensor") $scope.showChart("meanVal", 10);
+        if ($scope.actualSystem.type == "PC" || scope.actualSystem.type == "PL") $scope.showSystemTable($scope.actualSystem.brand);
     }
 
     setActualSystemPlans = () => {
@@ -707,6 +708,17 @@ app.controller("ControladorPrincipal", function ($scope) {
             $scope.systemConfigType = type;
             $scope.$apply();
         });
+    }
+
+    $scope.showSystemVelocity = (percent) => {
+        let result = 0;
+        let sc = $scope.systemConfig;
+        for (let idx = 0; idx < sc.length; idx++) {
+            if (sc[idx].timer == percent) {
+                result = sc[idx].wather;
+            }
+        }
+        return result;
     }
 
     $scope.createNewDevice = () => {
@@ -1267,7 +1279,7 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     $scope.isPlotActive = (index) => {
         let active = false;
-        if (index) {
+        if (index && $scope.actualSystem["plots"]) {
             let dateTime = getDateAndTime();
             let plot = $scope.actualSystem.plots[index];
             if (plot) {
@@ -1398,7 +1410,7 @@ app.controller("ControladorPrincipal", function ($scope) {
             $scope.listPlanesRiego = cultivos.val();
             M.FormSelect.init(document.querySelectorAll('.select'));
             M.AutoInit();
-            $scope.$apply();
+            // $scope.$apply();
         });
     }
 
