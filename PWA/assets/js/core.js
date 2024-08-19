@@ -976,6 +976,27 @@ app.controller("ControladorPrincipal", function ($scope) {
             });
     }
 
+    $scope.editActualSensor = () => {
+        swal({
+            title: "",
+            text: "Editar sensor",
+            icon: "warning",
+            buttons: ["Cancelar", true],
+            dangerMode: true,
+        })
+            .then((confirm) => {
+                if (confirm) {
+                    document.getElementById("modalEditSensor").style.display = "none";
+                    $scope.setMachineSettings($scope.actualSystem);
+                    swal("Edición completada!", {
+                        icon: "success",
+                    });
+                } else {
+                    swal("Edición cancelada!");
+                }
+            });
+    }
+
     $scope.editSensor = (sensor) => {
         $scope.actualSensor = sensor;
     }
@@ -1410,8 +1431,9 @@ app.controller("ControladorPrincipal", function ($scope) {
         if (plan.price == "0.00") {
             $scope.selectedPlaneRiego = plan;
             $scope.selectedPlaneRiego.plan.forEach((plan) => {
-                plan.day = plan.day.split("~")[0];
+                plan.day = plan.day && (typeof plan.day) == "number" ? parseInt(plan.day.split("~")[0]) : 0;
             });
+            $scope.selectedPlaneRiego.plan.sort((a, b) => a.day - b.day);
             M.Modal.getInstance($('#fichaTecnica')).open();
         } else {
             swal({
@@ -1439,7 +1461,7 @@ app.controller("ControladorPrincipal", function ($scope) {
             $scope.listPlanesRiego = cultivos.val();
             M.FormSelect.init(document.querySelectorAll('.select'));
             M.AutoInit();
-            // $scope.$apply();
+            $scope.$apply();
         });
     }
 
@@ -2088,6 +2110,10 @@ document.addEventListener('DOMContentLoaded', function () {
     // M.Dropdown.init(document.querySelectorAll('.dropdown-trigger'));
     M.AutoInit();
 });
+
+// document.addEventListener('click', function () {
+//     M.AutoInit();
+// });
 
 // #endregion Materializes
 
