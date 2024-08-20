@@ -66,7 +66,7 @@
 	function getDateTime($localZone) {
 		$zona = $localZone . ' hours';
 		$dateTime = new DateTime();
-		$dateTime->modify($zona);		// PHP Warning:  DateTime::modify(): Failed to parse time string ( hours) at position 0 (h): The timezone could not be found in the database
+		$dateTime->modify($zona);
 		return $dateTime;
 	}
 
@@ -79,7 +79,8 @@
         $index = $log ? end(array_keys($log)) : "";
         $status = $log ? $log[$index]->{'state'} : "";
 		$initialDate = $log ? $log[$index]->{'date'} : "";
-		return [$status, $index, $initialDate];
+		$activationTime = $log ? $log[$index]->{'activationTime'} : "";
+		return [$status, $index, $initialDate, $activationTime];
 	}
 
 	#endregion 3.- Comprobar estado anterior (Logs)
@@ -93,56 +94,58 @@
 		return $newHour;
 	}
 
-	function getValueOnSchedule($plot, $date, $time) {
-		if ($plot->schedule) {
-			// print_r("Timer: ");
-			foreach ($plot->schedule as $schedule) {
-				$newHour = getNewHour($schedule->time, $schedule->value ? $schedule->value : 0);
-				// print_r($schedule->time . "<=" . $time . "<" . $newHour . " => " . ($schedule->date == $date && $schedule->time <= $time && $time < $newHour) . " | ");
-				if ($schedule->date == $date && $schedule->time <= $time && $time < $newHour) {
-					return $schedule->value;
+	function getStatus($dataSettings, $localZone) {
+		$status = $dataSettings->status;
+		if ($status) {
+			$date = getDateTime($localZone)->format('Y-m-d');
+			$time = getDateTime($localZone)->format('H:i');
+			for ($i = 0; $i < $dataSettings->length; $i++) {
+				$p = "p" . $i;
+				$plot = $dataSettings->plots->$p;
+				if ($plot->irrigationPlan == 0) {
+					return "ON";
+				} elseif ($plot->schedule) {
+					// print_r("Status: ");
+					foreach ($plot->schedule as $schedule) {
+						$newHour = getNewHour($schedule->time, $schedule->value ? $schedule->value : 0);
+						// print_r($schedule->time . "<=" . $time . "<" . $newHour . " => " . ($schedule->date == $date && $schedule->time <= $time && $time < $newHour) . " | ");
+						if ($schedule->date == $date && $schedule->time <= $time && $time < $newHour) {
+							return "ON";
+						}
+					}
+					// print_r("\n\r");
 				}
 			}
+			return "OFF";
 		}
-		return 0;
+		return $status;
 	}
     
-	function getValueOnDemand($plot, $date, $time) {
-		return 0;
-	}
-    
-	function getValueWidthAI($plot, $date, $time) {
-		return 0;
-	}
-    
-	function sendSettings($dataSettings, $localZone) {
-		$sumOfValues = 0; 
+	function sendSettings($baseUrl, $dataSettings, $localZone, $activationTime) {
+		$status = getStatus($dataSettings, $localZone);
+		$lectura = "\"" . $status . "\"" . $dataSettings->length;
 		$date = getDateTime($localZone)->format('Y-m-d');
 		$time = getDateTime($localZone)->format('H:i');
-		$lectura_values = "";
 		for ($i = 0; $i < $dataSettings->length; $i++) {
 			$p = "p" . $i;
 			$plot = $dataSettings->plots->$p;
 			$value = 0;
-			switch ($plot->irrigationPlan) {
-				case 0:													// Riego manual
-					$value = $plot->forcedStart == 1 ? $plot->value : 0;
-					break;
-				case 1:													// Riego planificado
-					$value = getValueOnSchedule($plot, $date, $time);
-					break;
-				case 2:													// Riego a demanda
-					$value = getValueOnDemand($plot, $date, $time);
-					break;
-				case 3:													// Riego inteligente
-					$value = getValueWidthAI($plot, $date, $time);
-					break;
+			if ($plot->irrigationPlan == 0) {
+				$value = $plot->value;
+			} elseif ($status && $plot->schedule) {
+				// print_r("Timer: ");
+				foreach ($plot->schedule as $schedule) {
+					$newHour = getNewHour($schedule->time, $schedule->value ? $schedule->value : 0);
+					// print_r($schedule->time . "<=" . $time . "<" . $newHour . " => " . ($schedule->date == $date && $schedule->time <= $time && $time < $newHour) . " | ");
+					if ($schedule->date == $date && $schedule->time <= $time && $time < $newHour) {
+						$value = $schedule->value;
+					}
+				}
 			}
-			$sumOfValues += intval($value);
-			$lectura_values .= "\"" . $value . "\"" . $plot->valve;
+			$lectura .= "\"" . $value;
+			$lectura .= "\"" . $plot->valve;
 		}
-		$status = $sumOfValues == 0 ? "OFF" : "ON";
-		$lectura = "\"" . $status . "\"" . $dataSettings->length . $lectura_values . "\"";
+		$lectura .=  "\"";
 		print_r($lectura);
 	}
 
@@ -177,12 +180,12 @@
     #region 6.- Programa principal
 
 	function main() {
-		$baseUrl = config();                                                // 0. Configuración
-		$dataSettings = getcURLData($baseUrl . "settings.json");            // 1. Optener settings
-        $localZone = getLocalZone($dataSettings);                           // 2. Zona horaria
-		list($status, $index, $initialDate) = checkLastState($baseUrl);    	// 3. Estado anterior
-		sendSettings($dataSettings, $localZone);        					// 4. Enviar settings
-		updateLog($status, $index, $initialDate, $localZone, $baseUrl);     // 5. Actualizar estado
+		$baseUrl = config();                                                                // 0. Configuración
+		$dataSettings = getcURLData($baseUrl . "settings.json");                            // 1. Optener settings
+        $localZone = getLocalZone($dataSettings);                                           // 2. Zona horaria
+		list($status, $index, $initialDate, $activationTime) = checkLastState($baseUrl);    // 3. Estado anterior
+		sendSettings($baseUrl, $dataSettings, $localZone, $activationTime);                 // 4. Enviar settings
+		updateLog($status, $index, $initialDate, $localZone, $baseUrl);                     // 5. Actualizar estado
 	}
     
     #endregion 6.- Programa principal
