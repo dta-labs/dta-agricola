@@ -102,7 +102,9 @@
 			for ($i = 0; $i < $dataSettings->length; $i++) {
 				$p = "p" . $i;
 				$plot = $dataSettings->plots->$p;
-				if ($plot->schedule) {
+				if ($plot->irrigationPlan == 0) {
+					return "ON";
+				} elseif ($plot->schedule) {
 					// print_r("Status: ");
 					foreach ($plot->schedule as $schedule) {
 						$newHour = getNewHour($schedule->time, $schedule->value ? $schedule->value : 0);
@@ -128,7 +130,9 @@
 			$p = "p" . $i;
 			$plot = $dataSettings->plots->$p;
 			$value = 0;
-			if ($status && $plot->schedule) {
+			if ($plot->irrigationPlan == 0) {
+				$value = $plot->value;
+			} elseif ($status && $plot->schedule) {
 				// print_r("Timer: ");
 				foreach ($plot->schedule as $schedule) {
 					$newHour = getNewHour($schedule->time, $schedule->value ? $schedule->value : 0);
