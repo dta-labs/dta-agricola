@@ -297,10 +297,7 @@ app.controller("ControladorPrincipal", function ($scope) {
                     document.getElementById('pos_' + locationKey).style.transform = 'rotate(' + position + 'deg)';
                 }
                 updateCompass();
-                // showAlert(locationKey, log);
                 hideSpinner(locationKey, log.state);
-                // if ($scope.actualSystem && locationKey == $scope.actualSystem.key) { $scope.selectSystem($scope.systems[locationKey]); }
-                // if (registers == 1000) { invertLog() }
                 invertLog();
                 setDeviceSpecificData();
                 // $scope.$apply();
@@ -509,6 +506,7 @@ app.controller("ControladorPrincipal", function ($scope) {
                 .then((confirm) => {
                     if (confirm) {
                         $scope.actualSystem.status = false;
+                        stopStationarySystem();
                         $scope.setMachineState();
                         hideHourglass();
                         $scope.setMachineSettings($scope.actualSystem);
@@ -519,6 +517,15 @@ app.controller("ControladorPrincipal", function ($scope) {
                         swal("No se inició el riego!");
                     }
                 });
+        }
+    }
+
+    stopStationarySystem = () => {
+        if ($scope.actualSystem.plots) {
+            for (plot in $scope.actualSystem.plots) {
+                $scope.actualSystem.plots[plot].irrigationPlan = 0;
+                $scope.actualSystem.plots[plot].forcedStart = -1;
+            }
         }
     }
 
@@ -1094,23 +1101,6 @@ app.controller("ControladorPrincipal", function ($scope) {
     selectProgram = (programId) => {
         let plot = document.getElementById("planEstacionarioId").value;
         $scope.actualSystem.plots[plot]["irrigationPlan"] =  programId;
-        // switch (programId) {
-        //     case "1":
-        //         $scope.actualSystem.autoreverse = false;
-        //         $scope.actualSystem.isScheduled = false;
-        //         break;
-        //     case "2":
-        //         $scope.actualSystem.autoreverse = true;
-        //         $scope.actualSystem.isScheduled = false;
-        //         break;
-        //     case "3":
-        //         $scope.actualSystem.autoreverse = false;
-        //         $scope.actualSystem.isScheduled = true;
-        //         break;
-        //     default:
-        //         $scope.actualSystem.autoreverse = false;
-        //         $scope.actualSystem.isScheduled = false;
-        // }
         $scope.setMachineSettings($scope.actualSystem);
         // $scope.$apply();
     }
@@ -1314,6 +1304,7 @@ app.controller("ControladorPrincipal", function ($scope) {
     }
     
     $scope.startPlotIrrigation = () => {
+        $scope.actualSystem.status = true;
         let plot = $scope.actualSystem.plots[$scope.editedPlan];
         plot["forcedStart"] = 1;
         $scope.setMachineSettings($scope.actualSystem);
@@ -1323,15 +1314,24 @@ app.controller("ControladorPrincipal", function ($scope) {
     $scope.stopPlotIrrigation = () => {
         let plot = $scope.actualSystem.plots[$scope.editedPlan];
         plot["forcedStart"] = -1;
+        setStatusOFF();
         $scope.setMachineSettings($scope.actualSystem);
         initializeSystemMap($scope.actualSystem);
     }
 
-    $scope.isPlotActive = (index) => {
+    setStatusOFF = () => {
+        actualStatus = 0;
+        for (plot in $scope.actualSystem.plots) {
+            actualStatus |= $scope.actualSystem.plots[plot].forcedStart == 1 ? 1 : 0;
+        }
+        $scope.actualSystem.status = actualStatus;
+    }
+
+    $scope.isPlotActive = (system, index) => {
         let active = false;
-        if (index && $scope.actualSystem["plots"]) {
+        if (index && system["plots"]) {
             let dateTime = getDateAndTime();
-            let plot = $scope.actualSystem.plots[index];
+            let plot = system.plots[index];
             if (plot) {
                 if (plot.forcedStart && plot.forcedStart == 1) {
                     active = true;
@@ -1431,7 +1431,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         if (plan.price == "0.00") {
             $scope.selectedPlaneRiego = plan;
             $scope.selectedPlaneRiego.plan.forEach((plan) => {
-                plan.day = plan.day && (typeof plan.day) == "number" ? parseInt(plan.day.split("~")[0]) : 0;
+                plan.day = plan.day && (typeof plan.day) != "number" ? parseInt(plan.day.split("~")[0]) : 0;
             });
             $scope.selectedPlaneRiego.plan.sort((a, b) => a.day - b.day);
             M.Modal.getInstance($('#fichaTecnica')).open();
@@ -1778,7 +1778,7 @@ app.controller("ControladorPrincipal", function ($scope) {
                     if (poligons[campo.key + idx]) {
                         map.removeLayer(poligons[campo.key + idx]);
                     }
-                    let color = $scope.isPlotActive("p" + i) ? "lightgreen" : "blue";
+                    let color = $scope.isPlotActive(campo, "p" + i) ? "lightgreen" : "blue";
                     // let color = campo.position == i ? "lightgreen" : "blue";
                     poligons[campo.key + idx] = L.polygon(newPoligon, { color: color });
                     // poligons[campo.key + idx].bindPopup("<a class='modal-trigger' href='#modalConfig' style='color: black;'>" + campo.plots[idx].name + "</a>");
