@@ -31,7 +31,7 @@
 .left_col {
   width: 100%;
   position: relative;
-  height: calc(100vh - 5px);
+  height: calc(100vh - 15px);
 }
 
 

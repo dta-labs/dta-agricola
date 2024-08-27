@@ -66,7 +66,7 @@
 
             <!-- #region: MENU PC -->
 
-            <div class="col s0 m3 l2 show-in-pc-only" style="height: 100%; font-size: .8em;">
+            <div class="col s0 m3 l2 show-in-pc-only" style="height: 100%; font-size: .8em; padding: 10px 0;">
                 <div class="left_col">
                     <div class="main-menu">
 
@@ -554,7 +554,7 @@
                         <section id="sistema" ng-show="selectedWindow == 'sistema'">
 
                             <!-- Ventana principal -->
-                            <div class="container" style="width: 100% !important;"> 
+                            <div class="" style="width: 100% !important;"> 
 
                                 <div class="show-in-mobil-only" style="margin-top: 50px !important;"></div>
 
@@ -675,8 +675,31 @@
                                                 <!-- Status General -->
                                                 <!-- Status Movimiento continuo -->
                                                 <div class="row statusBar hide-on-med-and-up" style="margin-left: 12%; position: fixed; top: 310px;">
-                                                    <div class="col s12">
-                                                        <table style="background: #0000003d;">
+                                                    <div class="col s12 row">
+                                                        <div class="col" style="text-align: center;">
+                                                            <i class="material-icons"
+                                                                style="margin-top: 3px; color: {{ (actualSystem.log.safety == 'true') ? 'white' : 'red' }};">
+                                                                {{ (actualSystem.log.safety == "true") ? 'verified_user' : 'do_not_disturb_alt' }}
+                                                            </i><br>
+                                                            <b>Seguridad</b>
+                                                        </td>
+                                                        <ddivclass="col" style="text-align: center;">
+                                                            <i class="material-icons"
+                                                                style="margin-top: 3px; color: {{ (actualSystem.log.reception == 'Ok' && actualSystem.log.commDelay == '-1') ? 'white' : 'red' }};">
+                                                                {{ (actualSystem.log.reception == 'Ok' &&
+                                                                actualSystem.log.commDelay == '-1') ? 'phonelink_ring' : 'do_not_disturb_alt' }}
+                                                            </i><br>
+                                                            <b>Conexión</b>
+                                                        </div>
+                                                        <div class="col" style="text-align: center;">
+                                                            <i class="material-icons"
+                                                                style="margin-top: 3px; color: {{ (actualSystem.log.latitude != '0.00000' && actualSystem.log.longitude != '0.00000') ? 'white' : 'red' }};">
+                                                                {{ (actualSystem.log.latitude != '0.00000' &&
+                                                                actualSystem.log.longitude != '0.00000') ? 'satellite' : 'do_not_disturb_alt' }}
+                                                            </i><br>
+                                                            <b>GPS</b>
+                                                        </div>
+                                                        <!-- <table style="background: #0000003d;">
                                                             <tr>
                                                                 <td colspan="4" style="text-align: center;">
                                                                     <i class="material-icons"
@@ -702,7 +725,7 @@
                                                                     <b>GPS</b>
                                                                 </td>
                                                             </tr>
-                                                        </table>
+                                                        </table> -->
                                                     </div>
                                                 </div>
                                                 <div class="row statusBar hide-on-med-and-up" style="width: 100%;">
