@@ -1697,7 +1697,7 @@ app.controller("ControladorPrincipal", function ($scope) {
     initializeSystemMap = (system) => {
         if (system.latitude != "NaN" && system.longitude != "NaN") {
             let coord = [system.latitude, system.longitude];
-            map.setView(coord, 15);
+            map.setView(coord, 16);
             //geoLocation(system.key);
             addMarker(system);
             addShape(system);
