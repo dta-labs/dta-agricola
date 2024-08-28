@@ -304,6 +304,13 @@ body {
   font-size: 2em;
 }
 
+.systemStatusBar  {
+  border: 2px solid lightgray;
+  border-radius: 10px;
+  width: 95% !important;
+  background: #fafafa;
+}
+
 .sercices-options {
   box-shadow: 1px 1px 3px grey;
   margin-bottom: 10px;

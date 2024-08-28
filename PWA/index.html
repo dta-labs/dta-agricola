@@ -655,6 +655,7 @@
                                             style="margin-bottom: 0; margin-top: 0;">
                                                 <!-- Controles -->
                                                 <div class="row hide-on-small-only" style="margin-bottom: 0px; font-size: 2em !important;">
+                                                    <div class="col s12 center-align" style="font-size: 0.75em; margin-bottom: 10px;"><b>Sistema</b></div>
                                                     <div class="col s3 center-align" ng-click="playBackward()"
                                                         ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'"
                                                         style="border: 2px solid grey; border-radius: 5px 0 0 5px; background: {{ actualSystem.status && !actualSystem.direction ? '#04d604' : 'transparent' }}">
@@ -676,30 +677,7 @@
                                                 <!-- Status Movimiento continuo -->
                                                 <div class="row statusBar hide-on-med-and-up" style="margin-left: 12%; position: fixed; top: 310px;">
                                                     <div class="col s12 row">
-                                                        <div class="col" style="text-align: center;">
-                                                            <i class="material-icons"
-                                                                style="margin-top: 3px; color: {{ (actualSystem.log.safety == 'true') ? 'white' : 'red' }};">
-                                                                {{ (actualSystem.log.safety == "true") ? 'verified_user' : 'do_not_disturb_alt' }}
-                                                            </i><br>
-                                                            <b>Seguridad</b>
-                                                        </td>
-                                                        <ddivclass="col" style="text-align: center;">
-                                                            <i class="material-icons"
-                                                                style="margin-top: 3px; color: {{ (actualSystem.log.reception == 'Ok' && actualSystem.log.commDelay == '-1') ? 'white' : 'red' }};">
-                                                                {{ (actualSystem.log.reception == 'Ok' &&
-                                                                actualSystem.log.commDelay == '-1') ? 'phonelink_ring' : 'do_not_disturb_alt' }}
-                                                            </i><br>
-                                                            <b>Conexión</b>
-                                                        </div>
-                                                        <div class="col" style="text-align: center;">
-                                                            <i class="material-icons"
-                                                                style="margin-top: 3px; color: {{ (actualSystem.log.latitude != '0.00000' && actualSystem.log.longitude != '0.00000') ? 'white' : 'red' }};">
-                                                                {{ (actualSystem.log.latitude != '0.00000' &&
-                                                                actualSystem.log.longitude != '0.00000') ? 'satellite' : 'do_not_disturb_alt' }}
-                                                            </i><br>
-                                                            <b>GPS</b>
-                                                        </div>
-                                                        <!-- <table style="background: #0000003d;">
+                                                        <table style="background: #0000003d;">
                                                             <tr>
                                                                 <td colspan="4" style="text-align: center;">
                                                                     <i class="material-icons"
@@ -725,7 +703,7 @@
                                                                     <b>GPS</b>
                                                                 </td>
                                                             </tr>
-                                                        </table> -->
+                                                        </table>
                                                     </div>
                                                 </div>
                                                 <div class="row statusBar hide-on-med-and-up" style="width: 100%;">
@@ -764,72 +742,113 @@
                                                         </table>
                                                     </div>
                                                 </div>
-                                                <div class="row hide-on-small-only" style="margin-top: 30px; width: 95%;">
-                                                    <div class="col s12">
-                                                        <table>
-                                                            <tr>
-                                                                <td colspan="2" class="valign-wrapper" style="text-align: left;" style="margin-top: 30px;">
-                                                                    <i class="material-icons"
-                                                                        style="margin-top: 3px; color: {{ (actualSystem.log.safety == 'true') ? 'green' : 'red' }};">
-                                                                        {{ (actualSystem.log.safety == "true") ? 'verified_user' : 'do_not_disturb_alt' }}
-                                                                    </i>&nbsp;
-                                                                    <b>Seguridad</b>
-                                                                </td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td colspan="2" class="valign-wrapper" style="text-align: left;">
-                                                                    <i class="material-icons"
-                                                                        style="margin-top: 3px; color: {{ (actualSystem.log.reception == 'Ok' && actualSystem.log.commDelay == '-1') ? 'green' : 'red' }};">
-                                                                        {{ (actualSystem.log.reception == 'Ok' &&
-                                                                        actualSystem.log.commDelay == '-1') ? 'phonelink_ring' : 'do_not_disturb_alt' }}
-                                                                    </i>&nbsp;
-                                                                    <b>Conexión</b>
-                                                                </td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td colspan="2" class="valign-wrapper" style="text-align: left;">
-                                                                    <i class="material-icons"
-                                                                        style="margin-top: 3px; color: {{ (actualSystem.log.latitude != '0.00000' && actualSystem.log.longitude != '0.00000') ? 'green' : 'red' }};">
-                                                                        {{ (actualSystem.log.latitude != '0.00000' &&
-                                                                        actualSystem.log.longitude != '0.00000') ? 'satellite' : 'do_not_disturb_alt' }}
-                                                                    </i>&nbsp;
-                                                                    <b>GPS</b>
-                                                                </td>
-                                                            </tr>
+                                                <div class="row hide-on-small-only" style="margin-top: 10px;">
+                                                    <div class="col s12 systemStatusBar">
+                                                        <table style="color: grey">
                                                             <tr>
                                                                 <td colspan="2" style="text-align: center;">
-                                                                    <div class="center-align"><i
-                                                                        class="material-icons">network_check</i>
-                                                                    </div>
-                                                                    <b>{{ actualSystem.log.speed ? actualSystem.log.speed : 0 }}</b>%
+                                                                    <i class="material-icons" style="font-size: xx-large;">network_check</i>
+                                                                    <span style="font-size: xxx-large;"><b>{{ actualSystem.log.speed ? actualSystem.log.speed : 0 }}</b>%</span>
                                                                 </td>
                                                             </tr>
                                                             <tr>
                                                                 <td style="text-align: center; width: 50%;">
-                                                                    <div class="center-align"><i
-                                                                        class="material-icons">near_me</i></div>
-                                                                    <b>{{ actualSystem.log.position ? actualSystem.log.position : 0 }}</b>°
+                                                                    <i class="material-icons">near_me</i>
+                                                                    <span style="font-size: xx-large;">{{ actualSystem.log.position ? actualSystem.log.position : 0 }}°</span>
                                                                 </td>
                                                                 <td style="text-align: center; width: 50%;">
-                                                                    <div class="center-align"><i
-                                                                        class="material-icons">search</i></div>
-                                                                    <b>{{ actualSystem.log.error ? actualSystem.log.error : 0 }}</b>cm        
+                                                                    <i class="material-icons">search</i>
+                                                                    <span style="font-size: xx-large;">{{ actualSystem.log.error ? actualSystem.log.error : 0 }}</span>cm
                                                                 </td>
                                                             </tr>
                                                             <tr>
                                                                 <td style="text-align: center; width: 50%;">
-                                                                    <div class="center-align"><i class="fa fa-tint"
+                                                                    <i class="fa fa-tint"
                                                                         aria-hidden="true"
-                                                                        style="font-size: 1.7em; margin: 2px 0 3px 0;"></i></div>
-                                                                    <b>{{ actualSystem.log.presion ? (actualSystem.log.presion | number : 1) : 0 }}</b>psi        
+                                                                        style="font-size: 1.7em; margin: 2px 0 3px 0;"></i>
+                                                                    <span style="font-size: xx-large;">{{ actualSystem.log.presion ? (actualSystem.log.presion | number : 1) : 0 }}</span>psi
                                                                 </td>
                                                                 <td style="text-align: center; width: 50%;">
-                                                                    <div class="center-align"><i
-                                                                        class="material-icons">rss_feed</i>
-                                                                    </div>
-                                                                    <b>{{ actualSystem.log.signal ? (actualSystem.log.signal * 100 / 30 | number : 0) : 0 }}</b>%        
+                                                                    <i class="material-icons">rss_feed</i>
+                                                                    <span style="font-size: xx-large;">{{ actualSystem.log.signal ? (actualSystem.log.signal * 100 / 30 | number : 0) : 0 }}</span>%
                                                                 </td>
                                                             </tr>
+                                                        </table>
+                                                    </div>
+                                                    <div class="col s12 center-align" style="font-size: 1.5em; margin-bottom: 10px;"><b>Alertas</b></div>
+                                                    <div class="col s12 row systemStatusBar" style="margin-bottom: 0;">
+                                                        <div class="col s4">
+                                                            <i class="material-icons"
+                                                                style="margin-top: 3px; color: {{ (actualSystem.log.safety == 'true') ? 'green' : 'red' }};">
+                                                                {{ (actualSystem.log.safety == "true") ? 'verified_user' : 'do_not_disturb_alt' }}
+                                                            </i><br>
+                                                            Seguridad
+                                                        </div>
+                                                        <div class="col s4">
+                                                            <i class="material-icons"
+                                                                style="margin-top: 3px; color: {{ (actualSystem.log.reception == 'Ok' && actualSystem.log.commDelay == '-1') ? 'green' : 'red' }};">
+                                                                {{ (actualSystem.log.reception == 'Ok' &&
+                                                                actualSystem.log.commDelay == '-1') ? 'phonelink_ring' : 'do_not_disturb_alt' }}
+                                                            </i><br>
+                                                            Conexión
+                                                        </div>
+                                                        <div class="col s4">
+                                                            <i class="material-icons"
+                                                                style="margin-top: 3px; color: {{ (actualSystem.log.latitude != '0.00000' && actualSystem.log.longitude != '0.00000') ? 'green' : 'red' }};">
+                                                                {{ (actualSystem.log.latitude != '0.00000' &&
+                                                                actualSystem.log.longitude != '0.00000') ? 'satellite' : 'do_not_disturb_alt' }}
+                                                            </i><br>
+                                                            GPS
+                                                        </div>
+                                                    </div>
+                                                    <div class="col s12 center-align" style="font-size: 1.5em; margin-bottom: 10px;"><b>Clima</b></div>
+                                                    <div class="col s12 systemStatusBar">
+                                                        <table>
+                                                            <tr style="color: grey;">
+                                                                <td>
+                                                                    <span style="font-size: xx-small;">Humedad relativa</span><br>
+                                                                    <span style="font-size: 2.5em;">{{ meteo[actualSystem.key].main.humidity }}%</span>
+                                                                </td>
+                                                                <td>
+                                                                    <span style="font-size: xx-small;">Velocidad del viento</span><br>
+                                                                    <table>
+                                                                        <tr>
+                                                                            <td>
+                                                                                <span style="font-size: small;">{{ meteo[actualSystem.key].wind.speed | number : 0}}km/h</span><br>
+                                                                                <span style="font-size: xx-small;">Velocidad</span><br>
+                                                                            </td>
+                                                                            <td>
+                                                                                <span style="font-size: small;">{{ meteo[actualSystem.key].wind.deg | number : 0}}°</span><br>
+                                                                                <span style="font-size: xx-small;">Dirección</span><br>
+                                                                            </td>
+                                                                            <td>
+                                                                                <span style="font-size: small;">{{ meteo[actualSystem.key].wind.gust | number : 0}}km/h</span><br>
+                                                                                <span style="font-size: xx-small;">Ráfagas</span><br>
+                                                                            </td>
+                                                                        </tr>
+                                                                    </table>
+                                                                </td>
+                                                                <td>
+                                                                    <span style="font-size: xx-small;">Nubosidad</span><br>
+                                                                    <img src="{{ meteo[actualSystem.key].weather.iconUrl }}" alt="Weather icon"
+                                                                    ng-if="meteo[actualSystem.key].weather.iconUrl" style="margin-top: -10px;">
+                                                                    <p style="font-size: x-small; margin-top: -10px;">{{ meteo[actualSystem.key].clouds.all | number : 0}}%</p>
+                                                                </td>
+                                                            </tr>
+                                                            <!-- <tr>
+                                                                <td>
+                                                                    <span style="font-size: xx-small;">Salida del sol</span><br>
+                                                                    <span style="font-size: small;">{{ meteo[actualSystem.key].sys.sunrise | number : 0}}</span><br>
+                                                                    <span style="font-size: xx-small;">spanuesta del sol</span><br>
+                                                                    <span style="font-size: small;">{{ meteo[actualSystem.key].sys.sunset | number : 0}}</span><br>
+                                                                </td>
+                                                                <td colspan="2">
+                                                                    <span style="font-size: xx-small;">Temperatura</span><br>
+                                                                    <span style="font-size: small;">{{ meteo[actualSystem.key].main.temp - 273.15 | number : 0}}°C</span><br>
+                                                                    <span style="font-size: xx-small;">Presión</span><br>
+                                                                    <span style="font-size: small;">{{ meteo[actualSystem.key].main.pressure | number : 0}}hPa</span><br>
+                                                                </td>
+                                                            </tr> -->
                                                         </table>
                                                     </div>
                                                 </div>
@@ -840,11 +859,12 @@
                                             style="margin-bottom: 0; margin-top: 0;">
                                                 <!-- Controles -->
                                                 <div class="row hide-on-small-only" style="margin-bottom: 0px; font-size: 2em !important;">
+                                                    <div class="col s12 center-align" style="font-size: 0.75em; margin-bottom: 10px;"><b>Sistema</b></div>
                                                     <div class="col s3 center-align" ng-click="playBackward()"
                                                         ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'"
                                                         style="border: 2px solid grey; border-radius: 5px 0 0 5px; background: {{ actualSystem.status && !actualSystem.direction ? '#04d604' : 'transparent' }}">
-                                                        <i class="large material-icons"
-                                                         style="color: {{ actualSystem.status && !actualSystem.direction ? 'white' : 'grey' }};">flip</i>
+                                                        <i class="fa fa-reply" aria-hidden="true"
+                                                            style="color: {{ actualSystem.status && !actualSystem.direction ? 'white' : 'grey' }};"></i>
                                                     </div>
                                                     <div class="col s5 center-align" ng-click="stopSystem()"
                                                         style="border: 2px solid grey; margin: 0 2px; background: {{ actualSystem.status ? 'transparent' : 'red' }}">
@@ -926,72 +946,113 @@
                                                         </table>
                                                     </div>
                                                 </div>
-                                                <div class="row hide-on-small-only" style="margin-top: 30px; width: 95%;">
-                                                    <div class="col s12">
-                                                        <table>
-                                                            <tr>
-                                                                <td colspan="2" class="valign-wrapper" style="text-align: left;" style="margin-top: 30px;">
-                                                                    <i class="material-icons"
-                                                                        style="margin-top: 3px; color: {{ (actualSystem.log.safety == 'true') ? 'green' : 'red' }};">
-                                                                        {{ (actualSystem.log.safety == "true") ? 'verified_user' : 'do_not_disturb_alt' }}
-                                                                    </i>&nbsp;
-                                                                    <b>Seguridad</b>
-                                                                </td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td colspan="2" class="valign-wrapper" style="text-align: left;">
-                                                                    <i class="material-icons"
-                                                                        style="margin-top: 3px; color: {{ (actualSystem.log.reception == 'Ok' && actualSystem.log.commDelay == '-1') ? 'green' : 'red' }};">
-                                                                        {{ (actualSystem.log.reception == 'Ok' &&
-                                                                        actualSystem.log.commDelay == '-1') ? 'phonelink_ring' : 'do_not_disturb_alt' }}
-                                                                    </i>&nbsp;
-                                                                    <b>Conexión</b>
-                                                                </td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td colspan="2" class="valign-wrapper" style="text-align: left;">
-                                                                    <i class="material-icons"
-                                                                        style="margin-top: 3px; color: {{ (actualSystem.log.latitude != '0.00000' && actualSystem.log.longitude != '0.00000') ? 'green' : 'red' }};">
-                                                                        {{ (actualSystem.log.latitude != '0.00000' &&
-                                                                        actualSystem.log.longitude != '0.00000') ? 'satellite' : 'do_not_disturb_alt' }}
-                                                                    </i>&nbsp;
-                                                                    <b>GPS</b>
-                                                                </td>
-                                                            </tr>
+                                                <div class="row hide-on-small-only" style="margin-top: 10px;">
+                                                    <div class="col s12 systemStatusBar">
+                                                        <table style="color: grey">
                                                             <tr>
                                                                 <td colspan="2" style="text-align: center;">
-                                                                    <div class="center-align"><i
-                                                                        class="material-icons">network_check</i>
-                                                                    </div>
-                                                                    <b>{{ actualSystem.log.speed ? actualSystem.log.speed : 0 }}</b>%
+                                                                    <i class="material-icons" style="font-size: xx-large;">network_check</i>
+                                                                    <span style="font-size: xxx-large;"><b>{{ actualSystem.log.speed ? actualSystem.log.speed : 0 }}</b>%</span>
                                                                 </td>
                                                             </tr>
                                                             <tr>
                                                                 <td style="text-align: center; width: 50%;">
-                                                                    <div class="center-align"><i
-                                                                        class="material-icons">near_me</i></div>
-                                                                    <b>{{ actualSystem.log.position ? actualSystem.log.position : 0 }}</b>°
+                                                                    <i class="material-icons">near_me</i>
+                                                                    <span style="font-size: xx-large;">{{ actualSystem.log.position ? actualSystem.log.position : 0 }}°</span>
                                                                 </td>
                                                                 <td style="text-align: center; width: 50%;">
-                                                                    <div class="center-align"><i
-                                                                        class="material-icons">search</i></div>
-                                                                    <b>{{ actualSystem.log.error ? actualSystem.log.error : 0 }}</b>cm        
+                                                                    <i class="material-icons">search</i>
+                                                                    <span style="font-size: xx-large;">{{ actualSystem.log.error ? actualSystem.log.error : 0 }}</span>cm
                                                                 </td>
                                                             </tr>
                                                             <tr>
                                                                 <td style="text-align: center; width: 50%;">
-                                                                    <div class="center-align"><i class="fa fa-tint"
+                                                                    <i class="fa fa-tint"
                                                                         aria-hidden="true"
-                                                                        style="font-size: 1.7em; margin: 2px 0 3px 0;"></i></div>
-                                                                    <b>{{ actualSystem.log.presion ? (actualSystem.log.presion | number : 1) : 0 }}</b>psi        
+                                                                        style="font-size: 1.7em; margin: 2px 0 3px 0;"></i>
+                                                                    <span style="font-size: xx-large;">{{ actualSystem.log.presion ? (actualSystem.log.presion | number : 1) : 0 }}</span>psi
                                                                 </td>
                                                                 <td style="text-align: center; width: 50%;">
-                                                                    <div class="center-align"><i
-                                                                        class="material-icons">rss_feed</i>
-                                                                    </div>
-                                                                    <b>{{ actualSystem.log.signal ? (actualSystem.log.signal * 100 / 30 | number : 0) : 0 }}</b>%        
+                                                                    <i class="material-icons">rss_feed</i>
+                                                                    <span style="font-size: xx-large;">{{ actualSystem.log.signal ? (actualSystem.log.signal * 100 / 30 | number : 0) : 0 }}</span>%
                                                                 </td>
                                                             </tr>
+                                                        </table>
+                                                    </div>
+                                                    <div class="col s12 center-align" style="font-size: 1.5em; margin-bottom: 10px;"><b>Alertas</b></div>
+                                                    <div class="col s12 row systemStatusBar" style="margin-bottom: 0;">
+                                                        <div class="col s4">
+                                                            <i class="material-icons"
+                                                                style="margin-top: 3px; color: {{ (actualSystem.log.safety == 'true') ? 'green' : 'red' }};">
+                                                                {{ (actualSystem.log.safety == "true") ? 'verified_user' : 'do_not_disturb_alt' }}
+                                                            </i><br>
+                                                            Seguridad
+                                                        </div>
+                                                        <div class="col s4">
+                                                            <i class="material-icons"
+                                                                style="margin-top: 3px; color: {{ (actualSystem.log.reception == 'Ok' && actualSystem.log.commDelay == '-1') ? 'green' : 'red' }};">
+                                                                {{ (actualSystem.log.reception == 'Ok' &&
+                                                                actualSystem.log.commDelay == '-1') ? 'phonelink_ring' : 'do_not_disturb_alt' }}
+                                                            </i><br>
+                                                            Conexión
+                                                        </div>
+                                                        <div class="col s4">
+                                                            <i class="material-icons"
+                                                                style="margin-top: 3px; color: {{ (actualSystem.log.latitude != '0.00000' && actualSystem.log.longitude != '0.00000') ? 'green' : 'red' }};">
+                                                                {{ (actualSystem.log.latitude != '0.00000' &&
+                                                                actualSystem.log.longitude != '0.00000') ? 'satellite' : 'do_not_disturb_alt' }}
+                                                            </i><br>
+                                                            GPS
+                                                        </div>
+                                                    </div>
+                                                    <div class="col s12 center-align" style="font-size: 1.5em; margin-bottom: 10px;"><b>Clima</b></div>
+                                                    <div class="col s12 systemStatusBar">
+                                                        <table>
+                                                            <tr style="color: grey;">
+                                                                <td>
+                                                                    <span style="font-size: xx-small;">Humedad relativa</span><br>
+                                                                    <span style="font-size: 2.5em;">{{ meteo[actualSystem.key].main.humidity }}%</span>
+                                                                </td>
+                                                                <td>
+                                                                    <span style="font-size: xx-small;">Velocidad del viento</span><br>
+                                                                    <table>
+                                                                        <tr>
+                                                                            <td>
+                                                                                <span style="font-size: small;">{{ meteo[actualSystem.key].wind.speed | number : 0}}km/h</span><br>
+                                                                                <span style="font-size: xx-small;">Velocidad</span><br>
+                                                                            </td>
+                                                                            <td>
+                                                                                <span style="font-size: small;">{{ meteo[actualSystem.key].wind.deg | number : 0}}°</span><br>
+                                                                                <span style="font-size: xx-small;">Dirección</span><br>
+                                                                            </td>
+                                                                            <td>
+                                                                                <span style="font-size: small;">{{ meteo[actualSystem.key].wind.gust | number : 0}}km/h</span><br>
+                                                                                <span style="font-size: xx-small;">Ráfagas</span><br>
+                                                                            </td>
+                                                                        </tr>
+                                                                    </table>
+                                                                </td>
+                                                                <td>
+                                                                    <span style="font-size: xx-small;">Nubosidad</span><br>
+                                                                    <img src="{{ meteo[actualSystem.key].weather.iconUrl }}" alt="Weather icon"
+                                                                    ng-if="meteo[actualSystem.key].weather.iconUrl" style="margin-top: -10px;">
+                                                                    <p style="font-size: x-small; margin-top: -10px;">{{ meteo[actualSystem.key].clouds.all | number : 0}}%</p>
+                                                                </td>
+                                                            </tr>
+                                                            <!-- <tr>
+                                                                <td>
+                                                                    <span style="font-size: xx-small;">Salida del sol</span><br>
+                                                                    <span style="font-size: small;">{{ meteo[actualSystem.key].sys.sunrise | number : 0}}</span><br>
+                                                                    <span style="font-size: xx-small;">spanuesta del sol</span><br>
+                                                                    <span style="font-size: small;">{{ meteo[actualSystem.key].sys.sunset | number : 0}}</span><br>
+                                                                </td>
+                                                                <td colspan="2">
+                                                                    <span style="font-size: xx-small;">Temperatura</span><br>
+                                                                    <span style="font-size: small;">{{ meteo[actualSystem.key].main.temp - 273.15 | number : 0}}°C</span><br>
+                                                                    <span style="font-size: xx-small;">Presión</span><br>
+                                                                    <span style="font-size: small;">{{ meteo[actualSystem.key].main.pressure | number : 0}}hPa</span><br>
+                                                                </td>
+                                                            </tr> -->
                                                         </table>
                                                     </div>
                                                 </div>
@@ -1001,21 +1062,21 @@
                                             <div class="col s12 m4" ng-show="actualSystem.type == 'Estacionario'" style="margin-bottom: 0;">
                                                 <!-- Controles y Variables -->
                                                 <div class="row hide-on-small-only" style="margin-bottom: 0;"> <!-- Control -->
-                                                    <div class="row" style="margin-bottom: 0px;">
-                                                        <div class="col m12" style="font-size: 2em !important;">
-                                                            <div class="center-align" ng-click="stopSystem()"
-                                                                ng-show="actualSystem.type == 'Estacionario'"
-                                                                style="border: 2px solid grey; margin: 0 2px; border-radius: 5px; cursor: pointer; background: {{ actualSystem.status ? 'red' : 'transparent' }}">
-                                                                <i class="fa fa-stop" aria-hidden="true"
-                                                                    style="color: {{ actualSystem.status ? 'white' : 'grey' }};"></i>
-                                                            </div>
-                                                            <!-- <div class="col s5 center-align" ng-click="playForward()"
-                                                                ng-show="actualSystem.type == 'Estacionario'"
-                                                                style="border: 2px solid grey; border-radius: 0 5px 5px 0; background: {{ actualSystem.status && actualSystem.direction ? '#04d604' : 'transparent' }}">
-                                                                <i class="fa fa-play" aria-hidden="true"
-                                                                    style="color: {{ actualSystem.status && actualSystem.direction ? 'white' : 'grey' }};"></i>
-                                                            </div> -->
+                                                    <div class="col s12 center-align" style="font-size: 1.5em; margin-bottom: 10px;"><b>Sistema</b></div>                                                        
+                                                    <div class="col s12 center-align" style="font-size: 2em !important; margin-bottom: 10px;">
+                                                        <div class="center-align" ng-click="stopSystem()"
+                                                            ng-show="actualSystem.type == 'Estacionario'"
+                                                            style="border: 2px solid grey; margin: 0 2px; border-radius: 5px; cursor: pointer; 
+                                                                    background: {{ actualSystem.status ? 'red' : 'transparent' }}">
+                                                            <i class="fa fa-stop" aria-hidden="true"
+                                                                style="color: {{ actualSystem.status ? 'white' : 'grey' }};"></i>
                                                         </div>
+                                                        <!-- <div class="col s5 center-align" ng-click="playForward()"
+                                                            ng-show="actualSystem.type == 'Estacionario'"
+                                                            style="border: 2px solid grey; border-radius: 0 5px 5px 0; background: {{ actualSystem.status && actualSystem.direction ? '#04d604' : 'transparent' }}">
+                                                            <i class="fa fa-play" aria-hidden="true"
+                                                                style="color: {{ actualSystem.status && actualSystem.direction ? 'white' : 'grey' }};"></i>
+                                                        </div> -->
                                                     </div>
                                                 </div>
                                                 <!-- Status General -->
@@ -1056,10 +1117,28 @@
                                                             </tr>
                                                         </table>
                                                     </div>
+                                                    <div class="col s12 center-align" style="font-size: 1.5em; margin-bottom: 10px;"><b>Clima</b></div>
                                                 </div>
                                                 <div class="row hide-on-small-only" style="margin-bottom: 0;">
                                                     <div class="col s12" style="margin-bottom: 0; height: calc(100vh - 300px); overflow: auto;">
                                                         <table> <!-- Estado -->
+                                                            <tr style="font-size: x-small; color: grey; font-weight: bold;">
+                                                                <td class="modal-trigger" style="text-align: left; width: 10%;">
+                                                                    No.
+                                                                </td>
+                                                                <td class="modal-trigger" style="text-align: left; width: 50%;">
+                                                                    Parcela
+                                                                </td>
+                                                                <td class="modal-trigger" style="text-align: left; width: 40%;">
+                                                                    Tiempo
+                                                                </td>
+                                                                <td class="modal-trigger" style="text-align: left; width: 40%;">
+                                                                    Tipo
+                                                                </td>
+                                                                <td class="modal-trigger" style="text-align: left; width: 40%;">
+                                                                    Acción
+                                                                </td>
+                                                            </tr>
                                                             <tr ng-repeat="plot in actualSystem.plots" 
                                                                 style="color: {{ isPlotActive(actualSystem, 'p' + $index) ? 'green' : 'darkgrey' }};">
                                                                 <td class="modal-trigger"
@@ -1119,12 +1198,41 @@
                                                                     <b>{{ actualSystem.log.signal ? (actualSystem.log.signal * 100 / 30 | number : 0) : 0 }}</b>%
                                                                 </td>
                                                             </tr>
-                                                            <tr style="border-bottom: 0;">
-                                                                <td rowspan="4" class="center" style="border-bottom: 0;">
-                                                                    <img id="hourglass_{{actualSystem.key}}" src="assets/images/hourglass.gif" alt="hourglass"
-                                                                        style="width: 50%;" ng-show="actualSystem.status && !(isPlotActive('p0') || isPlotActive('p1') || 
-                                                                        isPlotActive('p2') || isPlotActive('p3') || isPlotActive('p4') || isPlotActive('p5') || isPlotActive('p6'))">
-                                                                </td>
+                                                            <tr><td colspan="5" class="center-align" style="font-size: 1.5em; margin: 0;"><b>Clima</b></td></tr>
+                                                            <tr>
+                                                                <table>
+                                                                    <tr style="color: grey;">
+                                                                        <td>
+                                                                            <span style="font-size: xx-small;">Humedad relativa</span><br>
+                                                                            <span style="font-size: 2.5em;">{{ meteo[actualSystem.key].main.humidity }}%</span>
+                                                                        </td>
+                                                                        <td>
+                                                                            <span style="font-size: xx-small;">Velocidad del viento</span><br>
+                                                                            <table>
+                                                                                <tr>
+                                                                                    <td>
+                                                                                        <span style="font-size: small;">{{ meteo[actualSystem.key].wind.speed | number : 0}}km/h</span><br>
+                                                                                        <span style="font-size: xx-small;">Velocidad</span><br>
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        <span style="font-size: small;">{{ meteo[actualSystem.key].wind.deg | number : 0}}°</span><br>
+                                                                                        <span style="font-size: xx-small;">Dirección</span><br>
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        <span style="font-size: small;">{{ meteo[actualSystem.key].wind.gust | number : 0}}km/h</span><br>
+                                                                                        <span style="font-size: xx-small;">Ráfagas</span><br>
+                                                                                    </td>
+                                                                                </tr>
+                                                                            </table>
+                                                                        </td>
+                                                                        <td>
+                                                                            <span style="font-size: xx-small;">Nubosidad</span><br>
+                                                                            <img src="{{ meteo[actualSystem.key].weather.iconUrl }}" alt="Weather icon"
+                                                                            ng-if="meteo[actualSystem.key].weather.iconUrl" style="margin-top: -10px;">
+                                                                            <p style="font-size: x-small; margin-top: -10px;">{{ meteo[actualSystem.key].clouds.all | number : 0}}%</p>
+                                                                        </td>
+                                                                    </tr>
+                                                                </table>
                                                             </tr>
                                                         </table>
                                                     </div>
