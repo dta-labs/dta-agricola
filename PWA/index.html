@@ -1059,6 +1059,14 @@
                                                                     getHourFromMs(actualSystem.plots['p' + $index].value) + ":" + 
                                                                     getMinutesFromMs(actualSystem.plots['p' + $index].value) }}
                                                                 </td>
+                                                                <td class="modal-trigger"
+                                                                    href="#modalEditRiegoEstacionario"
+                                                                    ng-click="setEditPlanEstacionario('p' + $index)"
+                                                                    style="text-align: left; width: 40%; cursor: pointer;">
+                                                                    <i class="material-icons">{{ plot.irrigationPlan == 0 ? "touch_app" : 
+                                                                                                 plot.irrigationPlan == 1 ? "date_range" : 
+                                                                                                 plot.irrigationPlan == 2 ? "wb_sunny" : "streetview" }}</i>
+                                                                </td>
                                                                 <td>
                                                                     <span style="width: 100%; border: 2px solid grey; border-radius: 5px; height: 30px;" 
                                                                         ng-click="setEditPlanEstacionario('p' + $index); stopPlotIrrigation()" 
@@ -2275,12 +2283,12 @@
                                                         <!-- Riego manual -->
                                                         <div style="padding: 0 5px; text-align: center;" ng-show="actualSystem.plots[editedPlan].irrigationPlan == 0">
                                                             <a style="width: 100%; border: 2px solid grey; border-radius: 5px; height: 40px;" 
-                                                                ng-click="startPlotIrrigation()" ng-show="!isPlotActive(editedPlan)"
+                                                                ng-click="startPlotIrrigation()" ng-show="!isPlotActive(actualSystem, editedPlan)"
                                                                 class="waves-effect waves-light btn modal-trigger green lighten-3 right-align">
                                                                 <i class="material-icons" style="font-size: 3em;">play_arrow</i>
                                                             </a>
                                                             <a style="width: 100%; border: 2px solid grey; border-radius: 5px; height: 40px;" 
-                                                                ng-click="stopPlotIrrigation()" ng-show="isPlotActive(editedPlan)"
+                                                                ng-click="stopPlotIrrigation()" ng-show="isPlotActive(actualSystem, editedPlan)"
                                                                 class="waves-effect waves-light btn modal-trigger red lighten-3 right-align">
                                                                 <i class="material-icons" style="font-size: 3em;">stop</i>
                                                             </a>
@@ -2290,12 +2298,12 @@
                                                         <!-- Plan de riego -->
                                                         <div class="row" style="margin: 0 5px;" ng-show="actualSystem.plots[editedPlan].irrigationPlan == 1">
                                                             <a style="width: 100%; border: 2px solid grey; border-radius: 5px; height: 40px;" 
-                                                                ng-click="startPlotIrrigation()" ng-show="!isPlotActive(editedPlan)"
+                                                                ng-click="startPlotIrrigation()" ng-show="!isPlotActive(actualSystem, editedPlan)"
                                                                 class="waves-effect waves-light btn modal-trigger green lighten-3 right-align">
                                                                 <i class="material-icons" style="font-size: 3em;">play_arrow</i>
                                                             </a>
                                                             <a style="width: 100%; border: 2px solid grey; border-radius: 5px; height: 40px;" 
-                                                                ng-click="stopPlotIrrigation()" ng-show="isPlotActive(editedPlan)"
+                                                                ng-click="stopPlotIrrigation()" ng-show="isPlotActive(actualSystem, editedPlan)"
                                                                 class="waves-effect waves-light btn modal-trigger red lighten-3 right-align">
                                                                 <i class="material-icons" style="font-size: 3em;">stop</i>
                                                             </a>
@@ -2345,12 +2353,12 @@
                                                         <!-- Riego a demanda -->
                                                         <div style="padding: 0 5px; text-align: left;" ng-show="actualSystem.plots[editedPlan].irrigationPlan == 2" ng-init="editParamRiego = false">
                                                             <a style="width: 100%; border: 2px solid grey; border-radius: 5px; height: 40px;" 
-                                                                ng-click="startPlotIrrigation()" ng-show="!isPlotActive(editedPlan)"
+                                                                ng-click="startPlotIrrigation()" ng-show="!isPlotActive(actualSystem, editedPlan)"
                                                                 class="waves-effect waves-light btn modal-trigger green lighten-3 right-align">
                                                                 <i class="material-icons" style="font-size: 3em;">play_arrow</i>
                                                             </a>
                                                             <a style="width: 100%; border: 2px solid grey; border-radius: 5px; height: 40px;" 
-                                                                ng-click="stopPlotIrrigation()" ng-show="isPlotActive(editedPlan)"
+                                                                ng-click="stopPlotIrrigation()" ng-show="isPlotActive(actualSystem, editedPlan)"
                                                                 class="waves-effect waves-light btn modal-trigger red lighten-3 right-align">
                                                                 <i class="material-icons" style="font-size: 3em;">stop</i>
                                                             </a>
@@ -2444,12 +2452,12 @@
                                                         <!-- Riego predictivo -->
                                                         <div style="padding: 0 5px; color: #9e9e9e; text-align: left;" ng-show="actualSystem.plots[editedPlan].irrigationPlan == 3">
                                                             <a style="width: 100%; border: 2px solid grey; border-radius: 5px; height: 40px;" 
-                                                                ng-click="startPlotIrrigation()" ng-show="!isPlotActive(editedPlan)"
+                                                                ng-click="startPlotIrrigation()" ng-show="!isPlotActive(actualSystem, editedPlan)"
                                                                 class="waves-effect waves-light btn modal-trigger green lighten-3 right-align">
                                                                 <i class="material-icons" style="font-size: 3em;">play_arrow</i>
                                                             </a>
                                                             <a style="width: 100%; border: 2px solid grey; border-radius: 5px; height: 40px;" 
-                                                                ng-click="stopPlotIrrigation()" ng-show="isPlotActive(editedPlan)"
+                                                                ng-click="stopPlotIrrigation()" ng-show="isPlotActive(actualSystem, editedPlan)"
                                                                 class="waves-effect waves-light btn modal-trigger red lighten-3 right-align">
                                                                 <i class="material-icons" style="font-size: 3em;">stop</i>
                                                             </a>

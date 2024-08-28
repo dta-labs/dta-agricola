@@ -66,7 +66,7 @@
 	function getDateTime($localZone) {
 		$zona = $localZone . ' hours';
 		$dateTime = new DateTime();
-		$dateTime->modify($zona);		// PHP Warning:  DateTime::modify(): Failed to parse time string ( hours) at position 0 (h): The timezone could not be found in the database
+		$dateTime->modify($zona);
 		return $dateTime;
 	}
 
@@ -76,30 +76,40 @@
 
 	function checkLastState($baseUrl) {
 		$log = get_object_vars(getcURLData($baseUrl . "logs.json?orderBy=\"update\"&limitToLast=1"));
-        $index = $log ? end(array_keys($log)) : "";
-        $status = $log ? $log[$index]->{'state'} : "";
-		$initialDate = $log ? $log[$index]->{'date'} : "";
-		return [$status, $index, $initialDate];
+		$lastStatus = new stdClass();
+        $lastStatus->index = !is_null($log) ? end(array_keys($log)) : "";
+        $lastStatus->status = !is_null($log) ? $log[$lastStatus->index]->{'state'} : "";
+        $lastStatus->initialDate = !is_null($log) ? $log[$lastStatus->index]->{'date'} : "";
+		return $lastStatus;
 	}
 
 	#endregion 3.- Comprobar estado anterior (Logs)
 
     #region 4.- Enviar Settings al dispositivo 
 
-	function getNewHour($hour, $millis) {
-		$newHour = new DateTime($hour);
-		$newHour->modify("+{$millis} milliseconds");
-		$newHour = $newHour->format('H:i');
-		return $newHour;
+	function getScheduleDateTime($schedule) {
+		$scheduleDateTime = new DateTime($schedule->date);
+		list($hour, $minutes) = explode(':', $schedule->time);
+		$scheduleDateTime->setTime((int)$hour, (int)$minutes);
+		return $scheduleDateTime;
 	}
 
-	function getValueOnSchedule($plot, $date, $time) {
-		if ($plot->schedule) {
+	function getNewTime($date, $millis) {
+		$newTime = new DateTime($date->format('Y-m-d H:i'));
+		$seconds = $millis / 1000;
+		$interval = new DateInterval('PT' . $seconds . 'S');
+		$newTime->add($interval);
+		return $newTime;
+	}
+
+	function getValueOnSchedule($plot, $dateTime) {
+		if ($plot->schedule && $plot->forcedStart == 1) {
 			// print_r("Timer: ");
 			foreach ($plot->schedule as $schedule) {
-				$newHour = getNewHour($schedule->time, $schedule->value ? $schedule->value : 0);
-				// print_r($schedule->time . "<=" . $time . "<" . $newHour . " => " . ($schedule->date == $date && $schedule->time <= $time && $time < $newHour) . " | ");
-				if ($schedule->date == $date && $schedule->time <= $time && $time < $newHour) {
+				$scheduleDateTime = getScheduleDateTime($schedule);
+				$newDateTime = getNewTime($scheduleDateTime, $schedule->value ? $schedule->value : 0);
+				// print_r($scheduleDateTime->format('Y-m-d H:i') . "<=" . $dateTime->format('Y-m-d H:i') . "<" . $newDateTime->format('Y-m-d H:i') . " => " . (($scheduleDateTime <= $dateTime && $dateTime < $newDateTime) ? "On" : "Off") . " | ");
+				if ($scheduleDateTime <= $dateTime && $dateTime < $newDateTime) {
 					return $schedule->value;
 				}
 			}
@@ -117,8 +127,9 @@
     
 	function sendSettings($dataSettings, $localZone) {
 		$sumOfValues = 0; 
-		$date = getDateTime($localZone)->format('Y-m-d');
-		$time = getDateTime($localZone)->format('H:i');
+		$dateTime = getDateTime($localZone);
+		$date = $dateTime->format('Y-m-d');
+		$time = $dateTime->format('H:i');
 		$lectura_values = "";
 		for ($i = 0; $i < $dataSettings->length; $i++) {
 			$p = "p" . $i;
@@ -129,7 +140,7 @@
 					$value = $plot->forcedStart == 1 ? $plot->value : 0;
 					break;
 				case 1:													// Riego planificado
-					$value = getValueOnSchedule($plot, $date, $time);
+					$value = getValueOnSchedule($plot, $dateTime);
 					break;
 				case 2:													// Riego a demanda
 					$value = getValueOnDemand($plot, $date, $time);
@@ -150,24 +161,24 @@
 
 	#region 5.- Actualizar estado del dispositivo e información de los sensores
 
-	function updateLog($status, $index, $initialDate, $localZone, $baseUrl) {
+	function updateLog($lastStatus, $localZone, $baseUrl) {
 		if ($_GET["st"] && ($_GET["st"] == "ON" || $_GET["st"] == "OFF")) {
-			$key = ($status == $_GET["st"]) ? "/$index" : "";
+			$key = ($lastStatus->status == $_GET["st"]) ? "/$lastStatus->index" : "";
             $date = getDateTime($localZone)->format('Ymd hia');
 
 			$dataUpdate = '{';
-			$dataUpdate .= '"date":"' . (($key) ? $initialDate : $date) . '"';
+			$dataUpdate .= '"date":"' . (($key) ? $lastStatus->initialDate : $date) . '"';
 			$dataUpdate .= ',"update":"' . $date . '"';
 			$dataUpdate .= ',"state":"' . $_GET["st"] . '"'; 
 			$dataUpdate .= ',"signal":"' . ($_GET["si"] ? $_GET["si"] : "") . '"';
 			$dataUpdate .= ',"reception":"' . (($_GET["rx"] && ($_GET["rx"] == "Ok" || $_GET["rx"] == "Er")) ? $_GET["rx"] : "") . '"';
 			$dataUpdate .= '}';
 
-			$url = $baseUrl . "logs$key.json";              	// 5.1.- cURL de actualización de Logs
+			$url = $baseUrl . "logs$key.json";              				// 5.1.- cURL de actualización de Logs
 			if ($key) {
-				putcURLData($url, $dataUpdate);             	// Actualiza registro
+				putcURLData($url, $dataUpdate);             				// Actualiza registro
 			} else {
-				postcURLData($url, $dataUpdate);            	// Nuevo registro
+				postcURLData($url, $dataUpdate);            				// Nuevo registro
 			}
 		}
 	}
@@ -180,9 +191,9 @@
 		$baseUrl = config();                                                // 0. Configuración
 		$dataSettings = getcURLData($baseUrl . "settings.json");            // 1. Optener settings
         $localZone = getLocalZone($dataSettings);                           // 2. Zona horaria
-		list($status, $index, $initialDate) = checkLastState($baseUrl);    	// 3. Estado anterior
+		$lastStatus = checkLastState($baseUrl);    							// 3. Estado anterior
 		sendSettings($dataSettings, $localZone);        					// 4. Enviar settings
-		updateLog($status, $index, $initialDate, $localZone, $baseUrl);     // 5. Actualizar estado
+		updateLog($lastStatus, $localZone, $baseUrl);     					// 5. Actualizar estado
 	}
     
     #endregion 6.- Programa principal

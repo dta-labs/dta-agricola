@@ -1304,19 +1304,53 @@ app.controller("ControladorPrincipal", function ($scope) {
     }
     
     $scope.startPlotIrrigation = () => {
-        $scope.actualSystem.status = true;
-        let plot = $scope.actualSystem.plots[$scope.editedPlan];
-        plot["forcedStart"] = 1;
-        $scope.setMachineSettings($scope.actualSystem);
-        initializeSystemMap($scope.actualSystem);
+        swal({
+            title: "Plan de riego",
+            text: "¿Desea iniciar el riego de " + $scope.actualSystem.plots[$scope.editedPlan].name + "?",
+            icon: "warning",
+            buttons: ["Cancelar", true],
+            // dangerMode: true,
+        })
+        .then((confirm) => {
+            if (confirm) {
+                $scope.actualSystem.status = true;
+                let plot = $scope.actualSystem.plots[$scope.editedPlan];
+                plot["forcedStart"] = 1;
+                $scope.setMachineSettings($scope.actualSystem);
+                initializeSystemMap($scope.actualSystem);
+                $scope.$apply();
+                swal("Riego iniciado!", {
+                    icon: "success",
+                });
+            } else {
+                swal("Acción cancelada!");
+            }
+        });
     }
     
     $scope.stopPlotIrrigation = () => {
-        let plot = $scope.actualSystem.plots[$scope.editedPlan];
-        plot["forcedStart"] = -1;
-        setStatusOFF();
-        $scope.setMachineSettings($scope.actualSystem);
-        initializeSystemMap($scope.actualSystem);
+        swal({
+            title: "Plan de riego",
+            text: "¿Desea detener el riego de " + $scope.actualSystem.plots[$scope.editedPlan].name + "?",
+            icon: "warning",
+            buttons: ["Cancelar", true],
+            // dangerMode: true,
+        })
+        .then((confirm) => {
+            if (confirm) {
+                let plot = $scope.actualSystem.plots[$scope.editedPlan];
+                plot["forcedStart"] = -1;
+                setStatusOFF();
+                $scope.setMachineSettings($scope.actualSystem);
+                initializeSystemMap($scope.actualSystem);
+                $scope.$apply();
+                swal("Riego detenido!", {
+                    icon: "success",
+                });
+            } else {
+                swal("Acción cancelada!");
+            }
+        });
     }
 
     setStatusOFF = () => {
@@ -1335,13 +1369,13 @@ app.controller("ControladorPrincipal", function ($scope) {
             if (plot) {
                 if (plot.forcedStart && plot.forcedStart == 1) {
                     active = true;
-                } else if (plot.schedule) {
-                    plot.schedule.forEach ((sch, index) => {
-                        let newTime = $scope.msToTime(sch.value).split(":");
-                        if (sch.value > 0 && ((sch.date == dateTime.date) && (dateTime.time <= sch.time || sch.time <= sumTimes(dateTime.time, "" + newTime[1] + ":" + newTime[2])))) {
-                            active = true;
-                        }
-                    });
+                // } else if (plot.schedule) {
+                //     plot.schedule.forEach ((sch, index) => {
+                //         let newTime = $scope.msToTime(sch.value).split(":");
+                //         if (sch.value > 0 && ((sch.date == dateTime.date) && (dateTime.time <= sch.time || sch.time <= sumTimes(dateTime.time, "" + newTime[1] + ":" + newTime[2])))) {
+                //             active = true;
+                //         }
+                //     });
                 }
             }
         }
