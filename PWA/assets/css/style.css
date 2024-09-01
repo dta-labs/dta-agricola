@@ -294,10 +294,18 @@ body {
   position: fixed;
 }
 
+.leaflet-popup-content {
+  margin: 13px 10px !important;
+}
+
 .navbar-option {
   width: 20%;
   text-align: center;
   color: black;
+}
+
+::-webkit-scrollbar {
+  width: 1px;
 }
 
 .navbar-option i {

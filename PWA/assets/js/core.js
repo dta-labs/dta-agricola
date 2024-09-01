@@ -1706,30 +1706,56 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     addMarker = (campo) => {
         let coord = [campo.latitude, campo.longitude];
-        let text = "";
-        if (campo.type != "Sensor") {
-            text += `
-                <h6 style="background: ${campo.status == false ? 'lightgrey' :
-                    campo.log && campo.log.voltage == 'false' ? 'red' :
-                        campo.log && campo.log.safety == 'false' ? 'palevioletred' :
-                            campo.log && campo.log.commDelay != '-1' ? 'grey' : 'lightseagreen'};">${campo.name}</h6>
-                <span><b>${campo.status ? "Estado: Encendido" : "Apagado"}</b></span></br>
-                `;
-        } else {
-            text += `
-                <h6 style="background: lightgrey">${campo.name}</h6>
-                <span>Hs: <b>${campo.log ? parseFloat(campo.log.meanVal).toFixed(0) : ""}</b>%</span></br>
-                `;
+        let text = `<table class="striped highlight">`;
+        text += `    <tr>`;
+        text += `        <td style="text-align: left;">Nombre:</td>`;
+        text += `        <td style="text-align: left;"><b>${campo.name ? campo.name : "" }</b></td>`;
+        text += `    </tr>`;
+        text += `    <tr>`;
+        text += `        <td style="text-align: left;">Cultivo:</td>`;
+        text += `        <td style="text-align: left;"><b>${campo.culture ? campo.culture : "" }</b></td>`;
+        text += `    </tr>`;
+        switch (campo.type) {
+            case "Sensor":
+                text += `    <tr>`;
+                text += `        <td style="text-align: left;">Hs:</td>`;
+                text += `        <td style="text-align: left;"><b>${campo.log ? parseFloat(campo.log.meanVal).toFixed(0) : ""}%</b></td>`;
+                text += `    </tr>`;
+                break;
+            case "PC":
+            case "PL":
+                text += `    <tr>`;
+                text += `        <td style="text-align: left;">Velocidad:</td>`;
+                text += `        <td style="text-align: left;"><b>${campo.direction ? "Avanzar" : "Retroceder"} ${campo.log ? campo.log.speed : 0}%</b></td>`;
+                text += `    </tr>`;
+                break;
         }
-        if (campo.type == "PC" || campo.type == "PL") {
-            text += `
-                Config: <b>${campo.direction ? "Avanzar" : "Retroceder"} ${campo.log ? campo.log.speed : 0}%</b><br>
-            `;
-        }
-        text += `
-            Lat: <b>${campo.latitude}</b><br>
-            Lng: <b>${campo.longitude}</b>
-        `;
+        text += `    <tr>`;
+        text += `        <td style="text-align: left;">Temp:</td>`;
+        text += `        <td style="text-align: left;"><b>${ ($scope.meteo[campo.key].main.temp - 273.15).toFixed(1) }°C</b></td>`;
+        text += `    </tr>`;
+        text += `    <tr>`;
+        text += `        <td style="text-align: left;">Hr:</td>`;
+        text += `        <td style="text-align: left;"><b>${ $scope.meteo[campo.key].main.humidity }%</b></td>`;
+        text += `    </tr>`;
+        text += `    <tr>`;
+        text += `        <td style="text-align: left;">Viento:</td>`;
+        text += `        <td style="text-align: left;"><b>${ ($scope.meteo[campo.key].wind.speed).toFixed(1) } km/h</b></td>`;
+        text += `    </tr>`;
+        text += `    <tr>`;
+        text += `        <td colspan="2" style="text-align: left;">[<b>${campo.latitude},${campo.longitude}</b>]</td>`;
+        text += `    </tr>`;
+        text += `</table>`;
+
+        // if (campo.type != "Sensor") {
+        //     text += `
+        //         <h6 style="background: ${campo.status == false ? 'lightgrey' :
+        //             campo.log && campo.log.voltage == 'false' ? 'red' :
+        //                 campo.log && campo.log.safety == 'false' ? 'palevioletred' :
+        //                     campo.log && campo.log.commDelay != '-1' ? 'grey' : 'lightseagreen'};">${campo.name}</h6>
+        //         <span><b>${campo.status ? "Estado: Encendido" : "Apagado"}</b></span></br>
+        //         `;
+        // }
 
         let greenIcon = L.icon({
             iconUrl: './assets/images/marcador.png',
