@@ -20,6 +20,8 @@ void setup() {
     Serial.println(F("LoRa init failed. Check your connections."));
     delay(1);
   }
+  LoRa.setTxPower(20);
+  LoRa.setSpreadingFactor(12);
   Serial.println(F("\n\nDTA-Agrícola LoRa_Gateway v0.4\n"));
   comunicaciones("", "", true);
 }

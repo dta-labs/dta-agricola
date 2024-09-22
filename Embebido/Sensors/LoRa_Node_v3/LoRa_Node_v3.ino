@@ -19,6 +19,8 @@ void setup() {
     Serial.println(F("Starting LoRa failed!"));
     delay(1);
   }
+  LoRa.setTxPower(20);
+  LoRa.setSpreadingFactor(12);
 }
  
 void loop() {
@@ -69,7 +71,7 @@ void sendMeasurement() {
 void sleepFor(float minutes) {
   Serial.print(F("Sleeping for ")); Serial.print(minutes); Serial.println(F(" min"));
   delay(10);
-  int time = 15 * (minutes * .9);
+  int time = 15 * (minutes * .7);
   for (int i = 0; i <= time; i++)
     LowPower.powerDown(SLEEP_4S, ADC_OFF, BOD_OFF);
 }
