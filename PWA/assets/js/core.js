@@ -1145,6 +1145,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         document.getElementById("planEstacionarioId").value = index;
         document.getElementById("editName").value = $scope.actualSystem.plots[index].name ? $scope.actualSystem.plots[index].name : "";
         document.getElementById("startDate").value = $scope.actualSystem.plots[index].startDate ? dateTimeToString($scope.actualSystem.plots[index].startDate.substr(0,16)) : "";
+        document.getElementById("editPlotCaudal").value = $scope.actualSystem.plots[index].caudal ? $scope.actualSystem.plots[index].caudal : "0";
         document.getElementById("editPoligon").innerHTML = $scope.actualSystem.plots[index].poligon ? $scope.actualSystem.plots[index].poligon : "";
         // document.getElementById("editDay").value = $scope.getDayFromMs($scope.actualSystem.plots[index].value);
         // document.getElementById("editHour").value = $scope.getHourFromMs($scope.actualSystem.plots[index].value);
@@ -1193,6 +1194,9 @@ app.controller("ControladorPrincipal", function ($scope) {
     }
 
     $scope.addNewDateToSchedule = () => {
+        let delay = $scope.getMsFromDay(document.getElementById("setDay").value);
+        delay += $scope.getMsFromHour(document.getElementById("setHour").value);
+        delay += $scope.getMsFromMinutes(document.getElementById("setMinutes").value);
         let aux = document.getElementById("schDate").value.split("T");
         let date = aux[0];
         let time = aux[1];
@@ -1200,7 +1204,8 @@ app.controller("ControladorPrincipal", function ($scope) {
             let data = {
                 "t": "",
                 "date": date,
-                "time": time
+                "time": time,
+                "value": delay
             }
             if (!$scope.actualSystem.plots[$scope.editedPlan].schedule) {
                 $scope.actualSystem.plots[$scope.editedPlan].schedule = [];
@@ -1208,8 +1213,6 @@ app.controller("ControladorPrincipal", function ($scope) {
             $scope.actualSystem.plots[$scope.editedPlan].schedule.push(data);
             $scope.setMachineSettings($scope.actualSystem);
             document.getElementById("schDate").value = null;
-            // document.getElementById("schTime").value = null;
-            // window.scrollTo(0, 1000000);
         }
     }
 
@@ -1244,6 +1247,14 @@ app.controller("ControladorPrincipal", function ($scope) {
             });
     }
 
+    $scope.initEstationaryVars = () => {
+        $scope.planSetSensor = ''; 
+        $scope.actualEqSensor = $scope.actualSystem.plots[$scope.editedPlan].sensor;
+        $scope.actualSoil = $scope.actualSystem.plots[$scope.editedPlan].soil;
+        $scope.actualValve = $scope.actualSystem.plots[$scope.editedPlan].valve;
+        let a = 0;
+    }
+
     $scope.dataEditionPlanEstacionario = () => {
         updatePoligon();
         validateIrrigationconfig();
@@ -1256,8 +1267,10 @@ app.controller("ControladorPrincipal", function ($scope) {
         let aux = document.getElementById("scheduleDate").value.split("T");
         let date = aux[0];
         let time = aux[1];
-        $scope.actualSystem.plots[$scope.editedPlan].schedule[index].date = date;
-        $scope.actualSystem.plots[$scope.editedPlan].schedule[index].time = time;
+        $scope.actualSystem.plots[$scope.editedPlan].schedule[index].date = date ? date : $scope.actualSystem.plots[$scope.editedPlan].schedule[index].date;
+        $scope.actualSystem.plots[$scope.editedPlan].schedule[index].time = time ? time : $scope.actualSystem.plots[$scope.editedPlan].schedule[index].time;
+        $scope.actualSystem.plots[$scope.editedPlan].caudal = document.getElementById("editPlotCaudal").value;
+        $scope.actualSystem.plots[$scope.editedPlan]["sensor"] = document.getElementById("editEqSensor").value;
         $scope.actualSystem.plots[$scope.editedPlan].valve = document.getElementById("editType").value;
         $scope.actualSystem.plots[$scope.editedPlan].soil = document.getElementById("editSoil").value;
         $scope.setMachineSettings($scope.actualSystem);
@@ -1609,6 +1622,13 @@ app.controller("ControladorPrincipal", function ($scope) {
         document.getElementById("scheduleDate").value = dateTimeToString(schedule.date) + "T" + schedule.time;
     }
 
+    $scope.editTiempoRiegoManual = () => {
+        let data = $scope.getMsFromDay(document.getElementById("editDayManual").value);
+        data += $scope.getMsFromHour(document.getElementById("editHourManual").value);
+        data += $scope.getMsFromMinutes(document.getElementById("editMinutesManual").value);
+        $scope.actualSystem.plots[$scope.editedPlan].value = data;
+    }
+
     dateTimeToString = dateTime => {
         let date = dateTime.split("-");
         let month = date[1] < 10 && date[1].length < 2 ? "0" + date[1] : date[1];
@@ -1712,9 +1732,19 @@ app.controller("ControladorPrincipal", function ($scope) {
         text += `        <td style="text-align: left;"><b>${campo.name ? campo.name : "" }</b></td>`;
         text += `    </tr>`;
         text += `    <tr>`;
-        text += `        <td style="text-align: left;">Cultivo:</td>`;
-        text += `        <td style="text-align: left;"><b>${campo.culture ? campo.culture : "" }</b></td>`;
+        text += `        <td style="text-align: left;">Estado:</td>`;
+        text += `        <td style="text-align: left;"><b>${campo.log.state ? "Encendido" : "Apagado" }</b></td>`;
         text += `    </tr>`;
+        text += `    <tr>`;
+        text += `        <td style="text-align: left;">Caudal:</td>`;
+        text += `        <td style="text-align: left;"><b>${campo.caudal ? campo.caudal : "0" }</b> m<sup>3</sup>/s</td>`;
+        text += `    </tr>`;
+        if (campo.culture) {
+            text += `    <tr>`;
+            text += `        <td style="text-align: left;">Cultivo:</td>`;
+            text += `        <td style="text-align: left;"><b>${campo.culture ? campo.culture : "" }</b></td>`;
+            text += `    </tr>`;
+        }
         switch (campo.type) {
             case "Sensor":
                 text += `    <tr>`;
@@ -2101,6 +2131,21 @@ app.controller("ControladorPrincipal", function ($scope) {
     $scope.getMinutesFromMs = (duration) => {
         let minutes = parseInt((parseInt(duration) % (1000 * 60 * 60)) / (1000 * 60));
         return String(minutes).padStart(2, '0');
+    }
+
+    $scope.getMsFromDay = (duration) => {
+        duration = duration ? parseInt(duration) : 0;
+        return duration * 1000 * 60 * 60 * 24;
+    }
+
+    $scope.getMsFromHour = (duration) => {
+        duration = duration ? parseInt(duration) : 0;
+        return duration * 1000 * 60 * 60;
+    }
+
+    $scope.getMsFromMinutes = (duration) => {
+        duration = duration ? parseInt(duration) : 0;
+        return duration * 1000 * 60;
     }
 
     $scope.dashToDot = (input) => {

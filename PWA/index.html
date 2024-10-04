@@ -73,7 +73,7 @@
                         <div class="navbar nav_title" style="border: 0; border-bottom: 3px solid;">
                             <a href="index.html">
                                 <img src="./assets/images/DTA-Agricola lineal white.png" class="img-logo"
-                                    alt="DTA-Agricola">
+                                    style="width: 80%;" alt="DTA-Agricola">
                             </a>
                         </div>
                         <div class="clearfix"></div>
@@ -1189,7 +1189,7 @@
                                                                     <i class="fa fa-tint" aria-hidden="true" style="font-size: 1.7em; margin: 2px 0 3px 5px;"></i>
                                                                 </td>
                                                                 <td style="text-align: left;">
-                                                                    <b>{{ actualSystem.log.presion ? (actualSystem.log.presion | number : 1) : 0 }}</b>psi        
+                                                                    <b>{{ actualSystem.log.presion ? (actualSystem.log.presion | number : 1) : 0 }}</b>m<sup>3</sup>/s        
                                                                 </td>
                                                                 <td style="text-align: left;">
                                                                     <i class="material-icons">rss_feed</i>&nbsp;
@@ -1284,7 +1284,7 @@
                                                                         <i class="fa fa-tint" aria-hidden="true" style="font-size: 1.7em; margin: 2px 0 3px 0;"></i>
                                                                     </div>
                                                                     <div class="center-align">
-                                                                        <b>{{ actualSystem.log.presion ? (actualSystem.log.presion | number : 1) : 0 }}</b>Gl/h
+                                                                        <b>{{ actualSystem.log.presion ? (actualSystem.log.presion | number : 1) : 0 }}</b> m<sup>3</sup>/s
                                                                     </div>
                                                                 </td>
                                                                 <td style="text-align: center;">
@@ -1440,6 +1440,344 @@
                             </div>
 
                             <!-- Ventanas modales -->
+                            <div id="modalAdjust" class="modal"> <!-- Modal Ajustes del Sistema -->
+                                <div class="swal-title">Ajustes del sistema</div>
+
+                                <div class="modal-content">
+                                    <div class="col s12 m4">
+                                        <item ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'">
+                                            <img class="show-in-mobil-only" src="assets/images/Pv66.png" alt="imgPlanta" style="width: 150px; margin-left: -20px;">
+                                            <img class="show-in-pc-only" src="assets/images/Pv66.png" alt="imgPlanta" style="width: 180px; margin: 20px 0 0 20px;">
+                                        </item>
+                                        <item ng-show="actualSystem.type == 'Estacionario'">
+                                            <img class="show-in-mobil-only" src="assets/images/Ag07.png" alt="imgPlanta" style="width: 150px; margin-left: -20px;">
+                                            <img class="show-in-pc-only" src="assets/images/Ag07.png" alt="imgPlanta" style="width: 180px; margin: 20px 0 0 20px;">
+                                        </item>
+                                        <item ng-show="actualSystem.type == 'Pozo'">
+                                            <img class="show-in-mobil-only" src="assets/images/pozo.png" alt="imgPlanta" style="width: 150px; margin-left: -20px; filter: grayscale(100%);">
+                                            <img class="show-in-pc-only" src="assets/images/pozo.png" alt="imgPlanta" style="width: 145px; margin-top: 20px; filter: grayscale(100%);">
+                                        </item>
+                                        <item ng-show="actualSystem.type == 'Sensor'">
+                                            <img class="show-in-mobil-only" src="assets/images/Red-Sensores.png" alt="imgPlanta" style="width: 100px; margin-left: -20px;">
+                                            <img class="show-in-pc-only" src="assets/images/Red-Sensores.png" alt="imgPlanta" style="width: 120px; margin: 20px 0 0 20px;">
+                                        </item>
+                                    </div>
+                                    <div class="col s12 m8">
+                                        <table class="striped highlight" ng-init="edit = true">
+                                            <tr>
+                                                <td style="text-align: left;">Sistema</td>
+                                                <td style="text-align: left;"><b><i>{{ actualSystem.type }}</b></i></td>
+                                            </tr>
+                                            <tr ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'">
+                                                <td style="text-align: left;">Marca</td>
+                                                <td style="text-align: left;"><b><i>{{ actualSystem.brand }}</b></i></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="text-align: left;">Instalación</td>
+                                                <td style="text-align: left;"><b><i>{{ actualSystem.installation}}</b></i></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="text-align: left;">Id Usuario</td>
+                                                <td style="text-align: left;"><b><i>{{ actualSystem.key }}</i></b></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="text-align: left;">Nombre</td>
+                                                <td style="text-align: left;">
+                                                    <input type="text" ng-model="actualSystem.name" ng-readonly="edit">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="text-align: left;">Latitud central</td>
+                                                <td style="text-align: left;"><input type="number"
+                                                        ng-model="actualSystem.latitude" ng-readonly="edit">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="text-align: left;">Longitud central</td>
+                                                <td style="text-align: left;"><input type="number"
+                                                        ng-model="actualSystem.longitude" ng-readonly="edit">
+                                                </td>
+                                            </tr>
+                                            <tr ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'">
+                                                <td style="text-align: left;">Radio</td>
+                                                <td style="text-align: left;">
+                                                    <input type="number" ng-model="actualSystem.length" ng-readonly="edit">
+                                                </td>
+                                            </tr>
+                                            <tr ng-show="actualSystem.type != 'Sensor'">
+                                                <td style="text-align: left;">Caudal (m<sup>3</sup>/s)</td>
+                                                <td style="text-align: left;">
+                                                    <input type="number" ng-model="actualSystem.caudal" id="editCaudal" ng-readonly="edit">
+                                                </td>
+                                            </tr>
+                                            <tr ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'">
+                                                <td style="text-align: left;">Max. val. sensor presión</td>
+                                                <td style="text-align: left;">
+                                                    <input type="number"
+                                                        ng-model="actualSystem.sensorPresion"
+                                                        ng-readonly="edit">
+                                                </td>
+                                            </tr>
+                                            <tr ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'">
+                                                <td style="text-align: left;">Límite de velocidad</td>
+                                                <td style="text-align: left;">
+                                                    <input type="number"
+                                                        ng-model="actualSystem.maxVelocity"
+                                                        ng-readonly="edit">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="text-align: left;">Zona horaria</td>
+                                                <td class="input-field" style="text-align: left;">
+                                                    <select class="select" ng-model="actualSystem.zona" ng-disabled="edit"
+                                                        style="display: block !important;">
+                                                        <option ng-selected="actualSystem.zona == -11 ? true : false"
+                                                            value="-11">UTC-11 Pacific</option>
+                                                        <option ng-selected="actualSystem.zona == -10 ? true : false"
+                                                            value="-10">UTC-10 America-Pacific</option>
+                                                        <option ng-selected="actualSystem.zona == -9 ? true : false"
+                                                            value="-9:30">UTC-9:30 Pacific</option>
+                                                        <option ng-selected="actualSystem.zona == -9 ? true : false"
+                                                            value="-9">
+                                                            UTC-9 America-Pacific</option>
+                                                        <option ng-selected="actualSystem.zona == -8 ? true : false"
+                                                            value="-8">
+                                                            UTC-8 America-Pacific</option>
+                                                        <option ng-selected="actualSystem.zona == -7 ? true : false"
+                                                            value="-7">
+                                                            UTC-7 America</option>
+                                                        <option ng-selected="actualSystem.zona == -6 ? true : false"
+                                                            value="-6">
+                                                            UTC-6 America-Pacific</option>
+                                                        <option ng-selected="actualSystem.zona == -5 ? true : false"
+                                                            value="-5">
+                                                            UTC-5 America</option>
+                                                        <option ng-selected="actualSystem.zona == -4 ? true : false"
+                                                            value="-4">
+                                                            UTC-4 America-Atlantic</option>
+                                                        <option ng-selected="actualSystem.zona == -3 ? true : false"
+                                                            value="-3">
+                                                            UTC-3 America-Atlantic</option>
+                                                        <option ng-selected="actualSystem.zona == -2 ? true : false"
+                                                            value="-2">
+                                                            UTC-2 America-Atlantic</option>
+                                                        <option ng-selected="actualSystem.zona == -1 ? true : false"
+                                                            value="-1">
+                                                            UTC-1 America-Atlantic</option>
+                                                        <option ng-selected="actualSystem.zona == +0 ? true : false"
+                                                            value="+0">
+                                                            UTC+0 Africa-America-Atlantic-Europe</option>
+                                                        <option ng-selected="actualSystem.zona == +1 ? true : false"
+                                                            value="+1">
+                                                            UTC+1 Africa-Arctic-Europe</option>
+                                                        <option ng-selected="actualSystem.zona == +2 ? true : false"
+                                                            value="+2">
+                                                            UTC+2 Africa-Europe</option>
+                                                        <option ng-selected="actualSystem.zona == +3 ? true : false"
+                                                            value="+3">
+                                                            UTC+3 Africa-Asia-Europe-Indian</option>
+                                                        <option ng-selected="actualSystem.zona == +4 ? true : false"
+                                                            value="+4">
+                                                            UTC+4 Asia-Europe-Indian</option>
+                                                        <option ng-selected="actualSystem.zona == +5 ? true : false"
+                                                            value="+5">
+                                                            UTC+5 Antarctica-Asia-Indian</option>
+                                                        <option ng-selected="actualSystem.zona == +6 ? true : false"
+                                                            value="+6">
+                                                            UTC+6 Antarctica-Asia-Indian</option>
+                                                        <option ng-selected="actualSystem.zona == +7 ? true : false"
+                                                            value="+7">
+                                                            UTC+7 Antarctica-Asia-Indian</option>
+                                                        <option ng-selected="actualSystem.zona == +8 ? true : false"
+                                                            value="+8">
+                                                            UTC+8 Asia-Australia </option>
+                                                        <option ng-selected="actualSystem.zona == +9 ? true : false"
+                                                            value="+9">
+                                                            UTC+9 Asia-Pacific </option>
+                                                        <option ng-selected="actualSystem.zona == +10 ? true : false"
+                                                            value="+10">UTC+10 Antarctica-Asia-Australia </option>
+                                                        <option ng-selected="actualSystem.zona == +10 ? true : false"
+                                                            value="+10">UTC+10:30 Australia </option>
+                                                        <option ng-selected="actualSystem.zona == +11 ? true : false"
+                                                            value="+11">UTC+11 Antarctica-Asia </option>
+                                                        <option ng-selected="actualSystem.zona == +12 ? true : false"
+                                                            value="+12">UTC+12 Antarctica-Asia </option>
+                                                        <option ng-selected="actualSystem.zona == +13 ? true : false"
+                                                            value="+13">UTC+13 Pacific </option>
+                                                        <option ng-selected="actualSystem.zona == +14 ? true : false"
+                                                            value="+14">UTC+14 Pacific </option>
+                                                    </select>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="text-align: left;">Horario verano</td>
+                                                <td style="text-align: left;">
+                                                    <select ng-model="actualSystem.summerHour"
+                                                        ng-disabled="edit" style="display: block !important;">
+                                                        <option
+                                                            ng-selected="actualSystem.summerHour == 0 ? true : false"
+                                                            value="0">Normal</option>
+                                                        <option
+                                                            ng-selected="actualSystem.summerHour == 1 ? true : false"
+                                                            value="1">Verano</option>
+                                                    </select>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <br>
+                                    </div>
+                                    <div class="right-align"
+                                        ng-show="isSystemOfRole('propietario') || isSystemOfRole('desarrollador') || isSystemOfRole('administrador')">
+                                        <div class="btn waves-effect waves-light grey modal-close">
+                                            &nbsp;&nbsp;
+                                            <i class="material-icons">reply</i>
+                                            &nbsp;&nbsp;
+                                        </div>
+            
+                                        <i class="fa fa-pencil btn blue" aria-hidden="true" ng-click="edit = !edit"></i>
+            
+                                        <a href=""
+                                            class="modal-close waves-effect teal waves-green btn"
+                                            ng-click="setMachineConfig()">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i
+                                                class="material-icons">check</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="modalSuelo" class="modal"> <!-- Modal Condiciones Agroclimáticas del Sistema -->
+                                <div class="swal-title">Condiciones Agroclimáticas</div>
+
+                                <div class="modal-content row" style="padding-top: 0 !important;">
+                                    <div class="col s12 show-in-pc-only"><br></div>
+                                    <div class="col s12 show-in-mobil-only">
+                                        <span style="text-align: left; font-size: large; margin: 0;">{{ actualSystem.name }}</span>
+                                        <span style="margin: 0; font-size: small;">[{{ actualSystem.latitude }}, {{ actualSystem.longitude }}]</span>
+                                    </div>
+                                    <div class="col s6 m4">
+                                        <img class="show-in-mobil-only" src="assets/images/planta.png" alt="imgPlanta" style="width: 150px; margin: 50px 0 0 -20px;">
+                                        <img class="show-in-pc-only" src="assets/images/planta.png" alt="imgPlanta" style="width: 180px; margin: 20px 0 0 20px;">
+                                    </div>
+                                    <div class="col s6 m8">
+                                        <table class="striped highlight">
+                                            <tr>
+                                                <td style="text-align: left;">
+                                                    <div class="row" style="margin-bottom: 0;">
+                                                        <div class="col s12 m4">
+                                                            <p class="show-in-pc-only" style="text-align: left; font-size: large; margin: 0;">{{ actualSystem.name }}</p>
+                                                        </div>
+                                                        <div class="col s12 m8">
+                                                            <p class="show-in-pc-only" style="margin: 0;">[{{ actualSystem.latitude }}, {{ actualSystem.longitude }}]</p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="text-align: left;">
+                                                    <div class="row" style="margin-bottom: 0;">
+                                                        <div class="col s12 m4">
+                                                            <p style="text-align: left; font-size: large; margin: 0;">Clima:</p>
+                                                        </div>
+                                                        <div class="col s12 m4">
+                                                            <p style="margin: 0;"><img src="{{ meteo[actualSystem.key].weather.iconUrl }}" alt="Weather icon"></p>
+                                                            <p style="text-align: left; margin: -25px 0 0 0;">
+                                                                <span style="font-size: large;">{{ meteo[actualSystem.key].main.temp - 273.15 | number : 0 }}°C</span>
+                                                                <span>{{ (meteo[actualSystem.key].main.temp - 273.15) * 9/5 + 32 | number : 0 }}°F</span>
+                                                            </p>
+                                                        </div>
+                                                        <div class="col s12 m4">
+                                                            <p class="show-in-pc-only" style="text-align: left; margin: 0;">
+                                                                <i class="material-icons" style="font-size: small;">error_outline</i>
+                                                                {{ meteo[actualSystem.key].main.pressure }} hPa
+                                                            </p>
+                                                            <p style="text-align: left; margin: 0;">
+                                                                <i class="material-icons" style="font-size: small;">opacity</i>
+                                                                {{ meteo[actualSystem.key].main.humidity }}% Hr
+                                                            </p>
+                                                            <p class="show-in-pc-only" style="text-align: left; margin: 0;">
+                                                                <i class="material-icons" style="font-size: small;">navigation</i>
+                                                                {{ meteo[actualSystem.key].wind.speed }} km/h 
+                                                                <i class="material-icons" style="font-size: small;">explore</i> 
+                                                                {{ 340 <= meteo[actualSystem.key].wind.deg && meteo[actualSystem.key].wind.deg <  20 ? "N" : 
+                                                                     20 <= meteo[actualSystem.key].wind.deg && meteo[actualSystem.key].wind.deg <  70 ? "NE" : 
+                                                                     70 <= meteo[actualSystem.key].wind.deg && meteo[actualSystem.key].wind.deg < 110 ? "E" : 
+                                                                    110 <= meteo[actualSystem.key].wind.deg && meteo[actualSystem.key].wind.deg < 160 ? "SE" : 
+                                                                    160 <= meteo[actualSystem.key].wind.deg && meteo[actualSystem.key].wind.deg < 200 ? "S" : 
+                                                                    250 <= meteo[actualSystem.key].wind.deg && meteo[actualSystem.key].wind.deg < 290 ? "SW" : 
+                                                                    290 <= meteo[actualSystem.key].wind.deg && meteo[actualSystem.key].wind.deg < 330 ? "W" : "NW" }}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="text-align: left;">
+                                                    <div class="row" style="margin-bottom: 0;">
+                                                        <div class="col s12 m4">
+                                                            <p style="text-align: left; font-size: large; margin: 0;">Planta:</p>
+                                                        </div>
+                                                        <div class="col s12 m4">
+                                                            <p style="margin: 0;"><img src="assets/images/f1.png" alt="Weather icon" style="width: 50px;"></p>
+                                                            <p class="show-in-pc-only" style="text-align: left; margin: -25px 0 0 0;">
+                                                                <span style="font-size: large;">{{ actualSystem.culture }}</span>
+                                                            </p>
+                                                        </div>
+                                                        <div class="col s12 m4 show-in-pc-only">
+                                                            <p style="text-align: left; margin: 0;">
+                                                                <i class="material-icons" style="font-size: small;">error_outline</i>
+                                                                {{ meteo[actualSystem.key].main.pressure }} hPa
+                                                            </p>
+                                                            <p style="text-align: left; margin: 0;">
+                                                                <i class="material-icons" style="font-size: small;">opacity</i>
+                                                                {{ meteo[actualSystem.key].main.humidity }}% Hr
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="text-align: left;">
+                                                    <div class="row" style="margin-bottom: 0;">
+                                                        <div class="col s12 m4">
+                                                            <p style="text-align: left; font-size: large; margin: 0;">Suelo:</p>
+                                                        </div>
+                                                        <div class="col s12 m4">
+                                                            <p style="text-align: left; margin: 0;">
+                                                                <span style="font-size: large;">40%</span> Hs
+                                                            </p>
+                                                        </div>
+                                                        <div class="col s12 m4">
+                                                            <p style="text-align: left; margin: 0;">
+                                                                <i class="material-icons" style="font-size: small;">hdr_weak</i>
+                                                                12 N<sup>+</sup>
+                                                            </p>
+                                                            <p style="text-align: left; margin: 0;">
+                                                                <i class="material-icons" style="font-size: small;">hdr_strong</i>
+                                                                0 P<sup>+</sup>
+                                                            </p>
+                                                            <p style="text-align: left; margin: 0;">
+                                                                <i class="material-icons" style="font-size: small;">hdr_weak</i>
+                                                                7 K<sup>+</sup>
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr class="show-in-pc-only">
+                                                <td><img src="assets/images/DTA-Agricola lineal.png" alt="DTA-Agricola" style="width: 50%;"></td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <div class="col s12 right-align">
+                                        <br class="show-in-mobil-only">
+                                        <div class="btn waves-effect waves-light grey modal-close">
+                                            &nbsp;&nbsp;
+                                            <i class="material-icons">reply</i>
+                                            &nbsp;&nbsp;
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div id="modalConfig" class="modal" style="min-height: 70% !important;" ng-init="as_config = true"> <!-- Modal Configurar Sistema -->
                                 <div class="swal-title">Plan de riego</div>
 
@@ -1795,324 +2133,6 @@
                                 </div>
                             </div>
 
-                            <div id="modalAdjust" class="modal"> <!-- Modal Ajustes del Sistema -->
-                                <div class="swal-title">Ajustes del sistema</div>
-
-                                <div class="modal-content">
-                                    <table class="striped highlight" ng-init="edit = true">
-                                        <tr>
-                                            <td style="text-align: left;">Sistema</td>
-                                            <td style="text-align: left;"><b><i>{{ actualSystem.type }}</b></i></td>
-                                        </tr>
-                                        <tr ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'">
-                                            <td style="text-align: left;">Marca</td>
-                                            <td style="text-align: left;"><b><i>{{ actualSystem.brand }}</b></i></td>
-                                        </tr>
-                                        <tr>
-                                            <td style="text-align: left;">Instalación</td>
-                                            <td style="text-align: left;"><b><i>{{ actualSystem.installation}}</b></i></td>
-                                        </tr>
-                                        <tr>
-                                            <td style="text-align: left;">Id Usuario</td>
-                                            <td style="text-align: left;"><b><i>{{ actualSystem.key }}</i></b></td>
-                                        </tr>
-                                        <tr>
-                                            <td style="text-align: left;">Nombre</td>
-                                            <td style="text-align: left;">
-                                                <input type="text" ng-model="actualSystem.name" ng-readonly="edit">
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td style="text-align: left;">Latitud central</td>
-                                            <td style="text-align: left;"><input type="number"
-                                                    ng-model="actualSystem.latitude" ng-readonly="edit">
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td style="text-align: left;">Longitud central</td>
-                                            <td style="text-align: left;"><input type="number"
-                                                    ng-model="actualSystem.longitude" ng-readonly="edit">
-                                            </td>
-                                        </tr>
-                                        <tr ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'">
-                                            <td style="text-align: left;">Radio</td>
-                                            <td style="text-align: left;">
-                                                <input type="number" ng-model="actualSystem.length" ng-readonly="edit">
-                                            </td>
-                                        </tr>
-                                        <tr ng-show="actualSystem.type != 'Sensor'">
-                                            <td style="text-align: left;">Caudal</td>
-                                            <td style="text-align: left;">
-                                                <input type="number" ng-model="actualSystem.caudal" id="editCaudal" ng-readonly="edit">
-                                            </td>
-                                        </tr>
-                                        <tr ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'">
-                                            <td style="text-align: left;">Max. val. sensor presión</td>
-                                            <td style="text-align: left;">
-                                                <input type="number"
-                                                    ng-model="actualSystem.sensorPresion"
-                                                    ng-readonly="edit">
-                                            </td>
-                                        </tr>
-                                        <tr ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'">
-                                            <td style="text-align: left;">Límite de velocidad</td>
-                                            <td style="text-align: left;">
-                                                <input type="number"
-                                                    ng-model="actualSystem.maxVelocity"
-                                                    ng-readonly="edit">
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td style="text-align: left;">Zona horaria</td>
-                                            <td class="input-field" style="text-align: left;">
-                                                <select class="select" ng-model="actualSystem.zona" ng-disabled="edit"
-                                                    style="display: block !important;">
-                                                    <option ng-selected="actualSystem.zona == -11 ? true : false"
-                                                        value="-11">UTC-11 Pacific</option>
-                                                    <option ng-selected="actualSystem.zona == -10 ? true : false"
-                                                        value="-10">UTC-10 America-Pacific</option>
-                                                    <option ng-selected="actualSystem.zona == -9 ? true : false"
-                                                        value="-9:30">UTC-9:30 Pacific</option>
-                                                    <option ng-selected="actualSystem.zona == -9 ? true : false"
-                                                        value="-9">
-                                                        UTC-9 America-Pacific</option>
-                                                    <option ng-selected="actualSystem.zona == -8 ? true : false"
-                                                        value="-8">
-                                                        UTC-8 America-Pacific</option>
-                                                    <option ng-selected="actualSystem.zona == -7 ? true : false"
-                                                        value="-7">
-                                                        UTC-7 America</option>
-                                                    <option ng-selected="actualSystem.zona == -6 ? true : false"
-                                                        value="-6">
-                                                        UTC-6 America-Pacific</option>
-                                                    <option ng-selected="actualSystem.zona == -5 ? true : false"
-                                                        value="-5">
-                                                        UTC-5 America</option>
-                                                    <option ng-selected="actualSystem.zona == -4 ? true : false"
-                                                        value="-4">
-                                                        UTC-4 America-Atlantic</option>
-                                                    <option ng-selected="actualSystem.zona == -3 ? true : false"
-                                                        value="-3">
-                                                        UTC-3 America-Atlantic</option>
-                                                    <option ng-selected="actualSystem.zona == -2 ? true : false"
-                                                        value="-2">
-                                                        UTC-2 America-Atlantic</option>
-                                                    <option ng-selected="actualSystem.zona == -1 ? true : false"
-                                                        value="-1">
-                                                        UTC-1 America-Atlantic</option>
-                                                    <option ng-selected="actualSystem.zona == +0 ? true : false"
-                                                        value="+0">
-                                                        UTC+0 Africa-America-Atlantic-Europe</option>
-                                                    <option ng-selected="actualSystem.zona == +1 ? true : false"
-                                                        value="+1">
-                                                        UTC+1 Africa-Arctic-Europe</option>
-                                                    <option ng-selected="actualSystem.zona == +2 ? true : false"
-                                                        value="+2">
-                                                        UTC+2 Africa-Europe</option>
-                                                    <option ng-selected="actualSystem.zona == +3 ? true : false"
-                                                        value="+3">
-                                                        UTC+3 Africa-Asia-Europe-Indian</option>
-                                                    <option ng-selected="actualSystem.zona == +4 ? true : false"
-                                                        value="+4">
-                                                        UTC+4 Asia-Europe-Indian</option>
-                                                    <option ng-selected="actualSystem.zona == +5 ? true : false"
-                                                        value="+5">
-                                                        UTC+5 Antarctica-Asia-Indian</option>
-                                                    <option ng-selected="actualSystem.zona == +6 ? true : false"
-                                                        value="+6">
-                                                        UTC+6 Antarctica-Asia-Indian</option>
-                                                    <option ng-selected="actualSystem.zona == +7 ? true : false"
-                                                        value="+7">
-                                                        UTC+7 Antarctica-Asia-Indian</option>
-                                                    <option ng-selected="actualSystem.zona == +8 ? true : false"
-                                                        value="+8">
-                                                        UTC+8 Asia-Australia </option>
-                                                    <option ng-selected="actualSystem.zona == +9 ? true : false"
-                                                        value="+9">
-                                                        UTC+9 Asia-Pacific </option>
-                                                    <option ng-selected="actualSystem.zona == +10 ? true : false"
-                                                        value="+10">UTC+10 Antarctica-Asia-Australia </option>
-                                                    <option ng-selected="actualSystem.zona == +10 ? true : false"
-                                                        value="+10">UTC+10:30 Australia </option>
-                                                    <option ng-selected="actualSystem.zona == +11 ? true : false"
-                                                        value="+11">UTC+11 Antarctica-Asia </option>
-                                                    <option ng-selected="actualSystem.zona == +12 ? true : false"
-                                                        value="+12">UTC+12 Antarctica-Asia </option>
-                                                    <option ng-selected="actualSystem.zona == +13 ? true : false"
-                                                        value="+13">UTC+13 Pacific </option>
-                                                    <option ng-selected="actualSystem.zona == +14 ? true : false"
-                                                        value="+14">UTC+14 Pacific </option>
-                                                </select>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td style="text-align: left;">Horario verano</td>
-                                            <td style="text-align: left;">
-                                                <select ng-model="actualSystem.summerHour"
-                                                    ng-disabled="edit" style="display: block !important;">
-                                                    <option
-                                                        ng-selected="actualSystem.summerHour == 0 ? true : false"
-                                                        value="0">Normal</option>
-                                                    <option
-                                                        ng-selected="actualSystem.summerHour == 1 ? true : false"
-                                                        value="1">Verano</option>
-                                                </select>
-                                            </td>
-                                        </tr>
-                                    </table>
-                                    <br>
-                                    <div class="right-align"
-                                        ng-show="isSystemOfRole('propietario') || isSystemOfRole('desarrollador') || isSystemOfRole('administrador')">
-                                        <div class="btn waves-effect waves-light grey modal-close">
-                                            &nbsp;&nbsp;
-                                            <i class="material-icons">reply</i>
-                                            &nbsp;&nbsp;
-                                        </div>
-            
-                                        <i class="fa fa-pencil btn blue" aria-hidden="true" ng-click="edit = !edit"></i>
-            
-                                        <a href=""
-                                            class="modal-close waves-effect teal waves-green btn"
-                                            ng-click="setMachineConfig()">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i
-                                                class="material-icons">check</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div id="modalSuelo" class="modal"> <!-- Modal Condiciones Agroclimáticas del Sistema -->
-                                <div class="swal-title">Condiciones Agroclimáticas</div>
-
-                                <div class="modal-content row" style="padding-top: 0 !important;">
-                                    <div class="col s12 show-in-pc-only"><br></div>
-                                    <div class="col s12 show-in-mobil-only">
-                                        <span style="text-align: left; font-size: large; margin: 0;">{{ actualSystem.name }}</span>
-                                        <span style="margin: 0; font-size: small;">[{{ actualSystem.latitude }}, {{ actualSystem.longitude }}]</span>
-                                    </div>
-                                    <div class="col s6 m4">
-                                        <img class="show-in-mobil-only" src="assets/images/planta.png" alt="imgPlanta" style="width: 150px; margin: 50px 0 0 -20px;">
-                                        <img class="show-in-pc-only" src="assets/images/planta.png" alt="imgPlanta" style="width: 180px; margin: 20px 0 0 20px;">
-                                    </div>
-                                    <div class="col s6 m8">
-                                        <table class="striped highlight">
-                                            <tr>
-                                                <td style="text-align: left;">
-                                                    <div class="row" style="margin-bottom: 0;">
-                                                        <div class="col s12 m4">
-                                                            <p class="show-in-pc-only" style="text-align: left; font-size: large; margin: 0;">{{ actualSystem.name }}</p>
-                                                        </div>
-                                                        <div class="col s12 m8">
-                                                            <p class="show-in-pc-only" style="margin: 0;">[{{ actualSystem.latitude }}, {{ actualSystem.longitude }}]</p>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td style="text-align: left;">
-                                                    <div class="row" style="margin-bottom: 0;">
-                                                        <div class="col s12 m4">
-                                                            <p style="text-align: left; font-size: large; margin: 0;">Clima:</p>
-                                                        </div>
-                                                        <div class="col s12 m4">
-                                                            <p style="margin: 0;"><img src="{{ meteo[actualSystem.key].weather.iconUrl }}" alt="Weather icon"></p>
-                                                            <p style="text-align: left; margin: -25px 0 0 0;">
-                                                                <span style="font-size: large;">{{ meteo[actualSystem.key].main.temp - 273.15 | number : 0 }}°C</span>
-                                                                <span>{{ (meteo[actualSystem.key].main.temp - 273.15) * 9/5 + 32 | number : 0 }}°F</span>
-                                                            </p>
-                                                        </div>
-                                                        <div class="col s12 m4">
-                                                            <p class="show-in-pc-only" style="text-align: left; margin: 0;">
-                                                                <i class="material-icons" style="font-size: small;">error_outline</i>
-                                                                {{ meteo[actualSystem.key].main.pressure }} hPa
-                                                            </p>
-                                                            <p style="text-align: left; margin: 0;">
-                                                                <i class="material-icons" style="font-size: small;">opacity</i>
-                                                                {{ meteo[actualSystem.key].main.humidity }}% Hr
-                                                            </p>
-                                                            <p class="show-in-pc-only" style="text-align: left; margin: 0;">
-                                                                <i class="material-icons" style="font-size: small;">navigation</i>
-                                                                {{ meteo[actualSystem.key].wind.speed }} km/h 
-                                                                <i class="material-icons" style="font-size: small;">explore</i> 
-                                                                {{ 340 <= meteo[actualSystem.key].wind.deg && meteo[actualSystem.key].wind.deg <  20 ? "N" : 
-                                                                     20 <= meteo[actualSystem.key].wind.deg && meteo[actualSystem.key].wind.deg <  70 ? "NE" : 
-                                                                     70 <= meteo[actualSystem.key].wind.deg && meteo[actualSystem.key].wind.deg < 110 ? "E" : 
-                                                                    110 <= meteo[actualSystem.key].wind.deg && meteo[actualSystem.key].wind.deg < 160 ? "SE" : 
-                                                                    160 <= meteo[actualSystem.key].wind.deg && meteo[actualSystem.key].wind.deg < 200 ? "S" : 
-                                                                    250 <= meteo[actualSystem.key].wind.deg && meteo[actualSystem.key].wind.deg < 290 ? "SW" : 
-                                                                    290 <= meteo[actualSystem.key].wind.deg && meteo[actualSystem.key].wind.deg < 330 ? "W" : "NW" }}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td style="text-align: left;">
-                                                    <div class="row" style="margin-bottom: 0;">
-                                                        <div class="col s12 m4">
-                                                            <p style="text-align: left; font-size: large; margin: 0;">Planta:</p>
-                                                        </div>
-                                                        <div class="col s12 m4">
-                                                            <p style="margin: 0;"><img src="assets/images/f1.png" alt="Weather icon" style="width: 50px;"></p>
-                                                            <p class="show-in-pc-only" style="text-align: left; margin: -25px 0 0 0;">
-                                                                <span style="font-size: large;">{{ actualSystem.culture }}</span>
-                                                            </p>
-                                                        </div>
-                                                        <div class="col s12 m4 show-in-pc-only">
-                                                            <p style="text-align: left; margin: 0;">
-                                                                <i class="material-icons" style="font-size: small;">error_outline</i>
-                                                                {{ meteo[actualSystem.key].main.pressure }} hPa
-                                                            </p>
-                                                            <p style="text-align: left; margin: 0;">
-                                                                <i class="material-icons" style="font-size: small;">opacity</i>
-                                                                {{ meteo[actualSystem.key].main.humidity }}% Hr
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td style="text-align: left;">
-                                                    <div class="row" style="margin-bottom: 0;">
-                                                        <div class="col s12 m4">
-                                                            <p style="text-align: left; font-size: large; margin: 0;">Suelo:</p>
-                                                        </div>
-                                                        <div class="col s12 m4">
-                                                            <p style="text-align: left; margin: 0;">
-                                                                <span style="font-size: large;">40%</span> Hs
-                                                            </p>
-                                                        </div>
-                                                        <div class="col s12 m4">
-                                                            <p style="text-align: left; margin: 0;">
-                                                                <i class="material-icons" style="font-size: small;">hdr_weak</i>
-                                                                12 N<sup>+</sup>
-                                                            </p>
-                                                            <p style="text-align: left; margin: 0;">
-                                                                <i class="material-icons" style="font-size: small;">hdr_strong</i>
-                                                                0 P<sup>+</sup>
-                                                            </p>
-                                                            <p style="text-align: left; margin: 0;">
-                                                                <i class="material-icons" style="font-size: small;">hdr_weak</i>
-                                                                7 K<sup>+</sup>
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr class="show-in-pc-only">
-                                                <td><img src="assets/images/DTA-Agricola lineal.png" alt="DTA-Agricola" style="width: 50%;"></td>
-                                            </tr>
-                                        </table>
-                                    </div>
-                                    <div class="col s12 right-align">
-                                        <br class="show-in-mobil-only">
-                                        <div class="btn waves-effect waves-light grey modal-close">
-                                            &nbsp;&nbsp;
-                                            <i class="material-icons">reply</i>
-                                            &nbsp;&nbsp;
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
                             <div id="modalHistorial" class="modal"> <!-- Modal Historial del Sistema -->
                                 <div class="swal-title">Historial</div>
 
@@ -2324,6 +2344,22 @@
                                             </select>
                                             <label style="top: -28px; font-size: .8em;">Seleccionar Cultivo</label>
                                         </div>
+                                        <div class="input-field col s12 m6">
+                                            <select id="planSetSoil" class="select">
+                                                <option value="1">Arcilloso limoso</option>
+                                                <option value="2">Arcilloso arenoso</option>
+                                                <option value="3">Franco arcilloso</option>
+                                                <option value="4">Franco arcillo limoso</option>
+                                                <option value="5">Franco arcillo arenoso</option>
+                                                <option value="6">Franco</option>
+                                                <option value="7">Franco limoso</option>
+                                                <option value="8">Franco arenoso</option>
+                                                <option value="9">Limoso</option>
+                                                <option value="10">Areno Franco</option>
+                                                <option value="11">Arenoso</option>
+                                            </select>
+                                            <label>Tipo de suelo</label>
+                                        </div>
                                         <div class="col s12 m6" ng-init="planSetSensor = ''">
                                             <select id="planSetSensor" class="select" ng-model="planSetSensor">
                                                 <option value="" disabled selected>Sensor</option>
@@ -2396,6 +2432,22 @@
                                             <label style="top: -28px; font-size: .8em;">Seleccionar Cultivo</label>
                                         </div>
                                         <div class="input-field col s12 m6">
+                                            <select id="editPlanSetSoil" class="select">
+                                                <option value="1">Arcilloso limoso</option>
+                                                <option value="2">Arcilloso arenoso</option>
+                                                <option value="3">Franco arcilloso</option>
+                                                <option value="4">Franco arcillo limoso</option>
+                                                <option value="5">Franco arcillo arenoso</option>
+                                                <option value="6">Franco</option>
+                                                <option value="7">Franco limoso</option>
+                                                <option value="8">Franco arenoso</option>
+                                                <option value="9">Limoso</option>
+                                                <option value="10">Areno Franco</option>
+                                                <option value="11">Arenoso</option>
+                                            </select>
+                                            <label>Tipo de suelo</label>
+                                        </div>
+                                        <div class="input-field col s12 m6">
                                             <select id="editPlanSetSensor" ng-model="editSelectedPlan.sensor">
                                                 <option value="{{ sensor.name }}" ng-repeat="sensor in systems" ng-if="sensor.type == 'Sensor'">{{ sensor.name }}</option>
                                             </select>
@@ -2432,14 +2484,14 @@
                                     </div>
                                     <ul class="collapsible">
                                         <li class="active"> <!-- Selecionar cultivo y fecha de siembra -->
-                                            <div class="collapsible-header"><i class="material-icons">spa</i>Cultivo: &nbsp;&nbsp;<b style="font-size: 1.2em;">{{ actualSystem.plots[editedPlan].culture }}</b></div>
+                                            <div class="collapsible-header"><i class="material-icons">spa</i>Cultivo: &nbsp;&nbsp;<b>{{ actualSystem.plots[editedPlan].culture }}</b></div>
                                             <div class="collapsible-body">
                                                 <div style="padding: 10px; border: 1px solid grey; border-radius: 5px; margin: 5px;">
                                                     <div class="row">
                                                         <div class="input-field col s12 m6">
                                                             <select id="selectPlotCulture" ng-model="plan.culture">
                                                                 <option value="" disabled>Seleccionar nuevo cultivo</option>
-                                                                <option value="{{ plan.culture }}" ng-repeat="plan in listPlanesRiego">{{ plan.culture }}</option>
+                                                                <option value="{{ plan.culture }}" ng-repeat="plan in listPlanesRiego" selected="{{ plan.culture == actualSystem.plots[editedPlan].culture ? 'selected' : '' }}">{{ plan.culture }}</option>
                                                             </select>
                                                             <label>Cultivo actual</label>
                                                         </div>
@@ -2454,7 +2506,7 @@
                                             </div>
                                         </li>
                                         <li> <!-- Estrateia de riego -->
-                                            <div class="collapsible-header"><i class="material-icons">tune</i>Estrategia de riego</div>
+                                            <div class="collapsible-header"><i class="material-icons">tune</i>Estrategia de riego:&nbsp;<b>{{ actualSystem.plots[editedPlan].irrigationPlan == 0 ? 'Manual' : actualSystem.plots[editedPlan].irrigationPlan == 1 ? 'Plan de riego' : actualSystem.plots[editedPlan].irrigationPlan == 2 ? 'Demanda' : 'Predictivo' }}</b></div>
                                             <div class="collapsible-body">
                                                 <div class="row" style="border: 1px solid grey; border-radius: 5px; margin: 5px;">
                                                     <div class="input-field col s12" style="padding: 0;">
@@ -2491,7 +2543,7 @@
                                                         <!-- Riego manual -->
                                                         <div style="padding: 0 5px; text-align: center;" ng-show="actualSystem.plots[editedPlan].irrigationPlan == 0">
                                                             <a style="width: 100%; border: 2px solid grey; border-radius: 5px; height: 40px;" 
-                                                                ng-click="startPlotIrrigation()" ng-show="!isPlotActive(actualSystem, editedPlan)"
+                                                                ng-click="editTiempoRiegoManual(); startPlotIrrigation();" ng-show="!isPlotActive(actualSystem, editedPlan)"
                                                                 class="waves-effect waves-light btn modal-trigger green lighten-3 right-align">
                                                                 <i class="material-icons" style="font-size: 3em;">play_arrow</i>
                                                             </a>
@@ -2500,6 +2552,21 @@
                                                                 class="waves-effect waves-light btn modal-trigger red lighten-3 right-align">
                                                                 <i class="material-icons" style="font-size: 3em;">stop</i>
                                                             </a>
+                                                            <div class="row">
+                                                                <div class="input-field col s4">
+                                                                    <input id="editDayManual" type="number" class="right-align" min="0" max="30" value="{{ getDayFromMs(actualSystem.plots[editedPlan].value) }}">
+                                                                    <label>Días</label>
+                                                                </div>
+                                                                <div class="input-field col s4">
+                                                                    <input id="editHourManual" type="number" class="right-align" min="0" max="24" value="{{ getHourFromMs(actualSystem.plots[editedPlan].value) }}">
+                                                                    <label>Horas</label>
+                                                                </div>
+                                                                <div class="input-field col s4">
+                                                                    <input id="editMinutesManual" type="number" class="right-align" min="0" max="60" value="{{ getMinutesFromMs(actualSystem.plots[editedPlan].value) }}">
+                                                                    <label>Min</label>
+                                                                </div>
+                                                                <div class="col s12 red-text"><b>Nota: </b><i>"Los cambios en el tiempo de riego se hacen efectivos al hacer clic en el botón iniciar"</i></div>
+                                                            </div>
                                                             <img src="assets/images/options.png" alt="options" style="width: 80%;">
                                                         </div>
 
@@ -2691,6 +2758,40 @@
                                                         <input id="editName" type="text" placeholder="Parcela" ng-model="actualSystem.plots[editedPlan].name">
                                                         <label>Parcela</label>
                                                     </div>
+                                                    <div class="input-field col s12 m6">
+                                                        <input type="number" id="editPlotCaudal" min="0" max="100" value="0">
+                                                        <label>Caudal (m<sup>3</sup>/s)</label>
+                                                    </div>
+                                                    <div class="input-field col s12 m6" ng-init="actualValve = actualSystem.plots[editedPlan].valve">
+                                                        <select id="editType" class="select">
+                                                            <option value="F" {{ actualValve == "F" ? "selected" : "" }}>Solenoide</option>
+                                                            <option value="P" {{ actualValve == "P" ? "selected" : "" }}>Pulso</option>
+                                                        </select>
+                                                        <label>Tipo de electroválvula</label>
+                                                    </div>
+                                                    <div class="input-field col s12 m6" ng-init="planSetSensor = ''">
+                                                        <select id="editEqSensor" class="select" ng-model="planSetSensor">
+                                                            <option value="" disabled selected>Seleccionar sensor</option>
+                                                            <option value="{{ sensor.key }}" ng-repeat="sensor in systems" ng-if="sensor.type == 'Sensor'" {{ actualSystem.plots[editedPlan].sensor == sensor.key ? "selected" : "" }}>{{ sensor.name }}</option>
+                                                        </select>
+                                                        <label>Asignar sensor - {{ actualSystem.plots[editedPlan].sensor }}</label>
+                                                    </div>            
+                                                    <div class="input-field col s12 m6">
+                                                        <select id="editSoil" class="select">
+                                                            <option value="a" {{ actualSystem.plots[editedPlan].soil == "a" ? "selected" : "" }}>Arcilloso limoso</option>
+                                                            <option value="b" {{ actualSystem.plots[editedPlan].soil == "b" ? "selected" : "" }}>Arcilloso arenoso</option>
+                                                            <option value="c" {{ actualSystem.plots[editedPlan].soil == "c" ? "selected" : "" }}>Franco arcilloso</option>
+                                                            <option value="d" {{ actualSystem.plots[editedPlan].soil == "d" ? "selected" : "" }}>Franco arcillo limoso</option>
+                                                            <option value="5" {{ actualSystem.plots[editedPlan].soil == "5" ? "selected" : "" }}>Franco arcillo arenoso</option>
+                                                            <option value="6" {{ actualSystem.plots[editedPlan].soil == "6" ? "selected" : "" }}>Franco</option>
+                                                            <option value="7" {{ actualSystem.plots[editedPlan].soil == "7" ? "selected" : "" }}>Franco limoso</option>
+                                                            <option value="8" {{ actualSystem.plots[editedPlan].soil == "8" ? "selected" : "" }}>Franco arenoso</option>
+                                                            <option value="9" {{ actualSystem.plots[editedPlan].soil == "9" ? "selected" : "" }}>Limoso</option>
+                                                            <option value="10" {{ actualSystem.plots[editedPlan].soil == "10" ? "selected" : "" }}>Areno Franco</option>
+                                                            <option value="11" {{ actualSystem.plots[editedPlan].soil == "11" ? "selected" : "" }}>Arenoso</option>
+                                                        </select>
+                                                        <label>Tipo de suelo - {{ actualSystem.plots[editedPlan].soil }}</label>
+                                                    </div>
                                                     <div class="input-field col s12">
                                                         <div class="row">
                                                             <div class="col s8 m10">
@@ -2706,29 +2807,6 @@
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                    <div class="input-field col s12 m6">
-                                                        <select id="editType" class="select">
-                                                            <option value="F" selected>Solenoide</option>
-                                                            <option value="P">Pulso</option>
-                                                        </select>
-                                                        <label>Tipo de electroválvula</label>
-                                                    </div>
-                                                    <div class="input-field col s12 m6">
-                                                        <select id="editSoil" class="select">
-                                                            <option value="1">Arcilloso limoso</option>
-                                                            <option value="2">Arcilloso arenoso</option>
-                                                            <option value="3">Franco arcilloso</option>
-                                                            <option value="4">Franco arcillo limoso</option>
-                                                            <option value="5">Franco arcillo arenoso</option>
-                                                            <option value="6">Franco</option>
-                                                            <option value="7">Franco limoso</option>
-                                                            <option value="8">Franco arenoso</option>
-                                                            <option value="9">Limoso</option>
-                                                            <option value="10">Areno Franco</option>
-                                                            <option value="11">Arenoso</option>
-                                                        </select>
-                                                        <label>Tipo de suelo</label>
                                                     </div>
                                                     <div class="input-field col s12 m3 center-align" style="width: 100%;">
                                                         <a href="" ng-click="editPlanEstacionario()" style="width: 100%;"
@@ -2840,6 +2918,20 @@
                                         <div class="input-field col s12 m6">
                                             <input type="datetime-local" id="schDate" name="schDate">
                                             <label class="active" for="startDate">Fecha de riego</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="input-field col s4">
+                                            <input id="setDay" type="number" placeholder="0" min="0" max="365" value="0" readonly>
+                                            <label>Días</label>
+                                        </div>
+                                        <div class="input-field col s4">
+                                            <input id="setHour" type="number" placeholder="0" min="0" max="24" value="0">
+                                            <label>Horas</label>
+                                        </div>
+                                        <div class="input-field col s4">
+                                            <input id="setMinutes" type="number" placeholder="0" min="0" max="60" value="0">
+                                            <label>Minutos</label>
                                         </div>
                                     </div>
                                 </div>
@@ -4055,7 +4147,7 @@
         <script src="./assets/modules/chart.js/chart.js"></script>
         <script src="./assets/js/commons.js"></script>
         <!-- <script src="./assets/cultures/listPlanesRiego.js"></script> -->
-        <script src="./assets/js/core.js?v=1.5"></script>
+        <script src="./assets/js/core.js?v=1.6"></script>
         <!-- <script src="monitor/js/chartjs/chart.min.js"></script> -->
         <script type="text/javascript" src="./assets/modules/datepicker/daterangepicker.js"></script>
 
