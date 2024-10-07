@@ -1443,7 +1443,7 @@
                             <div id="modalAdjust" class="modal"> <!-- Modal Ajustes del Sistema -->
                                 <div class="swal-title">Ajustes del sistema</div>
 
-                                <div class="modal-content">
+                                <div class="modal-content row">
                                     <div class="col s12 m4">
                                         <item ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'">
                                             <img class="show-in-mobil-only" src="assets/images/Pv66.png" alt="imgPlanta" style="width: 150px; margin-left: -20px;">
@@ -1647,36 +1647,22 @@
                             <div id="modalSuelo" class="modal"> <!-- Modal Condiciones Agroclimáticas del Sistema -->
                                 <div class="swal-title">Condiciones Agroclimáticas</div>
 
-                                <div class="modal-content row" style="padding-top: 0 !important;">
-                                    <div class="col s12 show-in-pc-only"><br></div>
-                                    <div class="col s12 show-in-mobil-only">
-                                        <span style="text-align: left; font-size: large; margin: 0;">{{ actualSystem.name }}</span>
-                                        <span style="margin: 0; font-size: small;">[{{ actualSystem.latitude }}, {{ actualSystem.longitude }}]</span>
+                                <div class="modal-content row" style="padding-top: 0 !important; margin: auto;">
+                                    <div class="col s12 center-align show-in-pc-only"><br></div>
+                                    <div class="col s12 m4 centerImage">
+                                        <img class="show-in-mobil-only" src="assets/images/planta.png" alt="imgPlanta" style="width: 80px; margin-top: 10px;">
+                                        <img class="show-in-pc-only" src="assets/images/planta.png" alt="imgPlanta" style="width: 130px; margin: 20px 0 0 20px;">
                                     </div>
-                                    <div class="col s6 m4">
-                                        <img class="show-in-mobil-only" src="assets/images/planta.png" alt="imgPlanta" style="width: 150px; margin: 50px 0 0 -20px;">
-                                        <img class="show-in-pc-only" src="assets/images/planta.png" alt="imgPlanta" style="width: 180px; margin: 20px 0 0 20px;">
-                                    </div>
-                                    <div class="col s6 m8">
+                                    <div class="col s12 m8">
                                         <table class="striped highlight">
                                             <tr>
-                                                <td style="text-align: left;">
-                                                    <div class="row" style="margin-bottom: 0;">
-                                                        <div class="col s12 m4">
-                                                            <p class="show-in-pc-only" style="text-align: left; font-size: large; margin: 0;">{{ actualSystem.name }}</p>
-                                                        </div>
-                                                        <div class="col s12 m8">
-                                                            <p class="show-in-pc-only" style="margin: 0;">[{{ actualSystem.latitude }}, {{ actualSystem.longitude }}]</p>
-                                                        </div>
-                                                    </div>
-                                                </td>
+                                                <td style="text-align: left; font-size: large;">{{ actualSystem.name }}</td>
+                                                <td style="text-align: left;">[{{ actualSystem.latitude }}, {{ actualSystem.longitude }}]</td>
                                             </tr>
                                             <tr>
+                                                <td style="text-align: left; font-size: large;">Clima</td>
                                                 <td style="text-align: left;">
                                                     <div class="row" style="margin-bottom: 0;">
-                                                        <div class="col s12 m4">
-                                                            <p style="text-align: left; font-size: large; margin: 0;">Clima:</p>
-                                                        </div>
                                                         <div class="col s12 m4">
                                                             <p style="margin: 0;"><img src="{{ meteo[actualSystem.key].weather.iconUrl }}" alt="Weather icon"></p>
                                                             <p style="text-align: left; margin: -25px 0 0 0;">
@@ -1684,7 +1670,7 @@
                                                                 <span>{{ (meteo[actualSystem.key].main.temp - 273.15) * 9/5 + 32 | number : 0 }}°F</span>
                                                             </p>
                                                         </div>
-                                                        <div class="col s12 m4">
+                                                        <div class="col s12 m8">
                                                             <p class="show-in-pc-only" style="text-align: left; margin: 0;">
                                                                 <i class="material-icons" style="font-size: small;">error_outline</i>
                                                                 {{ meteo[actualSystem.key].main.pressure }} hPa
@@ -1698,8 +1684,8 @@
                                                                 {{ meteo[actualSystem.key].wind.speed }} km/h 
                                                                 <i class="material-icons" style="font-size: small;">explore</i> 
                                                                 {{ 340 <= meteo[actualSystem.key].wind.deg && meteo[actualSystem.key].wind.deg <  20 ? "N" : 
-                                                                     20 <= meteo[actualSystem.key].wind.deg && meteo[actualSystem.key].wind.deg <  70 ? "NE" : 
-                                                                     70 <= meteo[actualSystem.key].wind.deg && meteo[actualSystem.key].wind.deg < 110 ? "E" : 
+                                                                        20 <= meteo[actualSystem.key].wind.deg && meteo[actualSystem.key].wind.deg <  70 ? "NE" : 
+                                                                        70 <= meteo[actualSystem.key].wind.deg && meteo[actualSystem.key].wind.deg < 110 ? "E" : 
                                                                     110 <= meteo[actualSystem.key].wind.deg && meteo[actualSystem.key].wind.deg < 160 ? "SE" : 
                                                                     160 <= meteo[actualSystem.key].wind.deg && meteo[actualSystem.key].wind.deg < 200 ? "S" : 
                                                                     250 <= meteo[actualSystem.key].wind.deg && meteo[actualSystem.key].wind.deg < 290 ? "SW" : 
@@ -1710,18 +1696,16 @@
                                                 </td>
                                             </tr>
                                             <tr>
+                                                <td style="text-align: left; font-size: large;">Planta:</td>
                                                 <td style="text-align: left;">
                                                     <div class="row" style="margin-bottom: 0;">
-                                                        <div class="col s12 m4">
-                                                            <p style="text-align: left; font-size: large; margin: 0;">Planta:</p>
-                                                        </div>
                                                         <div class="col s12 m4">
                                                             <p style="margin: 0;"><img src="assets/images/f1.png" alt="Weather icon" style="width: 50px;"></p>
                                                             <p class="show-in-pc-only" style="text-align: left; margin: -25px 0 0 0;">
                                                                 <span style="font-size: large;">{{ actualSystem.culture }}</span>
                                                             </p>
                                                         </div>
-                                                        <div class="col s12 m4 show-in-pc-only">
+                                                        <div class="col s12 m8 show-in-pc-only">
                                                             <p style="text-align: left; margin: 0;">
                                                                 <i class="material-icons" style="font-size: small;">error_outline</i>
                                                                 {{ meteo[actualSystem.key].main.pressure }} hPa
@@ -1735,17 +1719,15 @@
                                                 </td>
                                             </tr>
                                             <tr>
+                                                <td style="text-align: left; font-size: large;">Suelo:</td>
                                                 <td style="text-align: left;">
                                                     <div class="row" style="margin-bottom: 0;">
                                                         <div class="col s12 m4">
-                                                            <p style="text-align: left; font-size: large; margin: 0;">Suelo:</p>
-                                                        </div>
-                                                        <div class="col s12 m4">
                                                             <p style="text-align: left; margin: 0;">
-                                                                <span style="font-size: large;">40%</span> Hs
+                                                                <span style="font-size: x-large;">40%</span> Hs
                                                             </p>
                                                         </div>
-                                                        <div class="col s12 m4">
+                                                        <div class="col s12 m8">
                                                             <p style="text-align: left; margin: 0;">
                                                                 <i class="material-icons" style="font-size: small;">hdr_weak</i>
                                                                 12 N<sup>+</sup>
@@ -1762,13 +1744,13 @@
                                                     </div>
                                                 </td>
                                             </tr>
-                                            <tr class="show-in-pc-only">
-                                                <td><img src="assets/images/DTA-Agricola lineal.png" alt="DTA-Agricola" style="width: 50%;"></td>
+                                            <tr>
+                                                <td colspan="2"><img src="assets/images/DTA-Agricola lineal.png" class="show-in-pc-only" alt="DTA-Agricola" style="width: 50%;"></td>
                                             </tr>
                                         </table>
                                     </div>
                                     <div class="col s12 right-align">
-                                        <br class="show-in-mobil-only">
+                                        <br>
                                         <div class="btn waves-effect waves-light grey modal-close">
                                             &nbsp;&nbsp;
                                             <i class="material-icons">reply</i>
@@ -1947,7 +1929,7 @@
                                                 </div>
                                             </li>
                                             <li> <!-- Estrateia de sensado -->
-                                                <div class="collapsible-header"><i class="material-icons">tune</i>Estrategia de riego</div>
+                                                <div class="collapsible-header"><i class="material-icons">tune</i><span class="show-in-pc-only">Estrategia de muestreo</span><span class="show-in-mobil-only">Muestreo</span></div>
                                                 <div class="collapsible-body">
                                                     <div class="row" style="border: 1px solid grey; border-radius: 5px; margin: 5px; text-align: left;">
                                                         <!-- <div class="input-field" style="padding: 0 10px;">
@@ -2136,96 +2118,103 @@
                             <div id="modalHistorial" class="modal"> <!-- Modal Historial del Sistema -->
                                 <div class="swal-title">Historial</div>
 
-                                <div class="modal-content">
+                                <div class="modal-content row">
 
-                                    <ul class="row collapsible" ng-show="actualSystem.type != 'Sensor'">
-                                        <li class="col s12" ng-repeat="reg in invertedRegisters">
-                                            <div class="gray-text white collapsible-header row"
-                                                ng-click="modalLogDetail_$index = !modalLogDetail_$index"
-                                                ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'"
-                                                style="background: {{ actualSystem.status == true && reg.voltage == 'false' ? '#ff000070 !important' : 
-                                                        actualSystem.status == true && reg.safety == 'false' ? '#db7093a0 !important' : 
-                                                        reg.state == 'ON' ? '#20b2aaa0 !important' : 'lightgray !important' }}; margin-bottom: 0px;">
-                                                <div class="col s12">
-                                                    <b style="font-size: 1.3em;">{{ actualSystem.status == true && reg.voltage == 'false' ?
-                                                        'Falla de Electricidad' :
-                                                        actualSystem.status == true && reg.safety == 'false' ?
-                                                        'Falla de Seguridad' :
-                                                        reg.state == 'ON' ? 'Sistema Encendido' : 'Sistema Apagado'
-                                                        }}</b><br>
-                                                    <span>[{{ reg.date.substr(4,13) }} - {{ reg.update.substr(4,13)
-                                                        }}]</span> <br>
-                                                </div>
-                                            </div>
-                                            <div class="gray-text white collapsible-header row"
-                                                ng-click="modalLogDetail_$index = !modalLogDetail_$index"
-                                                ng-show="actualSystem.type == 'Estacionario'"
-                                                style="background: {{ reg.state == 'ON' ? 'lightseagreen !important' : 'lightgray !important' }}; color: {{ reg.state == 'ON' ? 'white' : 'black' }};  margin-bottom: 0px;">
-                                                <div class="col 12">
-                                                    <span style="font-size: 1.3em;"><b>{{ reg.state == "ON" ?
-                                                            "Sistema Encendido" : "Sistema Apagado"
-                                                            }}</b></span><br>
-                                                    <span>[{{ reg.date.substr(4,13) }} - {{ reg.update.substr(4,13)
-                                                        }}]</span> <br>
-                                                </div>
-                                            </div>
-                                            <div class="collapsible-body" style="padding: 1rem; font-size: 1em;">
-                                                <p>Fecha inicial: <b>{{ reg.date }}</b></p>
-                                                <p>Actualización: <b>{{ reg.update }}</b></p>
-                                                <p ng-show="actualSystem.type == 'Estacionario'">Parcela: <b>{{
-                                                        strToInt(reg.plot) + 1 }}</b></p>
-                                                <p ng-show="actualSystem.type == 'Estacionario'">Tiempo activación:
-                                                    <b>{{ msToTime(reg.activationTime) }}</b></p>
-                                                <p ng-show="actualSystem.type == 'PC'">Presión: <b>{{ reg.presion <
-                                                            1 ? "Presión Baja" : "Presión Normal" }}</b>
-                                                </p>
-                                                <p ng-show="actualSystem.type == 'PC'">Dirección: <b>{{ reg.direction }}</b></p>
-                                                <p ng-show="actualSystem.type == 'PC'">Velocidad: <b>{{ reg.speed }}</b></p>
-                                                <p ng-show="actualSystem.type == 'PC'">Latitud: <b>{{ reg.latitude }}</b></p>
-                                                <p ng-show="actualSystem.type == 'PC'">Longitud: <b>{{ reg.longitude }}</b></p>
-                                                <p ng-show="actualSystem.type == 'PC'">Posición: <b>{{ reg.position }}</b></p>
-                                                <p ng-show="actualSystem.type == 'PC'">Presión: <b>{{ reg.presion }}</b></p>
-                                                <p ng-show="actualSystem.type == 'PC'">Recepción: <b>{{ reg.reception }}</b></p>
-                                                <p ng-show="actualSystem.type == 'PC'">Autoreversa: <b>{{ reg.autoreverse }}</b></p>
-                                                <p ng-show="actualSystem.type == 'PC'">Seguridad: 
-                                                    <b><span style="color:{{ reg.safety == 'true' ? 'black' : 'red' }};">{{ reg.safety }}</span></b>
-                                                </p>
-                                                <p ng-show="actualSystem.type == 'PC'">Voltaje: 
-                                                    <b><span style="color:{{ reg.voltage == 'true' ? 'black' : 'red' }};">{{ reg.voltage }}</span></b>
-                                                </p>
-                                                <p>Señal: <b>{{ reg.signal }}</b></p>
-                                            </div>
-                                        </li>
-                                    </ul>
-
-                                    <canvas id="myChart" ng-show="actualSystem.type == 'Sensor'" style="position: relative; height:30vh; width:40vw;"></canvas>
-                                    
-                                    <p class="range-field" ng-show="actualSystem.type == 'Sensor'">
-                                        <input type="range" id="chartZoom" min="10" max="500" value="10"/>
-                                    </p>
-
-                                    <!-- <ul class="row collapsible" ng-show="actualSystem.type == 'Sensor'">
-                                        <li class="col s12" ng-repeat="reg in invertedRegisters">
-                                            <div class="gray-text row" style="border-bottom: 1px solid lightgray; margin-bottom: 0px;">
-                                                <div class="col s3 m1 valign-wrapper">
-                                                    {{ reg.date.substr(6,2) }}/{{ reg.date.substr(4,2) }} {{ reg.date.substr(9,2) }}:{{ reg.date.substr(11,5) }}
-                                                </div>
-                                                <div class="col s9 m11 left-align">
-                                                    <b style="font-size: 1.5em;">{{ (100 - ((reg.meanVal - actualSystem.sensors.S0.minValue) / (actualSystem.sensors.S0.maxValue - actualSystem.sensors.S0.minValue) * 100)) | number : 0 }}%</b> 
-                                                    <! -- <span class="show-in-pc-only">&nbsp;&nbsp;&nbsp;</span> -- >
-                                                    <span>
-                                                        [{{ (100 - ((reg.minVal - actualSystem.sensors.S0.minValue) / (actualSystem.sensors.S0.maxValue - actualSystem.sensors.S0.minValue) * 100)) | number : 0 }}%  ~ {{ (100 - ((reg.maxVal - actualSystem.sensors.S0.minValue) / (actualSystem.sensors.S0.maxValue - actualSystem.sensors.S0.minValue) * 100)) | number : 0 }}%] 
-                                                    </span>
-                                                    <! -- <span class="show-in-pc-only">&nbsp;&nbsp;&nbsp;</span> -- >
-                                                    <! -- <span class="show-in-pc-only" style="display: inline;">Batería:</span> -- >
-                                                    <! -- <br class="show-in-mobil-only"> -- >
-                                                    <span> [{{ parseJSON(reg.voltages)[0] | number : 1 }}v]</span>
-                                                </div>
-                                            </div>
-                                        </li>
-                                    </ul> -->
-
-                                    <div class="right-align">
+                                    <div class="col s12 m4 centerImage">
+                                        <img class="show-in-mobil-only" src="assets/images/logs.png" alt="imgPlanta" style="width: 80px; margin-left: -20px;">
+                                        <img class="show-in-pc-only" src="assets/images/logs.png" alt="imgPlanta" style="width: 130px; margin: 20px 0 0 20px;">
+                                    </div>
+                                    <div class="col s12 m8">
+                                        <div ng-show="actualSystem.type != 'Sensor'">
+                                            <ul class="row collapsible">
+                                                <li class="col s12" ng-repeat="reg in invertedRegisters">
+                                                    <div class="gray-text white collapsible-header row"
+                                                        ng-click="modalLogDetail_$index = !modalLogDetail_$index"
+                                                        ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'"
+                                                        style="border-left: 10px solid {{ actualSystem.status == true && reg.voltage == 'false' ? '#ff000070 !important' : 
+                                                                actualSystem.status == true && reg.safety == 'false' ? '#db7093a0 !important' : 
+                                                                reg.state == 'ON' ? '#20b2aaa0 !important' : 'lightgray !important' }}; margin-bottom: 5px;">
+                                                        <div class="col s12">
+                                                            <span style="font-size: 1.3em;"><b>{{ actualSystem.status == true && reg.voltage == 'false' ?
+                                                                'Falla de Electricidad' :
+                                                                actualSystem.status == true && reg.safety == 'false' ?
+                                                                'Falla de Seguridad' :
+                                                                reg.state == 'ON' ? 'Sistema Encendido' : 'Sistema Apagado'
+                                                                }}</b></span><br>
+                                                            <span>[{{ reg.date.substr(4,13) }} - {{ reg.update.substr(4,13)
+                                                                }}] - {{ calculateDifference(reg.date, reg.update) }}</span> <br>
+                                                        </div>
+                                                    </div>
+                                                    <div class="gray-text white collapsible-header row"
+                                                        ng-click="modalLogDetail_$index = !modalLogDetail_$index"
+                                                        ng-show="actualSystem.type == 'Estacionario'"
+                                                        style="border-left: 10px solid {{ reg.state == 'ON' ? 'lightseagreen !important' : 'lightgray !important' }}; margin-bottom: 5px;">
+                                                        <div class="col 12">
+                                                            <span style="font-size: 1.3em;"><b>{{ reg.state == "ON" ?
+                                                                    "Sistema Encendido" : "Sistema Apagado"
+                                                                    }}</b></span><br>
+                                                            <span>[{{ reg.date.substr(4,13) }} - {{ reg.update.substr(4,13)
+                                                                }}] - {{ calculateDifference(reg.date, reg.update) }}</span> <br>
+                                                        </div>
+                                                    </div>
+                                                    <div class="collapsible-body" style="padding: 1rem; font-size: 1em;">
+                                                        <p>Fecha inicial: <b>{{ reg.date }}</b></p>
+                                                        <p>Actualización: <b>{{ reg.update }}</b></p>
+                                                        <p ng-show="actualSystem.type == 'Estacionario'">Parcela: <b>{{
+                                                                strToInt(reg.plot) + 1 }}</b></p>
+                                                        <p ng-show="actualSystem.type == 'Estacionario'">Tiempo activación:
+                                                            <b>{{ msToTime(reg.activationTime) }}</b></p>
+                                                        <p ng-show="actualSystem.type == 'PC'">Presión: <b>{{ reg.presion <
+                                                                    1 ? "Presión Baja" : "Presión Normal" }}</b>
+                                                        </p>
+                                                        <p ng-show="actualSystem.type == 'PC'">Dirección: <b>{{ reg.direction }}</b></p>
+                                                        <p ng-show="actualSystem.type == 'PC'">Velocidad: <b>{{ reg.speed }}</b></p>
+                                                        <p ng-show="actualSystem.type == 'PC'">Latitud: <b>{{ reg.latitude }}</b></p>
+                                                        <p ng-show="actualSystem.type == 'PC'">Longitud: <b>{{ reg.longitude }}</b></p>
+                                                        <p ng-show="actualSystem.type == 'PC'">Posición: <b>{{ reg.position }}</b></p>
+                                                        <p ng-show="actualSystem.type == 'PC'">Presión: <b>{{ reg.presion }}</b></p>
+                                                        <p ng-show="actualSystem.type == 'PC'">Recepción: <b>{{ reg.reception }}</b></p>
+                                                        <p ng-show="actualSystem.type == 'PC'">Autoreversa: <b>{{ reg.autoreverse }}</b></p>
+                                                        <p ng-show="actualSystem.type == 'PC'">Seguridad: 
+                                                            <b><span style="color:{{ reg.safety == 'true' ? 'black' : 'red' }};">{{ reg.safety }}</span></b>
+                                                        </p>
+                                                        <p ng-show="actualSystem.type == 'PC'">Voltaje: 
+                                                            <b><span style="color:{{ reg.voltage == 'true' ? 'black' : 'red' }};">{{ reg.voltage }}</span></b>
+                                                        </p>
+                                                        <p>Señal: <b>{{ reg.signal }}</b></p>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div ng-show="actualSystem.type == 'Sensor'">
+                                            <canvas id="myChart" ng-show="actualSystem.type == 'Sensor'" style="position: relative; height:30vh; width:40vw;"></canvas>   
+                                            <p class="range-field" ng-show="actualSystem.type == 'Sensor'">
+                                                <input type="range" id="chartZoom" min="10" max="500" value="10"/>
+                                            </p>
+                                            <!-- <ul class="row collapsible">
+                                                <li class="col s12" ng-repeat="reg in invertedRegisters">
+                                                    <div class="gray-text row" style="border-bottom: 1px solid lightgray; margin-bottom: 0px;">
+                                                        <div class="col s3 m1 valign-wrapper">
+                                                            {{ reg.date.substr(6,2) }}/{{ reg.date.substr(4,2) }} {{ reg.date.substr(9,2) }}:{{ reg.date.substr(11,5) }}
+                                                        </div>
+                                                        <div class="col s9 m11 left-align">
+                                                            <b style="font-size: 1.5em;">{{ (100 - ((reg.meanVal - actualSystem.sensors.S0.minValue) / (actualSystem.sensors.S0.maxValue - actualSystem.sensors.S0.minValue) * 100)) | number : 0 }}%</b> 
+                                                            <! -- <span class="show-in-pc-only">&nbsp;&nbsp;&nbsp;</span> -- >
+                                                            <span>
+                                                                [{{ (100 - ((reg.minVal - actualSystem.sensors.S0.minValue) / (actualSystem.sensors.S0.maxValue - actualSystem.sensors.S0.minValue) * 100)) | number : 0 }}%  ~ {{ (100 - ((reg.maxVal - actualSystem.sensors.S0.minValue) / (actualSystem.sensors.S0.maxValue - actualSystem.sensors.S0.minValue) * 100)) | number : 0 }}%] 
+                                                            </span>
+                                                            <! -- <span class="show-in-pc-only">&nbsp;&nbsp;&nbsp;</span> -- >
+                                                            <! -- <span class="show-in-pc-only" style="display: inline;">Batería:</span> -- >
+                                                            <! -- <br class="show-in-mobil-only"> -- >
+                                                            <span> [{{ parseJSON(reg.voltages)[0] | number : 1 }}v]</span>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                            </ul> -->
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <div class="col s12 right-align">
                                         <div class="btn waves-effect waves-light grey modal-close">
                                             &nbsp;&nbsp;
                                             <i class="material-icons">reply</i>
@@ -2239,32 +2228,40 @@
                             <div id="modalUsuarios" class="modal"> <!-- Modal Usuarios del Sistema -->
                                 <div class="swal-title">Usuarios</div>
 
-                                <div class="modal-content" style="padding: 24px 5px 0 5px;">
-                                    <div ng-repeat="reg in users[actualSystem.key]"
-                                        ng-show="reg.alias != authUser.displayName">
-                                        <div class="sercices-options gray-text white">
-                                            <div class="row" style="margin-bottom: 0;">
-                                                <div class="col s1">
-                                                    <i class="fa fa-user" aria-hidden="true" style="margin-top: 5px;"></i>
-                                                </div>
-                                                <div class="col s10">{{ reg.alias }} <br> [{{ reg.role }}]</div>
-                                                <div class="col s1 right-align">
-                                                    <i class="fa fa-trash-o" aria-hidden="true"
-                                                        ng-click="deleteUser(actualSystem.key, reg.alias)"
-                                                        ng-show="isSystemOfRole('propietario') || isSystemOfRole('administrador')"></i>
+                                <div class="modal-content row" style="padding: 24px 5px 0 5px;">
+
+                                    <div class="col s12 m4 centerImage">
+                                        <img class="show-in-mobil-only" src="assets/images/shared.png" alt="imgPlanta" style="width: 100px; margin-left: -20px;">
+                                        <img class="show-in-pc-only" src="assets/images/shared.png" alt="imgPlanta" style="width: 180px; margin: 20px 0 0 20px;">
+                                    </div>
+                                    <div class="col s12 m8">
+                                        <div ng-repeat="reg in users[actualSystem.key]"
+                                            ng-show="reg.alias != authUser.displayName">
+                                            <div class="sercices-options gray-text white">
+                                                <div class="row" style="margin-bottom: 0;">
+                                                    <div class="col s1">
+                                                        <i class="fa fa-user" aria-hidden="true" style="margin-top: 5px;"></i>
+                                                    </div>
+                                                    <div class="col s10">{{ reg.alias }} <br> [{{ reg.role }}]</div>
+                                                    <div class="col s1 right-align">
+                                                        <i class="fa fa-trash-o" aria-hidden="true"
+                                                            ng-click="deleteUser(actualSystem.key, reg.alias)"
+                                                            ng-show="isSystemOfRole('propietario') || isSystemOfRole('administrador')"></i>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div
-                                        ng-show="isSystemOfRole('propietario') || isSystemOfRole('administrador')">
-                                        <div class="sercices-options gray-text teal text-centered modal-trigger lighten-3" href="#modalAddUser" style="padding: 25px;">
-                                            <i class="fa fa-plus" aria-hidden="true"
-                                                style="margin-top: 5px;"></i>
-                                            Invitar a alguien
+                                        <div
+                                            ng-show="isSystemOfRole('propietario') || isSystemOfRole('administrador')">
+                                            <div class="sercices-options gray-text teal text-centered modal-trigger lighten-3" href="#modalAddUser" style="padding: 25px;">
+                                                <i class="fa fa-plus" aria-hidden="true"
+                                                    style="margin-top: 5px;"></i>
+                                                Invitar a alguien
+                                            </div>
                                         </div>
+                                        <br>
                                     </div>
-                                    <div class="right-align">
+                                    <div class="col s12 right-align">
                                         <div class="btn waves-effect waves-light grey modal-close">
                                             &nbsp;&nbsp;
                                             <i class="material-icons">reply</i>
@@ -2542,6 +2539,11 @@
                                                     <div class="col s12" style="padding: 3px;">
                                                         <!-- Riego manual -->
                                                         <div style="padding: 0 5px; text-align: center;" ng-show="actualSystem.plots[editedPlan].irrigationPlan == 0">
+                                                            <!-- <a style="width: 100%; border: 2px solid grey; border-radius: 5px; height: 40px;" 
+                                                                ng-click="editTiempoRiegoManual(); startPlotIrrigation();" ng-show="!isPlotActive(actualSystem, editedPlan)"
+                                                                class="waves-effect waves-light btn modal-trigger green lighten-3 right-align">
+                                                                <i class="material-icons" style="font-size: 3em;">play_arrow</i>
+                                                            </a> -->
                                                             <a style="width: 100%; border: 2px solid grey; border-radius: 5px; height: 40px;" 
                                                                 ng-click="editTiempoRiegoManual(); startPlotIrrigation();" ng-show="!isPlotActive(actualSystem, editedPlan)"
                                                                 class="waves-effect waves-light btn modal-trigger green lighten-3 right-align">
@@ -2552,7 +2554,7 @@
                                                                 class="waves-effect waves-light btn modal-trigger red lighten-3 right-align">
                                                                 <i class="material-icons" style="font-size: 3em;">stop</i>
                                                             </a>
-                                                            <div class="row">
+                                                            <div class="row" style="display: none;">
                                                                 <div class="input-field col s4">
                                                                     <input id="editDayManual" type="number" class="right-align" min="0" max="30" value="{{ getDayFromMs(actualSystem.plots[editedPlan].value) }}">
                                                                     <label>Días</label>
@@ -2762,35 +2764,24 @@
                                                         <input type="number" id="editPlotCaudal" min="0" max="100" value="0">
                                                         <label>Caudal (m<sup>3</sup>/s)</label>
                                                     </div>
-                                                    <div class="input-field col s12 m6" ng-init="actualValve = actualSystem.plots[editedPlan].valve">
+                                                    <div class="input-field col s12 m6" ng-init="actualEqValve = actualSystem.plots[editedPlan].valve">
                                                         <select id="editType" class="select">
-                                                            <option value="F" {{ actualValve == "F" ? "selected" : "" }}>Solenoide</option>
-                                                            <option value="P" {{ actualValve == "P" ? "selected" : "" }}>Pulso</option>
+                                                            <option value="F" {{ actualEqValve == "F" ? "selected" : "" }}>Solenoide</option>
+                                                            <option value="P" {{ actualEqValve == "P" ? "selected" : "" }}>Pulso</option>
                                                         </select>
                                                         <label>Tipo de electroválvula</label>
                                                     </div>
-                                                    <div class="input-field col s12 m6" ng-init="planSetSensor = ''">
-                                                        <select id="editEqSensor" class="select" ng-model="planSetSensor">
-                                                            <option value="" disabled selected>Seleccionar sensor</option>
-                                                            <option value="{{ sensor.key }}" ng-repeat="sensor in systems" ng-if="sensor.type == 'Sensor'" {{ actualSystem.plots[editedPlan].sensor == sensor.key ? "selected" : "" }}>{{ sensor.name }}</option>
+                                                    <div class="input-field col s12 m6" ng-init="sensorsList = getSensors();">
+                                                        <select id="editEqSensor" class="select" ng-model="actualSystem.plots[editedPlan].sensor" ng-options="sensor.key as sensor.name for sensor in getSensors()">
+                                                            <option value="">Seleccionar sensor</option>
                                                         </select>
                                                         <label>Asignar sensor - {{ actualSystem.plots[editedPlan].sensor }}</label>
                                                     </div>            
                                                     <div class="input-field col s12 m6">
-                                                        <select id="editSoil" class="select">
-                                                            <option value="a" {{ actualSystem.plots[editedPlan].soil == "a" ? "selected" : "" }}>Arcilloso limoso</option>
-                                                            <option value="b" {{ actualSystem.plots[editedPlan].soil == "b" ? "selected" : "" }}>Arcilloso arenoso</option>
-                                                            <option value="c" {{ actualSystem.plots[editedPlan].soil == "c" ? "selected" : "" }}>Franco arcilloso</option>
-                                                            <option value="d" {{ actualSystem.plots[editedPlan].soil == "d" ? "selected" : "" }}>Franco arcillo limoso</option>
-                                                            <option value="5" {{ actualSystem.plots[editedPlan].soil == "5" ? "selected" : "" }}>Franco arcillo arenoso</option>
-                                                            <option value="6" {{ actualSystem.plots[editedPlan].soil == "6" ? "selected" : "" }}>Franco</option>
-                                                            <option value="7" {{ actualSystem.plots[editedPlan].soil == "7" ? "selected" : "" }}>Franco limoso</option>
-                                                            <option value="8" {{ actualSystem.plots[editedPlan].soil == "8" ? "selected" : "" }}>Franco arenoso</option>
-                                                            <option value="9" {{ actualSystem.plots[editedPlan].soil == "9" ? "selected" : "" }}>Limoso</option>
-                                                            <option value="10" {{ actualSystem.plots[editedPlan].soil == "10" ? "selected" : "" }}>Areno Franco</option>
-                                                            <option value="11" {{ actualSystem.plots[editedPlan].soil == "11" ? "selected" : "" }}>Arenoso</option>
+                                                        <select id="editSoil" class="select" ng-model="actualSystem.plots[editedPlan].soil" ng-options="suelo.id as suelo.type for suelo in tiposSuelos">
+                                                            <option value="">Seleccionar suelo</option>
                                                         </select>
-                                                        <label>Tipo de suelo - {{ actualSystem.plots[editedPlan].soil }}</label>
+                                                        <label>Tipo de suelo</label>
                                                     </div>
                                                     <div class="input-field col s12">
                                                         <div class="row">
@@ -3251,6 +3242,7 @@
                                                     <div class="col s10 left-align"
                                                         style="width: 80%; border-bottom: 1px solid;">
                                                         <span style="font-size: 1.5em;">{{ plan.action }}</span><br />
+                                                        <span ng-show="plan.range">Margen<span class="show-in-pc-only"> de aplicación</span>: {{ plan.range }} días</span><br ng-show="plan.range">
                                                         <span>{{ plan.detail }} &nbsp;</span>
                                                     </div>
                                                 </div>

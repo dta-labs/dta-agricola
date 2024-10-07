@@ -65,6 +65,19 @@ app.controller("ControladorPrincipal", function ($scope) {
     $scope.isPlanning = false;
     $scope.listPlanesRiego;
     $scope.selectedPlaneRiego;
+    $scope.tiposSuelos = [
+        {"id": "1", "type": "Arcilloso limoso"},
+        {"id": "2", "type": "Arcilloso arenoso"},
+        {"id": "3", "type": "Franco arcilloso"},
+        {"id": "4", "type": "Franco arcillo limoso"},
+        {"id": "5", "type": "Franco arcillo arenoso"},
+        {"id": "6", "type": "Franco"},
+        {"id": "7", "type": "Franco limoso"},
+        {"id": "8", "type": "Franco arenoso"},
+        {"id": "9", "type": "Limoso"},
+        {"id": "10", "type": "Areno Franco"},
+        {"id": "11", "type": "Arenoso"}
+    ];
     
     // #endregion Variables
 
@@ -1092,6 +1105,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         $scope.editSelectedPlan["endGun"] = $scope.actualSystem.plans[$scope.editedPlan].endGun == "true" ? true : false;
         $scope.editSelectedPlan["culture"] = $scope.actualSystem.plans[$scope.editedPlan].culture ? $scope.actualSystem.plans[$scope.editedPlan].culture : "";
         $scope.editSelectedPlan["sensor"] = $scope.actualSystem.plans[$scope.editedPlan].sensor ? $scope.actualSystem.plans[$scope.editedPlan].sensor : "";
+        // $scope.sensorsList = $scope.getSensors();
     }
 
     $scope.selectProgram = (programId) => {
@@ -1140,6 +1154,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         let asEpPlot = $scope.actualSystem.plots[index];
         asEpPlot["startDate"] = asEpPlot["startDate"] ? asEpPlot["startDate"] : " ";
         $scope.actualizarListaCultivos();
+        // $scope.sensorsList = $scope.getSensors();
         $scope.editedCulture = $scope.actualSystem.plots[index].culture ? $scope.actualSystem.plots[index].culture : "";
         M.Dropdown.init(document.querySelectorAll('.dropdown-trigger'));
         document.getElementById("planEstacionarioId").value = index;
@@ -1147,11 +1162,23 @@ app.controller("ControladorPrincipal", function ($scope) {
         document.getElementById("startDate").value = $scope.actualSystem.plots[index].startDate ? dateTimeToString($scope.actualSystem.plots[index].startDate.substr(0,16)) : "";
         document.getElementById("editPlotCaudal").value = $scope.actualSystem.plots[index].caudal ? $scope.actualSystem.plots[index].caudal : "0";
         document.getElementById("editPoligon").innerHTML = $scope.actualSystem.plots[index].poligon ? $scope.actualSystem.plots[index].poligon : "";
+        document.getElementById("editEqSensor").selectedIndex = $scope.actualSystem.plots[index].sensor ? $scope.actualSystem.plots[index].sensor : "";
+        document.getElementById("editSoil").selectedIndex = $scope.actualSystem.plots[index].soil ? $scope.actualSystem.plots[index].soil : "";
         // document.getElementById("editDay").value = $scope.getDayFromMs($scope.actualSystem.plots[index].value);
         // document.getElementById("editHour").value = $scope.getHourFromMs($scope.actualSystem.plots[index].value);
         // document.getElementById("editMinutes").value = $scope.getMinutesFromMs($scope.actualSystem.plots[index].value);
         document.getElementById("editType").value = $scope.actualSystem.plots[index].valve ? $scope.actualSystem.plots[index].valve : "F";
         M.FormSelect.init(document.querySelectorAll('.select'));
+    }
+
+    $scope.getSensors = () => {
+        let sensors = [];
+        for (sensor in $scope.systems) {
+            if ($scope.systems[sensor].type == "Sensor") {
+                sensors.push($scope.systems[sensor]);
+            }
+        }
+        return sensors;
     }
 
     $scope.createPlanEstacionario = () => {
@@ -1263,16 +1290,18 @@ app.controller("ControladorPrincipal", function ($scope) {
         let minutes = document.getElementById("editMinutes").value != '' ? parseInt(document.getElementById("editMinutes").value) * (1000 * 60) : 0;
         let millis = day + hour + minutes;
         let index = document.getElementById("editScheduleIndex").value != '' ? parseInt(document.getElementById("editScheduleIndex").value) : 0;
-        $scope.actualSystem.plots[$scope.editedPlan].schedule[index].value = millis;
-        let aux = document.getElementById("scheduleDate").value.split("T");
-        let date = aux[0];
-        let time = aux[1];
-        $scope.actualSystem.plots[$scope.editedPlan].schedule[index].date = date ? date : $scope.actualSystem.plots[$scope.editedPlan].schedule[index].date;
-        $scope.actualSystem.plots[$scope.editedPlan].schedule[index].time = time ? time : $scope.actualSystem.plots[$scope.editedPlan].schedule[index].time;
+        if ($scope.actualSystem.plots[$scope.editedPlan].schedule) {
+            $scope.actualSystem.plots[$scope.editedPlan].schedule[index].value = millis;
+            let aux = document.getElementById("scheduleDate").value.split("T");
+            let date = aux[0];
+            let time = aux[1];
+            $scope.actualSystem.plots[$scope.editedPlan].schedule[index].date = date ? date : $scope.actualSystem.plots[$scope.editedPlan].schedule[index].date;
+            $scope.actualSystem.plots[$scope.editedPlan].schedule[index].time = time ? time : $scope.actualSystem.plots[$scope.editedPlan].schedule[index].time;
+        }            
         $scope.actualSystem.plots[$scope.editedPlan].caudal = document.getElementById("editPlotCaudal").value;
-        $scope.actualSystem.plots[$scope.editedPlan]["sensor"] = document.getElementById("editEqSensor").value;
+        // $scope.actualSystem.plots[$scope.editedPlan]["sensor"] = document.getElementById("editEqSensor").value.split(":")[1];
         $scope.actualSystem.plots[$scope.editedPlan].valve = document.getElementById("editType").value;
-        $scope.actualSystem.plots[$scope.editedPlan].soil = document.getElementById("editSoil").value;
+        // $scope.actualSystem.plots[$scope.editedPlan].soil = document.getElementById("editSoil").value;
         $scope.setMachineSettings($scope.actualSystem);
         // let cultureList = document.getElementById("selectPlotCulture");
         // $scope.actualSystem.plots[$scope.editedPlan].culture = cultureList.options[cultureList.selectedIndex].text;
@@ -1329,6 +1358,7 @@ app.controller("ControladorPrincipal", function ($scope) {
                 $scope.actualSystem.status = true;
                 let plot = $scope.actualSystem.plots[$scope.editedPlan];
                 plot["forcedStart"] = 1;
+                validateIrrigationCapacity();
                 $scope.setMachineSettings($scope.actualSystem);
                 initializeSystemMap($scope.actualSystem);
                 $scope.$apply();
@@ -1339,6 +1369,23 @@ app.controller("ControladorPrincipal", function ($scope) {
                 swal("Acción cancelada!");
             }
         });
+    }
+
+    validateIrrigationCapacity = () => {
+        let plots = $scope.actualSystem.plots;
+        let plotsCaudal =   (plots.p0.forcedStart == 1 ? parseInt(plots.p0.caudal) : 0) + 
+                            (plots.p1.forcedStart == 1 ? parseInt(plots.p1.caudal) : 0) +
+                            (plots.p2.forcedStart == 1 ? parseInt(plots.p2.caudal) : 0) +
+                            (plots.p3.forcedStart == 1 ? parseInt(plots.p3.caudal) : 0) +
+                            (plots.p4.forcedStart == 1 ? parseInt(plots.p4.caudal) : 0) +
+                            (plots.p5.forcedStart == 1 ? parseInt(plots.p5.caudal) : 0) +
+                            (plots.p6.forcedStart == 1 ? parseInt(plots.p6.caudal) : 0);
+        let totalCaudal = $scope.actualSystem.caudal ? $scope.actualSystem.caudal : 0   
+        if (totalCaudal < plotsCaudal) {
+            swal("Ha excedido el caudal que entrega el sistema y la lámina de riego se verá afectada!", {
+                icon: "warning",
+            });
+        }
     }
     
     $scope.stopPlotIrrigation = () => {
@@ -1478,6 +1525,10 @@ app.controller("ControladorPrincipal", function ($scope) {
         if (plan.price == "0.00") {
             $scope.selectedPlaneRiego = plan;
             $scope.selectedPlaneRiego.plan.forEach((plan) => {
+                plan["range"] = plan.day;
+                // let values = plan.day.split("~")
+                // let value = parseInt(values[0]) < parseInt(values[1]) ? parseInt(values[0]) : parseInt(values[1]);
+                // plan.day = plan.day && (typeof plan.day) != "number" ? value : 0;
                 plan.day = plan.day && (typeof plan.day) != "number" ? parseInt(plan.day.split("~")[0]) : 0;
             });
             $scope.selectedPlaneRiego.plan.sort((a, b) => a.day - b.day);
@@ -1739,12 +1790,12 @@ app.controller("ControladorPrincipal", function ($scope) {
         text += `        <td style="text-align: left;">Caudal:</td>`;
         text += `        <td style="text-align: left;"><b>${campo.caudal ? campo.caudal : "0" }</b> m<sup>3</sup>/s</td>`;
         text += `    </tr>`;
-        if (campo.culture) {
-            text += `    <tr>`;
-            text += `        <td style="text-align: left;">Cultivo:</td>`;
-            text += `        <td style="text-align: left;"><b>${campo.culture ? campo.culture : "" }</b></td>`;
-            text += `    </tr>`;
-        }
+        // if (campo.culture) {
+        //     text += `    <tr>`;
+        //     text += `        <td style="text-align: left;">Cultivo:</td>`;
+        //     text += `        <td style="text-align: left;"><b>${campo.culture ? campo.culture : "" }</b></td>`;
+        //     text += `    </tr>`;
+        // }
         switch (campo.type) {
             case "Sensor":
                 text += `    <tr>`;
@@ -1873,7 +1924,21 @@ app.controller("ControladorPrincipal", function ($scope) {
                     poligons[campo.key + idx] = L.polygon(newPoligon, { color: color });
                     // poligons[campo.key + idx].bindPopup("<a class='modal-trigger' href='#modalConfig' style='color: black;'>" + campo.plots[idx].name + "</a>");
                     // poligons[campo.key + idx].bindPopup(`<a class="modal-trigger" href="#modalEditRiegoEstacionario" style="color: black;" ng-click="setEditPlanEstacionario('${idx}')">${campo.plots[idx].name}</a>`);
-                    poligons[campo.key + idx].bindPopup(`<a class="modal-trigger" style="color: black;">${campo.plots[idx].name}</a>`);
+                    let msg = ``;
+                    msg += `<table class="striped highlight">`;
+                    msg += `    <tr>`;
+                    msg += `        <td style="text-align: left;">Nombre:</td>`;
+                    msg += `        <td style="text-align: left;"><b>${campo.plots[idx].name}</b></td>`;
+                    msg += `    </tr>`;
+                    msg += `    <tr>`;
+                    msg += `        <td style="text-align: left;">Cultivo:</td>`;
+                    msg += `        <td style="text-align: left;"><b>${campo.plots[idx].culture}</b></td>`;
+                    msg += `    </tr>`;
+                    msg += `    <tr>`;
+                    msg += `        <td style="text-align: left;">Caudal:</td>`;
+                    msg += `        <td style="text-align: left;"><b>${campo.plots[idx].caudal}</b></td>`;
+                    msg += `    </tr>`;
+                    poligons[campo.key + idx].bindPopup(msg);
                     map.addLayer(poligons[campo.key + idx]);
                 }
             }
@@ -2146,6 +2211,27 @@ app.controller("ControladorPrincipal", function ($scope) {
     $scope.getMsFromMinutes = (duration) => {
         duration = duration ? parseInt(duration) : 0;
         return duration * 1000 * 60;
+    }
+
+    parseDate = (dateStr) => {
+        const year = 2000 + parseInt(dateStr.slice(0, 4));  // Asume años YYYYMMDD HHmm
+        const month = parseInt(dateStr.slice(4, 6)) - 1;    // Los meses en JS son 0-11
+        const day = parseInt(dateStr.slice(6, 8));
+        const hours = parseInt(dateStr.slice(9, 11));
+        const minutes = dateStr.includes(":") ? parseInt(dateStr.slice(12, 14)) : parseInt(dateStr.slice(11, 13));
+        return new Date(year, month, day, hours, minutes);
+    }
+    
+    $scope.calculateDifference = (date1Str, date2Str) => {
+        const date1 = parseDate(date1Str);
+        const date2 = parseDate(date2Str);
+        const diffMs = Math.abs(date2 - date1);
+    
+        const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+    
+        return `${days}:${hours}:${minutes}`;
     }
 
     $scope.dashToDot = (input) => {
