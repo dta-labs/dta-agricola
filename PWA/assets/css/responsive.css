@@ -80,13 +80,13 @@
 
 /* xs */
 @media (max-width: 767px) {
-  .show-in-mobil-only {
+  /* .show-in-mobil-only {
     display: inherit;
   }
 
   .show-in-pc-only {
     display: none;
-  }
+  } */
 
   body {
     font-size: 14px;
@@ -479,6 +479,19 @@
     height:100%;
   }
 }
+
+/* xs */
+@media (max-width: 600px) {
+  .show-in-mobil-only {
+    display: inherit;
+  }
+
+  .show-in-pc-only {
+    display: none;
+  }
+}
+
+
 
 /* XS Portrait */
 @media (max-width: 479px) {

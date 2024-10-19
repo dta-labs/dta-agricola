@@ -164,7 +164,7 @@
 	function updateLog($lastStatus, $localZone, $baseUrl) {
 		if ($_GET["st"] && ($_GET["st"] == "ON" || $_GET["st"] == "OFF")) {
 			$key = ($lastStatus->status == $_GET["st"]) ? "/$lastStatus->index" : "";
-            $date = getDateTime($localZone)->format('Ymd hia');
+            $date = getDateTime($localZone)->format('Ymd Hi');
 
 			$dataUpdate = '{';
 			$dataUpdate .= '"date":"' . (($key) ? $lastStatus->initialDate : $date) . '"';

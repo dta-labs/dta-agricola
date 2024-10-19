@@ -525,6 +525,13 @@ h6 {
   font-size: 1.5em !important;
 }
 
+.centerImage {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* height: 100vh; Altura de la ventana gráfica */
+}
+
 .collapsible {
   border-top: 1px solid #ddd;
   border-right: none !important;
