@@ -171,7 +171,7 @@
 			$dataUpdate .= ',"update":"' . $date . '"';
 			$dataUpdate .= ',"state":"' . $_GET["st"] . '"'; 
 			$dataUpdate .= ',"signal":"' . ($_GET["si"] ? $_GET["si"] : "") . '"';
-			$dataUpdate .= ',"reception":"' . (($_GET["rx"] && ($_GET["rx"] == "Ok" || $_GET["rx"] == "Er")) ? $_GET["rx"] : "") . '"';
+			$dataUpdate .= ',"reception":"' . ($_GET["rx"] ? $_GET["rx"] : "") . '"';
 			$dataUpdate .= '}';
 
 			$url = $baseUrl . "logs$key.json";              				// 5.1.- cURL de actualización de Logs
