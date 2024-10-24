@@ -11,7 +11,7 @@
 void setup() {
   Serial.begin(115200);
   initLCD();
-  // initComm();
+  initComm();
 }
 
 void initLCD() {
@@ -34,11 +34,11 @@ void loop() {
   String strMeasurements = (String)data + ",";
   writeDataInLCD(data, 50, "P:", "psi");
   data = analogRead(A1);
-  strMeasurements += (String)data + ",0";
+  strMeasurements += (String)data + ",-99";
   writeDataInLCD(data, 500, " P:", "psi");
-  // comunicaciones(strMeasurements, "4,4,4", false);
+  comunicaciones(strMeasurements, "4,4,-99", false);
   Serial.println(strMeasurements);
-  delay(5000);
+  delay(60000);
 }
 
 void writeDataInLCD(int data, int maxVal, String title, String subTitle) {
