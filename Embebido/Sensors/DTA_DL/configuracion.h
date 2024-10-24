@@ -36,7 +36,7 @@ const int config[] = {2, 3, 33, 333, 333, 3335};
 #define httpServer F("AT+HTTPPARA=\"URL\",\"http://dtaamerica.com/ws/sensor_v1.php?id=")
 
 #define I2C_ADDR 0x27                           // Sensores
-byte numSensors = 3;
+byte numSensors = 2;
 static int data = 0;
 
 LiquidCrystal_I2C lcd(I2C_ADDR, 16, 2);         // LCD
@@ -49,5 +49,6 @@ byte commError = 0;
 bool commRx = true;
 bool testComm = false;
 const int eeAddress = 0;
+#define commFrec 300000                         // 5 minutos
 
 #pragma endregion Variables

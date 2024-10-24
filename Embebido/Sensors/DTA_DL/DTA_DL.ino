@@ -10,6 +10,7 @@
 
 void setup() {
   Serial.begin(115200);
+  Serial.println(F("\nDTA-Agricola & DL sensor v0.1"));
   initLCD();
   initComm();
 }
@@ -17,7 +18,7 @@ void setup() {
 void initLCD() {
   lcd.init();
   lcd.backlight();
-  lcd.print("DTAAgricola & DL");
+  lcd.print(F("DTAAgricola & DL"));
 }
 
 void initComm() {
@@ -27,18 +28,25 @@ void initComm() {
 }
 
 void loop() {
+  setLCDCursor();
+  String strMeasurements = readData();
+  Serial.println(strMeasurements);
+  sendData(strMeasurements);
+  delay(60000);
+}
+
+void setLCDCursor() {
   lcd.setCursor(0, 1);
   lcd.print(F("                "));
   lcd.setCursor(0, 1);
-  int data = analogRead(A0);
-  String strMeasurements = (String)data + ",";
-  writeDataInLCD(data, 50, "P:", "psi");
-  data = analogRead(A1);
-  strMeasurements += (String)data + ",-99";
-  writeDataInLCD(data, 500, " P:", "psi");
-  comunicaciones(strMeasurements, "4,4,-99", false);
-  Serial.println(strMeasurements);
-  delay(60000);
+}
+
+String readData() {
+  int data0 = analogRead(A0);
+  writeDataInLCD(data0, 50, "P:", "psi");
+  int data1 = analogRead(A1);
+  writeDataInLCD(data1, 500, " P:", "psi");
+  return (String)data0 + "," + (String)data1;
 }
 
 void writeDataInLCD(int data, int maxVal, String title, String subTitle) {
@@ -46,4 +54,12 @@ void writeDataInLCD(int data, int maxVal, String title, String subTitle) {
   lcd.print(title);
   lcd.print(data);
   lcd.print(subTitle);
+}
+
+void sendData(String strMeasurements) {
+  static unsigned long timer = millis();
+  if (millis() - timer > commFrec) {
+    timer = millis();
+    comunicaciones(strMeasurements, "4.00,4.00", false);
+  }
 }
