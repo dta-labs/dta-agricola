@@ -20,6 +20,7 @@ http://dtaamerica.com/ws/sensor_v1.php?id=333333333333&no=3&data=[]&vi=[]&rx=Ok&
 https://dtaamerica.com/ws/commj_v3.php?id=111111111111&st=ON&si=25&rx=Ok
 "1""7"-1"6000000"F"120000"F"60000"F"60000"F"60000"F"60000"F"60000"F"
 
+https://dtaamerica.com/ws/commj_v3.php?id=526251531996&st=ON&si=25&rx=Ok
 
 
 -------------------------------------------------

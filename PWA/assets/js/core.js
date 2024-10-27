@@ -668,6 +668,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         system.sensorPresion = "" + system.sensorPresion && !isNaN(system.sensorPresion) ? system.sensorPresion : "";
         // system.irrigation = document.querySelector('input[name=groupRiego]:checked').getAttribute("data");
         setMachineSettings(system);
+        updateAudit($scope.authUser, system);
         system.status = system.status == "ON" || system.status == true ? true : false;
         system.sensorSecurity = system.sensorSecurity == "ON" || system.sensorSecurity == true ? true : false;
         system.sensorVoltage = system.sensorVoltage == "ON" || system.sensorVoltage == true ? true : false;
@@ -2231,7 +2232,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
     
-        return `${days}:${hours}:${minutes}`;
+        return `${days > 0 ? days + "d:" : ""}${hours > 0 ? hours + "h:" : ""}${minutes}min`;
     }
 
     $scope.dashToDot = (input) => {
