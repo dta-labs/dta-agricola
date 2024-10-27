@@ -117,7 +117,7 @@ String httpRequest() {
   getResponse(15, true); 
   gprs.print(httpServer); gprs.print(telefono);
   gprs.print(F("&st=")); gprs.print(statusVar);
-  gprs.print(F("&rx=")); gprs.print((String)(commRx ? "Ok" : "Er"));
+  gprs.print(F("&rx=")); gprs.print((String)(systemStart ? "ini" : commRx ? "Ok" : "Er"));
   gprs.print(F("&si=")); gprs.println((String)signalVar + "\"");
   getResponse(25, true); 
   gprs.println(F("AT+HTTPACTION=0"));
@@ -136,6 +136,7 @@ void comunicaciones() {
   String data = httpRequest();                                     // Get Settings from HTTP
   Serial.print(F("data: ")); Serial.println(data);
   commRx = (data != "") ? true : false;
+  systemStart = systemStart && commRx && commError == 0 ? false : true;
   String aux = "";
   aux = parse(data, '"', 1);                                       // status
   statusVar = (aux == "ON" || aux == "OFF") ? aux : statusVar;

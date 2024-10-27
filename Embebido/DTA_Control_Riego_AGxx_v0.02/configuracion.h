@@ -7,8 +7,8 @@
  ****************************************************************************/
 
 // Settings
-// const int config[] = {2, 3, 7, 11, 111, 111, 1111};         // Rx, Tx, Plots, Pais, Lada, Número
-const int config[] = {2, 3, 7, 52, 625, 153, 1996};         // Rx, Tx, Plots, Pais, Lada, Número
+const int config[] = {2, 3, 7, 11, 111, 111, 1111};         // Rx, Tx, Plots, Pais, Lada, Número
+// const int config[] = {2, 3, 7, 52, 625, 153, 1996};         // Rx, Tx, Plots, Pais, Lada, Número
 
 #pragma region Variables
 
@@ -34,6 +34,7 @@ static String commStr = "";
 static byte commLoops = 0;
 static byte commError = 0;
 static bool commRx = true;
+static bool systemStart = true;
 static bool restartGSM = true;
 
 #pragma endregion Variables
