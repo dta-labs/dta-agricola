@@ -2134,7 +2134,7 @@
                                                         style="border-left: 10px solid {{ actualSystem.status == true && reg.voltage == 'false' ? '#ff000070 !important' : 
                                                                 actualSystem.status == true && reg.safety == 'false' ? '#db7093a0 !important' : 
                                                                 reg.state == 'ON' ? '#20b2aaa0 !important' : 'lightgray !important' }}; margin-bottom: 5px;">
-                                                        <div class="col s12">
+                                                        <div class="col s12" ng-show="!reg.auth" style="text-align: left;">
                                                             <span style="font-size: 1.3em;"><b>{{ actualSystem.status == true && reg.voltage == 'false' ?
                                                                 'Falla de Electricidad' :
                                                                 actualSystem.status == true && reg.safety == 'false' ?
@@ -2144,44 +2144,110 @@
                                                             <span>[{{ reg.date.substr(4,13) }} - {{ reg.update.substr(4,13)
                                                                 }}] - {{ calculateDifference(reg.date, reg.update) }}</span> <br>
                                                         </div>
+                                                        <div class="col s12" ng-show="reg.auth" style="text-align: left;">
+                                                            <span style="font-size: 1.3em;"><b>{{ reg.auth }}</b></span><br>
+                                                            <span style="font-size: 1.1em;"><b>{{ reg.status == 'ON' ? 'Encendió el sistema' : 'Apagó el sistema' }}</b></span><br>
+                                                            <span>{{ reg.date }}</span> <br>
+                                                        </div>
                                                     </div>
                                                     <div class="gray-text white collapsible-header row"
                                                         ng-click="modalLogDetail_$index = !modalLogDetail_$index"
                                                         ng-show="actualSystem.type == 'Estacionario'"
                                                         style="border-left: 10px solid {{ reg.state == 'ON' ? 'lightseagreen !important' : 'lightgray !important' }}; margin-bottom: 5px;">
-                                                        <div class="col 12">
-                                                            <span style="font-size: 1.3em;"><b>{{ reg.state == "ON" ?
-                                                                    "Sistema Encendido" : "Sistema Apagado"
-                                                                    }}</b></span><br>
-                                                            <span>[{{ reg.date.substr(4,13) }} - {{ reg.update.substr(4,13)
-                                                                }}] - {{ calculateDifference(reg.date, reg.update) }}</span> <br>
+                                                        <div class="col 12" ng-show="!reg.auth" style="text-align: left;">
+                                                            <span style="font-size: 1.3em;"><b>{{ reg.state == "ON" ? "Sistema Encendido" : "Sistema Apagado" }}</b></span><br>
+                                                            <span>[{{ reg.date.substr(4,13) }} - {{ reg.update.substr(4,13) }}] - {{ calculateDifference(reg.date, reg.update) }}</span> <br>
+                                                        </div>
+                                                        <div class="col s12" ng-show="reg.auth" style="text-align: left;">
+                                                            <span style="font-size: 1.3em;"><b>{{ reg.auth }}</b></span><br>
+                                                            <span style="font-size: 1.1em;"><b>{{ reg.status == 'ON' ? 'Encendió el sistema' : 'Apagó el sistema' }}</b></span><br>
+                                                            <span>{{ reg.date }}</span> <br>
                                                         </div>
                                                     </div>
-                                                    <div class="collapsible-body" style="padding: 1rem; font-size: 1em;">
-                                                        <p>Fecha inicial: <b>{{ reg.date }}</b></p>
-                                                        <p>Actualización: <b>{{ reg.update }}</b></p>
-                                                        <p ng-show="actualSystem.type == 'Estacionario'">Parcela: <b>{{
-                                                                strToInt(reg.plot) + 1 }}</b></p>
-                                                        <p ng-show="actualSystem.type == 'Estacionario'">Tiempo activación:
-                                                            <b>{{ msToTime(reg.activationTime) }}</b></p>
-                                                        <p ng-show="actualSystem.type == 'PC'">Presión: <b>{{ reg.presion <
-                                                                    1 ? "Presión Baja" : "Presión Normal" }}</b>
-                                                        </p>
-                                                        <p ng-show="actualSystem.type == 'PC'">Dirección: <b>{{ reg.direction }}</b></p>
-                                                        <p ng-show="actualSystem.type == 'PC'">Velocidad: <b>{{ reg.speed }}</b></p>
-                                                        <p ng-show="actualSystem.type == 'PC'">Latitud: <b>{{ reg.latitude }}</b></p>
-                                                        <p ng-show="actualSystem.type == 'PC'">Longitud: <b>{{ reg.longitude }}</b></p>
-                                                        <p ng-show="actualSystem.type == 'PC'">Posición: <b>{{ reg.position }}</b></p>
-                                                        <p ng-show="actualSystem.type == 'PC'">Presión: <b>{{ reg.presion }}</b></p>
-                                                        <p ng-show="actualSystem.type == 'PC'">Recepción: <b>{{ reg.reception }}</b></p>
-                                                        <p ng-show="actualSystem.type == 'PC'">Autoreversa: <b>{{ reg.autoreverse }}</b></p>
-                                                        <p ng-show="actualSystem.type == 'PC'">Seguridad: 
-                                                            <b><span style="color:{{ reg.safety == 'true' ? 'black' : 'red' }};">{{ reg.safety }}</span></b>
-                                                        </p>
-                                                        <p ng-show="actualSystem.type == 'PC'">Voltaje: 
-                                                            <b><span style="color:{{ reg.voltage == 'true' ? 'black' : 'red' }};">{{ reg.voltage }}</span></b>
-                                                        </p>
-                                                        <p>Señal: <b>{{ reg.signal }}</b></p>
+                                                    <div class="collapsible-body" style="padding: 1rem; font-size: 1em; text-align: left;">
+                                                        <div><p>Fecha inicial: <b>{{ reg.date }}</b></p></div>
+                                                        <div ng-show="!reg.auth">
+                                                            <p>Actualización: <b>{{ reg.update }}</b></p>
+                                                            <!-- <p ng-show="actualSystem.type == 'Estacionario'">Parcela: <b>{{
+                                                                    strToInt(reg.plot) + 1 }}</b></p> -->
+                                                            <p ng-show="actualSystem.type == 'Estacionario'">Tiempo activación:
+                                                                <b>{{ calculateDifference(reg.date, reg.update) }}</b></p>
+                                                            <div ng-show="actualSystem.type == 'PC'">
+                                                                <p>Presión: <b>{{ reg.presion < 1 ? "Presión Baja" : "Presión Normal" }}</b></p>
+                                                                <p>Dirección: <b>{{ reg.direction }}</b></p>
+                                                                <p>Velocidad: <b>{{ reg.speed }}</b></p>
+                                                                <p>Latitud: <b>{{ reg.latitude }}</b></p>
+                                                                <p>Longitud: <b>{{ reg.longitude }}</b></p>
+                                                                <p>Posición: <b>{{ reg.position }}</b></p>
+                                                                <p>Presión: <b>{{ reg.presion }}</b></p>
+                                                                <p>Recepción: <b>{{ reg.reception }}</b></p>
+                                                                <p>Autoreversa: <b>{{ reg.autoreverse }}</b></p>
+                                                                <p>Seguridad: <b><span style="color:{{ reg.safety == 'true' ? 'black' : 'red' }};">{{ reg.safety }}</span></b></p>
+                                                                <p>Voltaje: <b><span style="color:{{ reg.voltage == 'true' ? 'black' : 'red' }};">{{ reg.voltage }}</span></b></p>
+                                                            </div>
+                                                            <p>Señal: <b>{{ reg.signal }}</b></p>
+                                                        </div>
+                                                        <div ng-show="reg.auth">
+                                                            <div ng-show="actualSystem.type == 'PC'"></div>
+                                                            <div ng-show="actualSystem.type == 'Estacionario'">
+                                                                <div style="color: {{ reg.settins.p0.forcedStart == 1 ? 'green' : 'black' }}; font-weight: {{ reg.settins.p0.forcedStart == 1 ? 'bold' : '' }};">
+                                                                    <span>1:</span>&nbsp;
+                                                                    <span>{{ reg.settins.p0.forcedStart == 1 ? "ON" : "OFF" }}</span>&nbsp;
+                                                                    <span>{{ reg.settins.p0.name ? reg.settins.p0.name : "" }}</span>
+                                                                    <span>{{ reg.settins.p0.culture ? ": " + reg.settins.p0.culture : "" }}</span>&nbsp;
+                                                                    <span>{{ reg.settins.p0.caudal }} mm<sup>3</sup>/s</span>
+                                                                    <span>{{ msToTime(reg.settins.p0.value) }}</span>
+                                                                </div>
+                                                                <div style="color: {{ reg.settins.p1.forcedStart == 1 ? 'green' : 'black' }}; font-weight: {{ reg.settins.p1.forcedStart == 1 ? 'bold' : '' }};">
+                                                                    <span>2:</span>&nbsp;
+                                                                    <span>{{ reg.settins.p1.forcedStart == 1 ? "ON" : "OFF" }}</span>&nbsp;
+                                                                    <span>{{ reg.settins.p1.name ? reg.settins.p1.name : "" }}</span>
+                                                                    <span>{{ reg.settins.p1.culture ? ": " + reg.settins.p1.culture : "" }}</span>&nbsp;
+                                                                    <span>{{ reg.settins.p1.caudal }} mm<sup>3</sup>/s</span>
+                                                                    <span>{{ msToTime(reg.settins.p1.value) }}</span>
+                                                                </div>
+                                                                <div style="color: {{ reg.settins.p2.forcedStart == 1 ? 'green' : 'black' }}; font-weight: {{ reg.settins.p2.forcedStart == 1 ? 'bold' : '' }};">
+                                                                    <span>3:</span>&nbsp;
+                                                                    <span>{{ reg.settins.p2.forcedStart == 1 ? "ON" : "OFF" }}</span>&nbsp;
+                                                                    <span>{{ reg.settins.p2.name ? reg.settins.p2.name : "" }}</span>
+                                                                    <span>{{ reg.settins.p2.culture ? ": " + reg.settins.p2.culture : "" }}</span>&nbsp;
+                                                                    <span>{{ reg.settins.p2.caudal }} mm<sup>3</sup>/s</span>
+                                                                    <span>{{ msToTime(reg.settins.p2.value) }}</span>
+                                                                </div>
+                                                                <div style="color: {{ reg.settins.p3.forcedStart == 1 ? 'green' : 'black' }}; font-weight: {{ reg.settins.p3.forcedStart == 1 ? 'bold' : '' }};">
+                                                                    <span>4:</span>&nbsp;
+                                                                    <span>{{ reg.settins.p3.forcedStart == 1 ? "ON" : "OFF" }}</span>&nbsp;
+                                                                    <span>{{ reg.settins.p3.name ? reg.settins.p3.name : "" }}</span>
+                                                                    <span>{{ reg.settins.p3.culture ? ": " + reg.settins.p3.culture : "" }}</span>&nbsp;
+                                                                    <span>{{ reg.settins.p3.caudal }} mm<sup>3</sup>/s</span>
+                                                                    <span>{{ msToTime(reg.settins.p3.value) }}</span>
+                                                                </div>
+                                                                <div style="color: {{ reg.settins.p4.forcedStart == 1 ? 'green' : 'black' }}; font-weight: {{ reg.settins.p4.forcedStart == 1 ? 'bold' : '' }};">
+                                                                    <span>5:</span>&nbsp;
+                                                                    <span>{{ reg.settins.p4.forcedStart == 1 ? "ON" : "OFF" }}</span>&nbsp;
+                                                                    <span>{{ reg.settins.p4.name ? reg.settins.p4.name : "" }}</span>
+                                                                    <span>{{ reg.settins.p4.culture ? ": " + reg.settins.p4.culture : "" }}</span>&nbsp;
+                                                                    <span>{{ reg.settins.p4.caudal }} mm<sup>3</sup>/s</span>
+                                                                    <span>{{ msToTime(reg.settins.p4.value) }}</span>
+                                                                </div>
+                                                                <div style="color: {{ reg.settins.p5.forcedStart == 1 ? 'green' : 'black' }}; font-weight: {{ reg.settins.p5.forcedStart == 1 ? 'bold' : '' }};">
+                                                                    <span>6:</span>&nbsp;
+                                                                    <span>{{ reg.settins.p5.forcedStart == 1 ? "ON" : "OFF" }}</span>&nbsp;
+                                                                    <span>{{ reg.settins.p5.name ? reg.settins.p5.name : "" }}</span>
+                                                                    <span>{{ reg.settins.p5.culture ? ": " + reg.settins.p5.culture : "" }}</span>&nbsp;
+                                                                    <span>{{ reg.settins.p5.caudal }} mm<sup>3</sup>/s</span>
+                                                                    <span>{{ msToTime(reg.settins.p5.value) }}</span>
+                                                                </div>
+                                                                <div style="color: {{ reg.settins.p6.forcedStart == 1 ? 'green' : 'black' }}; font-weight: {{ reg.settins.p6.forcedStart == 1 ? 'bold' : '' }};">
+                                                                    <span>7:</span>&nbsp;
+                                                                    <span>{{ reg.settins.p6.forcedStart == 1 ? "ON" : "OFF" }}</span>&nbsp;
+                                                                    <span>{{ reg.settins.p6.name ? reg.settins.p6.name + ": " : "" }}</span>
+                                                                    <span>{{ reg.settins.p6.culture ? ": " + reg.settins.p6.culture : "" }}</span>&nbsp;
+                                                                    <span>{{ reg.settins.p6.caudal }} mm<sup>3</sup>/s</span>
+                                                                    <span>{{ msToTime(reg.settins.p6.value) }}</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </li>
                                             </ul>
