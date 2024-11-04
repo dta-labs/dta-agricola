@@ -5,8 +5,11 @@ void setup() {
 }
 
 void loop() {
-  float voltage = getVoltage();
-  showData(voltage);
+  float read = analogRead(A0);
+  float val = map(read, 644, 264, 0, 100);
+  Serial.print(val); Serial.println(F(" % "));
+  // float voltage = getVoltage();
+  // showData(voltage);
   delay(1000);
 }
 

@@ -28,7 +28,7 @@
  ****************************************************************************/
 
 // Settings
-const int config[] = {2, 3, 33, 333, 333, 3335};
+const int config[] = {8, 9, 33, 333, 333, 3335};
 
 #pragma region Variables
 
@@ -41,7 +41,7 @@ static int data = 0;
 
 LiquidCrystal_I2C lcd(I2C_ADDR, 16, 2);         // LCD
 
-#define pinCommReset 4                          // Comunicaciones
+#define pinCommReset 10                         // Comunicaciones
 SoftwareSerial gprs(config[0], config[1]);
 bool restartGSM = true;
 byte signalVar = 0;
@@ -49,6 +49,6 @@ byte commError = 0;
 bool commRx = true;
 bool testComm = false;
 const int eeAddress = 0;
-#define commFrec 300000                         // 5 minutos
+#define commFrec 60000                          // 1 minutos
 
 #pragma endregion Variables

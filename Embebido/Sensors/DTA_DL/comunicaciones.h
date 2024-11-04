@@ -8,7 +8,7 @@ void commWatchDogReset() {
     Serial.print(F("commError: ")); Serial.println(commError);
   }
   if (commError == 10) {
-    resetSoftware();
+    // resetSoftware();
   }
 }
 
@@ -126,7 +126,7 @@ String httpRequest(String strMeasurements, String strVoltages, bool setup) {
   getResponse(6000, testComm); 
   gprs.println(F("AT+HTTPREAD"));
   String result = getResponse(0, testComm);
-  // Serial.println(result);
+  Serial.println(result);
   gprs.println(F("AT+HTTPTERM"));
   getResponse(30, testComm); 
   wdt_reset();                                // Reset the watchdog
