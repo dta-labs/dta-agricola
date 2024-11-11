@@ -19,8 +19,10 @@ void setup() {
     Serial.println(F("Starting LoRa failed!"));
     delay(1);
   }
-  LoRa.setTxPower(20);
-  LoRa.setSpreadingFactor(12);
+  LoRa.setTxPower(20); // Ajusta la potencia de transmisión a 20 dBm
+  LoRa.setSignalBandwidth(125E3); // Ancho de banda de 125 kHz
+  LoRa.setSpreadingFactor(12);    // Factor de propagación de 12
+  LoRa.setCodingRate4(5);         // Tasa de codificación 4/5
 }
  
 void loop() {
