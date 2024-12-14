@@ -30,9 +30,8 @@ void initComm() {
 void loop() {
   setLCDCursor();
   String strMeasurements = readData();
-  Serial.println(strMeasurements);
   sendData(strMeasurements);
-  delay(60000);
+  delay(10000);
 }
 
 void setLCDCursor() {
@@ -42,15 +41,16 @@ void setLCDCursor() {
 }
 
 String readData() {
-  int data0 = analogRead(A0);
-  writeDataInLCD(data0, 50, "P:", "psi");
-  int data1 = analogRead(A1);
-  writeDataInLCD(data1, 500, " P:", "psi");
-  return (String)data0 + "," + (String)data1;
+  int read = analogRead(A0);
+  float data0 = map(read, 0, 10, 0, 100);
+  Serial.print(read); Serial.print("b -> "); 
+  Serial.print(data0); Serial.print("kN/m2 -> "); 
+  Serial.print(data0 * .145); Serial.println("psi");
+  writeDataInLCD(data0, "P: ", "psi");
+  return (String)data0 + ",0.00";
 }
 
-void writeDataInLCD(int data, int maxVal, String title, String subTitle) {
-  data = map(data, 0, 1023, 0, maxVal);
+void writeDataInLCD(int data, String title, String subTitle) {
   lcd.print(title);
   lcd.print(data);
   lcd.print(subTitle);
