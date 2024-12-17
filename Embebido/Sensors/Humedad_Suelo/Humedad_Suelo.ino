@@ -2,37 +2,47 @@
 #include <Wire.h>
 #include "Adafruit_SHT31.h"
 
-bool enableHeater = false;        // SHT Sensor
+void(* resetFunc) (void) = 0;
+
+bool enableHeater = true;        // SHT Sensor
 uint8_t loopCnt = 0;
 Adafruit_SHT31 sht31 = Adafruit_SHT31();
 float shtData[2] = {0, 0};
 
 #define vMax 4.78                 // HW Sensor
+#define offset 32
 
 void setup() {
   Serial.begin(9600);
   while (!Serial) delay(10);     // will pause Zero, Leonardo, etc until serial console opens
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, HIGH);
+  delay(50);
   Serial.println("\nHumedad y temperatura del suelo...\n");
   settupSHT();
 }
 
 void loop() {
+  digitalWrite(LED_BUILTIN, HIGH);
+  delay(50);
   float vcc = readVcc();
   float hwData = readHW();
+  // settupSHT();
   readSHT();
-
   Serial.print("SHT[Temp] = "); Serial.print(shtData[0]); Serial.print("°C\t");
   Serial.print("SHT[Hum] = "); Serial.print(shtData[1]); Serial.print("%\t");
   Serial.print("HW[Hum] = "); Serial.print(hwData); Serial.print("%\t\t");
   Serial.print("Vcc = "); Serial.print(vcc); Serial.println("V");
 
-  delay(1000);
+  // digitalWrite(LED_BUILTIN, LOW);
+  delay(10000);
+  // resetFunc();
 }
 
 float readHW() {
   float read = analogRead(A0);
   float val = map(read, 644, 264, 0, 100);
-  return val;
+  return val + offset;
 }
 
 void settupSHT() {
@@ -40,11 +50,12 @@ void settupSHT() {
     Serial.println("Couldn't find SHT31");
     while (1) delay(1);
   }
-  Serial.print("Heater Enabled State: ");
-  if (sht31.isHeaterEnabled())
-    Serial.println("ENABLED");
-  else
-    Serial.println("DISABLED");
+  // Serial.print("Heater Enabled State: ");
+  sht31.heater(enableHeater);                 // Puesto por mi
+  // if (sht31.isHeaterEnabled())
+  //   Serial.println("ENABLED");
+  // else
+  //   Serial.println("DISABLED");
 }
 
 void readSHT() {
@@ -53,7 +64,7 @@ void readSHT() {
   shtData[0] = !isnan(t) ? t : -99;
   shtData[1] = !isnan(h) ? h : -99;
   delay(1000);
-  setHeater();
+  // setHeater();
   loopCnt++;
 }
 

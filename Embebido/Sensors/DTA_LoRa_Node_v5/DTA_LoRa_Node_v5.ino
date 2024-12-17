@@ -15,7 +15,7 @@ void setup() {
 void loop() {
   txData();
   counter++;
-  fromNode += 1;
+  fromNode += 1;  
   fromNode = fromNode > numNodes ? 1 : fromNode;
   delay(2000);
 }

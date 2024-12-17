@@ -7,10 +7,14 @@
 #include "configuracion.h"
 #include "comunicaciones.h"
 #include "analogicSensor.h"
+#include "hallSensor.h"
+#include "rs485.h"
 
 void setup() {
   Serial.begin(115200);
   Serial.println(F("\nDTA-Agricola & DL sensor v0.1"));
+  initRS485(9600);
+  initHall();
   initLCD();
   initComm();
 }
@@ -18,7 +22,10 @@ void setup() {
 void initLCD() {
   lcd.init();
   lcd.backlight();
-  lcd.print(F("DTAAgricola & DL"));
+  setLCDCursor(0);
+  lcd.print(F("DTA-Agricola &  "));
+  setLCDCursor(1);
+  lcd.print(F("Dragon Line v0.1"));
 }
 
 void initComm() {
@@ -28,32 +35,58 @@ void initComm() {
 }
 
 void loop() {
-  setLCDCursor();
   String strMeasurements = readData();
   sendData(strMeasurements);
   delay(10000);
 }
 
-void setLCDCursor() {
-  lcd.setCursor(0, 1);
+void setLCDCursor(int pos) {
+  lcd.setCursor(0, pos);
   lcd.print(F("                "));
-  lcd.setCursor(0, 1);
+  lcd.setCursor(0, pos);
 }
 
 String readData() {
-  int read = analogRead(A0);
-  float data0 = map(read, 0, 10, 0, 100);
-  Serial.print(read); Serial.print("b -> "); 
-  Serial.print(data0); Serial.print("kN/m2 -> "); 
-  Serial.print(data0 * .145); Serial.println("psi");
-  writeDataInLCD(data0, "P: ", "psi");
-  return (String)data0 + ",0.00";
+  setLCDCursor(0);
+  float pressure = readPressure();
+  writeDataInLCD(String(pressure, 1) + "psi ");
+  String caudal = String(readHallSensor(), 1) + "p/s";
+  Serial.print(" | "); Serial.print(caudal);
+  writeDataInLCD(caudal);
+  setLCDCursor(1);
+  caudal = readCaudal() + "m3/h";
+  Serial.print(" | "); Serial.println(caudal);
+  writeDataInLCD(caudal);
+  return String(pressure, 1) + "," + caudal;
 }
 
-void writeDataInLCD(int data, String title, String subTitle) {
-  lcd.print(title);
+float readPressure() {
+  int offset = 58;
+  float read = 0;
+  // for(int i = 0; i < 100; i++) {
+    read = analogRead(A0);
+  //   delay(1);
+  // }
+  // read /= 100;
+  read = read >= offset ? read : offset;
+  float pressure_kN = map(read, offset, 1024, 0, 1600);
+  // float pressure_kN = map(read, 0, 10, 0, 100);
+  float pressure_psi = pressure_kN * .145;
+  // int read = readAnalogicData(A0);
+  // float pressure_kN = read;
+  Serial.print(read); Serial.print("b -> "); 
+  Serial.print(pressure_kN); Serial.print("kN/m2 -> "); 
+  Serial.print(pressure_psi); Serial.print("psi");
+  return pressure_psi;
+}
+
+String readCaudal() {
+  String caudal = readRS485();
+  return caudal != "" ? caudal : "0.0";
+}
+
+void writeDataInLCD(String data) {
   lcd.print(data);
-  lcd.print(subTitle);
 }
 
 void sendData(String strMeasurements) {

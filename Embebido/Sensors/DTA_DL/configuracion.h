@@ -27,6 +27,10 @@
  *                                                                          *
  ****************************************************************************/
 
+#ifndef SoftwareSerial_h 
+#include <SoftwareSerial.h> 
+#endif
+
 // Settings
 const int config[] = {8, 9, 33, 333, 333, 3335};
 
@@ -38,6 +42,15 @@ const int config[] = {8, 9, 33, 333, 333, 3335};
 #define I2C_ADDR 0x27                           // Sensores
 byte numSensors = 2;
 static int data = 0;
+
+SoftwareSerial RS485(3, 6);                     // RS485 <RX, TX>
+const int En_WrRd_RS485_4 =  4;
+const int En_WrRd_RS485_5 =  5;
+char VarChar = ' ';
+String BufferIn = "";
+
+const int hallSensorPin = 13;                   // Caudalimétro Hall (pulsos)
+volatile int hallSensorCounter = 0;
 
 LiquidCrystal_I2C lcd(I2C_ADDR, 16, 2);         // LCD
 

@@ -13,7 +13,7 @@ void setup() {
   while (!Serial);
   Serial.println("\nLoRa Receiver\n");
   initLoRa();
-  comunicaciones("", "", "", true);
+  // comunicaciones("", "", "", true);
   commTimer = millis();
 }
 
@@ -27,7 +27,7 @@ void initLoRa() {
     Serial.println("Starting LoRa failed!");
     while (1);
   }
-  LoRa.setTxPower(20);            // Ajusta la potencia de transmisión a 20 dBm
+  LoRa.setTxPower(22);            // Ajusta la potencia de transmisión a 20 dBm
   LoRa.setSignalBandwidth(125E3); // Ancho de banda de 125 kHz
   LoRa.setSpreadingFactor(12);    // Factor de propagación de 12
   LoRa.setCodingRate4(5);         // Tasa de codificación 4/5
@@ -43,7 +43,8 @@ void rxData() {
     if (checkData(data)) {
       processData(data, String(LoRa.packetRssi()));
     } else {
-      Serial.println(F("Error de lectura..."));
+      Serial.print(F("Error de lectura... "));
+      Serial.println(data);
     }
   }
 }
@@ -75,7 +76,7 @@ void sendingGSMData() {
   Serial.print(F("[")); Serial.print(strQualities); Serial.println(F("]"));
   if (millis() - commTimer > 60000) {
     commTimer = millis();
-    comunicaciones(strMeasurements, strVoltages, strQualities, false);
+    // comunicaciones(strMeasurements, strVoltages, strQualities, false);
   }
   for (int i = 1; i < numSensors; i++)
     dataToSend[i] = "";
