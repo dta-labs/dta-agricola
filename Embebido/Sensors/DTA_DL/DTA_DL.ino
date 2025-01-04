@@ -8,12 +8,14 @@
 #include "comunicaciones.h"
 #include "analogicSensor.h"
 #include "hallSensor.h"
-#include "rs485.h"
+#include "caudal.h"
+// #include "rs485.h"
 
 void setup() {
   Serial.begin(115200);
   Serial.println(F("\nDTA-Agricola & DL sensor v0.1"));
-  initRS485(9600);
+  // initRS485(9600);
+  initCaudalSensor(2400);
   initHall();
   initLCD();
   initComm();
@@ -47,16 +49,19 @@ void setLCDCursor(int pos) {
 }
 
 String readData() {
-  setLCDCursor(0);
-  float pressure = readPressure();
+  setLCDCursor(0);                                        // Cursor 0
+  float pressure = readPressure();                        // Leer presión
   writeDataInLCD(String(pressure, 1) + "psi ");
-  String caudal = String(readHallSensor(), 1) + "p/s";
+  String caudal = String(readHallSensor(), 1) + "p/s";    // Leer pulsos
   Serial.print(" | "); Serial.print(caudal);
   writeDataInLCD(caudal);
-  setLCDCursor(1);
-  caudal = readCaudal() + "m3/h";
+  setLCDCursor(1);                                        // Cursor 1
+
+  // caudal = readCaudal() + "m3/h";
+  caudal = instantaneousFlowRate('L');
   Serial.print(" | "); Serial.println(caudal);
   writeDataInLCD(caudal);
+
   return String(pressure, 1) + "," + caudal;
 }
 
@@ -80,10 +85,10 @@ float readPressure() {
   return pressure_psi;
 }
 
-String readCaudal() {
-  String caudal = readRS485();
-  return caudal != "" ? caudal : "0.0";
-}
+// String readCaudal() {
+//   String caudal = readRS485();
+//   return caudal != "" ? caudal : "0.0";
+// }
 
 void writeDataInLCD(String data) {
   lcd.print(data);

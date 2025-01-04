@@ -41,6 +41,7 @@ void rxData() {
       data += (char)LoRa.read();
     }
     if (checkData(data)) {
+      Serial.println(data);
       processData(data, String(LoRa.packetRssi()));
     } else {
       Serial.print(F("Error de lectura... "));

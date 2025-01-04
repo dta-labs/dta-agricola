@@ -1,42 +1,30 @@
-#include <Arduino.h>
-#include <Wire.h>
-#include "Adafruit_SHT31.h"
+#include <LowPower.h>
+#include <Adafruit_SHT31.h>
 
-void(* resetFunc) (void) = 0;
-
-bool enableHeater = true;        // SHT Sensor
-uint8_t loopCnt = 0;
+#define enableHeater false        // SHT Sensor
+#define timer 1                   // Tiempo de espera en minutos
 Adafruit_SHT31 sht31 = Adafruit_SHT31();
 float shtData[2] = {0, 0};
 
 #define vMax 4.78                 // HW Sensor
 #define offset 32
 
+#define VCC_PIN 8
+
+int counter = 0;
+
 void setup() {
   Serial.begin(9600);
   while (!Serial) delay(10);     // will pause Zero, Leonardo, etc until serial console opens
-  pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(LED_BUILTIN, HIGH);
-  delay(50);
-  Serial.println("\nHumedad y temperatura del suelo...\n");
-  settupSHT();
+  pinMode(VCC_PIN, OUTPUT);
+  Serial.println(F("\nHumedad y temperatura del suelo...\n"));
 }
 
 void loop() {
-  digitalWrite(LED_BUILTIN, HIGH);
-  delay(50);
-  float vcc = readVcc();
-  float hwData = readHW();
-  // settupSHT();
+  settupSHT(); 
   readSHT();
-  Serial.print("SHT[Temp] = "); Serial.print(shtData[0]); Serial.print("°C\t");
-  Serial.print("SHT[Hum] = "); Serial.print(shtData[1]); Serial.print("%\t");
-  Serial.print("HW[Hum] = "); Serial.print(hwData); Serial.print("%\t\t");
-  Serial.print("Vcc = "); Serial.print(vcc); Serial.println("V");
-
-  // digitalWrite(LED_BUILTIN, LOW);
-  delay(10000);
-  // resetFunc();
+  showData(readHW(), readVcc());
+  lowPower();
 }
 
 float readHW() {
@@ -46,16 +34,14 @@ float readHW() {
 }
 
 void settupSHT() {
-  if (! sht31.begin(0x44)) {   // Set to 0x45 for alternate i2c addr
-    Serial.println("Couldn't find SHT31");
-    while (1) delay(1);
+  digitalWrite(VCC_PIN, HIGH);
+  Wire.end();
+  Wire.begin();
+  delay(100);
+  while (!sht31.begin(0x44)){ 
+    delay(1);
   }
-  // Serial.print("Heater Enabled State: ");
-  sht31.heater(enableHeater);                 // Puesto por mi
-  // if (sht31.isHeaterEnabled())
-  //   Serial.println("ENABLED");
-  // else
-  //   Serial.println("DISABLED");
+  sht31.heater(enableHeater);
 }
 
 void readSHT() {
@@ -63,24 +49,6 @@ void readSHT() {
   float h = sht31.readHumidity();
   shtData[0] = !isnan(t) ? t : -99;
   shtData[1] = !isnan(h) ? h : -99;
-  delay(1000);
-  // setHeater();
-  loopCnt++;
-}
-
-void setHeater() {
-  // Toggle heater enabled state every 30 seconds
-  // An ~3.0 degC temperature increase can be noted when heater is enabled
-  if (loopCnt >= 30) {
-    enableHeater = !enableHeater;
-    sht31.heater(enableHeater);
-    Serial.print("Heater Enabled State: ");
-    if (sht31.isHeaterEnabled())
-      Serial.println("ENABLED");
-    else
-      Serial.println("DISABLED");
-    loopCnt = 0;
-  }
 }
 
 long readVcc() {
@@ -93,4 +61,22 @@ long readVcc() {
   result |= ADCH << 8;
   result = 1126400L / result; // Back-calculate AVcc in mV
   return result / 1000.0;
+}
+
+void showData(float hwData, float vcc) {
+  Serial.print(String(counter) + ": "); 
+  Serial.print(F("SHT[Temp] = ")); Serial.print(String(shtData[0], 0)); Serial.print(F("°C\t"));
+  Serial.print(F("SHT[Hum] = ")); Serial.print(String(shtData[1], 0)); Serial.print(F("%\t"));
+  Serial.print(F("HW[Hum] = ")); Serial.print(String(hwData, 0)); Serial.print(F("%\t"));
+  Serial.print(F("Vcc = ")); Serial.print(vcc); Serial.println(F("V"));
+  counter++;
+}
+
+void lowPower() {
+  digitalWrite(VCC_PIN, LOW);
+  delay(100);
+  int minutes = timer * 15;
+  for (int i = 0; i < minutes; i++) { 
+    LowPower.powerDown(SLEEP_4S, ADC_OFF, BOD_OFF);
+  }
 }

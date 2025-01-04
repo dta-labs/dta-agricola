@@ -40,11 +40,12 @@ void txData() {
 }
 
 String getLocalData() {
-  String result = "DTA" + String(fromNode) + ": ";
-  result += String(counter) + ",";
-  result += String(readVcc());
+  String result = "Id:4454412D4C48542D00x0001,Temp:";
+  result += String(counter) + ",Hum:";
+  result += String(counter + 3) + ",Vcc:";
+  result += String(readVcc()) + ",Chk:";
   int checkSum = calculateSum(result);
-  result += "," + String(checkSum);
+  result += String(checkSum);
   return result;
 }
 

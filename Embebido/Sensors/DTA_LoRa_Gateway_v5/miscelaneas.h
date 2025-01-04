@@ -33,9 +33,9 @@ int calculateSum(String str) {
 }
 
 bool checkData(String data) {
-  int idx = data.lastIndexOf(",") + 1;
+  int idx = data.lastIndexOf(":") + 1;
   int dataCheckSum = (data.substring(idx)).toInt();
-  data = data.substring(0, data.lastIndexOf(","));
+  data = data.substring(0, idx);
   int calculatedCheckSum = calculateSum(data);
   return dataCheckSum == calculatedCheckSum;
 }
