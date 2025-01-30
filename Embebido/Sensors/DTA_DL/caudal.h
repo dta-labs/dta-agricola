@@ -2,12 +2,12 @@
 #include <SoftwareSerial.h>
 
 // Configuración de los pines
-#define RX_PIN 4
-#define DE_PIN 5
-#define RE_PIN 6
-#define TX_PIN 7
+#define RX_PIN 3
+#define DE_PIN 4
+#define RE_PIN 5
+#define TX_PIN 6
 
-SoftwareSerial rs485Serial(RX_PIN, TX_PIN); // Software Serial para RS485
+SoftwareSerial rs485Serial(RX_PIN, TX_PIN);     // Software Serial para RS485
 ModbusMaster node;
 
 void preTransmission() {
@@ -27,7 +27,7 @@ void initCaudalSensor(uint16_t baud) {
   digitalWrite(RE_PIN, LOW);
 
   // Configuración del puerto serie
-  rs485Serial.begin(baud); // Baud rate por defecto
+  rs485Serial.begin(baud); // Baud rate por defecto 2400
   node.begin(1, rs485Serial); // ID del dispositivo
   node.preTransmission(preTransmission);
   node.postTransmission(postTransmission);
@@ -46,23 +46,22 @@ void initCaudalSensor(uint16_t baud) {
 //   delay(5000); // Esperar 1 segundo antes de la siguiente lectura
 // }
 
-String instantaneousFlowRate(char unit) {
-  String msg = "";
+float instantaneousFlowRate() {
+  float caudal = 0;
+  rs485Serial.listen();
   uint8_t result = node.readHoldingRegisters(0x0000, 2);
   if (result == node.ku8MBSuccess) {
     uint16_t data[2];
     data[0] = node.getResponseBuffer(0x00);
     data[1] = node.getResponseBuffer(0x01);
-    uint32_t flowRate = (data[0] << 16) | data[1];
-    Serial.print(F("Caudal instantáneo: "));
-    msg = unit == 'L' ? (String(flowRate) + "L/h") : (String(flowRate / 1000.0) + "m3/h");
-    Serial.println(msg);
+    caudal = (data[0] << 16) | data[1];
   }
-  return msg;
+  return caudal * 1.0;
 }
 
 uint32_t cumulativeFlowInteger() {
-  uint32_t accumulatedFlow;
+  rs485Serial.listen();
+  uint32_t accumulatedFlow = 0;
   uint8_t result = node.readHoldingRegisters(0x0005, 2);
   if (result == node.ku8MBSuccess) {
     uint16_t data[2];
@@ -76,7 +75,8 @@ uint32_t cumulativeFlowInteger() {
 }
 
 uint16_t cumulativeFlowDecimal() {
-  uint16_t decimalFlow;
+  rs485Serial.listen();
+  uint16_t decimalFlow = 0;
   uint8_t result = node.readHoldingRegisters(0x0007, 1);
   if (result == node.ku8MBSuccess) {
     decimalFlow = node.getResponseBuffer(0x00);

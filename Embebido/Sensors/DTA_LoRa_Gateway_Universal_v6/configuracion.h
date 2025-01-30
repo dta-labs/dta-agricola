@@ -27,35 +27,32 @@
  *                                                                          *
  ****************************************************************************/
 
-#ifndef SoftwareSerial_h 
-#include <SoftwareSerial.h> 
-#endif
-
-// Settings
-const int config[] = {8, 9, 33, 333, 333, 3335};
 
 #pragma region Variables
+
+#include <SoftwareSerial.h>
+
+const int config[] = {2, 3, 33, 333, 333, 3333};
+// const int config[] = {2, 3, 52, 625, 125, 9145};
 
 #define telefono fillNumber(config[2], 2) + fillNumber(config[3], 3) + fillNumber(config[4], 3) + fillNumber(config[5], 4)
 #define httpServer F("AT+HTTPPARA=\"URL\",\"http://dtaamerica.com/ws/sensor_v1.php?id=")
 
-#define I2C_ADDR 0x27                           // Sensores
-byte numSensors = 2;
-static int data = 0;
+#define FREQUENCY 915E6                       // 433E6 or 915E6*, the MHz frequency of module
+#define TIMER 2                               // Tiempo de espera en minutos
+#define sensor A0
 
-const int hallSensorPin = 13;                   // Caudalimétro Hall (pulsos)
-volatile int hallSensorCounter = 0;
-
-LiquidCrystal_I2C lcd(I2C_ADDR, 16, 2);         // LCD
-
-#define pinCommReset 10                         // Comunicaciones
-SoftwareSerial gprs(config[0], config[1]);
+SoftwareSerial gprs(config[0], config[1]);    // Comunicaciones
 bool restartGSM = true;
 byte signalVar = 0;
 byte commError = 0;
 bool commRx = true;
-bool testComm = false;
+bool testComm = true;
 const int eeAddress = 0;
-#define commFrec 60000                          // 1 minutos
+static unsigned long commTimer = 0;
+
+static String sensorsID = "";                 // Sensores
+String dataToSend[10];
+String sensorList[10];
 
 #pragma endregion Variables

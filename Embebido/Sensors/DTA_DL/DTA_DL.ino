@@ -57,10 +57,11 @@ String readData() {
   writeDataInLCD(caudal);
   setLCDCursor(1);                                        // Cursor 1
 
-  // caudal = readCaudal() + "m3/h";
-  caudal = instantaneousFlowRate('L');
-  Serial.print(" | "); Serial.println(caudal);
-  writeDataInLCD(caudal);
+  float caudalFloat = instantaneousFlowRate();
+  char unit = 'L';
+  String caudalStr = (unit == 'L') ? String(caudalFloat * 1.0, 1) + "L/h" : String(caudalFloat / 1000.0, 1) + "m3/h";
+  Serial.print(" | "); Serial.println(caudalStr);
+  writeDataInLCD(caudalStr);
 
   return String(pressure, 1) + "," + caudal;
 }
@@ -74,13 +75,15 @@ float readPressure() {
   // }
   // read /= 100;
   read = read >= offset ? read : offset;
-  float pressure_kN = map(read, offset, 1024, 0, 1600);
+  // float pressure_kN = map(read, offset, 1024, 0, 1600);
   // float pressure_kN = map(read, 0, 10, 0, 100);
-  float pressure_psi = pressure_kN * .145;
+  // float pressure_psi = pressure_kN * .145;
   // int read = readAnalogicData(A0);
   // float pressure_kN = read;
+  float pressure_bar = map(read, offset, 1024, 0, 16);
+  float pressure_psi = pressure_bar * 14.504;
   Serial.print(read); Serial.print("b -> "); 
-  Serial.print(pressure_kN); Serial.print("kN/m2 -> "); 
+  Serial.print(pressure_bar); Serial.print("bar -> "); 
   Serial.print(pressure_psi); Serial.print("psi");
   return pressure_psi;
 }

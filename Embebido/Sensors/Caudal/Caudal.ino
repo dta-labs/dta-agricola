@@ -2,10 +2,10 @@
 #include <SoftwareSerial.h>
 
 // Configuración de los pines
-#define RX_PIN 4
+#define RX_PIN 3
+#define RE_PIN 4
 #define DE_PIN 5
-#define RE_PIN 6
-#define TX_PIN 7
+#define TX_PIN 6
 
 SoftwareSerial rs485Serial(RX_PIN, TX_PIN); // Software Serial para RS485
 ModbusMaster node;
@@ -39,21 +39,22 @@ void setup() {
 }
 
 void loop() {
-  instantaneousFlowRate();
+  float caudal = instantaneousFlowRate();
+  Serial.print("Mi caudal: "); Serial.println(caudal); 
   cumulativeFlowInteger();
   cumulativeFlowDecimal();
 
   delay(5000); // Esperar 1 segundo antes de la siguiente lectura
 }
 
-void instantaneousFlowRate() {
-  uint8_t result;
-  uint16_t data[2];
-  result = node.readHoldingRegisters(0x0000, 2);
+float instantaneousFlowRate() {
+  uint32_t flowRate = 0;
+  uint8_t result = node.readHoldingRegisters(0x0000, 2);
   if (result == node.ku8MBSuccess) {
+    uint16_t data[2];
     data[0] = node.getResponseBuffer(0x00);
     data[1] = node.getResponseBuffer(0x01);
-    uint32_t flowRate = (data[0] << 16) | data[1];
+    flowRate = (data[0] << 16) | data[1];
     Serial.print(F("Caudal instantáneo: "));
     Serial.print(flowRate);
     Serial.println(F(" L/h"));
@@ -61,6 +62,7 @@ void instantaneousFlowRate() {
     Serial.print(flowRate / 1000.0);
     Serial.println(F(" m^3/h"));
   }
+  return flowRate;
 }
 
 void cumulativeFlowInteger() {
