@@ -7,10 +7,6 @@ class SensorSystem {
     private $curlHandle;
 
     public function __construct(string $id) {
-        // Validar y sanitizar el ID
-        // if (!preg_match('/^[a-zA-Z0-9_-]+$/', $id)) {
-        //     throw new InvalidArgumentException('ID inválido');
-        // }
         $this->baseUrl = "https://dta-agricola.firebaseio.com/systems/$id/";
         $this->initCurl();
     }
