@@ -1,14 +1,7 @@
 /****************************************************************************
  *                                                                          * 
- *   Configuración: {GSMr, GSMt, PLT, Pais, Lada, Número(3), Número(4)}     *
- *   - GSM: Rx, Tx (D3, D2) <= Chip azul | (D2, D3) <= Chip rojo            *
- *   - A0: Entrada analógica                                                *
- *   - Comunicación LoRA                                                    *
- *     . D9 : RST                                                           *
- *     . D10: SS                                                            *
- *     . D11: MOSI                                                          *
- *     . D12: MISO                                                          *
- *     . D13: SCK                                                           *
+ *   Configuración: {GSMr, GSMt, Pais(2), Lada(2), Número(3), Número(4)}    *
+ *   - GSM: Rx, Tx (D3, D4)                                                 *
  *   - Vector de configuración config[]                                     *
  *     {x, x, xx, xxx, xxx, xxxx}                                           *
  *      |  |  |   |    |     └ Número parte 2                               *
@@ -18,12 +11,12 @@
  *      |  └────────────────── Tx                                           *
  *      └───────────────────── Rx                                           *
  *   - Vector de entrada                                                    *
- *     {xxx, xxx, xxxx, xxxx, ..., xxxx}                                    *
- *       |    |     |     |          └ Sensor N                             *
- *       |    |     |     └─────────── Sensor 2                             *
- *       |    |     └───────────────── Sensor 1 (conectado al Gateway)      *
- *       |    └─────────────────────── Candidad de sensores                 *
- *       └──────────────────────────── Tiempo de dormancia                  *
+ *     {x, xxxx, xxxx, xxxx, ..., xxxx}                                     *
+ *      |    |     |     |          └ Sensor 10                             *
+ *      |    |     |     └─────────── Sensor 3                              *
+ *      |    |     └───────────────── Sensor 2                              *
+ *      |    └─────────────────────── Sensor 1                              *
+ *      └──────────────────────────── Modo de funcionamiento                *
  *                                                                          *
  ****************************************************************************/
 
@@ -32,8 +25,8 @@
 
 #include <SoftwareSerial.h>
 
-const int config[] = {2, 3, 33, 333, 333, 3333};
-// const int config[] = {2, 3, 52, 625, 125, 9145};
+const int config[] = {3, 4, 33, 333, 333, 3333};
+// const int config[] = {3, 4, 52, 625, 125, 9145};
 
 #define telefono fillNumber(config[2], 2) + fillNumber(config[3], 3) + fillNumber(config[4], 3) + fillNumber(config[5], 4)
 #define httpServer F("AT+HTTPPARA=\"URL\",\"http://dtaamerica.com/ws/sensor_v1.php?id=")
@@ -47,12 +40,13 @@ bool restartGSM = true;
 byte signalVar = 0;
 byte commError = 0;
 bool commRx = true;
-bool testComm = true;
+bool testComm = false;
 const int eeAddress = 0;
 static unsigned long commTimer = 0;
 
-static String sensorsID = "";                 // Sensores
+String operationMode = "N";                   // Sensores
 String dataToSend[10];
 String sensorList[10];
+bool testData = true;
 
 #pragma endregion Variables

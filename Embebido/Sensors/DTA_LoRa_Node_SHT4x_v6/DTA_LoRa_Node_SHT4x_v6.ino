@@ -23,7 +23,7 @@ void setup() {
   pinMode(LINK, INPUT_PULLUP);
   Serial.begin(19200);
   while (!Serial) delay(10);               // Pausar Arduino Zero, Leonardo, etc. hasta que se active el puerto serie
-  Serial.println(F("\n\nLoRa Node v6"));
+  Serial.println(F("\n\nLoRa Node v6.0130"));
   Serial.println(F("Sonda de humedad y temperatura del suelo SHT4"));
   initLoRa();
   settupSHT(); 

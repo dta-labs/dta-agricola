@@ -85,7 +85,7 @@ void testComunicaciones() {
 void setupGSM() {
   // if (restartGSM) {
     Serial.println(F("Setup GSM"));
-    gprs.begin(9600);
+    gprs.begin(19200);
     gprs.listen();
     if (testComm) { testComunicaciones(); }
     // gprs.println(F("AT+CBAND=PCS_MODE"));    // PGSM_MODE, DCS_MODE, PCS_MODE, EGSM_DCS_MODE, GSM850_PCS_MODE, ALL_BAND
@@ -125,31 +125,40 @@ String httpRequest(String strToSend, bool setup) {
   gprs.println(F("AT+HTTPREAD"));
   String result = getResponse(0, testComm);
   gprs.println(F("AT+HTTPTERM"));
-  getResponse(30, testComm); 
+  getResponse(300, testComm); 
   wdt_reset();                                // Reset the watchdog
   commWatchDogReset();
   return getDataStream(result);
 }
 
-void setVariables(String sensors) {
-  Serial.print(F("Sensores: ")); Serial.println(sensors);
+void setVariables(String data) {
+  Serial.print(F("Datos: ")); Serial.println(data);
   int indice = 0; 
   int startIndex = 0; 
-  int endIndex = sensors.indexOf(','); 
+  int endIndex = data.indexOf(','); 
+  operationMode = data.substring(startIndex, endIndex);
+  Serial.print(F("Modo: ")); Serial.println(operationMode == "N" ? "Normal" : "Descubrimiento");
+  startIndex = endIndex + 1; 
+  endIndex = data.indexOf(',', startIndex); 
+  Serial.print(F("Sensores: ")); 
   while (endIndex != -1) { 
-    sensorList[indice++] = sensors.substring(startIndex, endIndex); 
+    sensorList[indice++] = data.substring(startIndex, endIndex); 
+    Serial.print(sensorList[indice]); Serial.print(",");
     startIndex = endIndex + 1; 
-    endIndex = sensors.indexOf(',', startIndex); 
+    endIndex = data.indexOf(',', startIndex); 
   }
-  sensorList[indice] = sensors.substring(startIndex); 
+  sensorList[indice] = data.substring(startIndex); 
+  Serial.print(sensorList[indice]);
 }
 
 void comunicaciones(String strToSend, bool setup) {
   Serial.println(F("\nComunicación con el servidor"));
-  // setupGSM();
-  // String data = httpRequest(strToSend, setup); 
-  Serial.println("Mockup data...");
-  String data = "\"0x10B9CEAC\"00x0001\"00x0002\"00x0003\"00x0004\"00x0005\"00x0006\"00x0007\"00x0008\"00x0009\"";
+  setupGSM();
+  String data = httpRequest(strToSend, setup); 
+  if (testData) {
+    Serial.println(F("Mockup data..."));
+    data = F("\"D\"0x0\"0x0\"0x0\"0x0\"0x0\"0x0\"0x0\"0x0\"0x0\"0x0\"");
+  }
   if (data != "") {
     data = data.substring(1, data.length() - 1);
     data.replace("\"", ",");

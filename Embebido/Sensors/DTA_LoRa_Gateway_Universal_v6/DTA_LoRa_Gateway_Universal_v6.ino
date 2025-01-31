@@ -15,7 +15,7 @@ void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
   Serial.begin(19200);
   while (!Serial) delay(10);               // Pausar Arduino Zero, Leonardo, etc. hasta que se active el puerto serie
-  Serial.println("\n\nLoRa Gateway Universal v6.0\n");
+  Serial.println(F("\n\nLoRa Gateway Universal v6.0130"));
   initLoRa();
   resetData();
   comunicaciones("", true);
@@ -38,7 +38,7 @@ void txData() {
       strToSend += (i < 9) ? "," : "";
     }
     Serial.println(strToSend);
-    // comunicaciones(strToSend, false);
+    comunicaciones(strToSend, false);
     resetData();
   }
 }

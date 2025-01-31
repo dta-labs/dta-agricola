@@ -31,6 +31,16 @@ int getPossition(String strArr[], String str) {
   return -1;
 }
 
+int setPossition(String strArr[], String str) {
+  for (int i = 0; i < 10; i++) { 
+    if (strArr[i] == "0x0") {
+      strArr[i] = str;
+      return i;
+    }
+  }
+  return -1;
+}
+
 int calculateSum(String str) {
   int sum = 0;
   for (int i = 0; i < str.length(); i++) sum += str[i];
