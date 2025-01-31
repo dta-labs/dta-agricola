@@ -125,8 +125,9 @@ class SensorSystem {
                 for ($i = 0; $i < $length; $i++) {
                     $idx = "S$i";
                     $settings->sensors->$idx->id = $data[$i];
-                    $settings->sensors->$idx->latitude = $settings->sensors->$idx->id->latitude ?? 0.0;
-                    $settings->sensors->$idx->longitude = $settings->sensors->$idx->id->longitude ?? 0.0;
+                    $settings->sensors->$idx->latitude = $settings->sensors->$idx->latitude ?? 0.0;
+                    $settings->sensors->$idx->longitude = $settings->sensors->$idx->longitude ?? 0.0;
+                    $settings->sensors->$idx->type = $settings->sensors->$idx->type ?? "SHT";
                 }
                 $this->settings = $settings;                      // Actualizar la caché local
                 $this->updateSettings($settings);
