@@ -29,7 +29,7 @@ const int config[] = {3, 4, 33, 333, 333, 3333};
 // const int config[] = {3, 4, 52, 625, 125, 9145};
 
 #define telefono fillNumber(config[2], 2) + fillNumber(config[3], 3) + fillNumber(config[4], 3) + fillNumber(config[5], 4)
-#define httpServer F("AT+HTTPPARA=\"URL\",\"http://dtaamerica.com/ws/sensor_v1.php?id=")
+#define httpServer F("AT+HTTPPARA=\"URL\",\"http://dtaamerica.com/ws/sensor_v6.php?id=")
 
 #define FREQUENCY 915E6                       // 433E6 or 915E6*, the MHz frequency of module
 #define TIMER 2                               // Tiempo de espera en minutos

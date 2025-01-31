@@ -20,17 +20,14 @@ void processData(String data, String rssi) {      // DTA-GTW-00x0000,t°C,%Hs,Vc
   }
 }
 
-void discoverNewSensor(String data, String rssi) {             // DTA-GTW-00x0000
+void discoverNewSensor(String data) {             // DTA-GTW-00x0000
   int addressIdx = data.indexOf("0x");
   int commaIdx = data.indexOf(",");
   String sensorId = data.substring(addressIdx, commaIdx);
   int index = getPossition(sensorList, sensorId);
   if (index == -1) {
     index = setPossition(sensorList, sensorId);
-    if (index != -1) {
-      data = data.substring(commaIdx + 1, data.lastIndexOf(","));
-      dataToSend[index] = data + "," + rssi;
-    }
+    if (index != -1) dataToSend[index] = sensorId;
   }
 }
 
@@ -45,7 +42,7 @@ void rxData() {
       if (operationMode == "N") {
         processData(data, String(LoRa.packetRssi()));
       } else {
-        discoverNewSensor(data, String(LoRa.packetRssi()));
+        discoverNewSensor(data);
       }
     } else {
       Serial.print(F("Error de lectura... "));
