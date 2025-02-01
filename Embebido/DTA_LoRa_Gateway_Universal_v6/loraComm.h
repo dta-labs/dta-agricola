@@ -9,7 +9,7 @@ void initLoRa() {
   Serial.println(F("LoRa inicializado correctamente..."));
 }
 
-void processData(String data, String rssi) {      // DTA-GTW-00x0000,t°C,%Hs,Vcc,rssi
+void processData(String data, String rssi) {      // DTA-GTW-0x0000,t°C,%Hs,Vcc,rssi
   int addressIdx = data.indexOf("0x");
   int commaIdx = data.indexOf(",");
   String sensorId = data.substring(addressIdx, commaIdx);
@@ -20,7 +20,7 @@ void processData(String data, String rssi) {      // DTA-GTW-00x0000,t°C,%Hs,Vc
   }
 }
 
-void discoverNewSensor(String data) {             // DTA-GTW-00x0000
+void discoverNewSensor(String data) {             // DTA-GTW-0x0000
   int addressIdx = data.indexOf("0x");
   int commaIdx = data.indexOf(",");
   String sensorId = data.substring(addressIdx, commaIdx);

@@ -29,4 +29,5 @@ http://openweathermap.org/img/w/04n.png
 Pruebas Sensores:
 =================
 
+https://dtaamerica.com/ws/sensor_v6.php?id=333333333333&data=[]&rx=ok&si=25
 https://dtaamerica.com/ws/sensor_v6.php?id=333333333333&data=[0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A]&rx=ok&si=25
