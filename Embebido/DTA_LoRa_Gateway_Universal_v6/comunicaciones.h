@@ -83,7 +83,7 @@ void testComunicaciones() {
 }
 
 void setupGSM() {
-  // if (restartGSM) {
+  if (restartGSM) {
     Serial.println(F("Setup GSM"));
     gprs.begin(19200);
     gprs.listen();
@@ -107,7 +107,7 @@ void setupGSM() {
     gprs.println(F("AT+SAPBR=2,1"));
     getResponse(15, testComm); 
     wdt_reset();                                // Reset the watchdog
-  // }
+  }
 }
 
 String httpRequest(String strToSend, bool setup) {
@@ -119,7 +119,8 @@ String httpRequest(String strToSend, bool setup) {
   gprs.print(F("&data=[")); gprs.print(strToSend); gprs.print(F("]"));
   gprs.print(F("&rx=")); gprs.print((String)(commRx ? "Ok" : "Er"));
   gprs.print(F("&si=")); gprs.println((String)signalVar + "\"");
-  getResponse(25, true); 
+  getResponse(30, true); 
+  delay(1000);
   gprs.println(F("AT+HTTPACTION=0"));
   getResponse(6000, testComm); 
   gprs.println(F("AT+HTTPREAD"));
@@ -132,14 +133,13 @@ String httpRequest(String strToSend, bool setup) {
 }
 
 void setVariables(String data) {
+  Serial.println(F("Variables: "));
   Serial.print(F("Datos: ")); Serial.println(data);
   int indice = 0; 
   int startIndex = 0; 
   int endIndex = data.indexOf(','); 
   operationMode = data.substring(startIndex, endIndex);
   Serial.print(F("Modo: ")); Serial.println(operationMode == "N" ? "Normal" : "Descubrimiento");
-  startIndex = endIndex + 1; 
-  endIndex = data.indexOf(',', startIndex); 
   Serial.print(F("Sensores: ")); 
   while (endIndex != -1) { 
     sensorList[indice++] = data.substring(startIndex, endIndex); 

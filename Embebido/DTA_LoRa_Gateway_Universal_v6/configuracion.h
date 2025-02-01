@@ -32,7 +32,7 @@ const int config[] = {3, 4, 33, 333, 333, 3333};
 #define httpServer F("AT+HTTPPARA=\"URL\",\"http://dtaamerica.com/ws/sensor_v6.php?id=")
 
 #define FREQUENCY 915E6                       // 433E6 or 915E6*, the MHz frequency of module
-#define TIMER 2                               // Tiempo de espera en minutos
+#define TIMER 1                               // Tiempo de espera en minutos
 #define sensor A0
 
 SoftwareSerial gprs(config[0], config[1]);    // Comunicaciones
@@ -45,8 +45,8 @@ const int eeAddress = 0;
 static unsigned long commTimer = 0;
 
 String operationMode = "N";                   // Sensores
-String dataToSend[10];
-String sensorList[10];
-bool testData = true;
+String dataToSend[10] = {"", "", "", "", "", "", "", "", "", ""};
+String sensorList[10] = {"0x0", "0x0", "0x0", "0x0", "0x0", "0x0", "0x0", "0x0", "0x0", "0x0"};
+bool testData = false;
 
 #pragma endregion Variables
