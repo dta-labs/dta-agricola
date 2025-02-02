@@ -30,7 +30,7 @@ String getResponse(int wait, bool response){
 }
 
 String getDataStream(String dataSetream) {
-  dataSetream = dataSetream.substring(dataSetream.indexOf('"'), dataSetream.indexOf("OK"));
+  dataSetream = dataSetream.substring(dataSetream.indexOf('"') + 1, dataSetream.lastIndexOf("\""));
   commRx = dataSetream != "" ? true : false;
   restartGSM = !commRx;
   return dataSetream;
@@ -112,6 +112,16 @@ void setupGSM() {
 
 String httpRequest(String strToSend, bool setup) {
   signalVar = getSignalValue();
+  String strData = httpServer;
+  strData += telefono;
+  strData += F("&data=[");
+  strData += strToSend;
+  strData += F("]");
+  strData += F("&rx=");
+  strData += (String)(commRx ? "Ok" : "Er");
+  strData += F("&si=");
+  strData += (String)signalVar + "\"";
+  Serial.println(strData);
   gprs.println(F("AT+HTTPINIT"));
   getResponse(15, testComm); 
   gprs.print(httpServer);
@@ -119,36 +129,34 @@ String httpRequest(String strToSend, bool setup) {
   gprs.print(F("&data=[")); gprs.print(strToSend); gprs.print(F("]"));
   gprs.print(F("&rx=")); gprs.print((String)(commRx ? "Ok" : "Er"));
   gprs.print(F("&si=")); gprs.println((String)signalVar + "\"");
-  getResponse(30, true); 
-  delay(1000);
+  getResponse(25, true); 
   gprs.println(F("AT+HTTPACTION=0"));
   getResponse(6000, testComm); 
   gprs.println(F("AT+HTTPREAD"));
   String result = getResponse(0, testComm);
   gprs.println(F("AT+HTTPTERM"));
-  getResponse(300, testComm); 
+  getResponse(30, testComm); 
   wdt_reset();                                // Reset the watchdog
   commWatchDogReset();
   return getDataStream(result);
 }
 
 void setVariables(String data) {
+  data.replace("\"", ",");
   Serial.println(F("Variables: "));
-  Serial.print(F("Datos: ")); Serial.println(data);
-  int indice = 0; 
+  Serial.print(F("GSM: ")); Serial.println(data);
   int startIndex = 0; 
   int endIndex = data.indexOf(','); 
   operationMode = data.substring(startIndex, endIndex);
   Serial.print(F("Modo: ")); Serial.println(operationMode == "N" ? "Normal" : "Descubrimiento");
   Serial.print(F("Sensores: ")); 
-  while (endIndex != -1) { 
-    sensorList[indice++] = data.substring(startIndex, endIndex); 
-    Serial.print(sensorList[indice]); Serial.print(",");
+  for (int i = 0; i < 10; i++) { 
     startIndex = endIndex + 1; 
     endIndex = data.indexOf(',', startIndex); 
+    sensorList[i] = data.substring(startIndex, endIndex); 
+    if (i > 0) Serial.print(",");
+    Serial.print(sensorList[i]);
   }
-  sensorList[indice] = data.substring(startIndex); 
-  Serial.print(sensorList[indice]);
 }
 
 void comunicaciones(String strToSend, bool setup) {
@@ -160,8 +168,6 @@ void comunicaciones(String strToSend, bool setup) {
     data = F("\"D\"0x0\"0x0\"0x0\"0x0\"0x0\"0x0\"0x0\"0x0\"0x0\"0x0\"");
   }
   if (data != "") {
-    data = data.substring(1, data.length() - 1);
-    data.replace("\"", ",");
     setVariables(data);
   }
 }

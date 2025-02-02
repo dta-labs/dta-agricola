@@ -32,25 +32,22 @@ void txData() {
   unsigned long commFrequence = TIMER * 60000;
   if (millis() - commTimer > commFrequence) {
     commTimer = millis();
-    comunicaciones(getTxData(sensorList, dataToSend), false);
-    resetData();
+    comunicaciones(getTxData(), false);
   }
 }
 
-String getTxData(String* _sensorList, String* _dataToSend) {
-    String strIds = F("[");
-    String strToSend = F("[");
-    for (int i = 0; i < 10; i++) {
-      strIds += _sensorList[i];
-      strIds += (i < 9) ? "," : "";
-      strToSend += dataToSend[i];
-      strToSend += (i < 9) ? "," : "";
-    }
-    strIds += F("]");
-    strToSend += F("]");
-    Serial.print(F("Ínices: ")); Serial.println(strIds);
-    Serial.print(F("Datos leidos: ")); Serial.println(strToSend);
-    return strToSend;
+String getTxData() {
+  String strIds = F("");
+  String strToSend = F("");
+  for (int i = 0; i < 10; i++) {
+    strIds += sensorList[i];
+    strIds += (i < 9) ? "," : "";
+    strToSend += dataToSend[i];
+    strToSend += (i < 9) ? "," : "";
+  }
+  Serial.print(F("Ínices: ")); Serial.println(strIds);
+  Serial.print(F("Datos leidos: ")); Serial.println(strToSend);
+  return strToSend == ",,,,,,,,," ? "" : strToSend;
 }
 
 void resetData() {

@@ -9,6 +9,31 @@ void initLoRa() {
   Serial.println(F("LoRa inicializado correctamente..."));
 }
 
+int getPossition(String strArr[], String str) {
+  for (int i = 0; i < 10; i++) if (strArr[i] == str) return i;
+  return -1;
+}
+
+int setPossition(String strArr[], String str) {
+  for (int i = 0; i < 10; i++) { 
+    if (strArr[i] == "0x0" || strArr[i] == "") {
+      strArr[i] = str;
+      return i;
+    }
+  }
+  return -1;
+}
+
+void discoverNewSensor(String data) {             // DTA-GTW-0x0000
+  int addressIdx = data.indexOf("0x");
+  int commaIdx = data.indexOf(",");
+  String sensorId = data.substring(addressIdx, commaIdx);
+  int index = getPossition(sensorList, sensorId);
+  if (index == -1) index = setPossition(sensorList, sensorId);
+  if (index != -1) dataToSend[index] = sensorId;
+  for (int i = 0; i < 10; i++) dataToSend[i] = sensorList[i] != "" ? sensorList[i] : "0x0";
+}
+
 void processData(String data, String rssi) {      // DTA-GTW-0x0000,t°C,%Hs,Vcc,rssi
   int addressIdx = data.indexOf("0x");
   int commaIdx = data.indexOf(",");
@@ -17,17 +42,6 @@ void processData(String data, String rssi) {      // DTA-GTW-0x0000,t°C,%Hs,Vcc
   if (index != -1) {
     data = data.substring(commaIdx + 1, data.lastIndexOf(","));
     dataToSend[index] = data + "," + rssi;
-  }
-}
-
-void discoverNewSensor(String data) {             // DTA-GTW-0x0000
-  int addressIdx = data.indexOf("0x");
-  int commaIdx = data.indexOf(",");
-  String sensorId = data.substring(addressIdx, commaIdx);
-  int index = getPossition(sensorList, sensorId);
-  if (index == -1) {
-    index = setPossition(sensorList, sensorId);
-    if (index != -1) dataToSend[index] = sensorId;
   }
 }
 
@@ -47,7 +61,7 @@ void rxData() {
     } else {
       Serial.print(F("Error de lectura... "));
     }
-    Serial.println(data);
+    Serial.println("\n" + data);
   }
 }
 
