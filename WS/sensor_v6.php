@@ -79,19 +79,17 @@ class SensorSystem {
     }
 
     private function updateLog(array $data): void {
-        if (empty($data)) {
+        $settings = $this->getSettings();
+        if (empty($data) || $settings->operationMode == 0) {
             return;
         }
-
         $date = $this->getDateTime($this->getLocalZone())->format('Ymd hia');
-        
         $logData = [
             'date' => $date,
             'dataRaw' => json_encode($data),
             'signal' => $_GET['si'] ?? '',
             'reception' => in_array($_GET['rx'] ?? '', ['Ok', 'Er']) ? $_GET['rx'] : ''
         ];
-
         $this->executeRequest(
             $this->baseUrl . "logs.json",
             'POST',
@@ -116,17 +114,25 @@ class SensorSystem {
 
             $settings = $this->getSettings();
             
-            if ($settings->operationMode == "D") {
+            if ($settings->operationMode == 0) {
+                $actulize = true;
                 $length = count($data);
                 for ($i = 0; $i < $length; $i++) {
                     $idx = "S$i";
-                    $settings->sensors->$idx->id = $data[$i];
-                    $settings->sensors->$idx->latitude = $settings->sensors->$idx->latitude ?? 0.0;
-                    $settings->sensors->$idx->longitude = $settings->sensors->$idx->longitude ?? 0.0;
-                    $settings->sensors->$idx->type = $settings->sensors->$idx->type ?? "SHT";
+                    if (isset($data[$i]) && strpos($data[$i], '0x') === 0) {
+                        $settings->sensors->$idx->id = $data[$i];
+                        $settings->sensors->$idx->latitude = $settings->sensors->$idx->latitude ?? 0.0;
+                        $settings->sensors->$idx->longitude = $settings->sensors->$idx->longitude ?? 0.0;
+                        $settings->sensors->$idx->type = $settings->sensors->$idx->type ?? "SHT";
+                    } else {
+                        $actulize = false;
+                        break;
+                    }
                 }
-                $this->settings = $settings;                      // Actualizar la caché local
-                $this->updateSettings($settings);
+                if ($actulize) {
+                    $this->settings = $settings;                      // Actualizar la caché local
+                    $this->updateSettings($settings);
+                }
             } else {
                 $this->updateLog($data);
             }

@@ -25,6 +25,11 @@
 
 #include <SoftwareSerial.h>
 
+#define strEmpty F("")                        // Variables generales
+#define baseAddress F("0x0")
+#define startAddress F("0x")
+#define commaChar F(",")
+
 const int config[] = {3, 4, 33, 333, 333, 3333};
 // const int config[] = {3, 4, 52, 625, 125, 9145};
 
@@ -32,8 +37,6 @@ const int config[] = {3, 4, 33, 333, 333, 3333};
 #define httpServer F("AT+HTTPPARA=\"URL\",\"http://dtaamerica.com/ws/sensor_v6.php?id=")
 
 #define FREQUENCY 915E6                       // 433E6 or 915E6*, the MHz frequency of module
-#define TIMER 1                               // Tiempo de espera en minutos
-#define sensor A0
 
 SoftwareSerial gprs(config[0], config[1]);    // Comunicaciones
 bool restartGSM = true;
@@ -41,12 +44,11 @@ byte signalVar = 0;
 byte commError = 0;
 bool commRx = true;
 bool testComm = false;
-const int eeAddress = 0;
 static unsigned long commTimer = 0;
 
-String operationMode = "N";                   // Sensores
-String dataToSend[10] = {"", "", "", "", "", "", "", "", "", ""};
-String sensorList[10] = {"0x0", "0x0", "0x0", "0x0", "0x0", "0x0", "0x0", "0x0", "0x0", "0x0"};
+int operationMode = 1;                   // Sensores & Modo de prueba
+String dataToSend[5];
+String sensorList[5];
 bool testData = false;
 
 #pragma endregion Variables

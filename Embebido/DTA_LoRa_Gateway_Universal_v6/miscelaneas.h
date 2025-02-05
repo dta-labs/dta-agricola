@@ -15,7 +15,7 @@ String fillNumber(int number, byte positions) {
 String parse(String dataString, char separator, int index) {
   int found = 0;
   int strIndex[] = {0, -1};
-  int maxIndex = dataString.length()-1;
+  int maxIndex = dataString.length() - 1;
   for(int i = 0; i <= maxIndex && found <= index; i++) {
     if(dataString.charAt(i) == separator || i == maxIndex) {
         found++;
@@ -23,7 +23,7 @@ String parse(String dataString, char separator, int index) {
         strIndex[1] = (i == maxIndex) ? i+1 : i;
     }
   }
-  return found > index ? dataString.substring(strIndex[0], strIndex[1]) : "";
+  return found > index ? dataString.substring(strIndex[0], strIndex[1]) : F("");
 }
 
 int calculateSum(String str) {
@@ -33,7 +33,7 @@ int calculateSum(String str) {
 }
 
 bool checkData(String data) {
-  int idx = data.lastIndexOf(",") + 1;
+  int idx = data.lastIndexOf(F(",")) + 1;
   int dataCheckSum = (data.substring(idx)).toInt();
   data = data.substring(0, idx);
   int calculatedCheckSum = calculateSum(data);

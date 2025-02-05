@@ -9,15 +9,15 @@ void initLoRa() {
   Serial.println(F("LoRa inicializado correctamente..."));
 }
 
-int getPossition(String strArr[], String str) {
-  for (int i = 0; i < 10; i++) if (strArr[i] == str) return i;
+int getPossition(String str) {
+  for (int i = 0; i < 5; i++) if (sensorList[i] == str) return i;
   return -1;
 }
 
-int setPossition(String strArr[], String str) {
-  for (int i = 0; i < 10; i++) { 
-    if (strArr[i] == "0x0" || strArr[i] == "") {
-      strArr[i] = str;
+int setPossition(String str) {
+  for (int i = 0; i < 5; i++) { 
+    if ((sensorList[i] == baseAddress || sensorList[i] == strEmpty) && str.indexOf(startAddress) == 0) {
+      sensorList[i] = str;
       return i;
     }
   }
@@ -25,43 +25,43 @@ int setPossition(String strArr[], String str) {
 }
 
 void discoverNewSensor(String data) {             // DTA-GTW-0x0000
-  int addressIdx = data.indexOf("0x");
-  int commaIdx = data.indexOf(",");
+  int addressIdx = data.indexOf(startAddress);
+  int commaIdx = data.indexOf(commaChar);
   String sensorId = data.substring(addressIdx, commaIdx);
-  int index = getPossition(sensorList, sensorId);
-  if (index == -1) index = setPossition(sensorList, sensorId);
-  if (index != -1) dataToSend[index] = sensorId;
-  for (int i = 0; i < 10; i++) dataToSend[i] = sensorList[i] != "" ? sensorList[i] : "0x0";
+  int index = getPossition(sensorId);
+  if (index == -1) index = setPossition(sensorId);
+  for (int i = 0; i < 5; i++) dataToSend[i] = sensorList[i] != "" ? sensorList[i] : baseAddress;
 }
 
 void processData(String data, String rssi) {      // DTA-GTW-0x0000,t°C,%Hs,Vcc,rssi
-  int addressIdx = data.indexOf("0x");
-  int commaIdx = data.indexOf(",");
+  int addressIdx = data.indexOf(startAddress);
+  int commaIdx = data.indexOf(commaChar);
   String sensorId = data.substring(addressIdx, commaIdx);
-  int index = getPossition(sensorList, sensorId);
+  int index = getPossition(sensorId);
   if (index != -1) {
-    data = data.substring(commaIdx + 1, data.lastIndexOf(","));
-    dataToSend[index] = data + "," + rssi;
+    data = data.substring(commaIdx + 1, data.lastIndexOf(commaChar));
+    // dataToSend[index] = data + commaChar + rssi;
+    dataToSend[index] = data;
   }
 }
 
 void rxData() {
   int packetSize = LoRa.parsePacket();
   if (packetSize) {
-    String data = "";
+    String data = strEmpty;
     while (LoRa.available()) {
       data += (char)LoRa.read();
     }
-    if (data.indexOf("DTA") == 0 && checkData(data)) {
-      if (operationMode == "N") {
-        processData(data, String(LoRa.packetRssi()));
-      } else {
+    if (data.indexOf(F("DTA")) == 0 && checkData(data)) {
+      if (operationMode == 0) {
         discoverNewSensor(data);
+      } else {
+        processData(data, String(LoRa.packetRssi()));
       }
     } else {
       Serial.print(F("Error de lectura... "));
     }
-    Serial.println("\n" + data);
+    Serial.print("\n" + data);
   }
 }
 

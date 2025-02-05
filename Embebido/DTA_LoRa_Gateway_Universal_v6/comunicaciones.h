@@ -7,13 +7,13 @@ void commWatchDogReset() {
   if (commError > 0) {
     Serial.print(F("commError: ")); Serial.println(commError);
   }
-  if (commError == 10) {
+  if (commError == 5) {
     resetSoftware();
   }
 }
 
 String getResponse(int wait, bool response){
-  String result = "";
+  String result = strEmpty;
   delay(wait);
   unsigned long iTimer = millis();
   while(!gprs.available() && (millis() - iTimer) <= 1000) {
@@ -31,7 +31,7 @@ String getResponse(int wait, bool response){
 
 String getDataStream(String dataSetream) {
   dataSetream = dataSetream.substring(dataSetream.indexOf('"') + 1, dataSetream.lastIndexOf("\""));
-  commRx = dataSetream != "" ? true : false;
+  commRx = dataSetream != strEmpty ? true : false;
   restartGSM = !commRx;
   return dataSetream;
 }
@@ -46,7 +46,6 @@ int getSignalValue() {
 }
 
 void testComunicaciones() {
-  wdt_reset();                         // Reset the watchdog
   gprs.println(F("AT+IPR=9600"));      // Velocidad en baudios?
   getResponse(15, testComm); 
   gprs.println(F("AT"));               // Tarjeta SIM Lista? OK
@@ -68,7 +67,6 @@ void testComunicaciones() {
   gprs.println(F("AT+CPIN?"));         // Tarjeta SIM insetada? +CPIN: READY OK
   getResponse(15, testComm); 
   gprs.println(F("AT+WIND=1"));        // Indicación de tarjeta SIM insetada? +CPIN: READY OK
-  wdt_reset();                         // Reset the watchdog
   getResponse(15, testComm); 
   gprs.println(F("AT+CREG?"));         // Tarjeta SIM registrada? +CREG: 0,1 OK 
   getResponse(15, testComm); 
@@ -106,68 +104,69 @@ void setupGSM() {
     getResponse(15, testComm); 
     gprs.println(F("AT+SAPBR=2,1"));
     getResponse(15, testComm); 
-    wdt_reset();                                // Reset the watchdog
   }
 }
 
-String httpRequest(String strToSend, bool setup) {
+String httpRequest(String strToSend) {
   signalVar = getSignalValue();
+  gprs.println(F("AT+HTTPINIT"));
+  getResponse(15, testComm); 
   String strData = httpServer;
   strData += telefono;
   strData += F("&data=[");
   strData += strToSend;
   strData += F("]");
   strData += F("&rx=");
-  strData += (String)(commRx ? "Ok" : "Er");
+  strData += (String)(commRx ? F("Ok") : F("Er"));
   strData += F("&si=");
-  strData += (String)signalVar + "\"";
+  strData += (String)signalVar + F("\"");
   Serial.println(strData);
-  gprs.println(F("AT+HTTPINIT"));
-  getResponse(15, testComm); 
-  gprs.print(httpServer);
-  gprs.print(telefono);
-  gprs.print(F("&data=[")); gprs.print(strToSend); gprs.print(F("]"));
-  gprs.print(F("&rx=")); gprs.print((String)(commRx ? "Ok" : "Er"));
-  gprs.print(F("&si=")); gprs.println((String)signalVar + "\"");
-  getResponse(25, true); 
+  // gprs.print(httpServer);
+  // gprs.print(telefono);
+  // gprs.print(F("&data=[")); gprs.print(strToSend); gprs.print(F("]"));
+  // gprs.print(F("&rx=")); gprs.print((String)(commRx ? "Ok" : "Er"));
+  // gprs.print(F("&si=")); gprs.println((String)signalVar + "\"");
+  gprs.println(strData);
+  getResponse(50, true); 
   gprs.println(F("AT+HTTPACTION=0"));
   getResponse(6000, testComm); 
   gprs.println(F("AT+HTTPREAD"));
-  String result = getResponse(0, testComm);
+  String result = getResponse(0, true);
   gprs.println(F("AT+HTTPTERM"));
   getResponse(30, testComm); 
-  wdt_reset();                                // Reset the watchdog
   commWatchDogReset();
   return getDataStream(result);
 }
 
 void setVariables(String data) {
-  data.replace("\"", ",");
-  Serial.println(F("Variables: "));
-  Serial.print(F("GSM: ")); Serial.println(data);
+  data.replace(F("\""), commaChar);
+  Serial.println(F("» Variables: "));
+  Serial.print(F("  ├─ GSM: ")); Serial.println(data);
   int startIndex = 0; 
-  int endIndex = data.indexOf(','); 
-  operationMode = data.substring(startIndex, endIndex);
-  Serial.print(F("Modo: ")); Serial.println(operationMode == "N" ? "Normal" : "Descubrimiento");
-  Serial.print(F("Sensores: ")); 
-  for (int i = 0; i < 10; i++) { 
+  int endIndex = data.indexOf(commaChar); 
+  int auxMode = data.substring(startIndex, endIndex).toInt();
+  if (operationMode == 0 && auxMode != 0) for (int i = 0; i < 5; i++) dataToSend[i] = strEmpty;
+  operationMode = auxMode;
+  Serial.print(F("  ├─ Modo: ")); Serial.println(operationMode != 0 ? String(operationMode) : F("Descubrimiento"));
+  Serial.print(F("  └─ Sensores: ")); 
+  for (int i = 0; i < 5; i++) { 
     startIndex = endIndex + 1; 
-    endIndex = data.indexOf(',', startIndex); 
-    sensorList[i] = data.substring(startIndex, endIndex); 
-    if (i > 0) Serial.print(",");
-    Serial.print(sensorList[i]);
+    endIndex = data.indexOf(commaChar, startIndex); 
+    String aux = i < 4 ? data.substring(startIndex, endIndex) : data.substring(startIndex); 
+    sensorList[i] = aux.indexOf(startAddress) == 0 && aux.length() > 2 ? aux : baseAddress;
+    if (i > 0) Serial.print(commaChar); Serial.print(sensorList[i]);
   }
 }
 
-void comunicaciones(String strToSend, bool setup) {
+void comunicaciones(String strToSend) {
   Serial.println(F("\nComunicación con el servidor"));
   setupGSM();
-  String data = httpRequest(strToSend, setup); 
+  String data = httpRequest(strToSend); 
   if (testData) {
     Serial.println(F("Mockup data..."));
     data = F("\"D\"0x0\"0x0\"0x0\"0x0\"0x0\"0x0\"0x0\"0x0\"0x0\"0x0\"");
   }
-  if (data != "") {
+  if (data != strEmpty) {
     setVariables(data);
   }
 }
