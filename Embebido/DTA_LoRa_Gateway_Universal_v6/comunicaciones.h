@@ -81,7 +81,7 @@ void testComunicaciones() {
 }
 
 void setupGSM() {
-  if (restartGSM) {
+  // if (restartGSM) {
     Serial.println(F("Setup GSM"));
     gprs.begin(19200);
     gprs.listen();
@@ -104,7 +104,7 @@ void setupGSM() {
     getResponse(15, testComm); 
     gprs.println(F("AT+SAPBR=2,1"));
     getResponse(15, testComm); 
-  }
+  // }
 }
 
 String httpRequest(String strToSend) {

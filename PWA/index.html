@@ -1371,7 +1371,7 @@
                                                             <ul>
                                                                 <li style="border: solid; border-radius: 5px; background: #5acaca">
                                                                     <table>
-                                                                        <tr>
+                                                                        <tr ng-repeat="sensor in actualSystem.sensors">
                                                                             <td width="20%" class="switchControl waves-effect teal" 
                                                                                 style="font-size: 3em; padding: 0 !important; color: white;">
                                                                                 <i class="fa fa-tint" aria-hidden="true"></i>
@@ -1379,7 +1379,15 @@
                                                                             <td width="40%" style="font-size: 2.5em; text-align: center;">
                                                                                 {{ actualSystem.log.meanValue | number : 0 }}%
                                                                             </td>
-                                                                            <td width="25%" style="text-align: left;">
+                                                                            <td width="25%" style="text-align: left;" ng-show="actualSystem.type == 'Sensor'">
+                                                                                min: {{ actualSystem.log.minValue | number : 0 }}% <br>
+                                                                                max: {{ actualSystem.log.maxValue | number : 0 }}%
+                                                                            </td>
+                                                                            <td width="25%" style="text-align: left;" ng-show="actualSystem.type == 'Sensor'">
+                                                                                min: {{ actualSystem.log.minValue | number : 0 }}% <br>
+                                                                                max: {{ actualSystem.log.maxValue | number : 0 }}%
+                                                                            </td>
+                                                                            <td width="25%" style="text-align: left;" ng-show="">
                                                                                 min: {{ actualSystem.log.minValue | number : 0 }}% <br>
                                                                                 max: {{ actualSystem.log.maxValue | number : 0 }}%
                                                                             </td>
@@ -1401,9 +1409,9 @@
                                                 <div class="hide-on-small-only" style="width: 100%; margin-top: -15px;">
                                                     <a class="modal-trigger" href="#modalHistorial" style="color: black;">
                                                         <ul>
-                                                            <li style="border: solid; border-radius: 5px; background: #5acaca">
-                                                                <table>
-                                                                    <tr>
+                                                            <li style="border: solid; border-radius: 5px; background: #bafafa">
+                                                                <table ng-repeat="sensor in actualSystem.sensors">
+                                                                    <tr ng-show="sensor.type=='Ms'">
                                                                         <td width="20%" class="switchControl waves-effect teal" 
                                                                             style="font-size: 3em; padding: 0 !important; 
                                                                             color: white; display: table-cell; width: 20%;">
@@ -1417,6 +1425,32 @@
                                                                             max: {{ actualSystem.log.dataRaw ? (100 - ((actualSystem.log.maxVal - actualSystem.sensors.S0.minValue) / (actualSystem.sensors.S0.maxValue - actualSystem.sensors.S0.minValue) * 100) | number : 0) : "0" }}%
                                                                         </td>
                                                                         <td width="15%" style="text-align: center;" ng-init="bat = 0">
+                                                                            <i class="material-icons">
+                                                                                {{ parseJSON(actualSystem.log.voltages)[0] >= 4.2 ? "battery_charging_full" : 
+                                                                                    parseJSON(actualSystem.log.voltages)[0] >= 3.7 ? "battery_full" : 
+                                                                                    "battery_alert"}}
+                                                                                </i> <br>
+                                                                            <span style="font-size: .8em;">{{  parseJSON(actualSystem.log.voltages)[0] | number : 1 }}</span>v   
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr ng-show="sensor.type=='SHT'">
+                                                                        <td width="10%" class="switchControl waves-effect teal" 
+                                                                            style="font-size: 3em; padding: 0 !important; 
+                                                                            color: white; display: table-cell; width: 15%;">
+                                                                            <i class="fa fa-tint" aria-hidden="true"></i>
+                                                                        </td>
+                                                                        <td width="30%" style="font-size: 2.5em; text-align: center;">
+                                                                            {{ actualSystem.log.dataRaw ? (100 - ((actualSystem.log.meanVal - actualSystem.sensors.S0.minValue) / (actualSystem.sensors.S0.maxValue - actualSystem.sensors.S0.minValue) * 100) | number : 0) : "0" }}%
+                                                                        </td>
+                                                                        <td width="10%" class="switchControl waves-effect teal" 
+                                                                            style="font-size: 3em; padding: 0 !important; 
+                                                                            color: white; display: table-cell; width: 20%;">
+                                                                            <i class="material-icons">add</i>
+                                                                        </td>
+                                                                        <td width="30%" style="text-align: left;">
+                                                                            {{ actualSystem.log.dataRaw ? (100 - ((actualSystem.log.meanVal - actualSystem.sensors.S0.minValue) / (actualSystem.sensors.S0.maxValue - actualSystem.sensors.S0.minValue) * 100) | number : 0) : "0" }}%
+                                                                        </td>
+                                                                        <td width="00%" style="text-align: center;" ng-init="bat = 0">
                                                                             <i class="material-icons">
                                                                                 {{ parseJSON(actualSystem.log.voltages)[0] >= 4.2 ? "battery_charging_full" : 
                                                                                     parseJSON(actualSystem.log.voltages)[0] >= 3.7 ? "battery_full" : 
@@ -1899,7 +1933,7 @@
                                                                                     <td width="20%" class="switchControl waves-effect teal" 
                                                                                         style="color: white;">
                                                                                         <i class="fa fa-tint" aria-hidden="true" 
-                                                                                            ng-show="sensor.type == 'Ms'"
+                                                                                            ng-show="sensor.type == 'Ms' || sensor.type == 'SHT'"
                                                                                             style="font-size: 2em; margin-top: 5px;"></i>
                                                                                     </td>
                                                                                     <td width="60%" style="text-align: left; color: black; font-size: 1.3em; padding: 0 0 0 10px;">
@@ -3084,6 +3118,7 @@
                                         <div class="input-field col s12">
                                             <select id="newSensorType" ng-model="newSensorType">
                                                 <option value="Ms" selected="selected">Humedad suelo</option>
+                                                <option value="SHT">Humedad y Temperatura del suelo</option>
                                                 <option value="Tr">Temperatura</option>
                                                 <option value="Fl">Flujo de agua</option>
                                             </select>

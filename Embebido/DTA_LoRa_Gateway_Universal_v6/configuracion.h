@@ -29,6 +29,7 @@
 #define baseAddress F("0x0")
 #define startAddress F("0x")
 #define commaChar F(",")
+#define emptySensor F(",,")
 
 const int config[] = {3, 4, 33, 333, 333, 3333};
 // const int config[] = {3, 4, 52, 625, 125, 9145};

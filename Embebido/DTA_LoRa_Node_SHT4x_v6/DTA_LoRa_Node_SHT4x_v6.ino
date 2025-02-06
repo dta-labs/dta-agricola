@@ -49,6 +49,7 @@ void initLoRa() {
   LoRa.setSignalBandwidth(125E3);         // Ancho de banda de 125 kHz
   LoRa.setSpreadingFactor(12);            // Factor de propagación de 12
   LoRa.setCodingRate4(5);                 // Tasa de codificación 4/5
+  LoRa.idle();
   Serial.println(F("LoRa inicializado correctamente..."));
 }
 
@@ -73,6 +74,7 @@ void txData(String dataStr) {
   LoRa.endPacket();
   delay(100);
   Serial.println(F("Dato enviado correctamente..."));
+  LoRa.sleep();
 }
 
 #pragma endregion LoRaWAN
@@ -142,7 +144,7 @@ int calculateSum(String str) {
   return sum;
 }
 
-long getVcc() {
+float getVcc() {
   ADMUX = _BV(REFS0) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);
   delay(2);
   ADCSRA |= _BV(ADSC);
@@ -164,6 +166,7 @@ void lowPower() {
       if(digitalRead(LINK) == LOW) break;
     }
   } 
+  LoRa.idle();
 }
 
 #pragma endregion Miscelaneas

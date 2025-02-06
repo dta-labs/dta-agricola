@@ -50,6 +50,7 @@ void txData() {
   if (millis() - commTimer > commFrequence) {
     commTimer = millis();
     comunicaciones(getTxData());
+    resetData();
   }
 }
 
