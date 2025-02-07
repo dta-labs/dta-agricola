@@ -390,7 +390,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         let dUpdate = update ? (new Date(parseInt(update.substring(0, 4)), parseInt(update.substring(4, 6)) - 1, parseInt(update.substring(6, 8)), (update.substring(13, 15) == "pm" ? parseInt(update.substring(9, 11)) + 12 : parseInt(update.substring(9, 11)) == 12 ? 0 : parseInt(update.substring(9, 11))), parseInt(update.substring(11, 13)), 0, 0).getTime()) : (new Date()).getTime();
         let dif = dUpdate - dDate;
         return {
-            day: parseInt(dif / (1000 * 60 * 60 * 60)),
+            day: parseInt(dif / (1000 * 60 * 60 * 24)),
             hour: parseInt(dif / (1000 * 60 * 60)),
             min: parseInt(dif / (1000 * 60))
         };
@@ -729,6 +729,10 @@ app.controller("ControladorPrincipal", function ($scope) {
         $scope.newSensorLongitude = milongitud;
     }
 
+    $scope.convertStrToJSON = (str) => {
+        return str ? JSON.parse(str.replace(/""/g, '"","",""')) : null;
+    }
+
     // #endregion DEVICES
 
     // #region CONFIGURACIONES
@@ -885,12 +889,12 @@ app.controller("ControladorPrincipal", function ($scope) {
                 "operation": "mean",
                 "sensorNumber": "1",
                 "S0": {
-                    "id": "FF",
+                    "id": "0x0",
                     "minValue": "0",
                     "latitude": "0",
                     "longitude": "0",
                     "maxValue": "0",
-                    "type": "Ms"
+                    "type": "SHT"
                 }
             },
             "sensingScheme": {
@@ -905,9 +909,20 @@ app.controller("ControladorPrincipal", function ($scope) {
                 "F5_dry_value": 15,
                 "F5_wet_value": 30
             },
+            "operationMode": "3",
             "sensingProcess": false,
             "sleepingTime": "1"
         });
+    }
+
+    $scope.starSearchSensor = () => {
+        $scope.actualSystem.operationMode = 0;
+        $scope.setMachineSettings($scope.actualSystem);
+    }
+
+    $scope.stopSearchSensor = () => {
+        $scope.actualSystem.operationMode = 3;
+        $scope.setMachineSettings($scope.actualSystem);
     }
 
     $scope.updateSensingScheme = () => {
@@ -967,6 +982,7 @@ app.controller("ControladorPrincipal", function ($scope) {
             .then((confirm) => {
                 if (confirm) {
                     let newSensor = {
+                        "alias": $scope.newSensorAlias,
                         "id": $scope.newSensorID,
                         "latitude": $scope.newSensorLatitude,
                         "longitude": $scope.newSensorLongitude,
@@ -1372,23 +1388,6 @@ app.controller("ControladorPrincipal", function ($scope) {
         });
     }
 
-    validateIrrigationCapacity = () => {
-        let plots = $scope.actualSystem.plots;
-        let plotsCaudal =   (plots.p0.forcedStart == 1 ? parseInt(plots.p0.caudal) : 0) + 
-                            (plots.p1.forcedStart == 1 ? parseInt(plots.p1.caudal) : 0) +
-                            (plots.p2.forcedStart == 1 ? parseInt(plots.p2.caudal) : 0) +
-                            (plots.p3.forcedStart == 1 ? parseInt(plots.p3.caudal) : 0) +
-                            (plots.p4.forcedStart == 1 ? parseInt(plots.p4.caudal) : 0) +
-                            (plots.p5.forcedStart == 1 ? parseInt(plots.p5.caudal) : 0) +
-                            (plots.p6.forcedStart == 1 ? parseInt(plots.p6.caudal) : 0);
-        let totalCaudal = $scope.actualSystem.caudal ? $scope.actualSystem.caudal : 0   
-        if (totalCaudal < plotsCaudal) {
-            swal("Ha excedido el caudal que entrega el sistema y la lámina de riego se verá afectada!", {
-                icon: "warning",
-            });
-        }
-    }
-    
     $scope.stopPlotIrrigation = () => {
         swal({
             title: "Plan de riego",
@@ -1778,56 +1777,6 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     addMarker = (campo) => {
         let coord = [campo.latitude, campo.longitude];
-        let text = `<table class="striped highlight">`;
-        text += `    <tr>`;
-        text += `        <td style="text-align: left;">Nombre:</td>`;
-        text += `        <td style="text-align: left;"><b>${campo.name ? campo.name : "" }</b></td>`;
-        text += `    </tr>`;
-        text += `    <tr>`;
-        text += `        <td style="text-align: left;">Estado:</td>`;
-        text += `        <td style="text-align: left;"><b>${campo.log.state ? "Encendido" : "Apagado" }</b></td>`;
-        text += `    </tr>`;
-        text += `    <tr>`;
-        text += `        <td style="text-align: left;">Caudal:</td>`;
-        text += `        <td style="text-align: left;"><b>${campo.caudal ? campo.caudal : "0" }</b> m<sup>3</sup>/s</td>`;
-        text += `    </tr>`;
-        // if (campo.culture) {
-        //     text += `    <tr>`;
-        //     text += `        <td style="text-align: left;">Cultivo:</td>`;
-        //     text += `        <td style="text-align: left;"><b>${campo.culture ? campo.culture : "" }</b></td>`;
-        //     text += `    </tr>`;
-        // }
-        switch (campo.type) {
-            case "Sensor":
-                text += `    <tr>`;
-                text += `        <td style="text-align: left;">Hs:</td>`;
-                text += `        <td style="text-align: left;"><b>${campo.log ? parseFloat(campo.log.meanVal).toFixed(0) : ""}%</b></td>`;
-                text += `    </tr>`;
-                break;
-            case "PC":
-            case "PL":
-                text += `    <tr>`;
-                text += `        <td style="text-align: left;">Velocidad:</td>`;
-                text += `        <td style="text-align: left;"><b>${campo.direction ? "Avanzar" : "Retroceder"} ${campo.log ? campo.log.speed : 0}%</b></td>`;
-                text += `    </tr>`;
-                break;
-        }
-        text += `    <tr>`;
-        text += `        <td style="text-align: left;">Temp:</td>`;
-        text += `        <td style="text-align: left;"><b>${ ($scope.meteo[campo.key].main.temp - 273.15).toFixed(1) }°C</b></td>`;
-        text += `    </tr>`;
-        text += `    <tr>`;
-        text += `        <td style="text-align: left;">Hr:</td>`;
-        text += `        <td style="text-align: left;"><b>${ $scope.meteo[campo.key].main.humidity }%</b></td>`;
-        text += `    </tr>`;
-        text += `    <tr>`;
-        text += `        <td style="text-align: left;">Viento:</td>`;
-        text += `        <td style="text-align: left;"><b>${ ($scope.meteo[campo.key].wind.speed).toFixed(1) } km/h</b></td>`;
-        text += `    </tr>`;
-        text += `    <tr>`;
-        text += `        <td colspan="2" style="text-align: left;">[<b>${campo.latitude},${campo.longitude}</b>]</td>`;
-        text += `    </tr>`;
-        text += `</table>`;
 
         // if (campo.type != "Sensor") {
         //     text += `
@@ -1856,8 +1805,98 @@ app.controller("ControladorPrincipal", function ($scope) {
 
             marker[campo.key] = L.marker(coord, { icon: greenIcon });
             map.addLayer(marker[campo.key]);
+
+            if (campo.type == "Sensor") {
+                for (let i = 0; i < campo.sensors.sensorNumber; i++) {
+                    let sensorId = "S" + i;
+                    let sensor = campo.sensors[sensorId];
+                    let sensorCoord = [sensor.latitude, sensor.longitude];
+                    marker[sensor.id] = L.marker(sensorCoord, { icon: greenIcon });
+                    map.addLayer(marker[sensor.id]);
+                    let sensorText = getSensorText(campo, sensor, i);
+                    marker[sensor.id].bindPopup(sensorText);
+                }
+            }
         }
+        let text = getMarkerText(campo);
         marker[campo.key].bindPopup(text);
+    }
+
+    getMarkerText = (campo) => {
+        let text = `<table class="striped highlight">`;
+        text += `    <tr>`;
+        text += `        <td style="text-align: left;">Nombre:</td>`;
+        text += `        <td style="text-align: left;"><b>${campo.name ? campo.name : "" }</b></td>`;
+        text += `    </tr>`;
+        text += `    <tr>`;
+        text += `        <td style="text-align: left;">Estado:</td>`;
+        text += `        <td style="text-align: left;"><b>${campo.log.state ? "Encendido" : "Apagado" }</b></td>`;
+        text += `    </tr>`;
+        text += `    <tr>`;
+        text += `        <td style="text-align: left;">Caudal:</td>`;
+        text += `        <td style="text-align: left;"><b>${campo.caudal ? campo.caudal : "0" }</b> m<sup>3</sup>/s</td>`;
+        text += `    </tr>`;
+        text += `    <tr>`;
+        text += `        <td style="text-align: left;">Velocidad:</td>`;
+        text += `        <td style="text-align: left;"><b>${campo.direction ? "Avanzar" : "Retroceder"} ${campo.log ? campo.log.speed : 0}%</b></td>`;
+        text += `    </tr>`;
+        text += `    <tr>`;
+        text += `        <td style="text-align: left;">Hr:</td>`;
+        text += `        <td style="text-align: left;"><b>${ $scope.meteo[campo.key].main.humidity }%</b></td>`;
+        text += `    </tr>`;
+        text += `    <tr>`;
+        text += `        <td style="text-align: left;">Tamb:</td>`;
+        text += `        <td style="text-align: left;"><b>${ ($scope.meteo[campo.key].main.temp - 273.15).toFixed(1) }°C</b></td>`;
+        text += `    </tr>`;
+        text += `    <tr>`;
+        text += `        <td style="text-align: left;">Viento:</td>`;
+        text += `        <td style="text-align: left;"><b>${ ($scope.meteo[campo.key].wind.speed).toFixed(1) } km/h</b></td>`;
+        text += `    </tr>`;
+        text += `    <tr>`;
+        text += `        <td style="text-align: left;">Localiz:</td>`;
+        text += `        <td style="text-align: left;">[<b>${campo.latitude.toFixed(5)},${campo.longitude.toFixed(5)}</b>]</td>`;
+        text += `    </tr>`;
+        text += `</table>`;
+        return text;
+    }
+
+    getSensorText = (campo, sensor, idx) => {
+        let data = JSON.parse(campo.log.dataRaw.replace(/""/g, '"","",""'));
+        let text = `<table class="striped highlight">`;
+        text += `    <tr>`;
+        text += `        <td style="text-align: left;">Alias:</td>`;
+        text += `        <td style="text-align: left;"><b>${sensor.alias ? sensor.alias : "" }</b></td>`;
+        text += `    </tr>`;
+        text += `    <tr>`;
+        text += `        <td style="text-align: left;">Id:</td>`;
+        text += `        <td style="text-align: left;"><b>${sensor.id}</b></td>`;
+        text += `    </tr>`;
+        text += `    <tr>`;
+        text += `        <td style="text-align: left;">H.Suelo:</td>`;
+        text += `        <td style="text-align: left;"><b>${data[idx * 3] ? parseFloat(data[idx * 3]).toFixed(0) : ""}%</b></td>`;
+        text += `    </tr>`;
+        text += `    <tr>`;
+        text += `        <td style="text-align: left;">T.Suelo:</td>`;
+        text += `        <td style="text-align: left;"><b>${data[idx * 3 + 1] ? parseFloat(data[idx * 3 + 1]).toFixed(0) : ""}%</b></td>`;
+        text += `    </tr>`;
+        text += `    <tr>`;
+        text += `        <td style="text-align: left;">H.Relativa:</td>`;
+        text += `        <td style="text-align: left;"><b>${ $scope.meteo[campo.key].main.humidity }%</b></td>`;
+        text += `    </tr>`;
+        text += `    <tr>`;
+        text += `        <td style="text-align: left;">T.Ambiente:</td>`;
+        text += `        <td style="text-align: left;"><b>${ ($scope.meteo[campo.key].main.temp - 273.15).toFixed(1) }°C</b></td>`;
+        text += `    </tr>`;
+        text += `    <tr>`;
+        text += `        <td style="text-align: left;">Viento:</td>`;
+        text += `        <td style="text-align: left;"><b>${ ($scope.meteo[campo.key].wind.speed).toFixed(1) } km/h</b></td>`;
+        text += `    </tr>`;
+        text += `    <tr>`;
+        text += `        <td style="text-align: left;">Localiz:</td>`;
+        text += `        <td style="text-align: left;">[<b>${campo.latitude.toFixed(5)},${campo.longitude.toFixed(5)}</b>]</td>`;
+        text += `    </tr>`;
+        text += `</table>`;
+        return text;
     }
 
     addShape = (campo) => {
@@ -2046,35 +2085,69 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     $scope.showChart = (child, registers) => {
         getMeassurementValues($scope.actualSystem.key, registers).then(result => {
-            const items = result[0] ? JSON.parse(result[0].dataRaw).length : 0;
-            let labels = [];
-            let data = [];
-            let means = [];
-            lastDate = "";
-            for (let i = 0; i < items; i++) {
-                let idx = "S" + i;
-                let min = $scope.actualSystem.sensors[idx].minValue;
-                let max = $scope.actualSystem.sensors[idx].maxValue;
-                data[i] = [];
-                result.forEach(element => {
-                    let dataValue = JSON.parse(element.dataRaw)[i];
-                    let value = dataValue != -99.00 ? 100 - ((dataValue - min) / (max - min) * 100) : "";
-                    data[i].push(value < 0 ? 0 : value > 100 ? 100 : value);
-                    if (i == 0) {
-                        date = element.date.substr(6, 2) + "/" + element.date.substr(4, 2);
-                        if (lastDate != date) {
-                            lastDate = date;
-                        } else {
-                            date = "";
-                        }
-                        labels.push(date + " " + element.date.substr(9, 14));
-                        means.push(100 - ((element.meanVal - min) / (max - min)) * 100);
-                    }
-                });
-            }
-            chart(items, data, means, labels);
+            processResultsFromMsSensors(result);
         });
     }
+
+    processResultsFromMsSensors = (result) => {
+        const items = result[0] ? JSON.parse(result[0].dataRaw).length : 0;
+        let labels = [];
+        let data = [];
+        let means = [];
+        lastDate = "";
+        for (let i = 0; i < items; i++) {
+            let idx = "S" + i;
+            let min = $scope.actualSystem.sensors[idx].minValue;
+            let max = $scope.actualSystem.sensors[idx].maxValue;
+            data[i] = [];
+            result.forEach(element => {
+                let dataValue = JSON.parse(element.dataRaw)[i];
+                let value = dataValue != -99.00 ? 100 - ((dataValue - min) / (max - min) * 100) : "";
+                data[i].push(value < 0 ? 0 : value > 100 ? 100 : value);
+                if (i == 0) {
+                    date = element.date.substr(6, 2) + "/" + element.date.substr(4, 2);
+                    if (lastDate != date) {
+                        lastDate = date;
+                    } else {
+                        date = "";
+                    }
+                    labels.push(date + " " + element.date.substr(9, 14));
+                    means.push(100 - ((element.meanVal - min) / (max - min)) * 100);
+                }
+            });
+        }
+        chart(items, data, means, labels);
+}
+
+    processResultsFromSHTSensors = (result) => {
+        const items = result[0] ? JSON.parse(result[0].dataRaw).length : 0;
+        let labels = [];
+        let data = [];
+        let means = [];
+        lastDate = "";
+        for (let i = 0; i < items; i++) {
+            let idx = "S" + i;
+            let min = $scope.actualSystem.sensors[idx].minValue;
+            let max = $scope.actualSystem.sensors[idx].maxValue;
+            data[i] = [];
+            result.forEach(element => {
+                let dataValue = JSON.parse(element.dataRaw)[i];
+                let value = dataValue != -99.00 ? 100 - ((dataValue - min) / (max - min) * 100) : "";
+                data[i].push(value < 0 ? 0 : value > 100 ? 100 : value);
+                if (i == 0) {
+                    date = element.date.substr(6, 2) + "/" + element.date.substr(4, 2);
+                    if (lastDate != date) {
+                        lastDate = date;
+                    } else {
+                        date = "";
+                    }
+                    labels.push(date + " " + element.date.substr(9, 14));
+                    means.push(100 - ((element.meanVal - min) / (max - min)) * 100);
+                }
+            });
+        }
+        chart(items, data, means, labels);
+}
 
     chart = (graphs, data, means, labels) => {
         const ctx = document.getElementById('myChart');
@@ -2261,6 +2334,18 @@ app.controller("ControladorPrincipal", function ($scope) {
     standarize = (val) => {
         S0 = $scope.actualSystem.sensors.S0;
         return ((val - S0.minValue) / (S0.maxValue - S0.minValue)) * 100;
+    }
+
+    /**
+     * Reemplaza todas las ocurrencias de un carácter por una secuencia de caracteres en una cadena
+     * @param {string} str - Cadena de entrada
+     * @param {string} char - Carácter a reemplazar
+     * @param {string} replacement - Secuencia de caracteres de reemplazo
+     * @returns {string} - Cadena con los caracteres reemplazados
+     */
+    $scope.replaceChar = (str, char, replacement) => {
+        if (typeof str !== 'string') return str;
+        return str.split(char).join(replacement);
     }
 
     // #endregion SCRIPTS GENERALES

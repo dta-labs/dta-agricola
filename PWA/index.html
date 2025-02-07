@@ -1371,7 +1371,7 @@
                                                             <ul>
                                                                 <li style="border: solid; border-radius: 5px; background: #5acaca">
                                                                     <table>
-                                                                        <tr ng-repeat="sensor in actualSystem.sensors">
+                                                                        <tr ng-show="sensor.type=='Ms'">
                                                                             <td width="20%" class="switchControl waves-effect teal" 
                                                                                 style="font-size: 3em; padding: 0 !important; color: white;">
                                                                                 <i class="fa fa-tint" aria-hidden="true"></i>
@@ -1380,14 +1380,6 @@
                                                                                 {{ actualSystem.log.meanValue | number : 0 }}%
                                                                             </td>
                                                                             <td width="25%" style="text-align: left;" ng-show="actualSystem.type == 'Sensor'">
-                                                                                min: {{ actualSystem.log.minValue | number : 0 }}% <br>
-                                                                                max: {{ actualSystem.log.maxValue | number : 0 }}%
-                                                                            </td>
-                                                                            <td width="25%" style="text-align: left;" ng-show="actualSystem.type == 'Sensor'">
-                                                                                min: {{ actualSystem.log.minValue | number : 0 }}% <br>
-                                                                                max: {{ actualSystem.log.maxValue | number : 0 }}%
-                                                                            </td>
-                                                                            <td width="25%" style="text-align: left;" ng-show="">
                                                                                 min: {{ actualSystem.log.minValue | number : 0 }}% <br>
                                                                                 max: {{ actualSystem.log.maxValue | number : 0 }}%
                                                                             </td>
@@ -1409,7 +1401,7 @@
                                                 <div class="hide-on-small-only" style="width: 100%; margin-top: -15px;">
                                                     <a class="modal-trigger" href="#modalHistorial" style="color: black;">
                                                         <ul>
-                                                            <li style="border: solid; border-radius: 5px; background: #bafafa">
+                                                            <li style="border-bottom: solid 1px lightgrey;">
                                                                 <table ng-repeat="sensor in actualSystem.sensors">
                                                                     <tr ng-show="sensor.type=='Ms'">
                                                                         <td width="20%" class="switchControl waves-effect teal" 
@@ -1433,30 +1425,18 @@
                                                                             <span style="font-size: .8em;">{{  parseJSON(actualSystem.log.voltages)[0] | number : 1 }}</span>v   
                                                                         </td>
                                                                     </tr>
-                                                                    <tr ng-show="sensor.type=='SHT'">
-                                                                        <td width="10%" class="switchControl waves-effect teal" 
-                                                                            style="font-size: 3em; padding: 0 !important; 
-                                                                            color: white; display: table-cell; width: 15%;">
-                                                                            <i class="fa fa-tint" aria-hidden="true"></i>
+                                                                    <tr style="text-align: left;" ng-show="sensor.type=='SHT' && actualSystem.log.dataRaw" ng-init="data=convertStrToJSON(actualSystem.log.dataRaw)">
+                                                                        <td width="30%">
+                                                                            <span style="font-size: .7em; color: gray;">Humedad</span><br>
+                                                                            <span style="font-size: 1.2em; color: black;">{{ data[($index * 3)] | number : 0 }}%</span><br>
                                                                         </td>
-                                                                        <td width="30%" style="font-size: 2.5em; text-align: center;">
-                                                                            {{ actualSystem.log.dataRaw ? (100 - ((actualSystem.log.meanVal - actualSystem.sensors.S0.minValue) / (actualSystem.sensors.S0.maxValue - actualSystem.sensors.S0.minValue) * 100) | number : 0) : "0" }}%
+                                                                        <td width="30%">
+                                                                            <span style="font-size: .7em; color: gray;">Temperatura</span><br>
+                                                                            <span style="font-size: 1.2em; color: black;">{{ data[($index * 3) + 1] | number : 0 }}°C</span><br>
                                                                         </td>
-                                                                        <td width="10%" class="switchControl waves-effect teal" 
-                                                                            style="font-size: 3em; padding: 0 !important; 
-                                                                            color: white; display: table-cell; width: 20%;">
-                                                                            <i class="material-icons">add</i>
-                                                                        </td>
-                                                                        <td width="30%" style="text-align: left;">
-                                                                            {{ actualSystem.log.dataRaw ? (100 - ((actualSystem.log.meanVal - actualSystem.sensors.S0.minValue) / (actualSystem.sensors.S0.maxValue - actualSystem.sensors.S0.minValue) * 100) | number : 0) : "0" }}%
-                                                                        </td>
-                                                                        <td width="00%" style="text-align: center;" ng-init="bat = 0">
-                                                                            <i class="material-icons">
-                                                                                {{ parseJSON(actualSystem.log.voltages)[0] >= 4.2 ? "battery_charging_full" : 
-                                                                                    parseJSON(actualSystem.log.voltages)[0] >= 3.7 ? "battery_full" : 
-                                                                                    "battery_alert"}}
-                                                                                </i> <br>
-                                                                            <span style="font-size: .8em;">{{  parseJSON(actualSystem.log.voltages)[0] | number : 1 }}</span>v   
+                                                                        <td width="25%">
+                                                                            <span style="font-size: .7em; color: gray;">Voltaje</span><br>
+                                                                            <span style="font-size: 1.2em;">{{ data[($index * 3) + 2] | number : 1 }}</span>v   
                                                                         </td>
                                                                     </tr>
                                                                 </table>
@@ -1924,21 +1904,16 @@
                                                             <div class="row" style="margin: 10px 5px 0 5px;">
                                                                 <div class="col s12" style="padding: 0; margin-bottom: 0;">
                                                                     <ul>
-                                                                        <li class="waves-effect white-text teal lighten-3 center-align modal-trigger"
+                                                                        <li class="waves-effect modal-trigger"
                                                                             style="width: 100%; border-radius: 5px; margin-bottom: 10px;" 
                                                                             href="#modalEditSensor" ng-click="editSensor(sensor)"
                                                                             ng-repeat="sensor in actualSystem.sensors" ng-show="sensor.id != null">
                                                                             <table>
                                                                                 <tr>
-                                                                                    <td width="20%" class="switchControl waves-effect teal" 
-                                                                                        style="color: white;">
-                                                                                        <i class="fa fa-tint" aria-hidden="true" 
-                                                                                            ng-show="sensor.type == 'Ms' || sensor.type == 'SHT'"
-                                                                                            style="font-size: 2em; margin-top: 5px;"></i>
-                                                                                    </td>
-                                                                                    <td width="60%" style="text-align: left; color: black; font-size: 1.3em; padding: 0 0 0 10px;">
-                                                                                        ID: <b>{{ sensor.id }}</b> <br>
-                                                                                        Tipo: <b>{{ sensor.type }}</b>
+                                                                                    <td width="80%" style="text-align: left;">
+                                                                                        <span style="text-align: left; color: black; font-size: 1.3em;"><b>{{ sensor.alias ? sensor.alias : "Sin nombre"}}</b> </span><br>
+                                                                                        <span style="text-align: left; color: grey; font-size: .8em;">ID: <b>{{ sensor.id }}</b> </span><br>
+                                                                                        <span style="text-align: left; color: grey; font-size: .8em;">Tipo: <b>{{ sensor.type }}</b> </span>
                                                                                     </td>
                                                                                     <td width="20%" style="text-align: center;">
                                                                                         <i class="material-icons">create</i> 
@@ -1949,13 +1924,20 @@
                                                                     </ul>
                                                                 </div>
                                                                 
-                                                                <a class="modal-trigger" href="#modalNuevoSensor" style="color: white !important;" ng-click="createNewSensor()">
-                                                                    <div class="col s12 sercices-options waves-effect white-text teal lighten-3 center-align" 
-                                                                    style="width: 100%; padding: 10px 0; background: #80cbc4f0 !important;">
+                                                                <div class="col s6 sercices-options waves-effect white-text teal lighten-3 center-align" 
+                                                                style="padding: 10px 0; background: #80cbc4f0 !important;">
+                                                                    <a class="modal-trigger" href="#modalBuscarSensor" style="color: white !important;" ng-click="starSearchSensor()">
+                                                                        <i class="material-icons" style="font-size: 1.5em;">search</i><br>
+                                                                        <span style="font-size: 1em;">Buscar </span><span class="hide-on-small-only" style="font-size: 1em;">sensor</span>
+                                                                    </a>
+                                                                </div>
+                                                                <div class="col s6 sercices-options waves-effect white-text teal lighten-3 center-align" 
+                                                                style="padding: 10px 0; background: #80cbc4f0 !important;">
+                                                                    <a class="modal-trigger" href="#modalNuevoSensor" style="color: white !important;" ng-click="createNewSensor()">
                                                                         <i class="material-icons" style="font-size: 1.5em;">add</i><br>
-                                                                        <span style="font-size: 1em;">Agregar sensor</span>
-                                                                    </div>
-                                                                </a>
+                                                                        <span style="font-size: 1em;">Agregar </span><span class="hide-on-small-only" style="font-size: 1em;">sensor</span>
+                                                                    </a>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -3080,6 +3062,10 @@
                                     <div class="swal-title">Agregar sensor</div>
                                     <div class="row" style="margin-top: 35px;">
                                         <div class="input-field col s12">
+                                            <input id="newSensorAlias" type="text" ng-model="newSensorAlias">
+                                            <label>Alias</label>
+                                        </div>
+                                        <div class="input-field col s12">
                                             <input id="newSensorID" type="text" ng-model="newSensorID">
                                             <label>Identificador</label>
                                         </div>
@@ -3117,8 +3103,8 @@
                                         </div>
                                         <div class="input-field col s12">
                                             <select id="newSensorType" ng-model="newSensorType">
-                                                <option value="Ms" selected="selected">Humedad suelo</option>
-                                                <option value="SHT">Humedad y Temperatura del suelo</option>
+                                                <option value="SHT" selected="selected">Humedad y Temperatura del suelo</option>
+                                                <option value="Ms">Humedad suelo</option>
                                                 <option value="Tr">Temperatura</option>
                                                 <option value="Fl">Flujo de agua</option>
                                             </select>
@@ -3135,10 +3121,39 @@
                                 </div>
                             </div>
 
+                            <div id="modalBuscarSensor" class="modal"> <!-- Modal buscar sensor -->
+                                <div class="modal-content">
+                                    <div class="swal-title">Buscar sensor</div>
+                                    <div class="row" style="margin-top: 35px; border-radius: 10px; background: black;">
+                                        <div class="input-field col s12">
+                                            <img src="assets/images/radar.gif" alt="">
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col s12">
+                                            <span ng-repeat="sensor in actualSystem.sensors" ng-show="sensor.id != '0x0'">{{ sensor.id }} {{ $index < actualSystem.sensors.length ? ", " : "" }}</span>
+                                            
+                                        </div>
+                                    </div>  
+                                </div>
+                                <div class="modal-footer">
+                                    <!-- <a href="" class="modal-close waves-effect grey waves-grey btn-flat white-text"
+                                        ng-click="stopSearchSensor('listado')">
+                                        <i class="material-icons">&nbsp;&nbsp;reply&nbsp;&nbsp;</i></a> -->
+                                    <a href="" class="modal-close waves-effect teal waves-green btn-flat white-text"
+                                        ng-click="stopSearchSensor()"><i
+                                            class="material-icons">&nbsp;&nbsp;check&nbsp;&nbsp;</i></a>
+                                </div>
+                            </div>
+
                             <div id="modalEditSensor" class="modal"> <!-- Modal editar sensor -->
                                 <div class="modal-content">
                                     <div class="swal-title">Editar sensor {{ actualSensor.id }}</div>
                                     <div class="row" style="margin-top: 35px;">
+                                        <div class="input-field col s12">
+                                            <input id="editSensorAlias" type="text" ng-model="actualSensor.alias">
+                                            <label>Alias</label>
+                                        </div>
                                         <div class="input-field col s12">
                                             <input id="editSensorID" type="text" placeholder="id" ng-model="actualSensor.id">
                                             <label for="editSensorID">Identificador</label>
@@ -3166,7 +3181,7 @@
                                             </div>
                                         </div>
                                         <div class="col s12" style="border: 1px solid lightgrey; border-radius: 5px; margin-bottom: 20px;">
-                                            <label>Geolocalización</label>
+                                            <label>Ajustes del sensor</label>
                                             <div class="row" style="margin-bottom: 0;">
                                                 <div class="input-field col s6">
                                                     <input id="editSensorMinVal" type="text" placeholder="valor" ng-model="actualSensor.minValue">
@@ -3181,7 +3196,8 @@
                                         <br>
                                         <div class="input-field col s12">
                                             <select id="editSensorType" ng-model="actualSensor.type">
-                                                <option value="Ms" selected="selected">Humedad suelo</option>
+                                                <option value="SHT" selected="selected">Humedad y Temperatura del suelo</option>
+                                                <option value="Ms">Humedad suelo</option>                                
                                                 <option value="Tr">Temperatura</option>
                                                 <option value="Fl">Flujo de agua</option>
                                             </select>
