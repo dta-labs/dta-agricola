@@ -469,6 +469,7 @@
 
   .map {
     margin-top: 0px;
+    /* height: calc(100vh - 265px); */
     height: calc(100vh - 330px);
     /* height: calc(100vh - 315px); */
     /* height: calc(100vh - 250px); */

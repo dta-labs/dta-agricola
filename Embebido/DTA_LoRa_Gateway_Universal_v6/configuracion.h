@@ -11,7 +11,7 @@
  *      |  └────────────────── Tx                                           *
  *      └───────────────────── Rx                                           *
  *   - Vector de entrada                                                    *
- *     {x, xxxx, xxxx, xxxx, ..., xxxx}                                     *
+ *     {x, xxxx, xxxx, xxxx, xxxx, xxxx}                                     *
  *      |    |     |     |          └ Sensor 10                             *
  *      |    |     |     └─────────── Sensor 3                              *
  *      |    |     └───────────────── Sensor 2                              *
@@ -31,8 +31,8 @@
 #define commaChar F(",")
 #define emptySensor F(",,")
 
-const int config[] = {3, 4, 33, 333, 333, 3333};
-// const int config[] = {3, 4, 52, 625, 125, 9145};
+// const int config[] = {3, 4, 33, 333, 333, 3333};
+const int config[] = {3, 4, 52, 625, 106, 168};
 
 #define telefono fillNumber(config[2], 2) + fillNumber(config[3], 3) + fillNumber(config[4], 3) + fillNumber(config[5], 4)
 #define httpServer F("AT+HTTPPARA=\"URL\",\"http://dtaamerica.com/ws/sensor_v6.php?id=")
@@ -44,7 +44,8 @@ bool restartGSM = true;
 byte signalVar = 0;
 byte commError = 0;
 bool commRx = true;
-bool testComm = false;
+#define testComm false
+#define responseTime 15
 static unsigned long commTimer = 0;
 
 int operationMode = 1;                   // Sensores & Modo de prueba

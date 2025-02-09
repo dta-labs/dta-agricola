@@ -59,9 +59,9 @@ void rxData() {
         processData(data, String(LoRa.packetRssi()));
       }
     } else {
-      Serial.print(F("Error de lectura... "));
+      Serial.print(F("« Error de lectura... »"));
     }
-    Serial.print("\n" + data);
+    Serial.print("\n     └─ " + data);
   }
 }
 

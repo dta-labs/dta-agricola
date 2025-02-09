@@ -108,6 +108,9 @@ class SensorSystem {
     public function processData(): void {
         if (isset($_GET['data']) && $_GET['data'] !== '[]') {
             $rawData = $_GET['data'];
+			$rawData = str_replace(',,', ',,,,', $rawData);
+			$rawData = str_replace('[,', '[,,,', $rawData);
+			$rawData = str_replace(',]', ',,,]', $rawData);
             
             $rawData = trim($rawData, '[]');   // Remover los corchetes del inicio y final
             $data = explode(',', $rawData);     //  Dividir por comas

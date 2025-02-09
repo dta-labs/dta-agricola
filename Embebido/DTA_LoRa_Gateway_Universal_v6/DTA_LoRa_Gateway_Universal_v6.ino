@@ -27,22 +27,34 @@ void loop() {
 void txData() {
   unsigned long factor = 30000;     // 30 segundos, modo descubrimiento
   switch (operationMode) {
-    case 1:                         // 1 minuto, modo prueba
-      factor = 60000;
+    case 0:                         // 30 segundos, modo descubrimiento
+      factor =    30000;
       break;
-    case 2:                         // 15 minutos, modo riego corto
-      factor = 900000;
+    case 1:                         // 15 minutos
+      factor =   900000;
       break;
-    case 3:                         // 30 minutos, modo riego moderado
-      factor = 1800000;
+    case 2:                         // 30 minutos
+      factor =  1800000;
       break;
-    case 4:                         // 1 hora, modo riego normal
-      factor = 3600000;
+    case 3:                         // 45 minutos
+      factor =  2700000;
       break;
-    case 5:                         // 12 horas, modo riego intensivo
+    case 4:                         // 1 hora
+      factor =  3600000;
+      break;
+    case 5:                         // 1 1/2 horas
+      factor =  5400000;
+      break;
+    case 6:                         // 2 horas
+      factor =  7200000;
+      break;
+    case 7:                         // 8 horas
+      factor = 28800000;
+      break;
+    case 8:                         // 12 horas
       factor = 43200000;
       break;
-    case 6:                         // 24 horas, modo extendido
+    case 9:                         // 24 horas
       factor = 86400000;
       break;
   }

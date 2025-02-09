@@ -8,7 +8,7 @@ var poligons = {};
 var milatitud;
 var milongitud;
 var miaccuracy;
-var myChart;
+var charts = [];
 
 // #region Controlador Angular
 
@@ -78,6 +78,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         {"id": "10", "type": "Areno Franco"},
         {"id": "11", "type": "Arenoso"}
     ];
+    $scope.chartItems = 24;
     
     // #endregion Variables
 
@@ -451,14 +452,8 @@ app.controller("ControladorPrincipal", function ($scope) {
     setDeviceSpecificData = () => {
         switch ($scope.actualSystem.type) {
             case "Sensor":
-                $scope.showChart("meanVal", 24);
-                let deltaVal = $scope.actualSystem.sensors.S0.maxValue - $scope.actualSystem.sensors.S0.minValue;
-                let meanVal = 100 - (($scope.actualSystem.log.meanVal - $scope.actualSystem.sensors.S0.minValue) / deltaVal * 100);
-                $scope.actualSystem.log["meanValue"] = meanVal < 0 ? 0 : meanVal > 100 ? 100 : meanVal;
-                let minVal = 100 - (($scope.actualSystem.log.meanVal - $scope.actualSystem.sensors.S0.minValue) / deltaVal * 100);
-                $scope.actualSystem.log["minValue"] = minVal < 0 ? 0 : minVal > 100 ? 100 : minVal;
-                let maxVal = 100 - (($scope.actualSystem.log.meanVal - $scope.actualSystem.sensors.S0.minValue) / deltaVal * 100);
-                $scope.actualSystem.log["maxValue"] = maxVal < 0 ? 0 : maxVal > 100 ? 100 : maxVal;
+                // $scope.chartItems = 24;
+                $scope.showChart();
                 break;
             case "PC":
                 $scope.showSystemTable($scope.actualSystem.brand);
@@ -730,7 +725,8 @@ app.controller("ControladorPrincipal", function ($scope) {
     }
 
     $scope.convertStrToJSON = (str) => {
-        return str ? JSON.parse(str.replace(/""/g, '"","",""')) : null;
+        // return str ? JSON.parse(str.replace(/""/g, '"","",""')) : null;
+        return str ? JSON.parse(str) : null;
     }
 
     // #endregion DEVICES
@@ -943,6 +939,7 @@ app.controller("ControladorPrincipal", function ($scope) {
                     delete $scope.actualSystem.sensorPresion;
                     delete $scope.actualSystem.velocity;
                     delete $scope.actualSystem.log;
+                    $scope.actualSystem.operationMode = sleepingTimeToOperationMode($scope.actualSystem.sleepingTime);
                     updateNewDevice($scope.actualSystem);
                     document.getElementById("modalConfig").style.display = "none";
                     swal("Esquema actualizado correctamente!", {
@@ -953,6 +950,34 @@ app.controller("ControladorPrincipal", function ($scope) {
                 }
             });
     }
+
+    sleepingTimeToOperationMode = (st) => {
+        st = parseInt(st);
+        let op;
+        switch (st) {
+            case 15:
+            case 30:
+            case 45:
+            case 60:
+                op = parseInt(st / 15);
+                break;
+            case 90:
+            case 120:
+                op = parseInt(st / 18);
+                break;
+            case 480:
+                op = 7;
+                break;
+            case 720:
+                op = 8;
+                break;
+            case 1440:
+                op = 9;
+                break;
+        }
+        return op;
+    }
+
 
     $scope.updateNewDevice = () => {
         if ($scope.newDevice.key && $scope.newDevice.name && $scope.newDevice.type && $scope.newDevice.zona) {
@@ -1009,6 +1034,28 @@ app.controller("ControladorPrincipal", function ($scope) {
                     });
                 } else {
                     swal("Asignación cancelada!");
+                }
+            });
+    }
+
+    $scope.deleteActualSensor = () => {
+        swal({
+            title: "",
+            text: "Eliminar sensor",
+            icon: "warning",
+            buttons: ["Cancelar", true],
+            dangerMode: true,
+        })
+            .then((confirm) => {
+                if (confirm) {
+                    document.getElementById("modalEditSensor").style.display = "none";
+                    $scope.actualSensor.id ="0x0";
+                    $scope.setMachineSettings($scope.actualSystem);
+                    swal("Eliminación completada!", {
+                        icon: "success",
+                    });
+                } else {
+                    swal("Eliminación cancelada!");
                 }
             });
     }
@@ -1190,9 +1237,9 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     $scope.getSensors = () => {
         let sensors = [];
-        for (sensor in $scope.systems) {
-            if ($scope.systems[sensor].type == "Sensor") {
-                sensors.push($scope.systems[sensor]);
+        for (let idx in $scope.systems) {
+            if ($scope.systems[idx].type == "Sensor") {
+                sensors.push($scope.systems[idx]);
             }
         }
         return sensors;
@@ -1861,7 +1908,8 @@ app.controller("ControladorPrincipal", function ($scope) {
     }
 
     getSensorText = (campo, sensor, idx) => {
-        let data = JSON.parse(campo.log.dataRaw.replace(/""/g, '"","",""'));
+        // let data = JSON.parse(campo.log.dataRaw.replace(/""/g, '"","",""'));
+        let data = JSON.parse(campo.log.dataRaw);
         let text = `<table class="striped highlight">`;
         text += `    <tr>`;
         text += `        <td style="text-align: left;">Alias:</td>`;
@@ -2080,103 +2128,111 @@ app.controller("ControladorPrincipal", function ($scope) {
     const chartZoom = document.querySelector("#chartZoom");
 
     chartZoom.addEventListener("change", e => {
-        $scope.showChart("meanVal", parseInt(chartZoom.value));
+        $scope.chartItems = parseInt(chartZoom.value);
+        $scope.showChart();
     });
 
-    $scope.showChart = (child, registers) => {
-        getMeassurementValues($scope.actualSystem.key, registers).then(result => {
-            processResultsFromMsSensors(result);
-        });
-    }
-
-    processResultsFromMsSensors = (result) => {
-        const items = result[0] ? JSON.parse(result[0].dataRaw).length : 0;
-        let labels = [];
-        let data = [];
-        let means = [];
-        lastDate = "";
-        for (let i = 0; i < items; i++) {
-            let idx = "S" + i;
-            let min = $scope.actualSystem.sensors[idx].minValue;
-            let max = $scope.actualSystem.sensors[idx].maxValue;
-            data[i] = [];
-            result.forEach(element => {
-                let dataValue = JSON.parse(element.dataRaw)[i];
-                let value = dataValue != -99.00 ? 100 - ((dataValue - min) / (max - min) * 100) : "";
-                data[i].push(value < 0 ? 0 : value > 100 ? 100 : value);
-                if (i == 0) {
-                    date = element.date.substr(6, 2) + "/" + element.date.substr(4, 2);
-                    if (lastDate != date) {
-                        lastDate = date;
-                    } else {
-                        date = "";
-                    }
-                    labels.push(date + " " + element.date.substr(9, 14));
-                    means.push(100 - ((element.meanVal - min) / (max - min)) * 100);
+    $scope.showChart = () => {
+        getMeassurementValues($scope.actualSystem.key, $scope.chartItems).then(result => {
+            for (let i = 0; i < $scope.actualSystem.sensors.sensorNumber; i++) {
+                let idx = 'S' + i;
+                switch ($scope.actualSystem.sensors[idx].type) {
+                    case "Ms":
+                        processResultsFromMsSensors(result, i);
+                        break;
+                    case "SHT":
+                        processResultsFromSHTSensors(result, i);
+                        break;
                 }
-            });
-        }
-        chart(items, data, means, labels);
-}
-
-    processResultsFromSHTSensors = (result) => {
-        const items = result[0] ? JSON.parse(result[0].dataRaw).length : 0;
-        let labels = [];
-        let data = [];
-        let means = [];
-        lastDate = "";
-        for (let i = 0; i < items; i++) {
-            let idx = "S" + i;
-            let min = $scope.actualSystem.sensors[idx].minValue;
-            let max = $scope.actualSystem.sensors[idx].maxValue;
-            data[i] = [];
-            result.forEach(element => {
-                let dataValue = JSON.parse(element.dataRaw)[i];
-                let value = dataValue != -99.00 ? 100 - ((dataValue - min) / (max - min) * 100) : "";
-                data[i].push(value < 0 ? 0 : value > 100 ? 100 : value);
-                if (i == 0) {
-                    date = element.date.substr(6, 2) + "/" + element.date.substr(4, 2);
-                    if (lastDate != date) {
-                        lastDate = date;
-                    } else {
-                        date = "";
-                    }
-                    labels.push(date + " " + element.date.substr(9, 14));
-                    means.push(100 - ((element.meanVal - min) / (max - min)) * 100);
-                }
-            });
-        }
-        chart(items, data, means, labels);
-}
-
-    chart = (graphs, data, means, labels) => {
-        const ctx = document.getElementById('myChart');
-        if (myChart) myChart.destroy();
-        let type = data.length < 14 ? 'bar' : 'line';
-        myChart = new Chart(ctx, {
-            type: type,
-            data: getDataArray(graphs, data, means, labels),
-            options: getOptions()
-        });
-        myChart.canvas.parentNode.style.height = '400px';
-    }
-
-    getDataArray = (graphs, data, means, labels) => {
-        let datasets = [];
-        for (let i = 0; i < graphs; i++) {
-            let myJSON = {
-                label: 'Hs' + i,
-                data: data[i],
-                cubicInterpolationMode: 'monotone',
-                tension: 0.4,
-                borderWidth: 1,
-                type: 'line'
             }
-            datasets[i] = myJSON;
+        });
+    }
+
+    processResultsFromMsSensors = (result, i) => {
+        const items = result[0] ? JSON.parse(result[0].dataRaw).length : 0;
+        let labels = [];
+        let data = [];
+        lastDate = "";
+        let idx = 'S' + i;
+        getStValues(idx);
+        let min = $scope.actualSystem.sensors[idx].minValue;
+        let max = $scope.actualSystem.sensors[idx].maxValue;
+        data = [];
+        result.forEach(element => {
+            let dataValue = JSON.parse(element.dataRaw)[i];
+            let value = dataValue != -99.00 ? 100 - ((dataValue - min) / (max - min) * 100) : "";
+            data.push(value < 0 ? 0 : value > 100 ? 100 : value);
+            date = element.date.substr(6, 2) + "/" + element.date.substr(4, 2);
+            if (lastDate != date) {
+                lastDate = date;
+            } else {
+                date = "";
+            }
+            labels.push(date + " " + element.date.substr(9, 14));
+        });
+        chart(data, labels, i);
+    }
+
+    getStValues = (idx) => {
+        let deltaVal = $scope.actualSystem.sensors[idx].maxValue - $scope.actualSystem.sensors[idx].minValue;
+        let meanVal  = 100 - (($scope.actualSystem.log.meanVal - $scope.actualSystem.sensors[idx].minValue) / deltaVal * 100);
+        let minVal   = 100 - (($scope.actualSystem.log.minVal - $scope.actualSystem.sensors[idx].minValue) / deltaVal * 100);
+        let maxVal   = 100 - (($scope.actualSystem.log.maxVal - $scope.actualSystem.sensors[idx].minValue) / deltaVal * 100);
+        $scope.actualSystem.log["meanValue"] = meanVal < 0 ? 0 : meanVal > 100 ? 100 : meanVal;
+        $scope.actualSystem.log["minValue"]  = minVal < 0 ? 0 : minVal > 100 ? 100 : minVal;
+        $scope.actualSystem.log["maxValue"]  = maxVal < 0 ? 0 : maxVal > 100 ? 100 : maxVal;
+    }
+
+    processResultsFromSHTSensors = (result, i) => {
+        const items = result[0] ? parseInt(JSON.parse(result[0].dataRaw).length / 3) : 0;
+        let labels = [];
+        let data = [];
+        lastDate = "";
+        result.forEach(element => {
+            data.push(JSON.parse(element.dataRaw)[i * 3]);
+            date = element.date.substr(6, 2) + "/" + element.date.substr(4, 2);
+            if (lastDate != date) {
+                lastDate = date;
+            } else {
+                date = "";
+            }
+            labels.push(date + " " + element.date.substr(9, 14));
+        });
+        chart(data, labels, i);
+    }
+
+    chart = (data, labels, i) => {
+        try {
+            let canvas = document.getElementById('myChart' + i);
+            if (!canvas) return;
+            if (charts[i]) charts[i].destroy();
+            let type = data.length < 14 ? 'bar' : 'line';
+            let label = $scope.actualSystem.sensors['S' + i].name ? 
+                       $scope.actualSystem.sensors['S' + i].name : 
+                       $scope.actualSystem.sensors['S' + i].id;
+            charts[i] = new Chart(canvas, {
+                type: type,
+                data: getDataArray(data, labels, label),
+                options: getOptions()
+            });
+            if (canvas.parentNode) canvas.parentNode.style.height = '400px';    
+        } catch (error) {
+            console.error('Error al crear el gráfico:', error);
+        }
+    }
+
+    getDataArray = (_data, _labels, _label) => {
+        let myJSON = {
+            label: _label,
+            data: filtrarDatos(_data, 20),
+            cubicInterpolationMode: 'monotone',
+            tension: 0.4,
+            borderWidth: 1,
+            type: 'line'
         }
         return {
-            labels: labels,
-            datasets: datasets
+            labels: _labels,
+            datasets: [myJSON]
         }
     }
 
@@ -2184,7 +2240,6 @@ app.controller("ControladorPrincipal", function ($scope) {
         return {
             responsive: true,
             maintainAspectRatio: false,
-            responsive: true,
             scales: {
                 y: {
                     beginAtZero: true,
@@ -2197,8 +2252,11 @@ app.controller("ControladorPrincipal", function ($scope) {
                 }
             },
             // plugins: {
-            //     legend: false
-            // },
+            //     legend: {
+            //         display: true,
+            //         position: 'top'
+            //     }
+            // }
         }
     }
 
@@ -2209,6 +2267,13 @@ app.controller("ControladorPrincipal", function ($scope) {
             valores[i] = valorSuavizado;
         }
         return valores;
+    }
+
+    filtrarDatos = (data, iter) => {
+        for (let i = 0; i < iter; i++) {
+            data = filtroPasoBajo(data, 0.2);
+        }
+        return data;
     }
 
     // #endregion Chart.js

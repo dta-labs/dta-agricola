@@ -646,8 +646,8 @@
                                         <div class="row contentEstacionario" style="margin-bottom: 0; max-height: calc(100vh - 221px);">
                                             
                                             <!-- Mapa -->
-                                            <div class="main-container map col s12 m8" style="margin-bottom: 10px;"> 
-                                                <div id="map" class="map" style="border-radius: 5px;"></div>
+                                            <div class="main-container map col s12 m8" style="margin-bottom: 10px; {{ actualSystem.type == 'Sensor' ? 'height: calc(100vh - 265px);' : '' }}"> 
+                                                <div id="map" class="map" style="border-radius: 5px; position: relative; {{ actualSystem.type == 'Sensor' ? 'height: calc(100vh - 265px);' : '' }}"></div>
                                             </div>
                                             
                                             <!-- Movimiento continuo : Pivote -->
@@ -1365,13 +1365,34 @@
                                             <!-- Sensor -->
                                             <div class="col s12 m4" ng-show="actualSystem.type == 'Sensor'">
                                                 <!-- Status General -->
-                                                <div class="row hide-on-med-and-up" style="width: 100%; position: absolute; margin-top: -15px;">
+                                                <div class="row hide-on-med-and-up" style="width: 100%; position: absolute; margin-top: -15px; display: none;">
                                                     <div class="col s12">
                                                         <a class="modal-trigger" href="#modalHistorial" style="color: black;">
                                                             <ul>
                                                                 <li style="border: solid; border-radius: 5px; background: #5acaca">
                                                                     <table>
-                                                                        <tr ng-show="sensor.type=='Ms'">
+                                                                        <tr ng-show="actualSystem.sensors['S0'].type=='Ms'">
+                                                                            <td width="20%" class="switchControl waves-effect teal" 
+                                                                                style="font-size: 3em; padding: 0 !important; color: white;">
+                                                                                <i class="fa fa-tint" aria-hidden="true"></i>
+                                                                            </td>
+                                                                            <td width="40%" style="font-size: 2.5em; text-align: center;">
+                                                                                {{ actualSystem.log.meanValue | number : 0 }}%
+                                                                            </td>
+                                                                            <td width="25%" style="text-align: left;" ng-show="actualSystem.type == 'Sensor'">
+                                                                                min: {{ actualSystem.log.minValue | number : 0 }}% <br>
+                                                                                max: {{ actualSystem.log.maxValue | number : 0 }}%
+                                                                            </td>
+                                                                            <td width="15%" style="text-align: center;" ng-init="bat = 0">
+                                                                                <i class="material-icons">
+                                                                                    {{ parseJSON(actualSystem.log.voltages)[0] >= 4.2 ? "battery_charging_full" : 
+                                                                                        parseJSON(actualSystem.log.voltages)[0] >= 3.7 ? "battery_full" : 
+                                                                                        "battery_alert" }}
+                                                                                    </i> <br>
+                                                                                <span style="font-size: .8em;">{{  parseJSON(actualSystem.log.voltages)[0] | number : 1 }}</span>v   
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr ng-show="actualSystem.sensors['S0'].type=='SHT'">
                                                                             <td width="20%" class="switchControl waves-effect teal" 
                                                                                 style="font-size: 3em; padding: 0 !important; color: white;">
                                                                                 <i class="fa fa-tint" aria-hidden="true"></i>
@@ -2141,6 +2162,7 @@
                                         <img class="show-in-pc-only" src="assets/images/logs.png" alt="imgPlanta" style="width: 130px; margin: 20px 0 0 20px;">
                                     </div>
                                     <div class="col s12 m8">
+                                        <br>
                                         <div ng-show="actualSystem.type != 'Sensor'">
                                             <ul class="row collapsible">
                                                 <li class="col s12" ng-repeat="reg in invertedRegisters">
@@ -2269,30 +2291,12 @@
                                             </ul>
                                         </div>
                                         <div ng-show="actualSystem.type == 'Sensor'">
-                                            <canvas id="myChart" ng-show="actualSystem.type == 'Sensor'" style="position: relative; height:30vh; width:40vw;"></canvas>   
-                                            <p class="range-field" ng-show="actualSystem.type == 'Sensor'">
+                                            <div ng-repeat="sensor in actualSystem.sensors" ng-if="sensor.id" style="border: 1px solid grey; border-radius: 5px; margin-bottom: 10px;">
+                                                <canvas id="myChart{{ $index }}" style="position: relative; height:30vh; width:40vw;"></canvas>   
+                                            </div>
+                                            <p class="range-field">
                                                 <input type="range" id="chartZoom" min="10" max="500" value="10"/>
                                             </p>
-                                            <!-- <ul class="row collapsible">
-                                                <li class="col s12" ng-repeat="reg in invertedRegisters">
-                                                    <div class="gray-text row" style="border-bottom: 1px solid lightgray; margin-bottom: 0px;">
-                                                        <div class="col s3 m1 valign-wrapper">
-                                                            {{ reg.date.substr(6,2) }}/{{ reg.date.substr(4,2) }} {{ reg.date.substr(9,2) }}:{{ reg.date.substr(11,5) }}
-                                                        </div>
-                                                        <div class="col s9 m11 left-align">
-                                                            <b style="font-size: 1.5em;">{{ (100 - ((reg.meanVal - actualSystem.sensors.S0.minValue) / (actualSystem.sensors.S0.maxValue - actualSystem.sensors.S0.minValue) * 100)) | number : 0 }}%</b> 
-                                                            <! -- <span class="show-in-pc-only">&nbsp;&nbsp;&nbsp;</span> -- >
-                                                            <span>
-                                                                [{{ (100 - ((reg.minVal - actualSystem.sensors.S0.minValue) / (actualSystem.sensors.S0.maxValue - actualSystem.sensors.S0.minValue) * 100)) | number : 0 }}%  ~ {{ (100 - ((reg.maxVal - actualSystem.sensors.S0.minValue) / (actualSystem.sensors.S0.maxValue - actualSystem.sensors.S0.minValue) * 100)) | number : 0 }}%] 
-                                                            </span>
-                                                            <! -- <span class="show-in-pc-only">&nbsp;&nbsp;&nbsp;</span> -- >
-                                                            <! -- <span class="show-in-pc-only" style="display: inline;">Batería:</span> -- >
-                                                            <! -- <br class="show-in-mobil-only"> -- >
-                                                            <span> [{{ parseJSON(reg.voltages)[0] | number : 1 }}v]</span>
-                                                        </div>
-                                                    </div>
-                                                </li>
-                                            </ul> -->
                                         </div>
                                     </div>
                                     <br>
@@ -3125,14 +3129,18 @@
                                 <div class="modal-content">
                                     <div class="swal-title">Buscar sensor</div>
                                     <div class="row" style="margin-top: 35px; border-radius: 10px; background: black;">
-                                        <div class="input-field col s12">
+                                        <div class="col s12">
                                             <img src="assets/images/radar.gif" alt="">
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col s12">
-                                            <span ng-repeat="sensor in actualSystem.sensors" ng-show="sensor.id != '0x0'">{{ sensor.id }} {{ $index < actualSystem.sensors.length ? ", " : "" }}</span>
-                                            
+                                            <table class="striped highlight">
+                                                <tr ng-repeat="sensor in actualSystem.sensors" ng-show="sensor.id && sensor.id != '0x0'">
+                                                    <td>{{ $index + 1 }}</td>
+                                                    <td>{{ sensor.id }}</td>
+                                                </tr>
+                                            </table>
                                         </div>
                                     </div>  
                                 </div>
@@ -3149,7 +3157,7 @@
                             <div id="modalEditSensor" class="modal"> <!-- Modal editar sensor -->
                                 <div class="modal-content">
                                     <div class="swal-title">Editar sensor {{ actualSensor.id }}</div>
-                                    <div class="row" style="margin-top: 35px;">
+                                    <div class="row">
                                         <div class="input-field col s12">
                                             <input id="editSensorAlias" type="text" ng-model="actualSensor.alias">
                                             <label>Alias</label>
@@ -3180,7 +3188,17 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col s12" style="border: 1px solid lightgrey; border-radius: 5px; margin-bottom: 20px;">
+                                        <br>
+                                        <div class="input-field col s12">
+                                            <select id="editSensorType" ng-model="actualSensor.type">
+                                                <option value="SHT" selected="{{ actualSensor.type == 'SHT' ? 'selected' : '' }}">Humedad y Temperatura del suelo</option>
+                                                <option value="Ms" selected="{{ actualSensor.type == 'Ms' ? 'selected' : '' }}">Humedad suelo</option>                                
+                                                <option value="Tr" selected="{{ actualSensor.type == 'Tr' ? 'selected' : '' }}">Temperatura</option>
+                                                <option value="Fl" selected="{{ actualSensor.type == 'Fl' ? 'selected' : '' }}">Flujo de agua</option>
+                                            </select>
+                                            <label style="top: -28px; font-size: .8em;">Tipo</label>
+                                        </div>
+                                        <div class="col s12" style="border: 1px solid lightgrey; border-radius: 5px; margin-bottom: 20px;" ng-show="actualSensor.type == 'Ms'">
                                             <label>Ajustes del sensor</label>
                                             <div class="row" style="margin-bottom: 0;">
                                                 <div class="input-field col s6">
@@ -3193,20 +3211,12 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <br>
-                                        <div class="input-field col s12">
-                                            <select id="editSensorType" ng-model="actualSensor.type">
-                                                <option value="SHT" selected="selected">Humedad y Temperatura del suelo</option>
-                                                <option value="Ms">Humedad suelo</option>                                
-                                                <option value="Tr">Temperatura</option>
-                                                <option value="Fl">Flujo de agua</option>
-                                            </select>
-                                            <label style="top: -28px; font-size: .8em;">Tipo</label>
-                                        </div>
                                     </div>
                                     <div class="modal-footer">
                                         <a href="" class="modal-close waves-effect grey waves-grey btn-flat white-text">
                                             <i class="material-icons">&nbsp;&nbsp;reply&nbsp;&nbsp;</i></a>
+                                        <a href="" class="modal-close waves-effect red waves-grey btn-flat white-text"ng-click="deleteActualSensor()">
+                                            <i class="material-icons">&nbsp;&nbsp;delete&nbsp;&nbsp;</i></a>
                                         <a href="" class="modal-close waves-effect teal waves-green btn-flat white-text"
                                             ng-click="editActualSensor()"><i
                                                 class="material-icons">&nbsp;&nbsp;check&nbsp;&nbsp;</i></a>
