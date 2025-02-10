@@ -2136,32 +2136,35 @@ app.controller("ControladorPrincipal", function ($scope) {
         getMeassurementValues($scope.actualSystem.key, $scope.chartItems).then(result => {
             for (let i = 0; i < $scope.actualSystem.sensors.sensorNumber; i++) {
                 let idx = 'S' + i;
+                let title = $scope.actualSystem.sensors[idx].name ? $scope.actualSystem.sensors[idx].name : $scope.actualSystem.sensors[idx].id;
                 switch ($scope.actualSystem.sensors[idx].type) {
                     case "Ms":
-                        processResultsFromMsSensors(result, i);
+                        processResultsFromMsSensors(result, title, i);
                         break;
                     case "SHT":
-                        processResultsFromSHTSensors(result, i);
+                        processResultsFromSHTSensors(result, title, i);
                         break;
                 }
             }
         });
     }
 
-    processResultsFromMsSensors = (result, i) => {
+    processResultsFromMsSensors = (result, title, i) => {
         const items = result[0] ? JSON.parse(result[0].dataRaw).length : 0;
         let labels = [];
-        let data = [];
+        let moisture = [];
+        let temperature = [];
         lastDate = "";
         let idx = 'S' + i;
         getStValues(idx);
         let min = $scope.actualSystem.sensors[idx].minValue;
         let max = $scope.actualSystem.sensors[idx].maxValue;
-        data = [];
+        moisture = [];
+        temperature = [];
         result.forEach(element => {
             let dataValue = JSON.parse(element.dataRaw)[i];
             let value = dataValue != -99.00 ? 100 - ((dataValue - min) / (max - min) * 100) : "";
-            data.push(value < 0 ? 0 : value > 100 ? 100 : value);
+            moisture.push(value < 0 ? 0 : value > 100 ? 100 : value);
             date = element.date.substr(6, 2) + "/" + element.date.substr(4, 2);
             if (lastDate != date) {
                 lastDate = date;
@@ -2170,7 +2173,7 @@ app.controller("ControladorPrincipal", function ($scope) {
             }
             labels.push(date + " " + element.date.substr(9, 14));
         });
-        chart(data, labels, i);
+        chart(moisture, temperature, labels, title, i);
     }
 
     getStValues = (idx) => {
@@ -2183,13 +2186,16 @@ app.controller("ControladorPrincipal", function ($scope) {
         $scope.actualSystem.log["maxValue"]  = maxVal < 0 ? 0 : maxVal > 100 ? 100 : maxVal;
     }
 
-    processResultsFromSHTSensors = (result, i) => {
+    processResultsFromSHTSensors = (result, title, i) => {
         const items = result[0] ? parseInt(JSON.parse(result[0].dataRaw).length / 3) : 0;
         let labels = [];
-        let data = [];
+        let moisture = [];
+        let temperature = [];
         lastDate = "";
         result.forEach(element => {
-            data.push(JSON.parse(element.dataRaw)[i * 3]);
+            let data = JSON.parse(element.dataRaw);
+            moisture.push(data[i * 3]);
+            temperature.push(data[i * 3 + 1]);
             date = element.date.substr(6, 2) + "/" + element.date.substr(4, 2);
             if (lastDate != date) {
                 lastDate = date;
@@ -2198,22 +2204,19 @@ app.controller("ControladorPrincipal", function ($scope) {
             }
             labels.push(date + " " + element.date.substr(9, 14));
         });
-        chart(data, labels, i);
+        chart(moisture, temperature, labels, title, i);
     }
 
-    chart = (data, labels, i) => {
+    chart = (moisture, temperature, labels, title, i) => {
         try {
             let canvas = document.getElementById('myChart' + i);
             if (!canvas) return;
             if (charts[i]) charts[i].destroy();
-            let type = data.length < 14 ? 'bar' : 'line';
-            let label = $scope.actualSystem.sensors['S' + i].name ? 
-                       $scope.actualSystem.sensors['S' + i].name : 
-                       $scope.actualSystem.sensors['S' + i].id;
+            let type = moisture.length < 14 ? 'bar' : 'line';
             charts[i] = new Chart(canvas, {
                 type: type,
-                data: getDataArray(data, labels, label),
-                options: getOptions()
+                data: getDataArray(moisture, temperature, labels),
+                options: getOptions(title)
             });
             if (canvas.parentNode) canvas.parentNode.style.height = '400px';    
         } catch (error) {
@@ -2221,10 +2224,18 @@ app.controller("ControladorPrincipal", function ($scope) {
         }
     }
 
-    getDataArray = (_data, _labels, _label) => {
-        let myJSON = {
-            label: _label,
-            data: filtrarDatos(_data, 20),
+    getDataArray = (_moisture, _temperature, _labels) => {
+        let moisture = {
+            label: "Humedad",
+            data: _moisture,
+            cubicInterpolationMode: 'monotone',
+            tension: 0.4,
+            borderWidth: 1,
+            type: 'line'
+        }
+        let temperature = {
+            label: "Temperatura",
+            data: _temperature,
             cubicInterpolationMode: 'monotone',
             tension: 0.4,
             borderWidth: 1,
@@ -2232,11 +2243,11 @@ app.controller("ControladorPrincipal", function ($scope) {
         }
         return {
             labels: _labels,
-            datasets: [myJSON]
+            datasets: [moisture, temperature]
         }
     }
 
-    getOptions = () => {
+    getOptions = (_title) => {
         return {
             responsive: true,
             maintainAspectRatio: false,
@@ -2251,12 +2262,12 @@ app.controller("ControladorPrincipal", function ($scope) {
                     }
                 }
             },
-            // plugins: {
-            //     legend: {
-            //         display: true,
-            //         position: 'top'
-            //     }
-            // }
+            plugins: {
+                title: {
+                    display: true,
+                    text: _title
+                }
+            }
         }
     }
 

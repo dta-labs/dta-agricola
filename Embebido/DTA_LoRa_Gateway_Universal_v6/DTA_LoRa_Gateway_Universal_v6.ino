@@ -25,40 +25,39 @@ void loop() {
 }
 
 void txData() {
-  unsigned long factor = 30000;     // 30 segundos, modo descubrimiento
+  unsigned long commFrequence = 30000;
   switch (operationMode) {
     case 0:                         // 30 segundos, modo descubrimiento
-      factor =    30000;
+      commFrequence =    30000;
       break;
     case 1:                         // 15 minutos
-      factor =   900000;
+      commFrequence =   900000;
       break;
     case 2:                         // 30 minutos
-      factor =  1800000;
+      commFrequence =  1800000;
       break;
     case 3:                         // 45 minutos
-      factor =  2700000;
+      commFrequence =  2700000;
       break;
     case 4:                         // 1 hora
-      factor =  3600000;
+      commFrequence =  3600000;
       break;
     case 5:                         // 1 1/2 horas
-      factor =  5400000;
+      commFrequence =  5400000;
       break;
     case 6:                         // 2 horas
-      factor =  7200000;
+      commFrequence =  7200000;
       break;
     case 7:                         // 8 horas
-      factor = 28800000;
+      commFrequence = 28800000;
       break;
     case 8:                         // 12 horas
-      factor = 43200000;
+      commFrequence = 43200000;
       break;
     case 9:                         // 24 horas
-      factor = 86400000;
+      commFrequence = 86400000;
       break;
   }
-  unsigned long commFrequence = factor;
   if (millis() - commTimer > commFrequence) {
     commTimer = millis();
     comunicaciones(getTxData());
