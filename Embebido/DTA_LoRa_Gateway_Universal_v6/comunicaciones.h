@@ -2,6 +2,13 @@
 
 #pragma region Comunicaciones
 
+void systemWatchDog() {
+  pinMode(watchDogPin, OUTPUT);         // Sink current to drain charge from C2
+  digitalWrite(watchDogPin, HIGH);
+  delay(50);                            // Give enough time for C2 to discharge (should discharge in 50 ms)     
+  pinMode(watchDogPin, INPUT);          // Return to high impedance
+}
+
 void commWatchDogReset() {
   commError += (restartGSM) ? 1 : commError = 0;
   if (commError > 0) {
@@ -80,6 +87,7 @@ void testComunicaciones() {
   getResponse(responseTime, testComm); 
   gprs.println(F("AT+COPS?"));         // Comañía telefónica?
   getResponse(responseTime, testComm); 
+  systemWatchDog(); 
 }
 
 void setupGSM() {
@@ -110,6 +118,7 @@ void setupGSM() {
     getResponse(responseTime, testComm); 
     gprs.println(F("AT+SAPBR=2,1"));
     getResponse(responseTime, testComm); 
+    systemWatchDog(); 
   // }
 }
 
@@ -127,14 +136,17 @@ String httpRequest(String strToSend) {
   gprs.print(F("&rx=")); gprs.print((String)(commRx ? F("Ok") : F("Er")));
   gprs.print(F("&si=")); gprs.println((String)signalVar + F("\""));
   // gprs.println(strData);
-  getResponse(50, true); 
+  getResponse(50, true);
+  systemWatchDog(); 
   gprs.println(F("AT+HTTPACTION=0"));
   getResponse(6000, testComm); 
   gprs.println(F("AT+HTTPREAD"));
   String result = getResponse(0, true);
+  systemWatchDog(); 
   gprs.println(F("AT+HTTPTERM"));
   getResponse(30, testComm); 
   commWatchDogReset();
+  systemWatchDog(); 
   return getDataStream(result);
 }
 

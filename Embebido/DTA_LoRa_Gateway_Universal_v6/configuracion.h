@@ -30,6 +30,7 @@
 #define startAddress F("0x")
 #define commaChar F(",")
 #define emptySensor F(",,")
+#define watchDogPin A0
 
 // const int config[] = {3, 4, 33, 333, 333, 3333};
 const int config[] = {3, 4, 52, 625, 106, 168};
