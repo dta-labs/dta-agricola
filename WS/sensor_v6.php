@@ -118,7 +118,7 @@ class SensorSystem {
             $settings = $this->getSettings();
             
             if ($settings->operationMode == 0) {
-                $actulize = true;
+                $actualize = true;
                 $length = count($data);
                 for ($i = 0; $i < $length; $i++) {
                     $idx = "S$i";
@@ -128,11 +128,12 @@ class SensorSystem {
                         $settings->sensors->$idx->longitude = $settings->sensors->$idx->longitude ?? 0.0;
                         $settings->sensors->$idx->type = $settings->sensors->$idx->type ?? "SHT";
                     } else {
-                        $actulize = false;
+                        $actualize = false;
                         break;
                     }
                 }
-                if ($actulize) {
+                if ($actualize) {
+                    $settings->sensors->sensorNumber = $length;       // Actualizar el número de sensores
                     $this->settings = $settings;                      // Actualizar la caché local
                     $this->updateSettings($settings);
                 }
