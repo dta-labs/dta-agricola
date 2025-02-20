@@ -19,6 +19,7 @@ void setup() {
 }
 
 void loop() {
+  systemWatchDog(); 
   rxData();
   txData();
   delay(500);
@@ -58,6 +59,7 @@ void txData() {
       commFrequence = 86400000;
       break;
   }
+  commFrequence /= 2;
   if (millis() - commTimer > commFrequence) {
     commTimer = millis();
     comunicaciones(getTxData());

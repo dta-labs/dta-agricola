@@ -1875,18 +1875,20 @@ app.controller("ControladorPrincipal", function ($scope) {
         text += `        <td style="text-align: left;">Nombre:</td>`;
         text += `        <td style="text-align: left;"><b>${campo.name ? campo.name : "" }</b></td>`;
         text += `    </tr>`;
-        text += `    <tr>`;
-        text += `        <td style="text-align: left;">Estado:</td>`;
-        text += `        <td style="text-align: left;"><b>${campo.log.state ? "Encendido" : "Apagado" }</b></td>`;
-        text += `    </tr>`;
-        text += `    <tr>`;
-        text += `        <td style="text-align: left;">Caudal:</td>`;
-        text += `        <td style="text-align: left;"><b>${campo.caudal ? campo.caudal : "0" }</b> m<sup>3</sup>/s</td>`;
-        text += `    </tr>`;
-        text += `    <tr>`;
-        text += `        <td style="text-align: left;">Velocidad:</td>`;
-        text += `        <td style="text-align: left;"><b>${campo.direction ? "Avanzar" : "Retroceder"} ${campo.log ? campo.log.speed : 0}%</b></td>`;
-        text += `    </tr>`;
+        if (campo.type != 'Sensor') {
+            text += `    <tr>`;
+            text += `        <td style="text-align: left;">Estado:</td>`;
+            text += `        <td style="text-align: left;"><b>${campo.log.state ? "Encendido" : "Apagado" }</b></td>`;
+            text += `    </tr>`;
+            text += `    <tr>`;
+            text += `        <td style="text-align: left;">Velocidad:</td>`;
+            text += `        <td style="text-align: left;"><b>${campo.direction ? "Avanzar" : "Retroceder"} ${campo.log ? campo.log.speed : 0}%</b></td>`;
+            text += `    </tr>`;
+            text += `    <tr>`;
+            text += `        <td style="text-align: left;">Caudal:</td>`;
+            text += `        <td style="text-align: left;"><b>${campo.caudal ? campo.caudal : "0" }</b> m<sup>3</sup>/s</td>`;
+            text += `    </tr>`;
+        }
         text += `    <tr>`;
         text += `        <td style="text-align: left;">Hr:</td>`;
         text += `        <td style="text-align: left;"><b>${ $scope.meteo[campo.key].main.humidity }%</b></td>`;
@@ -2136,7 +2138,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         getMeassurementValues($scope.actualSystem.key, $scope.chartItems).then(result => {
             for (let i = 0; i < $scope.actualSystem.sensors.sensorNumber; i++) {
                 let idx = 'S' + i;
-                let title = $scope.actualSystem.sensors[idx].name ? $scope.actualSystem.sensors[idx].name : $scope.actualSystem.sensors[idx].id;
+                let title = $scope.actualSystem.sensors[idx].alias ? $scope.actualSystem.sensors[idx].alias : $scope.actualSystem.sensors[idx].id;
                 switch ($scope.actualSystem.sensors[idx].type) {
                     case "Ms":
                         processResultsFromMsSensors(result, title, i);
@@ -2189,13 +2191,13 @@ app.controller("ControladorPrincipal", function ($scope) {
     processResultsFromSHTSensors = (result, title, i) => {
         const items = result[0] ? parseInt(JSON.parse(result[0].dataRaw).length / 3) : 0;
         let labels = [];
-        let moisture = [];
         let temperature = [];
+        let moisture = [];
         lastDate = "";
         result.forEach(element => {
             let data = JSON.parse(element.dataRaw);
-            moisture.push(data[i * 3]);
-            temperature.push(data[i * 3 + 1]);
+            temperature.push(data[i * 3]);
+            moisture.push(data[i * 3 + 1]);
             date = element.date.substr(6, 2) + "/" + element.date.substr(4, 2);
             if (lastDate != date) {
                 lastDate = date;

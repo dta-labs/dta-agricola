@@ -1424,6 +1424,9 @@
                                                         <ul>
                                                             <li style="border-bottom: solid 1px lightgrey;">
                                                                 <table ng-repeat="sensor in actualSystem.sensors">
+                                                                    <tr style="border-bottom: 0;">
+                                                                        <td colspan="3" style="border-bottom: 0; padding: 5px 0 0 0; font-size: 1.2em; text-align: left;">{{ sensor.alias ? sensor.alias : sensor.id }}</td>
+                                                                    </tr>
                                                                     <tr ng-show="sensor.type=='Ms'">
                                                                         <td width="20%" class="switchControl waves-effect teal" 
                                                                             style="font-size: 3em; padding: 0 !important; 
@@ -1969,21 +1972,6 @@
                                                 <div class="collapsible-header"><i class="material-icons">tune</i><span class="show-in-pc-only">Estrategia de muestreo</span><span class="show-in-mobil-only">Muestreo</span></div>
                                                 <div class="collapsible-body">
                                                     <div class="row" style="border: 1px solid grey; border-radius: 5px; margin: 5px; text-align: left;">
-                                                        <!-- <div class="input-field" style="padding: 0 10px;">
-                                                            <p>Procesamiento de las lecturas</p>
-                                                            <p>
-                                                                <label>
-                                                                    <input type="radio" class="filled-in" value="mean" ng-model="actualSystem.sensors.operation"/>
-                                                                    <span>Promediar todas las lecturas</span>
-                                                                </label>
-                                                            </p>
-                                                            <p>
-                                                                <label>
-                                                                    <input type="radio" class="filled-in" value="min" ng-model="actualSystem.sensors.operation"/>
-                                                                    <span>La menor de todas las lecturas</span>
-                                                                </label>
-                                                            </p>
-                                                        </div> -->
                                                         <div class="input-field col s12" style="padding: 0;">
                                                             <table>
                                                                 <tr>
@@ -4177,8 +4165,9 @@
                                 </div>
                                 <div class="col navbar-option">
                                     <a class="modal-trigger" href="#modalHistorial" style="color: black;">
-                                        <i class="fa fa-history" aria-hidden="true" style="margin-top: 5px;"></i>
-                                        <p style="margin-top: -4px;">Historial</p>
+                                        <i class="fa fa-bar-chart" aria-hidden="true"></i>
+                                        <i class="material-icons" style="margin-top: 5px;">equalizer</i>
+                                        <p style="margin-top: -9px;">Historial</p>
                                     </a>
                                 </div>
                                 <div class="col navbar-option">
@@ -4213,8 +4202,9 @@
                                 </div>
                                 <div class="col navbar-option">
                                     <a class="modal-trigger" href="#modalHistorial" style="color: black;">
-                                        <i class="fa fa-history" aria-hidden="true" style="margin-top: 5px;"></i>
-                                        <p style="margin-top: -4px;">Historial</p>
+                                        <i class="fa fa-bar-chart" aria-hidden="true"></i>
+                                        <i class="material-icons" style="margin-top: 5px;">equalizer</i>
+                                        <p style="margin-top: -9px;">Historial</p>
                                     </a>
                                 </div>
                                 <div class="col navbar-option">
@@ -4253,7 +4243,7 @@
         <script src="https://www.gstatic.com/firebasejs/ui/4.0.0/firebase-ui-auth__es_419.js"></script>
         <script src="https://www.gstatic.com/firebasejs/7.3.0/firebase-analytics.js"></script>
         <script src="./assets/js/firebaseConfig.js"></script>
-        <script src="./assets/js/firebaseComm.js?v=1.2"></script>
+        <script src="./assets/js/firebaseComm.js"></script>
         <script src="./assets/js/autentication.js" type="module"></script>
         <script src="./assets/js/notifications.js"></script>
         <!-- <script src="./assets/modules/angularjs/angular.min.js"></script> -->
@@ -4266,7 +4256,7 @@
         <script src="./assets/modules/chart.js/chart.js"></script>
         <script src="./assets/js/commons.js"></script>
         <!-- <script src="./assets/cultures/listPlanesRiego.js"></script> -->
-        <script src="./assets/js/core.js?v=1.6"></script>
+        <script src="./assets/js/core.js?v=?v=25.02.11.01"></script>
         <!-- <script src="monitor/js/chartjs/chart.min.js"></script> -->
         <script type="text/javascript" src="./assets/modules/datepicker/daterangepicker.js"></script>
 
