@@ -50,8 +50,10 @@ bool commRx = true;
 static unsigned long commTimer = 0;
 
 int operationMode = 1;                   // Sensores & Modo de prueba
-String dataToSend[5];
-String sensorList[5];
-bool testData = false;
+#define numSensors 10
+String dataToSend[numSensors];
+String sensorList[numSensors];
+#define testData true
+bool first = true;
 
 #pragma endregion Variables

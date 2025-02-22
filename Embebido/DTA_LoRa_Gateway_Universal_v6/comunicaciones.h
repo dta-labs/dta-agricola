@@ -157,26 +157,30 @@ void setVariables(String data) {
   int startIndex = 0; 
   int endIndex = data.indexOf(commaChar); 
   int auxMode = data.substring(startIndex, endIndex).toInt();
-  if (operationMode == 0 && auxMode != 0) for (int i = 0; i < 5; i++) dataToSend[i] = strEmpty;
+  if (operationMode == 0 && auxMode != 0) for (int i = 0; i < numSensors; i++) dataToSend[i] = strEmpty;
   operationMode = auxMode;
   Serial.print(F("  ├─ Modo: ")); Serial.println(operationMode != 0 ? String(operationMode) : F("Descubrimiento"));
   Serial.print(F("  └─ Sensores: ")); 
-  for (int i = 0; i < 5; i++) { 
+  for (int i = 0; i < numSensors; i++) { 
     startIndex = endIndex + 1; 
     endIndex = data.indexOf(commaChar, startIndex); 
-    String aux = i < 4 ? data.substring(startIndex, endIndex) : data.substring(startIndex); 
+    String aux = i < numSensors - 1 ? data.substring(startIndex, endIndex) : data.substring(startIndex); 
     sensorList[i] = aux.indexOf(startAddress) == 0 && aux.length() > 2 ? aux : baseAddress;
     if (i > 0) Serial.print(commaChar); Serial.print(sensorList[i]);
   }
 }
 
 void comunicaciones(String strToSend) {
-  Serial.println(F("\nComunicación con el servidor"));
-  setupGSM();
-  String data = httpRequest(strToSend); 
-  if (testData) {
+  String data = ""; 
+  if (!testData) {
+    Serial.println(F("\nComunicación con el servidor"));
+    setupGSM();
+    data = httpRequest(strToSend); 
+  } else if (first) {
     Serial.println(F("Mockup data..."));
-    data = F("\"D\"0x0\"0x0\"0x0\"0x0\"0x0\"0x0\"0x0\"0x0\"0x0\"0x0\"");
+    data = F("0\"0x0\"0x0\"0x0\"0x0\"0x0\"0x0\"0x0\"0x0\"0x0\"0x0");
+    data = F("2\"0x10B9CE4A\"0xF46A34A\"0x10B9CE37\"0xF46A38F\"0xF46A405\"0x10B9CEAC\"0xF46A392\"0xF46A38E\"0x10B9CE79\"0x0");
+    first = false;
   }
   if (data != strEmpty) {
     setVariables(data);

@@ -70,27 +70,26 @@ void txData() {
 String getTxData() {
   String strIds = strEmpty;
   String strToSend = strEmpty;
-  for (int i = 0; i < 5; i++) {
+  for (int i = 0; i < numSensors; i++) {
     strIds += sensorList[i];
-    strIds += (i < 4) ? commaChar : strEmpty;
+    strIds += (i < numSensors - 1) ? commaChar : strEmpty;
     strToSend += dataToSend[i];
-    strToSend += (i < 4) ? commaChar : strEmpty;
+    strToSend += (i < numSensors - 1) ? commaChar : strEmpty;
   }
   strToSend = strToSend == F(",,,,") ? strEmpty : strToSend;
-  Serial.print(F("\n  ├─ Ínices: ")); Serial.println(strIds);
   Serial.print(F("  └─ Datos leidos: ")); Serial.println(strToSend);
   return strToSend;
 }
 
 void initVariables() {
-  for (int i = 0; i < 5; i++) {
+  for (int i = 0; i < numSensors; i++) {
     dataToSend[i] = strEmpty;
     sensorList[i] = baseAddress;
   }
 }
 
 void resetData() {
-  for (int i = 0; i < 5; i++) dataToSend[i] = strEmpty;
+  for (int i = 0; i < numSensors; i++) dataToSend[i] = strEmpty;
 }
 
 #pragma endregion Programa Principal

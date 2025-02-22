@@ -10,12 +10,12 @@ void initLoRa() {
 }
 
 int getPossition(String str) {
-  for (int i = 0; i < 5; i++) if (sensorList[i] == str) return i;
+  for (int i = 0; i < numSensors; i++) if (sensorList[i] == str) return i;
   return -1;
 }
 
 int setPossition(String str) {
-  for (int i = 0; i < 5; i++) { 
+  for (int i = 0; i < numSensors; i++) { 
     if ((sensorList[i] == baseAddress || sensorList[i] == strEmpty) && str.indexOf(startAddress) == 0) {
       sensorList[i] = str;
       return i;
@@ -30,7 +30,7 @@ void discoverNewSensor(String data) {             // DTA-GTW-0x0000
   String sensorId = data.substring(addressIdx, commaIdx);
   int index = getPossition(sensorId);
   if (index == -1) index = setPossition(sensorId);
-  for (int i = 0; i < 5; i++) dataToSend[i] = sensorList[i] != "" ? sensorList[i] : baseAddress;
+  for (int i = 0; i < numSensors; i++) dataToSend[i] = sensorList[i] != "" ? sensorList[i] : baseAddress;
 }
 
 void processData(String data, String rssi) {      // DTA-GTW-0x0000,t°C,%Hs,Vcc,rssi
