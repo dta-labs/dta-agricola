@@ -17,6 +17,6 @@ void loop() {
     while (LoRa.available()) {
       data += (char)LoRa.read();
     }
-    Serial.println(data);
+    Serial.print(data + " "); Serial.println(LoRa.packetRssi());
   }
 }
