@@ -77,7 +77,7 @@ String getTxData() {
     strToSend += (i < numSensors - 1) ? commaChar : strEmpty;
   }
   strToSend = strToSend == F(",,,,") ? strEmpty : strToSend;
-  Serial.print(F("  └─ Datos leidos: ")); Serial.println(strToSend);
+  Serial.print(F("\n  └─ Datos leidos: ")); Serial.println(strToSend);
   return strToSend;
 }
 

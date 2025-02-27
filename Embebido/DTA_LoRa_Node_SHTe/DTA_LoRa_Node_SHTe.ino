@@ -1,18 +1,26 @@
 #include <SPI.h>
 #include <LoRa.h>
 #include <LowPower.h>
-#include <Adafruit_SHT4x.h>
+#include <OneWire.h>
+#include <DallasTemperature.h>
 
 #pragma region Variables
 
-Adafruit_SHT4x sht4 = Adafruit_SHT4x();
-#define ENABLE_HEATER SHT4X_NO_HEATER     // Activar el calentador del sensor
 String NODE_ID = "DTA-SHT-0x";            // Identificador del nodo DTA-SHT-00x0001
-sensors_event_t humidity, temp;
 
 #define FREQUENCY 915E6                   // 433E6 or 915E6*, the MHz frequency of module
 #define TIMER 30                          // Tiempo de espera en minutos
 #define LINK 3                            // Pin de enlace 1
+
+#define sensorPin A0                      // Pin del sensor de humedad
+#define valAire 505
+#define valAgua 183
+byte humedad;
+
+#define pinDS 4                           // Pin del sensor de temperatura
+OneWire owObject(pinDS);
+DallasTemperature sensorDS(&owObject);
+float temp;
 
 #pragma endregion Variables
 
@@ -24,17 +32,18 @@ void setup() {
   Serial.begin(19200);
   while (!Serial) delay(10);               // Pausar Arduino Zero, Leonardo, etc. hasta que se active el puerto serie
   Serial.println(F("\n\nLoRa Node v6.0130"));
-  Serial.println(F("Sonda de humedad y temperatura del suelo SHT4"));
+  Serial.println(F("Sonda de humedad y temperatura del suelo SHTe"));
   initLoRa();
-  settupSHT(); 
-  String id = String(sht4.readSerial(), HEX);
+  sensorDS.begin();
+  String id = getAddress();
   id.toUpperCase();
   NODE_ID += id;
   Serial.print(F("ID: ")); Serial.println(NODE_ID);Serial.println(); 
 }
 
 void loop() {
-  readSHT();
+  humedad = getHumidity();
+  temp = getTemperature();
   txData(createDataStr());
   lowPower();
 }
@@ -56,9 +65,9 @@ void initLoRa() {
 String createDataStr() {
   String dataStr = NODE_ID;
   dataStr += F(",");
-  dataStr += String(temp.temperature, 0);
+  dataStr += String(temp, 1);
   dataStr += F(",");
-  dataStr += String(humidity.relative_humidity, 0);
+  dataStr += String(humedad);
   dataStr += F(",");
   float vcc = getVcc();
   dataStr += String(vcc, 1);
@@ -79,62 +88,29 @@ void txData(String dataStr) {
 
 #pragma endregion LoRaWAN
 
-#pragma region Sensor SHT
+#pragma region Sensor SHTe
 
-void settupSHT() {
-  while (!sht4.begin()) delay(10);
-  setSHTPrecision();
-  setSHTHeater();
-  Serial.println(F("Sensor inicializado correctamente..."));
+byte getHumidity() {
+  int val = analogRead(sensorPin); // Leer el valor del sensor
+  return constrain(map(val, valAire, valAgua, 0, 100), 0, 100);
 }
 
-void setSHTPrecision() {
-  sht4.setPrecision(SHT4X_HIGH_PRECISION);
-  switch (sht4.getPrecision()) {
-     case SHT4X_HIGH_PRECISION: 
-       Serial.println("High precision");
-       break;
-     case SHT4X_MED_PRECISION: 
-       Serial.println("Med precision");
-       break;
-     case SHT4X_LOW_PRECISION: 
-       Serial.println("Low precision");
-       break;
+float getTemperature() {
+  sensorDS.requestTemperatures();
+  return sensorDS.getTempCByIndex(0);
+}
+
+String getAddress(){
+  String address = "";
+  DeviceAddress sensorAddress;
+  sensorDS.getAddress(sensorAddress, 0);
+  for (byte i = 0; i < 8; i++) {
+    address += sensorAddress[i] < 0x10 ? ("0" + String(sensorAddress[i], HEX)) : String(sensorAddress[i], HEX);
   }
+  return address;
 }
 
-void setSHTHeater() {
-  sht4.setHeater(ENABLE_HEATER);
-  switch (sht4.getHeater()) {
-     case SHT4X_NO_HEATER: 
-       Serial.println("No heater");
-       break;
-     case SHT4X_HIGH_HEATER_1S: 
-       Serial.println("High heat for 1 second");
-       break;
-     case SHT4X_HIGH_HEATER_100MS: 
-       Serial.println("High heat for 0.1 second");
-       break;
-     case SHT4X_MED_HEATER_1S: 
-       Serial.println("Medium heat for 1 second");
-       break;
-     case SHT4X_MED_HEATER_100MS: 
-       Serial.println("Medium heat for 0.1 second");
-       break;
-     case SHT4X_LOW_HEATER_1S: 
-       Serial.println("Low heat for 1 second");
-       break;
-     case SHT4X_LOW_HEATER_100MS: 
-       Serial.println("Low heat for 0.1 second");
-       break;
-  }
-}
-
-void readSHT() {
-  sht4.getEvent(&humidity, &temp);
-}
-
-#pragma endregion Sensor SHT
+#pragma endregion Sensor SHTe
 
 #pragma region Miscelaneas
 
