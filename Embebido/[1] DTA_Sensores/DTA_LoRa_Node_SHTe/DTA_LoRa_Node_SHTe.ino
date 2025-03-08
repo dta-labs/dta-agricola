@@ -13,6 +13,7 @@ String NODE_ID = "DTA-SHT-0x";            // Identificador del nodo DTA-SHT-00x0
 #define LINK 3                            // Pin de enlace 1
 
 #define sensorPin A0                      // Pin del sensor de humedad
+#define VCC A1                            // Pin de alimentación del sensor de humedad
 #define valAire 575
 #define valAgua 242
 byte humedad;
@@ -29,6 +30,8 @@ float temp;
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
   pinMode(LINK, INPUT_PULLUP);
+  pinMode(VCC, OUTPUT);
+  digitalWrite(A1, LOW);
   Serial.begin(19200);
   while (!Serial) delay(10);               // Pausar Arduino Zero, Leonardo, etc. hasta que se active el puerto serie
   Serial.println(F("\n\nLoRa Node v6.0130"));
@@ -91,8 +94,11 @@ void txData(String dataStr) {
 #pragma region Sensor SHTe
 
 byte getHumidity() {
+  digitalWrite(A1, HIGH);
+  delay(250);
   float volt = getVcc();
   int val = analogRead(sensorPin); // Leer el valor del sensor
+  digitalWrite(A1, LOW);
   // val = (val / 1024) * volt; 
   return constrain(map(val, valAire, valAgua, 0, 100), 0, 100);
 }
