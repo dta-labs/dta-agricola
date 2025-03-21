@@ -14,9 +14,10 @@
 void setup() {
   Serial.begin(115200);
   Serial.println(F("\nDTA-Agricola & DL sensor v0.1"));
+  delay(1000);
   initCaudalSensor(2400);
-  initHall();
-  initLCD();
+  // initHall();
+  // initLCD();
   // initComm();
 }
 
@@ -49,22 +50,36 @@ void setLCDCursor(int pos) {
 }
 
 String readData() {
-  setLCDCursor(0);                                        // Cursor 0
   float pressure = readPressure();                        // Leer presión
-  writeDataInLCD(String(pressure, 1) + "psi ");
-  String caudal = String(readHallSensor(), 1) + "p/s";    // Leer pulsos
-  Serial.print(" | "); Serial.print(caudal);
-  writeDataInLCD(caudal);
-
-  setLCDCursor(1);                                        // Cursor 1
-  float caudalFloat = instantaneousFlowRate();
-  char unit = 'm3';
-  String caudalStr = caudalFloat == -1 ? "Error de lectura" : (unit == 'L') ? String(caudalFloat, 1) + "L/h" : String(caudalFloat / 1000.0, 1) + "m3/h";
-  Serial.print(" | "); Serial.println(caudalStr);
-  writeDataInLCD(caudalStr);
-
-  return String(pressure, 1) + "," + caudal;
+  float caudalFloat = readCaudal();
+  
+  // String caudal = String(readHallSensor(), 1) + "p/s";    // Leer pulsos
+  // Serial.print(" | "); Serial.print(caudal);
+  // writeDataInLCD(caudal);
+  
+  // writeDataInLCD(String(pressure, 1), caudalToStr(caudalFloat));
+  return String(pressure, 1) + "," + String(caudalFloat, 1);
 }
+
+float readCaudal() {
+  float caudalFloat = instantaneousFlowRate();
+  Serial.print(" | "); Serial.println(caudalToStr(caudalFloat));
+  return caudalFloat;
+}
+
+String caudalToStr(float caudal) {
+  char unit = 'm';
+  return caudal == -1 ? "Error!!!" : (unit == 'L') ? String(caudal, 1) + "L/h" : String(caudal / 1000.0, 1) + "m3/h";
+}
+
+void writeDataInLCD(String pressure, String caudal) {
+  setLCDCursor(0);
+  lcd.print("P: " + pressure + "psi ");
+  setLCDCursor(1);
+  lcd.print("C: " + caudal);
+}
+
+
 
 float readPressure() {
   int offset = 0;

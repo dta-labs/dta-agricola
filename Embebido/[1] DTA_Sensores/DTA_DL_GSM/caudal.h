@@ -4,8 +4,8 @@
 // Configuración de los pines
 #define RX_PIN 3
 #define DE_PIN 4
-#define RE_PIN 4
-#define TX_PIN 5
+#define RE_PIN 5
+#define TX_PIN 6
 
 SoftwareSerial rs485Serial(RX_PIN, TX_PIN);     // Software Serial para RS485
 ModbusMaster node;
@@ -34,14 +34,21 @@ void initCaudalSensor(uint16_t baud) {
 }
 
 float instantaneousFlowRate() {
-  float caudal = -1;
   rs485Serial.listen();
-  uint8_t result = node.readHoldingRegisters(0x0000, 2);
+  float caudal = -1;
+  Serial.print(".");
+  // uint8_t result = node.readHoldingRegisters(0x0000, 2);
+  uint8_t result = node.readHoldingRegisters(0x0011, 1);
+  Serial.print(".");
   if (result == node.ku8MBSuccess) {
-    uint16_t data[2];
-    data[0] = node.getResponseBuffer(0x00);
-    data[1] = node.getResponseBuffer(0x01);
-    caudal = (data[0] << 16) | data[1];
+      Serial.print(".");
+      caudal = node.getResponseBuffer(0x00);
+      Serial.print(F("Lenguaje (decimal): "));
+
+    // uint16_t data[2];
+    // data[0] = node.getResponseBuffer(0x00);
+    // data[1] = node.getResponseBuffer(0x01);
+    // caudal = (data[0] << 16) | data[1];
   }
   return caudal * 1.0;
 }

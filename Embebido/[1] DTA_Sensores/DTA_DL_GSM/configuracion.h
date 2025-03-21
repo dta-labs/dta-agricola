@@ -56,6 +56,7 @@ byte commError = 0;
 bool commRx = true;
 bool testComm = false;
 const int eeAddress = 0;
-#define commFrec 60000                          // 1 minutos
+#define commFrec 1000                          // 1 minutos
+// #define commFrec 60000                          // 1 minutos
 
 #pragma endregion Variables
