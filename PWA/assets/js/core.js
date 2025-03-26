@@ -78,7 +78,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         {"id": "10", "type": "Areno Franco"},
         {"id": "11", "type": "Arenoso"}
     ];
-    $scope.chartItems = 24;
+    $scope.chartItems = 5000;
     
     // #endregion Variables
 
@@ -652,6 +652,8 @@ app.controller("ControladorPrincipal", function ($scope) {
         system.isScheduled = system.autoreverse ? false : system.isScheduled;
         system.autoreverse = system.autoreverse ? "ON" : "OFF";
         system.direction = system.direction ? "FF" : "RR";
+        system.operationMode = system.operationMode ? system.operationMode : "";
+        system.isScheduled = system.isScheduled ? system.isScheduled : "";
         system.caudal = "" + system.caudal && !isNaN(system.caudal) ? system.caudal : "";
         system.delayTime = "" + system.delayTime && !isNaN(system.delayTime) ? system.delayTime : "";
         system.length = "" + system.length && !isNaN(system.length) ? system.length : "";
@@ -939,7 +941,8 @@ app.controller("ControladorPrincipal", function ($scope) {
                     delete $scope.actualSystem.sensorPresion;
                     delete $scope.actualSystem.velocity;
                     delete $scope.actualSystem.log;
-                    $scope.actualSystem.operationMode = sleepingTimeToOperationMode($scope.actualSystem.sleepingTime);
+                    $scope.actualSystem.operationMode = $scope.actualSystem.sleepingTime;
+                    // $scope.actualSystem.operationMode = sleepingTimeToOperationMode($scope.actualSystem.sleepingTime);
                     updateNewDevice($scope.actualSystem);
                     document.getElementById("modalConfig").style.display = "none";
                     swal("Esquema actualizado correctamente!", {
@@ -1007,26 +1010,28 @@ app.controller("ControladorPrincipal", function ($scope) {
             .then((confirm) => {
                 if (confirm) {
                     let newSensor = {
-                        "alias": $scope.newSensorAlias,
-                        "id": $scope.newSensorID,
-                        "latitude": $scope.newSensorLatitude,
-                        "longitude": $scope.newSensorLongitude,
-                        "maxValue": $scope.newSensorMaxVal,
-                        "minValue": $scope.newSensorMinVal,
-                        "type": $scope.newSensorType
+                        "alias": $scope.newSensorAlias ? $scope.newSensorAlias : "",
+                        "id": $scope.newSensorID ? $scope.newSensorID : "0x0",
+                        "latitude": $scope.newSensorLatitude ? $scope.newSensorLatitude : "0",
+                        "longitude": $scope.newSensorLongitude ? $scope.newSensorLongitude : "0",
+                        "maxValue": $scope.newSensorMaxVal ? $scope.newSensorMaxVal : "0",
+                        "minValue": $scope.newSensorMinVal ? $scope.newSensorMinVal : "0",
+                        "type": $scope.newSensorType ? $scope.newSensorType : ""
                     }
                     let sensorNumber = 1;
                     let idx = "S0";
                     if ($scope.actualSystem.sensors) {
-                        sensorNumber = parseInt($scope.actualSystem.sensors.sensorNumber) + 1;
+                        sensorNumber = parseInt($scope.actualSystem.sensors.sensorNumber);
                         idx = "S" + sensorNumber;
+                        sensorNumber += 1;
                     } else {
                         $scope.actualSystem["sensors"] = {};
                         $scope.actualSystem.sensors["sensorNumber"] = 1;
                     }
                     $scope.actualSystem.sensors[idx] = newSensor;
                     $scope.actualSystem.sensors.sensorNumber = sensorNumber;
-                    updateSensorNet($scope.actualSystem.key, $scope.actualSystem.sensors);
+                    // updateSensorNet($scope.actualSystem.key, $scope.actualSystem.sensors);
+                    $scope.setMachineSettings($scope.actualSystem);
                     //location.reload();
                     document.getElementById("modalNuevoSensor").style.display = "none";
                     swal("Asignación completada!", {
@@ -1765,6 +1770,7 @@ app.controller("ControladorPrincipal", function ($scope) {
             return div;
         }
         north.addTo(map);
+        // north.addTo(map2);
     }
 
     addLayers = () => {
@@ -1911,7 +1917,7 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     getSensorText = (campo, sensor, idx) => {
         // let data = JSON.parse(campo.log.dataRaw.replace(/""/g, '"","",""'));
-        let data = JSON.parse(campo.log.dataRaw);
+        let data = campo.log ? JSON.parse(campo.log.dataRaw) : [];
         let text = `<table class="striped highlight">`;
         text += `    <tr>`;
         text += `        <td style="text-align: left;">Alias:</td>`;
@@ -2129,10 +2135,10 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     const chartZoom = document.querySelector("#chartZoom");
 
-    chartZoom.addEventListener("change", e => {
-        $scope.chartItems = parseInt(chartZoom.value);
-        $scope.showChart();
-    });
+    // chartZoom.addEventListener("change", e => {
+    //     $scope.chartItems = parseInt(chartZoom.value);
+    //     $scope.showChart();
+    // });
 
     $scope.showChart = () => {
         getMeassurementValues($scope.actualSystem.key, $scope.chartItems).then(result => {
@@ -2226,6 +2232,8 @@ app.controller("ControladorPrincipal", function ($scope) {
         }
     }
 
+    const skipped = (ctx, value) => ctx.p0.skip || ctx.p1.skip ? value : undefined;
+
     getDataArray = (_moisture, _temperature, _labels) => {
         let moisture = {
             label: "Humedad",
@@ -2233,7 +2241,12 @@ app.controller("ControladorPrincipal", function ($scope) {
             cubicInterpolationMode: 'monotone',
             tension: 0.4,
             borderWidth: 1,
-            type: 'line'
+            type: 'line',
+            segment: {
+              borderDash: ctx => skipped(ctx, [3, 3]),
+            },
+            spanGaps: true,
+            pointRadius: 0
         }
         let temperature = {
             label: "Temperatura",
@@ -2241,7 +2254,12 @@ app.controller("ControladorPrincipal", function ($scope) {
             cubicInterpolationMode: 'monotone',
             tension: 0.4,
             borderWidth: 1,
-            type: 'line'
+            type: 'line',
+            segment: {
+              borderDash: ctx => skipped(ctx, [3, 3]),
+            },
+            spanGaps: true,
+            pointRadius: 0
         }
         return {
             labels: _labels,
@@ -2268,6 +2286,21 @@ app.controller("ControladorPrincipal", function ($scope) {
                 title: {
                     display: true,
                     text: _title
+                },
+                zoom: {
+                    zoom: {
+                        wheel: {
+                            enabled: true
+                        },
+                        pinch: {
+                            enabled: true
+                        },
+                        mode: 'x'
+                    },
+                    pan: {
+                        enabled: true,
+                        mode: 'x'
+                    }
                 }
             }
         }
@@ -2366,7 +2399,7 @@ app.controller("ControladorPrincipal", function ($scope) {
     }
 
     parseDate = (dateStr) => {
-        const year = 2000 + parseInt(dateStr.slice(0, 4));  // Asume años YYYYMMDD HHmm
+        const year = parseInt(dateStr.slice(0, 4));  // Asume años YYYYMMDD HHmm
         const month = parseInt(dateStr.slice(4, 6)) - 1;    // Los meses en JS son 0-11
         const day = parseInt(dateStr.slice(6, 8));
         const hours = parseInt(dateStr.slice(9, 11));

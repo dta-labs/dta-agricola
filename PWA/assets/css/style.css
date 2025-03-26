@@ -12,6 +12,17 @@ body {
   user-select: none;                /* Prevenir selección por parte de los usuariosStandard syntax */
 }
 
+.sensor-bar {
+  width: 100%;
+  background: #fdfdfd;
+  height: calc(100vh - 220px);
+  overflow: auto;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  border-radius: 5px;
+  padding: 0 5px;
+}
+
 @media (prefers-color-scheme: dark) {
   body {
       background-color: white;
