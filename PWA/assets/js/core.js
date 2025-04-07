@@ -1,3 +1,6 @@
+var subscriptionJSON = null;
+var userTokenList = [];
+var authUser = null;
 var map = null;
 var canvas = L.canvas();
 var svg = L.svg();
@@ -173,6 +176,7 @@ app.controller("ControladorPrincipal", function ($scope) {
                 // `$scope.$apply(function () {
                 console.log("Intento de autenticación");
                 $scope.authUser = user.email ? user : user.user;
+                authUser = $scope.authUser;
                 getUserData();
                 $scope.showWindow('listado');
                 // });
@@ -189,15 +193,13 @@ app.controller("ControladorPrincipal", function ($scope) {
     };
 
     getUserData = () => {
-        getUserLocations();
-        suscribeToNotifications(convertDotToDash($scope.authUser.email));
-    }
-
-    getUserLocations = () => {
-        loadUserLocations($scope.authUser.email).then(result => {
+        loadUserData($scope.authUser.email).then(result => {
             $scope.userLocations = result;
             if (result[convertDotToDash($scope.authUser.email)]) {
                 $scope.userProfile = result[convertDotToDash($scope.authUser.email)].profile;
+                let tokenList = result[convertDotToDash($scope.authUser.email)].token;
+                userTokenList = tokenList ? tokenList : [];
+                handleTokenRefresh($scope.authUser.email);
                 loadSystems();
             }
             $scope.showWindow('listado');
@@ -1743,11 +1745,21 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     // #region NOTICIACIÓN
     $scope.setToken = () => {
-        handleTokenRefresh(convertDotToDash($scope.authUser.email));
+        if ($scope.authUser) {
+            handleTokenRefresh($scope.authUser.email);
+            segundoPlano();
+        }
     }
 
+    segundoPlano = () => {
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            alert("Para recibir notificaciones sin abrir la app, activa el inicio automático en: Configuración > Aplicaciones > Inicio Automático.");
+            window.location.href = "intent://settings#Intent;scheme=android-app;action=android.settings.APPLICATION_SETTINGS;end";
+        }
+    }
+    
     $scope.deleteToken = () => {
-        unSuscribeToNotifications(convertDotToDash($scope.authUser.email));
+        unSuscribeToNotifications($scope.authUser.email);
     }
     // #endregion NOTICIACIÓN
 
@@ -2647,14 +2659,55 @@ function instalar() {
 function serviceWorker() {
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker
-            //    .register('/firebase-messaging-sw.js')
-            .register('/sw.js')
-            .then(reg => console.log("Service Worker registrado correctamente", reg))
+            .register('./sw.js')
+            .then(reg => {
+                enablePushNotifications();
+                console.log("Service Worker registrado correctamente: ", reg); 
+            })
             .catch(err => console.log("Error registrado Service Worker", err));
     }
 }
 
 serviceWorker();
+
+enablePushNotifications = () => {
+    Notification.requestPermission().then(permission => {
+        if (permission === 'granted') {
+            navigator.serviceWorker.ready.then(sw => {
+                sw.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey: 'BG1caHGzzvPNBWM4NuN5oIpqaRaVFKld8iwNtpx100P3bkMYhEDYfWcCs9sy0Ay3t170750tQlLM8XCzxpysD7o'
+                }).then(subscription => {
+                    subscriptionJSON = JSON.stringify(subscription);
+                    console.log(subscriptionJSON);
+            })
+            })
+        }
+    })
+}
+
+handleTokenRefresh = (email) => {
+    if (authUser && !userTokenList || !userTokenList.some(item => item === subscriptionJSON)) {
+        userTokenList.push(subscriptionJSON);
+        setUserToken(email, userTokenList);
+        segundoPlano();
+    }
+}
+
+send_push = (subscription) => {
+    const endpoint = encodeURIComponent(subscription);
+    const payload = encodeURIComponent('{"title":"Hola desde PHP", "body":"Mi notificación en PHP", "icon":"icon-192.png", "url":"./?v=0.1"}');
+
+    fetch(`http://localhost/web_push/ws/send_push.php?endpoint='${endpoint}'&payload='${payload}'`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'text/plain'
+        }
+    })
+    .then(response => response.text())
+    .then(data => console.log(data))
+    .catch(error => console.error('Error:', error));
+}
 
 window.addEventListener('online', showListado);
 window.addEventListener('offline', showOffLine);

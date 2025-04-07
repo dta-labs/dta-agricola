@@ -4,6 +4,7 @@ declare(strict_types=1);
 class SensorSystem {
     private $baseUrl;
     private $settings = null;
+    private $users = null;
     private $curlHandle;
 
     public function __construct(string $id) {
@@ -53,6 +54,18 @@ class SensorSystem {
         return $this->settings;
     }
 
+    private function getUsers(): array {
+        if ($this->users === null) {
+            $this->users = $this->executeRequest($this->baseUrl . "users.json");
+            if ($this->users === null) {
+                $this->users = [];
+            }
+        }
+        $usersData = get_object_vars($this->users); 
+        $usersID = array_keys($usersData); 
+        return $usersID;
+    }
+
     private function getLocalZone(): int {
         $settings = $this->getSettings();
         $timeZone = $settings->zona ?? 0;
@@ -97,6 +110,36 @@ class SensorSystem {
         );
     }
 
+    private function verifyAlerts($data): void {
+        $settings = $this->getSettings();
+        $usersID = $this->getUsers(); 
+        $length = count($data) / 3;
+        if ($length == 0) {
+            return;
+        }
+        for ($i = 0; $i < $length; $i++) {
+            $idx = "S$i";
+            $sensorsID = $settings->sensors->$idx->alias ?? $settings->sensors->$idx->id;
+            $minThreshold = $settings->sensors->$idx->t->minValue ?? 2;
+            $maxThreshold = $settings->sensors->$idx->t->maxValue ?? 30;
+            if ($data[$i * 3 + 1] !== 'NaN' && $data[$i * 3 + 1] <= $minThreshold) {
+                foreach ($usersID as $user) {
+                    $msg = "Alerta de bajas temperaturas sensor: {$sensorsID} [{$data[$i * 3 + 1]}°C]...";
+                    $url = "https://dtaamerica.com/ws/push.php?user={$user}&txt=" . urlencode($msg);
+                    $response = file_get_contents($url);
+                }
+            }
+
+            if ($data[$i * 3 + 1] !== 'NaN' && $data[$i * 3 + 1] >= $maxThreshold) {
+                foreach ($usersID as $user) {
+                    $msg = "Alerta de altas temperaturas sensor: {$sensorsID} [{$data[$i * 3 + 1]}°C]...";
+                    $url = "https://dtaamerica.com/ws/push.php?user={$user}&txt=" . urlencode($msg);
+                    $response = file_get_contents($url);
+                }
+            }
+        }
+    }
+
     private function updateSettings(object $settings): void {
         $this->executeRequest(
             $this->baseUrl . "settings.json",
@@ -108,10 +151,10 @@ class SensorSystem {
     public function processData(): void {
         if (isset($_GET['data']) && $_GET['data'] !== '[]') {
             $rawData = $_GET['data'];
-			$rawData = str_replace(',,', ',NaN,NaN,NaN,', $rawData);
-			$rawData = str_replace(',,', ',NaN,NaN,NaN,', $rawData);
-			$rawData = str_replace('[,', '[NaN,NaN,NaN,', $rawData);
-			$rawData = str_replace(',]', ',NaN,NaN,NaN]', $rawData);
+            $rawData = str_replace(',,', ',NaN,NaN,NaN,', $rawData);
+            $rawData = str_replace(',,', ',NaN,NaN,NaN,', $rawData);
+            $rawData = str_replace('[,', '[NaN,NaN,NaN,', $rawData);
+            $rawData = str_replace(',]', ',NaN,NaN,NaN]', $rawData);
             
             $rawData = trim($rawData, '[]');   // Remover los corchetes del inicio y final
             $data = explode(',', $rawData);     //  Dividir por comas
@@ -139,7 +182,8 @@ class SensorSystem {
                     $this->updateSettings($settings);
                 }
             } else {
-                $this->updateLog($data);
+                // $this->updateLog($data);
+                $this->verifyAlerts($data);
             }
         }
     }

@@ -11,14 +11,14 @@ String NODE_ID = "DTA-SHT-0x";            // Identificador del nodo DTA-SHT-00x0
 
 #define FREQUENCY 915E6                   // 433E6 or 915E6*, the MHz frequency of module
 #define LINK 3                            // Pin de enlace 1
-int TIMER = 2;                            // Tiempo de espera en minutos
+int TIMER = 0;                            // Tiempo de espera en minutos
 
 #define sensorPin A0                      // Pin del sensor de humedad
 #define VCC A1                            // Pin de alimentación del sensor de humedad
-// #define valAire 517
-// #define valAgua 197
-#define valAire 575
-#define valAgua 242
+#define valAire 519
+#define valAgua 197
+// #define valAire 575
+// #define valAgua 242
 byte humedad;
 
 #define pinDS 4                           // Pin del sensor de temperatura
@@ -148,7 +148,9 @@ byte getHumidity() {
   int val = analogRead(sensorPin); // Leer el valor del sensor
   digitalWrite(A1, LOW);
   // val = (val / 1024) * volt; 
-  return constrain(map(val, valAire, valAgua, 0, 100), 0, 100);
+  byte result = constrain(map(val, valAire, valAgua, 0, 100), 0, 100);
+  // Serial.print("val: "); Serial.print(val); Serial.print(" -> "); Serial.print(result); Serial.print(" "); 
+  return result;
 }
 
 float getTemperature() {
