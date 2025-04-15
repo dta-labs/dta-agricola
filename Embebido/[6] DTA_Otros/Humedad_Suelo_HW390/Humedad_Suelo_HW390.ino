@@ -1,5 +1,6 @@
 void setup() {
   pinMode(A1, OUTPUT);
+  analogReference(DEFAULT);
   Serial.begin(9600);
 }
 
