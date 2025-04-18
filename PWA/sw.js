@@ -99,6 +99,13 @@ self.addEventListener('notificationclick', event => {
         clients.openWindow(event.notification.data.notifURL)
     );
 });
+
+self.registration.showNotification("Título de la Notificación", {
+    body: "Mensaje importante",
+    icon: "icono.png",
+    data: { url: "https://tu-pwa.com", sound: "ruta/alarma.mp3" }
+});
+
   
 // self.addEventListener('load', () => {
 //     navigator.serviceWorker.register('/sw.js')

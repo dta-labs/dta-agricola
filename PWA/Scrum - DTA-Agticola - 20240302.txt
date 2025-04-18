@@ -80,3 +80,6 @@ BackLog
 		[—] st_ant ≠ st_act -> actualizar log
 		[x] st_ant = “ON” y st_act = “OFF” -> actualizar {“settings”: “status”}
 		[x] log: {"Voltage", "Security", "Position", "Reception", "Presure", "Ok"}
+
+http://dtaamerica.com/ws/sensor_v6.php?id=333333333333&data=[0,30,3.3,36,5,3.3,,,,,,,,,,,,,]&rx=Ok&si=29
+

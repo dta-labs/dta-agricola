@@ -113,29 +113,25 @@ class SensorSystem {
     private function verifyAlerts($data): void {
         $settings = $this->getSettings();
         $usersID = $this->getUsers(); 
-        $length = count($data) / 3;
+        $length = $settings->sensors->sensorNumber ?? 0;
         if ($length == 0) {
             return;
         }
         for ($i = 0; $i < $length; $i++) {
             $idx = "S$i";
-            $sensorsID = $settings->sensors->$idx->alias ?? $settings->sensors->$idx->id;
+            $sensorID = $settings->sensors->$idx->alias ?? $settings->sensors->$idx->id;
             $minThreshold = $settings->sensors->$idx->t->minValue ?? 2;
             $maxThreshold = $settings->sensors->$idx->t->maxValue ?? 30;
-            if ($data[$i * 3 + 1] !== 'NaN' && $data[$i * 3 + 1] <= $minThreshold) {
-                foreach ($usersID as $user) {
-                    $msg = "Alerta de bajas temperaturas sensor: {$sensorsID} [{$data[$i * 3 + 1]}°C]...";
-                    $url = "https://dtaamerica.com/ws/push.php?user={$user}&txt=" . urlencode($msg);
-                    $response = file_get_contents($url);
-                }
-            }
-
-            if ($data[$i * 3 + 1] !== 'NaN' && $data[$i * 3 + 1] >= $maxThreshold) {
-                foreach ($usersID as $user) {
-                    $msg = "Alerta de altas temperaturas sensor: {$sensorsID} [{$data[$i * 3 + 1]}°C]...";
-                    $url = "https://dtaamerica.com/ws/push.php?user={$user}&txt=" . urlencode($msg);
-                    $response = file_get_contents($url);
-                }
+			$value = $data[$i * 3];
+            if ($value !== 'NaN') {
+				$txt = "Alerta, revisar sensor:";
+				if ($value <= $minThreshold) { $txt = "Alerta de baja temperaturas sensor"; }
+				if ($value >= $maxThreshold) { $txt = "Alerta de altas temperaturas sensor"; }
+				foreach ($usersID as $user) {
+					$msg = "{$txt}: {$sensorID} [{$value}°C]...";
+					$url = "https://dtaamerica.com/ws/push.php?user={$user}&txt=" . urlencode($msg);
+					$response = file_get_contents($url);
+				}
             }
         }
     }
@@ -148,19 +144,20 @@ class SensorSystem {
         );
     }
 
+    private function fillEmptyData($rawData): array {
+		$rawData = str_replace(',,', ',NaN,NaN,NaN,', $rawData);
+		$rawData = str_replace(',,', ',NaN,NaN,NaN,', $rawData);
+		$rawData = str_replace('[,', '[NaN,NaN,NaN,', $rawData);
+		$rawData = str_replace(',]', ',NaN,NaN,NaN]', $rawData);
+		$rawData = trim($rawData, '[]');	// Remover los corchetes del inicio y final
+		$data = explode(',', $rawData);     // Dividir por comas
+		return $data;
+    }
+
     public function processData(): void {
         if (isset($_GET['data']) && $_GET['data'] !== '[]') {
-            $rawData = $_GET['data'];
-            $rawData = str_replace(',,', ',NaN,NaN,NaN,', $rawData);
-            $rawData = str_replace(',,', ',NaN,NaN,NaN,', $rawData);
-            $rawData = str_replace('[,', '[NaN,NaN,NaN,', $rawData);
-            $rawData = str_replace(',]', ',NaN,NaN,NaN]', $rawData);
-            
-            $rawData = trim($rawData, '[]');   // Remover los corchetes del inicio y final
-            $data = explode(',', $rawData);     //  Dividir por comas
-
+            $data = $this->fillEmptyData($_GET['data']);
             $settings = $this->getSettings();
-            
             if ($settings->operationMode == 0) {
                 $actualize = true;
                 $length = count($data);
@@ -182,7 +179,7 @@ class SensorSystem {
                     $this->updateSettings($settings);
                 }
             } else {
-                // $this->updateLog($data);
+                $this->updateLog($data);
                 $this->verifyAlerts($data);
             }
         }
