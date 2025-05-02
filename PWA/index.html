@@ -3,7 +3,6 @@
 
 <head>
     <meta charset="UTF-8">
-    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <!-- <meta http-equiv="Content-Security-Policy" content="script-src 'none'"> -->
@@ -14,7 +13,6 @@
                                     greenhouse, hidrponia, jardinería, landscape, Inteligencia artificial, Artificial Intelligence,
                                     goteo, aspersión, tiempo real, monitoreo, control, agricultura">
     <meta name="theme-color" content="#0000EF" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
     <title>DTA - Irrigation Control v0.2b</title>
 
@@ -1423,15 +1421,24 @@
                                                         </a>
                                                     </div>
                                                 </div>
-                                                <div class="hide-on-small-only sensor-bar">
-                                                    <a class="modal-trigger" href="#modalHistorial" style="color: black;">
+                                                <div class="hide-on-small-only sensor-bar" style="padding: 0 30px;">
+                                                    <a class="modal-trigger" href="#modalHistorial" style="color: black; text-align: left; padding: 10%;">
                                                         <ul>
-                                                            <li ng-repeat="sensor in actualSystem.sensors" style="border-bottom: solid 1px lightgrey; background: {{ $index % 2 == 0 ? '#f5f5f5' : '#ffffff' }};">
-                                                                <div class="row" style="margin: 5px 0;" ng-init="data=convertStrToJSON(actualSystem.log.dataRaw)" ng-show="sensor.id">
-                                                                    <div class="col s12" style="text-align: left;"><b>{{ sensor.alias ? sensor.alias : "Sin nombre"}}</b> <sub>[{{ sensor.id }}]</sub></div>
-                                                                    <div class="col s4"><b>H:</b> {{ data[($index * 3) + 1] | number : 0 }}%</div>
-                                                                    <div class="col s4"><b>T:</b> {{ data[($index * 3)] | number : 0 }}°C</div>
-                                                                    <div class="col s4">{{ data[($index * 3) + 2] | number : 1 }}v</div>
+                                                            <li ng-repeat="sensor in actualSystem.sensors" ng-if="actualSystem.sensors.sensorNumber != $index">
+                                                                <div class="row" style="margin-bottom: 5px;">
+                                                                    <div class="col s2"><i class="material-icons" style="font-size: 2em; margin-top: 5px;">place</i></div>
+                                                                    <div class="col s10">
+                                                                        <b><span style="font-size: 1.2em;">{{ sensor.alias ? sensor.alias : "" }}</span></b><br>
+                                                                        <span style="font-size: .8em;">{{ sensor.id }}</span>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row" style="margin-bottom: 5px; padding: 10px; border-radius: 3px; background-color: #f5f5f5;" ng-init="data=convertStrToJSON(actualSystem.log.dataRaw)">
+                                                                    <div class="col s1"></div>
+                                                                    <div class="col s2"><img src="./assets/images/agua.png" alt="Agua" style="width: 20px; margin-top: 5px;"></div>
+                                                                    <div class="col s3" style="text-align: right; font-size: 1.5em; color: {{ data[($index * 3)] < sensor.h.minValue || data[($index * 3)] > sensor.h.maxValue ? 'red' : 'green' }};"><b>{{ data[($index * 3)] | number : 0 }}%</b></div>
+                                                                    <div class="col s2"><img src="./assets/images/termometro.png" alt="Termometro" style="width: 20px; margin-top: 5px;"></div>
+                                                                    <div class="col s3" style="text-align: right; font-size: 1.5em; color: {{ data[($index * 3) + 1] < sensor.t.minValue || data[($index * 3) + 1] > sensor.t.maxValue ? 'red' : 'green' }};"><b>{{ data[($index * 3) + 1] | number : 0 }}°C</b></div>
+                                                                    <div class="col s1"></div>
                                                                 </div>
                                                             </li>
                                                         </ul>
@@ -2256,8 +2263,35 @@
                                             </ul>
                                         </div>
                                         <div ng-show="actualSystem.type == 'Sensor'">
-                                            <div ng-repeat="sensor in actualSystem.sensors" ng-if="sensor.id" style="border: 1px solid grey; border-radius: 5px; margin-bottom: 10px;">
-                                                <canvas id="myChart{{ $index }}" style="position: relative; height:30vh; width:40vw;"></canvas>   
+                                            <ul class="collapsible">
+                                                <li ng-repeat="sensor in actualSystem.sensors" ng-if="sensor.id" ng-init="idx=$index" ng-click="setChart(idx, 'myChartH' + idx)">
+                                                    <div class="collapsible-header"><i class="material-icons">place</i>{{ idx + 1 }}.- {{ sensor.alias || sensor.id }}</div>
+                                                    <div class="collapsible-body" style="padding: 5px 10px;">
+                                                        <div class="row" style="margin-bottom: 5px;">
+                                                            <div class="col s12" style="height: 250px !important;">
+                                                                <canvas id="myChartH{{ idx }}"></canvas>
+                                                            </div>
+                                                        </div>
+                                                        <table>
+                                                            <thead>
+                                                                <tr>
+                                                                    <th><i class="fa fa-calendar" aria-hidden="true"></i> Fecha</th>
+                                                                    <th><img src="./assets/images/agua.png" alt="Agua" style="width: 20px;"> Humedad</th>
+                                                                    <th><img src="./assets/images/termometro.png" alt="Termometro" style="width: 20px;"> Temperatura</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr ng-repeat="reg in invertedRegisters" ng-init="data=convertStrToJSON(reg.dataRaw)">
+                                                                    <td>{{ reg.date }}</td>
+                                                                    <td style="color: {{ data[idx * 3] < sensor.h.minValue || data[idx * 3] > sensor.h.maxValue ? 'red' : 'green' }};"><b>{{ data[(idx * 3)] }}%</b></td>
+                                                                    <td style="color: {{ data[idx * 3 + 1] < sensor.t.minValue || data[idx * 3 + 1] > sensor.t.maxValue ? 'red' : 'green' }};"><b>{{ data[(idx * 3) + 1] }}°C</b></td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                            <div>
                                             </div>
                                             <!-- <p class="range-field">
                                                 <input type="range" id="chartZoom" min="10" max="500" value="10"/>
