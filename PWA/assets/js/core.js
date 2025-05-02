@@ -451,14 +451,14 @@ app.controller("ControladorPrincipal", function ($scope) {
         $scope.actualSystem.direction = $scope.actualSystem.direction == "FF" || $scope.actualSystem.direction == true ? true : false;
     }
 
-    setDeviceSpecificData = () => {
+    const setDeviceSpecificData = () => {
         switch ($scope.actualSystem.type) {
             case "Sensor":
                 // $scope.chartItems = 24;
-                $scope.showChart();
+                // showChart();
                 break;
             case "PC":
-                $scope.showSystemTable($scope.actualSystem.brand);
+                showSystemTable($scope.actualSystem.brand);
                 break;
             case "PL":
                 $scope.showSystemTable($scope.actualSystem.brand);
@@ -619,29 +619,29 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     }
 
-    showSpinner = () => {
+    const showSpinner = () => {
         document.getElementById("spinner").style.display = "flex";
     }
 
-    hideSpinner = (locationKey, status) => {
+    const hideSpinner = (locationKey, status) => {
         if (sendCommand[locationKey] == status) {
             hideTheSpinner();
         }
     }
 
-    showHourglass = (key) => {
+    const showHourglass = (key) => {
         if (document.getElementById("hourglass_" + key)) {
             document.getElementById("hourglass_" + key).style.display = "block";
         }
     }
 
-    hideHourglass = (key) => {
+    const hideHourglass = (key) => {
         if (document.getElementById("hourglass_" + key)) {
             document.getElementById("hourglass_" + key).style.display = "none";
         }
     }
 
-    hideTheSpinner = () => {
+    const hideTheSpinner = () => {
         document.getElementById("spinner").style.display = "none";
     }
 
@@ -1830,7 +1830,7 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     }
 
-    initializeSystemMap = (system) => {
+    const initializeSystemMap = (system) => {
         if (system.latitude != "NaN" && system.longitude != "NaN") {
             let coord = [system.latitude, system.longitude];
             map.setView(coord, 16);
@@ -1840,46 +1840,27 @@ app.controller("ControladorPrincipal", function ($scope) {
         }
     }
 
-    addMarker = (campo) => {
+    const addMarker = (campo) => {
         let coord = [campo.latitude, campo.longitude];
-
-        // if (campo.type != "Sensor") {
-        //     text += `
-        //         <h6 style="background: ${campo.status == false ? 'lightgrey' :
-        //             campo.log && campo.log.voltage == 'false' ? 'red' :
-        //                 campo.log && campo.log.safety == 'false' ? 'palevioletred' :
-        //                     campo.log && campo.log.commDelay != '-1' ? 'grey' : 'lightseagreen'};">${campo.name}</h6>
-        //         <span><b>${campo.status ? "Estado: Encendido" : "Apagado"}</b></span></br>
-        //         `;
-        // }
-
-        let greenIcon = L.icon({
-            iconUrl: './assets/images/marcador.png',
-            shadowUrl: '',
-
-            iconSize: [52, 52], // size of the icon
-            shadowSize: [50, 64], // size of the shadow
-            iconAnchor: [26, 52], // point of the icon which will correspond to marker's location
-            shadowAnchor: [4, 62],  // the same for the shadow
-            popupAnchor: [0, -52] // point from which the popup should open relative to the iconAnchor
-        });
-
+        let greenIcon = getMarkerIcon(campo.type);
         if (!marker[campo.key]) {
-            // map.removeLayer(marker[campo.key]);
-            // marker[campo.key] = L.marker(coord);
-
             marker[campo.key] = L.marker(coord, { icon: greenIcon });
             map.addLayer(marker[campo.key]);
-
-            if (campo.type == "Sensor") {
+            if (campo.type == "Sensor") { 
                 for (let i = 0; i < campo.sensors.sensorNumber; i++) {
                     let sensorId = "S" + i;
                     let sensor = campo.sensors[sensorId];
                     let sensorCoord = [sensor.latitude, sensor.longitude];
                     marker[sensor.id] = L.marker(sensorCoord, { icon: greenIcon });
                     map.addLayer(marker[sensor.id]);
-                    let sensorText = getSensorText(campo, sensor, i);
-                    marker[sensor.id].bindPopup(sensorText);
+                    marker[sensor.id].bindPopup(() => {
+                        const popupContent = document.createElement('div');
+                        popupContent.innerHTML = getSensorText(campo, sensor, i);
+                        setTimeout(() => { 
+                            $scope.setChart(i); 
+                        }, 0);
+                        return popupContent;
+                    });
                 }
             }
         }
@@ -1887,7 +1868,31 @@ app.controller("ControladorPrincipal", function ($scope) {
         marker[campo.key].bindPopup(text);
     }
 
-    getMarkerText = (campo) => {
+    const getMarkerIcon = (deviceType) => {
+        let icon = "./assets/images/marcador.png";
+        switch (deviceType) {
+            case "PC":
+                icon = "./assets/images/marcador.png";
+                break;
+            case "PL":
+                icon = "./assets/images/marcador.png";
+                break;
+            case "Sensor":
+                icon = "./assets/images/marcador.png";
+                break;
+        }
+        return L.icon({
+            iconUrl: icon,
+            shadowUrl: '',
+            iconSize: [52, 52], // size of the icon
+            shadowSize: [50, 64], // size of the shadow
+            iconAnchor: [26, 52], // point of the icon which will correspond to marker's location
+            shadowAnchor: [4, 62],  // the same for the shadow
+            popupAnchor: [0, -52] // point from which the popup should open relative to the iconAnchor
+        });
+    }
+
+    const getMarkerText = (campo) => {
         let text = `<table class="striped highlight">`;
         text += `    <tr>`;
         text += `        <td style="text-align: left;">Nombre:</td>`;
@@ -1927,47 +1932,55 @@ app.controller("ControladorPrincipal", function ($scope) {
         return text;
     }
 
-    getSensorText = (campo, sensor, idx) => {
+    const setSensorList = (campo) => {
+    }
+
+    const getSensorText = (campo, sensor, idx) => {
         // let data = JSON.parse(campo.log.dataRaw.replace(/""/g, '"","",""'));
         let data = campo.log ? JSON.parse(campo.log.dataRaw) : [];
-        let text = `<table class="striped highlight">`;
-        text += `    <tr>`;
-        text += `        <td style="text-align: left;">Alias:</td>`;
-        text += `        <td style="text-align: left;"><b>${sensor.alias ? sensor.alias : "" }</b></td>`;
-        text += `    </tr>`;
-        text += `    <tr>`;
-        text += `        <td style="text-align: left;">Id:</td>`;
-        text += `        <td style="text-align: left;"><b>${sensor.id}</b></td>`;
-        text += `    </tr>`;
-        text += `    <tr>`;
-        text += `        <td style="text-align: left;">H.Suelo:</td>`;
-        text += `        <td style="text-align: left;"><b>${data[idx * 3] ? parseFloat(data[idx * 3]).toFixed(0) : ""}%</b></td>`;
-        text += `    </tr>`;
-        text += `    <tr>`;
-        text += `        <td style="text-align: left;">T.Suelo:</td>`;
-        text += `        <td style="text-align: left;"><b>${data[idx * 3 + 1] ? parseFloat(data[idx * 3 + 1]).toFixed(0) : ""}%</b></td>`;
-        text += `    </tr>`;
-        text += `    <tr>`;
-        text += `        <td style="text-align: left;">H.Relativa:</td>`;
-        text += `        <td style="text-align: left;"><b>${ $scope.meteo[campo.key].main.humidity }%</b></td>`;
-        text += `    </tr>`;
-        text += `    <tr>`;
-        text += `        <td style="text-align: left;">T.Ambiente:</td>`;
-        text += `        <td style="text-align: left;"><b>${ ($scope.meteo[campo.key].main.temp - 273.15).toFixed(1) }°C</b></td>`;
-        text += `    </tr>`;
-        text += `    <tr>`;
-        text += `        <td style="text-align: left;">Viento:</td>`;
-        text += `        <td style="text-align: left;"><b>${ ($scope.meteo[campo.key].wind.speed).toFixed(1) } km/h</b></td>`;
-        text += `    </tr>`;
-        text += `    <tr>`;
-        text += `        <td style="text-align: left;">Localiz:</td>`;
-        text += `        <td style="text-align: left;">[<b>${campo.latitude.toFixed(5)},${campo.longitude.toFixed(5)}</b>]</td>`;
-        text += `    </tr>`;
-        text += `</table>`;
+        let text = `<br>`;
+        text += `<div style="padding: 5px 10px;">`;
+        text += `    <div class="row" style="margin-bottom: 5px; border-bottom: 1px solid #ccc;">`;
+        text += `        <div class="col s1"><i class="material-icons">place</i></div>`;
+        text += `        <div class="col s11">`;
+        text += `            <b><span style="font-size: 1.2em;">${sensor.alias ? sensor.alias : "" }</span></b><br>`;
+        text += `            <span style="font-size: .8em;">${sensor.id }</span>`;
+        text += `        </div>`;
+        text += `    </div>`;
+        text += `    <div class="row" style="margin-bottom: 5px;">`;
+        text += `       <div class="col s12" style="height: 250px !important;">`;
+        text += `           <canvas id="myChart${idx}"></canvas>`;
+        text += `       </div>`;
+        text += `    </div>`;
+        text += `    <div class="row" style="margin-bottom: 5px; padding: 10px; border-radius: 3px; background-color: #f5f5f5;">`;
+        text += `        <div class="col s2"><img src="./assets/images/agua.png" alt="Agua" style="width: 20px;"></div>`;
+        text += `        <div class="col s8">`;
+        text += `           <div style="font-size: .8em;">Humedad del suelo (%)</div>`;
+        text += `           <div style="width: 100%; background-color: lightgrey; height: 6px; border-radius: 3px;">`;
+        text += `               <div style="background-color: ` + (data[idx * 3] < sensor.h.minValue || data[idx * 3] > sensor.h.maxValue ? `red` : `green`) + `; width: ` + data[idx * 3] + `%; height: 6px; border-radius: 3px;"></div>`;
+        text += `               <span style="font-size: .6em; margin-left: ` + sensor.h.minValue + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i>${sensor.h.minValue}%</span>`;
+        text += `               <span style="font-size: .6em; margin-left: ` + (sensor.h.maxValue - sensor.h.minValue - 15) + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i>${sensor.h.maxValue}%</span>`;
+        text += `           </div>`;
+        text += `        </div>`;
+        text += `        <div class="col s2" style="text-align: right; font-size: 1.5em; color: ` + (data[idx * 3] < sensor.h.minValue || data[idx * 3] > sensor.h.maxValue ? `red` : `green`) + `;"><b>${data[idx * 3] !== "NaN" ? parseFloat(data[idx * 3]).toFixed(0) : ""}%</b></div>`;
+        text += `    </div>`;
+        text += `    <div class="row" style="margin-bottom: 5px; padding: 10px; border-radius: 6px; background-color: #f5f5f5;">`;
+        text += `        <div class="col s2"><img src="./assets/images/termometro.png" alt="Termometro" style="width: 20px;"></div>`;
+        text += `        <div class="col s8">`;
+        text += `           <div style="font-size: .8em;">Temperatura (°C)</div>`;
+        text += `           <div style="width: 100%; background-color: lightgrey; height: 6px; border-radius: 3px;">`;
+        text += `               <div style="background-color: ` + (data[idx * 3 + 1] < sensor.t.minValue || data[idx * 3 + 1] > sensor.t.maxValue ? `red` : `green`) + `; width: ` + data[idx * 3 + 1] + `%; height: 6px; border-radius: 3px;"></div>`;
+        text += `               <span style="font-size: .6em; margin-left: ` + sensor.t.minValue + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i>${sensor.t.minValue}°C</span>`;
+        text += `               <span style="font-size: .6em; margin-left: ` + (sensor.t.maxValue - sensor.t.minValue - 15) + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i>${sensor.t.maxValue}°C</span>`;
+        text += `           </div>`;
+        text += `        </div>`;
+        text += `        <div class="col s2" style="text-align: right; font-size: 1.5em; color: ` + (data[idx * 3 + 1] < sensor.t.minValue || data[idx * 3 + 1] > sensor.t.maxValue ? `red` : `green`) + `;"><b>${data[idx * 3 + 1] !== "NaN" ? parseFloat(data[idx * 3 + 1]).toFixed(0) : ""}°C</b></div>`;
+        text += `    </div>`;
+        text += `</div>`;
         return text;
     }
 
-    addShape = (campo) => {
+    const addShape = (campo) => {
         switch (campo.type) {
             case "PC":
                 showPC(campo);
@@ -1980,7 +1993,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         }
     }
 
-    showPC = (campo) => {
+    const showPC = (campo) => {
         let radius = campo.length ? parseInt(campo.length) : 50;
         let coord = [campo.latitude, campo.longitude];
         if (campo.plansLength) {
@@ -1998,11 +2011,11 @@ app.controller("ControladorPrincipal", function ($scope) {
         showPCPosition(campo);
     }
 
-    messageShape = (key) => {
+    const messageShape = (key) => {
         console.log("clinck en shape: ", key);
     }
 
-    showPCPosition = (campo) => {
+    const showPCPosition = (campo) => {
         if (campo.log && campo.log.latitude && campo.log.longitude && campo.log.latitude != "0.00000" && campo.log.longitude != "0.00000") {
             polygon = [
                 [campo.latitude, campo.longitude],
@@ -2016,9 +2029,9 @@ app.controller("ControladorPrincipal", function ($scope) {
         }
     }
 
-    showPL = (campo) => { }
+    const showPL = (campo) => { }
 
-    showStationary = (campo) => {
+    const showStationary = (campo) => {
         if (campo.plots) {
             for (let i = 0; i < 7; i++) {
                 let idx = "p" + i;
@@ -2053,7 +2066,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         }
     }
 
-    semiCircle = (coord, radius, startAngle, stopAngle, color) => {
+    const semiCircle = (coord, radius, startAngle, stopAngle, color) => {
         let options = {
             startAngle: startAngle,
             stopAngle: stopAngle
@@ -2072,7 +2085,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         return campo.log && campo.log.voltage == "false" ? 'red' : campo.log && campo.log.safety == "false" ? 'palevioletred' : campo.log.state == "ON" ? color : 'lightgrey';
     }
 
-    getRandomColor = (value) => {
+    const getRandomColor = (value) => {
         let color = "#ff0000";
         if (value > 0) {
             let colors = ["#00FF00", "#82E0AA", "#2ECC71 ", "#28B463", "#239B56", "#1D8348", "#186A3B", "#1E8449", "#196F3D", "#145A32"];
@@ -2149,10 +2162,25 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     // chartZoom.addEventListener("change", e => {
     //     $scope.chartItems = parseInt(chartZoom.value);
-    //     $scope.showChart();
+    //     showChart();
     // });
 
-    $scope.showChart = () => {
+    $scope.setChart = (chartId, chartLabel = "myChart" + chartId) => {
+        getMeassurementValues($scope.actualSystem.key, $scope.chartItems).then(result => {
+            let idx = 'S' + chartId;
+            let title = $scope.actualSystem.sensors[idx].alias ? $scope.actualSystem.sensors[idx].alias : $scope.actualSystem.sensors[idx].id;
+            switch ($scope.actualSystem.sensors[idx].type) {
+                case "Ms":
+                    processResultsFromMsSensors(result, title, chartId, chartLabel);
+                    break;
+                case "SHT":
+                    processResultsFromSHTSensors(result, title, chartId, chartLabel);
+                    break;
+            }
+        });
+    }
+
+    const showChart_old = () => {
         getMeassurementValues($scope.actualSystem.key, $scope.chartItems).then(result => {
             for (let i = 0; i < $scope.actualSystem.sensors.sensorNumber; i++) {
                 let idx = 'S' + i;
@@ -2169,7 +2197,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         });
     }
 
-    processResultsFromMsSensors = (result, title, i) => {
+    const processResultsFromMsSensors = (result, title, i, chartLabel) => {
         const items = result[0] ? JSON.parse(result[0].dataRaw).length : 0;
         let labels = [];
         let moisture = [];
@@ -2193,10 +2221,10 @@ app.controller("ControladorPrincipal", function ($scope) {
             }
             labels.push(date + " " + element.date.substr(9, 14));
         });
-        chart(moisture, temperature, labels, title, i);
+        chart(moisture, temperature, labels, title, i, chartLabel);
     }
 
-    getStValues = (idx) => {
+    const getStValues = (idx) => {
         let deltaVal = $scope.actualSystem.sensors[idx].maxValue - $scope.actualSystem.sensors[idx].minValue;
         let meanVal  = 100 - (($scope.actualSystem.log.meanVal - $scope.actualSystem.sensors[idx].minValue) / deltaVal * 100);
         let minVal   = 100 - (($scope.actualSystem.log.minVal - $scope.actualSystem.sensors[idx].minValue) / deltaVal * 100);
@@ -2206,7 +2234,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         $scope.actualSystem.log["maxValue"]  = maxVal < 0 ? 0 : maxVal > 100 ? 100 : maxVal;
     }
 
-    processResultsFromSHTSensors = (result, title, i) => {
+    const processResultsFromSHTSensors = (result, title, i, chartLabel) => {
         const items = result[0] ? parseInt(JSON.parse(result[0].dataRaw).length / 3) : 0;
         let labels = [];
         let temperature = [];
@@ -2224,12 +2252,12 @@ app.controller("ControladorPrincipal", function ($scope) {
             }
             labels.push(date + " " + element.date.substr(9, 14));
         });
-        chart(moisture, temperature, labels, title, i);
+        chart(moisture, temperature, labels, title, i, chartLabel);
     }
 
-    chart = (moisture, temperature, labels, title, i) => {
+    const chart = (moisture, temperature, labels, title, i, chartLabel) => {
         try {
-            let canvas = document.getElementById('myChart' + i);
+            let canvas = document.getElementById(chartLabel);
             if (!canvas) return;
             if (charts[i]) charts[i].destroy();
             let type = moisture.length < 14 ? 'bar' : 'line';
@@ -2238,7 +2266,7 @@ app.controller("ControladorPrincipal", function ($scope) {
                 data: getDataArray(moisture, temperature, labels),
                 options: getOptions(title)
             });
-            if (canvas.parentNode) canvas.parentNode.style.height = '400px';    
+            if (canvas.parentNode) canvas.parentNode.style.height = '250px';    
         } catch (error) {
             console.error('Error al crear el gráfico:', error);
         }
@@ -2246,7 +2274,7 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     const skipped = (ctx, value) => ctx.p0.skip || ctx.p1.skip ? value : undefined;
 
-    getDataArray = (_moisture, _temperature, _labels) => {
+    const getDataArray = (_moisture, _temperature, _labels) => {
         let moisture = {
             label: "Humedad",
             data: _moisture,
@@ -2279,7 +2307,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         }
     }
 
-    getOptions = (_title) => {
+    const getOptions = (_title) => {
         return {
             responsive: true,
             maintainAspectRatio: false,
@@ -2318,7 +2346,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         }
     }
 
-    filtroPasoBajo = (valores, factorDeSuavizado) => {
+    const filtroPasoBajo = (valores, factorDeSuavizado) => {
         let valorSuavizado = valores[0];
         for (let i = 1; i < valores.length; i++) {
             valorSuavizado = valorSuavizado * factorDeSuavizado + valores[i] * (1 - factorDeSuavizado);
@@ -2327,7 +2355,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         return valores;
     }
 
-    filtrarDatos = (data, iter) => {
+    const filtrarDatos = (data, iter) => {
         for (let i = 0; i < iter; i++) {
             data = filtroPasoBajo(data, 0.2);
         }

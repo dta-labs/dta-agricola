@@ -86,7 +86,10 @@ self.addEventListener('push', event => {
         self.registration.showNotification(notification.title, {
             body: notification.body,
             icon: './assets/images/DTA.png',
-            data: { notifURL: notification.url}
+            data: { 
+                notifURL: notification.url,
+                sound: './assets/sounds/alarma-de-evacuacion.mp3'
+            }
         })
     );
     const audio = new Audio('./assets/sounds/alarma-de-evacuacion.mp3');
@@ -100,10 +103,13 @@ self.addEventListener('notificationclick', event => {
     );
 });
 
-self.registration.showNotification("Título de la Notificación", {
-    body: "Mensaje importante",
-    icon: "icono.png",
-    data: { url: "https://tu-pwa.com", sound: "ruta/alarma.mp3" }
+self.registration.showNotification("DTA-Agrícola", {
+    body: "Bienvenido a DTA - Irrigation Control",
+    icon: "./assets/images/DTA.png",
+    data: { 
+        notifURL: "./index.html", 
+        sound: "./assets/sounds/alarma-de-evacuacion.mp3" 
+    }
 });
 
   
