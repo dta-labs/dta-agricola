@@ -7,8 +7,9 @@
  ****************************************************************************/
 
 // Settings
-const int config[] = {2, 3, 7, 11, 111, 111, 1111};         // Rx, Tx, Plots, Pais, Lada, Número
-// const int config[] = {2, 3, 7, 52, 625, 153, 1996};         // Rx, Tx, Plots, Pais, Lada, Número
+// const int config[] = {2, 3, 7, 11, 111, 111, 1112};         // Rx, Tx, Plots, Pais, Lada, Número
+// const int config[] = {2, 3, 7, 52, 614, 366, 4779};         // Rx, Tx, Plots, Pais, Lada, Número -> Nieves 1
+const int config[] = {2, 3, 7, 52, 614, 366, 4806};         // Rx, Tx, Plots, Pais, Lada, Número -> Nieves 2
 
 #pragma region Variables
 

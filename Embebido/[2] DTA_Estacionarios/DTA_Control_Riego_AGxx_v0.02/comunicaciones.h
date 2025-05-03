@@ -137,18 +137,20 @@ void comunicaciones() {
   Serial.print(F("data: ")); Serial.println(data);
   commRx = (data != "") ? true : false;
   systemStart = systemStart && commRx && commError == 0 ? false : true;
-  String aux = "";
-  aux = parse(data, '"', 1);                                       // status
-  statusVar = (aux == "ON" || aux == "OFF") ? aux : statusVar;
-  aux = parse(data, '"', 2);                                       // Number of plots
-  plots = (aux != "") ? aux.toInt() : plots;
-  for (byte plot = 0; plot < plots; plot++) {
-    aux = parse(data, '"', (plot * 2) + 3);                        // Plot value
-    activationTime[plot] = (aux != "") ? aux.toInt() : 0;
-    aux = parse(data, '"', (plot * 2) + 4);                  // Plot valve type
-    systemType[plot] = (aux != "") ? aux[0] : 'F';
+  if (commRx) {
+    String aux = "";
+    aux = parse(data, '"', 1);                                       // status
+    statusVar = (aux == "ON" || aux == "OFF") ? aux : statusVar;
+    aux = parse(data, '"', 2);                                       // Number of plots
+    plots = (aux != "") ? aux.toInt() : plots;
+    for (byte plot = 0; plot < plots; plot++) {
+      aux = parse(data, '"', (plot * 2) + 3);                        // Plot value
+      activationTime[plot] = (aux != "") ? aux.toInt() : 0;
+      aux = parse(data, '"', (plot * 2) + 4);                  // Plot valve type
+      systemType[plot] = (aux != "") ? aux[0] : 'F';
+    }
+    commStr = data;
   }
-  commStr = data;
 }
 
 void gestionarComunicaciones() {
@@ -162,6 +164,7 @@ void gestionarComunicaciones() {
 }
 
 void showVars() {
+  Serial.print(F("~ Loop: ")); Serial.println(commLoops);
   Serial.print(F("~ Status: ")); Serial.println(statusVar);
   Serial.print(F("~ Activation Time: "));
   for (byte plot = 0; plot < plots; plot++) {

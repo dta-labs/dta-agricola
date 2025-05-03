@@ -656,18 +656,19 @@ app.controller("ControladorPrincipal", function ($scope) {
         system.direction = system.direction ? "FF" : "RR";
         system.operationMode = system.operationMode ? system.operationMode : "";
         system.isScheduled = system.isScheduled ? system.isScheduled : "";
-        system.caudal = "" + system.caudal && !isNaN(system.caudal) ? system.caudal : "";
-        system.delayTime = "" + system.delayTime && !isNaN(system.delayTime) ? system.delayTime : "";
-        system.length = "" + system.length && !isNaN(system.length) ? system.length : "";
-        system.latitude = "" + system.latitude && !isNaN(system.latitude) ? system.latitude : "";
-        system.longitude = "" + system.longitude && !isNaN(system.longitude) ? system.longitude : "";
-        system.plansLength = "" + system.plansLength && !isNaN(system.plansLength) ? system.plansLength : "";
-        system.velocity = "" + system.velocity && !isNaN(system.velocity) ? system.velocity : "";
-        system.maxVelocity = "" + system.maxVelocity <= 100 ? system.maxVelocity : 100;
-        system.sensorPresion = "" + system.sensorPresion && !isNaN(system.sensorPresion) ? system.sensorPresion : "";
+        system.caudal = "" + (system.caudal && !isNaN(system.caudal) ? system.caudal : "");
+        system.delayTime = "" + (system.delayTime && !isNaN(system.delayTime) ? system.delayTime : "");
+        system.length = "" + (system.length && !isNaN(system.length) ? system.length : "");
+        system.latitude = "" + (system.latitude && !isNaN(system.latitude) ? system.latitude : "");
+        system.longitude = "" + (system.longitude && !isNaN(system.longitude) ? system.longitude : "");
+        system.plansLength = "" + (system.plansLength && !isNaN(system.plansLength) ? system.plansLength : "");
+        system.velocity = "" + (system.velocity && !isNaN(system.velocity) ? system.velocity : "");
+        system.maxVelocity = "" + (system.maxVelocity <= 100 ? system.maxVelocity : 100);
+        system.sensorPresion = "" + (system.sensorPresion && !isNaN(system.sensorPresion) ? system.sensorPresion : "");
         // system.irrigation = document.querySelector('input[name=groupRiego]:checked').getAttribute("data");
+        if (system.type == "Estacionario") { verifyPlots(system); }
         setMachineSettings(system);
-        updateAudit($scope.authUser, system);
+        // updateAudit($scope.authUser, system);
         system.status = system.status == "ON" || system.status == true ? true : false;
         system.sensorSecurity = system.sensorSecurity == "ON" || system.sensorSecurity == true ? true : false;
         system.sensorVoltage = system.sensorVoltage == "ON" || system.sensorVoltage == true ? true : false;
@@ -678,6 +679,17 @@ app.controller("ControladorPrincipal", function ($scope) {
         $scope.$apply();
         //sendSMS_XMLHttp($scope.campoActual.cell, cmd);
         // sendSMS_XMLHttp("+526251208106", cmd);
+    }
+
+    const verifyPlots = (system) => {
+        if (system.plots) {
+            for (plot in system.plots) {
+                for (pol in system.plots[plot].poligon) {
+                    system.plots[plot].poligon[pol][0] = system.plots[plot].poligon[pol][0] ? "" + system.plots[plot].poligon[pol][0] : "";
+                    system.plots[plot].poligon[pol][1] = system.plots[plot].poligon[pol][1] ? "" + system.plots[plot].poligon[pol][1] : "";
+                }
+            }
+        }
     }
 
     $scope.setMyPossition = () => {
@@ -833,9 +845,10 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     let newPlot = {
         "culture": " ",
-        "value": "0",
+        "value": "86400000",
         "valve": "F",
-        "irrigationPlan":  1,
+        "forcedStart": -1,
+        "irrigationPlan":  0,
         "irrigationConfig": {
             "incrementPercent": 50,
             "isAdjustFrecuency": true,
@@ -1429,7 +1442,7 @@ app.controller("ControladorPrincipal", function ($scope) {
                 $scope.actualSystem.status = true;
                 let plot = $scope.actualSystem.plots[$scope.editedPlan];
                 plot["forcedStart"] = 1;
-                validateIrrigationCapacity();
+                // validateIrrigationCapacity();
                 $scope.setMachineSettings($scope.actualSystem);
                 initializeSystemMap($scope.actualSystem);
                 $scope.$apply();
