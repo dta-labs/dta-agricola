@@ -844,11 +844,9 @@ app.controller("ControladorPrincipal", function ($scope) {
     }
 
     let newPlot = {
+        "caudal": "0",
         "culture": " ",
-        "value": "86400000",
-        "valve": "F",
         "forcedStart": -1,
-        "irrigationPlan":  0,
         "irrigationConfig": {
             "incrementPercent": 50,
             "isAdjustFrecuency": true,
@@ -867,8 +865,14 @@ app.controller("ControladorPrincipal", function ($scope) {
             "stopByTemp": 20,
             "stopByWind": 100
         },
+        "irrigationPlan":  0,
+        "name": " ",
+        "poligon": [],
+        "schedule": {},
+        "soil": "",
         "startDate": " ",
-        "schedule": {}
+        "value": "86400000",
+        "valve": "F"
     };
 
     newStationary = () => {
@@ -876,7 +880,7 @@ app.controller("ControladorPrincipal", function ($scope) {
             "autoreverse": "OFF",
             "caudal": "0",
             "plots": {
-                "p0":newPlot,
+                "p0": newPlot,
                 "p1": newPlot,
                 "p2": newPlot,
                 "p3": newPlot,

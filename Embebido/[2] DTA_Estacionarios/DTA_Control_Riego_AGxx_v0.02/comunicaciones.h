@@ -135,8 +135,8 @@ void comunicaciones() {
   Serial.println(F("Comunicación con el servidor"));
   String data = httpRequest();                                     // Get Settings from HTTP
   Serial.print(F("data: ")); Serial.println(data);
-  commRx = (data != "") ? true : false;
-  systemStart = systemStart && commRx && commError == 0 ? false : true;
+  commRx = (data != "" && checkData(data)) ? true : false;
+  if (systemStart) { systemStart = false; }
   if (commRx) {
     String aux = "";
     aux = parse(data, '"', 1);                                       // status
@@ -150,6 +150,7 @@ void comunicaciones() {
       systemType[plot] = (aux != "") ? aux[0] : 'F';
     }
     commStr = data;
+    guardarEstado();
   }
 }
 

@@ -10,5 +10,15 @@ String fillNumber(int number, byte positions) {
   return result + numberStr;
 }
 
+bool checkData(String data) {
+  int contador = 0;
+  for (int i = 0; i < data.length(); i++) {
+    if (data[i] == '\"') {  
+      contador++;
+    }
+  }
+  return contador >= 17;
+}
+
 #pragma endregion Common
 

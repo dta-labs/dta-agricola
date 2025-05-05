@@ -7,9 +7,9 @@
  ****************************************************************************/
 
 // Settings
-// const int config[] = {2, 3, 7, 11, 111, 111, 1112};         // Rx, Tx, Plots, Pais, Lada, Número
-// const int config[] = {2, 3, 7, 52, 614, 366, 4779};         // Rx, Tx, Plots, Pais, Lada, Número -> Nieves 1
-const int config[] = {2, 3, 7, 52, 614, 366, 4806};         // Rx, Tx, Plots, Pais, Lada, Número -> Nieves 2
+const int config[] = {2, 3, 8, 11, 111, 111, 1112};         // Rx, Tx, Plots, Pais, Lada, Número
+// const int config[] = {2, 3, 8, 52, 614, 366, 4779};         // Rx, Tx, Plots, Pais, Lada, Número -> Nieves 1 - Avena
+// const int config[] = {2, 3, 8, 52, 614, 366, 4806};         // Rx, Tx, Plots, Pais, Lada, Número -> Nieves 2 - Cesped
 
 #pragma region Variables
 
@@ -25,10 +25,10 @@ static byte plots = config[2];
 #define watchDogPin A5
 #define offSet 5
 static byte plot = 0;
-static unsigned long activeTime[] = {0, 0, 0, 0, 0, 0, 0};
-static unsigned long activationTime[] = {0, 0, 0, 0, 0, 0, 0};
-static char systemType[] = {'F', 'F', 'F', 'F', 'F', 'F', 'F'};
-static bool activationFrecuency[] = {0, 0, 0, 0, 0, 0, 0};
+static unsigned long activeTime[] = {0, 0, 0, 0, 0, 0, 0, 0};
+static unsigned long activationTime[] = {0, 0, 0, 0, 0, 0, 0, 0};
+static char systemType[] = {'F', 'F', 'F', 'F', 'F', 'F', 'F', 'F'};
+static bool activationFrecuency[] = {0, 0, 0, 0, 0, 0, 0, 0};
 static String statusVar = "OFF";
 static byte signalVar = 0;                                  // Communications
 static String commStr = "";

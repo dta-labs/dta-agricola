@@ -16,10 +16,10 @@
  ****************************************************************/
 
 #include <SoftwareSerial.h>
-#include <EEPROM.h>
 
 #include "miscelaneas.h"
 #include "configuracion.h"
+#include "eeprom.h"
 #include "comunicaciones.h"
 
 void setup() {
@@ -28,7 +28,14 @@ void setup() {
   for (byte i = 0; i < plots; i++) {
     pinMode(i + offSet, OUTPUT);
   }
-  apagarTodo();
+  if (hayEstadoGuardado()) {
+    Serial.println(F("<----- Recuperar Estado ----->"));
+    recuperarEstado();
+    showVars();
+    acciones();
+  } else {
+    apagarTodo();
+  }
   Serial.println(F(">>> DTA-Agrícola: Serie AGxx v0.2.2 A"));
   Serial.print(F("    «")); Serial.print(telefono); Serial.println(F("»"));
   // activeTime[plot] = millis();
