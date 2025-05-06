@@ -133,9 +133,9 @@ String httpRequest() {
 
 void comunicaciones() {
   Serial.println(F("Comunicación con el servidor"));
-  String data = httpRequest();                                     // Get Settings from HTTP
+  String data = httpRequest();                                       // Get Settings from HTTP
   Serial.print(F("data: ")); Serial.println(data);
-  commRx = (data != "" && checkData(data)) ? true : false;
+  commRx = checkData(data, 17);
   if (systemStart) { systemStart = false; }
   if (commRx) {
     String aux = "";
@@ -146,7 +146,7 @@ void comunicaciones() {
     for (byte plot = 0; plot < plots; plot++) {
       aux = parse(data, '"', (plot * 2) + 3);                        // Plot value
       activationTime[plot] = (aux != "") ? aux.toInt() : 0;
-      aux = parse(data, '"', (plot * 2) + 4);                  // Plot valve type
+      aux = parse(data, '"', (plot * 2) + 4);                        // Plot valve type
       systemType[plot] = (aux != "") ? aux[0] : 'F';
     }
     commStr = data;

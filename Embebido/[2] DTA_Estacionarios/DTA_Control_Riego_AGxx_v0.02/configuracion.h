@@ -16,7 +16,7 @@ const int config[] = {2, 3, 8, 11, 111, 111, 1112};         // Rx, Tx, Plots, Pa
 SoftwareSerial gprs(config[0], config[1]);                  // Rx, Tx
 static byte plots = config[2];
 #define telefono fillNumber(config[3], 2) + fillNumber(config[4], 3) + fillNumber(config[5], 3) + fillNumber(config[6], 4)
-#define httpServer F("AT+HTTPPARA=\"URL\",\"http://dtaamerica.com/ws/commj_v3.php?id=")
+#define httpServer F("AT+HTTPPARA=\"URL\",\"http://dtaamerica.com/ws/commj_v3.1.php?id=")
 
 // Actuadores y variables
 #define testFunc false
