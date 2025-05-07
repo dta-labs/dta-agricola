@@ -1,13 +1,15 @@
-#include "Arduino.h"
 #pragma region Comunicaciones
+
+#ifndef Arduino_h
+  #include "Arduino.h"
+#endif
 
 void(* resetSoftware)(void) = 0;
 
 void commWatchDogReset() {
   commError = ((signalVar < 6 || restartGSM) && !testFunc) ? commError + 1 : 0;
-  Serial.print(F("commError: "));
-  Serial.println(commError);
-  if (commError == 5) {
+  if (testComm) { Serial.print(F("commError: ")); Serial.println(commError); }
+  if (commError == 10) {
     resetSoftware();
   }
 }
@@ -114,14 +116,14 @@ String httpRequest() {
   if (testFunc) { return F("\"ON\"7\"60000\"F\"0\"F\"0\"F\"0\"F\"45000\"F\"0\"F\"60000\"F\""); }
   signalVar = getSignalValue();
   gprs.println(F("AT+HTTPINIT"));
-  getResponse(15, true); 
+  getResponse(15, false); 
   gprs.print(httpServer); gprs.print(telefono);
   gprs.print(F("&st=")); gprs.print(statusVar);
   gprs.print(F("&rx=")); gprs.print((String)(systemStart ? "ini" : commRx ? "Ok" : "Er"));
   gprs.print(F("&si=")); gprs.println((String)signalVar + "\"");
   getResponse(25, true); 
   gprs.println(F("AT+HTTPACTION=0"));
-  String result = getResponse(4000, true); 
+  String result = getResponse(4000, false); 
   restartGSM = (result.indexOf("ERROR") != -1 || result.indexOf("601") != -1  || result.indexOf("604") != -1 || signalVar < 6) ? true : false;
   gprs.println(F("AT+HTTPREAD"));
   result = getResponse(0, false);
@@ -132,22 +134,24 @@ String httpRequest() {
 }
 
 void comunicaciones() {
-  Serial.println(F("Comunicación con el servidor"));
+  Serial.println();
   String data = httpRequest();                                       // Get Settings from HTTP
   Serial.print(F("data: ")); Serial.println(data);
-  commRx = checkData(data, 17);
+  commRx = checkData(data, 18);
   if (systemStart) { systemStart = false; }
   if (commRx) {
     String aux = "";
-    aux = parse(data, '"', 1);                                       // status
+    aux = parse(data, '"', 1);                                        // status
     statusVar = (aux == "ON" || aux == "OFF") ? aux : statusVar;
-    aux = parse(data, '"', 2);                                       // Number of plots
+    aux = parse(data, '"', 2);                                        // status
+    irrigationMode = (aux == "P" || aux == "S" || aux == "C") ? aux[0] : irrigationMode;
+    aux = parse(data, '"', 3);                                        // Number of plots
     plots = (aux != "") ? aux.toInt() : plots;
-    for (byte plot = 0; plot < plots; plot++) {
-      aux = parse(data, '"', (plot * 2) + 3);                        // Plot value
-      activationTime[plot] = (aux != "") ? aux.toInt() : 0;
-      aux = parse(data, '"', (plot * 2) + 4);                        // Plot valve type
-      systemType[plot] = (aux != "") ? aux[0] : 'F';
+    for (byte i = 0; i < plots; i++) {
+      aux = parse(data, '"', (i * 2) + 4);                            // Plot value
+      activationTime[i] = (aux != "") ? aux.toInt() : 0;
+      aux = parse(data, '"', (i * 2) + 5);                            // Plot valve type
+      systemType[i] = (aux != "") ? aux[0] : 'F';
     }
     commStr = data;
     guardarEstado();
@@ -165,16 +169,16 @@ void gestionarComunicaciones() {
 }
 
 void showVars() {
-  Serial.print(F("~ Loop: ")); Serial.println(commLoops);
-  Serial.print(F("~ Status: ")); Serial.println(statusVar);
-  Serial.print(F("~ Activation Time: "));
-  for (byte plot = 0; plot < plots; plot++) {
-    Serial.print(activationTime[plot]); Serial.print(F(", "));
-  }
-  Serial.println();
-  Serial.print(F("~ Activation Frecuency: "));
-  for (byte plot = 0; plot < plots; plot++) {
-    Serial.print(activationFrecuency[plot]); Serial.print(F(", "));
+  Serial.print(fillNumber(commLoops, 2)); Serial.print(F(".- <")); Serial.print(statusVar); Serial.print(F("> "));
+  Serial.print(F("<")); Serial.print(irrigationMode); Serial.print(F("> "));
+  for (byte i = 0; i < plots; i++) {
+    if (activationTime[i] > 0) {
+      Serial.print(F("[[")); Serial.print(i + 1); Serial.print(F("]] "));
+      // Serial.print(F("[[")); Serial.print(activationTime[i]); Serial.print(F("]] "));
+    } else {
+      Serial.print(F("[")); Serial.print(i + 1); Serial.print(F("] "));
+      // Serial.print(F("[")); Serial.print(activationTime[i]); Serial.print(F("] "));
+    }
   }
   Serial.println();
 }

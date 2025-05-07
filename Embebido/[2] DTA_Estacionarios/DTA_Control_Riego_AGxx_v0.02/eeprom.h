@@ -8,6 +8,8 @@ const byte flagEscrito = 42;
 
 struct Datos {
   bool statusVar;
+  byte plot;
+  char irrigationMode;
   unsigned long activationTime[8];
   char systemType[8];
 };
@@ -15,6 +17,8 @@ struct Datos {
 void guardarEstado() {
   Datos datos;
   datos.statusVar = statusVar == "ON" ? true : false;
+  datos.plot = plot;
+  datos.irrigationMode = irrigationMode;
   for (int i = 0; i < 8; i++) {
     datos.activationTime[i] = activationTime[i];
     datos.systemType[i] = systemType[i];
@@ -27,6 +31,8 @@ void recuperarEstado() {
   Datos datos;
   EEPROM.get(1, datos);
   statusVar = datos.statusVar ? "ON" : "OFF";
+  plot = datos.plot;
+  irrigationMode = datos.irrigationMode;
   for (int i = 0; i < 8; i++) {
     activationTime[i] = datos.activationTime[i];
     systemType[i] = datos.systemType[i];
