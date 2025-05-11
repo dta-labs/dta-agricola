@@ -112,6 +112,30 @@ void setupGSM() {
   }
 }
 
+String getData() {
+  String result = "";
+  gprs.println(F("AT+HTTPACTION=0"));
+  String dataString = getResponse(4000, true); 
+  int idx = dataString.indexOf(",200,");
+  restartGSM = !(idx != -1);
+  if (!restartGSM) {
+    int length = dataString.substring(idx + 5).trim().toInt();
+    gprs.print(F("AT+HTTPREAD=0,")); gprs.println(length);
+    dataString = getResponse(1000, false);
+    if (dataString.indexOf("OK") != -1) {
+      result = dataString.substring(dataString.indexOf('"'), dataString.indexOf("OK"));
+    } else {
+      idx = dataString.indexOf('"');
+      if (idx != -1) {
+        for (int i = 0; i < length; i++) {
+          result += dataString[idx + i];
+        }
+      }
+    }
+  }
+  return result;
+}
+
 String httpRequest() {
   if (testFunc) { return F("\"ON\"7\"60000\"F\"0\"F\"0\"F\"0\"F\"45000\"F\"0\"F\"60000\"F\""); }
   signalVar = getSignalValue();
@@ -122,15 +146,16 @@ String httpRequest() {
   gprs.print(F("&rx=")); gprs.print((String)(systemStart ? "ini" : commRx ? "Ok" : "Er"));
   gprs.print(F("&si=")); gprs.println((String)signalVar + "\"");
   getResponse(25, true); 
-  gprs.println(F("AT+HTTPACTION=0"));
-  String result = getResponse(4000, true); 
-  restartGSM = (result.indexOf("ERROR") != -1 || result.indexOf("601") != -1  || result.indexOf("604") != -1 || signalVar < 6) ? true : false;
-  gprs.println(F("AT+HTTPREAD"));
-  result = getResponse(0, false);
+  // gprs.println(F("AT+HTTPACTION=0"));
+  // String result = getResponse(4000, true); 
+  // restartGSM = (result.indexOf("ERROR") != -1 || result.indexOf("601") != -1  || result.indexOf("604") != -1 || signalVar < 6) ? true : false;
+  // gprs.println(F("AT+HTTPREAD"));
+  // result = getResponse(0, false);
+  String result = getData();
   gprs.println(F("AT+HTTPTERM"));
   commWatchDogReset();
   getResponse(30, false); 
-  return result.substring(result.indexOf('"'), result.indexOf("OK"));
+  return result;
 }
 
 void comunicaciones() {

@@ -2163,9 +2163,9 @@
                                                     <div class="gray-text white collapsible-header row"
                                                         ng-click="modalLogDetail_$index = !modalLogDetail_$index"
                                                         ng-show="actualSystem.type == 'Estacionario'"
-                                                        style="border-left: 10px solid {{ reg.state == 'ON' ? 'lightseagreen !important' : 'lightgray !important' }}; margin-bottom: 5px;">
+                                                        style="border-left: 10px solid {{ reg.reception == 'ini' ? 'yellow !important' : reg.reception == 'Er' ? 'orange !important' : reg.state == 'ON' ? 'lightseagreen !important' : reg.state == 'OFF' ? 'lightgray !important' : 'red !important' }}; margin-bottom: 5px;">
                                                         <div class="col 12" ng-show="!reg.auth" style="text-align: left;">
-                                                            <span style="font-size: 1.3em;"><b>{{ reg.state == "ON" ? "Sistema Encendido" : "Sistema Apagado" }}</b></span><br>
+                                                            <span style="font-size: 1.3em;"><b>{{ reg.reception == 'ini' ? 'Iniciando el Sistema' : reg.reception == 'Er' ? 'Error de Conexión' : reg.state == "ON" ? "Sistema Encendido" : "Sistema Apagado" }}</b></span><br>
                                                             <span>[{{ reg.date.substr(4,13) }} - {{ reg.update.substr(4,13) }}] - {{ reg.update ? calculateDifference(reg.date, reg.update) : '' }}</span> <br>
                                                         </div>
                                                         <div class="col s12" ng-show="reg.auth" style="text-align: left;">
@@ -2195,6 +2195,7 @@
                                                                 <p>Seguridad: <b><span style="color:{{ reg.safety == 'true' ? 'black' : 'red' }};">{{ reg.safety }}</span></b></p>
                                                                 <p>Voltaje: <b><span style="color:{{ reg.voltage == 'true' ? 'black' : 'red' }};">{{ reg.voltage }}</span></b></p>
                                                             </div>
+                                                            <p>Recepción: <b>{{ reg.reception == 'ini' ? 'Iniciando' : reg.reception == 'Ok' ? 'Conectado' : 'Desconectado' }}</b></p>
                                                             <p>Señal: <b>{{ reg.signal }}</b></p>
                                                         </div>
                                                         <div ng-show="reg.auth">
