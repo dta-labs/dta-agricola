@@ -2196,7 +2196,18 @@
                                                                 <p>Voltaje: <b><span style="color:{{ reg.voltage == 'true' ? 'black' : 'red' }};">{{ reg.voltage }}</span></b></p>
                                                             </div>
                                                             <p>Recepción: <b>{{ reg.reception == 'ini' ? 'Iniciando' : reg.reception == 'Ok' ? 'Conectado' : 'Desconectado' }}</b></p>
-                                                            <p>Señal: <b>{{ reg.signal }}</b></p>
+                                                            <p>Señal: <b>{{ reg.signal }} - {{ reg.signal == 0 ? "Sin señal" : 
+                                                                                               reg.signal < 9 ? "Señal muy débil" : 
+                                                                                               reg.signal < 14 ? "Señal aceptable" : 
+                                                                                               reg.signal < 19 ? "Señal buena" : 
+                                                                                               reg.signal < 30 ? "Señal fuerte" : 
+                                                                                               reg.signal == 31 ? "Señal excelente (>51 dBm)" : 
+                                                                                               reg.signal == 99 ? "No detectable" : "" }}</b></p>
+                                                            <p>Calidad: <b>{{ reg.QoS }} - {{ reg.QoS == 0 ? "Sin errores" : 
+                                                                                              reg.QoS < 3 ? "Baja tasa de error" : 
+                                                                                              reg.QoS < 5 ? "Tasa de error moderada" : 
+                                                                                              reg.QoS < 7 ? "Alta tasa de error" : 
+                                                                                              reg.QoS == 99 ? "No detectable" : "" }}</b></p>
                                                         </div>
                                                         <div ng-show="reg.auth">
                                                             <div ng-show="actualSystem.type == 'PC'"></div>

@@ -180,7 +180,9 @@
 			$dataUpdate .= '"date":"' . (($key) ? $lastStatus->initialDate : $date) . '"';
 			$dataUpdate .= ',"update":"' . $date . '"';
 			$dataUpdate .= ',"state":"' . $_GET["st"] . '"'; 
+			$dataUpdate .= ',"activeSectors":"' . ($_GET["dt"] ? $_GET["dt"] : "") . '"'; 
 			$dataUpdate .= ',"signal":"' . ($_GET["si"] ? $_GET["si"] : "") . '"';
+			$dataUpdate .= ',"QoS":"' . ($_GET["qos"] >= 0 ? $_GET["qos"] : "") . '"';
 			$dataUpdate .= ',"reception":"' . ($_GET["rx"] ? $_GET["rx"] : "") . '"';
 			// if ($lastStatus->status != $_GET["st"]) {
 			// 	$dataUpdate .= ',"settings":' . json_encode($dataSettings->plots);
