@@ -53,7 +53,7 @@ void loop() {
   temp = getTemperature();
   txData(createDataStr());
   // if (loraRxData()) lowPower();
-  if (waitForLoRaRx()) lowPower();
+  if (waitConfirmation()) lowPower();
 }
 
 #pragma endregion Programa Principal
@@ -128,7 +128,7 @@ int getTxFrecuence(String data) {      // DTA-GTW-0x0000,t°C,%Hs,Vcc,rssi
 //   return false;
 // }
 
-// int waitForLoraRx_old() {
+// int waitForLoraRx() {
 //   int iter = 0;
 //   int packetSize = 0;
 //   while (!packetSize && iter < 10) {
@@ -139,7 +139,7 @@ int getTxFrecuence(String data) {      // DTA-GTW-0x0000,t°C,%Hs,Vcc,rssi
 //   return packetSize;
 // }
 
-bool waitForLoRaRx() {
+bool waitConfirmation() {
   unsigned long startTime = millis();
   unsigned long randomTimeout = 3000 + random(0, 2000); // Timeout aleatorio
 
