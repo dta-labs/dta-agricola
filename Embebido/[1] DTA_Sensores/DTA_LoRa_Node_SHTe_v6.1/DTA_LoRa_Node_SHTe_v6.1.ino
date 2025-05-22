@@ -127,7 +127,7 @@ bool loraRxData() {
   return false;
 }
 
-int waitForLoraRx() {
+int waitForLoraRx_old() {
   int iter = 0;
   int packetSize = 0;
   while (!packetSize && iter < 10) {
@@ -136,6 +136,35 @@ int waitForLoraRx() {
     iter++;
   }  
   return packetSize;
+}
+
+bool waitForLoRaRx() {
+  unsigned long startTime = millis();
+  unsigned long randomTimeout = 3000 + random(0, 2000); // Timeout aleatorio
+
+  while (millis() - startTime < randomTimeout) {
+    int packetSize = LoRa.parsePacket();
+    
+    if (packetSize) {
+      String data = "";
+      while (LoRa.available()) {
+        data += (char)LoRa.read();
+      }
+
+      // Verificar si es un mensaje dirigido a este nodo
+      if (data.startsWith(NODE_ID) && loraCheckData(data)) {
+        Serial.println("✓ Confirmación recibida");
+        return true;
+      } else {
+        Serial.println("→ Mensaje ignorado (no es para este nodo)");
+      }
+    }
+
+    delay(10); // Pequeña pausa para no saturar CPU
+  }
+
+  Serial.println("✗ Timeout esperando confirmación");
+  return false;
 }
 
 #pragma endregion LoRaWAN
@@ -195,13 +224,13 @@ void lowPower() {
   int estado = digitalRead(LINK); // Leer el estado del pin
   delay(5000);
   if (estado == HIGH) {
+    LoRa.idle();
     int minutes = TIMER * 15;
     for (int i = 0; i < minutes; i++) {
       LowPower.powerDown(SLEEP_4S, ADC_OFF, BOD_OFF);
       if(digitalRead(LINK) == LOW) break;
     }
   } 
-  LoRa.idle();
 }
 
 #pragma endregion Miscelaneas
