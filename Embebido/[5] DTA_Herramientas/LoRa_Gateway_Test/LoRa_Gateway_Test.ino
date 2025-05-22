@@ -44,7 +44,6 @@ int calculateSum(String str) {
 }
 
 void loraTxData(String dataStr) {
-  Serial.print(F("\n   ~ Confirmación: ")); Serial.print(dataStr);
   LoRa.beginPacket();
   LoRa.print(dataStr);
   LoRa.endPacket();
@@ -57,7 +56,7 @@ void sendConfirmation(String data) {
   int addressIdx = data.indexOf(startAddress);
   int commaIdx = data.indexOf(commaChar);
   String sensorId = data.substring(addressIdx, commaIdx);
-  String confirmation = sensorId + ",5,";
+  String confirmation = sensorId + ",20,";
   confirmation += String(calculateSum(confirmation));
   delay(500);
   loraTxData(confirmation);
@@ -79,10 +78,10 @@ void loraRxData() {
       data += (char)LoRa.read();
     }
     if (data.indexOf(F("DTA")) == 0 && loraCheckData(data)) {
-      Serial.print("\n └─ "); Serial.print(data);
+      Serial.print(F("\n └─ ")); Serial.print(data);
       sendConfirmation(data);
     } else {
-      Serial.print(F(" « Error de lectura... »"));
+      Serial.print(F("\n └─ « Error de lectura... »"));
     }
   }
 }
