@@ -52,7 +52,8 @@ void loop() {
   humedad = getHumidity();
   temp = getTemperature();
   txData(createDataStr());
-  if (loraRxData()) lowPower();
+  // if (loraRxData()) lowPower();
+  if (waitForLoRaRx()) lowPower();
 }
 
 #pragma endregion Programa Principal
@@ -107,36 +108,36 @@ int getTxFrecuence(String data) {      // DTA-GTW-0x0000,t°C,%Hs,Vcc,rssi
   return data.substring(commaIdx + 1, data.lastIndexOf(comma)).toInt();
 }
 
-bool loraRxData() {
-  if (waitForLoraRx()) {
-    String data = F("");
-    while (LoRa.available()) {
-      data += (char)LoRa.read();
-    }
-    if (data.indexOf(NODE_ID) == 0 && loraCheckData(data)) {
-      TIMER = getTxFrecuence(data);
-      Serial.println(F("correctamente..."));
-      return true;
-    } else {
-      Serial.println(F("con error..."));
-    }
-  } else {
-    Serial.println(F("No confirmado..."));
-  }
-  delay(30000);
-  return false;
-}
+// bool loraRxData() {
+//   if (waitForLoraRx()) {
+//     String data = F("");
+//     while (LoRa.available()) {
+//       data += (char)LoRa.read();
+//     }
+//     if (data.indexOf(NODE_ID) == 0 && loraCheckData(data)) {
+//       TIMER = getTxFrecuence(data);
+//       Serial.println(F("correctamente..."));
+//       return true;
+//     } else {
+//       Serial.println(F("con error..."));
+//     }
+//   } else {
+//     Serial.println(F("No confirmado..."));
+//   }
+//   delay(30000);
+//   return false;
+// }
 
-int waitForLoraRx_old() {
-  int iter = 0;
-  int packetSize = 0;
-  while (!packetSize && iter < 10) {
-    delay(250);
-    packetSize = LoRa.parsePacket();
-    iter++;
-  }  
-  return packetSize;
-}
+// int waitForLoraRx_old() {
+//   int iter = 0;
+//   int packetSize = 0;
+//   while (!packetSize && iter < 10) {
+//     delay(250);
+//     packetSize = LoRa.parsePacket();
+//     iter++;
+//   }  
+//   return packetSize;
+// }
 
 bool waitForLoRaRx() {
   unsigned long startTime = millis();
@@ -153,6 +154,7 @@ bool waitForLoRaRx() {
 
       // Verificar si es un mensaje dirigido a este nodo
       if (data.startsWith(NODE_ID) && loraCheckData(data)) {
+        TIMER = getTxFrecuence(data);
         Serial.println("✓ Confirmación recibida");
         return true;
       } else {
