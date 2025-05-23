@@ -20,7 +20,7 @@ void setup() {
 
 void loop() {
   loraRxData();
-  delay(500);
+  delay(50);
 }
 
 #pragma endregion Programa Principal
@@ -53,10 +53,9 @@ void loraTxData(String dataStr) {
 }
 
 void sendConfirmation(String data) {
-  int addressIdx = data.indexOf(startAddress);
   int commaIdx = data.indexOf(commaChar);
-  String sensorId = data.substring(addressIdx, commaIdx);
-  String confirmation = sensorId + ",20,";
+  String sensorId = data.substring(0, commaIdx);
+  String confirmation = sensorId + ",5,";
   confirmation += String(calculateSum(confirmation));
   delay(500);
   loraTxData(confirmation);

@@ -15,7 +15,7 @@ int TIMER = 0;                            // Tiempo de espera en minutos
 
 #define sensorPin A0                      // Pin del sensor de humedad
 #define VCC A1                            // Pin de alimentación del sensor de humedad
-#define valAire 561
+#define valAire 560
 #define valAgua 224
 byte humedad;
 
@@ -90,7 +90,6 @@ void txData(String dataStr) {
   LoRa.print(dataStr);
   LoRa.endPacket();
   delay(100);
-  Serial.print(F("Dato enviado "));
   LoRa.sleep();
 }
 
@@ -108,64 +107,28 @@ int getTxFrecuence(String data) {      // DTA-GTW-0x0000,t°C,%Hs,Vcc,rssi
   return data.substring(commaIdx + 1, data.lastIndexOf(comma)).toInt();
 }
 
-// bool loraRxData() {
-//   if (waitForLoraRx()) {
-//     String data = F("");
-//     while (LoRa.available()) {
-//       data += (char)LoRa.read();
-//     }
-//     if (data.indexOf(NODE_ID) == 0 && loraCheckData(data)) {
-//       TIMER = getTxFrecuence(data);
-//       Serial.println(F("correctamente..."));
-//       return true;
-//     } else {
-//       Serial.println(F("con error..."));
-//     }
-//   } else {
-//     Serial.println(F("No confirmado..."));
-//   }
-//   delay(30000);
-//   return false;
-// }
-
-// int waitForLoraRx() {
-//   int iter = 0;
-//   int packetSize = 0;
-//   while (!packetSize && iter < 10) {
-//     delay(250);
-//     packetSize = LoRa.parsePacket();
-//     iter++;
-//   }  
-//   return packetSize;
-// }
-
 bool waitConfirmation() {
   unsigned long startTime = millis();
-  unsigned long randomTimeout = 3000 + random(0, 2000); // Timeout aleatorio
-
+  unsigned long randomTimeout = 5000 + random(0, 5000); // Timeout aleatorio
   while (millis() - startTime < randomTimeout) {
     int packetSize = LoRa.parsePacket();
-    
     if (packetSize) {
       String data = "";
       while (LoRa.available()) {
         data += (char)LoRa.read();
       }
-
-      // Verificar si es un mensaje dirigido a este nodo
       if (data.startsWith(NODE_ID) && loraCheckData(data)) {
         TIMER = getTxFrecuence(data);
         Serial.println("✓ Confirmación recibida");
         return true;
       } else {
-        Serial.println("→ Mensaje ignorado (no es para este nodo)");
+        Serial.print("→ Mensaje ignorado: ");
+        Serial.println(data);
       }
     }
-
     delay(10); // Pequeña pausa para no saturar CPU
   }
-
-  Serial.println("✗ Timeout esperando confirmación");
+  Serial.println("✗ Tiempo de espera agotado");
   return false;
 }
 
