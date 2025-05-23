@@ -6,7 +6,7 @@
 #define startAddress F("0x")
 #define commaChar F(",")
 #define FREQUENCY 915E6                       // 433E6 or 915E6*, the MHz frequency of module
-
+#define TIME_SCAN 10                          // Tiempo de escaneo  
 #pragma endregion Variables
 
 #pragma region Programa Principal
@@ -55,7 +55,7 @@ void loraTxData(String dataStr) {
 void sendConfirmation(String data) {
   int commaIdx = data.indexOf(commaChar);
   String sensorId = data.substring(0, commaIdx);
-  String confirmation = sensorId + ",5,";
+  String confirmation = sensorId + "," + TIME_SCAN + ",";
   confirmation += String(calculateSum(confirmation));
   delay(500);
   loraTxData(confirmation);
