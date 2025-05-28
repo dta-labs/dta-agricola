@@ -34,7 +34,9 @@ void setup() {
   Serial.println(F("\n\n<<< DTA-Agrícola: Serie AGxx v0.2.3 A >>>"));
   Serial.print(F("    «")); Serial.print(telefono); Serial.println(F("»"));
   apagarTodo();
-  waitFor(360);                                         // Demora de 6 minutos (360 segundos), para proteger al motor
+  setupGSM();
+  waitFor(36);                                         // Demora de 6 minutos (360 segundos), para proteger al motor
+  // waitFor(360);                                         // Demora de 6 minutos (360 segundos), para proteger al motor
   restoreStatus();
 }
 

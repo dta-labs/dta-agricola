@@ -7,9 +7,9 @@
  ****************************************************************************/
 
 // Settings
-// const int config[] = {2, 3, 7, 11, 111, 111, 1112};         // Rx, Tx, Plots, Pais, Lada, Número
+const int config[] = {2, 3, 7, 11, 111, 111, 1112};         // Rx, Tx, Plots, Pais, Lada, Número
 // const int config[] = {2, 3, 7, 52, 614, 366, 4779};         // Rx, Tx, Plots, Pais, Lada, Número -> Nieves 1 - Avena
-const int config[] = {2, 3, 7, 52 , 614, 366, 4806};         // Rx, Tx, Plots, Pais, Lada, Número -> Nieves 2 - Cesped
+// const int config[] = {2, 3, 7, 52 , 614, 366, 4806};         // Rx, Tx, Plots, Pais, Lada, Número -> Nieves 2 - Cesped
 
 #pragma region Variables
 
@@ -34,7 +34,6 @@ static String statusVar = "OFF";
 static char irrigationMode = 'P';
 static byte signalVar = 0;                                  // Communications
 static byte QoS = 99;
-static String commStr = "";
 static byte commLoops = 0;
 static byte commError = 0;
 static bool commRx = true;

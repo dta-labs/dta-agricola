@@ -16,7 +16,7 @@ struct Datos {
 
 void guardarEstado() {
   Datos datos;
-  datos.statusVar = statusVar == "ON" ? true : false;
+  datos.statusVar = statusVar == F("ON") ? true : false;
   datos.plot = plot;
   datos.irrigationMode = irrigationMode;
   for (int i = 0; i < 8; i++) {
@@ -30,7 +30,7 @@ void guardarEstado() {
 void recuperarEstado() {
   Datos datos;
   EEPROM.get(1, datos);
-  statusVar = datos.statusVar ? "ON" : "OFF";
+  statusVar = datos.statusVar ? F("ON") : F("OFF");
   plot = datos.plot;
   irrigationMode = datos.irrigationMode;
   for (int i = 0; i < 8; i++) {

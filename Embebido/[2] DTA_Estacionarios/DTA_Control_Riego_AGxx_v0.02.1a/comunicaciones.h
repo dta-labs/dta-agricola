@@ -13,7 +13,7 @@ String getResponse(int wait, bool response){
   while(!gprs.available() && (millis() - iTimer) <= 10000) {
     delay(5);    
   }
-  while(gprs.available() > 0) {
+  while(gprs.available()) {
     result += (char)gprs.read();
     delay(1.5);
   }
@@ -25,16 +25,24 @@ String getResponse(int wait, bool response){
 
 void resetSIM() {
   Serial.println(F("Resetting SIM module..."));
+  gprs.println(F("AT+CFUN=0"));
+  getResponse(15, testComm); 
   digitalWrite(pinCommRST, LOW);                // Reiniciar el Módulo de comunicaciones SIM800
   delay(500);
   digitalWrite(pinCommRST, HIGH);
-  delay(5000);
+  delay(3000);
+  gprs.println(F("AT+CFUN=1"));
+  getResponse(100, testComm); 
 }
 
-void commWatchDogReset() {
+void commWatchDogReset(String result) {
+  restartGSM = (result.indexOf(F("ERROR")) != -1  || result.indexOf(F("601")) != -1  || result.indexOf(F("604")) != -1 || signalVar < 6) ? true : false;
   commError = ((signalVar < 6 || QoS > 6 || restartGSM) && !testFunc) ? commError + 1 : 0;
   if (commError != 0) { Serial.print(F("commError: ")); Serial.println(commError); }
-  if (commError == 4) { resetSIM(); }
+  if (commError == 4) { 
+    commError = 0;
+    resetSIM(); 
+  }
 }
 
 String parse(String dataString, char separator, int index) {
@@ -62,8 +70,8 @@ String parse(String dataString, char separator, int index) {
 int getRSSI() {
   gprs.println(F("AT+CSQ"));
   String aux = getResponse(15, false);
-  if (aux.indexOf("+CSQ: ") != -1) {
-    return aux.substring(aux.indexOf("+CSQ: ") + 6, aux.indexOf(",")).toInt();
+  if (aux.indexOf(F("+CSQ: ")) != -1) {
+    return aux.substring(aux.indexOf(F("+CSQ: ")) + 6, aux.indexOf(F(","))).toInt();
   }
   return -1; // Valor inválido
 }
@@ -77,8 +85,8 @@ int getRSSI() {
 int getBER() {
   gprs.println(F("AT+CSQ"));
   String aux = getResponse(15, false);// +CSQ: 25,6
-  if (aux.indexOf("+CSQ: ") != -1) {
-    return aux.substring(aux.indexOf(",") + 1, aux.length()).toInt();
+  if (aux.indexOf(F("+CSQ: ")) != -1) {
+    return aux.substring(aux.indexOf(F(",")) + 1, aux.length()).toInt();
   }
   return -1;
 }
@@ -121,10 +129,13 @@ void testComunicaciones() {
 void setupGSM() {
   if (restartGSM) {
     Serial.println(F("Setup GSM"));
-    gprs.listen();
     gprs.begin(9600);
-    // resetSIM(); 
+    gprs.listen();
     if (testComm) { testComunicaciones(); }
+    gprs.println(F("AT+CFUN=1"));
+    getResponse(15, testComm); 
+    gprs.println(F("AT+SAPBR=0,1"));
+    getResponse(15, testComm); 
     gprs.println(F("AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\""));
     getResponse(15, testComm); 
     gprs.println(F("AT+SAPBR=3,1,\"APN\",\"internet.itelcel.com\""));
@@ -133,11 +144,7 @@ void setupGSM() {
     getResponse(15, testComm); 
     gprs.println(F("AT+SAPBR=3,1,\"PWD\",\"webgprs2002\""));
     getResponse(15, testComm); 
-    gprs.println(F("AT+CFUN=1"));               // Funcionalidad 0 mínima 1 máxima
-    getResponse(15, testComm); 
     gprs.println(F("AT+SAPBR=1,1"));
-    getResponse(15, testComm); 
-    gprs.println(F("AT+SAPBR=2,1"));
     getResponse(15, testComm); 
   }
 }
@@ -152,11 +159,25 @@ String getSectorStatus() {
   return result;
 }
 
+String getData(String result) {
+  result.replace(F("\r"), F(""));
+  result.replace(F("\n"), F(""));
+  result.replace(F("AT"), F(""));
+  result.replace(F("+HTTPREAD"), F(""));
+  result.replace(F(": "), F(""));
+  result.replace(F(" "), F(""));
+  result.replace(F("OK"), F(""));
+  result.trim();
+  return result.substring(result.indexOf('"'));
+}
+
 String httpRequest() {
   if (testFunc) { return F("\"ON\"P\"7\"60000\"F\"0\"F\"0\"F\"0\"F\"45000\"F\"0\"F\"60000\"F\""); }
   signalVar = getRSSI();
   QoS = getBER();
   gprs.println(F("AT+HTTPINIT"));
+  getResponse(15, false); 
+  gprs.println(F("AT+HTTPPARA=\"CID\",1"));
   getResponse(15, false); 
   gprs.print(httpServer); gprs.print(telefono);
   gprs.print(F("&st=")); gprs.print(statusVar);
@@ -165,26 +186,21 @@ String httpRequest() {
   gprs.print(F("&si=")); gprs.print((String)signalVar);
   gprs.print(F("&qos=")); gprs.println((String)QoS + "\"");
   getResponse(25, true); 
-  String result = ""; 
+  gprs.println(F("AT+HTTPACTION=0"));
+  getResponse(6000, false); 
+  gprs.println(F("AT+HTTPREAD"));
+  String result = getResponse(30, false);
   byte counter = 5;
   while (result.indexOf('"') == -1 && counter > 0) {
-    gprs.println(F("AT+HTTPACTION=0"));
-    result = getResponse(4000, false); 
-    if (result.indexOf("ERROR") != -1) { 
-      resetSIM(); 
-      restartGSM = true;
-      return result;
-    }
-    restartGSM = (result.indexOf("601") != -1  || result.indexOf("604") != -1 || signalVar < 6) ? true : false;
+    delay(1000);
     gprs.println(F("AT+HTTPREAD"));
-    result = getResponse(0, true);
+    result = getResponse(30, true);
     counter--;
-    delay(500);
   }
   gprs.println(F("AT+HTTPTERM"));
-  // commWatchDogReset();
-  getResponse(30, false); 
-  return result.substring(result.indexOf('"'), result.lastIndexOf('"') + 1);
+  getResponse(30, false);
+  commWatchDogReset(result);
+  return getData(result);
 }
 
 void comunicaciones() {
@@ -194,20 +210,19 @@ void comunicaciones() {
   commRx = checkData(data, 18);
   if (systemStart) { systemStart = false; }
   if (commRx) {
-    String aux = "";
+    String aux = F("");
     aux = parse(data, '"', 1);                                        // status
-    statusVar = (aux == "ON" || aux == "OFF") ? aux : statusVar;
+    statusVar = (aux == F("ON") || aux == F("OFF")) ? aux : statusVar;
     aux = parse(data, '"', 2);                                        // status
-    irrigationMode = (aux == "P" || aux == "S" || aux == "C") ? aux[0] : irrigationMode;
+    irrigationMode = (aux == F("P") || aux == F("S") || aux == F("C")) ? aux[0] : irrigationMode;
     aux = parse(data, '"', 3);                                        // Number of plots
-    plots = (aux != "") ? aux.toInt() : plots;
+    plots = (aux != F("")) ? aux.toInt() : plots;
     for (byte i = 0; i < plots; i++) {
       aux = parse(data, '"', (i * 2) + 4);                            // Plot value
-      activationTime[i] = (aux != "") ? aux.toInt() : 0;
+      activationTime[i] = (aux != F("")) ? aux.toInt() : 0;
       aux = parse(data, '"', (i * 2) + 5);                            // Plot valve type
-      systemType[i] = (aux != "") ? aux[0] : 'F';
+      systemType[i] = (aux != F("")) ? aux[0] : 'F';
     }
-    commStr = data;
     guardarEstado();
   }
 }
