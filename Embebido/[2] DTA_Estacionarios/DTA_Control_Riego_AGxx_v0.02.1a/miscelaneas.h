@@ -3,7 +3,7 @@
 String fillNumber(int number, byte positions) {
   String numberStr = ((String) number);
   byte cerosLength = positions - numberStr.length();
-  String result = "";
+  String result = F("");
   for (byte i = 0; i < cerosLength; i++) {
     result += "0";
   }
@@ -11,7 +11,7 @@ String fillNumber(int number, byte positions) {
 }
 
 bool checkData(String data, int ctrl) {
-  if (data == "") return false;
+  if (data == F("")) return false;
   int contador = 0;
   for (int i = 0; i < data.length(); i++) {
     if (data[i] == '\"') {  

@@ -1,3 +1,16 @@
+
+#define DEBUG
+
+#if defined DEBUG
+#define DBG_PRINT(x) Serial.print(x)
+#define DBG_PRINTDEC(x) Serial.print(x, DEC)
+#define DBG_PRINTLN(x) Serial.println(x)
+#else
+#define DBG_PRINT(x)
+#define DBG_PRINTDEC(x)
+#define DBG_PRINTLN(x)
+#endif
+
 #include <LoRa.h>
 #include "LowPower.h"
 #include "miscelaneas.h"
@@ -11,7 +24,7 @@ void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
   Serial.begin(19200);
   while (!Serial) delay(10);               // Pausar Arduino Zero, Leonardo, etc. hasta que se active el puerto serie
-  Serial.println(F("\n\nLoRa Gateway Universal v6.1.0325"));
+  DBG_PRINTLN(F("\n\nLoRa Gateway Universal v6.1.0325"));
   initLoRa();
   resetData();
   comunicaciones(strEmpty);
@@ -30,39 +43,6 @@ void txData() {
   if (operationMode > 0) {
     commFrequence = 2 * commFrequence * operationMode;
   }
-  // switch (operationMode) {
-  //   case 0:                         // 30 segundos, modo descubrimiento
-  //     commFrequence =    30000;
-  //     break;
-  //   case 1:                         // 15 minutos
-  //     commFrequence =   900000;
-  //     break;
-  //   case 2:                         // 30 minutos
-  //     commFrequence =  1800000;
-  //     break;
-  //   case 3:                         // 45 minutos
-  //     commFrequence =  2700000;
-  //     break;
-  //   case 4:                         // 1 hora
-  //     commFrequence =  3600000;
-  //     break;
-  //   case 5:                         // 1 1/2 horas
-  //     commFrequence =  5400000;
-  //     break;
-  //   case 6:                         // 2 horas
-  //     commFrequence =  7200000;
-  //     break;
-  //   case 7:                         // 8 horas
-  //     commFrequence = 28800000;
-  //     break;
-  //   case 8:                         // 12 horas
-  //     commFrequence = 43200000;
-  //     break;
-  //   case 9:                         // 24 horas
-  //     commFrequence = 86400000;
-  //     break;
-  // }
-  // commFrequence /= 2;
   if (millis() - commTimer > commFrequence) {
     commTimer = millis();
     comunicaciones(getTxData());
@@ -80,7 +60,7 @@ String getTxData() {
     strToSend += (i < numSensors - 1) ? commaChar : strEmpty;
   }
   strToSend = strToSend == F(",,,,") ? strEmpty : strToSend;
-  Serial.print(F("\n  └─ Datos leidos: ")); Serial.println(strToSend);
+  DBG_PRINT(F("\n  └─ Datos leidos: ")); DBG_PRINTLN(strToSend);
   return strToSend;
 }
 

@@ -1,6 +1,8 @@
-#include "Arduino.h"
-
 #pragma region Comunicaciones
+
+#ifndef Arduino_h
+  #include "Arduino.h"
+#endif
 
 void systemWatchDog() {
   pinMode(watchDogPin, OUTPUT);         // Sink current to drain charge from C2
@@ -9,47 +11,78 @@ void systemWatchDog() {
   pinMode(watchDogPin, INPUT);          // Return to high impedance
 }
 
-void commWatchDogReset() {
-  commError += (restartGSM) ? 1 : commError = 0;
-  if (commError > 0) {
-    Serial.print(F("commError: ")); Serial.println(commError);
-  }
-  if (commError == 5) {
-    resetSoftware();
-  }
-}
-
 String getResponse(int wait, bool response){
   String result = strEmpty;
   delay(wait);
   unsigned long iTimer = millis();
-  while(!gprs.available() && (millis() - iTimer) <= 1000) {
+  while(!gprs.available() && (millis() - iTimer) <= 10000) {
     delay(5);    
   }
-  while(gprs.available() > 0) {
+  while(gprs.available()) {
     result += (char)gprs.read();
     delay(1.5);
   }
   if (response) {
-    Serial.println(result);
+    DBG_PRINTLN(result);
   }
   return result;
 }
 
-String getDataStream(String dataSetream) {
+void resetSIM() {
+  DBG_PRINTLN(F("Resetting SIM module..."));
+  gprs.println(F("AT+CFUN=0"));
+  getResponse(15, testComm); 
+  gprs.println(F("AT+CFUN=1"));
+  getResponse(100, testComm); 
+}
+
+void commWatchDogReset(String result) {
+  restartGSM = (result.indexOf(F("ERROR")) != -1  || result.indexOf(F("601")) != -1  || result.indexOf(F("604")) != -1 || signalVar < 6) ? true : false;
+  commError = (signalVar < 6 || QoS > 6 || restartGSM) ? commError + 1 : 0;
+  if (commError != 0) { DBG_PRINT(F("commError: ")); DBG_PRINTLN(commError); }
+  if (commError == 4) { 
+    commError = 0;
+    resetSIM(); 
+  }
+}
+
+String getDataStream_old(String dataSetream) {
   dataSetream = dataSetream.substring(dataSetream.indexOf('"') + 1, dataSetream.lastIndexOf("\""));
   commRx = dataSetream != strEmpty ? true : false;
   restartGSM = !commRx;
   return dataSetream;
 }
 
-int getSignalValue() {
-  gprs.println(F("AT+CSQ"));           // Calidad de la señal -  debe ser 9 o superior: +CSQ: 14,0 OK
-  String aux1 = getResponse(responseTime, false);
-  String aux2 = parse(aux1, ' ', 1);
-  String aux3 = parse(aux2, ',', 0);
-  int result = aux3.toInt(); 
-  return result;
+/*
+  Intensidad de señal (RSSI) - debe ser 9 o superior: +CSQ: 14,0 OK:
+  0-9: Señal muy débil.
+  10-14: Señal baja.
+  15-19: Señal aceptable.
+  20-24: Señal buena.
+  25-31: Señal excelente
+*/
+int getRSSI() {
+  gprs.println(F("AT+CSQ"));
+  String aux = getResponse(15, false);
+  if (aux.indexOf(F("+CSQ: ")) != -1) {
+    return aux.substring(aux.indexOf(F("+CSQ: ")) + 6, aux.indexOf(F(","))).toInt();
+  }
+  return -1; // Valor inválido
+}
+
+/*
+  Tasa de error de bits (BER):
+  0-3: Buena calidad de conexión.
+  4-6: Conexión moderada.
+  7-99: Conexión con errores significativos.
+*/
+int getBER() {
+  gprs.println(F("AT+CSQ"));
+  String aux = getResponse(15, false);// +CSQ: 25,6
+  if (aux.indexOf(F("+CSQ: ")) != -1) {
+    return aux.substring(aux.indexOf(F(",")) + 1, aux.length()).toInt();
+  }
+  return -1;
 }
 
 void testComunicaciones() {
@@ -90,9 +123,9 @@ void testComunicaciones() {
   systemWatchDog(); 
 }
 
-void setupGSM() {
+void setupGSM_old() {
   // if (restartGSM) {
-    Serial.println(F("Setup GSM"));
+    DBG_PRINTLN(F("Setup GSM"));
     gprs.begin(9600);
     gprs.listen();
     // gprs.println(F("AT+CFUN=1,1"));             // Reinicia el módulo
@@ -122,43 +155,86 @@ void setupGSM() {
   // }
 }
 
+void setupGSM() {
+  if (restartGSM) {
+    DBG_PRINTLN(F("Setup GSM"));
+    gprs.begin(9600);
+    gprs.listen();
+    if (testComm) { testComunicaciones(); }
+    gprs.println(F("AT+CFUN=1"));
+    getResponse(15, testComm); 
+    gprs.println(F("AT+SAPBR=0,1"));
+    getResponse(15, testComm); 
+    gprs.println(F("AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\""));
+    getResponse(15, testComm); 
+    gprs.println(F("AT+SAPBR=3,1,\"APN\",\"internet.itelcel.com\""));
+    getResponse(15, testComm); 
+    gprs.println(F("AT+SAPBR=3,1,\"USER\",\"webgpr\""));
+    getResponse(15, testComm); 
+    gprs.println(F("AT+SAPBR=3,1,\"PWD\",\"webgprs2002\""));
+    getResponse(15, testComm); 
+    gprs.println(F("AT+SAPBR=1,1"));
+    getResponse(15, testComm); 
+  }
+}
+
+String getData(String result) {
+  result.replace(F("\r"), strEmpty);
+  result.replace(F("\n"), strEmpty);
+  result.replace(F("AT"), strEmpty);
+  result.replace(F("+HTTPREAD"), strEmpty);
+  result.replace(F(": "), strEmpty);
+  result.replace(F(" "), strEmpty);
+  result.replace(F("OK"), strEmpty);
+  result.trim();
+  return result.substring(result.indexOf('"'));
+}
+
 String httpRequest(String strToSend) {
-  signalVar = getSignalValue();
+  signalVar = getRSSI();
+  QoS = getBER();
   gprs.println(F("AT+HTTPINIT"));
   getResponse(responseTime, testComm); 
-  String strData = httpServer; strData += telefono;
-  strData += F("&data=["); strData += strToSend; strData += F("]"); 
-  strData += F("&rx="); strData += (String)(commRx ? F("Ok") : F("Er"));
-  strData += F("&si="); strData += (String)signalVar + F("\"");
-  // Serial.println(strData);
-  gprs.println(strData); 
-  getResponse(0, true);
+  gprs.println(F("AT+HTTPPARA=\"CID\",1"));
+  getResponse(responseTime, testComm); 
+  gprs.print(httpServer); gprs.print(telefono);
+  gprs.print(F("&data=[")); gprs.print(strToSend); gprs.print(F("]")); 
+  gprs.print(F("&rx=")); gprs.print(commRx ? F("Ok") : F("Er"));
+  gprs.print(F("&si=")); gprs.print((String)signalVar);
+  gprs.print(F("&qos=")); gprs.println((String)QoS + F("\""));
+  getResponse(25, true);
   systemWatchDog(); 
   gprs.println(F("AT+HTTPACTION=0")); 
-  getResponse(7000, testComm); 
+  getResponse(6000, testComm); 
   gprs.println(F("AT+HTTPREAD"));
-  String result = getResponse(0, testComm);
+  String result = getResponse(30, true);
   systemWatchDog(); 
+  byte counter = 5;
+  while (result.indexOf('"') == -1 && counter > 0) {
+    delay(1000);
+    gprs.println(F("AT+HTTPREAD"));
+    result = getResponse(30, true);
+    counter--;
+  }
   gprs.println(F("AT+HTTPTERM")); 
   getResponse(30, testComm); 
-  commWatchDogReset();
+  commWatchDogReset(result);
   systemWatchDog(); 
-  return getDataStream(result);
+  return getData(result);
 }
 
 void setVariables(String data) {
   data.replace(F("\""), commaChar);
-  data += ",";
-  Serial.println(F("» Variables: "));
-  // Serial.print(F("  ├─ GSM: ")); Serial.println(data);
-  int startIndex = 0; 
-  int endIndex = data.indexOf(commaChar); 
+  DBG_PRINTLN(F("» Variables: "));
+  // DBG_PRINT(F("  ├─ GSM: ")); DBG_PRINTLN(data);
+  int startIndex = 1; 
+  int endIndex = data.indexOf(commaChar, startIndex); 
   int lastIndex = data.lastIndexOf(commaChar); 
   int auxMode = data.substring(startIndex, endIndex).toInt();
   if (operationMode == 0 && auxMode != 0) for (int i = 0; i < numSensors; i++) dataToSend[i] = strEmpty;
   operationMode = auxMode;
-  Serial.print(F("  ├─ Frecuencia: ")); operationMode != 0 ? (Serial.println(String(operationMode) + " minutos")) : (Serial.println(F("Descubrimiento")));
-  Serial.print(F("  └─ Sensores: ")); 
+  DBG_PRINT(F("  ├─ Frecuencia: ")); operationMode != 0 ? (DBG_PRINTLN(String(operationMode) + " minutos")) : (DBG_PRINTLN(F("Descubrimiento")));
+  DBG_PRINT(F("  └─ Sensores: ")); 
   for (int i = 0; i < numSensors; i++) { 
     if (endIndex + 1 <= lastIndex) {
       startIndex = endIndex + 1; 
@@ -168,18 +244,18 @@ void setVariables(String data) {
     } else {
       sensorList[i] = baseAddress;
     }
-    if (i > 0) Serial.print(commaChar); Serial.print(sensorList[i]);
+    if (i > 0) DBG_PRINT(commaChar); DBG_PRINT(sensorList[i]);
   }
 }
 
 void comunicaciones(String strToSend) {
   String data = ""; 
   if (!testData) {
-    Serial.println(F("\nComunicación con el servidor"));
+    DBG_PRINTLN(F("\nComunicación con el servidor"));
     setupGSM();
     data = httpRequest(strToSend); 
   } else if (first) {
-    Serial.println(F("Mockup data..."));
+    DBG_PRINTLN(F("Mockup data..."));
     data = F("0\"0x0\"0x0\"0x0\"0x0\"0x0\"0x0\"0x0\"0x0\"0x0\"0x0");
     data = F("2\"0x10B9CE4A\"0x10B9CE37\"0xF46A38F\"0xF46A405\"0x10B9CEAC\"0xF46A392\"0xF46A38E\"0x10B9CE79\"0x28F94949F6853C02\"0x28730549F6A53C2E");
     first = false;

@@ -7,7 +7,7 @@
 // void(* resetSoftware)(void) = 0;
 
 String getResponse(int wait, bool response){
-  String result = "";
+  String result = strEmpty;
   delay(wait);
   unsigned long iTimer = millis();
   while(!gprs.available() && (millis() - iTimer) <= 10000) {
@@ -18,15 +18,15 @@ String getResponse(int wait, bool response){
     delay(1.5);
   }
   if (response) {
-    Serial.println(result);
+    DBG_PRINTLN(result);
   }
   return result;
 }
 
 void resetSIM() {
-  Serial.println(F("Resetting SIM module..."));
+  DBG_PRINTLN(F("Resetting SIM module..."));
   gprs.println(F("AT+CFUN=0"));
-  getResponse(15, testComm); 
+  getResponse(responseTime, testComm); 
   digitalWrite(pinCommRST, LOW);                // Reiniciar el Módulo de comunicaciones SIM800
   delay(500);
   digitalWrite(pinCommRST, HIGH);
@@ -38,7 +38,7 @@ void resetSIM() {
 void commWatchDogReset(String result) {
   restartGSM = (result.indexOf(F("ERROR")) != -1  || result.indexOf(F("601")) != -1  || result.indexOf(F("604")) != -1 || signalVar < 6) ? true : false;
   commError = ((signalVar < 6 || QoS > 6 || restartGSM) && !testFunc) ? commError + 1 : 0;
-  if (commError != 0) { Serial.print(F("commError: ")); Serial.println(commError); }
+  if (commError != 0) { DBG_PRINT(F("commError: ")); DBG_PRINTLN(commError); }
   if (commError == 4) { 
     commError = 0;
     resetSIM(); 
@@ -69,7 +69,7 @@ String parse(String dataString, char separator, int index) {
 */
 int getRSSI() {
   gprs.println(F("AT+CSQ"));
-  String aux = getResponse(15, false);
+  String aux = getResponse(responseTime, false);
   if (aux.indexOf(F("+CSQ: ")) != -1) {
     return aux.substring(aux.indexOf(F("+CSQ: ")) + 6, aux.indexOf(F(","))).toInt();
   }
@@ -84,7 +84,7 @@ int getRSSI() {
 */
 int getBER() {
   gprs.println(F("AT+CSQ"));
-  String aux = getResponse(15, false);// +CSQ: 25,6
+  String aux = getResponse(responseTime, false);// +CSQ: 25,6
   if (aux.indexOf(F("+CSQ: ")) != -1) {
     return aux.substring(aux.indexOf(F(",")) + 1, aux.length()).toInt();
   }
@@ -93,59 +93,59 @@ int getBER() {
 
 void testComunicaciones() {
   gprs.println(F("AT+IPR=9600"));      // Velocidad en baudios?
-  getResponse(15, testComm); 
+  getResponse(responseTime, testComm); 
   gprs.println(F("AT"));               // Tarjeta SIM Lista? OK
-  getResponse(15, testComm); 
+  getResponse(responseTime, testComm); 
   gprs.println(F("AT+CGMI"));          // Fabricante del dispositivo?
-  getResponse(15, testComm); 
+  getResponse(responseTime, testComm); 
   gprs.println(F("ATI"));              // Información del producto?
-  getResponse(15, testComm); 
+  getResponse(responseTime, testComm); 
   gprs.println(F("AT+CGSN"));          // Número de serie?
-  getResponse(15, testComm); 
+  getResponse(responseTime, testComm); 
   gprs.println(F("AT+IPR?"));          // Velocidad en baudios?
-  getResponse(15, testComm); 
+  getResponse(responseTime, testComm); 
   gprs.println(F("AT+CBC"));           // Estado de la bateriía
-  getResponse(15, testComm); 
+  getResponse(responseTime, testComm); 
   gprs.println(F("AT+CFUN?"));         // Funcionalidad 0 mínima 1 máxima
-  getResponse(15, testComm); 
+  getResponse(responseTime, testComm); 
   gprs.println(F("AT+CGATT=1"));       // Tarjeta SIM insetada? +CPIN: READY OK
-  getResponse(15, testComm); 
+  getResponse(responseTime, testComm); 
   gprs.println(F("AT+CPIN?"));         // Tarjeta SIM insetada? +CPIN: READY OK
-  getResponse(15, testComm); 
+  getResponse(responseTime, testComm); 
   gprs.println(F("AT+WIND=1"));        // Indicación de tarjeta SIM insetada? +CPIN: READY OK
-  getResponse(15, testComm); 
+  getResponse(responseTime, testComm); 
   gprs.println(F("AT+CREG?"));         // Tarjeta SIM registrada? +CREG: 0,1 OK 
-  getResponse(15, testComm); 
+  getResponse(responseTime, testComm); 
   gprs.println(F("AT+CGATT?"));        // Tiene GPRS? +CGATT: 1 OK
-  getResponse(15, testComm); 
+  getResponse(responseTime, testComm); 
   gprs.println(F("AT+CSQ"));           // Calidad de la señal -  debe ser 9 o superior: +CSQ: 14,0 OK
-  getResponse(15, testComm); 
+  getResponse(responseTime, testComm); 
   gprs.println(F("AT+CCLK?"));         // Fecha y Hora?
-  getResponse(15, testComm); 
+  getResponse(responseTime, testComm); 
   gprs.println(F("AT+COPS?"));         // Comañía telefónica?
-  getResponse(15, testComm); 
+  getResponse(responseTime, testComm); 
 }
 
 void setupGSM() {
   if (restartGSM) {
-    Serial.println(F("Setup GSM"));
+    DBG_PRINTLN(F("Setup GSM"));
     gprs.begin(9600);
     gprs.listen();
     if (testComm) { testComunicaciones(); }
     gprs.println(F("AT+CFUN=1"));
-    getResponse(15, testComm); 
+    getResponse(responseTime, testComm); 
     gprs.println(F("AT+SAPBR=0,1"));
-    getResponse(15, testComm); 
+    getResponse(responseTime, testComm); 
     gprs.println(F("AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\""));
-    getResponse(15, testComm); 
+    getResponse(responseTime, testComm); 
     gprs.println(F("AT+SAPBR=3,1,\"APN\",\"internet.itelcel.com\""));
-    getResponse(15, testComm); 
+    getResponse(responseTime, testComm); 
     gprs.println(F("AT+SAPBR=3,1,\"USER\",\"webgpr\""));
-    getResponse(15, testComm); 
+    getResponse(responseTime, testComm); 
     gprs.println(F("AT+SAPBR=3,1,\"PWD\",\"webgprs2002\""));
-    getResponse(15, testComm); 
+    getResponse(responseTime, testComm); 
     gprs.println(F("AT+SAPBR=1,1"));
-    getResponse(15, testComm); 
+    getResponse(responseTime, testComm); 
   }
 }
 
@@ -160,13 +160,13 @@ String getSectorStatus() {
 }
 
 String getData(String result) {
-  result.replace(F("\r"), F(""));
-  result.replace(F("\n"), F(""));
-  result.replace(F("AT"), F(""));
-  result.replace(F("+HTTPREAD"), F(""));
-  result.replace(F(": "), F(""));
-  result.replace(F(" "), F(""));
-  result.replace(F("OK"), F(""));
+  result.replace(F("\r"), strEmpty);
+  result.replace(F("\n"), strEmpty);
+  result.replace(F("AT"), strEmpty);
+  result.replace(F("+HTTPREAD"), strEmpty);
+  result.replace(F(": "), strEmpty);
+  result.replace(F(" "), strEmpty);
+  result.replace(F("OK"), strEmpty);
   result.trim();
   return result.substring(result.indexOf('"'));
 }
@@ -176,9 +176,9 @@ String httpRequest() {
   signalVar = getRSSI();
   QoS = getBER();
   gprs.println(F("AT+HTTPINIT"));
-  getResponse(15, false); 
+  getResponse(responseTime, false); 
   gprs.println(F("AT+HTTPPARA=\"CID\",1"));
-  getResponse(15, false); 
+  getResponse(responseTime, false); 
   gprs.print(httpServer); gprs.print(telefono);
   gprs.print(F("&st=")); gprs.print(statusVar);
   gprs.print(F("&dt=")); gprs.print(getSectorStatus());
@@ -204,24 +204,24 @@ String httpRequest() {
 }
 
 void comunicaciones() {
-  Serial.println();
+  DBG_PRINTLN();
   String data = httpRequest();                                       // Get Settings from HTTP
-  Serial.print(F("data: ")); Serial.println(data);
+  DBG_PRINT(F("data: ")); DBG_PRINTLN(data);
   commRx = checkData(data, 18);
   if (systemStart) { systemStart = false; }
   if (commRx) {
-    String aux = F("");
+    String aux = strEmpty;
     aux = parse(data, '"', 1);                                        // status
     statusVar = (aux == F("ON") || aux == F("OFF")) ? aux : statusVar;
     aux = parse(data, '"', 2);                                        // status
     irrigationMode = (aux == F("P") || aux == F("S") || aux == F("C")) ? aux[0] : irrigationMode;
     aux = parse(data, '"', 3);                                        // Number of plots
-    plots = (aux != F("")) ? aux.toInt() : plots;
+    plots = (aux != strEmpty) ? aux.toInt() : plots;
     for (byte i = 0; i < plots; i++) {
       aux = parse(data, '"', (i * 2) + 4);                            // Plot value
-      activationTime[i] = (aux != F("")) ? aux.toInt() : 0;
+      activationTime[i] = (aux != strEmpty) ? aux.toInt() : 0;
       aux = parse(data, '"', (i * 2) + 5);                            // Plot valve type
-      systemType[i] = (aux != F("")) ? aux[0] : 'F';
+      systemType[i] = (aux != strEmpty) ? aux[0] : 'F';
     }
     guardarEstado();
   }
@@ -238,16 +238,16 @@ void gestionarComunicaciones() {
 }
 
 void showVars() {
-  Serial.print(fillNumber(commLoops, 2)); Serial.print(F(".- <")); Serial.print(statusVar); Serial.print(F("> "));
-  Serial.print(F("<")); Serial.print(irrigationMode); Serial.print(F("> "));
+  DBG_PRINT(fillNumber(commLoops, 2)); DBG_PRINT(F(".- <")); DBG_PRINT(statusVar); DBG_PRINT(F("> "));
+  DBG_PRINT(F("<")); DBG_PRINT(irrigationMode); DBG_PRINT(F("> "));
   for (byte i = 0; i < plots; i++) {
     if (activationTime[i] > 0) {
-      Serial.print(F("[[")); Serial.print(i + 1); Serial.print(F("]] "));
+      DBG_PRINT(F("[[")); DBG_PRINT(i + 1); DBG_PRINT(F("]] "));
     } else {
-      Serial.print(F("[")); Serial.print(i + 1); Serial.print(F("] "));
+      DBG_PRINT(F("[")); DBG_PRINT(i + 1); DBG_PRINT(F("] "));
     }
   }
-  Serial.println();
+  DBG_PRINTLN();
 }
 
 #pragma endregion Comunicaciones

@@ -7,12 +7,12 @@ void initLoRa() {
   LoRa.setSpreadingFactor(12);                    // Factor de propagación de 12
   LoRa.setCodingRate4(5);                         // Tasa de codificación 4/5
   LoRa.sleep();
-  Serial.println(F("LoRa inicializado correctamente..."));
+  DBG_PRINTLN(F("LoRa inicializado correctamente..."));
 }
 
 int getPossition(String str) {
   for (int i = 0; i < numSensors; i++) if (sensorList[i] == str) return i;
-  Serial.print(F("gP"));
+  DBG_PRINT(F("gP"));
   return -1;
 }
 
@@ -23,7 +23,7 @@ int setPossition(String str) {
       return i;
     }
   }
-  Serial.print(F("sP"));
+  DBG_PRINT(F("sP"));
   return -1;
 }
 
@@ -37,12 +37,12 @@ void discoverNewSensor(String data) {             // DTA-GTW-0x0000
 }
 
 void loraTxData(String dataStr) {
-  Serial.print(F("\n        ~ Confirmación: ")); Serial.print(dataStr);
+  DBG_PRINT(F("\n        ~ Confirmación: ")); DBG_PRINT(dataStr);
   LoRa.beginPacket();
   LoRa.print(dataStr);
   LoRa.endPacket();
   delay(100);
-  Serial.print(F(" [Ok]"));
+  DBG_PRINT(F(" [Ok]"));
   LoRa.sleep();
 }
 
@@ -87,16 +87,16 @@ void loraRxData() {
         if (operationMode == 0) {
           discoverNewSensor(data);
         } else {
-          Serial.print("\n     └─ " + data);
+          DBG_PRINT("\n     └─ " + data);
           processData(data, String(LoRa.packetRssi()));
         }
       } else {
-        Serial.print("\n     └─ "); Serial.print(data);
-        Serial.print(F(" « Error de lectura... »"));
+        DBG_PRINT("\n     └─ "); DBG_PRINT(data);
+        DBG_PRINT(F(" « Error de lectura... »"));
       }
     } else {
-      Serial.print("\n     └─ "); Serial.print(data);
-      Serial.print(F(" « Sensor no registrado... »"));
+      DBG_PRINT("\n     └─ "); DBG_PRINT(data);
+      DBG_PRINT(F(" « Sensor no registrado... »"));
     }
   }
 }
