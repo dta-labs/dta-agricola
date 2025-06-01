@@ -32,7 +32,7 @@
 #define emptySensor F(",,")
 #define watchDogPin A0
 
-const int config[] = {3, 4, 33, 333, 333, 3333};
+const int config[] = {4, 3, 33, 333, 333, 3333};
 // const int config[] = {3, 4, 52, 625, 106, 168};
 
 #define telefono fillNumber(config[2], 2) + fillNumber(config[3], 3) + fillNumber(config[4], 3) + fillNumber(config[5], 4)
@@ -43,17 +43,19 @@ const int config[] = {3, 4, 33, 333, 333, 3333};
 SoftwareSerial gprs(config[0], config[1]);    // Comunicaciones
 bool restartGSM = true;
 byte signalVar = 0;
-byte commError = 0;
-bool commRx = true;
+byte QoS = 99;
+
 #define testComm false
 #define responseTime 15
-static unsigned long commTimer = 0;
+byte commError = 0;
+bool commRx = true;
+unsigned long commTimer = 0;
 
-int operationMode = 1;                        // Sensores & Modo de prueba
+int operationMode = 1;                 // Sensores & Modo de prueba
+#define testData false
 #define numSensors 15
 String dataToSend[numSensors];
 String sensorList[numSensors];
-#define testData false
 bool first = true;
 
 #pragma endregion Variables

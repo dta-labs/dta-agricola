@@ -21,6 +21,8 @@ static byte plots = config[2];
 // Actuadores y variables
 #define testFunc false
 #define testComm false
+#define responseTime 15
+#define strEmpty F("")
 #define pinBomba 4
 #define pinCommRST 12
 #define watchDogPin A5

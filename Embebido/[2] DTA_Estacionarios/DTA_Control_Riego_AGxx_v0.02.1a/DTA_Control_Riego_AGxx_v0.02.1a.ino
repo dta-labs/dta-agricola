@@ -15,6 +15,18 @@
  *                                                              *
  ****************************************************************/
 
+#define DEBUG
+
+#if defined DEBUG
+#define DBG_PRINT(x) Serial.print(x)
+#define DBG_PRINTDEC(x) Serial.print(x, DEC)
+#define DBG_PRINTLN(x) Serial.println(x)
+#else
+#define DBG_PRINT(x)
+#define DBG_PRINTDEC(x)
+#define DBG_PRINTLN(x)
+#endif
+
 #include <SoftwareSerial.h>
 
 #include "miscelaneas.h"
@@ -31,8 +43,8 @@ void setup() {
   }
   pinMode(pinCommRST, OUTPUT);
   digitalWrite(pinCommRST, HIGH);
-  Serial.println(F("\n\n<<< DTA-Agrícola: Serie AGxx v0.2.3 A >>>"));
-  Serial.print(F("    «")); Serial.print(telefono); Serial.println(F("»"));
+  DBG_PRINTLN(F("\n\n<<< DTA-Agrícola: Serie AGxx v0.2.3 A >>>"));
+  DBG_PRINT(F("    «")); DBG_PRINT(telefono); DBG_PRINTLN(F("»"));
   apagarTodo();
   setupGSM();
   waitFor(36);                                         // Demora de 6 minutos (360 segundos), para proteger al motor
@@ -53,7 +65,7 @@ void loop() {
 
 void restoreStatus() {
   if (hayEstadoGuardado()) {
-    Serial.println(F("<----- Recuperar Estado ----->"));
+    DBG_PRINTLN(F("<----- Recuperar Estado ----->"));
     recuperarEstado();
     showVars();
     acciones();
@@ -98,11 +110,11 @@ bool setPlotStatusSerial(char cyclic) {                 // Estado de la bomba y 
 }
 
 void setPlot() {                                        // Estado de la bomba y puertas Serie
-  // Serial.print(plot); Serial.print(F(" ")); Serial.print(millis() - activeTime[plot]); 
-  // Serial.print(F(" >= ")); Serial.print(activationTime[plot]); Serial.print(F(" "));
+  // DBG_PRINT(plot); DBG_PRINT(F(" ")); DBG_PRINT(millis() - activeTime[plot]); 
+  // DBG_PRINT(F(" >= ")); DBG_PRINT(activationTime[plot]); DBG_PRINT(F(" "));
   if ((millis() - activeTime[plot]) >= activationTime[plot]) {
     plot = (plot < plots - 1) ? plot + 1 : 0;
-    // Serial.print(F("Change to plot: ")); Serial.print(plot + 1); Serial.print(F(": ")); Serial.print(millis() - activeTime[plot]); Serial.print(F(" >= ")); Serial.println(activationTime[plot]);
+    // DBG_PRINT(F("Change to plot: ")); DBG_PRINT(plot + 1); DBG_PRINT(F(": ")); DBG_PRINT(millis() - activeTime[plot]); DBG_PRINT(F(" >= ")); DBG_PRINTLN(activationTime[plot]);
     for (byte i = 0; i < plots; i++) {
       activarDesactivarPuerta(i, false);
       // activationTime[i] = 0;
