@@ -47,8 +47,8 @@ void setup() {
   DBG_PRINT(F("    «")); DBG_PRINT(telefono); DBG_PRINTLN(F("»"));
   apagarTodo();
   setupGSM();
-  waitFor(36);                                         // Demora de 6 minutos (360 segundos), para proteger al motor
-  // waitFor(360);                                         // Demora de 6 minutos (360 segundos), para proteger al motor
+  // waitFor(36);                                         // Demora de 6 minutos (360 segundos), para proteger al motor
+  waitFor(360);                                         // Demora de 6 minutos (360 segundos), para proteger al motor
   restoreStatus();
 }
 

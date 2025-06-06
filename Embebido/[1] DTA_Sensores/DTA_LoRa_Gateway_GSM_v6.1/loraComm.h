@@ -48,7 +48,7 @@ void loraTxData(String dataStr) {
 
 void sendConfirmation(String sensorId) {
   int frec = operationMode / 2;
-  String confirmation = sensorId + "," + frec + ",";
+  String confirmation = sensorId + commaChar + frec + commaChar;
   confirmation += String(calculateSum(confirmation));
   delay(500);
   loraTxData(confirmation);

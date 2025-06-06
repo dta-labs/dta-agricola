@@ -12,7 +12,7 @@
 #pragma region Programa Principal
 
 void setup() {
-  Serial.begin(19200);
+  Serial.begin(115200);
   while (!Serial) delay(10);  // Pausar Arduino Zero, Leonardo, etc. hasta que se active el puerto serie
   Serial.println(F("\n\nLoRa Gateway Tester v6.1"));
   initLoRa();
@@ -55,9 +55,9 @@ void loraTxData(String dataStr) {
 void sendConfirmation(String data) {
   int commaIdx = data.indexOf(commaChar);
   String sensorId = data.substring(0, commaIdx);
-  String confirmation = sensorId + "," + TIME_SCAN + ",";
+  String confirmation = sensorId + commaChar + TIME_SCAN + commaChar;
   confirmation += String(calculateSum(confirmation));
-  delay(500);
+  delay(50);
   loraTxData(confirmation);
 }
 
@@ -66,7 +66,7 @@ bool loraCheckData(String data) {
   int dataCheckSum = (data.substring(idx)).toInt();
   data = data.substring(0, idx);
   int calculatedCheckSum = calculateSum(data);
-  return dataCheckSum == calculatedCheckSum;
+  return data.indexOf(F("DTA")) == 0 && dataCheckSum == calculatedCheckSum;
 }
 
 void loraRxData() {
@@ -76,11 +76,12 @@ void loraRxData() {
     while (LoRa.available()) {
       data += (char)LoRa.read();
     }
-    if (data.indexOf(F("DTA")) == 0 && loraCheckData(data)) {
-      Serial.print(F("\n └─ ")); Serial.print(data);
+    Serial.print(F("\n └─ ")); 
+    if (loraCheckData(data)) {
+      Serial.print(data);
       sendConfirmation(data);
     } else {
-      Serial.print(F("\n └─ « Error de lectura... »"));
+      Serial.print(F("« Error de lectura... »"));
     }
   }
 }
