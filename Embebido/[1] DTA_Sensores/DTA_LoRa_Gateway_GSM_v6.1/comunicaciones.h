@@ -46,13 +46,6 @@ void commWatchDogReset(String result) {
   }
 }
 
-String getDataStream_old(String dataSetream) {
-  dataSetream = dataSetream.substring(dataSetream.indexOf('"') + 1, dataSetream.lastIndexOf("\""));
-  commRx = dataSetream != strEmpty ? true : false;
-  restartGSM = !commRx;
-  return dataSetream;
-}
-
 /*
   Intensidad de señal (RSSI) - debe ser 9 o superior: +CSQ: 14,0 OK:
   0-9: Señal muy débil.
@@ -123,38 +116,6 @@ void testComunicaciones() {
   systemWatchDog(); 
 }
 
-void setupGSM_old() {
-  // if (restartGSM) {
-    DBG_PRINTLN(F("Setup GSM"));
-    gprs.begin(9600);
-    gprs.listen();
-    // gprs.println(F("AT+CFUN=1,1"));             // Reinicia el módulo
-    // getResponse(responseTime, testComm); 
-    if (testComm) { testComunicaciones(); }
-    // gprs.println(F("AT+CBAND=PCS_MODE"));    // PGSM_MODE, DCS_MODE, PCS_MODE, EGSM_DCS_MODE, GSM850_PCS_MODE, ALL_BAND
-    // getResponse(responseTime, testComm); 
-    // gprs.println(F("AT+CBAND=ALL_BAND"));
-    // getResponse(responseTime, testComm); 
-    // gprs.println(F("AT+SAPBR=0,1"));
-    // getResponse(responseTime, testComm); 
-    gprs.println(F("AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\""));
-    getResponse(responseTime, testComm); 
-    gprs.println(F("AT+SAPBR=3,1,\"APN\",\"internet.itelcel.com\""));
-    getResponse(responseTime, testComm); 
-    gprs.println(F("AT+SAPBR=3,1,\"USER\",\"webgpr\""));
-    getResponse(responseTime, testComm); 
-    gprs.println(F("AT+SAPBR=3,1,\"PWD\",\"webgprs2002\""));
-    getResponse(responseTime, testComm); 
-    gprs.println(F("AT+CFUN=1"));               // Funcionalidad 0 mínima 1 máxima
-    getResponse(responseTime, testComm); 
-    gprs.println(F("AT+SAPBR=1,1"));
-    getResponse(responseTime, testComm); 
-    gprs.println(F("AT+SAPBR=2,1"));
-    getResponse(responseTime, testComm); 
-    systemWatchDog(); 
-  // }
-}
-
 void setupGSM() {
   if (restartGSM) {
     DBG_PRINTLN(F("Setup GSM"));
@@ -176,6 +137,18 @@ void setupGSM() {
     gprs.println(F("AT+SAPBR=1,1"));
     getResponse(15, testComm); 
   }
+}
+
+String getTelefono() {
+  gprs.println(F("AT+CCID"));
+  String result = getResponse(responseTime, true); 
+  result.replace(F("\r"), strEmpty);
+  result.replace(F("\n"), strEmpty);
+  result.replace(F("AT+CCID"), strEmpty);
+  result.replace(F(" "), strEmpty);
+  result.replace(F("OK"), strEmpty);
+  result.trim();
+  return result;
 }
 
 String getData(String result) {
@@ -253,7 +226,9 @@ void comunicaciones(String strToSend) {
   if (!testData) {
     DBG_PRINTLN(F("\nComunicación con el servidor"));
     setupGSM();
-    data = httpRequest(strToSend); 
+    // telefono = "333333333333";
+    telefono = getTelefono();
+    data = telefono.length() >= 19 ? httpRequest(strToSend) : ""; 
   } else if (first) {
     DBG_PRINTLN(F("Mockup data..."));
     data = F("0\"0x0\"0x0\"0x0\"0x0\"0x0\"0x0\"0x0\"0x0\"0x0\"0x0");

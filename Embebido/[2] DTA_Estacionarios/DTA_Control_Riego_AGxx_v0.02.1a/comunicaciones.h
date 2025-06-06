@@ -134,6 +134,10 @@ void setupGSM() {
     if (testComm) { testComunicaciones(); }
     gprs.println(F("AT+CFUN=1"));
     getResponse(responseTime, testComm); 
+    gprs.println(F("AT+CSQ"));
+    getResponse(responseTime, true); 
+    // gprs.println(F("AT+COPS"));
+    // getResponse(responseTime, true); 
     gprs.println(F("AT+SAPBR=0,1"));
     getResponse(responseTime, testComm); 
     gprs.println(F("AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\""));
@@ -147,6 +151,18 @@ void setupGSM() {
     gprs.println(F("AT+SAPBR=1,1"));
     getResponse(responseTime, testComm); 
   }
+}
+
+String getTelefono() {
+  gprs.println(F("AT+CCID"));
+  String result = getResponse(responseTime, true); 
+  result.replace(F("\r"), strEmpty);
+  result.replace(F("\n"), strEmpty);
+  result.replace(F("AT+CCID"), strEmpty);
+  result.replace(F(" "), strEmpty);
+  result.replace(F("OK"), strEmpty);
+  result.trim();
+  return result;
 }
 
 String getSectorStatus() {
@@ -230,7 +246,9 @@ void comunicaciones() {
 void gestionarComunicaciones() {
   if (commLoops == 0) {
     setupGSM();
-    comunicaciones();
+    telefono = getTelefono();
+    // telefono = "111111111112";
+    if (telefono.length() >= 19) comunicaciones();
     commLoops++;
   } else {
     commLoops = commLoops < 10 ? commLoops + 1 : 0;

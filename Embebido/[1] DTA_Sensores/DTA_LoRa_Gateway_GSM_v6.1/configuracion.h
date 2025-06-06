@@ -32,11 +32,11 @@
 #define emptySensor F(",,")
 #define watchDogPin A0
 
-const int config[] = {4, 3, 33, 333, 333, 3333};
-// const int config[] = {3, 4, 52, 625, 106, 168};
+const int config[] = {4, 3};
 
-#define telefono fillNumber(config[2], 2) + fillNumber(config[3], 3) + fillNumber(config[4], 3) + fillNumber(config[5], 4)
+// #define telefono fillNumber(config[2], 2) + fillNumber(config[3], 3) + fillNumber(config[4], 3) + fillNumber(config[5], 4)
 #define httpServer F("AT+HTTPPARA=\"URL\",\"http://dtaamerica.com/ws/sensor_v6.php?id=")
+String telefono = "";
 
 #define FREQUENCY 915E6                       // 433E6 or 915E6*, the MHz frequency of module
 

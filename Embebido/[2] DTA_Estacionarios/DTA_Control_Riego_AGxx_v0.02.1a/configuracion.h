@@ -7,16 +7,17 @@
  ****************************************************************************/
 
 // Settings
-// const int config[] = {2, 3, 7, 11, 111, 111, 1112};         // Rx, Tx, Plots, Pais, Lada, Número
-// const int config[] = {2, 3, 7, 52, 614, 366, 4779};         // Rx, Tx, Plots, Pais, Lada, Número -> Nieves 1 - Avena
-const int config[] = {2, 3, 7, 52 , 614, 366, 4806};         // Rx, Tx, Plots, Pais, Lada, Número -> Nieves 2 - Cesped
+const int config[] = {2, 3, 7};                                 // Rx, Tx, Plots
+// const int config[] = {2, 3, 7, 52, 614, 366, 4779};          // Rx, Tx, Plots, Pais, Lada, Número -> Nieves 1 - Avena
+// const int config[] = {2, 3, 7, 52 , 614, 366, 4806};         // Rx, Tx, Plots, Pais, Lada, Número -> Nieves 2 - Cesped
 
 #pragma region Variables
 
 SoftwareSerial gprs(config[0], config[1]);                  // Rx, Tx
 static byte plots = config[2];
-#define telefono fillNumber(config[3], 2) + fillNumber(config[4], 3) + fillNumber(config[5], 3) + fillNumber(config[6], 4)
+// #define telefono fillNumber(config[3], 2) + fillNumber(config[4], 3) + fillNumber(config[5], 3) + fillNumber(config[6], 4)
 #define httpServer F("AT+HTTPPARA=\"URL\",\"http://dtaamerica.com/ws/commj_v4.php?id=")
+String telefono = "";
 
 // Actuadores y variables
 #define testFunc false
