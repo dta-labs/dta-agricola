@@ -12,7 +12,7 @@ void initLoRa() {
 
 int getPossition(String str) {
   for (int i = 0; i < numSensors; i++) if (sensorList[i] == str) return i;
-  DBG_PRINT(F("gP"));
+  // DBG_PRINT(F("gP"));
   return -1;
 }
 

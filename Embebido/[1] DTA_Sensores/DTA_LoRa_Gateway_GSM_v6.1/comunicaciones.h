@@ -40,7 +40,7 @@ void commWatchDogReset(String result) {
   restartGSM = (result.indexOf(F("ERROR")) != -1  || result.indexOf(F("601")) != -1  || result.indexOf(F("604")) != -1 || signalVar < 6) ? true : false;
   commError = (signalVar < 6 || QoS > 6 || restartGSM) ? commError + 1 : 0;
   if (commError != 0) { DBG_PRINT(F("commError: ")); DBG_PRINTLN(commError); }
-  if (commError == 4) { 
+  if (commError == 2) { 
     commError = 0;
     resetSIM(); 
   }
@@ -116,6 +116,18 @@ void testComunicaciones() {
   systemWatchDog(); 
 }
 
+String getTelefono() {
+  gprs.println(F("AT+CCID"));
+  String result = getResponse(responseTime, false); 
+  result.replace(F("\r"), strEmpty);
+  result.replace(F("\n"), strEmpty);
+  result.replace(F("AT+CCID"), strEmpty);
+  result.replace(F(" "), strEmpty);
+  result.replace(F("OK"), strEmpty);
+  result.trim();
+  return result.substring(0, result.length() - 1);
+}
+
 void setupGSM() {
   if (restartGSM) {
     DBG_PRINTLN(F("Setup GSM"));
@@ -136,19 +148,12 @@ void setupGSM() {
     getResponse(15, testComm); 
     gprs.println(F("AT+SAPBR=1,1"));
     getResponse(15, testComm); 
+    // telefono = "333333333333";
+    while (telefono == strEmpty) {
+      telefono = getTelefono();
+      delay(100);
+    }
   }
-}
-
-String getTelefono() {
-  gprs.println(F("AT+CCID"));
-  String result = getResponse(responseTime, true); 
-  result.replace(F("\r"), strEmpty);
-  result.replace(F("\n"), strEmpty);
-  result.replace(F("AT+CCID"), strEmpty);
-  result.replace(F(" "), strEmpty);
-  result.replace(F("OK"), strEmpty);
-  result.trim();
-  return result;
 }
 
 String getData(String result) {
@@ -170,7 +175,7 @@ String httpRequest(String strToSend) {
   getResponse(responseTime, testComm); 
   gprs.println(F("AT+HTTPPARA=\"CID\",1"));
   getResponse(responseTime, testComm); 
-  gprs.print(httpServer); gprs.print(telefono);
+  gprs.print(httpServer); gprs.print(telefono.length() >= 19 ? telefono : "");
   gprs.print(F("&data=[")); gprs.print(strToSend); gprs.print(F("]")); 
   gprs.print(F("&rx=")); gprs.print(commRx ? F("Ok") : F("Er"));
   gprs.print(F("&si=")); gprs.print((String)signalVar);
@@ -226,9 +231,7 @@ void comunicaciones(String strToSend) {
   if (!testData) {
     DBG_PRINTLN(F("\nComunicación con el servidor"));
     setupGSM();
-    // telefono = "333333333333";
-    telefono = getTelefono();
-    data = telefono.length() >= 19 ? httpRequest(strToSend) : ""; 
+    data = httpRequest(strToSend); 
   } else if (first) {
     DBG_PRINTLN(F("Mockup data..."));
     data = F("0\"0x0\"0x0\"0x0\"0x0\"0x0\"0x0\"0x0\"0x0\"0x0\"0x0");
