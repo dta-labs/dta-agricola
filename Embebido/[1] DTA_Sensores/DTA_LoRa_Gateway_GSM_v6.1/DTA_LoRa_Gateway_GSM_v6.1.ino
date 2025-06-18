@@ -21,7 +21,6 @@
 #pragma region Programa Principal
 
 void setup() {
-  pinMode(LED_BUILTIN, OUTPUT);
   Serial.begin(19200);
   while (!Serial) delay(10);               // Pausar Arduino Zero, Leonardo, etc. hasta que se active el puerto serie
   DBG_PRINTLN(F("\n\nLoRa Gateway Universal v6.1.0325"));
@@ -39,7 +38,7 @@ void loop() {
 }
 
 void txData() {
-  unsigned long commFrequence = 15000;
+  unsigned long commFrequence = 120000;
   if (operationMode > 0) {
     commFrequence = 2 * commFrequence * operationMode;
   }
@@ -56,11 +55,11 @@ String getTxData() {
   for (int i = 0; i < numSensors; i++) {
     strIds += sensorList[i];
     strIds += (i < numSensors - 1) ? commaChar : strEmpty;
-    strToSend += dataToSend[i];
+    strToSend += (operationMode == 0) ? sensorList[i] : dataToSend[i];
     strToSend += (i < numSensors - 1) ? commaChar : strEmpty;
   }
-  strToSend = strToSend == F(",,,,") ? strEmpty : strToSend;
-  DBG_PRINT(F("\n  └─ Datos leidos: ")); DBG_PRINTLN(strToSend);
+  strToSend = strToSend == F(",,,,,,,,,") ? strEmpty : strToSend;
+  DBG_PRINT(F("\n  └─ Datos: ")); DBG_PRINTLN(strToSend);
   return strToSend;
 }
 
@@ -72,7 +71,8 @@ void initVariables() {
 }
 
 void resetData() {
-  for (int i = 0; i < numSensors; i++) dataToSend[i] = strEmpty;
+  // for (int i = 0; i < numSensors; i++) dataToSend[i] = strEmpty;
+  memset(dataToSend, strEmpty, sizeof(dataToSend));
 }
 
 #pragma endregion Programa Principal

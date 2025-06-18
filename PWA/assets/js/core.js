@@ -786,6 +786,7 @@ app.controller("ControladorPrincipal", function ($scope) {
     $scope.createNewDevice = () => {
         getLocation();
         $scope.newDevice = {
+            "active": true,
             "booleanStatus": false,
             "installation": new Date(),
             "irrigation": "0",
@@ -933,12 +934,12 @@ app.controller("ControladorPrincipal", function ($scope) {
     }
 
     $scope.starSearchSensor = () => {
-        $scope.actualSystem.operationMode = 0;
+        $scope.actualSystem.operationMode = "0";
         $scope.setMachineSettings($scope.actualSystem);
     }
 
     $scope.stopSearchSensor = () => {
-        $scope.actualSystem.operationMode = 3;
+        $scope.actualSystem.operationMode = "3";
         $scope.setMachineSettings($scope.actualSystem);
     }
 
@@ -1028,15 +1029,6 @@ app.controller("ControladorPrincipal", function ($scope) {
         })
             .then((confirm) => {
                 if (confirm) {
-                    let newSensor = {
-                        "alias": $scope.newSensorAlias ? $scope.newSensorAlias : "",
-                        "id": $scope.newSensorID ? $scope.newSensorID : "0x0",
-                        "latitude": $scope.newSensorLatitude ? $scope.newSensorLatitude : "0",
-                        "longitude": $scope.newSensorLongitude ? $scope.newSensorLongitude : "0",
-                        "maxValue": $scope.newSensorMaxVal ? $scope.newSensorMaxVal : "0",
-                        "minValue": $scope.newSensorMinVal ? $scope.newSensorMinVal : "0",
-                        "type": $scope.newSensorType ? $scope.newSensorType : ""
-                    }
                     let sensorNumber = 1;
                     let idx = "S0";
                     if ($scope.actualSystem.sensors) {
@@ -1047,7 +1039,7 @@ app.controller("ControladorPrincipal", function ($scope) {
                         $scope.actualSystem["sensors"] = {};
                         $scope.actualSystem.sensors["sensorNumber"] = 1;
                     }
-                    $scope.actualSystem.sensors[idx] = newSensor;
+                    $scope.actualSystem.sensors[idx] = $scope.newSensor;
                     $scope.actualSystem.sensors.sensorNumber = sensorNumber;
                     // updateSensorNet($scope.actualSystem.key, $scope.actualSystem.sensors);
                     $scope.setMachineSettings($scope.actualSystem);
@@ -1092,17 +1084,17 @@ app.controller("ControladorPrincipal", function ($scope) {
             buttons: ["Cancelar", true],
             dangerMode: true,
         })
-            .then((confirm) => {
-                if (confirm) {
-                    document.getElementById("modalEditSensor").style.display = "none";
-                    $scope.setMachineSettings($scope.actualSystem);
-                    swal("Edición completada!", {
-                        icon: "success",
-                    });
-                } else {
-                    swal("Edición cancelada!");
-                }
-            });
+        .then((confirm) => {
+            if (confirm) {
+                document.getElementById("modalEditSensor").style.display = "none";
+                $scope.setMachineSettings($scope.actualSystem);
+                swal("Edición completada!", {
+                    icon: "success",
+                });
+            } else {
+                swal("Edición cancelada!");
+            }
+        });
     }
 
     $scope.editSensor = (sensor) => {

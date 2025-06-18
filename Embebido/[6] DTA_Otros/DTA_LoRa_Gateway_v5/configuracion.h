@@ -41,7 +41,7 @@ const int config[] = {2, 3, 33, 333, 333, 3333};
 #define nodeAddress "DTA_00"
 #define sensor A0
 
-const long frequency = 433E6; // 433E6 or 915E6, the MHz speed of module
+const long frequency = 915E6; // 433E6 or 915E6, the MHz speed of module
 
 static String sensorsID = "";                 // Sensores
 String nodes[10];

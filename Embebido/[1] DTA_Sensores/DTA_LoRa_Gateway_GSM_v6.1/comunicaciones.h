@@ -125,7 +125,7 @@ String getTelefono() {
   result.replace(F(" "), strEmpty);
   result.replace(F("OK"), strEmpty);
   result.trim();
-  return result.substring(0, result.length() - 1);
+  return result.substring(8, result.length() - 1);
 }
 
 void setupGSM() {
@@ -153,6 +153,7 @@ void setupGSM() {
       telefono = getTelefono();
       delay(100);
     }
+    // Serial.println(telefono);
   }
 }
 
@@ -168,35 +169,50 @@ String getData(String result) {
   return result.substring(result.indexOf('"'));
 }
 
+void sendCommand(String command, int waitTime) {
+    gprs.println(command);
+    delay(waitTime);
+    while (gprs.available()) {
+        Serial.write(gprs.read());
+    }
+}
+
 String httpRequest(String strToSend) {
   signalVar = getRSSI();
   QoS = getBER();
+  // strToSend = "31.1,11,3.3,32.2,22,3.3,33.3,33,3.3,34.4,44,3.3,35.5,55,3.3";
   gprs.println(F("AT+HTTPINIT"));
   getResponse(responseTime, testComm); 
   gprs.println(F("AT+HTTPPARA=\"CID\",1"));
   getResponse(responseTime, testComm); 
-  gprs.print(httpServer); gprs.print(telefono.length() >= 19 ? telefono : "");
-  gprs.print(F("&data=[")); gprs.print(strToSend); gprs.print(F("]")); 
-  gprs.print(F("&rx=")); gprs.print(commRx ? F("Ok") : F("Er"));
-  gprs.print(F("&si=")); gprs.print((String)signalVar);
-  gprs.print(F("&qos=")); gprs.println((String)QoS + F("\""));
-  getResponse(25, true);
-  systemWatchDog(); 
-  gprs.println(F("AT+HTTPACTION=0")); 
-  getResponse(6000, testComm); 
-  gprs.println(F("AT+HTTPREAD"));
-  String result = getResponse(30, true);
-  systemWatchDog(); 
-  byte counter = 5;
-  while (result.indexOf('"') == -1 && counter > 0) {
-    delay(1000);
+  String result = strEmpty;
+  if (telefono.length() >= 10) {
+    gprs.print(httpServer); gprs.print(telefono);
+    gprs.print(F("&data=[")); gprs.print(strToSend); gprs.print(F("]")); 
+    gprs.print(F("&rx=")); gprs.print(commRx ? F("Ok") : F("Er"));
+    gprs.print(F("&si=")); gprs.print((String)signalVar);
+    gprs.print(F("&qos=")); gprs.println((String)QoS + F("\""));
+    getResponse(30, true);
+    systemWatchDog(); 
+    gprs.println(F("AT+HTTPACTION=0")); 
+    getResponse(5000, testComm); 
+    Serial.print(F("Memoria libre: ")); Serial.println(freeRam());
     gprs.println(F("AT+HTTPREAD"));
-    result = getResponse(30, true);
-    counter--;
+    result = getResponse(15, true);
+    // gprs.println(F("AT+HTTPREAD=100,200"));
+    // result += getResponse(15, true);
+    systemWatchDog(); 
+    byte counter = 5;
+    // while (result.indexOf('"') == -1 && counter > 0) {
+    //   // delay(1000);
+    //   gprs.println(F("AT+HTTPREAD"));
+    //   result = getResponse(30, true);
+    //   counter--;
+    // }
+    commWatchDogReset(result);
   }
   gprs.println(F("AT+HTTPTERM")); 
   getResponse(30, testComm); 
-  commWatchDogReset(result);
   systemWatchDog(); 
   return getData(result);
 }
@@ -204,7 +220,7 @@ String httpRequest(String strToSend) {
 void setVariables(String data) {
   data.replace(F("\""), commaChar);
   DBG_PRINTLN(F("» Variables: "));
-  // DBG_PRINT(F("  ├─ GSM: ")); DBG_PRINTLN(data);
+  DBG_PRINT(F("  ├─ GSM: ")); DBG_PRINTLN(data);
   int startIndex = 1; 
   int endIndex = data.indexOf(commaChar, startIndex); 
   int lastIndex = data.lastIndexOf(commaChar); 
