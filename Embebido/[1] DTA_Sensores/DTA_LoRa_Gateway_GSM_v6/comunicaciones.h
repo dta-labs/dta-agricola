@@ -93,7 +93,7 @@ void testComunicaciones() {
 void setupGSM() {
   // if (restartGSM) {
     Serial.println(F("Setup GSM"));
-    gprs.begin(19200);
+    gprs.begin(9600);
     gprs.listen();
     // gprs.println(F("AT+CFUN=1,1"));             // Reinicia el módulo
     // getResponse(responseTime, testComm); 

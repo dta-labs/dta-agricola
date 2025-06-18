@@ -16,6 +16,7 @@ void setup() {
   resetData();
   comunicaciones(strEmpty);
   commTimer = millis();
+  systemWatchDog();
 }
 
 void loop() {

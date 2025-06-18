@@ -1424,7 +1424,7 @@
                                                 <div class="hide-on-small-only sensor-bar" style="padding: 0 30px;">
                                                     <a class="modal-trigger" href="#modalHistorial" style="color: black; text-align: left; padding: 10%;">
                                                         <ul>
-                                                            <li ng-repeat="sensor in actualSystem.sensors" ng-if="actualSystem.sensors.sensorNumber != $index">
+                                                            <li ng-repeat="sensor in actualSystem.sensors" ng-if="$index < actualSystem.sensors.sensorNumber">
                                                                 <div class="row" style="margin-bottom: 5px;">
                                                                     <div class="col s2"><i class="material-icons" style="font-size: 2em; margin-top: 5px;">place</i></div>
                                                                     <div class="col s10">
@@ -1432,12 +1432,13 @@
                                                                         <span style="font-size: .8em;">{{ sensor.id }}</span>
                                                                     </div>
                                                                 </div>
-                                                                <div class="row" style="margin-bottom: 5px; padding: 10px; border-radius: 3px; background-color: #f5f5f5;" ng-init="data=convertStrToJSON(actualSystem.log.dataRaw)">
-                                                                    <div class="col s1"></div>
+                                                                <div class="row" style="margin-bottom: 5px; padding: 10px; border-radius: 3px; border: 1px solid #d2d2d2; background-color: #f8f8f8;" ng-init="data=convertStrToJSON(actualSystem.log.dataRaw)">
+                                                                    <div class="col s2"></div>
                                                                     <div class="col s2"><img src="./assets/images/agua.png" alt="Agua" style="width: 20px; margin-top: 5px;"></div>
-                                                                    <div class="col s3" style="text-align: right; font-size: 1.5em; color: {{ data[($index * 3)] < sensor.h.minValue || data[($index * 3)] > sensor.h.maxValue ? 'red' : 'green' }};"><b>{{ data[($index * 3)] | number : 0 }}%</b></div>
+                                                                    <div class="col s2" style="text-align: right; font-size: 1.5em; color: {{ data[($index * 3) + 1] < sensor.h.minValue || data[($index * 3) + 1] > sensor.h.maxValue ? 'red' : 'green' }};"><b>{{ data[($index * 3) + 1] != "NaN" ? (data[($index * 3) + 1] | number : 0) : '--' }}%</b></div>
+                                                                    <div class="col s1"></div>
                                                                     <div class="col s2"><img src="./assets/images/termometro.png" alt="Termometro" style="width: 20px; margin-top: 5px;"></div>
-                                                                    <div class="col s3" style="text-align: right; font-size: 1.5em; color: {{ data[($index * 3) + 1] < sensor.t.minValue || data[($index * 3) + 1] > sensor.t.maxValue ? 'red' : 'green' }};"><b>{{ data[($index * 3) + 1] | number : 0 }}°C</b></div>
+                                                                    <div class="col s2" style="text-align: right; font-size: 1.5em; color: {{ data[($index * 3)] < sensor.t.minValue || data[($index * 3)] > sensor.t.maxValue ? 'red' : 'green' }};"><b>{{ data[($index * 3)] != "NaN" ? (data[($index * 3)] | number : 0) : '--' }}°C</b></div>
                                                                     <div class="col s1"></div>
                                                                 </div>
                                                             </li>
@@ -2295,8 +2296,8 @@
                                                             <tbody>
                                                                 <tr ng-repeat="reg in invertedRegisters" ng-init="data=convertStrToJSON(reg.dataRaw)">
                                                                     <td>{{ reg.date }}</td>
-                                                                    <td style="color: {{ data[idx * 3] < sensor.h.minValue || data[idx * 3] > sensor.h.maxValue ? 'red' : 'green' }};"><b>{{ data[(idx * 3)] }}%</b></td>
-                                                                    <td style="color: {{ data[idx * 3 + 1] < sensor.t.minValue || data[idx * 3 + 1] > sensor.t.maxValue ? 'red' : 'green' }};"><b>{{ data[(idx * 3) + 1] }}°C</b></td>
+                                                                    <td style="color: {{ data[idx * 3 + 1] < sensor.h.minValue || data[idx * 3 + 1] > sensor.h.maxValue ? 'red' : 'green' }};"><b>{{ data[(idx * 3) + 1] }}%</b></td>
+                                                                    <td style="color: {{ data[idx * 3] < sensor.t.minValue || data[idx * 3] > sensor.t.maxValue ? 'red' : 'green' }};"><b>{{ data[(idx * 3)] }}°C</b></td>
                                                                 </tr>
                                                             </tbody>
                                                         </table>
@@ -3075,55 +3076,135 @@
                             <div id="modalNuevoSensor" class="modal"> <!-- Modal adicionar sensor -->
                                 <div class="modal-content">
                                     <div class="swal-title">Agregar sensor</div>
-                                    <div class="row" style="margin-top: 35px;">
+                                    <div class="row">
                                         <div class="input-field col s12">
-                                            <input id="newSensorAlias" type="text" ng-model="newSensorAlias">
+                                            <input id="newSensorAlias" type="text" ng-model="newSensor.alias">
                                             <label>Alias</label>
                                         </div>
                                         <div class="input-field col s12">
-                                            <input id="newSensorID" type="text" ng-model="newSensorID">
-                                            <label>Identificador</label>
+                                            <input id="newSensorID" type="text" placeholder="id" ng-model="newSensor.id">
+                                            <label for="newSensorID">Identificador</label>
                                         </div>
                                         <div class="col s12"
                                             style="background: whitesmoke; box-shadow: 0 0 3px lightgrey; margin-bottom: 20px;">
                                             <label>Geolocalización</label>
                                             <div class="row" style="margin-bottom: 0;">
-                                                <div class="input-field col s5">
+                                                <div class="input-field col s4 m5">
                                                     <input id="newSensorLatitude" type="text" placeholder="Latidud"
-                                                        ng-model="newSensorLatitude">
+                                                        ng-model="newSensor.latitude">
                                                     <label for="newSensorLatitude">Latitud</label>
                                                 </div>
-                                                <div class="input-field col s5">
+                                                <div class="input-field col s4 m5">
                                                     <input id="newSensorLongitude" type="text" placeholder="Longitud"
-                                                        ng-model="newSensorLongitude">
+                                                        ng-model="newSensor.longitude">
                                                     <label for="newSensorLongitude">Longitud</label>
                                                 </div>
-                                                <div class="input-field col s2 waves-effect grey waves-grey btn-flat white-text valign-wrapper">
-                                                    <div id="btnLocation" style="text-align: center;" ng-click="setSensorPosition()">
+                                                <div class="input-field col s3 m2 waves-effect grey waves-grey btn-flat white-text valign-wrapper">
+                                                    <div id="btneditLocation" style="text-align: center;" ng-click="setSensorPosition()">
                                                         <i class="material-icons">&nbsp;add_location&nbsp;</i>
                                                     </div>
-                                                    <label for="btnLocation">&nbsp;</label>
+                                                    <label for="btneditLocation">&nbsp;</label>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="input-field col s12 row" style="border: 1px solid lightgrey; border-radius: 5px;">
-                                            <div class="input-field col s6">
-                                                <input id="newSensorMinVal" type="text" ng-model="newSensorMinVal">
-                                                <label>Mínimo</label>
-                                            </div>
-                                            <div class="input-field col s6">
-                                                <input id="newSensorMaxVal" type="text" ng-model="newSensorMaxVal">
-                                                <label>Máximo</label>
-                                            </div>
-                                        </div>
+                                        <br>
                                         <div class="input-field col s12">
-                                            <select id="newSensorType" ng-model="newSensorType">
-                                                <option value="SHT" selected="selected">Humedad y Temperatura del suelo</option>
-                                                <option value="Ms">Humedad suelo</option>
-                                                <option value="Tr">Temperatura</option>
-                                                <option value="Fl">Flujo de agua</option>
+                                            <select id="newSensorType" ng-model="newSensor.type" ng-value="newSensor.type" ng-selected="newSensor.type">
+                                                <option value="SHT" selected="{{ newSensor.type == 'SHT' ? 'selected' : '' }}">Humedad del suelo y Temperatura</option>
+                                                <option value="Ms" selected="{{ newSensor.type == 'Ms' ? 'selected' : '' }}">Humedad suelo</option>                                
+                                                <option value="Tr" selected="{{ newSensor.type == 'Tr' ? 'selected' : '' }}">Temperatura</option>
+                                                <option value="Psi" selected="{{ newSensor.type == 'Psi' ? 'selected' : '' }}">Presión de agua</option>
+                                                <option value="Fl" selected="{{ newSensor.type == 'Fl' ? 'selected' : '' }}">Flujo de agua</option>
                                             </select>
-                                            <label style="top: -28px; font-size: .8em;">Role</label>
+                                            <label style="top: -28px; font-size: .8em;">Tipo de sensor</label>
+                                        </div>
+                                        <div class="col s12"
+                                            style="background: whitesmoke; box-shadow: 0 0 3px lightgrey; margin-bottom: 20px; 
+                                                border: 1px solid lightgrey; border-radius: 5px;">
+                                            <div ng-show="newSensor.type == 'Ms' || newSensor.type == 'SHT'">
+                                                <label><b>Humbral de Humedad</b></label>
+                                                <div id="newSensorH" class="row">
+                                                    <div class="input-field col s6 m3">
+                                                        <input id="newSensorHMinValue" type="text" placeholder="Mínimo" ng-model="newSensor.h.minValue">
+                                                        <label for="newSensorHMinValue" class="active">Mínimo</label>
+                                                    </div>
+                                                    <div class="input-field col s6 m3">
+                                                        <input id="newSensorHMaxValue" type="text" placeholder="Máximo" ng-model="newSensor.h.maxValue">
+                                                        <label for="newSensorHMaxValue" class="active">Máximo</label>
+                                                    </div>
+                                                    <div class="input-field col s12 m6">
+                                                        <p>
+                                                            <label class="left-align">
+                                                              <input type="checkbox" ng-model="newSensor.h.notify" />
+                                                              <span>Enviar notificaciones</span>
+                                                            </label>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div ng-show="newSensor.type == 'Tr' || newSensor.type == 'SHT'">
+                                                <label><b>Humbral de Temperatura</b></label>
+                                                <div id="newSensorT" class="row">
+                                                    <div class="input-field col s6 m3">
+                                                        <input id="newSensorTMinValue" type="text" placeholder="Mínimo" ng-model="newSensor.t.minValue">
+                                                        <label for="newSensorTMinValue" class="active">Mínimo</label>
+                                                    </div>
+                                                    <div class="input-field col s6 m3">
+                                                        <input id="newSensorTMaxValue" type="text" placeholder="Máximo" ng-model="newSensor.t.maxValue">
+                                                        <label for="newSensorTMaxValue" class="active">Máximo</label>
+                                                    </div>
+                                                    <div class="input-field col s12 m6">
+                                                        <p>
+                                                            <label class="left-align">
+                                                              <input type="checkbox" ng-model="newSensor.t.notify" />
+                                                              <span>Enviar notificaciones</span>
+                                                            </label>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div ng-show="newSensor.type == 'Psi'">
+                                                <label><b>Humbral de Presión de agua</b></label>
+                                                <div id="newSensorPsi" class="row">
+                                                    <div class="input-field col s6 m3">
+                                                        <input id="newSensorPsiMinValue" type="text" placeholder="Mínimo" ng-model="newSensor.psi.minValue">
+                                                        <label for="newSensorPsiMinValue" class="active">Mínimo</label>
+                                                    </div>
+                                                    <div class="input-field col s6 m3">
+                                                        <input id="newSensorPsiMaxValue" type="text" placeholder="Máximo" ng-model="newSensor.psi.maxValue">
+                                                        <label for="newSensorPsiMaxValue" class="active">Máximo</label>
+                                                    </div>
+                                                    <div class="input-field col s12 m6">
+                                                        <p>
+                                                            <label class="left-align">
+                                                              <input type="checkbox" ng-model="newSensor.psi.notify" />
+                                                              <span>Enviar notificaciones</span>
+                                                            </label>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div ng-show="newSensor.type == 'Fl'">
+                                                <label><b>Humbral de Flujo de agua</b></label>
+                                                <div id="newSensorFl" class="row">
+                                                    <div class="input-field col s6 m3">
+                                                        <input id="newSensorFlMinValue" type="text" placeholder="Mínimo" ng-model="newSensor.fl.minValue">
+                                                        <label for="newSensorFlMinValue" class="active">Mínimo</label>
+                                                    </div>
+                                                    <div class="input-field col s6 m3">
+                                                        <input id="newSensorFlMaxValue" type="text" placeholder="Máximo" ng-model="newSensor.fl.maxValue">
+                                                        <label for="newSensorFlMaxValue" class="active">Máximo</label>
+                                                    </div>
+                                                    <div class="input-field col s12 m6">
+                                                        <p>
+                                                            <label class="left-align">
+                                                              <input type="checkbox" ng-model="newSensor.fl.notify" />
+                                                              <span>Enviar notificaciones</span>
+                                                            </label>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -3202,9 +3283,10 @@
                                         <br>
                                         <div class="input-field col s12">
                                             <select id="editSensorType" ng-model="actualSensor.type" ng-value="actualSensor.type" ng-selected="actualSensor.type">
-                                                <option value="SHT" selected="{{ actualSensor.type == 'SHT' ? 'selected' : '' }}">Humedad y Temperatura del suelo</option>
+                                                <option value="SHT" selected="{{ actualSensor.type == 'SHT' ? 'selected' : '' }}">Humedad del suelo y Temperatura</option>
                                                 <option value="Ms" selected="{{ actualSensor.type == 'Ms' ? 'selected' : '' }}">Humedad suelo</option>                                
                                                 <option value="Tr" selected="{{ actualSensor.type == 'Tr' ? 'selected' : '' }}">Temperatura</option>
+                                                <option value="Psi" selected="{{ actualSensor.type == 'Psi' ? 'selected' : '' }}">Presión de agua</option>
                                                 <option value="Fl" selected="{{ actualSensor.type == 'Fl' ? 'selected' : '' }}">Flujo de agua</option>
                                             </select>
                                             <label style="top: -28px; font-size: .8em;">Tipo de sensor</label>
@@ -3215,54 +3297,100 @@
                                             <div ng-show="actualSensor.type == 'Ms' || actualSensor.type == 'SHT'">
                                                 <label><b>Humbral de Humedad</b></label>
                                                 <div id="editSensorH" class="row">
-                                                    <div class="input-field col s6">
-                                                        <input type="text" ng-model="actualSensor.h.minValue">
-                                                        <label>Mínimo</label>
+                                                    <div class="input-field col s6 m3">
+                                                        <input id="editSensorHMinValue" type="text" placeholder="Mínimo" ng-model="actualSensor.h.minValue">
+                                                        <label for="editSensorHMinValue" class="active">Mínimo</label>
                                                     </div>
-                                                    <div class="input-field col s6">
-                                                        <input type="text" ng-model="actualSensor.h.maxValue">
-                                                        <label>Máximo</label>
+                                                    <div class="input-field col s6 m3">
+                                                        <input id="editSensorHMaxValue" type="text" placeholder="Máximo" ng-model="actualSensor.h.maxValue">
+                                                        <label for="editSensorHMaxValue" class="active">Máximo</label>
+                                                    </div>
+                                                    <div class="input-field col s12 m6">
+                                                        <p>
+                                                            <label class="left-align">
+                                                              <input type="checkbox" ng-model="actualSensor.h.notify" />
+                                                              <span>Enviar notificaciones</span>
+                                                            </label>
+                                                        </p>
                                                     </div>
                                                 </div>
                                             </div>
                                             <div ng-show="actualSensor.type == 'Tr' || actualSensor.type == 'SHT'">
                                                 <label><b>Humbral de Temperatura</b></label>
                                                 <div id="editSensorT" class="row">
-                                                    <div class="input-field col s6">
-                                                        <input type="text" ng-model="actualSensor.t.minValue">
-                                                        <label>Mínimo</label>
+                                                    <div class="input-field col s6 m3">
+                                                        <input id="editSensorTMinValue" type="text" placeholder="Mínimo" ng-model="actualSensor.t.minValue">
+                                                        <label for="editSensorTMinValue" class="active">Mínimo</label>
                                                     </div>
-                                                    <div class="input-field col s6">
-                                                        <input type="text" ng-model="actualSensor.t.maxValue">
-                                                        <label>Máximo</label>
+                                                    <div class="input-field col s6 m3">
+                                                        <input id="editSensorTMaxValue" type="text" placeholder="Máximo" ng-model="actualSensor.t.maxValue">
+                                                        <label for="editSensorTMaxValue" class="active">Máximo</label>
+                                                    </div>
+                                                    <div class="input-field col s12 m6">
+                                                        <p>
+                                                            <label class="left-align">
+                                                              <input type="checkbox" ng-model="actualSensor.t.notify" />
+                                                              <span>Enviar notificaciones</span>
+                                                            </label>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div ng-show="actualSensor.type == 'Psi'">
+                                                <label><b>Humbral de Presión de agua</b></label>
+                                                <div id="editSensorPsi" class="row">
+                                                    <div class="input-field col s6 m3">
+                                                        <input id="editSensorPsiMinValue" type="text" placeholder="Mínimo" ng-model="actualSensor.psi.minValue">
+                                                        <label for="editSensorPsiMinValue" class="active">Mínimo</label>
+                                                    </div>
+                                                    <div class="input-field col s6 m3">
+                                                        <input id="editSensorPsiMaxValue" type="text" placeholder="Máximo" ng-model="actualSensor.psi.maxValue">
+                                                        <label for="editSensorPsiMaxValue" class="active">Máximo</label>
+                                                    </div>
+                                                    <div class="input-field col s12 m6">
+                                                        <p>
+                                                            <label class="left-align">
+                                                              <input type="checkbox" ng-model="actualSensor.psi.notify" />
+                                                              <span>Enviar notificaciones</span>
+                                                            </label>
+                                                        </p>
                                                     </div>
                                                 </div>
                                             </div>
                                             <div ng-show="actualSensor.type == 'Fl'">
                                                 <label><b>Humbral de Flujo de agua</b></label>
                                                 <div id="editSensorFl" class="row">
-                                                    <div class="input-field col s6">
-                                                        <input type="text" ng-model="actualSensor.fl.minValue">
-                                                        <label>Mínimo</label>
+                                                    <div class="input-field col s6 m3">
+                                                        <input id="editSensorFlMinValue" type="text" placeholder="Mínimo" ng-model="actualSensor.fl.minValue">
+                                                        <label for="editSensorFlMinValue" class="active">Mínimo</label>
                                                     </div>
-                                                    <div class="input-field col s6">
-                                                        <input type="text" ng-model="actualSensor.fl.maxValue">
-                                                        <label>Máximo</label>
+                                                    <div class="input-field col s6 m3">
+                                                        <input id="editSensorFlMaxValue" type="text" placeholder="Máximo" ng-model="actualSensor.fl.maxValue">
+                                                        <label for="editSensorFlMaxValue" class="active">Máximo</label>
+                                                    </div>
+                                                    <div class="input-field col s12 m6">
+                                                        <p>
+                                                            <label class="left-align">
+                                                              <input type="checkbox" ng-model="actualSensor.fl.notify" />
+                                                              <span>Enviar notificaciones</span>
+                                                            </label>
+                                                        </p>
                                                     </div>
                                                 </div>
                                             </div>
+                                        </div>
                                     </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <a href="" class="modal-close waves-effect grey waves-grey btn-flat white-text">
-                                            <i class="material-icons">&nbsp;&nbsp;reply&nbsp;&nbsp;</i></a>
-                                        <a href="" class="modal-close waves-effect red waves-grey btn-flat white-text"ng-click="deleteActualSensor()">
-                                            <i class="material-icons">&nbsp;&nbsp;delete&nbsp;&nbsp;</i></a>
-                                        <a href="" class="modal-close waves-effect teal waves-green btn-flat white-text"
-                                            ng-click="editActualSensor()"><i
-                                                class="material-icons">&nbsp;&nbsp;check&nbsp;&nbsp;</i></a>
-                                    </div>
-                                    <!-- <br> -->
+                                </div>
+                                <div class="modal-footer">
+                                    <a href="" class="modal-close waves-effect grey waves-grey btn-flat white-text">
+                                        <i class="material-icons">&nbsp;&nbsp;reply&nbsp;&nbsp;</i></a>
+                                    <a href="" class="modal-close waves-effect red waves-grey btn-flat white-text"ng-click="deleteActualSensor()">
+                                        <i class="material-icons">&nbsp;&nbsp;delete&nbsp;&nbsp;</i></a>
+                                    <a href="" class="modal-close waves-effect teal waves-green btn-flat white-text"
+                                        ng-click="editActualSensor()"><i
+                                            class="material-icons">&nbsp;&nbsp;check&nbsp;&nbsp;</i></a>
+                                </div>
+                                <!-- <br> -->
                                 </div>
                             </div>
 
@@ -4062,16 +4190,15 @@
                                                 </a>
                                             </div>
                                             <div class="col s12 m3" ng-show="authUser" style="text-align: center;">
-                                                <img id="imgAuthMobil" src="{{ authUser.photoURL }}" class="img-auth"
-                                                    style="width: 100px; height: 100px; border-radius: 50%; margin-top: 2px;"
-                                                    ng-show="authUser">
-                                                <i class="fa fa-user" aria-hidden="true"
+                                                <img id="imgAuthMobil" src="{{ authUser.photoURL || './assets/images/DTA-Agricola.png' }}" class="img-auth"
+                                                    style="width: 100px; height: 100px; border-radius: 50%; margin-top: 2px;">
+                                                <!-- <i class="fa fa-user" aria-hidden="true"
                                                     style="margin-top: 5px; margin-bottom: 4px;"
-                                                    ng-show="!authUser"></i>
+                                                    ng-show="!authUser"></i> -->
                                                     <!-- <p style="margin-top: 3px;color: black;border-radius: 50%;border: 2px solid;width: 30px;height: 30px;text-align: center;margin-left: 10px;font-variant-caps: small-caps;font-size: 1.2em;" ng-show="!authUser.photoURL">
                                                         {{ authUser.displayName ? authUser.displayName[0] : authUser.email[0] }}
                                                     </p> -->
-                                                    </div>
+                                            </div>
                                             <div class="form-group col s12 m9">
                                                 <label for="inputName">Nombre completo</label>
                                                 <input type="text" class=" form-control form-control-sm"
@@ -4166,10 +4293,9 @@
                                             </a>
                                         </span>
                                         <span ng-show="authUser" class="valign-wrapper">
-                                            <img id="imgAuthMobil" src="{{ authUser.photoURL }}" class="img-auth" 
-                                            style="width: 32px; height: 32px; border-radius: 50%; margin-top: 2px;" 
-                                            ng-show="authUser.photoURL" alt="usuario">
-                                            <!-- <i class="fa fa-user" aria-hidden="true" style="margin-top: 5px; margin-bottom: 4px;" ng-show="!authUser.photoURL"></i> -->
+                                            <img id="imgAuthMobil" src="{{ authUser.photoURL || './assets/images/DTA-Agricola.png' }}" class="img-auth" 
+                                            style="width: 32px; height: 32px; border-radius: 50%; margin-top: 2px;" ng-show="authUser.photoURL" alt="usuario">
+                                            <i class="fa fa-user" aria-hidden="true" style="margin-top: 5px; margin-bottom: 4px;" ng-show="!authUser.photoURL"></i>
                                             <p style="margin-top: 3px;color: black;border-radius: 50%;border: 2px solid;width: 30px;height: 30px;text-align: center;margin-left: 10px;font-variant-caps: small-caps;font-size: 1.2em;" ng-show="!authUser.photoURL">
                                                 {{ authUser.displayName ? authUser.displayName[0] : authUser.email[0] }}
                                             </p>

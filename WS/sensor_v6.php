@@ -80,6 +80,7 @@ class SensorSystem {
     }
 
     public function formatSettingsForDevice(): string {
+        $this->escribirLog("formatSettingsForDevice...");
         $settings = $this->getSettings();
         $sendData = "\"{$settings->operationMode}";
         
@@ -92,6 +93,7 @@ class SensorSystem {
     }
 
     private function updateLog(array $data): void {
+        $this->escribirLog("updateLog...");
         $settings = $this->getSettings();
         if (empty($data) || $settings->operationMode == 0) {
             return;
@@ -113,28 +115,73 @@ class SensorSystem {
     private function verifyAlerts($data): void {
         $settings = $this->getSettings();
         $usersID = $this->getUsers(); 
+        $dataSize = count($data);
         $length = $settings->sensors->sensorNumber ?? 0;
         if ($length == 0) {
             return;
         }
-        for ($i = 0; $i < $length; $i++) {
+        for ($i = 0; $i < $settings->sensors->sensorNumber; $i++) {
             $idx = "S$i";
-            $sensorID = $settings->sensors->$idx->alias ?? $settings->sensors->$idx->id;
-            $minThreshold = $settings->sensors->$idx->t->minValue ?? 2;
-            $maxThreshold = $settings->sensors->$idx->t->maxValue ?? 30;
-			$value = $data[$i * 3];
-            if ($value !== 'NaN') {
-				$txt = "Alerta, revisar sensor:";
-				if ($value <= $minThreshold) { $txt = "Alerta de baja temperaturas sensor"; }
-				if ($value >= $maxThreshold) { $txt = "Alerta de altas temperaturas sensor"; }
-				foreach ($usersID as $user) {
-					$msg = "{$txt}: {$sensorID} [{$value}°C]...";
-					$url = "https://dtaamerica.com/ws/push.php?user={$user}&txt=" . urlencode($msg);
-					$response = file_get_contents($url);
-				}
+            $sensor = $settings->sensors->$idx;
+            $sensorLength =  $sensor->type == "SHT4x" ? 4 : ($sensor->type == "STH"  || $sensor->type == "FlP")? 3 : 1;
+            $sensorID = $sensor->alias ?? $sensor->id;
+            if ($sensorID !== '0x0') {
+                $minHumThreshold = $sensor->h->minValue ?? 20;
+                $maxHumThreshold = $sensor->h->maxValue ?? 80;
+                $value = $data[$i * $sensorLength];
+                if(isset($sensor->h) && isset($sensor->h->notify) && $sensor->h->notify) {
+                    $this->sendPushNotification($usersID, "Humedad", $sensorID, $value, $minHumThreshold, $maxHumThreshold);
+                }
+                $minTempThreshold = $sensor->t->minValue ?? 5;
+                $maxTempThreshold = $sensor->t->maxValue ?? 30;
+                $value = $data[$i * $sensorLength + 1];
+                if(isset($sensor->t) && isset($sensor->t->notify) && $sensor->t->notify) {
+                    $this->sendPushNotification($usersID, "Temperatura", $sensorID, $value, $minTempThreshold, $maxTempThreshold);
+                }
             }
         }
     }
+
+    private function sendPushNotification($usersID, $txt, $sensorID, $value, $minThreshold, $maxThreshold): void {
+        if ($value !== 'NaN' && $value !== '-127' && $value > -127 && $value !== '' && $minThreshold !== 'null' && $maxThreshold !== 'null') {
+            if ($value <= $minThreshold || $maxThreshold <= $value) { 
+                $txt = "Alerta " . ($value <= $minThreshold ? "baja " : "alta ") . $txt; 
+                foreach ($usersID as $user) {
+                    $msg = "{$txt}: {$sensorID} [{$value}" . ($txt == 'Temperatura' ? '°C' : '%') . "]...";
+                    $url = "https://dtaamerica.com/ws/push.php?user={$user}&txt=" . urlencode($msg);
+                    $response = file_get_contents($url);
+                }
+            }
+        }
+    }
+
+    public function escribirLog($mensaje) {
+        $archivo = __DIR__ . '/log.txt'; // Usamos ruta absoluta
+        $fechaHora = date('Y-m-d H:i:s');
+        $entrada = "[{$fechaHora}] {$mensaje}\n";
+        
+        // Verificar si podemos escribir en el directorio
+        if (!is_writable(dirname($archivo))) {
+            error_log("Error: El directorio no tiene permisos de escritura: " . dirname($archivo));
+            return false;
+        }
+        
+        $manejador = @fopen($archivo, 'a');
+        if ($manejador === false) {
+            $error = error_get_last();
+            error_log("Error al abrir el archivo de log: " . ($error['message'] ?? 'Error desconocido'));
+            return false;
+        }
+        
+        if (fwrite($manejador, $entrada) === false) {
+            error_log("Error al escribir en el archivo de log");
+            fclose($manejador);
+            return false;
+        }
+        
+        fclose($manejador);
+        return true;
+    }    
 
     private function updateSettings(object $settings): void {
         $this->executeRequest(
@@ -144,21 +191,22 @@ class SensorSystem {
         );
     }
 
-    private function fillEmptyData($rawData): array {
-		$rawData = str_replace(',,', ',NaN,NaN,NaN,', $rawData);
-		$rawData = str_replace(',,', ',NaN,NaN,NaN,', $rawData);
-		$rawData = str_replace('[,', '[NaN,NaN,NaN,', $rawData);
-		$rawData = str_replace(',]', ',NaN,NaN,NaN]', $rawData);
+    private function fillEmptyData($rawData, $sensors, $sensorNumber): array {
+		$rawData = str_replace(',,', ',NaN,NaN,NaN,NaN,', $rawData);
+		$rawData = str_replace(',,', ',NaN,NaN,NaN,NaN,', $rawData);
+		$rawData = str_replace('[,', '[NaN,NaN,NaN,NaN,', $rawData);
+		$rawData = str_replace(',]', ',NaN,NaN,NaN,NaN]', $rawData);
 		$rawData = trim($rawData, '[]');	// Remover los corchetes del inicio y final
 		$data = explode(',', $rawData);     // Dividir por comas
 		return $data;
     }
 
     public function processData(): void {
+        $this->escribirLog("processData...");
         if (isset($_GET['data']) && $_GET['data'] !== '[]') {
-            $data = $this->fillEmptyData($_GET['data']);
             $settings = $this->getSettings();
-            if ($settings->operationMode == 0) {
+            $data = $this->fillEmptyData($_GET['data'], $settings->sensors, $settings->sensors->sensorNumber);
+            if ($settings->operationMode && ($settings->operationMode == "" || $settings->operationMode == "0" || $settings->operationMode == 0)) {
                 $actualize = true;
                 $length = count($data);
                 for ($i = 0; $i < $length; $i++) {
@@ -189,12 +237,10 @@ class SensorSystem {
 // Programa principal
 try {
     $system = new SensorSystem($_GET['id']);
-    
-    // Procesar datos si están presentes
-    $system->processData();
-    
-    // Enviar configuración al dispositivo
-    print_r($system->formatSettingsForDevice());
+    $urlCompleta = "http://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];     // URL completa
+    $system->escribirLog($urlCompleta);
+    print_r($system->formatSettingsForDevice());                             // Enviar configuración al dispositivo
+    $system->processData();                                                         // Procesar datos si están presentes    
 } catch (Exception $e) {
     error_log("Error: " . $e->getMessage());
     http_response_code(500);

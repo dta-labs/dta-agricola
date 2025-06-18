@@ -12,7 +12,7 @@
 #pragma region Programa Principal
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(19200);
   while (!Serial) delay(10);  // Pausar Arduino Zero, Leonardo, etc. hasta que se active el puerto serie
   Serial.println(F("\n\nLoRa Gateway Tester v6.1"));
   initLoRa();

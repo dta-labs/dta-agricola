@@ -24,16 +24,14 @@
 #define emptySensor F(",,")
 #define watchDogPin A0
 
-#define httpServer F("AT+HTTPPARA=\"URL\",\"http://dtaamerica.com/ws/sensor_v6.php?id=")
-String telefono = "";
-
 #define FREQUENCY 915E6                       // 433E6 or 915E6*, the MHz frequency of module
 
 SoftwareSerial gprs(4, 3);                    // Comunicaciones (D3: Rx, D4: Tx) 
+#define httpServer F("AT+HTTPPARA=\"URL\",\"http://dtaamerica.com/ws/sensor_v6.php?id=")
+String telefono = "";
 bool restartGSM = true;
 byte signalVar = 0;
 byte QoS = 99;
-
 #define testComm false
 #define responseTime 15
 byte commError = 0;
@@ -42,7 +40,7 @@ unsigned long commTimer = 0;
 
 int operationMode = 1;                        // Sensores & Modo de prueba
 #define testData false
-#define numSensors 15
+#define numSensors 5
 String dataToSend[numSensors];
 String sensorList[numSensors];
 bool first = true;

@@ -85,15 +85,15 @@ self.addEventListener('push', event => {
     event.waitUntil(
         self.registration.showNotification(notification.title, {
             body: notification.body,
-            icon: './assets/images/DTA.png',
+            icon: './assets/images/DTA-Agricola.png',
             data: { 
                 notifURL: notification.url,
                 sound: './assets/sounds/alarma-de-evacuacion.mp3'
             }
         })
     );
-    const audio = new Audio('./assets/sounds/alarma-de-evacuacion.mp3');
-    audio.play();
+    // const audio = new Audio('./assets/sounds/alarma-de-evacuacion.mp3');
+    // audio.play();
 });
   
 // Handle notification click
@@ -103,14 +103,14 @@ self.addEventListener('notificationclick', event => {
     );
 });
 
-self.registration.showNotification("DTA-Agrícola", {
-    body: "Bienvenido a DTA - Irrigation Control",
-    icon: "./assets/images/DTA.png",
-    data: { 
-        notifURL: "./index.html", 
-        sound: "./assets/sounds/alarma-de-evacuacion.mp3" 
-    }
-});
+// self.registration.showNotification("DTA-Agrícola", {
+//     body: "Bienvenido a DTA - Irrigation Control",
+//     icon: "./assets/images/DTA.png",
+//     data: { 
+//         notifURL: "./index.html", 
+//         sound: "./assets/sounds/alarma-de-evacuacion.mp3" 
+//     }
+// });
 
   
 // self.addEventListener('load', () => {
