@@ -79,9 +79,9 @@ void loraRxData() {
     Serial.print(F("\n └─ ")); 
     if (loraCheckData(data)) {
       Serial.print(data);
-      sendConfirmation(data);
+      // sendConfirmation(data);
     } else {
-      Serial.print(F("« Error de lectura... »"));
+      Serial.print(data); Serial.print(F("« Error de lectura... »"));
     }
   }
 }
