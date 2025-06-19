@@ -2185,6 +2185,9 @@ app.controller("ControladorPrincipal", function ($scope) {
                 case "SHT":
                     processResultsFromSHTSensors(result, title, chartId, chartLabel);
                     break;
+                case "SHT4":
+                    processResultsFromSHT4Sensors(result, title, chartId, chartLabel);
+                    break;
             }
         });
     }
@@ -2200,6 +2203,9 @@ app.controller("ControladorPrincipal", function ($scope) {
                         break;
                     case "SHT":
                         processResultsFromSHTSensors(result, title, i);
+                        break;
+                    case "SHT4":
+                        processResultsFromSHT4Sensors(result, title, i);
                         break;
                 }
             }
@@ -2246,13 +2252,14 @@ app.controller("ControladorPrincipal", function ($scope) {
     const processResultsFromSHTSensors = (result, title, i, chartLabel) => {
         const items = result[0] ? parseInt(JSON.parse(result[0].dataRaw).length / 3) : 0;
         let labels = [];
-        let temperature = [];
         let moisture = [];
+        let humidity = [];
+        let temperature = [];
         lastDate = "";
         result.forEach(element => {
             let data = JSON.parse(element.dataRaw);
-            temperature.push(data[i * 3]);
             moisture.push(data[i * 3 + 1]);
+            temperature.push(data[i * 3]);
             date = element.date.substr(6, 2) + "/" + element.date.substr(4, 2);
             if (lastDate != date) {
                 lastDate = date;
@@ -2261,10 +2268,33 @@ app.controller("ControladorPrincipal", function ($scope) {
             }
             labels.push(date + " " + element.date.substr(9, 14));
         });
-        chart(moisture, temperature, labels, title, i, chartLabel);
+        chart(moisture, humidity, temperature, labels, title, i, chartLabel);
     }
 
-    const chart = (moisture, temperature, labels, title, i, chartLabel) => {
+    const processResultsFromSHT4Sensors = (result, title, i, chartLabel) => {
+        const items = result[0] ? parseInt(JSON.parse(result[0].dataRaw).length / 4) : 0;
+        let labels = [];
+        let moisture = [];
+        let humidity = [];
+        let temperature = [];
+        lastDate = "";
+        result.forEach(element => {
+            let data = JSON.parse(element.dataRaw);
+            moisture.push(data[i * 3]);
+            humidity.push(data[i * 3 + 1]);
+            temperature.push(data[i * 3 + 2]);
+            date = element.date.substr(6, 2) + "/" + element.date.substr(4, 2);
+            if (lastDate != date) {
+                lastDate = date;
+            } else {
+                date = "";
+            }
+            labels.push(date + " " + element.date.substr(9, 14));
+        });
+        chart(moisture, humidity, temperature, labels, title, i, chartLabel);
+    }
+
+    const chart = (moisture, humidity, temperature, labels, title, i, chartLabel) => {
         try {
             let canvas = document.getElementById(chartLabel);
             if (!canvas) return;
@@ -2272,7 +2302,7 @@ app.controller("ControladorPrincipal", function ($scope) {
             let type = moisture.length < 14 ? 'bar' : 'line';
             charts[i] = new Chart(canvas, {
                 type: type,
-                data: getDataArray(moisture, temperature, labels),
+                data: getDataArray(moisture, humidity, temperature, labels),
                 options: getOptions(title)
             });
             if (canvas.parentNode) canvas.parentNode.style.height = '250px';    
@@ -2283,10 +2313,23 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     const skipped = (ctx, value) => ctx.p0.skip || ctx.p1.skip ? value : undefined;
 
-    const getDataArray = (_moisture, _temperature, _labels) => {
+    const getDataArray = (_moisture, _humidity, _temperature, _labels) => {
         let moisture = {
-            label: "Humedad",
+            label: "Humedad suelo",
             data: _moisture,
+            cubicInterpolationMode: 'monotone',
+            tension: 0.4,
+            borderWidth: 1,
+            type: 'line',
+            segment: {
+              borderDash: ctx => skipped(ctx, [3, 3]),
+            },
+            spanGaps: true,
+            pointRadius: 0
+        }
+        let humidity = {
+            label: "Humedad ambiente",
+            data: _humidity,
             cubicInterpolationMode: 'monotone',
             tension: 0.4,
             borderWidth: 1,
@@ -2312,7 +2355,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         }
         return {
             labels: _labels,
-            datasets: [moisture, temperature]
+            datasets: [moisture, humidity, temperature]
         }
     }
 

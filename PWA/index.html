@@ -1415,6 +1415,27 @@
                                                                                 <span style="font-size: .8em;">{{  parseJSON(actualSystem.log.voltages)[0] | number : 1 }}</span>v   
                                                                             </td>
                                                                         </tr>
+                                                                        <tr ng-show="actualSystem.sensors['S0'].type=='SHT4'">
+                                                                            <td width="20%" class="switchControl waves-effect teal" 
+                                                                                style="font-size: 3em; padding: 0 !important; color: white;">
+                                                                                <i class="fa fa-tint" aria-hidden="true"></i>
+                                                                            </td>
+                                                                            <td width="40%" style="font-size: 2.5em; text-align: center;">
+                                                                                {{ actualSystem.log.meanValue | number : 0 }}%
+                                                                            </td>
+                                                                            <td width="25%" style="text-align: left;" ng-show="actualSystem.type == 'Sensor'">
+                                                                                min: {{ actualSystem.log.minValue | number : 0 }}% <br>
+                                                                                max: {{ actualSystem.log.maxValue | number : 0 }}%
+                                                                            </td>
+                                                                            <td width="15%" style="text-align: center;" ng-init="bat = 0">
+                                                                                <i class="material-icons">
+                                                                                    {{ parseJSON(actualSystem.log.voltages)[0] >= 4.2 ? "battery_charging_full" : 
+                                                                                        parseJSON(actualSystem.log.voltages)[0] >= 3.7 ? "battery_full" : 
+                                                                                        "battery_alert" }}
+                                                                                    </i> <br>
+                                                                                <span style="font-size: .8em;">{{  parseJSON(actualSystem.log.voltages)[0] | number : 1 }}</span>v   
+                                                                            </td>
+                                                                        </tr>
                                                                     </table>
                                                                 </li>
                                                             </ul>
@@ -1433,13 +1454,12 @@
                                                                     </div>
                                                                 </div>
                                                                 <div class="row" style="margin-bottom: 5px; padding: 10px; border-radius: 3px; border: 1px solid #d2d2d2; background-color: #f8f8f8;" ng-init="data=convertStrToJSON(actualSystem.log.dataRaw)">
-                                                                    <div class="col s2"></div>
                                                                     <div class="col s2"><img src="./assets/images/agua.png" alt="Agua" style="width: 20px; margin-top: 5px;"></div>
-                                                                    <div class="col s2" style="text-align: right; font-size: 1.5em; color: {{ data[($index * 3) + 1] < sensor.h.minValue || data[($index * 3) + 1] > sensor.h.maxValue ? 'red' : 'green' }};"><b>{{ data[($index * 3) + 1] != "NaN" ? (data[($index * 3) + 1] | number : 0) : '--' }}%</b></div>
-                                                                    <div class="col s1"></div>
+                                                                    <div class="col s2" style="text-align: right; font-size: 1.5em; color: {{ data[($index * 3)] < sensor.h.minValue || data[($index * 3)] > sensor.h.maxValue ? 'red' : 'green' }};"><b>{{ data[($index * 3)] != "NaN" ? (data[($index * 3)] | number : 0) : '--' }}%</b></div>
+                                                                    <div class="col s2"><img src="./assets/images/agua.png" alt="Agua" style="width: 20px; margin-top: 5px;"></div>
+                                                                    <div class="col s2" style="text-align: right; font-size: 1.5em; color: black;"><b>{{ data[($index * 3) + 1] != "NaN" ? (data[($index * 3) + 1] | number : 0) : '--' }}%</b></div>
                                                                     <div class="col s2"><img src="./assets/images/termometro.png" alt="Termometro" style="width: 20px; margin-top: 5px;"></div>
-                                                                    <div class="col s2" style="text-align: right; font-size: 1.5em; color: {{ data[($index * 3)] < sensor.t.minValue || data[($index * 3)] > sensor.t.maxValue ? 'red' : 'green' }};"><b>{{ data[($index * 3)] != "NaN" ? (data[($index * 3)] | number : 0) : '--' }}°C</b></div>
-                                                                    <div class="col s1"></div>
+                                                                    <div class="col s2" style="text-align: right; font-size: 1.5em; color: {{ data[($index * 3) + 2] < sensor.t.minValue || data[($index * 3) + 2] > sensor.t.maxValue ? 'red' : 'green' }};"><b>{{ data[($index * 3) + 2] != "NaN" ? (data[($index * 3) + 2] | number : 0) : '--' }}°C</b></div>
                                                                 </div>
                                                             </li>
                                                         </ul>
@@ -2289,15 +2309,17 @@
                                                             <thead>
                                                                 <tr>
                                                                     <th><i class="fa fa-calendar" aria-hidden="true"></i> Fecha</th>
-                                                                    <th><img src="./assets/images/agua.png" alt="Agua" style="width: 20px;"> Humedad</th>
-                                                                    <th><img src="./assets/images/termometro.png" alt="Termometro" style="width: 20px;"> Temperatura</th>
+                                                                    <th><img src="./assets/images/agua.png" alt="Agua" style="width: 20px;"> H.Suelo</th>
+                                                                    <th><img src="./assets/images/agua.png" alt="Agua" style="width: 20px;"> H.Relativa</th>
+                                                                    <th><img src="./assets/images/termometro.png" alt="Termometro" style="width: 20px;"> Temp.</th>
                                                                 </tr>
                                                             </thead>
                                                             <tbody>
                                                                 <tr ng-repeat="reg in invertedRegisters" ng-init="data=convertStrToJSON(reg.dataRaw)">
                                                                     <td>{{ reg.date }}</td>
-                                                                    <td style="color: {{ data[idx * 3 + 1] < sensor.h.minValue || data[idx * 3 + 1] > sensor.h.maxValue ? 'red' : 'green' }};"><b>{{ data[(idx * 3) + 1] }}%</b></td>
-                                                                    <td style="color: {{ data[idx * 3] < sensor.t.minValue || data[idx * 3] > sensor.t.maxValue ? 'red' : 'green' }};"><b>{{ data[(idx * 3)] }}°C</b></td>
+                                                                    <td style="color: {{ data[idx * 3] < sensor.h.minValue || data[idx * 3] > sensor.h.maxValue ? 'red' : 'green' }};"><b>{{ data[(idx * 3)] }}%</b></td>
+                                                                    <td style="color: black;"><b>{{ data[(idx * 3) + 1] }}%</b></td>
+                                                                    <td style="color: {{ data[idx * 3 + 2] < sensor.t.minValue || data[idx * 3 + 2] > sensor.t.maxValue ? 'red' : 'green' }};"><b>{{ data[(idx * 3) + 2] }}°C</b></td>
                                                                 </tr>
                                                             </tbody>
                                                         </table>
@@ -3110,6 +3132,7 @@
                                         <br>
                                         <div class="input-field col s12">
                                             <select id="newSensorType" ng-model="newSensor.type" ng-value="newSensor.type" ng-selected="newSensor.type">
+                                                <option value="SHT4" selected="{{ newSensor.type == 'SHT4' ? 'selected' : '' }}">Micro estación tipo sonda</option>
                                                 <option value="SHT" selected="{{ newSensor.type == 'SHT' ? 'selected' : '' }}">Humedad del suelo y Temperatura</option>
                                                 <option value="Ms" selected="{{ newSensor.type == 'Ms' ? 'selected' : '' }}">Humedad suelo</option>                                
                                                 <option value="Tr" selected="{{ newSensor.type == 'Tr' ? 'selected' : '' }}">Temperatura</option>
@@ -3121,7 +3144,7 @@
                                         <div class="col s12"
                                             style="background: whitesmoke; box-shadow: 0 0 3px lightgrey; margin-bottom: 20px; 
                                                 border: 1px solid lightgrey; border-radius: 5px;">
-                                            <div ng-show="newSensor.type == 'Ms' || newSensor.type == 'SHT'">
+                                            <div ng-show="newSensor.type == 'Ms' || newSensor.type == 'SHT' || newSensor.type == 'SHT4'">
                                                 <label><b>Humbral de Humedad</b></label>
                                                 <div id="newSensorH" class="row">
                                                     <div class="input-field col s6 m3">
@@ -3283,6 +3306,7 @@
                                         <br>
                                         <div class="input-field col s12">
                                             <select id="editSensorType" ng-model="actualSensor.type" ng-value="actualSensor.type" ng-selected="actualSensor.type">
+                                                <option value="SHT4" selected="{{ actualSensor.type == 'SHT4' ? 'selected' : '' }}">Micro estación tipo sonda</option>
                                                 <option value="SHT" selected="{{ actualSensor.type == 'SHT' ? 'selected' : '' }}">Humedad del suelo y Temperatura</option>
                                                 <option value="Ms" selected="{{ actualSensor.type == 'Ms' ? 'selected' : '' }}">Humedad suelo</option>                                
                                                 <option value="Tr" selected="{{ actualSensor.type == 'Tr' ? 'selected' : '' }}">Temperatura</option>
@@ -3294,7 +3318,7 @@
                                         <div class="col s12"
                                             style="background: whitesmoke; box-shadow: 0 0 3px lightgrey; margin-bottom: 20px; 
                                                 border: 1px solid lightgrey; border-radius: 5px;">
-                                            <div ng-show="actualSensor.type == 'Ms' || actualSensor.type == 'SHT'">
+                                            <div ng-show="actualSensor.type == 'Ms' || actualSensor.type == 'SHT' || actualSensor.type == 'SHT4'">
                                                 <label><b>Humbral de Humedad</b></label>
                                                 <div id="editSensorH" class="row">
                                                     <div class="input-field col s6 m3">
@@ -3315,7 +3339,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div ng-show="actualSensor.type == 'Tr' || actualSensor.type == 'SHT'">
+                                            <div ng-show="actualSensor.type == 'Tr' || actualSensor.type == 'SHT' || actualSensor.type == 'SHT4'">
                                                 <label><b>Humbral de Temperatura</b></label>
                                                 <div id="editSensorT" class="row">
                                                     <div class="input-field col s6 m3">
