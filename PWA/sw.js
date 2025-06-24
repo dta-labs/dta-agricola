@@ -80,6 +80,7 @@ self.addEventListener('activate', e => {
 // });
 
 // Firebase Cloud Messaging Push Notification Handling
+
 self.addEventListener('push', event => {
     const notification = event.data.json();
     event.waitUntil(

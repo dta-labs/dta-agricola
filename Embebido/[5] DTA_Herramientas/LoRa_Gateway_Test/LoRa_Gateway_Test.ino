@@ -6,7 +6,7 @@
 #define startAddress F("0x")
 #define commaChar F(",")
 #define FREQUENCY 915E6                       // 433E6 or 915E6*, the MHz frequency of module
-#define TIME_SCAN 10                          // Tiempo de escaneo  
+#define TIME_SCAN 3                           // Tiempo de escaneo  
 #pragma endregion Variables
 
 #pragma region Programa Principal
@@ -79,7 +79,7 @@ void loraRxData() {
     Serial.print(F("\n └─ ")); 
     if (loraCheckData(data)) {
       Serial.print(data);
-      // sendConfirmation(data);
+      sendConfirmation(data);
     } else {
       Serial.print(data); Serial.print(F("« Error de lectura... »"));
     }

@@ -11,14 +11,15 @@ void initLoRa() {
   LoRa.setSpreadingFactor(12);                    // Factor de propagación de 12
   LoRa.setCodingRate4(5);                         // Tasa de codificación 4/5
   // LoRa.setSyncWord(0x12);                         // Reducir el tamaño del buffer
-  LoRa.sleep();                                   // Modo de reposo
+  // LoRa.sleep();                                   // Modo de reposo
+  LoRa.receive();
   DBG_PRINTLN(F("LoRa inicializado correctamente ✔"));
 }
 
 void resetSPI() {
   SPI.end();
   SPI.begin();
-  LoRa.begin(FREQUENCY);
+  delay(10);
 }
 
 int getPossition(String str) {
@@ -54,21 +55,6 @@ void discoverNewSensor(String data) {             // DTA-GTW-0x0000
   }
 }
 
-// void discoverNewSensor_old(String data) {             // DTA-GTW-0x0000
-//   int addressIdx = data.indexOf(startAddress);
-//   int commaIdx = data.indexOf(commaChar);
-//   String sensorId = data.substring(addressIdx, commaIdx);
-//   if (isHexadecimal(sensorId)) {
-//     int index = getPossition(sensorId);
-//     if (index == -1) {
-//       index = setPossition(sensorId);
-//       if (index != -1) {
-//         Serial.print(F("\n     [")); Serial.print(index); Serial.print(F("] <- ")); Serial.print(sensorId);
-//       }
-//     }
-//   }
-// }
-
 void loraTxData(String dataStr) {
   // DBG_PRINT(F("\n        ~ Confirmación: ")); DBG_PRINT(dataStr);
   LoRa.idle();
@@ -77,23 +63,25 @@ void loraTxData(String dataStr) {
   LoRa.endPacket();
   delay(100);
   DBG_PRINT(F(" ✔ Ok"));
-  LoRa.sleep();
+  LoRa.receive();
 }
 
 void sendConfirmation(String sensorId) {
-  int frec = operationMode / 2;
+  int frec = operationMode / 5;
+  frec = frec > 1 ? frec : 1;
   String confirmation = sensorId + commaChar + frec + commaChar;
   confirmation += String(calculateSum(confirmation));
   delay(500);
   loraTxData(confirmation);
 }
 
-void processData(String data, String rssi) {      // DTA-GTW-0x0000,t°C,%Hs,Vcc,rssi
+void processData(String data, String rssi) {      // DTA-SHT-0x00000000,%Ms,%Hr,t°C,Vcc,rssi
   int addressIdx = data.indexOf(startAddress);
   int commaIdx = data.indexOf(commaChar);
   String sensorId = data.substring(addressIdx, commaIdx);
+  // if (sensorList.indexOf(sensorIdx) == -1) return;
   int index = getPossition(sensorId);
-  // DBG_PRINT("[" + (String)index + "]" + sensorId);
+  DBG_PRINT("[" + (String)index + "]" + sensorId);
   if (index != -1) {
     String newData = data.substring(commaIdx + 1, data.lastIndexOf(commaChar));
     dataToSend[index] = newData;
@@ -111,24 +99,19 @@ bool loraCheckData(String data) {
 
 void loraRxData() {
   if (LoRa.parsePacket()) {
+    // DBG_PRINT(F("."));
     String data = strEmpty;
     while (LoRa.available()) {
       data += (char)LoRa.read();
     }
-    if (data.indexOf(F("DTA")) == 0) {
-      if (loraCheckData(data)) {
-        if (operationMode == 0) {
-          discoverNewSensor(data);
-        } else {
-          DBG_PRINT(F("\n     → ")); DBG_PRINT(data);
-          processData(data, String(LoRa.packetRssi()));
-          systemWatchDog();
-        }
-      } else {
-        DBG_PRINT(F("\n     → « ✘ Error de lectura... »"));
-      }
+    if (!data.startsWith(F("DTA"))) {  DBG_PRINT(data); DBG_PRINT(F("\n     → « ✘ Dispositivo no reconocido... »")); return; }
+    if (!loraCheckData(data)) { DBG_PRINT(F("\n     → « ✘ Error de lectura... »")); return; }
+    if (operationMode == 0) {
+      discoverNewSensor(data);
     } else {
-      DBG_PRINT(F("\n     → « ✘ Dispositivo no reconocido... »"));
+      DBG_PRINT(F("\n     → ")); DBG_PRINT(data);
+      processData(data, String(LoRa.packetRssi()));
+      systemWatchDog();
     }
   }
 }

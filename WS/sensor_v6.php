@@ -120,22 +120,23 @@ class SensorSystem {
         if ($length == 0) {
             return;
         }
-        for ($i = 0; $i < $dataSize / 3; $i++) {
+        for ($i = 0; $i < $settings->sensors->sensorNumber; $i++) {
             $idx = "S$i";
             $sensor = $settings->sensors->$idx;
+            $sensorLength = $sensor->type == "SHT4x" ? 4 : (($sensor->type == "STH" || $sensor->type == "FlP") ? 3 : 1);
             $sensorID = $sensor->alias ?? $sensor->id;
             if ($sensorID !== '0x0') {
-                $minTempThreshold = $sensor->t->minValue ?? 2;
-                $maxTempThreshold = $sensor->t->maxValue ?? 30;
-                $value = $data[$i * 3];
-                if(isset($sensor->t) && isset($sensor->t->notify) && $sensor->t->notify) {
-                    $this->sendPushNotification($usersID, "Temperatura", $sensorID, $value, $minTempThreshold, $maxTempThreshold);
-                }
                 $minHumThreshold = $sensor->h->minValue ?? 20;
                 $maxHumThreshold = $sensor->h->maxValue ?? 80;
-                $value = $data[$i * 3 + 1];
+                $value = $data[$i * $sensorLength];
                 if(isset($sensor->h) && isset($sensor->h->notify) && $sensor->h->notify) {
                     $this->sendPushNotification($usersID, "Humedad", $sensorID, $value, $minHumThreshold, $maxHumThreshold);
+                }
+                $minTempThreshold = $sensor->t->minValue ?? 5;
+                $maxTempThreshold = $sensor->t->maxValue ?? 30;
+                $value = $data[$i * $sensorLength + 1];
+                if(isset($sensor->t) && isset($sensor->t->notify) && $sensor->t->notify) {
+                    $this->sendPushNotification($usersID, "Temperatura", $sensorID, $value, $minTempThreshold, $maxTempThreshold);
                 }
             }
         }
@@ -190,11 +191,11 @@ class SensorSystem {
         );
     }
 
-    private function fillEmptyData($rawData): array {
-		$rawData = str_replace(',,', ',NaN,NaN,NaN,', $rawData);
-		$rawData = str_replace(',,', ',NaN,NaN,NaN,', $rawData);
-		$rawData = str_replace('[,', '[NaN,NaN,NaN,', $rawData);
-		$rawData = str_replace(',]', ',NaN,NaN,NaN]', $rawData);
+    private function fillEmptyData($rawData, $sensors, $sensorNumber): array {
+		$rawData = str_replace(',,', ',NaN,NaN,NaN,NaN,', $rawData);
+		$rawData = str_replace(',,', ',NaN,NaN,NaN,NaN,', $rawData);
+		$rawData = str_replace('[,', '[NaN,NaN,NaN,NaN,', $rawData);
+		$rawData = str_replace(',]', ',NaN,NaN,NaN,NaN]', $rawData);
 		$rawData = trim($rawData, '[]');	// Remover los corchetes del inicio y final
 		$data = explode(',', $rawData);     // Dividir por comas
 		return $data;
@@ -203,8 +204,8 @@ class SensorSystem {
     public function processData(): void {
         $this->escribirLog("processData...");
         if (isset($_GET['data']) && $_GET['data'] !== '[]') {
-            $data = $this->fillEmptyData($_GET['data']);
             $settings = $this->getSettings();
+            $data = $this->fillEmptyData($_GET['data'], $settings->sensors, $settings->sensors->sensorNumber);
             if ($settings->operationMode && ($settings->operationMode == "" || $settings->operationMode == "0" || $settings->operationMode == 0)) {
                 $actualize = true;
                 $length = count($data);

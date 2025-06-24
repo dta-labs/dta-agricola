@@ -927,9 +927,9 @@ app.controller("ControladorPrincipal", function ($scope) {
                 "F5_dry_value": 15,
                 "F5_wet_value": 30
             },
-            "operationMode": "3",
+            "operationMode": "5",
             "sensingProcess": false,
-            "sleepingTime": "1"
+            "sleepingTime": "5"
         });
     }
 
@@ -2760,7 +2760,7 @@ enablePushNotifications = () => {
                 }).then(subscription => {
                     subscriptionJSON = JSON.stringify(subscription);
                     console.log(subscriptionJSON);
-            })
+                })
             })
         }
     })

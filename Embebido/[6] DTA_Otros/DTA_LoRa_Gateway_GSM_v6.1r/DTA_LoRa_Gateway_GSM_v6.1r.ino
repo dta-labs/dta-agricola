@@ -24,9 +24,10 @@ void setup() {
   DBG_PRINTLN(F("\n\nLoRa Gateway Universal v6.1.0618"));
   initLoRa();
   // resetSIM();
-  comunicaciones();
+  // comunicaciones();
   resetData();
   commTimer = millis();
+  sensorList="0xF46A405,0xF46A38F,0xF46A2F8";
 }
 
 void loop() {
@@ -37,7 +38,7 @@ void loop() {
   } else {
     rxData();
   }
-  delay(5000);
+  delay(50);
 }
 
 bool isTxTime() {
@@ -48,15 +49,24 @@ bool isTxTime() {
   return millis() - commTimer >= commFrequence;
 }
 
-void rxData() {
-  LoRa.idle();
-  loraRxData();
+void txData() {
+  // LoRa.sleep();
+  delay(500);
+  DBG_PRINTLN();
+  for(int i = 0; i < numSensors; i++) {
+    DBG_PRINT(dataToSend[i]);
+    if (i < numSensors - 1) DBG_PRINT(commaChar); 
+    else strEmpty;
+  }
+  Serial.println();
+  // comunicaciones();
 }
 
-void txData() {
-  LoRa.sleep();
-  delay(500);
-  comunicaciones();
+void rxData() {
+  // LoRa.idle();
+  loraRxData();
+  // LoRa.sleep();
+  // DBG_PRINT(F("\nMemoria disponible al leer HTTP: ")); DBG_PRINTLN(freeRam());
 }
 
 #pragma endregion Programa Principal

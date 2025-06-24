@@ -433,7 +433,7 @@
                                                 <option value="PL" data-icon="./assets/images/riegoPivote.png">Pivote lineal</option>
                                                 <option value="Estacionario" data-icon="./assets/images/estacionario.png">Estacionario</option>
                                                 <option value="Pozo" data-icon="./assets/images/pozo.png">Bombeo</option>
-                                                <option value="Sensor" data-icon="./assets/images/sensor.png">Sensor</option>
+                                                <option value="Sensor" data-icon="./assets/images/Red-Sensores.png">Red de sensores</option>
                                             </select>
                                             <label for="newDeviceType">Tipo de equipo</label>
                                         </div>
@@ -1455,11 +1455,11 @@
                                                                 </div>
                                                                 <div class="row" style="margin-bottom: 5px; padding: 10px; border-radius: 3px; border: 1px solid #d2d2d2; background-color: #f8f8f8;" ng-init="data=convertStrToJSON(actualSystem.log.dataRaw)">
                                                                     <div class="col s2"><img src="./assets/images/agua.png" alt="Agua" style="width: 20px; margin-top: 5px;"></div>
-                                                                    <div class="col s2" style="text-align: right; font-size: 1.5em; color: {{ data[($index * 3)] < sensor.h.minValue || data[($index * 3)] > sensor.h.maxValue ? 'red' : 'green' }};"><b>{{ data[($index * 3)] != "NaN" ? (data[($index * 3)] | number : 0) : '--' }}%</b></div>
+                                                                    <div class="col s2" style="text-align: right; font-size: 1.5em; color: {{ data[($index * 4)] < sensor.h.minValue || data[($index * 4)] > sensor.h.maxValue ? 'red' : 'green' }};"><b>{{ data[($index * 4)] != "NaN" ? (data[($index * 4)] | number : 0) : '--' }}%</b></div>
                                                                     <div class="col s2"><img src="./assets/images/agua.png" alt="Agua" style="width: 20px; margin-top: 5px;"></div>
-                                                                    <div class="col s2" style="text-align: right; font-size: 1.5em; color: black;"><b>{{ data[($index * 3) + 1] != "NaN" ? (data[($index * 3) + 1] | number : 0) : '--' }}%</b></div>
+                                                                    <div class="col s2" style="text-align: right; font-size: 1.5em; color: black;"><b>{{ data[($index * 4) + 1] != "NaN" ? (data[($index * 4) + 1] | number : 0) : '--' }}%</b></div>
                                                                     <div class="col s2"><img src="./assets/images/termometro.png" alt="Termometro" style="width: 20px; margin-top: 5px;"></div>
-                                                                    <div class="col s2" style="text-align: right; font-size: 1.5em; color: {{ data[($index * 3) + 2] < sensor.t.minValue || data[($index * 3) + 2] > sensor.t.maxValue ? 'red' : 'green' }};"><b>{{ data[($index * 3) + 2] != "NaN" ? (data[($index * 3) + 2] | number : 0) : '--' }}°C</b></div>
+                                                                    <div class="col s2" style="text-align: right; font-size: 1.5em; color: {{ data[($index * 4) + 2] < sensor.t.minValue || data[($index * 4) + 2] > sensor.t.maxValue ? 'red' : 'green' }};"><b>{{ data[($index * 4) + 2] != "NaN" ? (data[($index * 4) + 2] | number : 0) : '--' }}°C</b></div>
                                                                 </div>
                                                             </li>
                                                         </ul>
@@ -1512,7 +1512,7 @@
                                                 <td style="text-align: left;"><b><i>{{ actualSystem.installation}}</b></i></td>
                                             </tr>
                                             <tr>
-                                                <td style="text-align: left;">Id Usuario</td>
+                                                <td style="text-align: left;">Id Equipo</td>
                                                 <td style="text-align: left;"><b><i>{{ actualSystem.key }}</i></b></td>
                                             </tr>
                                             <tr>
@@ -1966,7 +1966,7 @@
                                                 </div>
                                             </li>
                                             <li> <!-- Estrateia de sensado -->
-                                                <div class="collapsible-header"><i class="material-icons">tune</i><span class="show-in-pc-only">Estrategia de muestreo</span><span class="show-in-mobil-only">Muestreo</span></div>
+                                                <div class="collapsible-header"><i class="material-icons">tune</i><span class="show-in-pc-only">Estrategia de monitoreo</span><span class="show-in-mobil-only">Monitoreo</span></div>
                                                 <div class="collapsible-body">
                                                     <div class="row" style="border: 1px solid grey; border-radius: 5px; margin: 5px; text-align: left;">
                                                         <div class="input-field col s12" style="padding: 0;">
@@ -1996,7 +1996,30 @@
                                                         <div class="col s12" style="padding: 3px; color: #9e9e9e;">
                                                             <!-- Frecuencia de sensado -->
                                                             <div class="row" style="margin: 0 5px; font-size: 2em;" ng-show="actualSystem.sensingMode == 1"> 
-                                                                <div class="col s12 m6">
+                                                                <div class="col s12">
+                                                                    <label>Definción de la frecuencia de sensado</label>
+                                                                    <div>
+                                                                        <p>
+                                                                            <label>
+                                                                            <input class="with-gap" name="group3" type="radio" checked ng-model="actualSystem.sleepingTime" ng-value="30" />
+                                                                            <span><b>Baja</b> (Cada 30 minutos, menor consumo de batería)</span>
+                                                                            </label>
+                                                                        </p>                                                                    
+                                                                        <p>
+                                                                            <label>
+                                                                            <input class="with-gap" name="group3" type="radio" ng-model="actualSystem.sleepingTime" ng-value="15" />
+                                                                            <span><b>Moderada</b> (Cada 15 minutos, consumo medio de batería)</span>
+                                                                            </label>
+                                                                        </p>                                                                    
+                                                                        <p>
+                                                                            <label>
+                                                                            <input class="with-gap" name="group3" type="radio" ng-model="actualSystem.sleepingTime" ng-value="5" />
+                                                                            <span><b>Alta</b> (Cada 5 minutos, consume más batería)</span>
+                                                                            </label>
+                                                                        </p>                                                                    
+                                                                    </div>
+                                                                </div>
+                                                                <!-- <div class="col s12 m6">
                                                                     <label>Definción de la frecuencia de sensado</label>
                                                                     <div class="input-field">
                                                                         <input type="text" ng-model="actualSystem.sleepingTime" placeholder="30" min="2" style="width: 150px; font-size: 1em;"> min
@@ -2019,7 +2042,7 @@
                                                                             <option value="1440">Diario</option>
                                                                         </select>
                                                                     </div>
-                                                                </div>
+                                                                </div> -->
                                                             </div>
     
                                                             <!-- Esquema de sensado -->
@@ -2315,11 +2338,11 @@
                                                                 </tr>
                                                             </thead>
                                                             <tbody>
-                                                                <tr ng-repeat="reg in invertedRegisters" ng-init="data=convertStrToJSON(reg.dataRaw)">
+                                                                <tr ng-repeat="reg in invertedRegisters" ng-init="data=convertStrToJSON(reg.dataRaw)" ng-show="data[(idx * 4)] != 'NaN' && data[(idx * 4) + 1] != 'NaN' && data[(idx * 4) + 2] != 'NaN'">
                                                                     <td>{{ reg.date }}</td>
-                                                                    <td style="color: {{ data[idx * 3] < sensor.h.minValue || data[idx * 3] > sensor.h.maxValue ? 'red' : 'green' }};"><b>{{ data[(idx * 3)] }}%</b></td>
-                                                                    <td style="color: black;"><b>{{ data[(idx * 3) + 1] }}%</b></td>
-                                                                    <td style="color: {{ data[idx * 3 + 2] < sensor.t.minValue || data[idx * 3 + 2] > sensor.t.maxValue ? 'red' : 'green' }};"><b>{{ data[(idx * 3) + 2] }}°C</b></td>
+                                                                    <td style="color: {{ data[idx * 4] < sensor.h.minValue || data[idx * 4] > sensor.h.maxValue ? 'red' : 'green' }};"><b>{{ data[(idx * 4)] != "NaN" ? (data[(idx * 4)] | number : 0) : '--' }}%</b></td>
+                                                                    <td style="color: black;"><b>{{ data[(idx * 4) + 1] != "NaN" ? (data[(idx * 4) + 1] | number : 0) : '--' }}%</b></td>
+                                                                    <td style="color: {{ data[idx * 4 + 2] < sensor.t.minValue || data[idx * 4 + 2] > sensor.t.maxValue ? 'red' : 'green' }};"><b>{{ data[(idx * 4) + 2] != "NaN" ? (data[(idx * 4) + 2] | number : 0) : '--' }}°C</b></td>
                                                                 </tr>
                                                             </tbody>
                                                         </table>
@@ -3165,7 +3188,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div ng-show="newSensor.type == 'Tr' || newSensor.type == 'SHT'">
+                                            <div ng-show="newSensor.type == 'Tr' || newSensor.type == 'SHT' || newSensor.type == 'SHT4'">
                                                 <label><b>Humbral de Temperatura</b></label>
                                                 <div id="newSensorT" class="row">
                                                     <div class="input-field col s6 m3">
@@ -3413,8 +3436,6 @@
                                     <a href="" class="modal-close waves-effect teal waves-green btn-flat white-text"
                                         ng-click="editActualSensor()"><i
                                             class="material-icons">&nbsp;&nbsp;check&nbsp;&nbsp;</i></a>
-                                </div>
-                                <!-- <br> -->
                                 </div>
                             </div>
 
@@ -4063,6 +4084,12 @@
                                                 </ul>
                                             </div>
                                         </li>
+                                        <li>    <!-- Compartir -->  
+                                            <div class="collapsible-header"><i class="fa fa-plus-square-o" aria-hidden="true"></i> Compartir la aplicación</div>
+                                            <div class="collapsible-body">
+                                                <img src="./assets/images/qr-app.png" alt="Aplicación DTA-Agrícola">
+                                            </div>
+                                        </li>
                                     </ul>
                                     <br>
                                     <div class="right-align">
@@ -4460,7 +4487,7 @@
         <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
         <script src="./assets/js/commons.js"></script>
         <!-- <script src="./assets/cultures/listPlanesRiego.js"></script> -->
-        <script src="./assets/js/core.js?v=?v=25.05.02.01"></script>
+        <script src="./assets/js/core.js?v=?v=25.06.20.01"></script>
         <!-- <script src="monitor/js/chartjs/chart.min.js"></script> -->
         <script type="text/javascript" src="./assets/modules/datepicker/daterangepicker.js"></script>
 
