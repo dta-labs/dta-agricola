@@ -1947,6 +1947,7 @@ app.controller("ControladorPrincipal", function ($scope) {
     const getSensorText = (campo, sensor, idx) => {
         // let data = JSON.parse(campo.log.dataRaw.replace(/""/g, '"","",""'));
         let data = campo.log ? JSON.parse(campo.log.dataRaw) : [];
+        // console.log("Valor:", data[idx * 4 + 2], "Min:", sensor.t.minValue, "Max:", sensor.t.maxValue, "Condición:", data[idx * 4 + 2] < sensor.t.minValue || data[idx * 4 + 2] > sensor.t.maxValue);
         let text = `<br>`;
         text += `<div style="padding: 5px 10px;">`;
         text += `    <div class="row" style="margin-bottom: 5px; border-bottom: 1px solid #ccc;">`;
@@ -1966,28 +1967,34 @@ app.controller("ControladorPrincipal", function ($scope) {
         text += `        <div class="col s8">`;
         text += `           <div style="font-size: .8em;">Humedad del suelo (%)</div>`;
         text += `           <div style="width: 100%; background-color: lightgrey; height: 6px; border-radius: 3px;">`;
-        text += `               <div style="background-color: ` + (data[idx * 3] < sensor.h.minValue || data[idx * 3] > sensor.h.maxValue ? `red` : `green`) + `; width: ` + data[idx * 3] + `%; height: 6px; border-radius: 3px;"></div>`;
+        text += `               <div style="background-color: ` + ($scope.isOutOfRange(data[idx * 4], sensor.h.minValue, sensor.h.maxValue) ? `red` : `green`) + `; width: ` + parseFloat(data[idx * 4]) + `%; height: 6px; border-radius: 3px;"></div>`;
         text += `               <span style="font-size: .6em; margin-left: ` + sensor.h.minValue + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i>${sensor.h.minValue}%</span>`;
         text += `               <span style="font-size: .6em; margin-left: ` + (sensor.h.maxValue - sensor.h.minValue - 15) + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i>${sensor.h.maxValue}%</span>`;
         text += `           </div>`;
         text += `        </div>`;
-        text += `        <div class="col s2" style="text-align: right; font-size: 1.5em; color: ` + (data[idx * 3] < sensor.h.minValue || data[idx * 3] > sensor.h.maxValue ? `red` : `green`) + `;"><b>${data[idx * 3] !== "NaN" ? parseFloat(data[idx * 3]).toFixed(0) : ""}%</b></div>`;
+        text += `        <div class="col s2" style="text-align: right; font-size: 1.5em; color: ` + ($scope.isOutOfRange(data[idx * 4], sensor.h.minValue, sensor.h.maxValue) ? `red` : `green`) + `;"><b>${data[idx * 4] !== "NaN" ? parseFloat(data[idx * 4]).toFixed(0) : "--"}%</b></div>`;
         text += `    </div>`;
         text += `    <div class="row" style="margin-bottom: 5px; padding: 10px; border-radius: 6px; background-color: #f5f5f5;">`;
         text += `        <div class="col s2"><img src="./assets/images/termometro.png" alt="Termometro" style="width: 20px;"></div>`;
         text += `        <div class="col s8">`;
         text += `           <div style="font-size: .8em;">Temperatura (°C)</div>`;
         text += `           <div style="width: 100%; background-color: lightgrey; height: 6px; border-radius: 3px;">`;
-        text += `               <div style="background-color: ` + (data[idx * 3 + 1] < sensor.t.minValue || data[idx * 3 + 1] > sensor.t.maxValue ? `red` : `green`) + `; width: ` + data[idx * 3 + 1] + `%; height: 6px; border-radius: 3px;"></div>`;
+        text += `               <div style="background-color: ` + ($scope.isOutOfRange(data[idx * 4 + 2], sensor.t.minValue, sensor.t.maxValue) ? `red` : `green`) + `; width: ` + parseFloat(data[idx * 4 + 2]) + `%; height: 6px; border-radius: 3px;"></div>`;
         text += `               <span style="font-size: .6em; margin-left: ` + sensor.t.minValue + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i>${sensor.t.minValue}°C</span>`;
         text += `               <span style="font-size: .6em; margin-left: ` + (sensor.t.maxValue - sensor.t.minValue - 15) + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i>${sensor.t.maxValue}°C</span>`;
         text += `           </div>`;
         text += `        </div>`;
-        text += `        <div class="col s2" style="text-align: right; font-size: 1.5em; color: ` + (data[idx * 3 + 1] < sensor.t.minValue || data[idx * 3 + 1] > sensor.t.maxValue ? `red` : `green`) + `;"><b>${data[idx * 3 + 1] !== "NaN" ? parseFloat(data[idx * 3 + 1]).toFixed(0) : ""}°C</b></div>`;
+        text += `        <div class="col s2" style="text-align: right; font-size: 1.5em; color: ` + ($scope.isOutOfRange(data[idx * 4 + 2], sensor.t.minValue, sensor.t.maxValue) ? `red` : `green`) + `;"><b>${data[idx * 4 + 2] !== "NaN" ? parseFloat(data[idx * 4 + 2]).toFixed(0) : "--"}°C</b></div>`;
         text += `    </div>`;
         text += `</div>`;
         return text;
     }
+
+    $scope.isOutOfRange = function(value, min, max) {
+        if (value == "NaN") return false;
+        const numValue = parseFloat(value);
+        return numValue < parseFloat(min) || numValue > parseFloat(max);
+    };
 
     const addShape = (campo) => {
         switch (campo.type) {
@@ -2280,9 +2287,9 @@ app.controller("ControladorPrincipal", function ($scope) {
         lastDate = "";
         result.forEach(element => {
             let data = JSON.parse(element.dataRaw);
-            moisture.push(data[i * 3]);
-            humidity.push(data[i * 3 + 1]);
-            temperature.push(data[i * 3 + 2]);
+            moisture.push(data[i * 4]);
+            humidity.push(data[i * 4 + 1]);
+            temperature.push(data[i * 4 + 2]);
             date = element.date.substr(6, 2) + "/" + element.date.substr(4, 2);
             if (lastDate != date) {
                 lastDate = date;

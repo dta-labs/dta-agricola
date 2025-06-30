@@ -1946,14 +1946,14 @@
                                                                 </div>
                                                                 
                                                                 <div class="col s6 sercices-options waves-effect white-text teal lighten-3 center-align" 
-                                                                style="padding: 10px 0; background: #80cbc4f0 !important;">
+                                                                style="padding: 10px 0; background: #80cbc4f0 !important;" ng-show="isSystemOfRole('propietario') || isSystemOfRole('trabajador') || isSystemOfRole('administrador')">
                                                                     <a class="modal-trigger" href="#modalBuscarSensor" style="color: white !important;" ng-click="starSearchSensor()">
                                                                         <i class="material-icons" style="font-size: 1.5em;">search</i><br>
                                                                         <span style="font-size: 1em;">Buscar </span><span class="hide-on-small-only" style="font-size: 1em;">sensor</span>
                                                                     </a>
                                                                 </div>
                                                                 <div class="col s6 sercices-options waves-effect white-text teal lighten-3 center-align" 
-                                                                style="padding: 10px 0; background: #80cbc4f0 !important;">
+                                                                style="padding: 10px 0; background: #80cbc4f0 !important;" ng-show="isSystemOfRole('propietario') || isSystemOfRole('trabajador') || isSystemOfRole('administrador')">
                                                                     <a class="modal-trigger" href="#modalNuevoSensor" style="color: white !important;" ng-click="createNewSensor()">
                                                                         <i class="material-icons" style="font-size: 1.5em;">add</i><br>
                                                                         <span style="font-size: 1em;">Agregar </span><span class="hide-on-small-only" style="font-size: 1em;">sensor</span>
@@ -2160,7 +2160,8 @@
                                                 <i class="material-icons">reply</i>
                                                 &nbsp;&nbsp;
                                             </div>
-                                            <div class="btn waves-effect waves-light teal lighten-3" ng-click="updateSensingScheme()">
+                                            <div class="btn waves-effect waves-light teal lighten-3" 
+                                                ng-click="updateSensingScheme()" ng-show="isSystemOfRole('propietario') || isSystemOfRole('administrador')">
                                                 &nbsp; <i class="material-icons">check</i> &nbsp;
                                             </div>
                                         </div>
@@ -2340,9 +2341,9 @@
                                                             <tbody>
                                                                 <tr ng-repeat="reg in invertedRegisters" ng-init="data=convertStrToJSON(reg.dataRaw)" ng-show="data[(idx * 4)] != 'NaN' && data[(idx * 4) + 1] != 'NaN' && data[(idx * 4) + 2] != 'NaN'">
                                                                     <td>{{ reg.date }}</td>
-                                                                    <td style="color: {{ data[idx * 4] < sensor.h.minValue || data[idx * 4] > sensor.h.maxValue ? 'red' : 'green' }};"><b>{{ data[(idx * 4)] != "NaN" ? (data[(idx * 4)] | number : 0) : '--' }}%</b></td>
+                                                                    <td style="color: {{ isOutOfRange(data[idx * 4], sensor.h.minValue, sensor.h.maxValue) ? 'red' : 'green' }};"><b>{{ data[(idx * 4)] != "NaN" ? (data[(idx * 4)] | number : 0) : '--' }}%</b></td>
                                                                     <td style="color: black;"><b>{{ data[(idx * 4) + 1] != "NaN" ? (data[(idx * 4) + 1] | number : 0) : '--' }}%</b></td>
-                                                                    <td style="color: {{ data[idx * 4 + 2] < sensor.t.minValue || data[idx * 4 + 2] > sensor.t.maxValue ? 'red' : 'green' }};"><b>{{ data[(idx * 4) + 2] != "NaN" ? (data[(idx * 4) + 2] | number : 0) : '--' }}°C</b></td>
+                                                                    <td style="color: {{ isOutOfRange(data[idx * 4 + 2], sensor.t.minValue, sensor.t.maxValue) ? 'red' : 'green' }};"><b>{{ data[(idx * 4) + 2] != "NaN" ? (data[(idx * 4) + 2] | number : 0) : '--' }}°C</b></td>
                                                                 </tr>
                                                             </tbody>
                                                         </table>
@@ -3431,10 +3432,11 @@
                                 <div class="modal-footer">
                                     <a href="" class="modal-close waves-effect grey waves-grey btn-flat white-text">
                                         <i class="material-icons">&nbsp;&nbsp;reply&nbsp;&nbsp;</i></a>
-                                    <a href="" class="modal-close waves-effect red waves-grey btn-flat white-text"ng-click="deleteActualSensor()">
+                                    <a href="" class="modal-close waves-effect red waves-grey btn-flat white-text" 
+                                        ng-click="deleteActualSensor()" ng-show="isSystemOfRole('propietario') || isSystemOfRole('administrador')">
                                         <i class="material-icons">&nbsp;&nbsp;delete&nbsp;&nbsp;</i></a>
                                     <a href="" class="modal-close waves-effect teal waves-green btn-flat white-text"
-                                        ng-click="editActualSensor()"><i
+                                        ng-click="editActualSensor()" ng-show="isSystemOfRole('propietario') || isSystemOfRole('administrador')"><i
                                             class="material-icons">&nbsp;&nbsp;check&nbsp;&nbsp;</i></a>
                                 </div>
                             </div>
