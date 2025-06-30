@@ -2,7 +2,7 @@
 #include <Adafruit_SHT31.h>
 
 #define enableHeater false        // SHT Sensor
-#define timer 1                   // Tiempo de espera en minutos
+#define timer .5                   // Tiempo de espera en minutos
 Adafruit_SHT31 sht31 = Adafruit_SHT31();
 float shtData[2] = {0, 0};
 
@@ -14,7 +14,7 @@ float shtData[2] = {0, 0};
 int counter = 0;
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(19200);
   while (!Serial) delay(10);     // will pause Zero, Leonardo, etc until serial console opens
   pinMode(VCC_PIN, OUTPUT);
   Serial.println(F("\nHumedad y temperatura del suelo...\n"));
@@ -29,8 +29,8 @@ void loop() {
 
 float readHW() {
   float read = analogRead(A0);
-  float val = map(read, 644, 264, 0, 100);
-  return val + offset;
+  float val = constrain(map(read, 595, 350, 0, 100) + offset, 0, 100);
+  return val;
 }
 
 void settupSHT() {

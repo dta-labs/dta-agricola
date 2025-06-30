@@ -6,7 +6,7 @@
 #pragma region Variables
 
 #define NODE_ID "DTA-SHT-00x0001"         // Identificador del nodo DTA-SHT-00x0001
-#define FREQUENCY 433E6                   // 433E6 or 915E6, the MHz frequency of module
+#define FREQUENCY 915E6                   // 433E6 or 915E6, the MHz frequency of module
 #define ENABLE_HEATER false               // Activar el calentador del sensor
 #define VCC_PIN 8                         // Alimentación del Sensor
 #define TIMER 1                           // Tiempo de espera en minutos
@@ -18,7 +18,7 @@ float shtData[2] = {0, 0};
 #pragma region Programa Principal
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(19200);
   while (!Serial) delay(10);               // Pausar Arduino Zero, Leonardo, etc. hasta que se active el puerto serie
   pinMode(VCC_PIN, OUTPUT);
   Serial.println(F("\nLoRa Sender v6.0"));
