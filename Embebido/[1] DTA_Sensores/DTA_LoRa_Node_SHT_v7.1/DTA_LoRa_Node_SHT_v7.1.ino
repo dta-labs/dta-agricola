@@ -280,8 +280,7 @@ void readSHT() {
   float h_prom = promedio(hum_hist);
   if (h_prom > 94.0 && t_prom < 10.0) {  // Evaluar si hay condiciones para calentamiento
     Serial.println(F("⚠️ Posible condensación detectada, activando calentador."));
-    sht4.setHeater(SHT4X_LOW_HEATER_100MS)
-    ;
+    sht4.setHeater(SHT4X_LOW_HEATER_100MS);
     delay(200); // calentamiento suave
     sht4.setHeater(SHT4X_NO_HEATER);
     delay(5000); // esperar disipación

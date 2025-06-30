@@ -19,7 +19,7 @@
 
 void setup() {
   pinMode(powerLED, OUTPUT);
-  // if (isPowerLEDBlink) setPowerLEDBlink();
+  setPowerLEDBlink();
   systemWatchDog();
   Serial.begin(19200);
   while (!Serial) delay(10);               // Pausar Arduino Zero, Leonardo, etc. hasta que se active el puerto serie
@@ -27,7 +27,7 @@ void setup() {
   initLoRa();
   // resetSIM();
   comunicaciones();
-  // if (isPowerLEDBlink) setPowerLEDBlink();
+  setPowerLEDBlink();
   resetData();
   commTimer = millis();
   // sensorList="0xF46A405,0x10B9CE36,0xF46A38F,0xF46A2F8";

@@ -30,7 +30,7 @@ void resetSIM() {
   gprs.listen();
   // sendATCommand(F("AT+CFUN=0"), 100);
   // delay(1000);
-  sendATCommand(F("AT+CFUN=1"),500,true);
+  sendATCommand(F("AT+CFUN=1"),500);
   delay(1000);
   // sendATCommand(F("AT+CNETSTOP")); // Detener red GSM completamente
   // delay(3000);
@@ -42,7 +42,7 @@ void resetSIM() {
 
 void commWatchDogReset(String result) {
   restartGSM = (result.indexOf(F("ERROR")) != -1 || result.indexOf(F("601")) != -1  || result.indexOf(F("604")) != -1) ? true : false;
-  // commError = (signalVar < 6 || QoS > 6 || restartGSM) ? commError + 1 : 0;
+  commError = (signalVar < 6 || QoS > 6 || restartGSM) ? commError + 1 : 0;
   if (commError != 0) { DBG_PRINT(F("commError: ")); DBG_PRINTLN(commError); }
   // if (commError == 2) resetSIM(); 
   if (commError == 4) { 
@@ -146,7 +146,6 @@ String getData() {
 void httpRequest() {
   signalVar = getRSSI();
   if (telefono != strEmpty /*&& signalVar > 0*/) {
-    setPowerLEDOn();
     DBG_PRINTLN(F("Inicio de la comunicación..."));
     QoS = getBER();
     sendATCommand(F("AT+HTTPINIT"));
@@ -158,7 +157,6 @@ void httpRequest() {
     url += F("&qos="); url += (String)QoS + F("\"");
     DBG_PRINTLN(url);
     sendATCommand(url);
-    // systemWatchDog(); 
     sendATCommand(F("AT+HTTPACTION=0"), 10000, true); 
     String result = sendATCommand(F("AT+HTTPREAD=0,500"), 15, true);
     sendATCommand(F("AT+HTTPTERM"), 30); 
@@ -167,17 +165,9 @@ void httpRequest() {
     int expected = result.substring(result.indexOf(F("+HTTPREAD: ")) + 11, result.indexOf(F("\n"), 21)).toInt();
     DBG_PRINTLN((String)expected + " == " + (String)real);
     systemWatchDog(); 
-    if (expected != real || expected == 0 || real == 0) resetSoftware();
-    setPowerLEDOn();
-    result = result.substring(result.indexOf('"'), result.lastIndexOf('"') + 1);
-    result.replace(F("\""), commaChar);
-    int numAuxMode = result.substring(1, result.indexOf(commaChar, 1)).toInt();
-    if (operationMode == 0 && numAuxMode != 0) resetData();
-    operationMode = numAuxMode;
-    sensorList = result.substring(result.indexOf(commaChar, 1) + 1, result.length() - 1);
-    commWatchDogReset(result);
     // if (expected != real || expected == 0 || real == 0) resetSoftware();
     if (expected == real && expected != 0) {
+      setPowerLEDOn();
       result = result.substring(result.indexOf('"'), result.lastIndexOf('"') + 1);
       result.replace(F("\""), commaChar);
       int numAuxMode = result.substring(1, result.indexOf(commaChar, 1)).toInt();
@@ -186,7 +176,7 @@ void httpRequest() {
       sensorList = result.substring(result.indexOf(commaChar, 1) + 1, result.length() - 1);
       commWatchDogReset(result);
     }
-  } else { Serial.print(String(signalVar) + " " + telefono); }
+  } else { Serial.print(String(signalVar) + " " + telefono + " "); }
   systemWatchDog(); 
 }
 
@@ -203,7 +193,7 @@ void comunicaciones() {
   setupGSM();
   httpRequest(); 
   showVariables();
-  if (systemStart) { systemStart = false; }
+  systemStart &= false;
 }
 
 #pragma endregion Comunicaciones
