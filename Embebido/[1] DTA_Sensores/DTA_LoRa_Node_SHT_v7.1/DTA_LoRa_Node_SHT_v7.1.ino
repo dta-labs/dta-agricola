@@ -30,8 +30,8 @@ int TIMER = 0;                            // Tiempo de espera en minutos
 
 #define sensorPin A0                      // Pin del sensor de humedad
 #define VCC A1                            // Pin de alimentación del sensor de humedad
-#define valAire 560
-#define valAgua 224
+#define valAire 570
+#define valAgua 230
 byte moisture;
 
 // #define pinDS 4                           // Pin del sensor de temperatura

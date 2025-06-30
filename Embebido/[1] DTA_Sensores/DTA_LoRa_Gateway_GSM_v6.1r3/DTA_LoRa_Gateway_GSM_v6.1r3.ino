@@ -25,8 +25,7 @@ void setup() {
   while (!Serial) delay(10);               // Pausar Arduino Zero, Leonardo, etc. hasta que se active el puerto serie
   DBG_PRINTLN(F("\n\nLoRa Gateway Universal v6.1.0618"));
   initLoRa();
-  // if (isPowerLEDBlink) setPowerLEDBlink();
-  resetSIM();
+  // resetSIM();
   comunicaciones();
   // if (isPowerLEDBlink) setPowerLEDBlink();
   resetData();

@@ -18,7 +18,7 @@
 SoftwareSerial gprs(4, 3); 
 #define httpServer F("AT+HTTPPARA=\"URL\",\"http://dtaamerica.com/ws/sensor_v6.php?id=")
 #define testComm false
-#define responseTime 15
+#define responseTime 50
 String telefono = "";
 bool restartGSM = true;
 byte signalVar = 0;

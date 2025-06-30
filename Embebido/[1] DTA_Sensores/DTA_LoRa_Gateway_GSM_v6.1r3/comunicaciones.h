@@ -4,6 +4,7 @@ String sendATCommand(String cmd, int wait = responseTime, bool response = false)
   gprs.println(cmd);
   String result = strEmpty;
   delay(wait);
+  systemWatchDog(); 
   unsigned long iTimer = millis();
   while(millis() - iTimer <= 20000) {
     while(gprs.available()) {
@@ -12,7 +13,7 @@ String sendATCommand(String cmd, int wait = responseTime, bool response = false)
     }
     if (result.length() > 0) break;
   }
-  systemWatchDog();
+  systemWatchDog(); 
   if (response) DBG_PRINTLN(result);
   return result;
 }
@@ -29,7 +30,7 @@ void resetSIM() {
   gprs.listen();
   // sendATCommand(F("AT+CFUN=0"), 100);
   // delay(1000);
-  sendATCommand(F("AT+CFUN=1"),500);
+  sendATCommand(F("AT+CFUN=1"),500,true);
   delay(1000);
   // sendATCommand(F("AT+CNETSTOP")); // Detener red GSM completamente
   // delay(3000);
@@ -41,7 +42,7 @@ void resetSIM() {
 
 void commWatchDogReset(String result) {
   restartGSM = (result.indexOf(F("ERROR")) != -1 || result.indexOf(F("601")) != -1  || result.indexOf(F("604")) != -1) ? true : false;
-  commError = (signalVar < 6 || QoS > 6 || restartGSM) ? commError + 1 : 0;
+  // commError = (signalVar < 6 || QoS > 6 || restartGSM) ? commError + 1 : 0;
   if (commError != 0) { DBG_PRINT(F("commError: ")); DBG_PRINTLN(commError); }
   // if (commError == 2) resetSIM(); 
   if (commError == 4) { 
@@ -96,17 +97,11 @@ String getTelefono() {
 
 void setupGSM() {
   if (restartGSM) {
-    DBG_PRINT(F("GSM inicializado"));
     systemWatchDog(); 
+    DBG_PRINT(F("GSM inicializado"));
     gprs.begin(9600);
     gprs.listen();
-    sendATCommand(F("AT+CFUN=1"));
-    sendATCommand(F("AT+SAPBR=0,1"));
-    sendATCommand(F("AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\""));
-    sendATCommand(F("AT+SAPBR=3,1,\"APN\",\"internet.itelcel.com\""));
-    sendATCommand(F("AT+SAPBR=3,1,\"USER\",\"webgpr\""));
-    sendATCommand(F("AT+SAPBR=3,1,\"PWD\",\"webgprs2002\""));
-    sendATCommand(F("AT+SAPBR=1,1"));
+    systemWatchDog(); 
     // telefono = "333333333333";
     int i = 10;
     while (telefono == strEmpty && i > 0) {
@@ -118,6 +113,13 @@ void setupGSM() {
     }
     if (telefono != strEmpty) {
       DBG_PRINT(F(" correctamente ✔ ID: ")); DBG_PRINT(telefono);
+      sendATCommand(F("AT+CFUN=1"));
+      sendATCommand(F("AT+SAPBR=0,1"));
+      sendATCommand(F("AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\""));
+      sendATCommand(F("AT+SAPBR=3,1,\"APN\",\"internet.itelcel.com\""));
+      sendATCommand(F("AT+SAPBR=3,1,\"USER\",\"webgpr\""));
+      sendATCommand(F("AT+SAPBR=3,1,\"PWD\",\"webgprs2002\""));
+      sendATCommand(F("AT+SAPBR=1,1"));
       DBG_PRINT(F(" RSSI: ")); DBG_PRINTLN(getRSSI());
     } else {
       DBG_PRINTLN(F(" con error ✘"));
@@ -144,6 +146,7 @@ String getData() {
 void httpRequest() {
   signalVar = getRSSI();
   if (telefono != strEmpty /*&& signalVar > 0*/) {
+    setPowerLEDOn();
     DBG_PRINTLN(F("Inicio de la comunicación..."));
     QoS = getBER();
     sendATCommand(F("AT+HTTPINIT"));
@@ -155,9 +158,9 @@ void httpRequest() {
     url += F("&qos="); url += (String)QoS + F("\"");
     DBG_PRINTLN(url);
     sendATCommand(url);
-    systemWatchDog(); 
-    sendATCommand(F("AT+HTTPACTION=0"), 10000); 
-    String result = sendATCommand(F("AT+HTTPREAD=0,500"), 15);
+    // systemWatchDog(); 
+    sendATCommand(F("AT+HTTPACTION=0"), 10000, true); 
+    String result = sendATCommand(F("AT+HTTPREAD=0,500"), 15, true);
     sendATCommand(F("AT+HTTPTERM"), 30); 
     commWatchDogReset(result);
     int real = result.substring(result.indexOf('"'), result.lastIndexOf('"') + 1).length();
@@ -173,6 +176,16 @@ void httpRequest() {
     operationMode = numAuxMode;
     sensorList = result.substring(result.indexOf(commaChar, 1) + 1, result.length() - 1);
     commWatchDogReset(result);
+    // if (expected != real || expected == 0 || real == 0) resetSoftware();
+    if (expected == real && expected != 0) {
+      result = result.substring(result.indexOf('"'), result.lastIndexOf('"') + 1);
+      result.replace(F("\""), commaChar);
+      int numAuxMode = result.substring(1, result.indexOf(commaChar, 1)).toInt();
+      if (operationMode == 0 && numAuxMode != 0) resetData();
+      operationMode = numAuxMode;
+      sensorList = result.substring(result.indexOf(commaChar, 1) + 1, result.length() - 1);
+      commWatchDogReset(result);
+    }
   } else { Serial.print(String(signalVar) + " " + telefono); }
   systemWatchDog(); 
 }
@@ -194,3 +207,11 @@ void comunicaciones() {
 }
 
 #pragma endregion Comunicaciones
+
+/*
+Cambios realizados:
+- Línea 43
+- Línea 145
+- Línea 167
+- Línea 168
+*/
