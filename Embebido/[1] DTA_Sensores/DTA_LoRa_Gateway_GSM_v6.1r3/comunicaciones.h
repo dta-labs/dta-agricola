@@ -1,22 +1,26 @@
 #pragma region Comunicaciones
 
-String sendATCommand(String cmd, int wait = responseTime, bool response = false){
+String sendATCommand(String cmd, int wait = responseTime, bool response = false) {
   gprs.println(cmd);
-  String result = strEmpty;
-  delay(wait);
-  systemWatchDog(); 
-  unsigned long iTimer = millis();
-  while(millis() - iTimer <= 20000) {
-    while(gprs.available()) {
-      result += (char)gprs.read();
-      delay(.5);
+  delay(wait);  // Pequeña espera inicial tras enviar
+  String result = "";
+  unsigned long timeout = millis() + 5000; // Espera máxima de 5s
+  unsigned long interByteTimer = millis();
+  while (millis() < timeout) {
+    while (gprs.available()) {
+      char c = gprs.read();
+      result += c;
+      interByteTimer = millis(); // Reinicia cuando llega un byte
     }
-    if (result.length() > 0) break;
+    // Si pasaron 200ms sin recibir nada más, asumimos fin
+    if (result.length() > 0 && (millis() - interByteTimer > 200)) {
+      break;
+    }
   }
-  systemWatchDog(); 
   if (response) DBG_PRINTLN(result);
   return result;
 }
+
 
 void resetSIM() {
   DBG_PRINTLN(F("Resetting SIM module..."));
@@ -101,8 +105,14 @@ void setupGSM() {
     DBG_PRINT(F("GSM inicializado"));
     gprs.begin(9600);
     gprs.listen();
+    sendATCommand(F("AT+CFUN=1"));
+    sendATCommand(F("AT+SAPBR=0,1"));
+    sendATCommand(F("AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\""));
+    sendATCommand(F("AT+SAPBR=3,1,\"APN\",\"internet.itelcel.com\""));
+    sendATCommand(F("AT+SAPBR=3,1,\"USER\",\"webgpr\""));
+    sendATCommand(F("AT+SAPBR=3,1,\"PWD\",\"webgprs2002\""));
+    sendATCommand(F("AT+SAPBR=1,1"));
     systemWatchDog(); 
-    // telefono = "333333333333";
     int i = 10;
     while (telefono == strEmpty && i > 0) {
       telefono = getTelefono();
@@ -113,13 +123,6 @@ void setupGSM() {
     }
     if (telefono != strEmpty) {
       DBG_PRINT(F(" correctamente ✔ ID: ")); DBG_PRINT(telefono);
-      sendATCommand(F("AT+CFUN=1"));
-      sendATCommand(F("AT+SAPBR=0,1"));
-      sendATCommand(F("AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\""));
-      sendATCommand(F("AT+SAPBR=3,1,\"APN\",\"internet.itelcel.com\""));
-      sendATCommand(F("AT+SAPBR=3,1,\"USER\",\"webgpr\""));
-      sendATCommand(F("AT+SAPBR=3,1,\"PWD\",\"webgprs2002\""));
-      sendATCommand(F("AT+SAPBR=1,1"));
       DBG_PRINT(F(" RSSI: ")); DBG_PRINTLN(getRSSI());
     } else {
       DBG_PRINTLN(F(" con error ✘"));
@@ -145,9 +148,10 @@ String getData() {
 
 void httpRequest() {
   signalVar = getRSSI();
-  if (telefono != strEmpty /*&& signalVar > 0*/) {
+  if (telefono != strEmpty && signalVar > 0) {
     DBG_PRINTLN(F("Inicio de la comunicación..."));
     QoS = getBER();
+    // telefono = "333333333333";
     sendATCommand(F("AT+HTTPINIT"));
     sendATCommand(F("AT+HTTPPARA=\"CID\",1"));
     String url = httpServer; url += telefono; 
@@ -157,8 +161,8 @@ void httpRequest() {
     url += F("&qos="); url += (String)QoS + F("\"");
     DBG_PRINTLN(url);
     sendATCommand(url);
-    sendATCommand(F("AT+HTTPACTION=0"), 10000, true); 
-    String result = sendATCommand(F("AT+HTTPREAD=0,500"), 15, true);
+    sendATCommand(F("AT+HTTPACTION=0"), 10000, false); 
+    String result = sendATCommand(F("AT+HTTPREAD=0,200"));
     sendATCommand(F("AT+HTTPTERM"), 30); 
     commWatchDogReset(result);
     int real = result.substring(result.indexOf('"'), result.lastIndexOf('"') + 1).length();
@@ -176,7 +180,11 @@ void httpRequest() {
       sensorList = result.substring(result.indexOf(commaChar, 1) + 1, result.length() - 1);
       commWatchDogReset(result);
     }
-  } else { Serial.print(String(signalVar) + " " + telefono + " "); }
+  } else { 
+    restartGSM = true;
+    commError++;
+    DBG_PRINTLN("Teléfono: " + telefono + " Señal: " + String(signalVar)); 
+  }
   systemWatchDog(); 
 }
 
