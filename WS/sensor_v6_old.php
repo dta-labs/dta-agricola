@@ -25,38 +25,24 @@ class SensorSystem {
     }
 
     private function executeRequest(string $url, string $method = 'GET', ?string $data = null) {
-        $headers = ['Content-Type: application/json'];
-        
-        // Si es PATCH, necesitamos agregar el método en un encabezado especial
-        if ($method === 'PATCH') {
-            $headers[] = 'X-HTTP-Method-Override: PATCH';
-            $method = 'POST'; // Usamos POST para PATCH
-        }
-        
-        curl_setopt_array($this->curlHandle, [
-            CURLOPT_URL => $url,
-            CURLOPT_CUSTOMREQUEST => $method,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HTTPHEADER => $headers
-        ]);
+        curl_setopt($this->curlHandle, CURLOPT_URL, $url);
+        curl_setopt($this->curlHandle, CURLOPT_CUSTOMREQUEST, $method);
         
         if ($data !== null) {
             curl_setopt($this->curlHandle, CURLOPT_POSTFIELDS, $data);
         }
-    
+
         $response = curl_exec($this->curlHandle);
         $error = curl_errno($this->curlHandle);
         
         if ($error) {
             error_log("Error cURL: " . curl_error($this->curlHandle));
-            throw new RuntimeException('Error en la petición cURL: ' . curl_error($this->curlHandle));
+            throw new RuntimeException('Error en la petición cURL');
         }
-    
-        $httpCode = curl_getinfo($this->curlHandle, CURLINFO_HTTP_CODE);
-        $this->escribirLog("HTTP $method $url - Código: $httpCode");
-        
-        return $httpCode >= 200 && $httpCode < 300 ? json_decode($response) : null;
+
+        return $method === 'GET' ? json_decode($response) : $response;
     }
+
     private function getSettings(): object {
         if ($this->settings === null) {
             $this->settings = $this->executeRequest($this->baseUrl . "settings.json");
@@ -117,8 +103,7 @@ class SensorSystem {
             'date' => $date,
             'dataRaw' => json_encode($data),
             'signal' => $_GET['si'] ?? '',
-            'qos' => $_GET['qos'] ?? '',
-            'reception' => in_array($_GET['rx'] ?? '', ['Ok', 'Er', 'ini']) ? $_GET['rx'] : ''
+            'reception' => in_array($_GET['rx'] ?? '', ['Ok', 'Er']) ? $_GET['rx'] : ''
         ];
         $this->executeRequest(
             $this->baseUrl . "logs.json",
@@ -138,21 +123,20 @@ class SensorSystem {
         for ($i = 0; $i < $settings->sensors->sensorNumber; $i++) {
             $idx = "S$i";
             $sensor = $settings->sensors->$idx;
-            $sensorLength = $sensor->type == "SHT4" ? 4 : (($sensor->type == "STH" || $sensor->type == "FlP") ? 3 : 1);
+            $sensorLength = $sensor->type == "SHT4x" ? 4 : (($sensor->type == "STH" || $sensor->type == "FlP") ? 3 : 1);
             $sensorID = $sensor->alias ?? $sensor->id;
             if ($sensorID !== '0x0') {
-                $minHumThreshold = $sensor->h->minValue ?? 20;
+                $minHumThreshold = $sensor->h->minValue ?? 30;
                 $maxHumThreshold = $sensor->h->maxValue ?? 80;
-                $notificationId = ($settings->name ?? $settings->key) . " - " . $sensorID;
-                $value = $data[$i * $sensorLength] ?? 'NaN';
-                if($value !== 'NaN' && isset($sensor->h) && isset($sensor->h->notify) && $sensor->h->notify) {
-                    $this->sendPushNotification($usersID, "Humedad", $notificationId, $value, $minHumThreshold, $maxHumThreshold);
+                $value = $data[$i * $sensorLength];
+                if(isset($sensor->h) && isset($sensor->h->notify) && $sensor->h->notify) {
+                    $this->sendPushNotification($usersID, "Humedad", $sensorID, $value, $minHumThreshold, $maxHumThreshold);
                 }
-                $minTempThreshold = $sensor->t->minValue ?? 5;
-                $maxTempThreshold = $sensor->t->maxValue ?? 30;
-                $value = $data[$i * $sensorLength + 2] ?? 'NaN';
-                if($value !== 'NaN' && isset($sensor->t) && isset($sensor->t->notify) && $sensor->t->notify) {
-                    $this->sendPushNotification($usersID, "Temperatura", $notificationId, $value, $minTempThreshold, $maxTempThreshold);
+                $minTempThreshold = $sensor->t->minValue ?? 2;
+                $maxTempThreshold = $sensor->t->maxValue ?? 23;
+                $value = $data[$i * $sensorLength + 2];
+                if(isset($sensor->t) && isset($sensor->t->notify) && $sensor->t->notify) {
+                    $this->sendPushNotification($usersID, "Temperatura", $sensorID, $value, $minTempThreshold, $maxTempThreshold);
                 }
             }
         }
@@ -175,26 +159,21 @@ class SensorSystem {
         $archivo = __DIR__ . '/log.txt'; // Usamos ruta absoluta
         $fechaHora = date('Y-m-d H:i:s');
         $entrada = "[{$fechaHora}] {$mensaje}\n";
-        
-        // Verificar si podemos escribir en el directorio
-        if (!is_writable(dirname($archivo))) {
+        if (!is_writable(dirname($archivo))) {  // Verificar si podemos escribir en el directorio
             error_log("Error: El directorio no tiene permisos de escritura: " . dirname($archivo));
             return false;
         }
-        
         $manejador = @fopen($archivo, 'a');
         if ($manejador === false) {
             $error = error_get_last();
             error_log("Error al abrir el archivo de log: " . ($error['message'] ?? 'Error desconocido'));
             return false;
         }
-        
         if (fwrite($manejador, $entrada) === false) {
             error_log("Error al escribir en el archivo de log");
             fclose($manejador);
             return false;
         }
-        
         fclose($manejador);
         return true;
     }    
@@ -220,91 +199,32 @@ class SensorSystem {
     public function processData(): void {
         $this->escribirLog("processData...");
         if (isset($_GET['data']) && $_GET['data'] !== '[]') {
-            $this->processRegularData();
-        } else {
-            $this->processEmptyData();
-        }
-    }
-
-    private function processRegularData() {
-        $settings = $this->getSettings();
-        $data = $this->fillEmptyData($_GET['data'], $settings->sensors, $settings->sensors->sensorNumber);
-        if ($settings->operationMode && ($settings->operationMode == "" || $settings->operationMode == "0" || $settings->operationMode == 0)) {
-            $actualize = true;
-            $length = count($data);
-            for ($i = 0; $i < $length; $i++) {
-                $idx = "S$i";
-                if (isset($data[$i]) && strpos($data[$i], '0x') === 0) {
-                    $settings->sensors->$idx->id = $data[$i];
-                    $settings->sensors->$idx->latitude = $settings->sensors->$idx->latitude ?? 0.0;
-                    $settings->sensors->$idx->longitude = $settings->sensors->$idx->longitude ?? 0.0;
-                    $settings->sensors->$idx->type = $settings->sensors->$idx->type ?? "SHT";
-                } else {
-                    $actualize = false;
-                    break;
+            $settings = $this->getSettings();
+            $data = $this->fillEmptyData($_GET['data'], $settings->sensors, $settings->sensors->sensorNumber);
+            if ($settings->operationMode && ($settings->operationMode == "" || $settings->operationMode == "0" || $settings->operationMode == 0)) {
+                $actualize = true;
+                $length = count($data);
+                for ($i = 0; $i < $length; $i++) {
+                    $idx = "S$i";
+                    if (isset($data[$i]) && strpos($data[$i], '0x') === 0) {
+                        $settings->sensors->$idx->id = $data[$i];
+                        $settings->sensors->$idx->latitude = $settings->sensors->$idx->latitude ?? 0.0;
+                        $settings->sensors->$idx->longitude = $settings->sensors->$idx->longitude ?? 0.0;
+                        $settings->sensors->$idx->type = $settings->sensors->$idx->type ?? "SHT";
+                    } else {
+                        $actualize = false;
+                        break;
+                    }
                 }
+                if ($actualize) {
+                    $settings->sensors->sensorNumber = $length;       // Actualizar el número de sensores
+                    $this->settings = $settings;                      // Actualizar la caché local
+                    $this->updateSettings($settings);
+                }
+            } else {
+                $this->updateLog($data);
+                $this->verifyAlerts($data);
             }
-            if ($actualize) {
-                $settings->sensors->sensorNumber = $length;       // Actualizar el número de sensores
-                $this->settings = $settings;                      // Actualizar la caché local
-                $this->updateSettings($settings);
-            }
-        } else {
-            $this->updateLog($data);
-            $this->verifyAlerts($data);
-        }
-    }
-    
-    private function checkLastLog($baseUrl) {
-        $response = $this->executeRequest($baseUrl . "logs.json?orderBy=\"update\"&limitToLast=1");
-        if ($response === null) {
-            return null;
-        }
-        $logs = is_object($response) ? get_object_vars($response) : [];
-        if (empty($logs)) {
-            return null;
-        }
-        // Obtenemos la última clave y su valor
-        $lastKey = array_key_last($logs);
-        return (object)[
-            'key' => $lastKey,
-            'data' => $logs[$lastKey]
-        ];
-    }
-
-    private function processEmptyData(): void {
-        $this->escribirLog("processEmptyData...");
-        $data = array_fill(0, 40, "NaN"); // Mismo efecto que tu array de "NaN"
-        $settings = $this->getSettings();
-        $this->escribirLog("updateLog...");
-        $date = $this->getDateTime($this->getLocalZone())->format('Ymd hia');
-        $logData = [
-            'date' => $date,
-            'dataRaw' => json_encode($data),
-            'signal' => $_GET['si'] ?? '',
-            'qos' => $_GET['qos'] ?? '',
-            'reception' => in_array($_GET['rx'] ?? '', ['Ok', 'Er', 'ini']) ? $_GET['rx'] : '',
-        ];
-    
-        $lastLog = $this->checkLastLog($this->baseUrl);
-        $method = 'POST';
-        $url = $this->baseUrl . "logs.json";
-        
-        // Si encontramos un log existente con el mismo dataRaw, actualizamos ese registro
-        if ($lastLog !== null && $logData['dataRaw'] === $lastLog->data->dataRaw) {
-            $url = $this->baseUrl . "logs/" . $lastLog->key . ".json";
-            $method = 'PATCH';
-            $logData['date'] = $this->getDateTime($this->getLocalZone())->format('Ymd hia');
-            $this->escribirLog("Actualizando registro existente con key: " . $lastLog->key . " y fecha: " . $logData['date']);
-        } else {
-            $this->escribirLog("Creando nuevo registro. Comparación: ");
-        }
-        
-        $response = $this->executeRequest($url, $method, json_encode($logData));
-        if ($response === null) {
-            $this->escribirLog("Error al $method el registro");
-        } else {
-            $this->escribirLog("Operación $method completada exitosamente");
         }
     }
 }

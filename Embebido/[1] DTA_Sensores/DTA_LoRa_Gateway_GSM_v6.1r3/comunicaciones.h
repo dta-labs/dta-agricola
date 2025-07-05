@@ -32,8 +32,8 @@ void resetSIM() {
   gprs.begin(9600);
   delay(1000);
   gprs.listen();
-  // sendATCommand(F("AT+CFUN=0"), 100);
-  // delay(1000);
+  sendATCommand(F("AT+CFUN=0"), 100);
+  delay(1000);
   sendATCommand(F("AT+CFUN=1"),500);
   delay(1000);
   // sendATCommand(F("AT+CNETSTOP")); // Detener red GSM completamente
@@ -44,12 +44,12 @@ void resetSIM() {
   telefono = strEmpty;
 }
 
-void commWatchDogReset(String result) {
+void commWatchDogReset(String result, bool readError = false) {
   restartGSM = (result.indexOf(F("ERROR")) != -1 || result.indexOf(F("601")) != -1  || result.indexOf(F("604")) != -1) ? true : false;
-  commError = (signalVar < 6 || QoS > 6 || restartGSM) ? commError + 1 : 0;
+  commError = (signalVar < 6 || QoS > 6 || restartGSM || readError) ? commError + 1 : 0;
   if (commError != 0) { DBG_PRINT(F("commError: ")); DBG_PRINTLN(commError); }
   // if (commError == 2) resetSIM(); 
-  if (commError == 4) { 
+  if (commError == 2) { 
     commError = 0;
     digitalWrite(watchDogPin, LOW);
     while(1) delay(1000);
@@ -99,12 +99,49 @@ String getTelefono() {
   return isNumber(result) && 10 <= result.length() && result.length() <= 11 ? result : strEmpty;
 }
 
+bool verificarRed() {
+  DBG_PRINTLN(F("\n🔍 Diagnóstico de Red GSM"));
+  String simStatus = sendATCommand(F("AT+CSMINS?"), 500, true);
+  if (simStatus.indexOf(F("0,1")) == -1) {
+    DBG_PRINTLN(F("❌ SIM no detectado"));
+    return false;
+  }
+  String pinStatus = sendATCommand(F("AT+CPIN?"), 500, true);
+  if (pinStatus.indexOf(F("READY")) == -1) {
+    DBG_PRINTLN(F("❌ SIM no está listo"));
+    return false;
+  }
+  sendATCommand(F("AT+CFUN=1"), 500);
+  delay(1000);
+  sendATCommand(F("AT+COPS=0"), 5000);
+  delay(3000);
+  String reg = sendATCommand(F("AT+CREG?"), 500, true);
+  if (!(reg.indexOf(F(",1")) != -1 || reg.indexOf(F(",5")) != -1)) {
+    DBG_PRINTLN(F("❌ SIM no registrado en red"));
+    return false;
+  }
+  signalVar = getRSSI();
+  QoS = getBER();
+  DBG_PRINT("📶 RSSI: "); DBG_PRINT(signalVar); DBG_PRINT(F(" | "));
+  DBG_PRINT("📊 BER: "); DBG_PRINTLN(QoS);
+  if (signalVar <= 0 || signalVar == 99 || QoS >= 7) {
+    DBG_PRINTLN(F("⚠️ Señal insuficiente o calidad muy baja"));
+    return false;
+  }
+  return true;
+}
+
+
 void setupGSM() {
   if (restartGSM) {
     systemWatchDog(); 
     DBG_PRINT(F("GSM inicializado"));
     gprs.begin(9600);
     gprs.listen();
+    if (!verificarRed()) {
+      DBG_PRINTLN(F("🚫 Red no disponible. Abortando configuración."));
+      // return;
+    }
     sendATCommand(F("AT+CFUN=1"));
     sendATCommand(F("AT+SAPBR=0,1"));
     sendATCommand(F("AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\""));
@@ -148,7 +185,7 @@ String getData() {
 
 void httpRequest() {
   signalVar = getRSSI();
-  if (telefono != strEmpty && signalVar > 0) {
+  if (telefono != strEmpty /*&& signalVar > 0*/) {
     DBG_PRINTLN(F("Inicio de la comunicación..."));
     QoS = getBER();
     // telefono = "333333333333";
@@ -164,12 +201,12 @@ void httpRequest() {
     sendATCommand(F("AT+HTTPACTION=0"), 10000, false); 
     String result = sendATCommand(F("AT+HTTPREAD=0,200"));
     sendATCommand(F("AT+HTTPTERM"), 30); 
-    commWatchDogReset(result);
+    // commWatchDogReset(result);
     int real = result.substring(result.indexOf('"'), result.lastIndexOf('"') + 1).length();
     int expected = result.substring(result.indexOf(F("+HTTPREAD: ")) + 11, result.indexOf(F("\n"), 21)).toInt();
     DBG_PRINTLN((String)expected + " == " + (String)real);
     systemWatchDog(); 
-    // if (expected != real || expected == 0 || real == 0) resetSoftware();
+    // if (expected != real || expected == 0 || real == 0) while(1) delay(1000);
     if (expected == real && expected != 0) {
       setPowerLEDOn();
       result = result.substring(result.indexOf('"'), result.lastIndexOf('"') + 1);
@@ -178,11 +215,12 @@ void httpRequest() {
       if (operationMode == 0 && numAuxMode != 0) resetData();
       operationMode = numAuxMode;
       sensorList = result.substring(result.indexOf(commaChar, 1) + 1, result.length() - 1);
-      commWatchDogReset(result);
     }
+    commWatchDogReset(result, expected != real);
   } else { 
     restartGSM = true;
     commError++;
+    isPowerLEDBlink = true;
     DBG_PRINTLN("Teléfono: " + telefono + " Señal: " + String(signalVar)); 
   }
   systemWatchDog(); 
