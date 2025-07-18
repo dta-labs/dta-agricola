@@ -1,5 +1,5 @@
-int valAire = 3180; 
-int valAgua = 1080;
+int valAire = 2830; 
+int valAgua = 1130;
 // int valAire = 564; 
 // int valAgua = 223;
 

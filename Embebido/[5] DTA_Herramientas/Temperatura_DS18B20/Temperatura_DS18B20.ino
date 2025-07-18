@@ -18,6 +18,11 @@ void setup() {
   while (!Serial) delay(10);               // Pausar Arduino Zero, Leonardo, etc. hasta que se active el puerto serie
   Serial.println(F("\n\nTest sensor de temperatura Ds18B20"));
   sensorDS.begin();
+  delay(250);
+  if (!detectarSensor()) {
+    Serial.println(F("❌ No se logró detectar el sensor después de varios intentos."));
+    while (true);                         // Detener ejecución si falla
+  }
   String id = getAddress();
   id.toUpperCase();
   Serial.print(F("Configurción:"));
@@ -26,7 +31,13 @@ void setup() {
 
 void loop() {
   Serial.print("Temp:");
-  Serial.println(getTemperature());
+  float temp = getTemperature();
+  if (isnan(temp) || temp == -127.0) {
+    Serial.println(F("⚠️ Lectura inválida o sensor desconectado."));
+  } else {
+    Serial.print(temp);
+    Serial.println(F("°C"));
+  }
   delay(1000);
 }
 
@@ -34,9 +45,14 @@ void loop() {
 
 #pragma region Sensor Ds18B20
 
-float getTemperature() {
-  sensorDS.requestTemperatures();
-  return sensorDS.getTempCByIndex(0);
+bool detectarSensor() {
+  DeviceAddress sensorAddress;
+  byte intentos = 5;
+  for (uint8_t i = 0; i < intentos; i++) {
+    if (sensorDS.getAddress(sensorAddress, 0)) return true;
+    delay(200);
+  }
+  return false;
 }
 
 String getAddress(){
@@ -47,6 +63,11 @@ String getAddress(){
     address += sensorAddress[i] < 0x10 ? ("0" + String(sensorAddress[i], HEX)) : String(sensorAddress[i], HEX);
   }
   return address;
+}
+
+float getTemperature() {
+  sensorDS.requestTemperatures();
+  return sensorDS.getTempCByIndex(0);
 }
 
 #pragma endregion Sensor Ds18B20
