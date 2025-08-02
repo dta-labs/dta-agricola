@@ -255,7 +255,7 @@
                                                                 </span>
                                                                 <br>
                                                                 <span><b>{{ !system.log ? "OFF" : system.log.state }}</b></span>
-                                                                <span>{{ system.log.update ? "[" + system.log.update.substr(2,13) + "]" : "" }}</span>
+                                                                <span>{{ system.log.update ? "[" + system.log.update.substring(6,8) + "/" + system.log.update.substring(4,6) + "/" + system.log.update.substring(2,4) + " " + system.log.update.substring(9,11) + ":" + system.log.update.substring(11) + "]" : "" }}</span>
                                                                 <!-- <span style="font-size: .8em;">
                                                                     [{{ ((system.log.voltage == 'true' && system.log.safety == 'true' && system.log.commDelay == '-1') || system.status == 'OFF') && system.log.update ? system.log.update : "00000000 0000" }}]
                                                                 </span> -->
@@ -304,7 +304,7 @@
                                                                 </span>
                                                                 <br>
                                                                 <span><b>{{ !system.log ? "OFF" : system.log.state }}</b></span>
-                                                                <span>{{ system.log.update ? "[" + system.log.update.substr(2,13) + "]" : "" }}</span>
+                                                                <span>{{ system.log.update ? "[" + system.log.update.substring(6,8) + "/" + system.log.update.substring(4,6) + "/" + system.log.update.substring(2,4) + " " + system.log.update.substring(9,11) + ":" + system.log.update.substring(11) + "]" : "" }}</span>
                                                                 <!-- <span style="font-size: .8em;">
                                                                     [{{ ((system.log.voltage == 'true' && system.log.safety == 'true' && system.log.commDelay == '-1') || system.status == 'OFF') && system.log.update ? system.log.update : "00000000 0000" }}]
                                                                 </span> -->
@@ -341,7 +341,7 @@
                                                                 </span>
                                                                 <br>
                                                                 <span style="font-size: 1.3em;"><b>{{ system.status }}</b></span>
-                                                                <span style="font-size: 1.3em;">{{ system.log.update ? "[" + system.log.update.substr(2,13) + "]" : "" }}</span><br>
+                                                                <span style="font-size: 1.3em;">{{ system.log.update ? "[" + system.log.update.substring(6,8) + "/" + system.log.update.substring(4,6) + "/" + system.log.update.substring(2,4) + " " + system.log.update.substring(9,11) + ":" + system.log.update.substring(11) + "]" : "" }}</span><br>
                                                                 <!-- <span><strong>{{ system.culture }}</strong></span> -->
                                                             </div>
                                                         </div>
@@ -365,7 +365,7 @@
                                                                 </span>
                                                                 <br>
                                                                 <span><b>{{ system.status }}</b></span>
-                                                                <span>{{ system.log.update ? "[" + system.log.update.substr(2,13) + "]" : "" }}</span><br>
+                                                                <span>{{ system.log.update ? "[" + system.log.update.substring(6,8) + "/" + system.log.update.substring(4,6) + "/" + system.log.update.substring(2,4) + " " + system.log.update.substring(9,11) + ":" + system.log.update.substring(11) + "]" : "" }}</span><br>
                                                                 <!-- <span><strong>{{ system.culture }}</strong></span> -->
                                                             </div>
                                                         </div>
@@ -378,7 +378,7 @@
                                                                     {{ system.log.dataRaw ? (100 - ((system.log.meanVal - system.sensors.S0.minValue) / (system.sensors.S0.maxValue - system.sensors.S0.minValue) * 100) | number : 0) : "0" }} <b>%</b> 
                                                                     <span ng-show="system.type == 'Sensor'"> «{{ system.sleepingTime }}min» </span>
                                                                 </span><br>
-                                                                <span>{{ system.log.date ? "[" + system.log.date.substr(2,13) + "]" : "" }}</span>
+                                                                <span>{{ system.log.date ? "[" + system.log.date.substring(6,8) + "/" + system.log.date.substring(4,6) + "/" + system.log.date.substring(2,4) + " " + system.log.date.substring(9,11) + ":" + system.log.date.substring(11) + "]" : "" }}</span>
                                                             </div>
                                                         </div>
 
@@ -573,7 +573,8 @@
                                                 <div class="limitar" style="font-size: 1.5em;">
                                                     <b>{{ actualSystem.name }}</b>
                                                 </div>
-                                                <span>{{ actualSystem.log.update ? actualSystem.log.update : actualSystem.log.date }}</span>
+                                                <span>{{ actualSystem.log.update ? (actualSystem.log.update.substring(6, 8) + '/' + actualSystem.log.update.substring(4, 6) + '/' + actualSystem.log.update.substring(0, 4) + ' ' + actualSystem.log.update.substring(9, 11) + ':' + actualSystem.log.update.substring(11)) : 
+                                                        (actualSystem.log.date.substring(6, 8) + '/' + actualSystem.log.date.substring(4, 6) + '/' + actualSystem.log.date.substring(0, 4) + ' ' + actualSystem.log.date.substring(9, 11) + ':' + actualSystem.log.date.substring(11)) }}</span>
                                                 <span ng-show="actualSystem.type == 'Sensor'"> «{{ actualSystem.sleepingTime }}min» </span>
                                             </div>
                                             <div class="col s2 m3" style="margin: 2px 0 0 -10px; text-align: center;">
@@ -2329,21 +2330,29 @@
                                                                 <canvas id="myChartH{{ idx }}"></canvas>
                                                             </div>
                                                         </div>
+                                                        <div class="row">
+                                                            <div class="col s6" style="text-align: left;">
+                                                                <div style="font-size: 1.2em; padding-top: 5px;">Registros: <b>{{ limitRegisters }}</b></div>
+                                                            </div>
+                                                            <div class="col s6">
+                                                                <button class="btn right" ng-click="reloadSystemLog(actualSystem.key);">Mostrar {{ showMoreRegisters ? 'Menos' : 'Más' }}</button>
+                                                            </div>
+                                                        </div>
                                                         <table>
                                                             <thead>
                                                                 <tr>
-                                                                    <th><i class="fa fa-calendar" aria-hidden="true"></i> Fecha</th>
-                                                                    <th><img src="./assets/images/agua.png" alt="Agua" style="width: 20px;"> H.Suelo</th>
-                                                                    <th><img src="./assets/images/agua.png" alt="Agua" style="width: 20px;"> H.Relativa</th>
-                                                                    <th><img src="./assets/images/termometro.png" alt="Termometro" style="width: 20px;"> Temp.</th>
+                                                                    <th><i class="fa fa-calendar" aria-hidden="true" style="font-size: 1.2em;"></i><br> Fecha</th>
+                                                                    <th><img src="./assets/images/agua.png" alt="Agua" style="width: 20px;"><br> H.Suelo</th>
+                                                                    <th><img src="./assets/images/agua.png" alt="Agua" style="width: 20px;"><br> H.Relativa</th>
+                                                                    <th><img src="./assets/images/termometro.png" alt="Termometro" style="width: 20px;"><br> Temp.</th>
                                                                 </tr>
                                                             </thead>
                                                             <tbody>
                                                                 <tr ng-repeat="reg in invertedRegisters" ng-init="data=convertStrToJSON(reg.dataRaw)" ng-show="data[(idx * 4)] != 'NaN' && data[(idx * 4) + 1] != 'NaN' && data[(idx * 4) + 2] != 'NaN'">
-                                                                    <td>{{ reg.date }}</td>
+                                                                    <td>{{ reg.date.substring(6, 8) }}/{{ reg.date.substring(4, 6) }}/{{ reg.date.substring(0, 4) }} {{ reg.date.substring(9, 11) }}:{{ reg.date.substring(11) }}</td>
                                                                     <td style="color: {{ isOutOfRange(data[idx * 4], sensor.h.minValue, sensor.h.maxValue) ? 'red' : 'green' }};"><b>{{ data[(idx * 4)] != "NaN" ? (data[(idx * 4)] | number : 0) : '--' }}%</b></td>
-                                                                    <td style="color: black;"><b>{{ data[(idx * 4) + 1] != "NaN" ? (data[(idx * 4) + 1] | number : 0) : '--' }}%</b></td>
-                                                                    <td style="color: {{ isOutOfRange(data[idx * 4 + 2], sensor.t.minValue, sensor.t.maxValue) ? 'red' : 'green' }};"><b>{{ data[(idx * 4) + 2] != "NaN" ? (data[(idx * 4) + 2] | number : 0) : '--' }}°C</b></td>
+                                                                    <td style="color: black;"><b>{{ data[(idx * 4) + 1] != "NaN" && data[(idx * 4) + 1] != "-1" ? (data[(idx * 4) + 1] | number : 0) : (meteo[actualSystem.key].main.humidity) }}%</b></td>
+                                                                    <td style="color: {{ isOutOfRange(data[idx * 4 + 2], sensor.t.minValue, sensor.t.maxValue) ? 'red' : 'green' }};"><b>{{ data[(idx * 4) + 2] != "NaN" ? (data[(idx * 4) + 2] | number : 1) : (((meteo[actualSystem.key].main.temp - 32) * 5/9) | number : 1) }}°C</b></td>
                                                                 </tr>
                                                             </tbody>
                                                         </table>

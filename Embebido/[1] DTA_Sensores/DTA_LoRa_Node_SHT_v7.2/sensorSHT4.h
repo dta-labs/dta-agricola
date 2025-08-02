@@ -18,9 +18,11 @@ void readSHT() {
   t_actual = temp.temperature;
   h_actual = humidity.relative_humidity;
   agregarALaMedia(t_actual, h_actual);
-  float t_prom = promedio(temp_hist);
-  float h_prom = promedio(hum_hist);
-  if (h_prom > 94.0 && t_prom < 10.0) {  // Evaluar si hay condiciones para calentamiento
+  float t_prom = estimadorAdaptativo(temp_hist, NUM_MUESTRAS);
+  float h_prom = estimadorAdaptativo(hum_hist, NUM_MUESTRAS);
+  // float t_prom = promedio(temp_hist);
+  // float h_prom = promedio(hum_hist);
+  if (h_prom > 94.0 && t_prom < 10.0 && activeHeater) {  // Evaluar si hay condiciones para calentamiento
     Serial.println(F("⚠️ Posible condensación detectada, activando calentador."));
     sht4.setHeater(SHT4X_LOW_HEATER_100MS);
     delay(200); // calentamiento suave
