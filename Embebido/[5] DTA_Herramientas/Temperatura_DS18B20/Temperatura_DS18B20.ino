@@ -9,6 +9,11 @@ OneWire owObject(pinDS);
 DallasTemperature sensorDS(&owObject);
 float temp;
 
+#define DESV_EST_UMBRAL 0.3
+#define NUM_LECTURAS 30
+float temp_hist[NUM_LECTURAS] = {0};
+uint8_t index = 0;
+
 #pragma endregion Variables
 
 #pragma region Programa Principal
