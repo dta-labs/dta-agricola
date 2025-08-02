@@ -56,6 +56,8 @@ app.controller("ControladorPrincipal", function ($scope) {
     $scope.showMore = false;
     $scope.statisticSelectedSystem = {};
     let sendCommand = {};
+    $scope.limitRegisters = 10;
+    $scope.showMoreRegisters = false;
     $scope.logs = {};
     $scope.logDetail = {};
     $scope.users = {};
@@ -81,7 +83,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         {"id": "10", "type": "Areno Franco"},
         {"id": "11", "type": "Arenoso"}
     ];
-    $scope.chartItems = 5000;
+    $scope.chartItems = 300;
     
     // #endregion Variables
 
@@ -420,7 +422,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         $scope.loadCultures();
         setActualSystemPlans();
         $scope.actualizarListaCultivos();
-        $scope.loadSystemLog(system.key, 10);
+        $scope.loadSystemLog(system.key, $scope.limitRegisters);
         // invertLog();
         // $scope.actualSystem.posicionActual = parseInt($scope.actualSystem.log.position ? $scope.actualSystem.log.position : "0") + parseInt($scope.actualSystem.summerHour ? $scope.actualSystem.summerHour : "0");
         // showPlanRiegoPie();
@@ -430,6 +432,13 @@ app.controller("ControladorPrincipal", function ($scope) {
         initializeSystemMap($scope.actualSystem);
         getMetorologicalData($scope.actualSystem.key);
         setDeviceSpecificData();
+    }
+
+    $scope.reloadSystemLog = (systemKey) => {
+        $scope.showMoreRegisters = !$scope.showMoreRegisters;
+        $scope.limitRegisters = $scope.showMoreRegisters ? 1000 : 10;
+        $scope.chartItems = $scope.showMoreRegisters ? 1000 : 300;
+        $scope.loadSystemLog(systemKey, $scope.limitRegisters);
     }
 
     setDeviceData = system => {

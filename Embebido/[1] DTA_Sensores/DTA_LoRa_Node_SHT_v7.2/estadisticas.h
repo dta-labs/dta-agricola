@@ -2,22 +2,22 @@
 
 #define DESV_EST_UMBRAL 0.3
 #define NUM_MUESTRAS 10
-#define NUM_LECTURAS 6
-float hum_hist[NUM_LECTURAS] = {0};
-float temp_hist[NUM_LECTURAS] = {0};
+// #define NUM_LECTURAS 6
+float hum_hist[NUM_MUESTRAS] = {0};
+float temp_hist[NUM_MUESTRAS] = {0};
 uint8_t index = 0;
 bool calentado = false;
 
 void agregarALaMedia(float nueva_temp, float nueva_hum) {
   temp_hist[index] = nueva_temp;
   hum_hist[index] = nueva_hum;
-  index = (index + 1) % NUM_LECTURAS;
+  index = (index + 1) % NUM_MUESTRAS;
 }
 
 float promedio(float *hist) {
   float suma = 0;
-  for (int i = 0; i < NUM_LECTURAS; i++) suma += hist[i];
-  return suma / NUM_LECTURAS;
+  for (int i = 0; i < NUM_MUESTRAS; i++) suma += hist[i];
+  return suma / NUM_MUESTRAS;
 }
 
 float moda(float *valores, byte n) {

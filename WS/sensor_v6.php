@@ -95,7 +95,7 @@ class SensorSystem {
     }
 
     public function formatSettingsForDevice(): string {
-        $this->escribirLog("formatSettingsForDevice...");
+        // $this->escribirLog("formatSettingsForDevice...");
         $settings = $this->getSettings();
         $sendData = "\"{$settings->operationMode}";
         
@@ -229,32 +229,69 @@ class SensorSystem {
         }
     }
 
+    private function getHumidity($lat, $lon) {
+        $apiKey = "db9c92bd1f6d8d5db0aa0bae36ce093f";
+        $apiUrl = "https://api.openweathermap.org/data/2.5/weather?lat={$lat}&lon={$lon}&appid={$apiKey}&units=metric";
+        $response = file_get_contents($apiUrl);        // Obtener datos desde la API
+        $data = json_decode($response, true);
+        return $data["main"]["humidity"];                        // Extraer la humedad
+    }
+
     private function processRegularData() {
         $settings = $this->getSettings();
         $data = $this->fillEmptyData($_GET['data'], $settings->sensors, $settings->sensors->sensorNumber);
         if ($settings->operationMode && ($settings->operationMode == "" || $settings->operationMode == "0" || $settings->operationMode == 0)) {
-            $actualize = true;
+            $this->sensorsDiscovery($data);
+        } else {
             $length = count($data);
+            $readyToUpdate = true;
+            $idx = 0;
             for ($i = 0; $i < $length; $i++) {
-                $idx = "S$i";
-                if (isset($data[$i]) && strpos($data[$i], '0x') === 0) {
-                    $settings->sensors->$idx->id = $data[$i];
-                    $settings->sensors->$idx->latitude = $settings->sensors->$idx->latitude ?? 0.0;
-                    $settings->sensors->$idx->longitude = $settings->sensors->$idx->longitude ?? 0.0;
-                    $settings->sensors->$idx->type = $settings->sensors->$idx->type ?? "SHT";
-                } else {
-                    $actualize = false;
-                    break;
+                if ($data[$i] !== 'NaN' && isset($data[$i + 3])) {
+                    $value = (float)$data[$i + 3];
+                    if (2.5 < $value && $value < 5.5) {
+                        if ((float)$data[$i + 1] === -1.0) {
+                            $sensorId = "S$idx";
+                            $latitude = $settings->sensors->$sensorId->latitude;
+                            $longitude = $settings->sensors->$sensorId->longitude;
+                            $data[$i + 1] = $this->getHumidity($latitude, $longitude);
+                        }
+                        $i += 3;
+                        $idx++;
+                    } else {
+                        $readyToUpdate = false;
+                        break;
+                    }
                 }
             }
-            if ($actualize) {
-                $settings->sensors->sensorNumber = $length;       // Actualizar el número de sensores
-                $this->settings = $settings;                      // Actualizar la caché local
-                $this->updateSettings($settings);
+            if ($readyToUpdate) {
+                // $this->escribirLog("Data array: " . json_encode($data));
+                $this->updateLog($data);
+                $this->verifyAlerts($data);
             }
-        } else {
-            $this->updateLog($data);
-            $this->verifyAlerts($data);
+        }
+    }
+    
+    private function sensorsDiscovery($data) {
+        $settings = $this->getSettings();
+        $actualize = true;
+        $length = count($data);
+        for ($i = 0; $i < $length; $i++) {
+            $idx = "S$i";
+            if (isset($data[$i]) && strpos($data[$i], '0x') === 0) {
+                $settings->sensors->$idx->id = $data[$i];
+                $settings->sensors->$idx->latitude = $settings->sensors->$idx->latitude ?? 0.0;
+                $settings->sensors->$idx->longitude = $settings->sensors->$idx->longitude ?? 0.0;
+                $settings->sensors->$idx->type = $settings->sensors->$idx->type ?? "SHT4";
+            } else {
+                $actualize = false;
+                break;
+            }
+        }
+        if ($actualize) {
+            $settings->sensors->sensorNumber = $length;       // Actualizar el número de sensores
+            $this->settings = $settings;                      // Actualizar la caché local
+            $this->updateSettings($settings);
         }
     }
     
