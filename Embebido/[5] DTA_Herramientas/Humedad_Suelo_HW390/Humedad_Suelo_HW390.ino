@@ -1,6 +1,6 @@
 #define sensorPin A0
-int valAire = 2780; 
-int valAgua = 1120;
+#define valAire 3840
+#define valAgua 1100
 
 #define DESV_EST_UMBRAL 0.3
 #define NUM_LECTURAS 30

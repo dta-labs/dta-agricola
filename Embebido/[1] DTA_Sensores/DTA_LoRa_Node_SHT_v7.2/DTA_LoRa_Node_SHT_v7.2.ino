@@ -18,7 +18,7 @@ void setup() {
   digitalWrite(A1, LOW);
   Serial.begin(19200);
   while (!Serial) delay(10);               // Pausar Arduino Zero, Leonardo, etc. hasta que se active el puerto serie
-  Serial.println(F("\n\nMicroestación agrícola STH v7.0726L"));
+  Serial.println(F("\n\nMicroestación agrícola STH v7.2.0802L"));
   Serial.println(F("~ Sonda de humedad del suelo"));
   Serial.println(F("~ Humedad y temperatura ambiente"));
   Serial.println(F("  • Protocolo: DTA-SHT4-0xId,Ms,Hr,T°C,Vcc,CS"));

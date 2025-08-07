@@ -13,7 +13,7 @@ void initLoRa() {
   // LoRa.setSyncWord(0x12);                         // Reducir el tamaño del buffer
   // LoRa.sleep();                                   // Modo de reposo
   LoRa.receive();
-  DBG_PRINTLN(F("LoRa inicializado correctamente ✔"));
+  DBG_PRINTLN(F("~ LoRa inicializado correctamente ✔"));
 }
 
 void resetSPI() {

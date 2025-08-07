@@ -1,8 +1,11 @@
 #pragma region Comunicaciones
 
+#define RESETDATA(x, y) for (int i = 0; i < y; i++) x[i] = String()
+
 String sendATCommand(String cmd, int wait = responseTime, bool response = false) {
   gprs.println(cmd);
   delay(wait);  // Pequeña espera inicial tras enviar
+  systemWatchDog();
   String result = "";
   unsigned long timeout = millis() + 5000; // Espera máxima de 5s
   unsigned long interByteTimer = millis();
@@ -12,6 +15,7 @@ String sendATCommand(String cmd, int wait = responseTime, bool response = false)
       result += c;
       interByteTimer = millis(); // Reinicia cuando llega un byte
     }
+    systemWatchDog(); 
     // Si pasaron 200ms sin recibir nada más, asumimos fin
     if (result.length() > 0 && (millis() - interByteTimer > 200)) {
       break;
@@ -20,7 +24,6 @@ String sendATCommand(String cmd, int wait = responseTime, bool response = false)
   if (response) DBG_PRINTLN(result);
   return result;
 }
-
 
 void resetSIM() {
   DBG_PRINTLN(F("Resetting SIM module..."));
@@ -49,7 +52,7 @@ void commWatchDogReset(String result, bool readError = false) {
   commError = (signalVar < 6 || QoS > 6 || restartGSM || readError) ? commError + 1 : 0;
   if (commError != 0) { DBG_PRINT(F("commError: ")); DBG_PRINTLN(commError); }
   // if (commError == 2) resetSIM(); 
-  if (commError == 2) { 
+  if (commError == 1) { 
     commError = 0;
     digitalWrite(watchDogPin, LOW);
     while(1) delay(1000);
@@ -131,19 +134,21 @@ bool verificarRed() {
   return true;
 }
 
-
 void setupGSM() {
   if (restartGSM) {
     systemWatchDog(); 
     DBG_PRINT(F("GSM inicializado"));
     gprs.begin(9600);
+    systemWatchDog(); 
     gprs.listen();
-    if (!verificarRed()) {
-      DBG_PRINTLN(F("🚫 Red no disponible. Abortando configuración."));
-      // return;
-    }
+    systemWatchDog(); 
+    // if (!verificarRed()) {
+    //   DBG_PRINTLN(F("🚫 Red no disponible. Abortando configuración."));
+    //   // return;
+    // }
     sendATCommand(F("AT+CFUN=1"));
     sendATCommand(F("AT+SAPBR=0,1"));
+    sendATCommand(F("AT+CDNSCFG=\"8.8.8.8\",\"8.8.4.4\""));
     sendATCommand(F("AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\""));
     sendATCommand(F("AT+SAPBR=3,1,\"APN\",\"internet.itelcel.com\""));
     sendATCommand(F("AT+SAPBR=3,1,\"USER\",\"webgpr\""));
@@ -153,7 +158,8 @@ void setupGSM() {
     int i = 10;
     while (telefono == strEmpty && i > 0) {
       telefono = getTelefono();
-      delay(1000);
+      // delay(1000);
+      setPowerLEDBlink();
       systemWatchDog(); 
       Serial.print(".");
       i--;
@@ -168,10 +174,6 @@ void setupGSM() {
   }
 }
 
-void resetData() {
-  for (int i = 0; i < numSensors; i++) dataToSend[i] = strEmpty;
-}
-
 String getData() {
   bool empty = true;
   String result = strEmpty;
@@ -183,6 +185,24 @@ String getData() {
   return empty ? strEmpty : result;
 }
 
+String setDir() {
+  String result = sendATCommand(F("AT+CDNSGIP=\"dtaamerica.com\""), 5000);
+  return result.indexOf("+CDNSGIP: 1") != -1 ? domainName : domainIP;
+}
+
+bool setURL(String baseURL) {
+  String url = httpServer1; url += baseURL; url += httpServer2; url += telefono; 
+  // String url = httpServer; url += telefono; 
+  url += F("&data=["); url += getData() + F("]");
+  url += F("&rx="); url += systemStart ? F("ini") : commRx ? F("Ok") : F("Er");
+  url += F("&si="); url += (String)signalVar;
+  url += F("&qos="); url += (String)QoS + F("\"");
+  DBG_PRINTLN(url);
+  sendATCommand(url);
+  String result = sendATCommand(F("AT+HTTPACTION=0"), 10000, true);
+  return result.indexOf("+HTTPACTION: 0,603,0") == -1;
+}
+
 void httpRequest() {
   signalVar = getRSSI();
   if (telefono != strEmpty /*&& signalVar > 0*/) {
@@ -191,28 +211,31 @@ void httpRequest() {
     // telefono = "333333333333";
     sendATCommand(F("AT+HTTPINIT"));
     sendATCommand(F("AT+HTTPPARA=\"CID\",1"));
-    String url = httpServer; url += telefono; 
-    url += F("&data=["); url += getData() + F("]");
-    url += F("&rx="); url += systemStart ? F("ini") : commRx ? F("Ok") : F("Er");
-    url += F("&si="); url += (String)signalVar;
-    url += F("&qos="); url += (String)QoS + F("\"");
-    DBG_PRINTLN(url);
-    sendATCommand(url);
-    sendATCommand(F("AT+HTTPACTION=0"), 10000, false); 
-    String result = sendATCommand(F("AT+HTTPREAD=0,200"));
+    int iter = 3;
+    int real = 0;
+    int expected = 0;
+    String result = "";
+    do {
+      if (!setURL(domainName)) {
+        setURL(domainIP);
+      } 
+      result = sendATCommand(F("AT+HTTPREAD=0,300"), 0, true);
+      // commWatchDogReset(result);
+      real = result.substring(result.indexOf('"'), result.lastIndexOf('"') + 1).length();
+      expected = result.substring(result.indexOf(F("+HTTPREAD: ")) + 11, result.indexOf(F("\n"), 21)).toInt();
+      DBG_PRINTLN((String)real + " / " + (String)expected);
+      systemWatchDog(); 
+      // if (expected != real || expected == 0 || real == 0) while(1) delay(1000);
+    } while (expected != real && iter--);
     sendATCommand(F("AT+HTTPTERM"), 30); 
-    // commWatchDogReset(result);
-    int real = result.substring(result.indexOf('"'), result.lastIndexOf('"') + 1).length();
-    int expected = result.substring(result.indexOf(F("+HTTPREAD: ")) + 11, result.indexOf(F("\n"), 21)).toInt();
-    DBG_PRINTLN((String)expected + " == " + (String)real);
-    systemWatchDog(); 
-    // if (expected != real || expected == 0 || real == 0) while(1) delay(1000);
     if (expected == real && expected != 0) {
+      isPowerLEDBlink = false;
       setPowerLEDOn();
       result = result.substring(result.indexOf('"'), result.lastIndexOf('"') + 1);
       result.replace(F("\""), commaChar);
       int numAuxMode = result.substring(1, result.indexOf(commaChar, 1)).toInt();
-      if (operationMode == 0 && numAuxMode != 0) resetData();
+      if (operationMode == 0 && numAuxMode != 0) RESETDATA(dataToSend, numSensors);
+      // if (operationMode == 0 && numAuxMode != 0) resetData();
       operationMode = numAuxMode;
       sensorList = result.substring(result.indexOf(commaChar, 1) + 1, result.length() - 1);
     }
@@ -235,6 +258,7 @@ void showVariables() {
 }
 
 void comunicaciones() {
+  systemWatchDog(); 
   DBG_PRINTLN(F("\nComunicación con el servidor"));
   setupGSM();
   httpRequest(); 
@@ -243,11 +267,3 @@ void comunicaciones() {
 }
 
 #pragma endregion Comunicaciones
-
-/*
-Cambios realizados:
-- Línea 43
-- Línea 145
-- Línea 167
-- Línea 168
-*/
