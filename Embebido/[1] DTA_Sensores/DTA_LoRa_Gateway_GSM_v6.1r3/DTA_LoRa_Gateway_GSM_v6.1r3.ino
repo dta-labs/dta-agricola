@@ -71,6 +71,7 @@ void txData() {
 
 void rxData() {
   // LoRa.idle();
+  // DBG_PRINT(F("."));
   loraRxData();
   // LoRa.sleep();
   // DBG_PRINT(F("\nMemoria disponible al leer HTTP: ")); DBG_PRINTLN(freeRam());

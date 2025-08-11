@@ -190,7 +190,7 @@ String setDir() {
   return result.indexOf("+CDNSGIP: 1") != -1 ? domainName : domainIP;
 }
 
-bool setURL(String baseURL) {
+String setURL(String baseURL) {
   String url = httpServer1; url += baseURL; url += httpServer2; url += telefono; 
   // String url = httpServer; url += telefono; 
   url += F("&data=["); url += getData() + F("]");
@@ -200,7 +200,8 @@ bool setURL(String baseURL) {
   DBG_PRINTLN(url);
   sendATCommand(url);
   String result = sendATCommand(F("AT+HTTPACTION=0"), 10000, true);
-  return result.indexOf("+HTTPACTION: 0,603,0") == -1;
+  return (result.indexOf("+HTTPACTION: 0,603,0") == -1) ? sendATCommand(F("AT+HTTPREAD=0,300"), 0, true) : "";
+  // return result.indexOf("+HTTPACTION: 0,603,0") == -1;
 }
 
 void httpRequest() {
@@ -211,22 +212,18 @@ void httpRequest() {
     // telefono = "333333333333";
     sendATCommand(F("AT+HTTPINIT"));
     sendATCommand(F("AT+HTTPPARA=\"CID\",1"));
-    int iter = 3;
-    int real = 0;
-    int expected = 0;
-    String result = "";
-    do {
-      if (!setURL(domainName)) {
-        setURL(domainIP);
-      } 
-      result = sendATCommand(F("AT+HTTPREAD=0,300"), 0, true);
-      // commWatchDogReset(result);
-      real = result.substring(result.indexOf('"'), result.lastIndexOf('"') + 1).length();
-      expected = result.substring(result.indexOf(F("+HTTPREAD: ")) + 11, result.indexOf(F("\n"), 21)).toInt();
-      DBG_PRINTLN((String)real + " / " + (String)expected);
-      systemWatchDog(); 
-      // if (expected != real || expected == 0 || real == 0) while(1) delay(1000);
-    } while (expected != real && iter--);
+    String result = setURL(domainName);
+    if (result == "") { result = setURL(domainIP); } 
+    // if (!setURL(domainName)) {
+    //   setURL(domainIP);
+    // } 
+    // String result = sendATCommand(F("AT+HTTPREAD=0,300"), 0, true);
+    // commWatchDogReset(result);
+    int real = result.substring(result.indexOf('"'), result.lastIndexOf('"') + 1).length();
+    int expected = result.substring(result.indexOf(F("+HTTPREAD: ")) + 11, result.indexOf(F("\n"), 21)).toInt();
+    DBG_PRINTLN((String)real + " / " + (String)expected);
+    systemWatchDog(); 
+    // if (expected != real || expected == 0 || real == 0) while(1) delay(1000);
     sendATCommand(F("AT+HTTPTERM"), 30); 
     if (expected == real && expected != 0) {
       isPowerLEDBlink = false;
