@@ -1919,11 +1919,11 @@ app.controller("ControladorPrincipal", function ($scope) {
         if (campo.type != 'Sensor') {
             text += `    <tr>`;
             text += `        <td style="text-align: left;">Estado:</td>`;
-            text += `        <td style="text-align: left;"><b>${campo.log.state ? "Encendido" : "Apagado" }</b></td>`;
+            text += `        <td style="text-align: left;"><b>${campo.log && campo.log.state ? "Encendido" : "Apagado" }</b></td>`;
             text += `    </tr>`;
             text += `    <tr>`;
             text += `        <td style="text-align: left;">Velocidad:</td>`;
-            text += `        <td style="text-align: left;"><b>${campo.direction ? "Avanzar" : "Retroceder"} ${campo.log ? campo.log.speed : 0}%</b></td>`;
+            text += `        <td style="text-align: left;"><b>${campo.direction ? "Avanzar" : "Retroceder"} ${campo.log && campo.log.speed ? campo.log.speed : 0}%</b></td>`;
             text += `    </tr>`;
             text += `    <tr>`;
             text += `        <td style="text-align: left;">Caudal:</td>`;
