@@ -12,6 +12,7 @@ String NODE_ID = "DTA-SHT4-0x";        // Identificador del nodo DTA-SHT-0x0001
 
 Adafruit_SHT4x sht4 = Adafruit_SHT4x();   // SHT4x
 #define ENABLE_HEATER SHT4X_NO_HEATER     // Activar el calentador del sensor
+#define activeHeater false
 sensors_event_t humidity, temp;
 
 #define DESV_EST_UMBRAL 0.3
@@ -30,8 +31,8 @@ int TIMER = 0;                            // Tiempo de espera en minutos
 
 #define sensorPin A0                      // Pin del sensor de humedad
 #define VCC A1                            // Pin de alimentación del sensor de humedad
-#define valAire 570
-#define valAgua 230
+#define valAire 565
+#define valAgua 224
 byte moisture;
 
 // #define pinDS 4                           // Pin del sensor de temperatura
@@ -276,9 +277,11 @@ void readSHT() {
   t_actual = temp.temperature;
   h_actual = humidity.relative_humidity;
   agregarALaMedia(t_actual, h_actual);
-  float t_prom = promedio(temp_hist);
-  float h_prom = promedio(hum_hist);
-  if (h_prom > 94.0 && t_prom < 10.0) {  // Evaluar si hay condiciones para calentamiento
+  float t_prom = estimadorAdaptativo(temp_hist, NUM_MUESTRAS);
+  float h_prom = estimadorAdaptativo(hum_hist, NUM_MUESTRAS);
+  // float t_prom = promedio(temp_hist);
+  // float h_prom = promedio(hum_hist);
+  if (h_prom > 94.0 && t_prom < 10.0 && activeHeater) {  // Evaluar si hay condiciones para calentamiento
     Serial.println(F("⚠️ Posible condensación detectada, activando calentador."));
     sht4.setHeater(SHT4X_LOW_HEATER_100MS);
     delay(200); // calentamiento suave

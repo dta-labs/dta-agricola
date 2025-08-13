@@ -16,9 +16,14 @@
 #endif
 
 SoftwareSerial gprs(4, 3); 
+#define domainName "dtaamerica.com"
+#define domainIP "172.102.246.22"
+#define httpServer1 F("AT+HTTPPARA=\"URL\",\"http://")
+#define httpServer2 F("/ws/sensor_v6.php?id=")
 #define httpServer F("AT+HTTPPARA=\"URL\",\"http://dtaamerica.com/ws/sensor_v6.php?id=")
 #define testComm false
 #define responseTime 15
+String dir = "";
 String telefono = "";
 bool restartGSM = true;
 byte signalVar = 0;

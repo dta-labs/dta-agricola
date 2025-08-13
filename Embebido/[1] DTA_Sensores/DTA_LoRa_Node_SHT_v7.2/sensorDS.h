@@ -24,7 +24,7 @@ String setupDS() {
     delay(200);
     sensorDS.begin();
   }
-  Serial.println(F("✗ Sensor no detectado después de varios intentos."));
+  Serial.println(F("  ✗ Sensor de temperatura no detectado después de varios intentos."));
   return F("0x00");
 }
 
@@ -33,7 +33,7 @@ void getTemperature() {
   static float muestras[NUM_MUESTRAS];
   for (byte i = 0; i < NUM_MUESTRAS; i++) {
     sensorDS.requestTemperatures();
-    delay(1000);
+    // delay(1000);
     float val = sensorDS.getTempCByIndex(0); // Leer el valor del sensor
     if (val != -127.0 && val != 85.0 && -30.0 < val && val < 70.0) {
       muestras[i] = val;
@@ -42,51 +42,6 @@ void getTemperature() {
     }
   }
   t_actual = estimadorAdaptativo(muestras, NUM_MUESTRAS);
-}
-
-/**************************************************/
-
-void getTemperature_old() {
-  sensorDS.requestTemperatures();
-  h_actual = -1;
-  t_actual = sensorDS.getTempCByIndex(0);
-  // if (isnan(t_actual) || t_actual == -127.0) {
-  //   Serial.println(F("⚠️ Lectura inválida o sensor desconectado."));
-  // } else {
-  //   Serial.print(t_actual);
-  //   Serial.println(F("°C"));
-  // }
-}
-
-bool detectarSensor() {
-  DeviceAddress sensorAddress;
-  byte intentos = 5;
-  for (uint8_t i = 0; i < intentos; i++) {
-    if (sensorDS.getAddress(sensorAddress, 0)) return true;
-    delay(200);
-  }
-  return false;
-}
-
-void setupDS_old() {
-  sensorDS.begin();
-  byte iter = 10;
-  while (!detectarSensor() && iter > 0) {
-    delay(250);
-    sensorDS.begin();
-    iter--;
-  }
-  if (!detectarSensor() && iter == 0) Serial.println(F("  ✗ No se logró detectar el sensor después de varios intentos."));
-}
-
-String getAddress(){
-  String address = "";
-  DeviceAddress sensorAddress;
-  sensorDS.getAddress(sensorAddress, 0);
-  for (byte i = 0; i < 8; i++) {
-    address += sensorAddress[i] < 0x10 ? ("0" + String(sensorAddress[i], HEX)) : String(sensorAddress[i], HEX);
-  }
-  return address;
 }
 
 #pragma endregion DallasSensor
