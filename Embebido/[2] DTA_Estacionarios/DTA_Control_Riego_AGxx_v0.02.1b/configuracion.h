@@ -1,23 +1,14 @@
-/****************************************************************************
- *                                                                          * 
- *   Configuración: {GSMr, GSMt, PLT, Pais, Lada, Número(3), Número(4)}     *
- *   - GSM: Rx, Tx (2, 3) <= Chip azul | (3, 2) <= Chip rojo                *
- *   - PLT: 3 | 7 <= Plots                                                  *
- *                                                                          *
- ****************************************************************************/
-
-// Settings
-const int config[] = {2, 3, 7};                                 // Rx, Tx, Plots
-// const int config[] = {2, 3, 7, 52, 614, 366, 4779};          // Rx, Tx, Plots, Pais, Lada, Número -> Nieves 1 - Avena
-// const int config[] = {2, 3, 7, 52 , 614, 366, 4806};         // Rx, Tx, Plots, Pais, Lada, Número -> Nieves 2 - Cesped
-
 #pragma region Variables
 
-SoftwareSerial gprs(config[0], config[1]);                  // Rx, Tx
-static byte plots = config[2];
+SoftwareSerial gprs(2, 3);                  // Rx, Tx: (2, 3) <= Chip azul | (3, 2) <= Chip rojo
+#define domainName "dtaamerica.com"
+#define domainIP "172.102.246.22"
+#define httpServer1 F("AT+HTTPPARA=\"URL\",\"http://")
+#define httpServer2 F("/ws/commj_v4.php?id=")
+static byte plots = 7;                      // Plots: 3 | 7
 // #define telefono fillNumber(config[3], 2) + fillNumber(config[4], 3) + fillNumber(config[5], 3) + fillNumber(config[6], 4)
 #define httpServer F("AT+HTTPPARA=\"URL\",\"http://dtaamerica.com/ws/commj_v4.php?id=")
-String telefono = "24530094309";
+String telefono = "";
 
 // Actuadores y variables
 #define testFunc false

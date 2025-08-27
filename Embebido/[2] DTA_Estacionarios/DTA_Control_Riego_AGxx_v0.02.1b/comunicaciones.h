@@ -1,47 +1,41 @@
 #pragma region Comunicaciones
 
-#ifndef Arduino_h
-  #include "Arduino.h"
-#endif
+// #ifndef Arduino_h
+//   #include "Arduino.h"
+// #endif
 
-// void(* resetSoftware)(void) = 0;
+void(*resetSoftware)(void) = 0;  // Puntero a dirección 0
 
-String getResponse(int wait, bool response){
-  String result = strEmpty;
-  delay(wait);
-  unsigned long iTimer = millis();
-  while(!gprs.available() && (millis() - iTimer) <= 10000) {
-    delay(5);    
+String sendATCommand(String cmd, int wait = responseTime, bool response = false) {
+  // Serial.println(cmd);
+  gprs.println(cmd);
+  delay(wait);  // Pequeña espera inicial tras enviar
+  String result = "";
+  unsigned long timeout = millis() + 5000; // Espera máxima de 5s
+  unsigned long interByteTimer = millis();
+  while (millis() < timeout) {
+    while (gprs.available()) {
+      char c = gprs.read();
+      result += c;
+      interByteTimer = millis(); // Reinicia cuando llega un byte
+    }
+    if (result.length() > 0 && (millis() - interByteTimer > 200)) {
+      break;
+    }
   }
-  while(gprs.available()) {
-    result += (char)gprs.read();
-    delay(1.5);
-  }
-  if (response) {
-    DBG_PRINTLN(result);
-  }
+  if (response) DBG_PRINTLN(result);
   return result;
 }
 
-void resetSIM() {
-  DBG_PRINTLN(F("Resetting SIM module..."));
-  gprs.println(F("AT+CFUN=0"));
-  getResponse(responseTime, testComm); 
-  digitalWrite(pinCommRST, LOW);                // Reiniciar el Módulo de comunicaciones SIM800
-  delay(500);
-  digitalWrite(pinCommRST, HIGH);
-  delay(3000);
-  gprs.println(F("AT+CFUN=1"));
-  getResponse(100, testComm); 
-}
-
-void commWatchDogReset(String result) {
-  restartGSM = (result.indexOf(F("ERROR")) != -1  || result.indexOf(F("601")) != -1  || result.indexOf(F("604")) != -1 || signalVar < 6) ? true : false;
-  commError = ((signalVar < 6 || QoS > 6 || restartGSM) && !testFunc) ? commError + 1 : 0;
+void commWatchDogReset(String result, bool readError = false) {
+  restartGSM = (result.indexOf(F("ERROR")) != -1 || result.indexOf(F("601")) != -1  || result.indexOf(F("604")) != -1) ? true : false;
+  commError = (signalVar < 6 || QoS > 6 || restartGSM || readError) ? commError + 1 : 0;
   if (commError != 0) { DBG_PRINT(F("commError: ")); DBG_PRINTLN(commError); }
-  if (commError == 4) { 
+  if (commError == 1) { 
     commError = 0;
-    resetSIM(); 
+    digitalWrite(watchDogPin, LOW);
+    resetSoftware();
+    while(1) delay(1000);
   }
 }
 
@@ -66,103 +60,67 @@ String parse(String dataString, char separator, int index) {
   15-19: Señal aceptable.
   20-24: Señal buena.
   25-31: Señal excelente
-*/
-int getRSSI() {
-  gprs.println(F("AT+CSQ"));
-  String aux = getResponse(responseTime, false);
-  if (aux.indexOf(F("+CSQ: ")) != -1) {
-    return aux.substring(aux.indexOf(F("+CSQ: ")) + 6, aux.indexOf(F(","))).toInt();
-  }
-  return -1; // Valor inválido
-}
-
-/*
+  ---------------------------
   Tasa de error de bits (BER):
   0-3: Buena calidad de conexión.
   4-6: Conexión moderada.
   7-99: Conexión con errores significativos.
 */
-int getBER() {
-  gprs.println(F("AT+CSQ"));
-  String aux = getResponse(responseTime, false);// +CSQ: 25,6
+void getSignalMetrics() {
+  signalVar = -1;
+  QoS = -1;
+  String aux = sendATCommand(F("AT+CSQ"));    // +CSQ: 25,6
   if (aux.indexOf(F("+CSQ: ")) != -1) {
-    return aux.substring(aux.indexOf(F(",")) + 1, aux.length()).toInt();
-  }
-  return -1;
-}
-
-void testComunicaciones() {
-  gprs.println(F("AT+IPR=9600"));      // Velocidad en baudios?
-  getResponse(responseTime, testComm); 
-  gprs.println(F("AT"));               // Tarjeta SIM Lista? OK
-  getResponse(responseTime, testComm); 
-  gprs.println(F("AT+CGMI"));          // Fabricante del dispositivo?
-  getResponse(responseTime, testComm); 
-  gprs.println(F("ATI"));              // Información del producto?
-  getResponse(responseTime, testComm); 
-  gprs.println(F("AT+CGSN"));          // Número de serie?
-  getResponse(responseTime, testComm); 
-  gprs.println(F("AT+IPR?"));          // Velocidad en baudios?
-  getResponse(responseTime, testComm); 
-  gprs.println(F("AT+CBC"));           // Estado de la bateriía
-  getResponse(responseTime, testComm); 
-  gprs.println(F("AT+CFUN?"));         // Funcionalidad 0 mínima 1 máxima
-  getResponse(responseTime, testComm); 
-  gprs.println(F("AT+CGATT=1"));       // Tarjeta SIM insetada? +CPIN: READY OK
-  getResponse(responseTime, testComm); 
-  gprs.println(F("AT+CPIN?"));         // Tarjeta SIM insetada? +CPIN: READY OK
-  getResponse(responseTime, testComm); 
-  gprs.println(F("AT+WIND=1"));        // Indicación de tarjeta SIM insetada? +CPIN: READY OK
-  getResponse(responseTime, testComm); 
-  gprs.println(F("AT+CREG?"));         // Tarjeta SIM registrada? +CREG: 0,1 OK 
-  getResponse(responseTime, testComm); 
-  gprs.println(F("AT+CGATT?"));        // Tiene GPRS? +CGATT: 1 OK
-  getResponse(responseTime, testComm); 
-  gprs.println(F("AT+CSQ"));           // Calidad de la señal -  debe ser 9 o superior: +CSQ: 14,0 OK
-  getResponse(responseTime, testComm); 
-  gprs.println(F("AT+CCLK?"));         // Fecha y Hora?
-  getResponse(responseTime, testComm); 
-  gprs.println(F("AT+COPS?"));         // Comañía telefónica?
-  getResponse(responseTime, testComm); 
-}
-
-void setupGSM() {
-  if (restartGSM) {
-    DBG_PRINTLN(F("Setup GSM"));
-    gprs.begin(9600);
-    gprs.listen();
-    if (testComm) { testComunicaciones(); }
-    gprs.println(F("AT+CFUN=1"));
-    getResponse(responseTime, testComm); 
-    gprs.println(F("AT+CSQ"));
-    getResponse(responseTime, true); 
-    // gprs.println(F("AT+COPS"));
-    // getResponse(responseTime, true); 
-    gprs.println(F("AT+SAPBR=0,1"));
-    getResponse(responseTime, testComm); 
-    gprs.println(F("AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\""));
-    getResponse(responseTime, testComm); 
-    gprs.println(F("AT+SAPBR=3,1,\"APN\",\"internet.itelcel.com\""));
-    getResponse(responseTime, testComm); 
-    gprs.println(F("AT+SAPBR=3,1,\"USER\",\"webgpr\""));
-    getResponse(responseTime, testComm); 
-    gprs.println(F("AT+SAPBR=3,1,\"PWD\",\"webgprs2002\""));
-    getResponse(responseTime, testComm); 
-    gprs.println(F("AT+SAPBR=1,1"));
-    getResponse(responseTime, testComm); 
+      signalVar = aux.substring(aux.indexOf(F("+CSQ: ")) + 6, aux.indexOf(F(","))).toInt();
+      QoS = aux.substring(aux.indexOf(F(",")) + 1, aux.length()).toInt();
   }
 }
 
 String getTelefono() {
-  gprs.println(F("AT+CCID"));
-  String result = getResponse(responseTime, true); 
+  String result = sendATCommand(F("AT+CCID"));
   result.replace(F("\r"), strEmpty);
   result.replace(F("\n"), strEmpty);
   result.replace(F("AT+CCID"), strEmpty);
   result.replace(F(" "), strEmpty);
   result.replace(F("OK"), strEmpty);
   result.trim();
-  return result;
+  result = result.substring(8, result.length() - 1);
+  return isNumber(result) && 10 <= result.length() && result.length() <= 11 ? result : strEmpty;
+}
+
+void setupGSM() {
+  if (restartGSM) {
+    DBG_PRINT(F("GSM inicializado"));
+    gprs.begin(9600);
+    gprs.listen();
+    const __FlashStringHelper* const AT_COMMANDS[] = {
+      F("AT+SAPBR=0,1"),
+      F("AT+CFUN=1"),
+      // F("AT+CDNSCFG=\"8.8.8.8\",\"8.8.4.4\""),
+      F("AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\""),
+      F("AT+SAPBR=3,1,\"APN\",\"internet.itelcel.com\""),
+      F("AT+SAPBR=3,1,\"USER\",\"webgpr\""),
+      F("AT+SAPBR=3,1,\"PWD\",\"webgprs2002\""),
+      F("AT+SAPBR=1,1")
+    };
+    for (byte i = 0; i < sizeof(AT_COMMANDS) / sizeof(AT_COMMANDS[0]); i++) {
+      sendATCommand(AT_COMMANDS[i]);
+    }
+    int i = 10;
+    while (telefono == strEmpty && i > 0) {
+      telefono = getTelefono();
+      delay(1000);
+      Serial.print(F("."));
+      i--;
+    }
+    if (telefono != strEmpty) {
+      DBG_PRINT(F(" correctamente ✔ ID: ")); DBG_PRINT(telefono);
+      getSignalMetrics();
+      DBG_PRINT(F(" RSSI: ")); DBG_PRINTLN(signalVar);
+    } else {
+      DBG_PRINTLN(F(" con error ✘"));
+    }
+  }
 }
 
 String getSectorStatus() {
@@ -175,48 +133,63 @@ String getSectorStatus() {
   return result;
 }
 
-String getData(String result) {
-  result.replace(F("\r"), strEmpty);
-  result.replace(F("\n"), strEmpty);
-  result.replace(F("AT"), strEmpty);
-  result.replace(F("+HTTPREAD"), strEmpty);
-  result.replace(F(": "), strEmpty);
-  result.replace(F(" "), strEmpty);
-  result.replace(F("OK"), strEmpty);
-  result.trim();
-  return result.substring(result.indexOf('"'));
+String setURL(byte baseURL=true) {
+  // String url = httpServer1; url += baseURL; url += httpServer2; url += (String)telefono; 
+  // Serial.println(telefono);
+  // Serial.println(url);
+  // // String url = httpServer; url += telefono; 
+  // url += F("&st="); url += statusVar;
+  // url += F("&dt="); url += getSectorStatus();
+  // url += F("&rx="); url += (String)(systemStart ? "ini" : commRx ? "Ok" : "Er");
+  // url += F("&si="); url += (String)signalVar;
+  // url += F("&qos="); url += (String)QoS + "\"";
+  char url[140];
+  strcpy_P(url, (PGM_P)httpServer1);
+  strcat(url, baseURL ? domainName : domainIP);
+  strcat_P(url, (PGM_P)httpServer2);
+  strcat(url, telefono.c_str());
+  strcat(url, "&st="); strcat(url, statusVar.c_str());
+  String sector = getSectorStatus();
+  strcat(url, "&dt="); strcat(url, sector.c_str());
+  strcat(url, "&rx=");
+  strcat(url, systemStart ? "ini" : commRx ? "Ok" : "Er");
+  char temp[6];
+  itoa(signalVar, temp, 10); strcat(url, "&si="); strcat(url, temp);
+  itoa(QoS, temp, 10); strcat(url, "&qos="); strcat(url, temp);
+  strcat(url, "\"");
+  url[sizeof(url) - 1] = '\0'; // Seguridad extra
+  // DBG_PRINTLN(url);
+  sendATCommand(url, 15, true);
+  String result = sendATCommand(F("AT+HTTPACTION=0"), 10000, true);
+  return (result.indexOf("+HTTPACTION: 0,603,0") == -1) ? sendATCommand(F("AT+HTTPREAD=0,300"), 0, true) : "";
+  // return result.indexOf("+HTTPACTION: 0,603,0") == -1;
 }
 
 String httpRequest() {
   if (testFunc) { return F("\"ON\"P\"7\"60000\"F\"0\"F\"0\"F\"0\"F\"45000\"F\"0\"F\"60000\"F\""); }
-  signalVar = getRSSI();
-  QoS = getBER();
-  gprs.println(F("AT+HTTPINIT"));
-  getResponse(responseTime, false); 
-  gprs.println(F("AT+HTTPPARA=\"CID\",1"));
-  getResponse(responseTime, false); 
-  gprs.print(httpServer); gprs.print(telefono);
-  gprs.print(F("&st=")); gprs.print(statusVar);
-  gprs.print(F("&dt=")); gprs.print(getSectorStatus());
-  gprs.print(F("&rx=")); gprs.print((String)(systemStart ? "ini" : commRx ? "Ok" : "Er"));
-  gprs.print(F("&si=")); gprs.print((String)signalVar);
-  gprs.print(F("&qos=")); gprs.println((String)QoS + "\"");
-  getResponse(25, true); 
-  gprs.println(F("AT+HTTPACTION=0"));
-  getResponse(6000, false); 
-  gprs.println(F("AT+HTTPREAD"));
-  String result = getResponse(30, false);
-  byte counter = 5;
-  while (result.indexOf('"') == -1 && counter > 0) {
-    delay(1000);
-    gprs.println(F("AT+HTTPREAD"));
-    result = getResponse(30, true);
-    counter--;
+  String result = "";
+  if (telefono != strEmpty /*&& signalVar > 0*/) {
+    DBG_PRINTLN(F("Inicio de la comunicación..."));
+    sendATCommand(F("AT+HTTPINIT"));
+    sendATCommand(F("AT+HTTPPARA=\"CID\",1"));
+    result = setURL();
+    if (result == "") { result = setURL(false); } 
+    int real = result.substring(result.indexOf('"'), result.lastIndexOf('"') + 1).length();
+    int expected = result.substring(result.indexOf(F("+HTTPREAD: ")) + 11, result.indexOf(F("\n"), 21)).toInt();
+    DBG_PRINTLN((String)real + " / " + (String)expected);
+    // if (expected != real || expected == 0 || real == 0) while(1) delay(1000);
+    sendATCommand(F("AT+HTTPTERM"), 30); 
+    if (expected == real && expected != 0) {
+      result = result.substring(result.indexOf('"'), result.lastIndexOf('"') + 1);
+      // result.replace(F("\""), commaChar);
+    } else { result = ""; }
+    commWatchDogReset(result, expected != real);
+  } else { 
+    restartGSM = true;
+    commError++;
+    // DBG_PRINTLN("Teléfono: " + telefono + " Señal: " + String(signalVar)); 
   }
-  gprs.println(F("AT+HTTPTERM"));
-  getResponse(30, false);
-  commWatchDogReset(result);
-  return getData(result);
+  return result;
 }
 
 void comunicaciones() {
@@ -224,8 +197,8 @@ void comunicaciones() {
   String data = httpRequest();                                       // Get Settings from HTTP
   DBG_PRINT(F("data: ")); DBG_PRINTLN(data);
   commRx = checkData(data, 18);
-  if (systemStart) { systemStart = false; }
-  if (commRx) {
+  if (data != "" && commRx) {
+    systemStart = false;
     String aux = strEmpty;
     aux = parse(data, '"', 1);                                        // status
     statusVar = (aux == F("ON") || aux == F("OFF")) ? aux : statusVar;
@@ -246,16 +219,14 @@ void comunicaciones() {
 void gestionarComunicaciones() {
   if (commLoops == 0) {
     setupGSM();
-    telefono = getTelefono();
-    if (telefono.length() >= 19) comunicaciones();
-    commLoops++;
-  } else {
-    commLoops = commLoops < 10 ? commLoops + 1 : 0;
+    comunicaciones();
   }
+  commLoops++;
+  if (commLoops > 10) commLoops = 0;
 }
 
 void showVars() {
-  DBG_PRINT(fillNumber(commLoops, 2)); DBG_PRINT(F(".- <")); DBG_PRINT(statusVar); DBG_PRINT(F("> "));
+  DBG_PRINT(F("<")); DBG_PRINT(statusVar); DBG_PRINT(F("> "));
   DBG_PRINT(F("<")); DBG_PRINT(irrigationMode); DBG_PRINT(F("> "));
   for (byte i = 0; i < plots; i++) {
     if (activationTime[i] > 0) {
