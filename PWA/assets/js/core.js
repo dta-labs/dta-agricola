@@ -1437,7 +1437,7 @@ app.controller("ControladorPrincipal", function ($scope) {
     $scope.startPlotIrrigation = () => {
         swal({
             title: "Plan de riego",
-            text: "¿Desea iniciar el riego de " + $scope.actualSystem.plots[$scope.editedPlan].name + "?",
+            text: "¿Desea iniciar el riego de " + ($scope.actualSystem.plots[$scope.editedPlan].name ? $scope.actualSystem.plots[$scope.editedPlan].name : "la parcela " + ($scope.editedPlan + 1)) + "?",
             icon: "warning",
             buttons: ["Cancelar", true],
             // dangerMode: true,
@@ -1463,7 +1463,7 @@ app.controller("ControladorPrincipal", function ($scope) {
     $scope.stopPlotIrrigation = () => {
         swal({
             title: "Plan de riego",
-            text: "¿Desea detener el riego de " + $scope.actualSystem.plots[$scope.editedPlan].name + "?",
+            text: "¿Desea detener el riego de "  + ($scope.actualSystem.plots[$scope.editedPlan].name ? $scope.actualSystem.plots[$scope.editedPlan].name : "la parcela " + ($scope.editedPlan + 1)) + "?",
             icon: "warning",
             buttons: ["Cancelar", true],
             // dangerMode: true,
