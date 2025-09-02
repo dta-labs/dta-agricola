@@ -336,9 +336,12 @@
                                                         <div class="col s7 limitar left-align" ng-show="system.type == 'Estacionario'">
                                                             <div style="font-size: 1em;"><b>{{ system.name }}</b></div>
                                                             <div style="font-size: .6em;">
-                                                                <span ng-repeat="plot in system.plots" style="color: {{ isPlotActive(system, 'p' + $index) ? 'black' : system.log.state == 'OFF' ? 'grey' : 'white' }}; font-size: 1.2em;">
+                                                                <span ng-repeat="plot in system.plots" style="color: {{ getPlotColor(system, 'p' + $index) }}; font-size: 1.2em;">
                                                                     <i class="material-icons" style="margin-top: 3px;">filter_{{ $index + 1 }}</i>&nbsp;
                                                                 </span>
+                                                                <!-- <span ng-repeat="plot in system.plots" style="color: {{ isPlotActive(system, 'p' + $index) ? 'black' : system.log.state == 'OFF' ? 'grey' : 'white' }}; font-size: 1.2em;">
+                                                                    <i class="material-icons" style="margin-top: 3px;">filter_{{ $index + 1 }}</i>&nbsp;
+                                                                </span> -->
                                                                 <br>
                                                                 <span style="font-size: 1.3em;"><b>{{ system.status }}</b></span>
                                                                 <span style="font-size: 1.3em;">{{ system.log.update ? "[" + system.log.update.substring(6,8) + "/" + system.log.update.substring(4,6) + "/" + system.log.update.substring(2,4) + " " + system.log.update.substring(9,11) + ":" + system.log.update.substring(11) + "]" : "" }}</span><br>
@@ -678,10 +681,10 @@
                                                 </div>
                                                 <!-- Status General -->
                                                 <!-- Status Movimiento continuo -->
-                                                <div class="row statusBar hide-on-med-and-up" style="margin-left: 12%; position: fixed; top: 310px;">
+                                                <div class="row statusBar hide-on-med-and-up" style="margin-left: 12%; position: fixed; top: 310px; width: 60%;;">
                                                     <div class="col s12 row">
                                                         <table style="background: #0000003d;">
-                                                            <tr>
+                                                            <tr style="border-bottom: 1px solid white; border-top: 1px solid white;">
                                                                 <td colspan="4" style="text-align: center;">
                                                                     <i class="material-icons"
                                                                         style="margin-top: 3px; color: {{ (actualSystem.log.safety == 'true') ? 'white' : 'red' }};">
@@ -1090,9 +1093,13 @@
                                                                 <td colspan="3" style="text-align: center;">
                                                                     <div class="center-align"> 
                                                                         <i class="material-icons" 
-                                                                            style="color: {{ isPlotActive(actualSystem, 'p' + $index) ? 'springgreen' : 'lightgray' }}; font-size: 3em;" 
+                                                                            style="color: {{ getPlotColor(actualSystem, 'p' + $index) }}; font-size: 3em;" 
                                                                             ng-click="setEditPlanEstacionario('p' + $index); isPlotActive(actualSystem, 'p' + $index) ? stopPlotIrrigation() : startPlotIrrigation()"
                                                                             ng-repeat="plot in actualSystem.plots">filter_{{ $index + 1 }}</i>
+                                                                        <!-- <i class="material-icons" 
+                                                                            style="color: {{ isPlotActive(actualSystem, 'p' + $index) ? 'springgreen' : 'lightgray' }}; font-size: 3em;" 
+                                                                            ng-click="setEditPlanEstacionario('p' + $index); isPlotActive(actualSystem, 'p' + $index) ? stopPlotIrrigation() : startPlotIrrigation()"
+                                                                            ng-repeat="plot in actualSystem.plots">filter_{{ $index + 1 }}</i> -->
                                                                     </div>
                                                                 </td>
                                                             </tr>
@@ -1368,8 +1375,8 @@
                                             <!-- Sensor -->
                                             <div class="col s12 m4" ng-show="actualSystem.type == 'Sensor'">
                                                 <!-- Status General -->
-                                                <div class="row hide-on-med-and-up" style="width: 100%; position: absolute; margin-top: -15px; display: none;">
-                                                    <div class="col s12">
+                                                <div class="row hide-on-med-and-up" style="width: 100%; position: absolute; margin-top: -15px;">
+                                                    <!-- <div class="col s12">
                                                         <a class="modal-trigger" href="#modalHistorial" style="color: black;">
                                                             <ul>
                                                                 <li style="border: solid; border-radius: 5px; background: #5acaca">
@@ -1441,6 +1448,28 @@
                                                                 </li>
                                                             </ul>
                                                         </a>
+                                                    </div> -->
+                                                    <div class="col s12" style="margin-left: 12%; position: fixed; top: 175px; width: 66%; z-index: 1;">
+                                                        <table style="background: #ffffff3d;">
+                                                            <tr style="border-top: 2px solid lightgrey; color: white;">
+                                                                <td style="text-align: center;">
+                                                                    <div class="center-align">
+                                                                        <img src="../assets/images/termometro_blanco.png" alt="termómetro" style="width: 25px;">
+                                                                    </div>
+                                                                    <div class="center-align">
+                                                                        <b>{{ meteo[actualSystem.key].main.temp - 273.15 | number : 0}}</b>°C        
+                                                                    </div>
+                                                                </td>
+                                                                <td style="text-align: center;">
+                                                                    <div class="center-align">
+                                                                        <i class="material-icons">rss_feed</i>
+                                                                    </div>
+                                                                    <div class="center-align">
+                                                                        <b>{{ actualSystem.log.signal ? (actualSystem.log.signal * 100 / 30 | number : 0) : 0 }}</b>%
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
                                                     </div>
                                                 </div>
                                                 <div class="hide-on-small-only sensor-bar" style="padding: 0 30px;">
@@ -1684,7 +1713,50 @@
                                 <div class="swal-title">Condiciones Agroclimáticas</div>
 
                                 <div class="modal-content row" style="padding-top: 0 !important; margin: auto;">
-                                    <div class="col s12 center-align show-in-pc-only"><br></div>
+                                    <div>
+                                        <div>
+                                            <script>
+                                                (function(d, s, id) {
+                                                    if (d.getElementById(id)) {
+                                                        if (window.__TOMORROW__) {
+                                                            window.__TOMORROW__.renderWidget();
+                                                        }
+                                                        return;
+                                                    }
+                                                    const fjs = d.getElementsByTagName(s)[0];
+                                                    const js = d.createElement(s);
+                                                    js.id = id;
+                                                    js.src = "https://www.tomorrow.io/v1/widget/sdk/sdk.bundle.min.js";
+                                        
+                                                    fjs.parentNode.insertBefore(js, fjs);
+                                                })(document, 'script', 'tomorrow-sdk');
+                                                </script>
+                                        
+                                                <div class="tomorrow"
+                                                   data-location-id=""
+                                                   data-language="ES"
+                                                   data-unit-system="METRIC"
+                                                   data-skin="light"
+                                                   data-widget-type="upcoming"
+                                                   style="padding-bottom:22px;position:relative;"
+                                                >
+                                                <a
+                                                    href="https://weather.tomorrow.io/"
+                                                    rel="nofollow noopener noreferrer"
+                                                    target="_blank"
+                                                    style="position: absolute; bottom: 0; transform: translateX(-50%); left: 50%;"
+                                                >
+                                                    <img
+                                                        alt="Powered by Tomorrow.io"
+                                                        src="https://weather-website-client.tomorrow.io/img/powered-by.svg"
+                                                        width="250"
+                                                        height="18"
+                                                    />
+                                                </a>
+                                                </div>
+                                        </div>
+                                    </div>
+                                    <!-- <div class="col s12 center-align show-in-pc-only"><br></div>
                                     <div class="col s12 m4 centerImage">
                                         <img class="show-in-mobil-only" src="assets/images/planta.png" alt="imgPlanta" style="width: 80px; margin-top: 10px;">
                                         <img class="show-in-pc-only" src="assets/images/planta.png" alt="imgPlanta" style="width: 130px; margin: 20px 0 0 20px;">
@@ -1792,7 +1864,7 @@
                                             <i class="material-icons">reply</i>
                                             &nbsp;&nbsp;
                                         </div>
-                                    </div>
+                                    </div> -->
                                 </div>
                             </div>
 
@@ -1808,7 +1880,7 @@
                                                 <th><span class="angle">A</span> f</th>
                                                 <th>Pistola</th>
                                                 <th>Vel</th>
-                                                <th>Vol</th>
+                                                <!-- <th>Vol</th> -->
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -1820,7 +1892,7 @@
                                                 <td>{{ plan.endAngle }}</td>
                                                 <td>{{ plan.endGun == 'true' ? 'Sí' : 'No'}}
                                                 <td>{{ plan.value }}% </td>
-                                                <td style="text-align: right;">{{ showSystemVelocity(plan.value) }}"</td>
+                                                <!-- <td style="text-align: right;">{{ showSystemVelocity(plan.value) }}</td> -->
                                             </tr>
                                         </tbody>
                                     </table>

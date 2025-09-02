@@ -467,7 +467,7 @@ app.controller("ControladorPrincipal", function ($scope) {
                 // showChart();
                 break;
             case "PC":
-                showSystemTable($scope.actualSystem.brand);
+                $scope.showSystemTable($scope.actualSystem.brand);
                 break;
             case "PL":
                 $scope.showSystemTable($scope.actualSystem.brand);
@@ -1437,7 +1437,7 @@ app.controller("ControladorPrincipal", function ($scope) {
     $scope.startPlotIrrigation = () => {
         swal({
             title: "Plan de riego",
-            text: "¿Desea iniciar el riego de " + ($scope.actualSystem.plots[$scope.editedPlan].name ? $scope.actualSystem.plots[$scope.editedPlan].name : "la parcela " + ($scope.editedPlan + 1)) + "?",
+            text: "¿Desea iniciar el riego de " + ($scope.actualSystem.plots[$scope.editedPlan].name ? $scope.actualSystem.plots[$scope.editedPlan].name : "la Sección " + (parseInt($scope.editedPlan.slice(-1)) + 1)) + "?",
             icon: "warning",
             buttons: ["Cancelar", true],
             // dangerMode: true,
@@ -1463,7 +1463,7 @@ app.controller("ControladorPrincipal", function ($scope) {
     $scope.stopPlotIrrigation = () => {
         swal({
             title: "Plan de riego",
-            text: "¿Desea detener el riego de "  + ($scope.actualSystem.plots[$scope.editedPlan].name ? $scope.actualSystem.plots[$scope.editedPlan].name : "la parcela " + ($scope.editedPlan + 1)) + "?",
+            text: "¿Desea detener el riego de "  + ($scope.actualSystem.plots[$scope.editedPlan].name ? $scope.actualSystem.plots[$scope.editedPlan].name : "la Sección " + (parseInt($scope.editedPlan.slice(-1)) + 1)) + "?",
             icon: "warning",
             buttons: ["Cancelar", true],
             // dangerMode: true,
@@ -1493,10 +1493,27 @@ app.controller("ControladorPrincipal", function ($scope) {
         $scope.actualSystem.status = actualStatus;
     }
 
+    $scope.getPlotColor = (system, index) => {
+        let color = $scope.selectedWindow == "listado" ? "gray" : "lightgray";
+        if (index && system["plots"]) {
+            let plot = system.plots[index];
+            if (plot && plot.forcedStart && system.log) {
+                let idx = parseInt(index.slice(-1)) * 2 + 1;
+                if (plot.forcedStart == 1 && system.log.activeSectors[idx] == 1) {
+                    color = $scope.selectedWindow == "listado" ? "white" : "springgreen";
+                }
+                if (system.log.activeSectors &&plot.forcedStart != system.log.activeSectors[idx] && (plot.forcedStart == 1 || system.log.activeSectors[idx] == 1)) {
+                    color = "yellow";
+                }
+            }
+        }
+        return color;
+    }
+
     $scope.isPlotActive = (system, index) => {
         let active = false;
         if (index && system["plots"]) {
-            let dateTime = getDateAndTime();
+            // let dateTime = getDateAndTime();
             let plot = system.plots[index];
             if (plot) {
                 if (plot.forcedStart && plot.forcedStart == 1) {
