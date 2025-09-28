@@ -45,7 +45,7 @@ app.config(function ($routeProvider) {
         });
 });
 
-app.controller("ControladorPrincipal", function ($scope) {
+app.controller("ControladorPrincipal", function ($scope, $timeout) {
 
     // #region Variables
     
@@ -68,7 +68,7 @@ app.controller("ControladorPrincipal", function ($scope) {
     $scope.as_hist = false;
     $scope.as_users = false;
     $scope.isPlanning = false;
-    $scope.listPlanesRiego;
+    $scope.listOfCultures;
     $scope.selectedPlaneRiego;
     $scope.tiposSuelos = [
         {"id": "1", "type": "Arcilloso limoso"},
@@ -84,7 +84,9 @@ app.controller("ControladorPrincipal", function ($scope) {
         {"id": "11", "type": "Arenoso"}
     ];
     $scope.chartItems = 300;
-    
+    $scope.sensorNetworks = [];
+    $scope.sensorsList = [];
+
     // #endregion Variables
 
     // #region NAVEGACION
@@ -246,7 +248,7 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     $scope.isSystemOfRole = (role) => {
         let userRole = "";
-        if ($scope.actualSystem && $scope.authUser) {
+        if ($scope.actualSystem && $scope.userLocations && $scope.authUser) {
             userRole = $scope.userLocations[convertDotToDash($scope.authUser.email)].systems[$scope.actualSystem.key];
         }
         let result = (userRole == role) ? true : false;
@@ -432,6 +434,7 @@ app.controller("ControladorPrincipal", function ($scope) {
         initializeSystemMap($scope.actualSystem);
         getMetorologicalData($scope.actualSystem.key);
         setDeviceSpecificData();
+        $scope.getSensorNetworks();
     }
 
     $scope.reloadSystemLog = (systemKey) => {
@@ -467,7 +470,7 @@ app.controller("ControladorPrincipal", function ($scope) {
                 // showChart();
                 break;
             case "PC":
-                showSystemTable($scope.actualSystem.brand);
+                $scope.showSystemTable($scope.actualSystem.brand);
                 break;
             case "PL":
                 $scope.showSystemTable($scope.actualSystem.brand);
@@ -519,7 +522,17 @@ app.controller("ControladorPrincipal", function ($scope) {
                 title: "Control de riego",
                 text: "¿Desea detener el riego?",
                 icon: "warning",
-                buttons: true,
+                // buttons: true,
+                buttons: {
+                    cancel: "Cancelar",
+                    confirm: {
+                      text: "Detener",
+                      value: true,
+                      visible: true,
+                      className: "btn-confirmar",
+                      closeModal: true
+                    }
+                },
                 dangerMode: true,
             })
                 .then((confirm) => {
@@ -548,13 +561,61 @@ app.controller("ControladorPrincipal", function ($scope) {
         }
     }
 
+    $scope.setActualSystemStatus = () => {
+        swal({
+            title: "Control del pozo",
+            text: "¿Desea " + ($scope.actualSystem.status ? "iniciar" : "detener") + " el pozo?",
+            icon: "warning",
+            // buttons: true,
+            buttons: {
+                cancel: "Cancelar",
+                confirm: {
+                  text: $scope.actualSystem.status ? "Iniciar" : "Detener",
+                  value: true,
+                  visible: true,
+                  className: "btn-confirmar",
+                  closeModal: true
+                }
+            }
+        })
+            .then((confirm) => {
+                if (confirm) {
+                    if (!$scope.actualSystem.status) {
+                        for (let i = 0; i < $scope.actualSystem.length; i++) {
+                            let idx = "p" + i;
+                            $scope.actualSystem.plots[idx].forcedStart = -1;
+                        }
+                    }
+                    $scope.setMachineState();
+                    $scope.setMachineSettings($scope.actualSystem);
+                    swal("El pozo se ha " + ($scope.actualSystem.status ? "iniciado" : "detenido") + " correctamente!", {
+                        icon: "success",
+                    });
+                } else {
+                    $scope.actualSystem.status = !$scope.actualSystem.status;
+                    $scope.$apply();
+                    swal("No se cambió el estado del pozo!");
+                }
+            });
+}
+
     $scope.playForward = () => {
         if (!$scope.actualSystem.direction || !$scope.actualSystem.status) {
             swal({
                 title: "Control de riego",
                 text: "¿Desea iniciar el riego?",
                 icon: "warning",
-                buttons: true,
+                // buttons: true,
+                buttons: {
+                    cancel: "Cancelar",
+                    confirm: {
+                      text: "Iniciar",
+                      value: true,
+                      visible: true,
+                      className: "btn-confirmar",
+                      closeModal: true
+                    }
+                }
             })
                 .then((confirm) => {
                     if (confirm) {
@@ -579,7 +640,17 @@ app.controller("ControladorPrincipal", function ($scope) {
                 title: "Control de riego",
                 text: "¿Desea iniciar el riego?",
                 icon: "warning",
-                buttons: true,
+                // buttons: true,
+                buttons: {
+                    cancel: "Cancelar",
+                    confirm: {
+                      text: "Iniciar",
+                      value: true,
+                      visible: true,
+                      className: "btn-confirmar",
+                      closeModal: true
+                    }
+                }
             })
                 .then((confirm) => {
                     if (confirm) {
@@ -612,7 +683,17 @@ app.controller("ControladorPrincipal", function ($scope) {
             title: "Ajustes",
             text: "¿Desea confirmar los cambios realizados?",
             icon: "warning",
-            buttons: true,
+            // buttons: true,
+            buttons: {
+                cancel: "Cancelar",
+                confirm: {
+                  text: "Confirmar",
+                  value: true,
+                  visible: true,
+                  className: "btn-confirmar",
+                  closeModal: true
+                }
+            },
             dangerMode: true,
         })
             .then((confirm) => {
@@ -957,7 +1038,17 @@ app.controller("ControladorPrincipal", function ($scope) {
             title: "",
             text: "Actualizar esquema de sensado",
             icon: "warning",
-            buttons: ["Cancelar", true],
+            // buttons: true,
+            buttons: {
+                cancel: "Cancelar",
+                confirm: {
+                  text: "Actualizar",
+                  value: true,
+                  visible: true,
+                  className: "btn-confirmar",
+                  closeModal: true
+                }
+            },
             dangerMode: true,
         })
             .then((confirm) => {
@@ -1033,7 +1124,17 @@ app.controller("ControladorPrincipal", function ($scope) {
             title: "",
             text: "Agrear nuevo sensor",
             icon: "warning",
-            buttons: ["Cancelar", true],
+            // buttons: true,
+            buttons: {
+                cancel: "Cancelar",
+                confirm: {
+                  text: "Agregar",
+                  value: true,
+                  visible: true,
+                  className: "btn-confirmar",
+                  closeModal: true
+                }
+            },
             dangerMode: true,
         })
             .then((confirm) => {
@@ -1068,7 +1169,17 @@ app.controller("ControladorPrincipal", function ($scope) {
             title: "",
             text: "Eliminar sensor",
             icon: "warning",
-            buttons: ["Cancelar", true],
+            // buttons: ["Cancelar", true],
+            buttons: {
+                cancel: "Cancelar",
+                confirm: {
+                  text: "Eliminar",
+                  value: true,
+                  visible: true,
+                  className: "btn-confirmar",
+                  closeModal: true
+                }
+            },
             dangerMode: true,
         })
             .then((confirm) => {
@@ -1090,7 +1201,17 @@ app.controller("ControladorPrincipal", function ($scope) {
             title: "",
             text: "Editar sensor",
             icon: "warning",
-            buttons: ["Cancelar", true],
+            // buttons: ["Cancelar", true],
+            buttons: {
+                cancel: "Cancelar",
+                confirm: {
+                  text: "Editar",
+                  value: true,
+                  visible: true,
+                  className: "btn-confirmar",
+                  closeModal: true
+                }
+            },
             dangerMode: true,
         })
         .then((confirm) => {
@@ -1166,7 +1287,17 @@ app.controller("ControladorPrincipal", function ($scope) {
                 title: "Plan de riego",
                 text: "¿Desea confirmar los cambios realizados?",
                 icon: "warning",
-                buttons: true,
+                // buttons: true,
+                buttons: {
+                    cancel: "Cancelar",
+                    confirm: {
+                      text: "Confirmar",
+                      value: true,
+                      visible: true,
+                      className: "btn-confirmar",
+                      closeModal: true
+                    }
+                },
                 dangerMode: true,
             })
                 .then((confirm) => {
@@ -1218,7 +1349,17 @@ app.controller("ControladorPrincipal", function ($scope) {
             title: "Plan de riego",
             text: "¿Desea confirmar los cambios realizados?",
             icon: "warning",
-            buttons: true,
+            // buttons: true,
+            buttons: {
+                cancel: "Cancelar",
+                confirm: {
+                  text: "Confirmar",
+                  value: true,
+                  visible: true,
+                  className: "btn-confirmar",
+                  closeModal: true
+                }
+            },
             dangerMode: true,
         })
             .then((confirm) => {
@@ -1260,14 +1401,48 @@ app.controller("ControladorPrincipal", function ($scope) {
         M.FormSelect.init(document.querySelectorAll('.select'));
     }
 
-    $scope.getSensors = () => {
-        let sensors = [];
+    $scope.getSensorNetworks = () => {
+        $scope.sensorNetworks = [];
         for (let idx in $scope.systems) {
             if ($scope.systems[idx].type == "Sensor") {
-                sensors.push($scope.systems[idx]);
+                $scope.sensorNetworks.push($scope.systems[idx]);
             }
         }
-        return sensors;
+        $scope.sensorNetworks;
+    }
+
+    $scope.getSensors = () => {
+        let sensorId = $scope.actualSystem.plots[$scope.editedPlan].sensor;
+        if (!sensorId) return;
+        $scope.sensorsList = [];
+        $scope.actualSystem.plots[$scope.editedPlan][sensorId] = $scope.actualSystem.plots[$scope.editedPlan][sensorId] || null;
+        let sensorsList = [];
+        let sensorNetwork = $scope.systems[sensorId];
+        let count = 0;
+        for (let idx in sensorNetwork.sensors) {
+            sensorsList.push(sensorNetwork.sensors[idx]);
+            count++;
+            if (count == sensorNetwork.sensors.sensorNumber) break;
+        }
+        $scope.sensorsList = sensorsList;
+    }
+
+    $scope.getSensorName = (sensor, sensorId) => {
+        if (!sensor) return "";
+        let sensorList = $scope.systems[sensor].sensors;
+        let count = 0;
+        for (let idx in sensorList) {
+            if (sensorList[idx].id == sensorId) return sensorList[idx].alias;
+            count++;
+            if (count == sensorList.sensorNumber) break;
+        }
+        return "";
+    }
+
+    $scope.updateSelectedSensor = () => {
+        // $scope.actualSystem.plots[$scope.editedPlan].sensorId = parseInt($scope.actualSystem.plots[$scope.editedPlan].sensorId);
+        // $scope.actualSystem.plots[$scope.editedPlan].sensor = parseInt($scope.actualSystem.plots[$scope.editedPlan].sensor);
+        $scope.setMachineSettings($scope.actualSystem);
     }
 
     $scope.createPlanEstacionario = () => {
@@ -1293,7 +1468,17 @@ app.controller("ControladorPrincipal", function ($scope) {
             title: "Plan de riego",
             text: "¿Desea confirmar los cambios realizados?",
             icon: "warning",
-            buttons: ["Cancelar", true],
+            // buttons: ["Cancelar", true],
+            buttons: {
+                cancel: "Cancelar",
+                confirm: {
+                  text: "Confirmar",
+                  value: true,
+                  visible: true,
+                  className: "btn-confirmar",
+                  closeModal: true
+                }
+            },
             dangerMode: true,
         })
             .then((confirm) => {
@@ -1337,7 +1522,17 @@ app.controller("ControladorPrincipal", function ($scope) {
             title: "Eliminar riego",
             text: "¿Seguro desea eliminar este riego?",
             icon: "error",
-            buttons: ["Cancelar", true],
+            // buttons: ["Cancelar", true],
+            buttons: {
+                cancel: "Cancelar",
+                confirm: {
+                  text: "Eliminar",
+                  value: true,
+                  visible: true,
+                  className: "btn-confirmar",
+                  closeModal: true
+                }
+            },
             dangerMode: true,
         })
             .then((confirm) => {
@@ -1437,9 +1632,19 @@ app.controller("ControladorPrincipal", function ($scope) {
     $scope.startPlotIrrigation = () => {
         swal({
             title: "Plan de riego",
-            text: "¿Desea iniciar el riego de " + ($scope.actualSystem.plots[$scope.editedPlan].name ? $scope.actualSystem.plots[$scope.editedPlan].name : "la parcela " + ($scope.editedPlan + 1)) + "?",
+            text: "¿Desea iniciar el riego de " + ($scope.actualSystem.plots[$scope.editedPlan].name ? $scope.actualSystem.plots[$scope.editedPlan].name : "la Sección " + (parseInt($scope.editedPlan.slice(-1)) + 1)) + "?",
             icon: "warning",
-            buttons: ["Cancelar", true],
+            // buttons: ["Cancelar", true],
+            buttons: {
+                cancel: "Cancelar",
+                confirm: {
+                  text: "Iniciar",
+                  value: true,
+                  visible: true,
+                  className: "btn-confirmar",
+                  closeModal: true
+                }
+              }
             // dangerMode: true,
         })
         .then((confirm) => {
@@ -1463,9 +1668,19 @@ app.controller("ControladorPrincipal", function ($scope) {
     $scope.stopPlotIrrigation = () => {
         swal({
             title: "Plan de riego",
-            text: "¿Desea detener el riego de "  + ($scope.actualSystem.plots[$scope.editedPlan].name ? $scope.actualSystem.plots[$scope.editedPlan].name : "la parcela " + ($scope.editedPlan + 1)) + "?",
+            text: "¿Desea detener el riego de "  + ($scope.actualSystem.plots[$scope.editedPlan].name ? $scope.actualSystem.plots[$scope.editedPlan].name : "la Sección " + (parseInt($scope.editedPlan.slice(-1)) + 1)) + "?",
             icon: "warning",
-            buttons: ["Cancelar", true],
+            // buttons: ["Cancelar", true],
+            buttons: {
+                cancel: "Cancelar",
+                confirm: {
+                  text: "Detener",
+                  value: true,
+                  visible: true,
+                  className: "btn-confirmar",
+                  closeModal: true
+                }
+              }
             // dangerMode: true,
         })
         .then((confirm) => {
@@ -1493,10 +1708,27 @@ app.controller("ControladorPrincipal", function ($scope) {
         $scope.actualSystem.status = actualStatus;
     }
 
+    $scope.getPlotColor = (system, index) => {
+        let color = $scope.selectedWindow == "listado" ? "gray" : "lightgray";
+        if (index && system["plots"]) {
+            let plot = system.plots[index];
+            if (plot && plot.forcedStart && system.log) {
+                let idx = parseInt(index.slice(-1)) * 2 + 1;
+                if (plot.forcedStart == 1 && system.log.activeSectors[idx] == 1) {
+                    color = $scope.selectedWindow == "listado" ? "white" : "springgreen";
+                }
+                if (system.log.activeSectors &&plot.forcedStart != system.log.activeSectors[idx] && (plot.forcedStart == 1 || system.log.activeSectors[idx] == 1)) {
+                    color = "yellow";
+                }
+            }
+        }
+        return color;
+    }
+
     $scope.isPlotActive = (system, index) => {
         let active = false;
         if (index && system["plots"]) {
-            let dateTime = getDateAndTime();
+            // let dateTime = getDateAndTime();
             let plot = system.plots[index];
             if (plot) {
                 if (plot.forcedStart && plot.forcedStart == 1) {
@@ -1532,7 +1764,17 @@ app.controller("ControladorPrincipal", function ($scope) {
             title: "Eliminar parcela",
             text: "Todos los dato de la parcela serán eliminados. ¿Seguro desea continuar?",
             icon: "error",
-            buttons: ["Cancelar", true],
+            // buttons: ["Cancelar", true],
+            buttons: {
+                cancel: "Cancelar",
+                confirm: {
+                  text: "Eliminar",
+                  value: true,
+                  visible: true,
+                  className: "btn-confirmar",
+                  closeModal: true
+                }
+            },
             dangerMode: true,
         })
             .then((confirm) => {
@@ -1589,7 +1831,7 @@ app.controller("ControladorPrincipal", function ($scope) {
     }
 
     $scope.loadCultures = () => {
-        if (!$scope.listPlanesRiego) { loadCultures(); };
+        if (!$scope.listOfCultures) { getCultures(); };
         $scope.showWindow('fichasTecnicas');
     }
 
@@ -1617,7 +1859,7 @@ app.controller("ControladorPrincipal", function ($scope) {
     }
 
     $scope.actualizarListaCultivos = () => {
-        if (!$scope.listPlanesRiego) { loadCultures(); };
+        if (!$scope.listOfCultures) { getCultures(); };
     }
 
     $scope.selectPlanRiego = () => {
@@ -1626,13 +1868,19 @@ app.controller("ControladorPrincipal", function ($scope) {
         $scope.showWindow('planificarRiego');
     }
 
-    loadCultures = () => {
+    getCultures = () => {
         firebase.database().ref("cultivos").once("value", cultivos => {
-            $scope.listPlanesRiego = cultivos.val();
+            $scope.listOfCultures = cultivos.val();
             M.FormSelect.init(document.querySelectorAll('.select'));
             M.AutoInit();
             $scope.$apply();
         });
+    }
+
+    $scope.getCultureList = () => {
+        if (!$scope.listOfCultures) { getCultures(); };
+        M.FormSelect.init(document.querySelectorAll('.select'));
+        M.AutoInit();
     }
 
     $scope.selectCulture = (_nombreSistema, _nombreCultivo) => {
@@ -1644,7 +1892,17 @@ app.controller("ControladorPrincipal", function ($scope) {
             text: "Asignar el plan de riego de " + nombreCultivo,
             icon: "warning",
             icon: "warning",
-            buttons: ["Cancelar", true],
+            // buttons: ["Cancelar", true],
+            buttons: {
+                cancel: "Cancelar",
+                confirm: {
+                  text: "Asignar",
+                  value: true,
+                  visible: true,
+                  className: "btn-confirmar",
+                  closeModal: true
+                }
+            },
             dangerMode: true,
         })
             .then((confirm) => {
@@ -1677,9 +1935,9 @@ app.controller("ControladorPrincipal", function ($scope) {
 
     getCultivo = (nombreCultivo) => {
         let cultivo = {};
-        for (idx in $scope.listPlanesRiego) {
-            if ($scope.listPlanesRiego[idx].culture == nombreCultivo) {
-                cultivo = $scope.listPlanesRiego[idx];
+        for (idx in $scope.listOfCultures) {
+            if ($scope.listOfCultures[idx].culture == nombreCultivo) {
+                cultivo = $scope.listOfCultures[idx];
             }
         }
         return cultivo;
@@ -1919,12 +2177,14 @@ app.controller("ControladorPrincipal", function ($scope) {
         if (campo.type != 'Sensor') {
             text += `    <tr>`;
             text += `        <td style="text-align: left;">Estado:</td>`;
-            text += `        <td style="text-align: left;"><b>${campo.log && campo.log.state ? "Encendido" : "Apagado" }</b></td>`;
+            text += `        <td style="text-align: left;"><b>${campo.status == "ON" ? "Encendido" : "Apagado" }</b></td>`;
             text += `    </tr>`;
-            text += `    <tr>`;
-            text += `        <td style="text-align: left;">Velocidad:</td>`;
-            text += `        <td style="text-align: left;"><b>${campo.direction ? "Avanzar" : "Retroceder"} ${campo.log && campo.log.speed ? campo.log.speed : 0}%</b></td>`;
-            text += `    </tr>`;
+            if (campo.type == 'PC') {
+                text += `    <tr>`;
+                text += `        <td style="text-align: left;">Velocidad:</td>`;
+                text += `        <td style="text-align: left;"><b>${campo.direction ? "Avanzar" : "Retroceder"} ${campo.log && campo.log.speed ? campo.log.speed : 0}%</b></td>`;
+                text += `    </tr>`;
+            }
             text += `    <tr>`;
             text += `        <td style="text-align: left;">Caudal:</td>`;
             text += `        <td style="text-align: left;"><b>${campo.caudal ? campo.caudal : "0" }</b> m<sup>3</sup>/s</td>`;

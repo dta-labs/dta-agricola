@@ -26,7 +26,7 @@ void getMoisture() {
   delay(50);
   for (byte i = 0; i < NUM_LECTURAS; i++) {
     muestras[i] = analogRead(sensorPin); // Leer el valor del sensor
-    delay(250);
+    delay(150);
   }
   digitalWrite(A1, LOW);
   float val = estimadorAdaptativo(muestras, NUM_LECTURAS);
