@@ -146,23 +146,23 @@
 				$irrigationPlan = property_exists($plot, 'irrigationPlan') ? $plot->irrigationPlan : 0;
 				$value = 0;
 				switch ($irrigationPlan) {
-					case 0:													// Riego manual
+					case 0:																	// Riego manual
 						$value = $plot->forcedStart == 1 ? $plot->value : 0;
 						break;
-					case 1:													// Riego planificado
+					case 1:																	// Riego planificado
 						$value = getValueOnSchedule($plot, $dateTime);
 						break;
-					case 2:													// Riego a demanda
+					case 2:																	// Riego a demanda
 						$value = getValueOnDemand($plot, $date, $time);
 						break;
-					case 3:													// Riego inteligente
+					case 3:																	// Riego inteligente
 						$value = getValueWidthAI($plot, $date, $time);
 						break;
 				}
 				$sumOfValues += intval($value);
 				$lectura_values .= "\"" . $value . "\"" . $plot->valve;
 			}
-			$status = $sumOfValues == 0 ? "OFF" : "ON";
+			$status = $dataSettings->status == "ON" ? "ON" : ($sumOfValues == 0 ? "OFF" : "ON");
 			$lectura = "\"" . $status . "\"P\"" . $dataSettings->length . $lectura_values . "\"";
 			print_r($lectura);
 		}
@@ -203,12 +203,12 @@
     #region 6.- Programa principal
 
 	function main() {
-		$baseUrl = config();                                                // 0. Configuración
-		$dataSettings = getcURLData($baseUrl . "settings.json");            // 1. Optener settings
-        $localZone = getLocalZone($dataSettings);                           // 2. Zona horaria
-		$lastStatus = checkLastState($baseUrl);    							// 3. Estado anterior
-		sendSettings($dataSettings, $localZone);        					// 4. Enviar settings
-		updateLog($lastStatus, $dataSettings, $localZone, $baseUrl);     					// 5. Actualizar estado
+		$baseUrl = config();                                                										// 0. Configuración
+		$dataSettings = getcURLData($baseUrl . "settings.json");            		  							// 1. Optener settings
+        $localZone = getLocalZone($dataSettings);                           							// 2. Zona horaria
+		$lastStatus = checkLastState($baseUrl);    							  							// 3. Estado anterior
+		sendSettings($dataSettings, $localZone);        									// 4. Enviar settings
+		updateLog($lastStatus, $dataSettings, $localZone, $baseUrl);    // 5. Actualizar estado
 	}
     
     #endregion 6.- Programa principal

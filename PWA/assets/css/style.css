@@ -23,6 +23,18 @@ body {
   padding: 0 5px;
 }
 
+.limite-una-linea {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.diseases-image {
+  width: 50px;
+  box-shadow: 2px 4px 4px;
+  margin-top: 35px;
+}
+
 @media (prefers-color-scheme: dark) {
   body {
       background-color: white;
