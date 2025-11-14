@@ -1,6 +1,6 @@
 #define sensorPin A0
-#define valAire 3840
-#define valAgua 1100
+#define valAire 2782
+#define valAgua 1071
 
 #define DESV_EST_UMBRAL 0.3
 #define NUM_LECTURAS 30
