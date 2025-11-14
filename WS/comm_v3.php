@@ -82,6 +82,7 @@
         $lectura .= "\"" . $dataSettings->plansLength;
         $lectura .= getPlans($dataSettings);
         $lectura .= "\"";   
+        escribirLog("Settings: " . $lectura);
         print_r($lectura);
     }
 
@@ -90,22 +91,36 @@
     #region 3.- Comprobar estado anterior (Logs)
 
     function checkLastStatus($baseUrl, $dataSettings) {
-        $timeZone = $dataSettings->zona; 					// Zona horaria
-        $summerHour = $dataSettings->summerHour; 			// Horario de verano
-        $localZone = intval($timeZone) + intval($summerHour);
+        $timeZone = intval($dataSettings->zona ?? 0);         // Zona horaria
+        $summerHour = intval($dataSettings->summerHour ?? 0); // Horario de verano
+        $localZone = $timeZone + $summerHour;
 
-        $log = get_object_vars(getcURLData($baseUrl . "logs.json?orderBy=\"update\"&limitToLast=1"));
-		$lastStatus = new stdClass();
-        $lastStatus->index = !is_null($log) ? end(array_keys($log)) : "";
-        $lastStatus->status = !is_null($log) ? $log[$lastStatus->index]->{'status'} : "";
-        $lastStatus->safety = !is_null($log) ? $log[$lastStatus->index]->{'safety'} : "";
-        $lastStatus->voltage = !is_null($log) ? $log[$lastStatus->index]->{'voltage'} : "";
-        $lastStatus->initialDate = !is_null($log) ? $log[$lastStatus->index]->{'date'} : "";
+        $data = getcURLData($baseUrl . 'logs.json?orderBy="update"&limitToLast=1');
+        $log = is_object($data) ? get_object_vars($data) : [];
 
-        $zona = $localZone . ' hours';
+        $lastStatus = new stdClass();
+        $lastStatus->index = "";
+        $lastStatus->status = "";
+        $lastStatus->safety = "";
+        $lastStatus->voltage = "";
+        $lastStatus->initialDate = "";
+
+        $keys = array_keys($log);
+        $lastKey = end($keys);
+
+        if (!empty($log) && isset($log[$lastKey])) {
+            $entry = $log[$lastKey];
+            $lastStatus->index = $lastKey;
+            $lastStatus->status = $entry->status ?? "";
+            $lastStatus->safety = $entry->safety ?? "";
+            $lastStatus->voltage = $entry->voltage ?? "";
+            $lastStatus->initialDate = $entry->date ?? "";
+        }
+
         $dateTime = new DateTime();
-        $dateTime->modify($zona);
+        $dateTime->modify($localZone . ' hours');
         $lastStatus->date = $dateTime->format('Ymd H:i');
+
         return $lastStatus;
     }
 
@@ -149,14 +164,50 @@
                 putcURLData($url, '"OFF"');
             }
 
+            escribirLog("Update Log: " . $dataUpdate);
+
         }
     }
 
     #endregion 4.- Actualizar estado del dispositivo
 
-    #region 5.- Programa principal
+    #region 5.- Miscelaneas
+    
+    function escribirLog($mensaje) {
+        $archivo = __DIR__ . '/pivot_log.txt'; // Usamos ruta absoluta
+        $fechaHora = date('Y-m-d H:i:s');
+        $entrada = "[{$fechaHora}] {$mensaje}\n";
+        
+        // Verificar si podemos escribir en el directorio
+        if (!is_writable(dirname($archivo))) {
+            error_log("Error: El directorio no tiene permisos de escritura: " . dirname($archivo));
+            return false;
+        }
+        
+        $manejador = @fopen($archivo, 'a');
+        if ($manejador === false) {
+            $error = error_get_last();
+            error_log("Error al abrir el archivo de log: " . ($error['message'] ?? 'Error desconocido'));
+            return false;
+        }
+        
+        if (fwrite($manejador, $entrada) === false) {
+            error_log("Error al escribir en el archivo de log");
+            fclose($manejador);
+            return false;
+        }
+        
+        fclose($manejador);
+        return true;
+    }    
+
+    #endregion 5.- Miscelaneas
+    
+    #region 6.- Programa principal
     
     function main() {
+        $urlCompleta = "http://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        escribirLog($urlCompleta);
         $baseUrl = config();
         $dataSettings = getcURLData($baseUrl . "settings.json");
         sendSettings($dataSettings);
@@ -164,7 +215,7 @@
         updateLog($lastStatus, $baseUrl);
     }
 
-    #endregion 5.- Programa principal
+    #endregion 6.- Programa principal
 	
     main();
 
