@@ -828,6 +828,8 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         document.getElementById("newSensorLongitude").value = `${milongitud}`;
         $scope.newSensorlatitude = milatitud;
         $scope.newSensorLongitude = milongitud;
+        $scope.actualSensor.latitude = milatitud;
+        $scope.actualSensor.longitude = milongitud;
     }
 
     $scope.convertStrToJSON = (str) => {
@@ -1860,6 +1862,11 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
 
     $scope.actualizarListaCultivos = () => {
         if (!$scope.listOfCultures) { getCultures(); };
+    }
+
+    $scope.showDiseaseDetails = (disease) => {
+        $scope.isShowDiseaseDetails = !$scope.isShowDiseaseDetails;
+        $scope.selectedDisease = disease;
     }
 
     $scope.selectPlanRiego = () => {
