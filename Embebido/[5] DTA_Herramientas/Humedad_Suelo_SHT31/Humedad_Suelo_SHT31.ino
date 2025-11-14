@@ -2,12 +2,12 @@
 #include <Adafruit_SHT31.h>
 
 #define enableHeater false        // SHT Sensor
-#define timer .5                   // Tiempo de espera en minutos
+#define timer .2                  // Tiempo de espera en minutos
 Adafruit_SHT31 sht31 = Adafruit_SHT31();
 float shtData[2] = {0, 0};
 
 #define vMax 4.78                 // HW Sensor
-#define offset 32
+#define offset 0
 
 #define VCC_PIN 8
 
@@ -29,7 +29,8 @@ void loop() {
 
 float readHW() {
   float read = analogRead(A0);
-  float val = constrain(map(read, 595, 350, 0, 100) + offset, 0, 100);
+  // Serial.print(read); Serial.print("\t");
+  float val = constrain(map(read, 559, 230, 0.0, 100.0), 0, 100);
   return val;
 }
 
@@ -65,9 +66,9 @@ long readVcc() {
 
 void showData(float hwData, float vcc) {
   Serial.print(String(counter) + ": "); 
-  Serial.print(F("SHT[Temp] = ")); Serial.print(String(shtData[0], 0)); Serial.print(F("°C\t"));
-  Serial.print(F("SHT[Hum] = ")); Serial.print(String(shtData[1], 0)); Serial.print(F("%\t"));
-  Serial.print(F("HW[Hum] = ")); Serial.print(String(hwData, 0)); Serial.print(F("%\t"));
+  Serial.print(F("SHT[Temp] = ")); Serial.print(String(shtData[0], 1)); Serial.print(F("°C\t"));
+  Serial.print(F("SHT[Hum] = ")); Serial.print(String(shtData[1], 1)); Serial.print(F("%\t"));
+  Serial.print(F("HW[Hum] = ")); Serial.print(String(hwData, 1)); Serial.print(F("%\t"));
   Serial.print(F("Vcc = ")); Serial.print(vcc); Serial.println(F("V"));
   counter++;
 }
