@@ -1,26 +1,15 @@
 /****************************************************************************
  *                                                                          * 
- *   Configuración: {GUN, GSMr, GSMt, GPSr, GPSt, SEQ}                      *
+ *   Configuración: {GUN, GSMr, GSMt, GPSr, GPSt}                           *
  *   - GUN: 0 <= Relay FL | 1 <= Relay JQC                                  *
- *   - GSM: Rx, Tx (2, 3) <= Chip azul | (3, 2) <= Chip rojo                *
+ *   - GSM: Rx, Tx (2, 3) <= Chip azul | (3, 2) <= Chip naranja             *
  *   - GPS: Rx, Tx (12, 11) <= Tarjeta blanca | (13, 12) Tarjeta amarilla   *
- *   - SEQ: 0 <= Lectura directa | 1 <= Efecto Hall                         *
  *                                                                          *
  ****************************************************************************/
 
 #pragma region Definiciones
 
-String fillNumber(int number, byte positions) {
-  String numberStr = ((String) number);
-  byte cerosLength = positions - numberStr.length();
-  String result = "";
-  for (byte i = 0; i < cerosLength; i++) {
-    result += "0";
-  }
-  return result + numberStr;
-}
-
-const int config[] = {0, 3, 2, 12, 11, 0, 25, 33, 142, 4856};
+const byte config[] = {0, 3, 2, 12, 11};
 String telefono = "";
 const String httpServer = "AT+HTTPPARA=\"URL\",\"http://dtaamerica.com/ws/comm_v3.php?id=";
 #define pinEngGunControl 4 
@@ -28,8 +17,10 @@ const String httpServer = "AT+HTTPPARA=\"URL\",\"http://dtaamerica.com/ws/comm_v
 #define pinActivationTimer 6
 #define pinMotorRR 7
 #define pinMotorFF 8
-#define pinSensorSeguridad 9
+#define pinSensorSeguridadDigital 9
 #define pinSensorVoltaje 10
+#define pinSensorPresion A0
+#define pinSensorSeguridadAlanolico A1
 #define watchDogPin A3
 #define commFrec 30
 #define strEmpty F("")                        // Variables generales

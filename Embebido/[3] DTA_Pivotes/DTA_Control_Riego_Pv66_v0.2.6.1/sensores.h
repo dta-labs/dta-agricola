@@ -2,8 +2,30 @@
 
 #pragma region <<Seguridad>>
 
+bool leerCorriente(bool mostrar = false) {
+  const float sensibilidad = .185;  // 5A = 185 | 20A = 100 | 30A = 66
+  const float ruido = 0.00;
+  float intensidadMaxima = 0;
+  float intensidadMinima = 0;
+  float Vcc = 5.0;
+  long tiempo = millis();
+  while (millis() - tiempo < 250) {   // Medio segundo
+    float valorVoltajeSensor = analogRead(pinSensorSeguridadAlanolico) * (Vcc / 1023.0);
+    float corriente = .9 * corriente + .1 * ((valorVoltajeSensor - (Vcc / 2)) / sensibilidad);
+    if (corriente > intensidadMaxima) intensidadMaxima = corriente;
+    if (corriente < intensidadMinima) intensidadMinima = corriente;
+  }
+  float intensidadPico = (((intensidadMaxima - intensidadMinima) / 2) - ruido);
+  if (mostrar) {
+    Serial.print("Ipico: "); Serial.print(intensidadPico, 3); Serial.print("A ");
+    float Irms = intensidadPico * .707;   // Intensidad RMS = Ipico / (2^1/2)
+    Serial.print("Irms: "); Serial.print(Irms, 3); Serial.print("A -> ");
+  } 
+  return intensidadPico > .1;
+}
+
 bool isSequre() {
-  return digitalRead(pinSensorSeguridad);
+  digitalRead(pinSensorSeguridadDigital);
 }
 
 bool controlSeguridad() {
@@ -34,7 +56,7 @@ bool controlVoltaje() {
 float controlPresionAnalogica() {
   float presionActual = 0.0f;
   for (int i = 0; i < 3; i++) {
-    float pAnalog = analogRead(A0);
+    float pAnalog = analogRead(pinSensorPresion);
     float temp = map(pAnalog, 100, 1023, 0.0, sensorPresionVar);
     presionActual += temp > 0 ? temp : 0;
     delay(10);

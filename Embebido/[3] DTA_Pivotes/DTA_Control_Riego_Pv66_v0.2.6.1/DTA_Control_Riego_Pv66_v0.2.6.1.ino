@@ -31,7 +31,7 @@ void setup() {
   pinMode(pinIrrigationControl, OUTPUT);
   digitalWrite(pinIrrigationControl, LOW);  // Control de riego Activado
   pinMode(pinSensorVoltaje, INPUT);
-  pinMode(pinSensorSeguridad, INPUT);
+  pinMode(pinSensorSeguridadDigital, INPUT);
   pinMode(pinEngGunControl, OUTPUT);
   pinMode(pinActivationTimer, OUTPUT);
   pinMode(pinMotorRR, OUTPUT);
