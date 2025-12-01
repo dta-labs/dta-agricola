@@ -25,7 +25,7 @@ bool leerCorriente(bool mostrar = false) {
 }
 
 bool isSequre() {
-  digitalRead(pinSensorSeguridadDigital);
+  return config[5] == 0 ? digitalRead(pinSensorSeguridadDigital) : leerCorriente();
 }
 
 bool controlSeguridad() {

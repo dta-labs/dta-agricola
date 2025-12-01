@@ -4,12 +4,13 @@
  *   - GUN: 0 <= Relay FL | 1 <= Relay JQC                                  *
  *   - GSM: Rx, Tx (2, 3) <= Chip azul | (3, 2) <= Chip naranja             *
  *   - GPS: Rx, Tx (12, 11) <= Tarjeta blanca | (13, 12) Tarjeta amarilla   *
+ *   - SEQ: 0 <= Sensor digital | 1 <= Sensor analógico                     *
  *                                                                          *
  ****************************************************************************/
 
 #pragma region Definiciones
 
-const byte config[] = {0, 3, 2, 12, 11};
+const byte config[] = {0, 3, 2, 12, 11, 1};
 String telefono = "";
 const String httpServer = "AT+HTTPPARA=\"URL\",\"http://dtaamerica.com/ws/comm_v3.php?id=";
 #define pinEngGunControl 4 
