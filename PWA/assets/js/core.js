@@ -57,7 +57,6 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     $scope.statisticSelectedSystem = {};
     let sendCommand = {};
     $scope.limitRegisters = 10;
-    $scope.showMoreRegisters = false;
     $scope.logs = {};
     $scope.logDetail = {};
     $scope.users = {};
@@ -437,10 +436,9 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         $scope.getSensorNetworks();
     }
 
-    $scope.reloadSystemLog = (systemKey) => {
-        $scope.showMoreRegisters = !$scope.showMoreRegisters;
-        $scope.limitRegisters = $scope.showMoreRegisters ? 1000 : 10;
-        $scope.chartItems = $scope.showMoreRegisters ? 1000 : 300;
+    $scope.reloadSystemLog = (systemKey, limitRegisters) => {
+        $scope.limitRegisters = limitRegisters;
+        $scope.chartItems = limitRegisters == 500 ? 1000 : 300;
         $scope.loadSystemLog(systemKey, $scope.limitRegisters);
     }
 
@@ -2657,7 +2655,24 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                     }
                 }
             },
+            onClick: (e) => {
+                // This prevents the default behavior of the chart click
+                e.stopPropagation();
+            },
             plugins: {
+                legend: {
+                    onClick: (e, legendItem, legend) => {
+                        const index = legendItem.datasetIndex;
+                        const ci = legend.chart;
+                        const meta = ci.getDatasetMeta(index);
+                        
+                        // Toggle the visibility of the dataset
+                        meta.hidden = meta.hidden === null ? !ci.data.datasets[index].hidden : null;
+                        
+                        // Update the chart
+                        ci.update();
+                    }
+                },
                 title: {
                     display: true,
                     text: _title
