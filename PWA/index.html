@@ -2445,11 +2445,13 @@
                                                             </div>
                                                         </div>
                                                         <div class="row">
-                                                            <div class="col s6" style="text-align: left;">
+                                                            <div class="col s5" style="text-align: left;">
                                                                 <div style="font-size: 1.2em; padding-top: 5px;">Registros: <b>{{ limitRegisters }}</b></div>
                                                             </div>
-                                                            <div class="col s6">
-                                                                <button class="btn right" ng-click="reloadSystemLog(actualSystem.key);">Mostrar {{ showMoreRegisters ? 'Menos' : 'Más' }}</button>
+                                                            <div class="col s7" style="text-align: right;">
+                                                                <button class="btn" ng-click="reloadSystemLog(actualSystem.key, 10);"> 10</button>&nbsp;
+                                                                <button class="btn" ng-click="reloadSystemLog(actualSystem.key, 100);">100</button>&nbsp;
+                                                                <button class="btn" ng-click="reloadSystemLog(actualSystem.key, 500);">500</button>
                                                             </div>
                                                         </div>
                                                         <table>
@@ -3609,8 +3611,8 @@
                                                                         <img src="assets/images/gota.jpg" alt="{{ disease }}" style="margin-top: -5px;">
                                                                         Alerta de humedad
                                                                     </span>
-                                                                    Min: <input id="editSensorHMinValue" type="number" min="0" max="100" ng-model="actualSensor.h.minValue" style="width: 50px;">
-                                                                    Max: <input id="editSensorHMaxValue" type="number" min="0" max="100" ng-model="actualSensor.h.maxValue" style="width: 50px;">
+                                                                    <input id="editSensorHMinValue" type="number" min="0" max="100" ng-model="actualSensor.h.minValue" style="width: 50px;" placeholder="Min"> - 
+                                                                    <input id="editSensorHMaxValue" type="number" min="0" max="100" ng-model="actualSensor.h.maxValue" style="width: 50px;" placeholder="Max"> %
                                                                 </label>
                                                             </p>
                                                         </div>
@@ -3622,8 +3624,8 @@
                                                                         <img src="assets/images/termometro.png" alt="{{ disease }}" style="margin-top: -5px;">
                                                                         Alerta de temperatura
                                                                     </span>
-                                                                    Min: <input id="editSensorTMinValue" type="number" min="0" max="100" ng-model="actualSensor.t.minValue" style="width: 50px;">
-                                                                    Max: <input id="editSensorTMaxValue" type="number" min="0" max="100" ng-model="actualSensor.t.maxValue" style="width: 50px;">
+                                                                    <input id="editSensorTMinValue" type="number" min="0" max="100" ng-model="actualSensor.t.minValue" style="width: 50px;" placeholder="Min"> - 
+                                                                    <input id="editSensorTMaxValue" type="number" min="0" max="100" ng-model="actualSensor.t.maxValue" style="width: 50px;" placeholder="Max"> °C
                                                                 </label>
                                                             </p>
                                                         </div>
@@ -3635,8 +3637,8 @@
                                                                         <img src="assets/images/presion.jpg" alt="{{ disease }}" style="margin-top: -5px;">
                                                                         Alerta de presión
                                                                     </span>
-                                                                    Min: <input id="editSensorPsiMinValue" type="number" min="0" max="100" ng-model="actualSensor.psi.minValue" style="width: 50px;">
-                                                                    Max: <input id="editSensorPsiMaxValue" type="number" min="0" max="100" ng-model="actualSensor.psi.maxValue" style="width: 50px;">
+                                                                    <input id="editSensorPsiMinValue" type="number" min="0" max="100" ng-model="actualSensor.psi.minValue" style="width: 50px;" placeholder="Min">
+                                                                    <input id="editSensorPsiMaxValue" type="number" min="0" max="100" ng-model="actualSensor.psi.maxValue" style="width: 50px;" placeholder="Max"> psi
                                                                 </label>
                                                             </p>
                                                         </div>
@@ -4748,7 +4750,7 @@
         <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
         <script src="./assets/js/commons.js"></script>
         <!-- <script src="./assets/cultures/listOfCultures.js"></script> -->
-        <script src="./assets/js/core.js?v=25.06.20.01"></script>
+        <script src="./assets/js/core.js?v=25.12.04.01"></script>
         <!-- <script src="monitor/js/chartjs/chart.min.js"></script> -->
         <script type="text/javascript" src="./assets/modules/datepicker/daterangepicker.js"></script>
 
