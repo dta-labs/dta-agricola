@@ -29,14 +29,17 @@ Perfil suelo = { 2.82, 1.60, 1.07, 0, 40, 60 };
 // Perfil suelo = mezcla(arenoso, franco, arcilloso, 0.3, .1);
 
 #define DESV_EST_UMBRAL 0.3
-#define NUM_LECTURAS 30
-float hum_hist[NUM_LECTURAS] = {0};
+#define NUM_MUESTRAS 30
+float hum_hist[NUM_MUESTRAS] = {0};
 uint8_t index = 0;
 
 void setup() {
   pinMode(A1, OUTPUT);
   analogReference(DEFAULT);   // usa Vcc como referencia (3.3V o 5V)
   Serial.begin(19200);
+  Serial.println(F("______________________________\n"));
+  Serial.println(F(" Comprobador de sensor HW-390 "));
+  Serial.println(F("______________________________\n"));
 }
 
 void loop() {
@@ -49,18 +52,19 @@ void loop() {
 #pragma region HW390
 
 void getMoisture(float &lectura, float &vwc) {
-  static float muestras[NUM_LECTURAS];
+  static float muestras[NUM_MUESTRAS];
   digitalWrite(A1, HIGH);
   delay(50);
-  for (byte i = 0; i < NUM_LECTURAS; i++) {
+  for (byte i = 0; i < NUM_MUESTRAS; i++) {
     muestras[i] = analogRead(sensorPin);
     delay(150);
   }
   digitalWrite(A1, LOW);
-  int val = estimadorAdaptativo(muestras, NUM_LECTURAS);
+  int val = estimadorAdaptativo(muestras, NUM_MUESTRAS);
   float volt = getVcc(); // mide referencia real
   lectura = (val / 1023.0) * volt; // convierte a voltios
-  vwc = map(lectura * 1000, suelo.vSeco * 1000, suelo.vSat * 1000, suelo.pSeco, suelo.pSat);
+  vwc = constrain
+  (map(lectura * 1000, suelo.vSeco * 1000, suelo.vSat * 1000, suelo.pSeco, suelo.pSat), 0, 100);
 }
 
 float getVcc() {
@@ -76,18 +80,17 @@ float getVcc() {
 
 #pragma endregion HW390
 
-
 #pragma region Estadísticas
 
 void agregarALaMedia(float nueva_temp, float nueva_hum) {
   hum_hist[index] = nueva_hum;
-  index = (index + 1) % NUM_LECTURAS;
+  index = (index + 1) % NUM_MUESTRAS;
 }
 
 float promedio(float *hist) {
   float suma = 0;
-  for (int i = 0; i < NUM_LECTURAS; i++) suma += hist[i];
-  return suma / NUM_LECTURAS;
+  for (int i = 0; i < NUM_MUESTRAS; i++) suma += hist[i];
+  return suma / NUM_MUESTRAS;
 }
 
 float moda(float *valores, byte n) {

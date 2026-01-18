@@ -1,0 +1,43 @@
+PROTOCOLOS
+==========
+
+Sensor Psi (PSI)
+  [Tx] -> DTA-SHT4-0xSensorId,Psi1,Psi2,Vcc,Sum
+  [Rx] <- DTA-SHT4-0xSensorId,TxFreq,Sum
+
+Sensor Psi-Flu (PCa)
+  [Tx] -> DTA-SHT4-0xSensorId,Psi,Flu,Vcc,Sum
+  [Rx] <- DTA-SHT4-0xSensorId,TxFreq,Sum
+
+Sensor Hr-Ta (HTa)
+  [Tx] -> DTA-SHT4-0xSensorId,Hr,Ta,Vcc,Sum
+  [Rx] <- DTA-SHT4-0xSensorId,TxFreq,Sum
+
+Sonda Ms-Hr-Ta (MHT)
+  [Tx] -> DTA-SHT4-0xSensorId,Ms,Hr,Ta,Vcc,Sum
+  [Rx] <- DTA-SHT4-0xSensorId,wA,wB,TxFreq,Sum
+
+Sonda Ms4-Hr-Ta (MHT4)
+  [Tx] -> DTA-SHT4-0xSensorId,Ms1,Ms2,Ms3,Ms4,Hr,Ta,Vcc,Sum
+  [Rx] <- DTA-SHT4-0xSensorId,wA,wB,TxFreq,Sum
+
+Gateway
+  [Tx] -> CCID&data=[""]&rx=«ini/Ok/Er»&si=31&qos=0
+  [Rx] <- "OpMode=«0: descubrimiento / x: minutos»"0x10B9CEAC"0x10B9CE89"0x10B9CE5C"0xF46A393"0xF46A3B9"0x10B9CE37010BCE32"0x10B9CE79"0x10B9CD4A"
+
+  Ej: Tx -> http://dtaamerica.com/ws/sensor_v6.php?id=333333333333&data=[]&rx=Ok&si=31&qos=0
+      Rx <- "2"0x28BFA5BD000000D0"0x28730549F6A53C2E"0x28F94949F6853C02"0x28F94949F6853C02"0x28F94949F6853C02"0x28F94949F6853C02"0x28F94949F6853C02"0x28F94949F6853C02"0x28F94949F6853C02"0x28F94949F6853C02"
+
+Drip-Controller
+  [Tx] -> CCID&st=«ON/OFF»&dt=[1,1,1,1,1,1,1]&rx=«ini/Ok/Er»&si=31&qos=0
+  [Rx] <- "st=«ON/OFF»"tipo=«P/S/C»"plots"T1"valvula=«F/R»"T2"valvula=«F/R»"T3"valvula=«F/R»"..."Tn"valvula=«F/R»"
+
+Pivot-Controller
+  [Tx] -> CCID&st=«ON/OFF»&sa=«true/false»&di=«FF/RR»&vo=«true/false»&ar=«ON/OFF»&sp=100&pr=0.0&po=359&la=27.123456&lo=-127.123456&er=5&rx=«Ok/Er»&si=31
+  [Rx] <- "st=«ON/OFF»"di=«FF/RR»"Psi"«ON/OFF»"la=27.123456"lo=-127.123456"tipo=«PC/PL»"bins"°INI1"°FIN1"100"gun=«ON/OFF»"°INI2"°FIN2"100"gun=«ON/OFF»"..."°INIn"°FINn"100"gun=«ON/OFF»"
+
+Pump-Controller
+  [Tx] -> 
+  [Rx] <- 
+
+

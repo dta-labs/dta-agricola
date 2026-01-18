@@ -24,7 +24,7 @@ void guardarDatos() {
 void recuperarDatos() {
   SensorData datos;
   EEPROM.get(1, datos);
-  for (int i = 0; i < numSensors                                        ; i++){
+  for (int i = 0; i < numSensors; i++){
     sensorList[i] = datos.sensorList[i];
   }
 }
