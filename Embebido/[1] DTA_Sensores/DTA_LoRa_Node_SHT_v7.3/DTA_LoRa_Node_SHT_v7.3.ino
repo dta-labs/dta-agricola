@@ -27,30 +27,25 @@ void setup() {
   Serial.println(F("  • Sensor de humedad del suelo inicializado correctamente..."));
   Serial.println(F("~ Configuración:"));
   Serial.print(F("  • ID: ")); Serial.println(NODE_ID);
-  Serial.print(F("  • Suelo Saturado: ")); Serial.println(suelo.vSat);
-  Serial.print(F("  • Suelo C. Campo: ")); Serial.println(suelo.vCC); 
-  Serial.print(F("  • Suelo Seco: ")); Serial.println(suelo.vSeco);Serial.println(); 
+  Serial.print(F("  • Suelo Saturado: ")); Serial.print(suelo.pSat); Serial.println(F("%"));
+  Serial.print(F("  • Suelo C. Campo: ")); Serial.print(suelo.pCC); Serial.println(F("%\n"));
 }
 
 void setupSensors() {
-  String id;
-  if (sensorType == "SHT") {
-    setupSHT();
-    id = String(sht4.readSerial(), HEX);
-  } else {
-    id = setupDS();
-    // id = getAddress();
-  }
+  String id = setupDS();
+  id = id == noSensor ? setupSHT() : id;
   id.toUpperCase();
   NODE_ID += id;
 }
 
 void loop() {
-  if (sensorType == "SHT") {
+  if (sensorType == SHT) {
     readSHT();
   } else {
+    // Serial.println(F("Leyendo temperatura..."));
     getTemperature();
   }
+  // Serial.println(F("Leyendo humedad..."));
   moisture = getMoisture();
   txData(createDataStr());
   if (waitConfirmation()) lowPower();

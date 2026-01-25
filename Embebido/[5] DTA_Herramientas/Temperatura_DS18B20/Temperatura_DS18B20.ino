@@ -1,4 +1,4 @@
-#include <SPI.h>
+// #include <SPI.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
 
@@ -20,25 +20,21 @@ uint8_t index = 0;
 void setup() {
   Serial.begin(19200);
   while (!Serial) delay(10);               // Pausar Arduino Zero, Leonardo, etc. hasta que se active el puerto serie
-  Serial.println(F("\n\nTest sensor de temperatura Ds18B20"));
-  sensorDS.begin();
-  delay(250);
   if (!detectarSensor()) {
-    Serial.println(F("❌ No se logró detectar el sensor después de varios intentos."));
+    Serial.println(F("\n✗ No se logró detectar el sensor después de varios intentos."));
     while (true);                         // Detener ejecución si falla
   }
   String id = getAddress();
   id.toUpperCase();
-  Serial.print(F("Configurción:"));
-  Serial.print(F("  -> ID: ")); Serial.println(id);
+  Serial.print(F("\n ✓ Se detectó sendor ID: ")); Serial.println(id);
 }
 
 void loop() {
-  Serial.print("Temp:");
   float temp = getTemperature();
   if (isnan(temp) || temp == -127.0) {
     Serial.println(F("⚠️ Lectura inválida o sensor desconectado."));
   } else {
+    Serial.print(F("Temp:"));
     Serial.print(temp);
     Serial.println(F("°C"));
   }
@@ -51,10 +47,14 @@ void loop() {
 
 bool detectarSensor() {
   DeviceAddress sensorAddress;
-  byte intentos = 5;
+  byte intentos = 15;
+  Serial.print(F("\n\nTest sensor de temperatura Ds18B20"));
   for (uint8_t i = 0; i < intentos; i++) {
+    Serial.print(F("."));
+    sensorDS.begin();
+    delay(250);
     if (sensorDS.getAddress(sensorAddress, 0)) return true;
-    delay(500);
+    delay(250);
   }
   return false;
 }

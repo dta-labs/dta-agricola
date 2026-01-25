@@ -2,11 +2,13 @@
 
 String NODE_ID = "DTA-SHT4-0x";         // Identificador del nodo DTA-SHT-0x0001
 #define comma F(",")
-
-#define sensorType "DS"                 // Tipo de sensor SHT | DS
+#define noSensor F("00")
+#define SHT F("SHT")
+#define DS F("DS")
 #define sensorPin A0                    // Pin del sensor de humedad
 #define VCC A1                          // Pin de alimentación del sensor de humedad
 #define activeHeater false
+String sensorType;                      // Tipo de sensor SHT | DS
 float t_actual;
 float h_actual;
 byte moisture;

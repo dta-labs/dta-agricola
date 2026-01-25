@@ -6,11 +6,17 @@ Adafruit_SHT4x sht4 = Adafruit_SHT4x();   // SHT4x
 #define ENABLE_HEATER SHT4X_NO_HEATER     // Activar el calentador del sensor
 sensors_event_t humidity, temp;
 
-void setupSHT() {
-  while (!sht4.begin()) delay(10);
+String setupSHT() {
+  byte iter = 10;
+  while (!sht4.begin() && iter--) {
+    if (iter == 0) return noSensor;
+    delay(200);
+  }
+  sensorType = SHT;
   sht4.setPrecision(SHT4X_HIGH_PRECISION);
   sht4.setHeater(SHT4X_NO_HEATER);
   Serial.println(F("  • Sensor SHT4x inicializado correctamente..."));
+  return String(sht4.readSerial(), HEX);
 }
 
 void readSHT() {
