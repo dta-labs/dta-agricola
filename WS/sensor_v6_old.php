@@ -25,22 +25,37 @@ class SensorSystem {
     }
 
     private function executeRequest(string $url, string $method = 'GET', ?string $data = null) {
-        curl_setopt($this->curlHandle, CURLOPT_URL, $url);
-        curl_setopt($this->curlHandle, CURLOPT_CUSTOMREQUEST, $method);
+        $headers = ['Content-Type: application/json'];
+        
+        // Si es PATCH, necesitamos agregar el método en un encabezado especial
+        if ($method === 'PATCH') {
+            $headers[] = 'X-HTTP-Method-Override: PATCH';
+            $method = 'POST'; // Usamos POST para PATCH
+        }
+        
+        curl_setopt_array($this->curlHandle, [
+            CURLOPT_URL => $url,
+            CURLOPT_CUSTOMREQUEST => $method,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER => $headers
+        ]);
         
         if ($data !== null) {
             curl_setopt($this->curlHandle, CURLOPT_POSTFIELDS, $data);
         }
-
+    
         $response = curl_exec($this->curlHandle);
         $error = curl_errno($this->curlHandle);
         
         if ($error) {
             error_log("Error cURL: " . curl_error($this->curlHandle));
-            throw new RuntimeException('Error en la petición cURL');
+            throw new RuntimeException('Error en la petición cURL: ' . curl_error($this->curlHandle));
         }
-
-        return $method === 'GET' ? json_decode($response) : $response;
+    
+        $httpCode = curl_getinfo($this->curlHandle, CURLINFO_HTTP_CODE);
+        $this->escribirLog("HTTP $method $url - Código: $httpCode");
+        
+        return $httpCode >= 200 && $httpCode < 300 ? json_decode($response) : null;
     }
 
     private function getSettings(): object {
@@ -80,7 +95,7 @@ class SensorSystem {
     }
 
     public function formatSettingsForDevice(): string {
-        $this->escribirLog("formatSettingsForDevice...");
+        // $this->escribirLog("formatSettingsForDevice...");
         $settings = $this->getSettings();
         $sendData = "\"{$settings->operationMode}";
         
@@ -103,7 +118,8 @@ class SensorSystem {
             'date' => $date,
             'dataRaw' => json_encode($data),
             'signal' => $_GET['si'] ?? '',
-            'reception' => in_array($_GET['rx'] ?? '', ['Ok', 'Er']) ? $_GET['rx'] : ''
+            'qos' => $_GET['qos'] ?? '',
+            'reception' => in_array($_GET['rx'] ?? '', ['Ok', 'Er', 'ini']) ? $_GET['rx'] : ''
         ];
         $this->executeRequest(
             $this->baseUrl . "logs.json",
@@ -123,20 +139,23 @@ class SensorSystem {
         for ($i = 0; $i < $settings->sensors->sensorNumber; $i++) {
             $idx = "S$i";
             $sensor = $settings->sensors->$idx;
-            $sensorLength = $sensor->type == "SHT4x" ? 4 : (($sensor->type == "STH" || $sensor->type == "FlP") ? 3 : 1);
+            $sensorLength = $sensor->type == "SHT4" ? 4 : (($sensor->type == "STH" || $sensor->type == "FlP") ? 3 : 1);
             $sensorID = $sensor->alias ?? $sensor->id;
             if ($sensorID !== '0x0') {
+                $notificationId = ($settings->name ?? $settings->key) . " - " . $sensorID;
                 $minHumThreshold = $sensor->h->minValue ?? 30;
                 $maxHumThreshold = $sensor->h->maxValue ?? 80;
-                $value = $data[$i * $sensorLength];
-                if(isset($sensor->h) && isset($sensor->h->notify) && $sensor->h->notify) {
-                    $this->sendPushNotification($usersID, "Humedad", $sensorID, $value, $minHumThreshold, $maxHumThreshold);
+                $notifyH = $sensor->h->notify ?? false;
+                $value = $data[$i * $sensorLength] ?? 'NaN';
+                if($value !== 'NaN' && isset($sensor->h) && $notifyH) {
+                    $this->sendPushNotification($usersID, "Humedad", $notificationId, $value, $minHumThreshold, $maxHumThreshold);
                 }
                 $minTempThreshold = $sensor->t->minValue ?? 2;
-                $maxTempThreshold = $sensor->t->maxValue ?? 23;
-                $value = $data[$i * $sensorLength + 2];
-                if(isset($sensor->t) && isset($sensor->t->notify) && $sensor->t->notify) {
-                    $this->sendPushNotification($usersID, "Temperatura", $sensorID, $value, $minTempThreshold, $maxTempThreshold);
+                $maxTempThreshold = $sensor->t->maxValue ?? 30;
+                $notifyT = $sensor->t->notify ?? false;
+                $value = $data[$i * $sensorLength + 2] ?? 'NaN';
+                if($value !== 'NaN' && isset($sensor->t) && $notifyT) {
+                    $this->sendPushNotification($usersID, "Temperatura", $notificationId, $value, $minTempThreshold, $maxTempThreshold);
                 }
             }
         }
@@ -145,9 +164,9 @@ class SensorSystem {
     private function sendPushNotification($usersID, $txt, $sensorID, $value, $minThreshold, $maxThreshold): void {
         if ($value !== 'NaN' && $value !== '-127' && $value > -127 && $value !== '' && $minThreshold !== 'null' && $maxThreshold !== 'null') {
             if ($value <= $minThreshold || $maxThreshold <= $value) { 
-                $txt = "Alerta " . ($value <= $minThreshold ? "baja " : "alta ") . $txt; 
+                $msg = "Alerta " . ($value <= $minThreshold ? "baja " : "alta ") . $txt; 
                 foreach ($usersID as $user) {
-                    $msg = "{$txt}: {$sensorID} [{$value}" . ($txt == 'Temperatura' ? '°C' : '%') . "]...";
+                    $msg = "{$msg}: {$sensorID} [{$value}" . ($txt == 'Temperatura' ? '°C' : '%') . "]...";
                     $url = "https://dtaamerica.com/ws/push.php?user={$user}&txt=" . urlencode($msg);
                     $response = file_get_contents($url);
                 }
@@ -159,21 +178,26 @@ class SensorSystem {
         $archivo = __DIR__ . '/log.txt'; // Usamos ruta absoluta
         $fechaHora = date('Y-m-d H:i:s');
         $entrada = "[{$fechaHora}] {$mensaje}\n";
-        if (!is_writable(dirname($archivo))) {  // Verificar si podemos escribir en el directorio
+        
+        // Verificar si podemos escribir en el directorio
+        if (!is_writable(dirname($archivo))) {
             error_log("Error: El directorio no tiene permisos de escritura: " . dirname($archivo));
             return false;
         }
+        
         $manejador = @fopen($archivo, 'a');
         if ($manejador === false) {
             $error = error_get_last();
             error_log("Error al abrir el archivo de log: " . ($error['message'] ?? 'Error desconocido'));
             return false;
         }
+        
         if (fwrite($manejador, $entrada) === false) {
             error_log("Error al escribir en el archivo de log");
             fclose($manejador);
             return false;
         }
+        
         fclose($manejador);
         return true;
     }    
@@ -199,32 +223,128 @@ class SensorSystem {
     public function processData(): void {
         $this->escribirLog("processData...");
         if (isset($_GET['data']) && $_GET['data'] !== '[]') {
-            $settings = $this->getSettings();
-            $data = $this->fillEmptyData($_GET['data'], $settings->sensors, $settings->sensors->sensorNumber);
-            if ($settings->operationMode && ($settings->operationMode == "" || $settings->operationMode == "0" || $settings->operationMode == 0)) {
-                $actualize = true;
-                $length = count($data);
-                for ($i = 0; $i < $length; $i++) {
-                    $idx = "S$i";
-                    if (isset($data[$i]) && strpos($data[$i], '0x') === 0) {
-                        $settings->sensors->$idx->id = $data[$i];
-                        $settings->sensors->$idx->latitude = $settings->sensors->$idx->latitude ?? 0.0;
-                        $settings->sensors->$idx->longitude = $settings->sensors->$idx->longitude ?? 0.0;
-                        $settings->sensors->$idx->type = $settings->sensors->$idx->type ?? "SHT";
+            $this->processRegularData();
+        } else {
+            $this->processEmptyData();
+        }
+    }
+
+    private function getHumidity($lat, $lon) {
+        $apiKey = "db9c92bd1f6d8d5db0aa0bae36ce093f";
+        $apiUrl = "https://api.openweathermap.org/data/2.5/weather?lat={$lat}&lon={$lon}&appid={$apiKey}&units=metric";
+        $response = file_get_contents($apiUrl);        // Obtener datos desde la API
+        $data = json_decode($response, true);
+        return $data["main"]["humidity"];                        // Extraer la humedad
+    }
+
+    private function processRegularData() {
+        $settings = $this->getSettings();
+        $data = $this->fillEmptyData($_GET['data'], $settings->sensors, $settings->sensors->sensorNumber);
+        if ($settings->operationMode && ($settings->operationMode == "" || $settings->operationMode == "0" || $settings->operationMode == 0)) {
+            $this->sensorsDiscovery($data);
+        } else {
+            $length = count($data);
+            $readyToUpdate = true;
+            $idx = 0;
+            for ($i = 0; $i < $length; $i++) {
+                if ($data[$i] !== 'NaN' && isset($data[$i + 3])) {
+                    $value = (float)$data[$i + 3];
+                    if (2.5 < $value && $value < 5.5) {
+                        if ((float)$data[$i + 1] === -1.0) {
+                            $sensorId = "S$idx";
+                            $latitude = $settings->sensors->$sensorId->latitude;
+                            $longitude = $settings->sensors->$sensorId->longitude;
+                            $data[$i + 1] = $this->getHumidity($latitude, $longitude);
+                        }
+                        $i += 3;
+                        $idx++;
                     } else {
-                        $actualize = false;
+                        $readyToUpdate = false;
                         break;
                     }
                 }
-                if ($actualize) {
-                    $settings->sensors->sensorNumber = $length;       // Actualizar el número de sensores
-                    $this->settings = $settings;                      // Actualizar la caché local
-                    $this->updateSettings($settings);
-                }
-            } else {
+            }
+            if ($readyToUpdate) {
+                // $this->escribirLog("Data array: " . json_encode($data));
                 $this->updateLog($data);
                 $this->verifyAlerts($data);
             }
+        }
+    }
+    
+    private function sensorsDiscovery($data) {
+        $settings = $this->getSettings();
+        $actualize = true;
+        $length = count($data);
+        for ($i = 0; $i < $length; $i++) {
+            $idx = "S$i";
+            if (isset($data[$i]) && strpos($data[$i], '0x') === 0) {
+                $settings->sensors->$idx->id = $data[$i];
+                $settings->sensors->$idx->latitude = $settings->sensors->$idx->latitude ?? 0.0;
+                $settings->sensors->$idx->longitude = $settings->sensors->$idx->longitude ?? 0.0;
+                $settings->sensors->$idx->type = $settings->sensors->$idx->type ?? "SHT4";
+            } else {
+                $actualize = false;
+                break;
+            }
+        }
+        if ($actualize) {
+            $settings->sensors->sensorNumber = $length;       // Actualizar el número de sensores
+            $this->settings = $settings;                      // Actualizar la caché local
+            $this->updateSettings($settings);
+        }
+    }
+    
+    private function checkLastLog($baseUrl) {
+        $response = $this->executeRequest($baseUrl . "logs.json?orderBy=\"update\"&limitToLast=1");
+        if ($response === null) {
+            return null;
+        }
+        $logs = is_object($response) ? get_object_vars($response) : [];
+        if (empty($logs)) {
+            return null;
+        }
+        // Obtenemos la última clave y su valor
+        $lastKey = array_key_last($logs);
+        return (object)[
+            'key' => $lastKey,
+            'data' => $logs[$lastKey]
+        ];
+    }
+
+    private function processEmptyData(): void {
+        $this->escribirLog("processEmptyData...");
+        $data = array_fill(0, 40, "NaN"); // Mismo efecto que tu array de "NaN"
+        $settings = $this->getSettings();
+        $this->escribirLog("updateLog...");
+        $date = $this->getDateTime($this->getLocalZone())->format('Ymd hia');
+        $logData = [
+            'date' => $date,
+            'dataRaw' => json_encode($data),
+            'signal' => $_GET['si'] ?? '',
+            'qos' => $_GET['qos'] ?? '',
+            'reception' => in_array($_GET['rx'] ?? '', ['Ok', 'Er', 'ini']) ? $_GET['rx'] : '',
+        ];
+    
+        $lastLog = $this->checkLastLog($this->baseUrl);
+        $method = 'POST';
+        $url = $this->baseUrl . "logs.json";
+        
+        // Si encontramos un log existente con el mismo dataRaw, actualizamos ese registro
+        if ($lastLog !== null && $logData['dataRaw'] === $lastLog->data->dataRaw) {
+            $url = $this->baseUrl . "logs/" . $lastLog->key . ".json";
+            $method = 'PATCH';
+            $logData['date'] = $this->getDateTime($this->getLocalZone())->format('Ymd hia');
+            $this->escribirLog("Actualizando registro existente con key: " . $lastLog->key . " y fecha: " . $logData['date']);
+        } else {
+            $this->escribirLog("Creando nuevo registro. Comparación: ");
+        }
+        
+        $response = $this->executeRequest($url, $method, json_encode($logData));
+        if ($response === null) {
+            $this->escribirLog("Error al $method el registro");
+        } else {
+            $this->escribirLog("Operación $method completada exitosamente");
         }
     }
 }

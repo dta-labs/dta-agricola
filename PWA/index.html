@@ -32,7 +32,7 @@
     <link rel="manifest" href="manifest.json">
 </head>
 
-<body id="ControladorPrincipal" ng-controller="ControladorPrincipal" ng-init="inicializacion()">
+<body id="ControladorPrincipal" class="body" ng-controller="ControladorPrincipal" ng-init="inicializacion()">
 
     <!-- #region: Spinner -->
 
@@ -1477,19 +1477,18 @@
                                                         <ul>
                                                             <li ng-repeat="sensor in actualSystem.sensors" ng-if="$index < actualSystem.sensors.sensorNumber">
                                                                 <div class="row" style="margin-bottom: 5px;">
-                                                                    <div class="col s2"><i class="material-icons" style="font-size: 2em; margin-top: 5px;">place</i></div>
+                                                                    <div class="col s2"><i class="material-icons" style="font-size: 2em;">place</i></div>
                                                                     <div class="col s10">
-                                                                        <b><span style="font-size: 1.2em;">{{ sensor.alias ? sensor.alias : "" }}</span></b><br>
-                                                                        <span style="font-size: .8em;">{{ sensor.id }}</span>
+                                                                        <b><span style="font-size: 1.2em;">{{ sensor.alias ? sensor.alias : "Sensor " + ($index + 1) }}</span></b>
                                                                     </div>
                                                                 </div>
                                                                 <div class="row" style="margin-bottom: 5px; padding: 10px; border-radius: 3px; border: 1px solid #d2d2d2; background-color: #f8f8f8;" ng-init="data=convertStrToJSON(actualSystem.log.dataRaw)">
+                                                                    <div class="col s2"><img src="./assets/images/Hr.png" alt="Agua" style="width: 20px; margin-top: 5px;"></div>
+                                                                    <div class="col s2" style="text-align: right; font-size: 1.5em; color: {{ data[($index * 8)] < sensor.h.minValue || data[($index * 8)] > sensor.h.maxValue ? 'red' : 'green' }};"><b>{{ data[($index * 8)] != "NaN" ? (data[($index * 8)] | number : 0) : '' }}%</b></div>
                                                                     <div class="col s2"><img src="./assets/images/agua.png" alt="Agua" style="width: 20px; margin-top: 5px;"></div>
-                                                                    <div class="col s2" style="text-align: right; font-size: 1.5em; color: {{ data[($index * 4)] < sensor.h.minValue || data[($index * 4)] > sensor.h.maxValue ? 'red' : 'green' }};"><b>{{ data[($index * 4)] != "NaN" ? (data[($index * 4)] | number : 0) : '--' }}%</b></div>
-                                                                    <div class="col s2"><img src="./assets/images/agua.png" alt="Agua" style="width: 20px; margin-top: 5px;"></div>
-                                                                    <div class="col s2" style="text-align: right; font-size: 1.5em; color: black;"><b>{{ data[($index * 4) + 1] != "NaN" ? (data[($index * 4) + 1] | number : 0) : '--' }}%</b></div>
+                                                                    <div class="col s2" style="text-align: right; font-size: 1.5em; color: black;"><b>{{ data[($index * 8) + 1] != "NaN" ? (data[($index * 8) + 1] | number : 0) : '' }}%</b></div>
                                                                     <div class="col s2"><img src="./assets/images/termometro.png" alt="Termometro" style="width: 20px; margin-top: 5px;"></div>
-                                                                    <div class="col s2" style="text-align: right; font-size: 1.5em; color: {{ data[($index * 4) + 2] < sensor.t.minValue || data[($index * 4) + 2] > sensor.t.maxValue ? 'red' : 'green' }};"><b>{{ data[($index * 4) + 2] != "NaN" ? (data[($index * 4) + 2] | number : 0) : '--' }}°C</b></div>
+                                                                    <div class="col s2" style="text-align: right; font-size: 1.5em; color: {{ data[($index * 8) + 4] < sensor.t.minValue || data[($index * 8) + 4] > sensor.t.maxValue ? 'red' : 'green' }};"><b>{{ data[($index * 8) + 4] != "NaN" ? (data[($index * 8) + 4] | number : 0) : '' }}°C</b></div>
                                                                 </div>
                                                             </li>
                                                         </ul>
@@ -2059,21 +2058,28 @@
                                                                         </li>
                                                                     </ul>
                                                                 </div>
-                                                                
-                                                                <div class="col s6 sercices-options waves-effect white-text teal lighten-3 center-align" 
-                                                                style="padding: 10px 0; background: #80cbc4f0 !important;" ng-show="isSystemOfRole('propietario') || isSystemOfRole('trabajador') || isSystemOfRole('administrador')">
+                                                                <div id="btnsPlan" class="right-align">
+                                                                    <div class="btn waves-effect waves-light teal lighten-3 modal-trigger" href="#modalNuevoSensor">
+                                                                        &nbsp; <i class="material-icons">add</i> &nbsp;
+                                                                    </div>
+                                                                </div>
+                                    
+                                                                <!-- <div class="col s6 sercices-options waves-effect white-text teal lighten-3 center-align" 
+                                                                style="padding: 10px 0; background: #80cbc4f0 !important;" ng-show="isSystemOfRole('propietario') || isSystemOfRole('trabajador') || isSystemOfRole('administrador')"> 
+                                                                <div class="col s6" style="padding: 10px 0; background: #80cbc4f0 !important;" 
+                                                                ng-show="isSystemOfRole('propietario') || isSystemOfRole('trabajador') || isSystemOfRole('administrador')">
                                                                     <a class="modal-trigger" href="#modalBuscarSensor" style="color: white !important;" ng-click="starSearchSensor()">
                                                                         <i class="material-icons" style="font-size: 1.5em;">search</i><br>
                                                                         <span style="font-size: 1em;">Buscar </span><span class="hide-on-small-only" style="font-size: 1em;">sensor</span>
                                                                     </a>
                                                                 </div>
-                                                                <div class="col s6 sercices-options waves-effect white-text teal lighten-3 center-align" 
-                                                                style="padding: 10px 0; background: #80cbc4f0 !important;" ng-show="isSystemOfRole('propietario') || isSystemOfRole('trabajador') || isSystemOfRole('administrador')">
+                                                                <div class="col s6" style="padding: 10px 0; background: #80cbc4f0 !important;" 
+                                                                ng-show="isSystemOfRole('propietario') || isSystemOfRole('trabajador') || isSystemOfRole('administrador')">
                                                                     <a class="modal-trigger" href="#modalNuevoSensor" style="color: white !important;" ng-click="createNewSensor()">
                                                                         <i class="material-icons" style="font-size: 1.5em;">add</i><br>
                                                                         <span style="font-size: 1em;">Agregar </span><span class="hide-on-small-only" style="font-size: 1em;">sensor</span>
                                                                     </a>
-                                                                </div>
+                                                                </div> -->
                                                             </div>
                                                         </div>
                                                     </div>
@@ -2116,20 +2122,20 @@
                                                                     <div>
                                                                         <p>
                                                                             <label>
-                                                                            <input class="with-gap" name="group3" type="radio" checked ng-model="actualSystem.sleepingTime" ng-value="30" />
-                                                                            <span><b>Baja</b> (Cada 30 minutos, menor consumo de batería)</span>
+                                                                            <input class="with-gap" name="group3" type="radio" checked ng-model="actualSystem.sleepingTime" ng-value="60" />
+                                                                            <span><b>Baja</b> (Cada 1 hora, menor consumo de batería)</span>
                                                                             </label>
                                                                         </p>                                                                    
                                                                         <p>
                                                                             <label>
-                                                                            <input class="with-gap" name="group3" type="radio" ng-model="actualSystem.sleepingTime" ng-value="15" />
-                                                                            <span><b>Moderada</b> (Cada 15 minutos, consumo medio de batería)</span>
+                                                                            <input class="with-gap" name="group3" type="radio" ng-model="actualSystem.sleepingTime" ng-value="30" />
+                                                                            <span><b>Moderada</b> (Cada 30 minutos, consumo medio de batería)</span>
                                                                             </label>
                                                                         </p>                                                                    
                                                                         <p>
                                                                             <label>
-                                                                            <input class="with-gap" name="group3" type="radio" ng-model="actualSystem.sleepingTime" ng-value="5" />
-                                                                            <span><b>Alta</b> (Cada 5 minutos, consume más batería)</span>
+                                                                            <input class="with-gap" name="group3" type="radio" ng-model="actualSystem.sleepingTime" ng-value="10" />
+                                                                            <span><b>Alta</b> (Cada 10 minutos, consume más batería)</span>
                                                                             </label>
                                                                         </p>                                                                    
                                                                     </div>
@@ -2439,36 +2445,68 @@
                                                 <li ng-repeat="sensor in actualSystem.sensors" ng-if="sensor.id" ng-init="idx=$index" ng-click="setChart(idx, 'myChartH' + idx)">
                                                     <div class="collapsible-header"><i class="material-icons">place</i>{{ idx + 1 }}.- {{ sensor.alias || sensor.id }}</div>
                                                     <div class="collapsible-body" style="padding: 5px 10px;">
+                                                        <!-- Botones de selección de tipo de gráfico -->
+                                                        <div class="row" style="margin-bottom: 10px;">
+                                                            <div class="col s12" style="text-align: center;">
+                                                                <div class="row" style="display: inline-flex; justify-content: center; width: auto;">
+                                                                    <div class="col" ng-click="setChartType('moisture'); setChart(idx, 'myChartH' + idx);" style="margin-right: 5px; text-align: center; padding: 10px; cursor: pointer; color: {{ chartType == 'moisture' ? 'blue' : 'gray' }}; border-bottom: 3px solid {{ chartType == 'moisture' ? 'blue' : 'gray' }};">
+                                                                        <div style="margin-bottom: 5px;">
+                                                                            <img src="./assets/images/Hr.png" alt="Ms" style="width: 20px;">
+                                                                        </div>
+                                                                        <div style="font-size: 0.8em; line-height: 1.2;">
+                                                                            Humedad<br>Suelo
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col" ng-click="setChartType('humidity'); setChart(idx, 'myChartH' + idx);" style="margin-right: 5px; text-align: center; padding: 10px; cursor: pointer; color: {{ chartType == 'humidity' ? 'green' : 'gray' }}; border-bottom: 3px solid {{ chartType == 'humidity' ? 'green' : 'gray' }};">
+                                                                        <div style="margin-bottom: 5px;">
+                                                                            <img src="./assets/images/agua.png" alt="Hr" style="width: 20px;">
+                                                                        </div>
+                                                                        <div style="font-size: 0.8em; line-height: 1.2;">
+                                                                            Humedad<br>Ambiente
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col" ng-click="setChartType('temperature'); setChart(idx, 'myChartH' + idx);" style="margin-right: 5px; text-align: center; padding: 10px; cursor: pointer; color: {{ chartType == 'temperature' ? 'red' : 'gray' }}; border-bottom: 3px solid {{ chartType == 'temperature' ? 'red' : 'gray' }};">
+                                                                        <div style="margin-bottom: 5px;">
+                                                                            <img src="./assets/images/termometro.png" alt="Temp" style="width: 20px;">
+                                                                        </div>
+                                                                        <div style="font-size: 0.8em; line-height: 1.2;">
+                                                                            Temperatura<br>Ambiente
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                         <div class="row" style="margin-bottom: 5px;">
                                                             <div class="col s12" style="height: 250px !important;">
                                                                 <canvas id="myChartH{{ idx }}"></canvas>
                                                             </div>
                                                         </div>
                                                         <div class="row">
-                                                            <div class="col s5" style="text-align: left;">
-                                                                <div style="font-size: 1.2em; padding-top: 5px;">Registros: <b>{{ limitRegisters }}</b></div>
-                                                            </div>
-                                                            <div class="col s7" style="text-align: right;">
-                                                                <button class="btn" ng-click="reloadSystemLog(actualSystem.key, 10);"> 10</button>&nbsp;
-                                                                <button class="btn" ng-click="reloadSystemLog(actualSystem.key, 100);">100</button>&nbsp;
-                                                                <button class="btn" ng-click="reloadSystemLog(actualSystem.key, 500);">500</button>
+                                                            <div class="col s12" style="text-align: right;">
+                                                                <button class="btn-small" ng-class="selectedTimeOption == 'DIA' ? 'teal' : 'grey lighten-2'" ng-click="reloadSystemLog(actualSystem.key, 'DIA');" style="margin-right: 5px; padding: 0 15px; height: 28px; line-height: 28px; font-size: 0.8em; color: {{ selectedTimeOption == 'DIA' ? 'white' : '#616161' }};">Día</button>
+                                                                <button class="btn-small" ng-class="selectedTimeOption == 'SEMANA' ? 'teal' : 'grey lighten-2'" ng-click="reloadSystemLog(actualSystem.key, 'SEMANA');" style="margin-right: 5px; padding: 0 15px; height: 28px; line-height: 28px; font-size: 0.8em; color: {{ selectedTimeOption == 'SEMANA' ? 'white' : '#616161' }};">Semana</button>
+                                                                <button class="btn-small" ng-class="selectedTimeOption == 'MES' ? 'teal' : 'grey lighten-2'" ng-click="reloadSystemLog(actualSystem.key, 'MES');" style="padding: 0 15px; height: 28px; line-height: 28px; font-size: 0.8em; color: {{ selectedTimeOption == 'MES' ? 'white' : '#616161' }};">Mes</button>
                                                             </div>
                                                         </div>
                                                         <table>
                                                             <thead>
                                                                 <tr>
                                                                     <th><i class="fa fa-calendar" aria-hidden="true" style="font-size: 1.2em;"></i><br> Fecha</th>
-                                                                    <th><img src="./assets/images/agua.png" alt="Agua" style="width: 20px;"><br> H.Suelo</th>
-                                                                    <th><img src="./assets/images/agua.png" alt="Agua" style="width: 20px;"><br> H.Relativa</th>
-                                                                    <th><img src="./assets/images/termometro.png" alt="Termometro" style="width: 20px;"><br> Temp.</th>
+                                                                    <th><img src="./assets/images/Hr.png" alt="Ms" style="width: 20px;"><br> H.Suelo</th>
+                                                                    <th><img src="./assets/images/agua.png" alt="Hr" style="width: 20px;"><br> H.Relativa</th>
+                                                                    <th><img src="./assets/images/termometro.png" alt="Temp" style="width: 20px;"><br> Temp.</th>
+                                                                    <th><img src="./assets/images/ETo.png" alt="Temp" style="width: 20px;"><br> ETo</th>
+                                                                    <th></th>
                                                                 </tr>
                                                             </thead>
                                                             <tbody>
-                                                                <tr ng-repeat="reg in invertedRegisters" ng-init="data=convertStrToJSON(reg.dataRaw)" ng-show="data[(idx * 4)] != 'NaN' && data[(idx * 4) + 1] != 'NaN' && data[(idx * 4) + 2] != 'NaN'">
+                                                                <tr ng-repeat="reg in invertedRegisters" ng-init="data=convertStrToJSON(reg.dataRaw)" ng-show="data[(idx * 8)] != 'NaN' && data[(idx * 8) + 1] != 'NaN' && data[(idx * 8) + 4] != 'NaN' && data[(idx * 8) + 5] != 'NaN'">
                                                                     <td>{{ reg.date.substring(6, 8) }}/{{ reg.date.substring(4, 6) }}/{{ reg.date.substring(0, 4) }} {{ reg.date.substring(9, 11) }}:{{ reg.date.substring(11) }}</td>
-                                                                    <td style="color: {{ isOutOfRange(data[idx * 4], sensor.h.minValue, sensor.h.maxValue) ? 'red' : 'green' }};"><b>{{ data[(idx * 4)] != "NaN" ? (data[(idx * 4)] | number : 0) : '--' }}%</b></td>
-                                                                    <td style="color: black;"><b>{{ data[(idx * 4) + 1] != "NaN" && data[(idx * 4) + 1] != "-1" ? (data[(idx * 4) + 1] | number : 0) : (meteo[actualSystem.key].main.humidity) }}%</b></td>
-                                                                    <td style="color: {{ isOutOfRange(data[idx * 4 + 2], sensor.t.minValue, sensor.t.maxValue) ? 'red' : 'green' }};"><b>{{ data[(idx * 4) + 2] != "NaN" ? (data[(idx * 4) + 2] | number : 1) : (((meteo[actualSystem.key].main.temp - 32) * 5/9) | number : 1) }}°C</b></td>
+                                                                    <td style="color: {{ isOutOfRange(data[idx * 8], sensor.h.minValue, sensor.h.maxValue) ? 'red' : 'green' }};"><b>{{ data[(idx * 8)] != "NaN" ? (data[(idx * 8)] | number : 0) : '--' }}%</b></td>
+                                                                    <td style="color: black;"><b>{{ data[(idx * 8) + 1] != "NaN" && data[(idx * 8) + 1] != "-1" ? (data[(idx * 8) + 1] | number : 0) : (meteo[actualSystem.key].main.humidity) }}%</b></td>
+                                                                    <td style="color: {{ isOutOfRange(data[idx * 8 + 4], sensor.t.minValue, sensor.t.maxValue) ? 'red' : 'green' }};"><b>{{ data[(idx * 8) + 4] != "NaN" ? (data[(idx * 8) + 4] | number : 1) : '--' }}°C</b></td>
+                                                                    <td><b>{{ data[(idx * 8) + 5] != "NaN" ? (data[(idx * 8) + 5] | number : 1) : '--' }}</b></td>
+                                                                    <td style="color: {{ data[(idx * 8) + 7] > 3 ? 'green' : data[(idx * 8) + 7] > 2.8 ? 'darkorange' : 'red'}};" title="{{ data[(idx * 8) + 7] }}V"><i class="material-icons">{{ data[(idx * 8) + 7] > 3 ? 'battery_full' : data[(idx * 8) + 7] > 2.8 ? 'battery_alert' : 'battery_unknown'}}</i></td>
                                                                 </tr>
                                                             </tbody>
                                                         </table>
@@ -4750,7 +4788,7 @@
         <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
         <script src="./assets/js/commons.js"></script>
         <!-- <script src="./assets/cultures/listOfCultures.js"></script> -->
-        <script src="./assets/js/core.js?v=25.12.04.01"></script>
+        <script src="./assets/js/core.js?v=26.01.22.0536"></script>
         <!-- <script src="monitor/js/chartjs/chart.min.js"></script> -->
         <script type="text/javascript" src="./assets/modules/datepicker/daterangepicker.js"></script>
 

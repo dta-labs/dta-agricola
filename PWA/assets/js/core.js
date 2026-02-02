@@ -82,7 +82,14 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         {"id": "10", "type": "Areno Franco"},
         {"id": "11", "type": "Arenoso"}
     ];
-    $scope.chartItems = 300;
+    $scope.chartItems = 24;
+    // Variable para controlar el tipo de gráfico seleccionado: 'moisture', 'humidity' o 'temperature'
+    $scope.chartType = 'moisture';
+    
+    // Método para cambiar el tipo de gráfico seleccionado
+    $scope.setChartType = (type) => {
+        $scope.chartType = type;
+    }
     $scope.sensorNetworks = [];
     $scope.sensorsList = [];
 
@@ -271,11 +278,10 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                             $scope.systems[locationKey].key = locationKey;
                             loadSystemUsers(locationKey);
                             getMetorologicalData(locationKey);
-                            $scope.loadSystemLog(locationKey, 1);
+                            let dir = $scope.systems[locationKey].type == "Sensor" ? "/dayLogs" : "/logs";
+                            $scope.loadSystemLog(locationKey, 1, dir);
                             // $scope.showWindow('listado');
-                            if (locationKey == lastLocation) {
-                                $scope.$apply();
-                            }
+                            if (locationKey == lastLocation) $scope.$apply();
                             if ($scope.actualSystem && locationKey == $scope.actualSystem.key) { $scope.selectSystem($scope.systems[locationKey]); }
                         }
                     });
@@ -293,8 +299,8 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         });
     }
 
-    $scope.loadSystemLog = (locationKey, registers) => {
-        firebase.database().ref("systems/" + locationKey + "/logs").limitToLast(registers).on("value", logs => {
+    $scope.loadSystemLog = (locationKey, registers, set = "/logs") => {
+        firebase.database().ref("systems/" + locationKey + set).limitToLast(registers).on("value", logs => {
             if (logs.val()) {
                 $scope.logs[locationKey] = logs.val();
                 $scope.logsArray = {};
@@ -392,6 +398,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     }
 
     getTimeDiference = (date, update = null) => {
+        if (!date || !update) return 0;
         let dDate = new Date(parseInt(date.substring(0, 4)), parseInt(date.substring(4, 6)) - 1, parseInt(date.substring(6, 8)), (date.substring(13, 15) == "pm" ? parseInt(date.substring(9, 11)) + 12 : parseInt(date.substring(9, 11)) == 12 ? 0 : parseInt(date.substring(9, 11))), parseInt(date.substring(11, 13)), 0, 0).getTime();
         let dUpdate = update ? (new Date(parseInt(update.substring(0, 4)), parseInt(update.substring(4, 6)) - 1, parseInt(update.substring(6, 8)), (update.substring(13, 15) == "pm" ? parseInt(update.substring(9, 11)) + 12 : parseInt(update.substring(9, 11)) == 12 ? 0 : parseInt(update.substring(9, 11))), parseInt(update.substring(11, 13)), 0, 0).getTime()) : (new Date()).getTime();
         let dif = dUpdate - dDate;
@@ -423,7 +430,9 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         $scope.loadCultures();
         setActualSystemPlans();
         $scope.actualizarListaCultivos();
-        $scope.loadSystemLog(system.key, $scope.limitRegisters);
+        let dir = system.type == "Sensor" ? "/dayLogs" : "/logs";
+        let items = system.type == "Sensor" ? 300 : $scope.limitRegisters;
+        $scope.loadSystemLog(system.key, items, dir);
         // invertLog();
         // $scope.actualSystem.posicionActual = parseInt($scope.actualSystem.log.position ? $scope.actualSystem.log.position : "0") + parseInt($scope.actualSystem.summerHour ? $scope.actualSystem.summerHour : "0");
         // showPlanRiegoPie();
@@ -436,10 +445,17 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         $scope.getSensorNetworks();
     }
 
-    $scope.reloadSystemLog = (systemKey, limitRegisters) => {
-        $scope.limitRegisters = limitRegisters;
-        $scope.chartItems = limitRegisters == 500 ? 1000 : 300;
-        $scope.loadSystemLog(systemKey, $scope.limitRegisters);
+    $scope.selectedTimeOption = 'DIA'; // "DIA", "SEMANA", "MES" (default: "DIA")
+
+    $scope.reloadSystemLog = (systemKey, option = 'DIA') => {
+        $scope.selectedTimeOption = option;
+        $scope.limitRegisters = option == 'DIA' ? 300 : option == 'SEMANA' ? 7 : 30;
+        $scope.chartItems = $scope.limitRegisters;
+        if (option != 'DIA') {
+            $scope.loadSystemLog(systemKey, $scope.limitRegisters);
+        } else {
+            $scope.loadSystemLog(systemKey, $scope.limitRegisters, "/dayLogs");
+        }
     }
 
     setDeviceData = system => {
@@ -495,6 +511,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     }
 
     updateCompass = () => {
+        if ($scope.actualSystem.type == "Sensor" || $scope.actualSystem.type == "Pump") return;
         setTimeout(function () {
             if ($scope.actualSystem && document.getElementById('as_pos_' + $scope.actualSystem.key)) {
                 document.getElementById('as_pos_' + $scope.actualSystem.key).style.transform = 'rotate(' + $scope.actualSystem.log.position + 'deg)';
@@ -832,6 +849,9 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
 
     $scope.convertStrToJSON = (str) => {
         // return str ? JSON.parse(str.replace(/""/g, '"","",""')) : null;
+        if (!str.startsWith('["') && !str.endsWith('"]')) {
+            str = str.slice(1, -1); // elimina una comilla de cada lado
+        }
         return str ? JSON.parse(str) : null;
     }
 
@@ -2123,23 +2143,45 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
 
     const addMarker = (campo) => {
         let coord = [campo.latitude, campo.longitude];
-        let greenIcon = getMarkerIcon(campo.type);
+        let greenIcon = getMarkerIcon("");
+
         if (!marker[campo.key]) {
             marker[campo.key] = L.marker(coord, { icon: greenIcon });
             map.addLayer(marker[campo.key]);
+
+            // 👉 Texto fijo junto al marcador principal
+            // let text = getMarkerText(campo);
+            // marker[campo.key].bindTooltip(text, {
+            //     permanent: true,   // siempre visible
+            //     direction: "right", // posición respecto al marcador
+            //     offset: [10, 0]     // ajuste de distancia
+            // }).openTooltip();
+
             if (campo.type == "Sensor") { 
+                greenIcon = getMarkerIcon(campo.type);
                 for (let i = 0; i < campo.sensors.sensorNumber; i++) {
                     let sensorId = "S" + i;
                     let sensor = campo.sensors[sensorId];
                     let sensorCoord = [sensor.latitude, sensor.longitude];
+
                     marker[sensor.id] = L.marker(sensorCoord, { icon: greenIcon });
                     map.addLayer(marker[sensor.id]);
+
+                    // 👉 Texto fijo junto al marcador de cada sensor
+                    marker[sensor.id].bindTooltip(getSensorValue(campo, sensor, i), {
+                        permanent: true,
+                        direction: "top",
+                        offset: [0, -60]
+                    }).openTooltip();
+
+                    // Popup adicional (cuando se hace clic)
                     marker[sensor.id].bindPopup(() => {
                         const popupContent = document.createElement('div');
+                        popupContent.style.width = '240px';
                         popupContent.innerHTML = getSensorText(campo, sensor, i);
-                        setTimeout(() => { 
-                            $scope.setChart(i); 
-                        }, 0);
+                        // setTimeout(() => { 
+                        //     $scope.setChart(i); 
+                        // }, 0);
                         return popupContent;
                     });
                 }
@@ -2147,7 +2189,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         }
         let text = getMarkerText(campo);
         marker[campo.key].bindPopup(text);
-    }
+    };
 
     const getMarkerIcon = (deviceType) => {
         let icon = "./assets/images/marcador.png";
@@ -2159,7 +2201,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                 icon = "./assets/images/marcador.png";
                 break;
             case "Sensor":
-                icon = "./assets/images/marcador.png";
+                icon = "./assets/images/marcador_sensor.png";
                 break;
         }
         return L.icon({
@@ -2222,43 +2264,120 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         // let data = JSON.parse(campo.log.dataRaw.replace(/""/g, '"","",""'));
         let data = campo.log ? JSON.parse(campo.log.dataRaw) : [];
         // console.log("Valor:", data[idx * 4 + 2], "Min:", sensor.t.minValue, "Max:", sensor.t.maxValue, "Condición:", data[idx * 4 + 2] < sensor.t.minValue || data[idx * 4 + 2] > sensor.t.maxValue);
-        let text = `<br>`;
+        let text = ``;
         text += `<div style="padding: 5px 10px;">`;
-        text += `    <div class="row" style="margin-bottom: 5px; border-bottom: 1px solid #ccc;">`;
-        text += `        <div class="col s1"><i class="material-icons">place</i></div>`;
-        text += `        <div class="col s11">`;
-        text += `            <b><span style="font-size: 1.2em;">${sensor.alias ? sensor.alias : "" }</span></b><br>`;
-        text += `            <span style="font-size: .8em;">${sensor.id }</span>`;
+        text += `    <div class="row" style="margin-bottom: 5px;">`;
+        text += `        <div class="col s12">`;
+        text += `            <i class="material-icons">place</i>`;
+        text += `            <b><span style="font-size: 1.4em;">${ sensor.alias ? sensor.alias : sensor.id }</span></b>`;
         text += `        </div>`;
         text += `    </div>`;
-        text += `    <div class="row" style="margin-bottom: 5px;">`;
-        text += `       <div class="col s12" style="height: 250px !important;">`;
-        text += `           <canvas id="myChart${idx}"></canvas>`;
-        text += `       </div>`;
+        // text += `    <div class="row" style="margin-bottom: 5px;">`;
+        // text += `       <div class="col s12" style="height: 250px !important;">`;
+        // text += `           <canvas id="myChart${idx}"></canvas>`;
+        // text += `       </div>`;
+        // text += `    </div>`;
+
+        // Suelo
+
+        text += `    <div class="row" style="margin-bottom: 5px; border-bottom: 1px solid #ccc;">`;
+        text += `        <div class="col s12">`;
+        text += `            <b><span style="font-size: 1.2em; color: gray;">Suelo</span></b>`;
+        text += `        </div>`;
         text += `    </div>`;
         text += `    <div class="row" style="margin-bottom: 5px; padding: 10px; border-radius: 3px; background-color: #f5f5f5;">`;
-        text += `        <div class="col s2"><img src="./assets/images/agua.png" alt="Agua" style="width: 20px;"></div>`;
+        text += `        <div class="col s2"><img src="./assets/images/Hr.png" alt="Agua" style="width: 30px;"></div>`;
         text += `        <div class="col s8">`;
-        text += `           <div style="font-size: .8em;">Humedad del suelo (%)</div>`;
+        text += `           <div>Humedad (%)</div>`;
         text += `           <div style="width: 100%; background-color: lightgrey; height: 6px; border-radius: 3px;">`;
-        text += `               <div style="background-color: ` + ($scope.isOutOfRange(data[idx * 4], sensor.h.minValue, sensor.h.maxValue) ? `red` : `green`) + `; width: ` + parseFloat(data[idx * 4]) + `%; height: 6px; border-radius: 3px;"></div>`;
-        text += `               <span style="font-size: .6em; margin-left: ` + sensor.h.minValue + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i>${sensor.h.minValue}%</span>`;
-        text += `               <span style="font-size: .6em; margin-left: ` + (sensor.h.maxValue - sensor.h.minValue - 15) + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i>${sensor.h.maxValue}%</span>`;
+        text += `               <div style="background-color: ` + ($scope.isOutOfRange(data[idx * 8], sensor.h.minValue, sensor.h.maxValue) ? `red` : `green`) + `; width: ` + parseFloat(data[idx * 8]) + `%; height: 6px; border-radius: 3px;"></div>`;
+        text += `               <span style="font-size: .8em; margin-left: ` + sensor.h.minValue + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i><b>${sensor.h.minValue}</b></span>`;
+        text += `               <span style="font-size: .8em; margin-left: ` + (sensor.h.maxValue - sensor.h.minValue - 15) + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i><b>${sensor.h.maxValue}</b></span>`;
         text += `           </div>`;
         text += `        </div>`;
-        text += `        <div class="col s2" style="text-align: right; font-size: 1.5em; color: ` + ($scope.isOutOfRange(data[idx * 4], sensor.h.minValue, sensor.h.maxValue) ? `red` : `green`) + `;"><b>${data[idx * 4] !== "NaN" ? parseFloat(data[idx * 4]).toFixed(0) : "--"}%</b></div>`;
+        text += `        <div class="col s2" style="text-align: right; padding-top: 7px; font-size: 1.5em; color: ` + ($scope.isOutOfRange(data[idx * 8], sensor.h.minValue, sensor.h.maxValue) ? `red` : `green`) + `;"><b>${data[idx * 8] !== "NaN" ? parseFloat(data[idx * 8]).toFixed(0) : "--"}</b></div>`;
+        text += `    </div>`;
+
+        // Clima
+        
+        text += `    <div class="row" style="margin-bottom: 5px; border-bottom: 1px solid #ccc;">`;
+        text += `        <div class="col s12">`;
+        text += `            <b><span style="font-size: 1.2em; color: gray;">Clima</span></b>`;
+        text += `        </div>`;
         text += `    </div>`;
         text += `    <div class="row" style="margin-bottom: 5px; padding: 10px; border-radius: 6px; background-color: #f5f5f5;">`;
-        text += `        <div class="col s2"><img src="./assets/images/termometro.png" alt="Termometro" style="width: 20px;"></div>`;
+        text += `        <div class="col s2"><img src="./assets/images/termometro.png" alt="Termometro" style="width: 30px;"></div>`;
         text += `        <div class="col s8">`;
-        text += `           <div style="font-size: .8em;">Temperatura (°C)</div>`;
+        text += `           <div>Temperatura (°C)</div>`;
         text += `           <div style="width: 100%; background-color: lightgrey; height: 6px; border-radius: 3px;">`;
-        text += `               <div style="background-color: ` + ($scope.isOutOfRange(data[idx * 4 + 2], sensor.t.minValue, sensor.t.maxValue) ? `red` : `green`) + `; width: ` + parseFloat(data[idx * 4 + 2]) + `%; height: 6px; border-radius: 3px;"></div>`;
-        text += `               <span style="font-size: .6em; margin-left: ` + sensor.t.minValue + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i>${sensor.t.minValue}°C</span>`;
-        text += `               <span style="font-size: .6em; margin-left: ` + (sensor.t.maxValue - sensor.t.minValue - 15) + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i>${sensor.t.maxValue}°C</span>`;
+        text += `               <div style="background-color: ` + ($scope.isOutOfRange(data[idx * 8 + 4], sensor.t.minValue, sensor.t.maxValue) ? `red` : `green`) + `; width: ` + parseFloat(data[idx * 8 + 4]) + `%; height: 6px; border-radius: 3px;"></div>`;
+        text += `               <span style="font-size: .8em; margin-left: ` + sensor.t.minValue + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i><b>${sensor.t.minValue}</b></span>`;
+        text += `               <span style="font-size: .8em; margin-left: ` + (sensor.t.maxValue - sensor.t.minValue - 15) + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i><b>${sensor.t.maxValue}</b></span>`;
         text += `           </div>`;
         text += `        </div>`;
-        text += `        <div class="col s2" style="text-align: right; font-size: 1.5em; color: ` + ($scope.isOutOfRange(data[idx * 4 + 2], sensor.t.minValue, sensor.t.maxValue) ? `red` : `green`) + `;"><b>${data[idx * 4 + 2] !== "NaN" ? parseFloat(data[idx * 4 + 2]).toFixed(0) : "--"}°C</b></div>`;
+        text += `        <div class="col s2" style="text-align: right; padding-top: 7px; font-size: 1.5em; color: ` + ($scope.isOutOfRange(data[idx * 8 + 4], sensor.t.minValue, sensor.t.maxValue) ? `red` : `green`) + `;"><b>${data[idx * 8 + 4] !== "NaN" ? parseFloat(data[idx * 8 + 4]).toFixed(0) : "--"}</b></div>`;
+        text += `    </div>`;
+        text += `    <div class="row" style="margin-bottom: 5px; padding: 10px; border-radius: 6px; background-color: #f5f5f5;">`;
+        text += `        <div class="col s2"><img src="./assets/images/agua.png" alt="Termometro" style="width: 25px;"></div>`;
+        text += `        <div class="col s8">`;
+        text += `           <div style="margin-top: 5px;">Humedad (%)</div>`;
+        text += `        </div>`;
+        text += `        <div class="col s2" style="text-align: right; padding-top: 2px; font-size: 1.5em;"><b>${data[idx * 8 + 1] !== "NaN" ? parseFloat(data[idx * 8 + 1]).toFixed(0) : "--"}</b></div>`;
+        text += `    </div>`;
+
+        // Cultivo
+
+        text += `    <div class="row" style="margin-bottom: 5px; border-bottom: 1px solid #ccc;">`;
+        text += `        <div class="col s12">`;
+        text += `            <b><span style="font-size: 1.2em; color: gray;">Cultivo</span></b>`;
+        text += `        </div>`;
+        text += `    </div>`;
+        text += `    <div class="row" style="margin-bottom: 5px; padding: 10px; border-radius: 6px; background-color: #f5f5f5;">`;
+        text += `        <div class="col s2"><img src="./assets/images/nieve.png" alt="Horas frío" style="width: 25px;"></div>`;
+        text += `        <div class="col s8">`;
+        text += `           <div style="margin-top: 5px;">Horas frío (u)</div>`;
+        text += `        </div>`;
+        text += `        <div class="col s2" style="text-align: right; padding-top: 2px; font-size: 1.5em;"><b>${data[idx * 8 + 6] !== "NaN" ? parseFloat(data[idx * 8 + 6]).toFixed(0) : "--"}</b></div>`;
+        text += `    </div>`;
+        text += `    <div class="row" style="margin-bottom: 5px; padding: 10px; border-radius: 6px; background-color: #f5f5f5;">`;
+        text += `        <div class="col s2"><img src="./assets/images/ETo.png" alt="Termometro" style="width: 25px;"></div>`;
+        text += `        <div class="col s8">`;
+        text += `           <div style="margin-top: 5px;">ETc (mm/día)</div>`;
+        text += `        </div>`;
+        text += `        <div class="col s2" style="text-align: right; padding-top: 2px; font-size: 1.5em;"><b>${data[idx * 8 + 5] !== "NaN" ? parseFloat(data[idx * 8 + 5]).toFixed(0) : "--"}</b></div>`;
+        text += `    </div>`;
+        // text += `    <div class="row" style="margin-bottom: 5px; padding: 10px; border-radius: 6px; background-color: #f5f5f5;">`;
+        // text += `        <div class="col s2"><img src="./assets/images/DPV.png" alt="Termometro" style="width: 30px;"></div>`;
+        // text += `        <div class="col s8">`;
+        // text += `           <div>DPV (kPa)</div>`;
+        // text += `           <div style="width: 100%; background-color: lightgrey; height: 6px; border-radius: 3px;">`;
+        // text += `               <div style="background-color: ` + ($scope.isOutOfRange(data[idx * 4 + 2], sensor.t.minValue, sensor.t.maxValue) ? `red` : `green`) + `; width: ` + parseFloat(data[idx * 4 + 2]) + `%; height: 6px; border-radius: 3px;"></div>`;
+        // text += `               <span style="font-size: .8em; margin-left: ` + sensor.t.minValue + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i><b>${sensor.t.minValue}</b></span>`;
+        // text += `               <span style="font-size: .8em; margin-left: ` + (sensor.t.maxValue - sensor.t.minValue - 15) + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i><b>${sensor.t.maxValue}</b></span>`;
+        // text += `           </div>`;
+        // text += `        </div>`;
+        // text += `        <div class="col s2" style="text-align: right; padding-top: 7px; font-size: 1.5em; color: ` + ($scope.isOutOfRange(data[idx * 4 + 2], sensor.t.minValue, sensor.t.maxValue) ? `red` : `green`) + `;"><b>${data[idx * 4 + 2] !== "NaN" ? parseFloat(data[idx * 4 + 2]).toFixed(0) : "--"}</b></div>`;
+        // text += `    </div>`;
+        text += `</div>`;
+        return text;
+    }
+
+    const getSensorValue = (campo, sensor, idx) => {
+        let data = campo.log ? JSON.parse(campo.log.dataRaw) : [];
+        let text = ``;
+        text += `<div style="padding: 0 10px; width: 70px;">`;  // 👈 Ancho definido aquí
+        text += `    <div class="row" style="margin-bottom: 5px;">`;
+        text += `        <div class="col s12 left-aling">`;
+        text += `            <b><span style="font-size: .8em;">${ sensor.alias ? sensor.alias : "Sensor: " + (idx + 1) }</span></b>`;
+        text += `        </div>`;
+        text += `    </div>`;
+        text += `    <div class="row" style="margin-bottom: 5px; border-radius: 6px; background-color: #f5f5f5;">`;
+        text += `        <div class="col s4" style="padding-top: 7px;"><img src="./assets/images/Hr.png" alt="Agua" style="width: 15px;"></div>`;
+        text += `        <div class="col s8" style="text-align: right; padding-top: 5px; font-size: 1.2em; color: ` + ($scope.isOutOfRange(data[idx * 8], sensor.h.minValue, sensor.h.maxValue) ? `red` : `green`) + `;"><b>${data[idx * 8] !== "NaN" ? parseFloat(data[idx * 8]).toFixed(0) : ""}%</b></div>`;
+        text += `    </div>`;
+        text += `    <div class="row" style="margin-bottom: 5px; border-radius: 6px; background-color: #f5f5f5;">`;
+        text += `        <div class="col s4" style="padding-top: 7px;"><img src="./assets/images/termometro.png" alt="Termometro" style="width: 15px;"></div>`;
+        text += `        <div class="col s8" style="text-align: right; padding-top: 5px; font-size: 1.2em; color: ` + ($scope.isOutOfRange(data[idx * 8 + 2], sensor.t.minValue, sensor.t.maxValue) ? `red` : `green`) + `;"><b>${data[idx * 8 + 2] !== "NaN" ? parseFloat(data[idx * 8 + 2]).toFixed(0) : ""}°C</b></div>`;
         text += `    </div>`;
         text += `</div>`;
         return text;
@@ -2456,41 +2575,28 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     // });
 
     $scope.setChart = (chartId, chartLabel = "myChart" + chartId) => {
-        getMeassurementValues($scope.actualSystem.key, $scope.chartItems).then(result => {
-            let idx = 'S' + chartId;
-            let title = $scope.actualSystem.sensors[idx].alias ? $scope.actualSystem.sensors[idx].alias : $scope.actualSystem.sensors[idx].id;
-            switch ($scope.actualSystem.sensors[idx].type) {
-                case "Ms":
-                    processResultsFromMsSensors(result, title, chartId, chartLabel);
-                    break;
-                case "SHT":
-                    processResultsFromSHTSensors(result, title, chartId, chartLabel);
-                    break;
-                case "SHT4":
-                    processResultsFromSHT4Sensors(result, title, chartId, chartLabel);
-                    break;
-            }
-        });
+        let result = getRegisterValues($scope.logs[$scope.actualSystem.key]);
+        let idx = 'S' + chartId;
+        let title = $scope.actualSystem.sensors[idx].alias ? $scope.actualSystem.sensors[idx].alias : $scope.actualSystem.sensors[idx].id;
+        switch ($scope.actualSystem.sensors[idx].type) {
+            case "Ms":
+                processResultsFromMsSensors(result, title, chartId, chartLabel);
+                break;
+            case "SHT":
+                processResultsFromSHTSensors(result, title, chartId, chartLabel);
+                break;
+            case "SHT4":
+                processResultsFromSHT4Sensors(result, title, chartId, chartLabel);
+                break;
+        }
     }
 
-    const showChart_old = () => {
-        getMeassurementValues($scope.actualSystem.key, $scope.chartItems).then(result => {
-            for (let i = 0; i < $scope.actualSystem.sensors.sensorNumber; i++) {
-                let idx = 'S' + i;
-                let title = $scope.actualSystem.sensors[idx].alias ? $scope.actualSystem.sensors[idx].alias : $scope.actualSystem.sensors[idx].id;
-                switch ($scope.actualSystem.sensors[idx].type) {
-                    case "Ms":
-                        processResultsFromMsSensors(result, title, i);
-                        break;
-                    case "SHT":
-                        processResultsFromSHTSensors(result, title, i);
-                        break;
-                    case "SHT4":
-                        processResultsFromSHT4Sensors(result, title, i);
-                        break;
-                }
-            }
-        });
+    getRegisterValues = (items) => {
+        let result = [];
+        for (let element in items) {
+            result.push(items[element]);
+        }
+        return result;
     }
 
     const processResultsFromMsSensors = (result, title, i, chartLabel) => {
@@ -2517,7 +2623,8 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             }
             labels.push(date + " " + element.date.substr(9, 14));
         });
-        chart(moisture, temperature, labels, title, i, chartLabel);
+        // Código original modificado: ahora pasa $scope.chartType como parámetro
+        chart(moisture, temperature, labels, title, i, chartLabel, $scope.chartType);
     }
 
     const getStValues = (idx) => {
@@ -2549,11 +2656,11 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             }
             labels.push(date + " " + element.date.substr(9, 14));
         });
-        chart(moisture, humidity, temperature, labels, title, i, chartLabel);
+        chart(moisture, humidity, temperature, labels, title, i, chartLabel, $scope.chartType);
     }
 
     const processResultsFromSHT4Sensors = (result, title, i, chartLabel) => {
-        const items = result[0] ? parseInt(JSON.parse(result[0].dataRaw).length / 4) : 0;
+        const items = result[0] ? parseInt(JSON.parse(result[0].dataRaw).length / 8) : 0;
         let labels = [];
         let moisture = [];
         let humidity = [];
@@ -2561,9 +2668,9 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         lastDate = "";
         result.forEach(element => {
             let data = JSON.parse(element.dataRaw);
-            moisture.push(data[i * 4]);
-            humidity.push(data[i * 4 + 1]);
-            temperature.push(data[i * 4 + 2]);
+            moisture.push(data[i * 8] != "NaN" ? parseFloat(data[i * 8]) : null);
+            humidity.push(data[i * 8 + 1] != "NaN" ? parseFloat(data[i * 8 + 1]) : null);
+            temperature.push(data[i * 8 + 4] != "NaN" ? parseFloat(data[i * 8 + 4]) : null);
             date = element.date.substr(6, 2) + "/" + element.date.substr(4, 2);
             if (lastDate != date) {
                 lastDate = date;
@@ -2572,10 +2679,12 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             }
             labels.push(date + " " + element.date.substr(9, 14));
         });
-        chart(moisture, humidity, temperature, labels, title, i, chartLabel);
+        chart(moisture, humidity, temperature, labels, title, i, chartLabel, $scope.chartType);
     }
 
-    const chart = (moisture, humidity, temperature, labels, title, i, chartLabel) => {
+    // const chart = (moisture, humidity, temperature, labels, title, i, chartLabel, chartType = 'moisture') => {
+    // Código original modificado: ahora acepta chartType para mostrar solo un gráfico
+    const chart = (moisture, humidity, temperature, labels, title, i, chartLabel, chartType = 'moisture') => {
         try {
             let canvas = document.getElementById(chartLabel);
             if (!canvas) return;
@@ -2583,9 +2692,69 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             let type = moisture.length < 14 ? 'bar' : 'line';
             charts[i] = new Chart(canvas, {
                 type: type,
-                data: getDataArray(moisture, humidity, temperature, labels),
-                options: getOptions(title)
+                data: getDataArray(moisture, humidity, temperature, labels, chartType),
+                options: getOptions(title, chartType)
             });
+            
+            // Demora de 1.5 segundos antes de dibujar las franjas
+            setTimeout(() => {
+            
+                // Agregar franjas de humedad para gráficos de humedad del suelo y humedad ambiental
+                if (chartType === 'moisture' || chartType === 'temperature') {
+                    console.log('Dibujando franjas para humedad - chartType:', chartType);
+                    const drawBands = () => {
+                        const ctx = canvas.getContext('2d');
+                        const chart = charts[i];
+                        if (!chart || !chart.chartArea) {
+                            requestAnimationFrame(drawBands);
+                            return;
+                        }
+                        
+                        console.log('Chart y chartArea disponibles:', !!chart, !!chart.chartArea);
+                        
+                        const chartArea = chart.chartArea;
+                        const yScale = chart.scales.y;
+                        
+                        // Función para dibujar una franja
+                        const drawBand = (yMin, yMax, color, label, labelColor) => {
+                            const yTop = yScale.getPixelForValue(yMax);
+                            const yBottom = yScale.getPixelForValue(yMin);
+                            
+                            console.log(`Dibujando franja ${label}: yTop=${yTop}, yBottom=${yBottom}`);
+                            
+                            // Dibujar rectángulo de fondo
+                            ctx.fillStyle = color;
+                            ctx.fillRect(chartArea.left, yTop, chartArea.width, yBottom - yTop);
+                            
+                            // Dibujar etiqueta
+                            ctx.fillStyle = labelColor;
+                            ctx.font = 'bold 12px Arial';
+                            ctx.textAlign = 'left';
+                            ctx.textBaseline = 'top';
+                            ctx.fillText(label, chartArea.left + 5, yTop + 5);
+                        };
+                        
+                        // Dibujar las tres franjas con etiquetas según el tipo de gráfico
+                        if (chartType === 'moisture') {
+                            // Etiquetas para humedad del suelo
+                            drawBand(60, 100, 'rgba(0, 123, 255, 0.15)', 'Saturado', 'rgba(0, 123, 255, 0.9)');
+                            drawBand(30, 60, 'rgba(40, 167, 69, 0.15)', 'Humedad Adecuada', 'rgba(40, 167, 69, 0.9)');
+                            drawBand(0, 30, 'rgba(255, 193, 7, 0.15)', 'Necesidad de Riego', 'rgba(255, 131, 7, 0.39)');
+                        } else if (chartType === 'temperature') {
+                            // Etiquetas para humedad ambiental
+                            drawBand(25, 50, 'rgba(255, 123, 0, 0.15)', 'Muy caliente', 'rgba(255, 13, 0, 0.9)');
+                            drawBand(5, 25, 'rgba(40, 167, 69, 0.15)', 'Temperatura Normal', 'rgba(40, 167, 69, 0.9)');
+                            drawBand(-10, 5, 'rgba(0, 123, 255, 0.15)', 'Helada', 'rgba(0, 123, 255, 0.9)');
+                        }
+                    };
+                    
+                    requestAnimationFrame(drawBands);
+                } else {
+                    console.log('No se dibujan franjas porque chartType no es moisture ni humidity');
+                }
+            
+            }, 1500); // Cierre del setTimeout con 1.5 segundos de demora
+            
             if (canvas.parentNode) canvas.parentNode.style.height = '250px';    
         } catch (error) {
             console.error('Error al crear el gráfico:', error);
@@ -2594,88 +2763,162 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
 
     const skipped = (ctx, value) => ctx.p0.skip || ctx.p1.skip ? value : undefined;
 
-    const getDataArray = (_moisture, _humidity, _temperature, _labels) => {
+    const getDataArray = (_moisture, _humidity, _temperature, _labels, chartType = 'moisture') => {
+        // Dataset para moisture con color azul
         let moisture = {
-            label: "Humedad suelo",
+            label: 'Humedad del Suelo',
             data: _moisture,
             cubicInterpolationMode: 'monotone',
             tension: 0.4,
-            borderWidth: 1,
+            borderWidth: 2,
+            borderColor: 'rgb(54, 162, 235)',
+            backgroundColor: 'rgba(54, 162, 235, 0.2)',
             type: 'line',
             segment: {
-              borderDash: ctx => skipped(ctx, [3, 3]),
+            borderDash: ctx => skipped(ctx, [3, 3]),
             },
             spanGaps: true,
             pointRadius: 0
         }
+        // Dataset para humidity con color verde
         let humidity = {
-            label: "Humedad ambiente",
+            label: 'Humedad Ambiental',
             data: _humidity,
             cubicInterpolationMode: 'monotone',
             tension: 0.4,
-            borderWidth: 1,
+            borderWidth: 2,
+            borderColor: 'rgb(75, 192, 192)',
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
             type: 'line',
             segment: {
-              borderDash: ctx => skipped(ctx, [3, 3]),
+            borderDash: ctx => skipped(ctx, [3, 3]),
             },
             spanGaps: true,
             pointRadius: 0
         }
+        // Dataset para temperature con color rojo
         let temperature = {
-            label: "Temperatura",
+            label: 'Temperatura',
             data: _temperature,
             cubicInterpolationMode: 'monotone',
             tension: 0.4,
-            borderWidth: 1,
+            borderWidth: 2,
+            borderColor: 'rgb(255, 99, 132)',
+            backgroundColor: 'rgba(255, 99, 132, 0.2)',
             type: 'line',
             segment: {
-              borderDash: ctx => skipped(ctx, [3, 3]),
+            borderDash: ctx => skipped(ctx, [3, 3]),
             },
             spanGaps: true,
             pointRadius: 0
         }
+        
+        // Retornar solo el dataset seleccionado
+        let selectedDataset;
+        switch(chartType) {
+            case 'humidity':
+                selectedDataset = humidity;
+                break;
+            case 'temperature':
+                selectedDataset = temperature;
+                break;
+            case 'moisture':
+            default:
+                selectedDataset = moisture;
+                break;
+        }
+        
         return {
             labels: _labels,
-            datasets: [moisture, humidity, temperature]
+            datasets: [selectedDataset]
         }
+        
+        // Código original comentado que retornaba todos los datasets:
+        // return {
+        //     labels: _labels,
+        //     datasets: [moisture, humidity, temperature]
+        // }
     }
 
-    const getOptions = (_title) => {
-        return {
+    // const getOptions = (_title) => {
+    // Código original modificado: ahora oculta leyenda y título y acepta chartType para fondo de humedad
+    const getOptions = (_title, chartType = 'moisture') => {
+        // Definir escalas fijas según el tipo de gráfico
+        let yScaleConfig;
+        switch(chartType) {
+            case 'humidity':
+                yScaleConfig = {
+                    beginAtZero: true,
+                    type: 'linear',
+                    min: 0,
+                    max: 100,
+                    ticks: {
+                        stepSize: 10
+                    }
+                };
+                break;
+            case 'temperature':
+                yScaleConfig = {
+                    beginAtZero: false,
+                    type: 'linear',
+                    min: -10,
+                    max: 50,
+                    ticks: {
+                        stepSize: 5
+                    }
+                };
+                break;
+            case 'moisture':
+            default:
+                yScaleConfig = {
+                    beginAtZero: true,
+                    type: 'linear',
+                    min: 0,
+                    max: 100,
+                    ticks: {
+                        stepSize: 10
+                    }
+                };
+                break;
+        }
+
+        let options = {
             responsive: true,
             maintainAspectRatio: false,
             scales: {
-                y: {
-                    beginAtZero: true,
-                    type: 'linear',
-                    ticks: {
-                        min: 0,
-                        max: 100,
-                        stepSize: 10
-                    }
-                }
+                y: yScaleConfig
             },
             onClick: (e) => {
                 // This prevents the default behavior of the chart click
                 e.stopPropagation();
             },
             plugins: {
+                // Código original comentado que mostraba la leyenda con funcionalidad de clic:
+                // legend: {
+                //     onClick: (e, legendItem, legend) => {
+                //         const index = legendItem.datasetIndex;
+                //         const ci = legend.chart;
+                //         const meta = ci.getDatasetMeta(index);
+                //         
+                //         // Toggle the visibility of the dataset
+                //         meta.hidden = meta.hidden === null ? !ci.data.datasets[index].hidden : null;
+                //         
+                //         // Update the chart
+                //         ci.update();
+                //     }
+                // },
+                // Ocultar leyenda
                 legend: {
-                    onClick: (e, legendItem, legend) => {
-                        const index = legendItem.datasetIndex;
-                        const ci = legend.chart;
-                        const meta = ci.getDatasetMeta(index);
-                        
-                        // Toggle the visibility of the dataset
-                        meta.hidden = meta.hidden === null ? !ci.data.datasets[index].hidden : null;
-                        
-                        // Update the chart
-                        ci.update();
-                    }
+                    display: false
                 },
+                // Código original comentado que mostraba el título:
+                // title: {
+                //     display: true,
+                //     text: _title
+                // },
+                // Ocultar título
                 title: {
-                    display: true,
-                    text: _title
+                    display: false
                 },
                 zoom: {
                     zoom: {
@@ -2693,7 +2936,9 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                     }
                 }
             }
-        }
+        };
+
+        return options;
     }
 
     const filtroPasoBajo = (valores, factorDeSuavizado) => {

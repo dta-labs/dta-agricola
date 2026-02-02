@@ -1,15 +1,28 @@
-body {
+.body {
   background: whitesmoke;
   background-color: whitesmoke;
-  background-image: url(/assets/images/fondo-web.png);
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-  background-size: 100% 100%;
+  position: relative;
   overscroll-behavior: contain;     /* Prevenir la regarga de la página en el navegador */
   overscroll-behavior-y: none;      /* Prevenir la regarga de la página en el navegador */
   -webkit-user-select: none;        /*Prevenir selección por parte de los usuarios Safari */
   -ms-user-select: none;            /* Prevenir selección por parte de los usuariosIE 10 and IE 11 */
   user-select: none;                /* Prevenir selección por parte de los usuariosStandard syntax */
+}
+
+.body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url(/assets/images/fondo-web.png);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-size: 100% 100%;
+  opacity: 0.3;
+  z-index: -1;
+  pointer-events: none;
 }
 
 .sensor-bar {
@@ -259,13 +272,13 @@ body {
 /* #region menues */
 
 .img-logo {
-  width: 150px;
+  width: 120px;
   margin-top: 15px;
   margin-left: 20px;
 }
 
 .img-logo-cel {
-  width: 56px;
+  width: 45px;
   margin-top: 7px;
   margin-left: 10px;
 }

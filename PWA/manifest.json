@@ -15,37 +15,37 @@
             "src": "./assets/images/icons/res/mipmap-mdpi/DTA_Agricola.png",
             "sizes": "48x48",
             "type": "image/png",
-            "purpose": "any maskable" 
+            "purpose": "any" 
         },
         {
             "src": "./assets/images/icons/res/mipmap-hdpi/DTA_Agricola.png",
             "sizes": "72x72",
             "type": "image/png",
-            "purpose": "any maskable"  
+            "purpose": "any"  
         },
         {
             "src": "./assets/images/icons/res/mipmap-xhdpi/DTA_Agricola.png",
             "sizes": "96x96",
             "type": "image/png",
-            "purpose": "any maskable" 
+            "purpose": "any" 
         },
         {
             "src": "./assets/images/icons/res/mipmap-xxhdpi/DTA_Agricola.png",
             "sizes": "144x144",
             "type": "image/png",
-            "purpose": "any maskable"  
+            "purpose": "any"  
         },
         {
             "src": "./assets/images/icons/res/mipmap-xxxhdpi/DTA_Agricola.png",
             "sizes": "192x192",
             "type": "image/png",
-            "purpose": "any maskable" 
+            "purpose": "any" 
         },
         {
             "src": "./assets/images/icons/res/DTA_Agricola_512.png",
             "sizes": "512x512",
             "type": "image/png",
-            "purpose": "any maskable" 
+            "purpose": "any" 
         }
     ]
 }
