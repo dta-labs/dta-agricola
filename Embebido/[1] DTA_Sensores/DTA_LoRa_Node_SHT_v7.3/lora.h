@@ -37,7 +37,7 @@ bool loraCheckData(String data) {
 int getTxFrequency(String data) {
   int commaIdx = data.indexOf(comma);
   data = data.substring(commaIdx + 1, data.lastIndexOf(comma)); // Elimina IdSensor y CheckSum
-  return data.substring(data.lastIndexOf(comma)).toInt();
+  return data.toInt();
 }
 
 void getSoilPerfil(String data) {
