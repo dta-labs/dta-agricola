@@ -17,6 +17,7 @@ void initLoRa() {
 }
 
 void txData(String dataStr) {
+  LoRa.idle();
   Serial.print(F("→ ")); Serial.println(dataStr);
   LoRa.beginPacket();
   LoRa.print(dataStr);

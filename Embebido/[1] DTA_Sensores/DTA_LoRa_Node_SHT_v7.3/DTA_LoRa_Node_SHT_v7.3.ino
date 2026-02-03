@@ -70,7 +70,7 @@ void lowPower() {
   int estado = digitalRead(LINK); // Leer el estado del pin
   delay(5000);
   if (estado == HIGH) {
-    LoRa.idle();
+    // LoRa.idle();
     int minutes = TIMER * 15;
     for (int i = 0; i < minutes; i++) {
       LowPower.powerDown(SLEEP_4S, ADC_OFF, BOD_OFF);

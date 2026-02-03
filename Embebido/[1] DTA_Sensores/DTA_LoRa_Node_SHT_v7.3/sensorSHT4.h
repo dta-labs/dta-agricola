@@ -19,15 +19,7 @@ String setupSHT() {
   return String(sht4.readSerial(), HEX);
 }
 
-void readSHT() {
-  sht4.getEvent(&humidity, &temp);
-  t_actual = temp.temperature;
-  h_actual = humidity.relative_humidity;
-  agregarALaMedia(t_actual, h_actual);
-  float t_prom = estimadorAdaptativo(temp_hist, NUM_MUESTRAS);
-  float h_prom = estimadorAdaptativo(hum_hist, NUM_MUESTRAS);
-  // float t_prom = promedio(temp_hist);
-  // float h_prom = promedio(hum_hist);
+void reviewHeaterCondition(float t_prom, float h_prom) {
   if (h_prom > 94.0 && t_prom < 10.0 && activeHeater) {  // Evaluar si hay condiciones para calentamiento
     Serial.println(F("⚠️ Posible condensación detectada, activando calentador."));
     sht4.setHeater(SHT4X_LOW_HEATER_100MS);
@@ -41,6 +33,18 @@ void readSHT() {
   } else {
     calentado = false;
   }
+}
+
+void readSHT() {
+  sht4.getEvent(&humidity, &temp);
+  t_actual = temp.temperature;
+  h_actual = humidity.relative_humidity;
+  agregarALaMedia(t_actual, h_actual);
+  float t_prom = estimadorAdaptativo(temp_hist, NUM_MUESTRAS);
+  float h_prom = estimadorAdaptativo(hum_hist, NUM_MUESTRAS);
+  reviewHeaterCondition(t_prom, h_prom);
+  // float t_prom = promedio(temp_hist);
+  // float h_prom = promedio(hum_hist);
 }
 
 #pragma endregion Sensor SHT4x
