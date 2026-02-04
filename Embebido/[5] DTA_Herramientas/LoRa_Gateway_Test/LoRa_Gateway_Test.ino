@@ -6,7 +6,7 @@
 #define startAddress F("0x")
 #define commaChar F(",")
 #define FREQUENCY 915E6                       // 433E6 or 915E6*, the MHz frequency of module
-#define TIME_SCAN 1                           // Tiempo de escaneo  
+#define TIME_SCAN 5                           // Tiempo de escaneo  
 #pragma endregion Variables
 
 #pragma region Programa Principal
