@@ -265,7 +265,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
 
     // #region DEVICES
 
-    loadSystems = () => {
+    loadSystems_old = () => {
         if ($scope.authUser) {
             let userSystems = $scope.userLocations[convertDotToDash($scope.authUser.email)].systems;
             if (userSystems) {
@@ -285,6 +285,62 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                             if ($scope.actualSystem && locationKey == $scope.actualSystem.key) { $scope.selectSystem($scope.systems[locationKey]); }
                         }
                     });
+                }
+            }
+        }
+    }
+
+    loadSystems = () => {
+        if ($scope.authUser) {
+            let userSystems = $scope.userLocations[convertDotToDash($scope.authUser.email)].systems;
+            if (userSystems) {
+                let lastLocation = Object.keys(userSystems)[Object.keys(userSystems).length - 1];
+                for (let locationKey in userSystems) {
+                    
+                    // --- Listener para SETTINGS ---
+                    listeners[locationKey] = firebase.database().ref(`systems/${locationKey}/settings`);
+                    listeners[locationKey].on("value", system => {
+                        if (system.val()) {
+                            $scope.systems[locationKey] = system.val();
+                            $scope.systems[locationKey].key = locationKey;
+                            loadSystemUsers(locationKey);
+                            getMetorologicalData(locationKey);
+
+                            // Determinar ruta de logs según tipo
+                            let dir = $scope.systems[locationKey].type === "Sensor" ? "dayLogs" : "logs";
+                            $scope.loadSystemLog(locationKey, 1, `/${dir}`);
+
+                            if (locationKey === lastLocation) $scope.$apply();
+                            if ($scope.actualSystem && locationKey === $scope.actualSystem.key) {
+                                $scope.selectSystem($scope.systems[locationKey]);
+                            }
+                            $scope.$apply();
+                        }
+                    });
+
+                    // if ($scope.systems[locationKey] && $scope.systems[locationKey].type == "Sensor") {
+                        // --- Listener para DAYLOGS ---
+                        listeners[`${locationKey}_dayLogs`] = firebase.database().ref(`systems/${locationKey}/dayLogs`);
+                        listeners[`${locationKey}_dayLogs`].on("value", dayLogs => {
+                            if (dayLogs.val()) {
+                                // $scope.systems[locationKey].dayLogs = dayLogs.val();
+                                // Aquí también puedes disparar funciones adicionales
+                                $scope.loadSystemLog(locationKey, 3000, "/dayLogs");
+                                $scope.$apply();
+                            }
+                        });
+                    // } else {
+                        // --- Listener para LOGS ---
+                        listeners[`${locationKey}_logs`] = firebase.database().ref(`systems/${locationKey}/logs`);
+                        listeners[`${locationKey}_logs`].on("value", logs => {
+                            if (logs.val()) {
+                                // $scope.systems[locationKey].logs = logs.val();
+                                // Aquí puedes disparar funciones adicionales si lo requieres
+                                $scope.loadSystemLog(locationKey, 30, `/logs`);
+                                $scope.$apply();
+                            }
+                        });
+                    // }
                 }
             }
         }
@@ -521,6 +577,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     }
 
     getMetorologicalData = (key) => {
+        if (!$scope.systems[key].latitude || !$scope.systems[key].longitude) return;
         $scope.meteo[key] = {};
         $.ajax({
             url: `https://api.openweathermap.org/data/2.5/weather?lat=${$scope.systems[key].latitude}&lon=${$scope.systems[key].longitude}&appid=db9c92bd1f6d8d5db0aa0bae36ce093f`, success: function (result) {

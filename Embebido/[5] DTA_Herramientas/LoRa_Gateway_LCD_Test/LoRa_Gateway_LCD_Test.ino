@@ -17,7 +17,7 @@ LiquidCrystal_I2C lcd(I2C_ADDR, 16, 2);   // set the LCD address to 0x27 for a 1
 #pragma region Programa Principal
 
 void setup() {
-  Serial.begin(19200);
+  Serial.begin(250000);
   while (!Serial) delay(10);  // Pausar Arduino Zero, Leonardo, etc. hasta que se active el puerto serie
   Serial.println(F("\n\nLoRa Gateway Tester v6.1"));
   initLoRa();
