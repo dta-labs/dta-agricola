@@ -6,7 +6,7 @@
 #define startAddress F("0x")
 #define commaChar F(",")
 #define FREQUENCY 915E6                       // 433E6 or 915E6*, the MHz frequency of module
-#define TIME_SCAN 5                           // Tiempo de escaneo  
+#define TIME_SCAN 5                           // Tiempo de escaneo en minutos
 #pragma endregion Variables
 
 #pragma region Programa Principal
@@ -47,8 +47,8 @@ void loraTxData(String dataStr) {
   LoRa.beginPacket();
   LoRa.print(dataStr);
   LoRa.endPacket();
+  Serial.print(F(" [ ✔ Ok ]"));
   delay(100);
-  Serial.print(F(" [Ok]"));
   LoRa.sleep();
 }
 
@@ -76,12 +76,12 @@ void loraRxData() {
     while (LoRa.available()) {
       data += (char)LoRa.read();
     }
-    Serial.print(F("\n └─ ")); 
+    Serial.print(F("\n Rx: ")); 
     if (loraCheckData(data)) {
       Serial.print(data);
       sendConfirmation(data);
     } else {
-      Serial.print(data); Serial.print(F("« Error de lectura... »"));
+      Serial.print(data); Serial.print(F("« ✘ Error de lectura... »"));
     }
   }
 }
