@@ -2496,17 +2496,19 @@
                                                                     <th><img src="./assets/images/agua.png" alt="Hr" style="width: 20px;"><br> H.Relativa</th>
                                                                     <th><img src="./assets/images/termometro.png" alt="Temp" style="width: 20px;"><br> Temp.</th>
                                                                     <th><img src="./assets/images/ETo.png" alt="Temp" style="width: 20px;"><br> ETo</th>
-                                                                    <th></th>
+                                                                    <th ng-if="selectedTimeOption == 'DIA'"><i class="material-icons">battery_charging_full</i><br>Bat.</th>
+                                                                    <th ng-if="selectedTimeOption != 'DIA'"><img src="./assets/images/nieve.png" alt="Temp" style="width: 20px;"><br> H.Frío</th>
                                                                 </tr>
                                                             </thead>
                                                             <tbody>
                                                                 <tr ng-repeat="reg in invertedRegisters" ng-init="data=convertStrToJSON(reg.dataRaw)" ng-show="data[(idx * 8)] != 'NaN' && data[(idx * 8) + 1] != 'NaN' && data[(idx * 8) + 4] != 'NaN' && data[(idx * 8) + 5] != 'NaN'">
-                                                                    <td>{{ reg.date.substring(6, 8) }}/{{ reg.date.substring(4, 6) }}/{{ reg.date.substring(0, 4) }} {{ reg.date.substring(9, 11) }}:{{ reg.date.substring(11) }}</td>
+                                                                    <td>{{ reg.date.substring(6, 8) }}/{{ reg.date.substring(4, 6) }}/{{ reg.date.substring(2, 4) }} {{ selectedTimeOption == 'DIA' ? reg.date.substring(9, 11) : '' }}{{ selectedTimeOption == 'DIA' ? ':' : '' }}{{ selectedTimeOption == 'DIA' ? reg.date.substring(11) : '' }}</td>
                                                                     <td style="color: {{ isOutOfRange(data[idx * 8], sensor.h.minValue, sensor.h.maxValue) ? 'red' : 'green' }};"><b>{{ data[(idx * 8)] != "NaN" ? (data[(idx * 8)] | number : 0) : '--' }}%</b></td>
                                                                     <td style="color: black;"><b>{{ data[(idx * 8) + 1] != "NaN" && data[(idx * 8) + 1] != "-1" ? (data[(idx * 8) + 1] | number : 0) : (meteo[actualSystem.key].main.humidity) }}%</b></td>
                                                                     <td style="color: {{ isOutOfRange(data[idx * 8 + 4], sensor.t.minValue, sensor.t.maxValue) ? 'red' : 'green' }};"><b>{{ data[(idx * 8) + 4] != "NaN" ? (data[(idx * 8) + 4] | number : 1) : '--' }}°C</b></td>
                                                                     <td><b>{{ data[(idx * 8) + 5] != "NaN" ? (data[(idx * 8) + 5] | number : 1) : '--' }}</b></td>
-                                                                    <td style="color: {{ data[(idx * 8) + 7] > 3 ? 'green' : data[(idx * 8) + 7] > 2.8 ? 'darkorange' : 'red'}};" title="{{ data[(idx * 8) + 7] }}V"><i class="material-icons">{{ data[(idx * 8) + 7] > 3 ? 'battery_full' : data[(idx * 8) + 7] > 2.8 ? 'battery_alert' : 'battery_unknown'}}</i></td>
+                                                                    <td ng-if="selectedTimeOption == 'DIA'" style="color: {{ data[(idx * 8) + 7] > 3 ? 'green' : data[(idx * 8) + 7] > 2.8 ? 'darkorange' : 'red'}};" title="{{ data[(idx * 8) + 7] }}V"><i class="material-icons">{{ data[(idx * 8) + 7] > 3 ? 'battery_full' : data[(idx * 8) + 7] > 2.8 ? 'battery_alert' : 'battery_unknown'}}</i></td>
+                                                                    <td ng-if="selectedTimeOption != 'DIA'" style="color: black;"><b>{{ data[(idx * 8) + 6] != "NaN" ? (data[(idx * 8) + 6] | number : 1) : '--' }}</b></td>
                                                                 </tr>
                                                             </tbody>
                                                         </table>

@@ -2734,7 +2734,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             } else {
                 date = "";
             }
-            labels.push(date + " " + element.date.substr(9, 14));
+            labels.push(($scope.selectedTimeOption != 'DIA' ? date : '') + " " + ($scope.selectedTimeOption == 'DIA' ? element.date.substr(9, 14) : ''));
         });
         chart(moisture, humidity, temperature, labels, title, i, chartLabel, $scope.chartType);
     }
