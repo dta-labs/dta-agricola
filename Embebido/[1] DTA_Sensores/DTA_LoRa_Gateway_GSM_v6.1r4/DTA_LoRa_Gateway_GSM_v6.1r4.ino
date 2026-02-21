@@ -1,3 +1,5 @@
+
+
 #define DEBUG
 
 #if defined DEBUG
@@ -21,9 +23,9 @@ void setup() {
   pinMode(powerLED, OUTPUT);
   setPowerLEDBlink();
   systemWatchDog();
-  Serial.begin(19200);
+  Serial.begin(250000);
   while (!Serial) delay(10);               // Pausar Arduino Zero, Leonardo, etc. hasta que se active el puerto serie
-  DBG_PRINTLN(F("\n\nLoRa Gateway Universal v6.1.250806"));
+  DBG_PRINTLN(F("\n\nLoRa Gateway Universal v6.1r4.250212"));
   initLoRa();
   systemWatchDog(); 
   setPowerLEDBlink();

@@ -62,12 +62,14 @@ void loraTxData(String dataStr) {
   LoRa.print(dataStr);
   LoRa.endPacket();
   delay(100);
-  DBG_PRINT(F(" ✔ Ok"));
+  DBG_PRINT(F(" <- "));
+  DBG_PRINT(dataStr);
+  DBG_PRINT(F(" ✔"));
   LoRa.receive();
 }
 
 void sendConfirmation(String sensorId) {
-  int frec = operationMode / 5;
+  int frec = operationMode / 2;
   frec = frec > 1 ? frec : 1;
   String confirmation = sensorId + commaChar + frec + commaChar;
   confirmation += String(calculateSum(confirmation));
@@ -81,11 +83,14 @@ void processData(String data, String rssi) {      // DTA-SHT-0x00000000,%Ms,%Hr,
   String sensorId = data.substring(addressIdx, commaIdx);
   // if (sensorList.indexOf(sensorIdx) == -1) return;
   int index = getPossition(sensorId);
-  DBG_PRINT("[" + (String)index + "]" + sensorId);
+  rssi += rssi.length() < 4 ? F(" ") : strEmpty;
+  if (sensorId.length() < 14) DBG_PRINT(F("\t"));
+  DBG_PRINT("\t[" + (String)index + "] ~ RSSI: " + rssi);
   if (index != -1) {
     String newData = data.substring(commaIdx + 1, data.lastIndexOf(commaChar));
     dataToSend[index] = newData;
-    sendConfirmation(sensorId);
+    // sendConfirmation(sensorId);
+    sendConfirmation(data.substring(0, commaIdx));
   }
 }
 
@@ -104,12 +109,12 @@ void loraRxData() {
     while (LoRa.available()) {
       data += (char)LoRa.read();
     }
-    if (!data.startsWith(F("DTA"))) {  DBG_PRINT(data); DBG_PRINT(F("\n     → « ✘ Dispositivo no reconocido... »")); return; }
-    if (!loraCheckData(data)) { DBG_PRINT(F("\n     → « ✘ Error de lectura... »")); return; }
+    if (!data.startsWith(F("DTA"))) {  DBG_PRINT(data); DBG_PRINT(F("\n     -> « ✘ Dispositivo no reconocido... »")); return; }
+    if (!loraCheckData(data)) { DBG_PRINT(F("\n     -> « ✘ Error de lectura... »")); return; }
     if (operationMode == 0) {
       discoverNewSensor(data);
     } else {
-      DBG_PRINT(F("\n     → ")); DBG_PRINT(data);
+      DBG_PRINT(F("\n     -> ")); DBG_PRINT(data);
       processData(data, String(LoRa.packetRssi()));
       systemWatchDog();
     }
