@@ -36,17 +36,19 @@ uint8_t index = 0;
 void setup() {
   pinMode(A1, OUTPUT);
   analogReference(DEFAULT);   // usa Vcc como referencia (3.3V o 5V)
-  Serial.begin(19200);
+  Serial.begin(250000);
   Serial.println(F("______________________________\n"));
   Serial.println(F(" Comprobador de sensor HW-390 "));
   Serial.println(F("______________________________\n"));
+  Serial.println(F("Lectura (V)\t VWC (%)"));
 }
 
 void loop() {
   float lectura, vwc;
   getMoisture(lectura, vwc);
-  Serial.println("Lectura: " + String(lectura, 3) + 
-                 "V ~> VWC: " + String(vwc) + "%");
+  Serial.print(lectura); 
+  Serial.print("\t"); 
+  Serial.println(vwc); 
 }
 
 #pragma region HW390

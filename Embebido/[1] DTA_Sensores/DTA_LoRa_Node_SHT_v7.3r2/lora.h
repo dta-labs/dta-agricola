@@ -4,7 +4,6 @@
 
 #define FREQUENCY 915E6                   // 433E6 or 915E6*, the MHz frequency of module
 #define LINK 3                            // Pin de enlace 1
-int TIMER = 0;                            // Tiempo de espera en minutos
 
 void initLoRa() {
   if (!LoRa.begin(FREQUENCY)) while (10);
@@ -18,7 +17,7 @@ void initLoRa() {
 
 void txData(String dataStr) {
   LoRa.idle();
-  Serial.print(F("→ ")); Serial.println(dataStr);
+  Serial.print(F("Tx: ")); Serial.println(dataStr);
   LoRa.beginPacket();
   LoRa.print(dataStr);
   LoRa.endPacket();
@@ -62,7 +61,9 @@ bool waitConfirmation() {
       }
       if (data.startsWith(NODE_ID) && loraCheckData(data)) {
         TIMER = getTxFrequency(data);
-        Serial.println(F("  ✓ Confirmación recibida"));
+        Serial.print(F("  ✓ Confirmación recibida - TIMER: "));
+        Serial.print(TIMER);
+        Serial.println(F("min"));
         return true;
       } else {
         Serial.print(F("  → Mensaje ignorado: "));

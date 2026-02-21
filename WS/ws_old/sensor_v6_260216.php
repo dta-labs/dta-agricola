@@ -116,13 +116,7 @@ class SensorSystem {
                 $this->users = [];
             }
         }
-        if (is_object($this->users)) {
-            $usersData = get_object_vars($this->users); 
-        } elseif (is_array($this->users)) {
-            $usersData = $this->users; 
-        } else {
-            $usersData = []; // fallback por seguridad
-        }
+        $usersData = get_object_vars($this->users); 
         $usersID = array_keys($usersData); 
         return $usersID;
     }
@@ -617,42 +611,13 @@ class SensorSystem {
         }
     }
 
-    private function VWC_modelado($VWC_sensor, $arcilla, $limo, $arena, $t_min): float {
-        $horas = $t_min / 60.0;
-        $PMP = 0.10 * ($arena / 100.0) + 0.15 * ($limo / 100.0) + 0.20 * ($arcilla / 100.0);    // Punto de marchitez permanente según textura
-        $k = 0.01;                                                                              // Pendiente más fuerte
-        $x0 = 24.0;                                                                             // Punto de inflexión temprano (≈ 1 día)
-        $num  = 1.0 / (1.0 + exp($k * ($horas - $x0)));
-        $num0 = 1.0 / (1.0 + exp($k * (0.0 - $x0)));
-        $VWC = $PMP * 100.0 + ($VWC_sensor - $PMP * 100.0) * ($num / $num0);
-        return $VWC;                                                                            // Devolver en porcentaje
-    }
-
-    private function calcularVWC($humedad_sensor, $arcilla, $limo, $arena, $intervalo_min): float {
-        static $riego_detectado = false;
-        static $tiempo_desde_riego = 0;
-        static $humedad_inicial = 0;
-        static $ultima_humedad = 0;
-        if ($humedad_sensor - $ultima_humedad > 3.0) {                                          // Detectar riego
-            $riego_detectado = true;
-            $tiempo_desde_riego = 0;
-            $humedad_inicial = $humedad_sensor;                                                 // Guardar el valor inicial
-        } elseif ($riego_detectado) {
-            $tiempo_desde_riego += $intervalo_min;
-        }
-        $ultima_humedad = $humedad_sensor;
-        $humedad_final = $this->VWC_modelado($humedad_sensor, $arcilla, $limo, $arena, $tiempo_desde_riego);
-        return $humedad_final;
-    }
-
-    private function getHumidity($lat, $lon): float     {
+    private function getHumidity($lat, $lon) {
         $apiKey = "db9c92bd1f6d8d5db0aa0bae36ce093f";
         $apiUrl = "https://api.openweathermap.org/data/2.5/weather?lat={$lat}&lon={$lon}&appid={$apiKey}&units=metric";
-        $response = @file_get_contents($apiUrl);                    // Obtener datos desde la API, el @ evita warnings directos
-        if ($response === false) return 0.0;
+        $response = file_get_contents($apiUrl);        // Obtener datos desde la API
         $data = json_decode($response, true);
-        if ($data === null || !isset($data["main"]["humidity"])) return 0.0;
-        return round((float)$data["main"]["humidity"], 1);    // Redondear a 1 decimal
+        $humidity = $data["main"]["humidity"] ?? 0;    // Extraer la humedad
+        return round((float)$humidity, 1);             // Redondear a 1 decimal
     }
 
     private function processRegularData() {
@@ -664,13 +629,8 @@ class SensorSystem {
             $length = count($data);
             $readyToUpdate = true;
             $idx = 0;
-            $msg = "";
             for ($i = 0; $i < $length; $i++) {
                 if ($data[$i] !== 'NaN' && isset($data[$i + 3])) {
-                    $msg = "Sleeping Time: " . $settings->sleepingTime . " - Lectura HW390: " . $data[$i];
-                    $data[$i] = $this->calcularVWC((float)$data[$i], 30, 20, 50, $settings->sleepingTime);
-                    $msg .= " - VWC: " . $data[$i];
-                    $this->escribirLog($msg);
                     $value = (float)$data[$i + 3];
                     if (2.5 < $value && $value < 5.5) {
                         if ((float)$data[$i + 1] === -1.0) {

@@ -17,9 +17,9 @@ void setup() {
   pinMode(VCC, OUTPUT);
   analogReference(DEFAULT);
   digitalWrite(A1, LOW);
-  Serial.begin(19200);
+  Serial.begin(250000);
   while (!Serial) delay(10);               // Pausar Arduino Zero, Leonardo, etc. hasta que se active el puerto serie
-  Serial.println(F("\n\nMicroestación agrícola STH v7.3.0111L"));
+  Serial.println(F("\n\nMicroestación agrícola STH v7.3r2"));
   Serial.println(F("~ Sonda de humedad del suelo"));
   Serial.println(F("~ Humedad y temperatura ambiente"));
   Serial.println(F("  • Protocolo: DTA-SHT4-0xId,Ms,Hr,T°C,Vcc,CS"));
@@ -42,11 +42,13 @@ void setupSensors() {
 
 void loop() {
   wdt_reset();
-  if (sensorType == SHT) {
-    readSHT();
-  } else {
-    // Serial.println(F("Leyendo temperatura..."));
-    getTemperature();
+  if (NODE_ID != noSensor) {
+    if (sensorType == SHT) {
+      readSHT();
+    } else {
+      // Serial.println(F("Leyendo temperatura..."));
+      getTemperature();
+    }
   }
   wdt_reset();
   // Serial.println(F("Leyendo humedad..."));

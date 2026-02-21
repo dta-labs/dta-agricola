@@ -2721,12 +2721,16 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         let labels = [];
         let moisture = [];
         let humidity = [];
+        let temp_min = [];
+        let temp_max = [];
         let temperature = [];
         lastDate = "";
         result.forEach(element => {
             let data = JSON.parse(element.dataRaw);
             moisture.push(data[i * 8] != "NaN" ? parseFloat(data[i * 8]) : null);
             humidity.push(data[i * 8 + 1] != "NaN" ? parseFloat(data[i * 8 + 1]) : null);
+            temp_min.push(data[i * 8 + 2] != "NaN" ? parseFloat(data[i * 8 + 2]) : null);
+            temp_max.push(data[i * 8 + 3] != "NaN" ? parseFloat(data[i * 8 + 3]) : null);
             temperature.push(data[i * 8 + 4] != "NaN" ? parseFloat(data[i * 8 + 4]) : null);
             date = element.date.substr(6, 2) + "/" + element.date.substr(4, 2);
             if (lastDate != date) {
@@ -2736,12 +2740,12 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             }
             labels.push(($scope.selectedTimeOption != 'DIA' ? date : '') + " " + ($scope.selectedTimeOption == 'DIA' ? element.date.substr(9, 14) : ''));
         });
-        chart(moisture, humidity, temperature, labels, title, i, chartLabel, $scope.chartType);
+        chart(moisture, humidity, temp_min, temp_max, temperature, labels, title, i, chartLabel, $scope.chartType);
     }
 
     // const chart = (moisture, humidity, temperature, labels, title, i, chartLabel, chartType = 'moisture') => {
     // Código original modificado: ahora acepta chartType para mostrar solo un gráfico
-    const chart = (moisture, humidity, temperature, labels, title, i, chartLabel, chartType = 'moisture') => {
+    const chart = (moisture, humidity, temp_min, temp_max, temperature, labels, title, i, chartLabel, chartType = 'moisture') => {
         try {
             let canvas = document.getElementById(chartLabel);
             if (!canvas) return;
@@ -2749,7 +2753,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             let type = moisture.length < 14 ? 'bar' : 'line';
             charts[i] = new Chart(canvas, {
                 type: type,
-                data: getDataArray(moisture, humidity, temperature, labels, chartType),
+                data: getDataArray(moisture, humidity, temp_min, temp_max, temperature, labels, chartType),
                 options: getOptions(title, chartType)
             });
             
@@ -2820,7 +2824,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
 
     const skipped = (ctx, value) => ctx.p0.skip || ctx.p1.skip ? value : undefined;
 
-    const getDataArray = (_moisture, _humidity, _temperature, _labels, chartType = 'moisture') => {
+    const getDataArray = (_moisture, _humidity, _temp_min, _temp_max,  _temperature, _labels, chartType = 'moisture') => {
         // Dataset para moisture con color azul
         let moisture = {
             label: 'Humedad del Suelo',
@@ -2855,7 +2859,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         }
         // Dataset para temperature con color rojo
         let temperature = {
-            label: 'Temperatura',
+            label: 'Temperatura Promedio',
             data: _temperature,
             cubicInterpolationMode: 'monotone',
             tension: 0.4,
@@ -2869,25 +2873,59 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             spanGaps: true,
             pointRadius: 0
         }
+        // Dataset para temperatura máxima con color naranja
+        let tempMax = {
+            label: 'Temperatura Máxima',
+            data: _temp_max,
+            cubicInterpolationMode: 'monotone',
+            tension: 0.4,
+            borderWidth: 2,
+            borderColor: 'rgb(255, 159, 64)',
+            backgroundColor: 'rgba(255, 159, 64, 0.2)',
+            type: 'line',
+            segment: {
+            borderDash: ctx => skipped(ctx, [3, 3]),
+            },
+            borderDash: [6, 6],
+            spanGaps: true,
+            pointRadius: 0
+        }
+        // Dataset para temperatura mínima con color azul claro
+        let tempMin = {
+            label: 'Temperatura Mínima',
+            data: _temp_min,
+            cubicInterpolationMode: 'monotone',
+            tension: 0.4,
+            borderWidth: 2,
+            borderColor: 'rgb(54, 162, 235)',
+            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+            type: 'line',
+            segment: {
+            borderDash: ctx => skipped(ctx, [3, 3]),
+            },
+            borderDash: [6, 6],
+            spanGaps: true,
+            pointRadius: 0
+        }
         
         // Retornar solo el dataset seleccionado
-        let selectedDataset;
+        let selectedDatasets;
         switch(chartType) {
             case 'humidity':
-                selectedDataset = humidity;
+                selectedDatasets = [humidity];
                 break;
             case 'temperature':
-                selectedDataset = temperature;
+                selectedDatasets = [temperature, tempMax, tempMin];
                 break;
             case 'moisture':
             default:
-                selectedDataset = moisture;
+                selectedDatasets = [moisture];
                 break;
         }
         
         return {
             labels: _labels,
-            datasets: [selectedDataset]
+            datasets: selectedDatasets
         }
         
         // Código original comentado que retornaba todos los datasets:

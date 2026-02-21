@@ -8,10 +8,12 @@ String NODE_ID = "DTA-SHT4-0x";         // Identificador del nodo DTA-SHT-0x0001
 #define sensorPin A0                    // Pin del sensor de humedad
 #define VCC A1                          // Pin de alimentación del sensor de humedad
 #define activeHeater false
+#define NUM_MUESTRAS 20
+int TIMER = 0;                          // Tiempo de espera en minutos
 String sensorType;                      // Tipo de sensor SHT | DS
-float t_actual;
-float h_actual;
-byte moisture;
+float t_actual = -999;
+float h_actual = -1;
+float moisture;
 
 struct Perfil {
   float vSeco;  // voltaje en suelo seco 
