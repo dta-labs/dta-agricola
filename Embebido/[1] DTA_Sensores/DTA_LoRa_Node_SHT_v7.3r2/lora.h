@@ -70,7 +70,15 @@ bool waitConfirmation() {
         Serial.println(data);
       }
     }
-    delay(10); // Pequeña pausa para no saturar CPU
+    // delay(10); // Pequeña pausa para no saturar CPU
+    LowPower.idle(SLEEP_30MS,
+                  ADC_OFF,
+                  TIMER2_ON,
+                  TIMER1_ON,
+                  TIMER0_ON,
+                  SPI_ON,
+                  USART0_ON,
+                  TWI_ON);
     wdt_reset();
   }
   Serial.println(F("    ✗ Tiempo de espera agotado"));

@@ -1,10 +1,11 @@
 #include <SPI.h>
 #include <LowPower.h>
+#include <avr/wdt.h>
 
 #include "configuracion.h"
 #include "miscelaneas.h"
 #include "estadisticas.h"
-#include "sensorHW390.h"
+#include "sensorWM.h"
 #include "sensorDS.h"
 #include "sensorSHT4.h"
 #include "lora.h"
@@ -16,9 +17,9 @@ void setup() {
   pinMode(VCC, OUTPUT);
   analogReference(DEFAULT);
   digitalWrite(A1, LOW);
-  Serial.begin(19200);
+  Serial.begin(250000);
   while (!Serial) delay(10);               // Pausar Arduino Zero, Leonardo, etc. hasta que se active el puerto serie
-  Serial.println(F("\n\nMicroestación agrícola STH v7.2.0802L"));
+  Serial.println(F("\n\nMicroestación agrícola STH v7.3r2"));
   Serial.println(F("~ Sonda de humedad del suelo"));
   Serial.println(F("~ Humedad y temperatura ambiente"));
   Serial.println(F("  • Protocolo: DTA-SHT4-0xId,Ms,Hr,T°C,Vcc,CS"));
@@ -27,35 +28,38 @@ void setup() {
   Serial.println(F("  • Sensor de humedad del suelo inicializado correctamente..."));
   Serial.println(F("~ Configuración:"));
   Serial.print(F("  • ID: ")); Serial.println(NODE_ID);
-  Serial.print(F("  • valAire: ")); Serial.println(valAire);
-  Serial.print(F("  • valAgua: ")); Serial.println(valAgua);Serial.println(); 
+  Serial.print(F("  • Suelo Saturado: ")); Serial.print(suelo.pSat); Serial.println(F("%"));
+  Serial.print(F("  • Suelo C. Campo: ")); Serial.print(suelo.pCC); Serial.println(F("%\n"));
+  wdt_enable(WDTO_8S);
 }
 
 void setupSensors() {
-  String id;
-  if (sensorType == "SHT") {
-    setupSHT();
-    id = String(sht4.readSerial(), HEX);
-  } else {
-    id = setupDS();
-    // id = getAddress();
-  }
+  String id = setupDS();
+  id = id == noSensor ? setupSHT() : id;
   id.toUpperCase();
   NODE_ID += id;
 }
 
 void loop() {
-  if (sensorType == "SHT") {
-    readSHT();
-  } else {
-    getTemperature();
+  wdt_reset();
+  if (NODE_ID != noSensor) {
+    if (sensorType == SHT) {
+      readSHT();
+    } else {
+      // Serial.println(F("Leyendo temperatura..."));
+      getTemperature();
+    }
   }
+  wdt_reset();
+  // Serial.println(F("Leyendo humedad..."));
   moisture = getMoisture();
+  wdt_reset();
   txData(createDataStr());
+  wdt_reset();
   if (waitConfirmation()) lowPower();
 }
 
-String createDataStr() {
+String createDataStr_old() {
   String dataStr = NODE_ID;
   dataStr += comma;
   dataStr += String(moisture);
@@ -70,17 +74,30 @@ String createDataStr() {
   return dataStr;
 }
 
+String createDataStr() {
+  char buffer[64];
+  snprintf(buffer, sizeof(buffer), "%s,%d,%d,%d,%.1f",
+           NODE_ID.c_str(), moisture, h_actual, t_actual, getVcc());
+  int checksum = calculateSum(buffer);
+  snprintf(buffer + strlen(buffer), sizeof(buffer) - strlen(buffer), ",%d", checksum);
+  return String(buffer);
+}
+
 void lowPower() {
+  // wdt_disable();
   int estado = digitalRead(LINK); // Leer el estado del pin
   delay(5000);
   if (estado == HIGH) {
-    LoRa.idle();
+    // LoRa.idle();
     int minutes = TIMER * 15;
     for (int i = 0; i < minutes; i++) {
+      wdt_reset();
       LowPower.powerDown(SLEEP_4S, ADC_OFF, BOD_OFF);
+      wdt_reset();
       if(digitalRead(LINK) == LOW) break;
     }
   } 
+  // wdt_enable(WDTO_8S);
 }
 
 #pragma endregion Programa Principal

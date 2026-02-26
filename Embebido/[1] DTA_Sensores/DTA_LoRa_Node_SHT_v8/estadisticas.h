@@ -1,7 +1,6 @@
 #pragma region Estadísticas
 
 #define DESV_EST_UMBRAL 0.3
-#define NUM_MUESTRAS 30
 float hum_hist[NUM_MUESTRAS] = {0};
 float temp_hist[NUM_MUESTRAS] = {0};
 uint8_t index = 0;

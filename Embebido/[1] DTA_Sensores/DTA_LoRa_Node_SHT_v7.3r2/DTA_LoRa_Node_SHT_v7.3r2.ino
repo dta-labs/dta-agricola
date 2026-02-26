@@ -59,7 +59,7 @@ void loop() {
   if (waitConfirmation()) lowPower();
 }
 
-String createDataStr() {
+String createDataStr_old() {
   String dataStr = NODE_ID;
   dataStr += comma;
   dataStr += String(moisture);
@@ -74,20 +74,30 @@ String createDataStr() {
   return dataStr;
 }
 
+String createDataStr() {
+  char buffer[64];
+  snprintf(buffer, sizeof(buffer), "%s,%d,%d,%d,%.1f",
+           NODE_ID.c_str(), moisture, h_actual, t_actual, getVcc());
+  int checksum = calculateSum(buffer);
+  snprintf(buffer + strlen(buffer), sizeof(buffer) - strlen(buffer), ",%d", checksum);
+  return String(buffer);
+}
+
 void lowPower() {
-  wdt_disable();
+  // wdt_disable();
   int estado = digitalRead(LINK); // Leer el estado del pin
   delay(5000);
   if (estado == HIGH) {
     // LoRa.idle();
     int minutes = TIMER * 15;
     for (int i = 0; i < minutes; i++) {
+      wdt_reset();
       LowPower.powerDown(SLEEP_4S, ADC_OFF, BOD_OFF);
       wdt_reset();
       if(digitalRead(LINK) == LOW) break;
     }
   } 
-  wdt_enable(WDTO_8S);
+  // wdt_enable(WDTO_8S);
 }
 
 #pragma endregion Programa Principal
