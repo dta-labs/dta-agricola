@@ -4,7 +4,6 @@
 
 #define FREQUENCY 915E6                   // 433E6 or 915E6*, the MHz frequency of module
 #define LINK 3                            // Pin de enlace 1
-int TIMER = 0;                            // Tiempo de espera en minutos
 
 void initLoRa() {
   if (!LoRa.begin(FREQUENCY)) while (10);
@@ -17,7 +16,8 @@ void initLoRa() {
 }
 
 void txData(String dataStr) {
-  Serial.print(F("→ ")); Serial.println(dataStr);
+  LoRa.idle();
+  Serial.print(F("Tx: ")); Serial.println(dataStr);
   LoRa.beginPacket();
   LoRa.print(dataStr);
   LoRa.endPacket();
@@ -33,32 +33,53 @@ bool loraCheckData(String data) {
   return dataCheckSum == calculatedCheckSum;
 }
 
-int getTxFrecuence(String data) {
+int getTxFrequency(String data) {
   int commaIdx = data.indexOf(comma);
-  String sensorId = data.substring(data.indexOf(NODE_ID), commaIdx);
-  return data.substring(commaIdx + 1, data.lastIndexOf(comma)).toInt();
+  data = data.substring(commaIdx + 1, data.lastIndexOf(comma)); // Elimina IdSensor y CheckSum
+  return data.toInt();
+}
+
+void getSoilPerfil(String data) {
+  data = data.substring(data.indexOf(comma) + 1, data.lastIndexOf(comma));                // Elimina IdSensor y CheckSum
+  data = data.substring(0, data.lastIndexOf(comma));                                      // Elimina TxFrequency
+  if (data.length() == 0) return;
+  float wA = data.substring(0, data.indexOf(comma)).toFloat();                            // Porciento de arena
+  float wB = data.substring(data.indexOf(comma) + 1, data.lastIndexOf(comma)).toFloat();  // Porciento de franco
+  suelo = mezcla(arenoso, franco, arcilloso, wA, wB);
 }
 
 bool waitConfirmation() {
   unsigned long startTime = millis();
-  unsigned long randomTimeout = 5000 + random(0, 5000); // Timeout aleatorio
+  unsigned long randomTimeout = 5000 + random(0, 5000);                                   // Timeout aleatorio
   while (millis() - startTime < randomTimeout) {
     int packetSize = LoRa.parsePacket();
     if (packetSize) {
       String data = "";
       while (LoRa.available()) {
         data += (char)LoRa.read();
+        wdt_reset();
       }
       if (data.startsWith(NODE_ID) && loraCheckData(data)) {
-        TIMER = getTxFrecuence(data);
-        Serial.println(F("  ✓ Confirmación recibida"));
+        TIMER = getTxFrequency(data);
+        Serial.print(F("  ✓ Confirmación recibida - TIMER: "));
+        Serial.print(TIMER);
+        Serial.println(F("min"));
         return true;
       } else {
         Serial.print(F("  → Mensaje ignorado: "));
         Serial.println(data);
       }
     }
-    delay(10); // Pequeña pausa para no saturar CPU
+    // delay(10); // Pequeña pausa para no saturar CPU
+    LowPower.idle(SLEEP_30MS,
+                  ADC_OFF,
+                  TIMER2_ON,
+                  TIMER1_ON,
+                  TIMER0_ON,
+                  SPI_ON,
+                  USART0_ON,
+                  TWI_ON);
+    wdt_reset();
   }
   Serial.println(F("    ✗ Tiempo de espera agotado"));
   return false;

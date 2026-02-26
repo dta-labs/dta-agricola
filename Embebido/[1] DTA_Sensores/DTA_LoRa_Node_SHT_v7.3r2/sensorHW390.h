@@ -1,32 +1,59 @@
 #pragma region Sensor HW390
 
+// Modelo sigmoide de pérdida de humedad
 float VWC_modelado(float VWC_sensor, byte arcilla, byte limo, byte arena, long t_min) {
   float horas = t_min / 60.0;
-  float PMP = 0.10 * (arena / 100.0) + 0.15 * (limo / 100.0) + 0.20 * (arcilla / 100.0);  // Punto de marchitez permanente según textura
-  float k = 0.01;                                                                         // Pendiente más fuerte
-  float x0 = 24.0;                                                                        // Punto de inflexión temprano (≈ 1 día)
+  float PMP = 0.10 * (arena / 100.0) + 0.15 * (limo / 100.0) + 0.20 * (arcilla / 100.0);  
+  float k = 0.01;                                                                         
+  float x0 = 24.0;                                                                        
   float num = 1.0 / (1.0 + exp(k * (horas - x0)));
   float num0 = 1.0 / (1.0 + exp(k * (0.0 - x0)));
   float VWC = PMP*100.0 + (VWC_sensor - PMP*100.0) * (num / num0);
-  return VWC;                                                                             // Devolver en porcentaje
+  return VWC;                                                                             
 }
 
+// Algoritmo mejorado de detección de riego
 float calcularVWC(float humedad_sensor, byte arena, byte limo, byte arcilla, long intervalo_min) {
   static bool riego_detectado = false;
   static unsigned long tiempo_desde_riego = 0;
   static float humedad_inicial = 0;
   static float ultima_humedad = 0;
-  if (humedad_sensor - ultima_humedad > 3.0) {      // Detectar riego
+  static float historial[5] = {0};
+  static byte idx = 0;
+
+  // Actualizar historial
+  historial[idx] = humedad_sensor;
+  idx = (idx + 1) % 5;
+
+  // Calcular pendiente acumulada
+  float pendiente = historial[(idx+4)%5] - historial[idx];  
+
+  // Umbral dinámico según textura
+  float umbral = (suelo.pSat - suelo.pCC) * 0.05;  
+
+  if (pendiente > umbral) {      // Detectar riego gradual
     riego_detectado = true;
     tiempo_desde_riego = 0;
-    humedad_inicial = humedad_sensor;               // Guardar el valor inicial
+    humedad_inicial = humedad_sensor;
   } else if (riego_detectado) {
     tiempo_desde_riego += intervalo_min;
   }
-  // Serial.print(tiempo_desde_riego / 60); 
+
   ultima_humedad = humedad_sensor;
-  float humedad_final = VWC_modelado(humedad_sensor, arena, limo, arcilla, tiempo_desde_riego);
-  return humedad_final;
+
+  // Reinicio parcial del modelo si hay riego
+  float humedad_final;
+  if (riego_detectado) {
+    humedad_final = humedad_sensor;  
+  } else {
+    humedad_final = VWC_modelado(humedad_sensor, arena, limo, arcilla, tiempo_desde_riego);
+  }
+
+  // Filtro exponencial para suavizar ruido
+  static float humedad_filtrada = 0;
+  humedad_filtrada = 0.7 * humedad_filtrada + 0.3 * humedad_final;
+
+  return humedad_filtrada;
 }
 
 float getMoisture() {
@@ -39,12 +66,61 @@ float getMoisture() {
   }
   digitalWrite(A1, LOW);
   int val = estimadorAdaptativo(muestras, NUM_MUESTRAS);
-  float volt = getVcc();                            // mide referencia real
-  float lectura = (val / 1023.0) * volt;            // convierte a voltios
+  float volt = getVcc();                            
+  float lectura = (val / 1023.0) * volt;            
   float vwc = constrain(map(lectura * 1000, suelo.vSeco * 1000, suelo.vSat * 1000, suelo.pSeco, suelo.pSat), 0, 100);
   return calcularVWC(vwc, 30, 20, 50, TIMER);
 }
 
-
 #pragma endregion Sensor HW390
+
+// #pragma region Sensor HW390
+
+// float VWC_modelado(float VWC_sensor, byte arcilla, byte limo, byte arena, long t_min) {
+//   float horas = t_min / 60.0;
+//   float PMP = 0.10 * (arena / 100.0) + 0.15 * (limo / 100.0) + 0.20 * (arcilla / 100.0);  // Punto de marchitez permanente según textura
+//   float k = 0.01;                                                                         // Pendiente más fuerte
+//   float x0 = 24.0;                                                                        // Punto de inflexión temprano (≈ 1 día)
+//   float num = 1.0 / (1.0 + exp(k * (horas - x0)));
+//   float num0 = 1.0 / (1.0 + exp(k * (0.0 - x0)));
+//   float VWC = PMP*100.0 + (VWC_sensor - PMP*100.0) * (num / num0);
+//   return VWC;                                                                             // Devolver en porcentaje
+// }
+
+// float calcularVWC(float humedad_sensor, byte arena, byte limo, byte arcilla, long intervalo_min) {
+//   static bool riego_detectado = false;
+//   static unsigned long tiempo_desde_riego = 0;
+//   static float humedad_inicial = 0;
+//   static float ultima_humedad = 0;
+//   if (humedad_sensor - ultima_humedad > 3.0) {      // Detectar riego
+//     riego_detectado = true;
+//     tiempo_desde_riego = 0;
+//     humedad_inicial = humedad_sensor;               // Guardar el valor inicial
+//   } else if (riego_detectado) {
+//     tiempo_desde_riego += intervalo_min;
+//   }
+//   // Serial.print(tiempo_desde_riego / 60); 
+//   ultima_humedad = humedad_sensor;
+//   float humedad_final = VWC_modelado(humedad_sensor, arena, limo, arcilla, tiempo_desde_riego);
+//   return humedad_final;
+// }
+
+// float getMoisture() {
+//   static float muestras[NUM_MUESTRAS];
+//   digitalWrite(A1, HIGH);
+//   delay(50);
+//   for (byte i = 0; i < NUM_MUESTRAS; i++) {
+//     muestras[i] = analogRead(sensorPin);
+//     delay(150);
+//   }
+//   digitalWrite(A1, LOW);
+//   int val = estimadorAdaptativo(muestras, NUM_MUESTRAS);
+//   float volt = getVcc();                            // mide referencia real
+//   float lectura = (val / 1023.0) * volt;            // convierte a voltios
+//   float vwc = constrain(map(lectura * 1000, suelo.vSeco * 1000, suelo.vSat * 1000, suelo.pSeco, suelo.pSat), 0, 100);
+//   return calcularVWC(vwc, 30, 20, 50, TIMER);
+// }
+
+
+// #pragma endregion Sensor HW390
 
