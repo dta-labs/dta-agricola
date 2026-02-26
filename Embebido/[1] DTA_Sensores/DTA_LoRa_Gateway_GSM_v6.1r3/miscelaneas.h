@@ -9,10 +9,10 @@ int freeRam() {
 }
 
 void systemWatchDog() {
-  pinMode(watchDogPin, OUTPUT);         // Sink current to drain charge from C2
-  digitalWrite(watchDogPin, HIGH);
-  delay(50);                            // Give enough time for C2 to discharge (should discharge in 50 ms)     
-  pinMode(watchDogPin, INPUT);          // Return to high impedance
+  // pinMode(watchDogPin, OUTPUT);         // Sink current to drain charge from C2
+  // digitalWrite(watchDogPin, HIGH);
+  // delay(50);                            // Give enough time for C2 to discharge (should discharge in 50 ms)     
+  // pinMode(watchDogPin, INPUT);          // Return to high impedance
   // Serial.print(F("\nMemoria libre: ")); Serial.println(freeRam());
 }
 

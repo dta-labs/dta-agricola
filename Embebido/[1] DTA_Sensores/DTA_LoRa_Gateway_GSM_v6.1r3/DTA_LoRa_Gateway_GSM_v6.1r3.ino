@@ -19,9 +19,12 @@
 
 void setup() {
   pinMode(powerLED, OUTPUT);
+  digitalWrite(watchDogPin, HIGH);
+  pinMode(watchDogPin, OUTPUT);
+  digitalWrite(watchDogPin, HIGH);
   setPowerLEDBlink();
   systemWatchDog();
-  Serial.begin(19200);
+  Serial.begin(250000);
   while (!Serial) delay(10);               // Pausar Arduino Zero, Leonardo, etc. hasta que se active el puerto serie
   DBG_PRINTLN(F("\n\nLoRa Gateway Universal v6.1.250806"));
   initLoRa();

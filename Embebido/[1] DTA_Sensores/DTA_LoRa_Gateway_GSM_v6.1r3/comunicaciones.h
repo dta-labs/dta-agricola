@@ -54,7 +54,8 @@ void commWatchDogReset(String result, bool readError = false) {
   // if (commError == 2) resetSIM(); 
   if (commError == 1) { 
     commError = 0;
-    digitalWrite(watchDogPin, LOW);
+    // digitalWrite(watchDogPin, LOW);
+    digitalWrite(A0, LOW);
     while(1) delay(1000);
     resetSoftware();
   }
