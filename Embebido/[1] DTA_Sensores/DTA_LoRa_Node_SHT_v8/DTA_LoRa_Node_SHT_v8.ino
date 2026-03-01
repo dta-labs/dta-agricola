@@ -59,7 +59,7 @@ void loop() {
   if (waitConfirmation()) lowPower();
 }
 
-String createDataStr_old() {
+String createDataStr() {
   String dataStr = NODE_ID;
   dataStr += comma;
   dataStr += String(moisture);
@@ -72,15 +72,6 @@ String createDataStr_old() {
   dataStr += comma;
   dataStr += String(calculateSum(dataStr));
   return dataStr;
-}
-
-String createDataStr() {
-  char buffer[64];
-  snprintf(buffer, sizeof(buffer), "%s,%d,%d,%d,%.1f",
-           NODE_ID.c_str(), moisture, h_actual, t_actual, getVcc());
-  int checksum = calculateSum(buffer);
-  snprintf(buffer + strlen(buffer), sizeof(buffer) - strlen(buffer), ",%d", checksum);
-  return String(buffer);
 }
 
 void lowPower() {

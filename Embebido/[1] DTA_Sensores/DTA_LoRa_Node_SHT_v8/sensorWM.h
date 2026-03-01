@@ -11,9 +11,9 @@
  * 1. The 0.09 excitation time may not be sufficient depending on circuit design, cable lengths, voltage, etc.     *
  * 2. Increase if necessary to get accurate readings, do not exceed 0.2                                            *
  * 3. This code assumes a 10 bit ADC. If using 12 bit, replace the 1024 in the voltage conversions to 4096         *
- *    GND (Pin 3) ----[R = 10kΩ]----+----[Sensor Watermark]---- Vcc (3.3V / 5V / Pin 4)                            *
- *                                  |                                                                              *
- *                                  +---- A0 (Arduino)                                                             *
+ *    GND (D4) ----[R = 10kΩ]----+----[Sensor Watermark]---- Vcc (3.3V / 5V / A1)                                  *
+ *                               |                                                                                 *
+ *                               +---- A0 (Arduino)                                                                *
  *    3.1. If the direction is reversed, the WM1_Resistance A and B formulas would have to be swapped              *
  *                                                                                                                 *
  * 4. Necesidad de riego:                                                                                          *
@@ -28,8 +28,8 @@
 
 #include <math.h>
 
-#define exitationNeg 3
-#define exitationPos 4
+#define exitationNeg 4
+#define exitationPos A1
 #define readSensor A0
 #define num_of_read 1                        // number of iterations, each is actually two reads of the sensor (both directions)
 const int Rx = 10000;                        // fixed resistor attached in series to the sensor and ground...the same value repeated for all WM and Temp Sensor.
@@ -65,7 +65,7 @@ int convertR2Cb(int res, float TC, float cF) {                    // conversion 
   if (res >= open_resistance || res==0) {
     WM_CB = open_CB;                                              //255 is a fault code for open circuit or sensor not present
   }
-  return WM_CB;
+  return abs(WM_CB);
 }
 
 float readWMsensor() {                                            //read ADC and get resistance of sensor

@@ -3,7 +3,7 @@
 #include <OneWire.h>
 #include <DallasTemperature.h>
 
-#define pinDS 4                           // Pin del sensor de temperatura
+#define pinDS 3                           // Pin del sensor de temperatura
 OneWire owObject(pinDS);
 DallasTemperature sensorDS(&owObject);
 
