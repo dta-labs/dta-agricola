@@ -527,7 +527,8 @@ class SensorSystem {
         for ($i = 0; $i < $settings->sensors->sensorNumber; $i++) {
             $idx = "S$i";
             $sensor = $settings->sensors->$idx;
-            $sensorLength = ($sensor->type ?? "SHT4") == "SHT4" ? 4 : ((($sensor->type ?? "SHT4") == "STH" || ($sensor->type ?? "SHT4") == "FlP") ? 3 : 1);
+            $sensorType = $sensor->type ?? "SHT4";
+            $sensorLength = ($sensorType == "SHT4" || $sensorType == "WM") ? 4 : (($sensorType == "STH" || $sensorType == "FlP") ? 3 : 1);
             $sensorID = $sensor->alias ?? $sensor->id;
             if ($sensorID !== '0x0') {
                 $notificationId = ($settings->name ?? $settings->key) . " - " . $sensorID;

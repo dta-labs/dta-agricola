@@ -69,5 +69,22 @@ float estimadorAdaptativo(float *valores, int n) {
   }
 }
 
+float meidaCentral(float arr[15]) {
+  for (int i = 0; i < 14; i++) { // Ordenar
+    for (int j = i + 1; j < 15; j++) {
+      if (arr[i] > arr[j]) {
+        float temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+      }
+    }
+  }
+  float suma = 0;
+  for (int i = 5; i < 10; i++) { // Tomar los 5 valores centrales
+    suma += arr[i];
+  }
+  return suma / 5.0; // Calcular el promedio
+}
+
 #pragma endregion Estadísticas
 

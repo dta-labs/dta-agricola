@@ -2454,7 +2454,8 @@
                                                                             <img src="./assets/images/Hr.png" alt="Ms" style="width: 20px;">
                                                                         </div>
                                                                         <div style="font-size: 0.8em; line-height: 1.2;">
-                                                                            Humedad<br>Suelo
+                                                                            <span ng-show="sensor.type != 'WM'">Humedad<br>Suelo</span>
+                                                                            <span ng-show="sensor.type == 'WM'">Agua<br>Disponible</span>
                                                                         </div>
                                                                     </div>
                                                                     <div class="col" ng-click="setChartType('humidity'); setChart(idx, 'myChartH' + idx);" style="margin-right: 5px; text-align: center; padding: 10px; cursor: pointer; color: {{ chartType == 'humidity' ? 'green' : 'gray' }}; border-bottom: 3px solid {{ chartType == 'humidity' ? 'green' : 'gray' }};">
@@ -2502,11 +2503,18 @@
                                                             </thead>
                                                             <tbody>
                                                                 <tr ng-repeat="reg in invertedRegisters" ng-init="data=convertStrToJSON(reg.dataRaw)" ng-show="data[(idx * 8)] != 'NaN' && data[(idx * 8) + 1] != 'NaN' && data[(idx * 8) + 4] != 'NaN' && data[(idx * 8) + 5] != 'NaN'">
-                                                                    <td><span ng-show="selectedTimeOption != 'DIA'">{{ reg.date.substring(6, 8) }}/{{ reg.date.substring(4, 6) }}/{{ reg.date.substring(2, 4) }}</span> <span ng-show="selectedTimeOption == 'DIA'">{{ reg.date.substring(9, 11) }}:{{  reg.date.substring(11) }}</span></td>
-                                                                    <td style="color: {{ isOutOfRange(data[idx * 8], sensor.h.minValue, sensor.h.maxValue) ? 'red' : 'green' }};"><b>{{ data[(idx * 8)] != "NaN" ? (data[(idx * 8)] | number : 0) : '--' }}%</b></td>
+                                                                    <td ng-show="selectedTimeOption != 'DIA'">{{ reg.date.substring(6, 8) }}/{{ reg.date.substring(4, 6) }}/{{ reg.date.substring(2, 4) }}</td>
+                                                                    <td ng-show="selectedTimeOption == 'DIA'">{{ reg.date.substring(9, 11) }}:{{  reg.date.substring(11) }}</td>
+
+                                                                    <td style="color: {{ isOutOfRange(data[idx * 8], sensor.h.minValue, sensor.h.maxValue) ? 'red' : 'green' }};" ng-show="sensor.type != 'WM'"><b>{{ data[(idx * 8)] != "NaN" ? (data[(idx * 8)] | number : 0) : '--' }}%</b></td>
+                                                                    <td style="color: {{ isOutOfRange(data[idx * 8], sensor.h.minValue, sensor.h.maxValue) ? 'red' : 'green' }};" ng-show="sensor.type == 'WM'"><b>{{ data[(idx * 8)] != "NaN" ? (data[(idx * 8)] != 240 ? (data[(idx * 8)] != 0 ? (data[(idx * 8)] | number : 0) + 'cb' : 'No listo') : 'Error') : '--' }}</b></td>
+                                                                    
                                                                     <td style="color: black;"><b>{{ data[(idx * 8) + 1] != "NaN" && data[(idx * 8) + 1] != "-1" ? (data[(idx * 8) + 1] | number : 0) : (meteo[actualSystem.key].main.humidity) }}%</b></td>
+                                                                    
                                                                     <td style="color: {{ isOutOfRange(data[idx * 8 + 4], sensor.t.minValue, sensor.t.maxValue) ? 'red' : 'green' }};"><b>{{ data[(idx * 8) + 4] != "NaN" ? (data[(idx * 8) + 4] | number : 1) : '--' }}°C</b></td>
+                                                                    
                                                                     <td><b>{{ data[(idx * 8) + 5] != "NaN" ? (data[(idx * 8) + 5] | number : 1) : '--' }}</b></td>
+
                                                                     <td ng-if="selectedTimeOption == 'DIA'" style="color: {{ data[(idx * 8) + 7] > 3 ? 'green' : data[(idx * 8) + 7] > 2.8 ? 'darkorange' : 'red'}};" title="{{ data[(idx * 8) + 7] }}V"><i class="material-icons">{{ data[(idx * 8) + 7] > 3 ? 'battery_full' : data[(idx * 8) + 7] > 2.8 ? 'battery_alert' : 'battery_unknown'}}</i></td>
                                                                     <td ng-if="selectedTimeOption != 'DIA'" style="color: black;"><b>{{ data[(idx * 8) + 6] != "NaN" ? (data[(idx * 8) + 6] | number : 1) : '--' }}</b></td>
                                                                 </tr>
@@ -3343,12 +3351,12 @@
                                         <br>
                                         <div class="input-field col s12">
                                             <select id="newSensorType" ng-model="newSensor.type" ng-value="newSensor.type" ng-selected="newSensor.type">
-                                                <option value="SHT4" selected="{{ newSensor.type == 'SHT4' ? 'selected' : '' }}">SHT4 - Humedad del suelo, relativa y temperatura</option>
-                                                <option value="SHT" selected="{{ newSensor.type == 'SHT' ? 'selected' : '' }}">SHT - Humedad del suelo y Temperatura</option>
+                                                <option value="WM" selected="{{ newSensor.type == 'WM' ? 'selected' : '' }}">Sonda de <b>suelo WM</b></option>
+                                                <option value="SHT4" selected="{{ newSensor.type == 'SHT4' ? 'selected' : '' }}">Sonda de <b>suelo SHT</b></option>
                                                 <option value="Ms" selected="{{ newSensor.type == 'Ms' ? 'selected' : '' }}">Ms - Humedad suelo</option>                                
-                                                <option value="Tr" selected="{{ newSensor.type == 'Tr' ? 'selected' : '' }}">Tr - Temperatura</option>
-                                                <option value="Psi" selected="{{ newSensor.type == 'Psi' ? 'selected' : '' }}">Psi - Presión de agua</option>
-                                                <option value="Fl" selected="{{ newSensor.type == 'Fl' ? 'selected' : '' }}">Fl - Flujo de agua</option>
+                                                <option value="Tr" selected="{{ newSensor.type == 'Tr' ? 'selected' : '' }}">Sensor de <b>temperatura</b></option>
+                                                <option value="Psi" selected="{{ newSensor.type == 'Psi' ? 'selected' : '' }}">Sensor de <b>presión de agua</b></option>
+                                                <option value="Fl" selected="{{ newSensor.type == 'Fl' ? 'selected' : '' }}">Sensor de <b>caudal</b></option>
                                             </select>
                                             <label style="top: -28px; font-size: .8em;">Tipo de sensor</label>
                                         </div>
@@ -3428,7 +3436,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div ng-show="newSensor.type == 'Ms' || newSensor.type == 'SHT' || newSensor.type == 'SHT4'"> <!-- Humbral de Humedad -->
+                                            <div ng-show="newSensor.type == 'Ms' || newSensor.type == 'SHT4' || actualSensor.type == 'WM'"> <!-- Humbral de Humedad -->
                                                 <label><b>Humbral de Humedad</b></label>
                                                 <div id="newSensorH" class="row">
                                                     <div class="input-field col s6 m3">
@@ -3561,14 +3569,16 @@
                                         <br>
                                         <div class="input-field col s12 m6">
                                             <select id="editSensorType" class="browser-default" ng-model="actualSensor.type">
-                                                <option value="SHT4">Sonda de <b>suelo</b></option>
-                                                <option value="Tr">Sensor de <b>temperatura</b></option>
-                                                <option value="Psi">Sensor de <b>presión de agua</b></option>
-                                                <option value="Fl">Sensor de <b>caudal</b></option>
+                                                <option value="WM" selected="{{ actualSensor.type == 'WM' ? 'selected' : '' }}">Sonda de <b>suelo WM</b></option>
+                                                <option value="SHT4" selected="{{ actualSensor.type == 'SHT4' ? 'selected' : '' }}">Sonda de <b>suelo SHT</b></option>
+                                                <option value="Ms" selected="{{ actualSensor.type == 'Ms' ? 'selected' : '' }}">Sensor de <b>humedad suelo</b></option>                                
+                                                <option value="Tr" selected="{{ actualSensor.type == 'Tr' ? 'selected' : '' }}">Sensor de <b>temperatura</b></option>
+                                                <option value="Psi" selected="{{ actualSensor.type == 'Psi' ? 'selected' : '' }}">Sensor de <b>presión de agua</b></option>
+                                                <option value="Fl" selected="{{ actualSensor.type == 'Fl' ? 'selected' : '' }}">Sensor de <b>caudal</b></option>
                                             </select>
                                             <label style="top: -28px; font-size: .8em;">Tipo de sensor</label>
                                         </div>
-                                        <div class="input-field col s12 m6" ng-show="actualSensor.type == 'SHT4'">
+                                        <div class="input-field col s12 m6" ng-show="actualSensor.type == 'SHT4' || actualSensor.type == 'WM' || actualSensor.type == 'Ms'">
                                             <select id="editSensorCulture" class="browser-default" 
                                                 ng-model="actualSensor['culture']" 
                                                 ng-options="culture.culture as culture.culture for culture in listOfCultures">
@@ -3643,7 +3653,7 @@
                                                                 <a href="" class="waves-effect waves-green btn-flat" ng-click="isShowDiseaseDetails = false">Cerrar</a>
                                                             </div>
                                                         </div>
-                                                        <div ng-show="actualSensor.type == 'SHT4'"> <!-- Humbral de Humedad -->
+                                                        <div ng-show="actualSensor.type == 'SHT4' || actualSensor.type == 'WM' || actualSensor.type == 'Ms'"> <!-- Humbral de Humedad -->
                                                             <p style="margin-top: -5px; margin-bottom: 0;">
                                                                 <label class="left-align">
                                                                     <input id="editSensorHNotify" type="checkbox" ng-model="actualSensor.h.notify" />
@@ -3656,7 +3666,7 @@
                                                                 </label>
                                                             </p>
                                                         </div>
-                                                        <div ng-show="actualSensor.type == 'Tr' || actualSensor.type == 'SHT4'"> <!-- Humbral de temperatura -->
+                                                        <div ng-show="actualSensor.type == 'Tr' || actualSensor.type == 'SHT4' || actualSensor.type == 'WM'"> <!-- Humbral de temperatura -->
                                                             <p style="margin-top: -5px; margin-bottom: 0;">
                                                                 <label class="left-align">
                                                                     <input id="editSensorTNotify" type="checkbox" ng-model="actualSensor.t.notify" />

@@ -25,7 +25,7 @@ String setupDS() {
     delay(200);
   }
   sensorType = DS;
-  Serial.println(F("  • Sensor DS inicializado correctamente..."));
+  Serial.print(F("  • Sensor DS: "));
   return formatAddress(sensorAddress);
 }
 

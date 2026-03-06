@@ -2635,15 +2635,19 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         let result = getRegisterValues($scope.logs[$scope.actualSystem.key]);
         let idx = 'S' + chartId;
         let title = $scope.actualSystem.sensors[idx].alias ? $scope.actualSystem.sensors[idx].alias : $scope.actualSystem.sensors[idx].id;
-        switch ($scope.actualSystem.sensors[idx].type) {
+        let sensorType = $scope.actualSystem.sensors[idx].type;
+        switch (sensorType) {
             case "Ms":
-                processResultsFromMsSensors(result, title, chartId, chartLabel);
+                processResultsFromMsSensors(result, title, chartId, chartLabel, sensorType);
                 break;
             case "SHT":
-                processResultsFromSHTSensors(result, title, chartId, chartLabel);
+                processResultsFromSHTSensors(result, title, chartId, chartLabel, sensorType);
                 break;
             case "SHT4":
-                processResultsFromSHT4Sensors(result, title, chartId, chartLabel);
+                processResultsFromSHT4Sensors(result, title, chartId, chartLabel, sensorType);
+                break;
+            case "WM":
+                processResultsFromWMSensors(result, title, chartId, chartLabel, sensorType);
                 break;
         }
     }
@@ -2656,7 +2660,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         return result;
     }
 
-    const processResultsFromMsSensors = (result, title, i, chartLabel) => {
+    const processResultsFromMsSensors = (result, title, i, chartLabel, sensorType) => {
         const items = result[0] ? JSON.parse(result[0].dataRaw).length : 0;
         let labels = [];
         let moisture = [];
@@ -2694,7 +2698,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         $scope.actualSystem.log["maxValue"]  = maxVal < 0 ? 0 : maxVal > 100 ? 100 : maxVal;
     }
 
-    const processResultsFromSHTSensors = (result, title, i, chartLabel) => {
+    const processResultsFromSHTSensors = (result, title, i, chartLabel, sensorType) => {
         const items = result[0] ? parseInt(JSON.parse(result[0].dataRaw).length / 3) : 0;
         let labels = [];
         let moisture = [];
@@ -2716,7 +2720,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         chart(moisture, humidity, temperature, labels, title, i, chartLabel, $scope.chartType);
     }
 
-    const processResultsFromSHT4Sensors = (result, title, i, chartLabel) => {
+    const processResultsFromSHT4Sensors = (result, title, i, chartLabel, sensorType) => {
         const items = result[0] ? parseInt(JSON.parse(result[0].dataRaw).length / 8) : 0;
         let labels = [];
         let moisture = [];
@@ -2743,9 +2747,53 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         chart(moisture, humidity, temp_min, temp_max, temperature, labels, title, i, chartLabel, $scope.chartType);
     }
 
+    // Conversión de cb a % humedad
+    function cbToPercent(cbValue) {
+        if (cbValue === null || isNaN(cbValue) || cbValue === 240) return null;
+        // Definir puntos de referencia físicos (ajústalos según tu suelo)
+        const SATURATION_CB = 10;   // suelo saturado ~5–10 cb
+        const FIELD_CAPACITY_CB = 30; // capacidad de campo ~10–30 cb
+        const WILTING_POINT_CB = 200; // marchitez permanente ~150–200 cb
+        // Limitar el valor dentro del rango útil
+        let cb = Math.min(Math.max(cbValue, SATURATION_CB), WILTING_POINT_CB);
+        // Escalar linealmente entre saturación (100%) y marchitez (0%)
+        let percent = 100 * (1 - (cb - SATURATION_CB) / (WILTING_POINT_CB - SATURATION_CB));
+        return Math.round(percent);
+    }
+
+    const processResultsFromWMSensors = (result, title, i, chartLabel, sensorType) => {
+        const items = result[0] ? parseInt(JSON.parse(result[0].dataRaw).length / 8) : 0;
+        let labels = [];
+        let moisture = [];
+        let humidity = [];
+        let temp_min = [];
+        let temp_max = [];
+        let temperature = [];
+        lastDate = "";
+        result.forEach(element => {
+            let data = JSON.parse(element.dataRaw);
+           
+            let cbValue = data[i * 8] != "NaN" ? parseFloat(data[i * 8]) : null;    // Lectura cruda en cb
+            let moisturePercent = cbToPercent(cbValue);                             // Normalización a 0–100 %
+            moisture.push(moisturePercent);
+            humidity.push(data[i * 8 + 1] != "NaN" ? parseFloat(data[i * 8 + 1]) : null);
+            temp_min.push(data[i * 8 + 2] != "NaN" ? parseFloat(data[i * 8 + 2]) : null);
+            temp_max.push(data[i * 8 + 3] != "NaN" ? parseFloat(data[i * 8 + 3]) : null);
+            temperature.push(data[i * 8 + 4] != "NaN" ? parseFloat(data[i * 8 + 4]) : null);
+            date = element.date.substr(6, 2) + "/" + element.date.substr(4, 2);
+            if (lastDate != date) {
+                lastDate = date;
+            } else {
+                date = "";
+            }
+            labels.push(($scope.selectedTimeOption != 'DIA' ? date : '') + " " + ($scope.selectedTimeOption == 'DIA' ? element.date.substr(9, 14) : ''));
+        });
+        chart(moisture, humidity, temp_min, temp_max, temperature, labels, title, i, chartLabel, $scope.chartType, sensorType);
+    }
+
     // const chart = (moisture, humidity, temperature, labels, title, i, chartLabel, chartType = 'moisture') => {
     // Código original modificado: ahora acepta chartType para mostrar solo un gráfico
-    const chart = (moisture, humidity, temp_min, temp_max, temperature, labels, title, i, chartLabel, chartType = 'moisture') => {
+    const chart = (moisture, humidity, temp_min, temp_max, temperature, labels, title, i, chartLabel, chartType = 'moisture', sensorType = '') => {
         try {
             let canvas = document.getElementById(chartLabel);
             if (!canvas) return;
@@ -2796,11 +2844,17 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                         };
                         
                         // Dibujar las tres franjas con etiquetas según el tipo de gráfico
-                        if (chartType === 'moisture') {
+                        if (chartType === 'moisture' && sensorType === 'WM') {
+                            // Etiquetas para disponibilidad de agua en el suelo
+                            drawBand(80, 100, 'rgba(255, 30, 0, 0.15)', 'Sensor no listo', 'rgba(255, 30, 0, 0.9)');
+                            drawBand(40, 80, 'rgba(0, 123, 255, 0.15)', 'Saturado', 'rgba(0, 123, 255, 0.9)');
+                            drawBand(15, 40, 'rgba(40, 167, 69, 0.15)', 'Humedad Adecuada', 'rgba(40, 167, 69, 0.9)');
+                            drawBand(0, 15, 'rgba(255, 193, 7, 0.15)', 'Necesidad de Riego', 'rgba(255, 131, 7, 0.39)');
+                        } else if (chartType === 'moisture') {
                             // Etiquetas para humedad del suelo
-                            drawBand(60, 100, 'rgba(0, 123, 255, 0.15)', 'Saturado', 'rgba(0, 123, 255, 0.9)');
-                            drawBand(30, 60, 'rgba(40, 167, 69, 0.15)', 'Humedad Adecuada', 'rgba(40, 167, 69, 0.9)');
-                            drawBand(0, 30, 'rgba(255, 193, 7, 0.15)', 'Necesidad de Riego', 'rgba(255, 131, 7, 0.39)');
+                            drawBand(40, 100, 'rgba(0, 123, 255, 0.15)', 'Saturado', 'rgba(0, 123, 255, 0.9)');
+                            drawBand(15, 40, 'rgba(40, 167, 69, 0.15)', 'Humedad Adecuada', 'rgba(40, 167, 69, 0.9)');
+                            drawBand(0, 15, 'rgba(255, 193, 7, 0.15)', 'Necesidad de Riego', 'rgba(255, 131, 7, 0.39)');
                         } else if (chartType === 'temperature') {
                             // Etiquetas para humedad ambiental
                             drawBand(25, 50, 'rgba(255, 123, 0, 0.15)', 'Muy caliente', 'rgba(255, 13, 0, 0.9)');

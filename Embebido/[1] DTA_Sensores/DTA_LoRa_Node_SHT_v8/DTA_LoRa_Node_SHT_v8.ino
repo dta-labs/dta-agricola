@@ -14,30 +14,27 @@
 
 void setup() {
   pinMode(LINK, INPUT_PULLUP);
-  pinMode(VCC, OUTPUT);
   analogReference(DEFAULT);
-  digitalWrite(A1, LOW);
   Serial.begin(250000);
   while (!Serial) delay(10);               // Pausar Arduino Zero, Leonardo, etc. hasta que se active el puerto serie
-  Serial.println(F("\n\nMicroestación agrícola STH v7.3r2"));
+  Serial.println(F("\n\nMicroestación agrícola STH v8"));
   Serial.println(F("~ Sonda de humedad del suelo"));
   Serial.println(F("~ Humedad y temperatura ambiente"));
-  Serial.println(F("  • Protocolo: DTA-SHT4-0xId,Ms,Hr,T°C,Vcc,CS"));
-  initLoRa();
-  setupSensors();
+  Serial.println(F("  • Protocolo: DTA-WM-0xId,Ms,Hr,T,Vcc,CS"));
   Serial.println(F("  • Sensor de humedad del suelo inicializado correctamente..."));
-  Serial.println(F("~ Configuración:"));
-  Serial.print(F("  • ID: ")); Serial.println(NODE_ID);
-  Serial.print(F("  • Suelo Saturado: ")); Serial.print(suelo.pSat); Serial.println(F("%"));
-  Serial.print(F("  • Suelo C. Campo: ")); Serial.print(suelo.pCC); Serial.println(F("%\n"));
+  setupSensors();
+  initLoRa();
+  Serial.println();
   wdt_enable(WDTO_8S);
 }
 
 void setupSensors() {
+  setupWM();
   String id = setupDS();
   id = id == noSensor ? setupSHT() : id;
   id.toUpperCase();
-  NODE_ID += id;
+  NODE_ID += id; 
+  Serial.println(NODE_ID);
 }
 
 void loop() {
