@@ -6,7 +6,7 @@
 #define startAddress F("0x")
 #define commaChar F(",")
 #define FREQUENCY 915E6                       // 433E6 or 915E6*, the MHz frequency of module
-#define TIME_SCAN 1                           // Tiempo de escaneo en minutos
+#define TIME_SCAN 10                          // Tiempo de escaneo en minutos
 #pragma endregion Variables
 
 #pragma region Programa Principal
@@ -47,6 +47,7 @@ void loraTxData(String dataStr) {
   LoRa.beginPacket();
   LoRa.print(dataStr);
   LoRa.endPacket();
+  Serial.print("\t Tx: " + dataStr);
   Serial.print(F(" [ ✔ Ok ]"));
   delay(100);
   LoRa.sleep();

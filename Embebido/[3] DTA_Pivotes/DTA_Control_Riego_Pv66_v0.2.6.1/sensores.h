@@ -142,7 +142,8 @@ bool controlPosicion() {
   dtKalman = millis();
   ssGPS.end();
   return (lat_actual == 0.0f && lon_actual == 0.0f) ? false : 
-         (positionIni <= positionVar && positionVar < positionEnd) ? true : false;
+         (directionVar == "FF" && positionIni <= positionVar && positionVar < positionEnd) ? true : 
+         (directionVar == "RR" && positionIni < positionVar && positionVar <= positionEnd) ? true : false;
 }
 
 #pragma endregion <<Posición>>
