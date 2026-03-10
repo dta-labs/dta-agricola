@@ -1785,6 +1785,34 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         $scope.actualSystem.status = actualStatus;
     }
 
+    $scope.getSystemBackgroundColor = (system) => {
+        let color = "#d3d3d3e0";
+        if (system) {
+            switch (system.type) {
+                case 'PC':
+                case 'PL':
+                    color = system.status == 'OFF' || system.status == false ? "#d3d3d3e0" :                                                          // Apagado
+                            system.log && (system.log.voltage == 'false' || system.log.voltage == false ) ? "#ff0000c0" :   // Falla elétrica
+                            system.log && (system.log.safety  == 'false' ||  system.log.safety == false)  ? '#db7093c0' :   // Falla de seguridad
+                            system.log && (system.log.commDelay != '-1') ? '#808080e0' :                                    // Comunicación inestable
+                            "#20b2aab0";                                                                                    // Encendido
+                    break;
+                case 'Estacionario':
+                case 'Pump':
+                    color = system.status == 'OFF' ? "#d3d3d3e0" : "#20b2aab0";
+                    break;
+                case 'Sensor':
+                    color = "#20b2aab0";
+                    break;
+            }
+        }
+        return color;
+    }
+
+    $scope.getSystemColor = (system) => {
+        return $scope.getSystemBackgroundColor(system) == "#d3d3d3e0" ? 'grey' : 'white';
+    }
+
     $scope.getPlotColor = (system, index) => {
         let color = $scope.selectedWindow == "listado" ? "gray" : "lightgray";
         if (index && system["plots"]) {
@@ -1794,7 +1822,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                 if (plot.forcedStart == 1 && system.log.activeSectors[idx] == 1) {
                     color = $scope.selectedWindow == "listado" ? "white" : "springgreen";
                 }
-                if (system.log.activeSectors &&plot.forcedStart != system.log.activeSectors[idx] && (plot.forcedStart == 1 || system.log.activeSectors[idx] == 1)) {
+                if (system.log.activeSectors && plot.forcedStart != system.log.activeSectors[idx] && (plot.forcedStart == 1 || system.log.activeSectors[idx] == 1)) {
                     color = "yellow";
                 }
             }

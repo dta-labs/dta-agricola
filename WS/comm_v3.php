@@ -154,9 +154,9 @@
     
             $url = $baseUrl . "logs$key.json";                                                      		// 5.1.- cURL de actualización de Logs
             if ($key) {
-                putcURLData($url, $dataUpdate);                                                     		// Actualiza registro
+                putcURLData($url, $dataUpdate);                                                  // Actualiza registro
             } else {
-                postcURLData($url, $dataUpdate);                                                    		// Nuevo registro
+                postcURLData($url, $dataUpdate);                                                 // Nuevo registro
             }
 
             if ($lastStatus->status != $_GET["st"] && $_GET["st"] == "OFF" && $_GET["sa"] == "false") {		// 5.2.- cURL de actualización de Settings

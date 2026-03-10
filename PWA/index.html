@@ -199,30 +199,26 @@
                                     <div class="row" style="margin-left: 0; margin-right: 0;">
                                         <div class="col s12 m6 l4 xl3" id="{{ system.key }}" ng-repeat="system in systems"
                                             ng-click="selectSystem(system)" ng-show="system.name">
-                                            <div class="sercices-options waves-effect" style="background: {{ (system.type == 'Estacionario' && system.log.state == 'ON' || system.type == 'Sensor') ? '#20b2aab0' : 
-                                                system.log.state == 'OFF' ? '#d3d3d3e0' : system.log.voltage == 'false' ? '#ff0000c0' : 
-                                                system.log.safety == 'false' ? '#db7093c0' : system.log.commDelay != '-1' ? '#808080e0' : '#20b2aab0' }};
-                                                display: block !important; padding-bottom: 0;">
-                                                <!-- <a href="#!/sistema" style="color: {{ system.log.state == 'OFF' ? 'grey' : 'white' }};"> -->
-                                                <!-- <a ng-click="showWindow('sistema')" style="color: {{ system.log.state == 'OFF' ? 'grey' : 'white' }};"> -->
+                                            <div class="sercices-options waves-effect" style="display: block !important; padding-bottom: 0;
+                                                                                              background: {{ getSystemBackgroundColor(system) }};">
                                                 <a href="#!/sistema" ng-click="showWindow('sistema')"
-                                                    style="color: {{ system.log.state == 'OFF' ? 'grey' : 'white' }};">
+                                                    style="color: {{ color }};" ng-init="color = getSystemColor(system)">
                                                     <div class="row" style="margin-bottom: 0;">
                                                         <div class="col s3" style="margin-top: 10px; height: 80px;">
                                                             <div class="pivote" ng-show="system.type == 'PC'">
                                                                 <div class="esfera"
-                                                                    style="border-color: {{ system.log.state == 'OFF' ? 'grey' : 'white' }};">
+                                                                    style="border-color: {{ color }};">
                                                                     <div id="pos_{{ system.key }}" class="brazo"
-                                                                        style="border-color: {{ system.log.state == 'OFF' ? 'grey' : 'white' }};">
+                                                                        style="border-color: {{ color }};">
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                             <div ng-show="system.type == 'PL'">
                                                                 <i class="large material-icons angle_30" style="font-size: 3.5em; margin-left: -55px;
-                                                                margin-top: 10px; color: {{ system.log.state == 'OFF' ? 'grey' : 'white' }};">flip</i>
+                                                                margin-top: 10px; color: {{ color }};">flip</i>
                                                             </div>
                                                             <div ng-show="system.type == 'Estacionario'" style="margin-top: -5px; margin-left: -10px;">
-                                                                <img src="./assets/images/{{ system && system.log && system.log.state == 'OFF' ? 'parcela-grey.png' : 'parcela.png' }}"
+                                                                <img src="./assets/images/{{ color == 'grey' ? 'parcela-grey.png' : 'parcela.png' }}"
                                                                     class="parcela_icon" alt="parcela">
                                                             </div>
                                                             <div ng-show="system.type == 'Pozo'" style="margin-top: -5px; margin-left: -10px; filter: grayscale(100%);">
@@ -255,7 +251,7 @@
                                                                 </span>
                                                                 <br>
                                                                 <span><b>{{ !system.log ? "OFF" : system.log.state }}</b></span>
-                                                                <span>{{ system.log.update ? "[" + system.log.update.substring(6,8) + "/" + system.log.update.substring(4,6) + "/" + system.log.update.substring(2,4) + " " + system.log.update.substring(9,11) + ":" + system.log.update.substring(11) + "]" : "" }}</span>
+                                                                <span>{{ system.log.update ? "[" + system.log.update.substring(6,8) + "/" + system.log.update.substring(4,6) + "/" + system.log.update.substring(2,4) + " " + system.log.update.substring(9,11) + system.log.update.substring(11) + "]" : "" }}</span>
                                                                 <!-- <span style="font-size: .8em;">
                                                                     [{{ ((system.log.voltage == 'true' && system.log.safety == 'true' && system.log.commDelay == '-1') || system.status == 'OFF') && system.log.update ? system.log.update : "00000000 0000" }}]
                                                                 </span> -->
@@ -304,7 +300,7 @@
                                                                 </span>
                                                                 <br>
                                                                 <span><b>{{ !system.log ? "OFF" : system.log.state }}</b></span>
-                                                                <span>{{ system.log.update ? "[" + system.log.update.substring(6,8) + "/" + system.log.update.substring(4,6) + "/" + system.log.update.substring(2,4) + " " + system.log.update.substring(9,11) + ":" + system.log.update.substring(11) + "]" : "" }}</span>
+                                                                <span>{{ system.log.update ? "[" + system.log.update.substring(6,8) + "/" + system.log.update.substring(4,6) + "/" + system.log.update.substring(2,4) + " " + system.log.update.substring(9,11) + system.log.update.substring(11) + "]" : "" }}</span>
                                                                 <!-- <span style="font-size: .8em;">
                                                                     [{{ ((system.log.voltage == 'true' && system.log.safety == 'true' && system.log.commDelay == '-1') || system.status == 'OFF') && system.log.update ? system.log.update : "00000000 0000" }}]
                                                                 </span> -->
@@ -563,9 +559,7 @@
 
                                     <!-- Cabecera -->
                                     <div class="switchControl waves-effect input-field" ng-click="showWindow('listado')" 
-                                                style="background: {{ (actualSystem.type == 'Estacionario' && actualSystem.log.state == 'ON') || actualSystem.type == 'Sensor' ? '#20b2aab0' : 
-                                                actualSystem.log.state == 'OFF' ? '#d3d3d3e0' : actualSystem.log.voltage == 'false' ? '#ff0000c0' : 
-                                                actualSystem.log.safety == 'false' ? '#db7093c0' : actualSystem.log.commDelay != '-1' ? '#808080e0' : '#20b2aab0' }}; 
+                                                style="background: {{ getSystemBackgroundColor(actualSystem) }}; 
                                                 cursor: pointer; display: block !important;">
                                         <div class="row" style="margin-bottom: 0;">
                                             <div class="col s2 m2 valign-wrapper" style="margin: 2px 0 0 10px; cursor: pointer;">
@@ -577,7 +571,7 @@
                                                     <b>{{ actualSystem.name }}</b>
                                                 </div>
                                                 <span>{{ actualSystem.log.update ? (actualSystem.log.update.substring(6, 8) + '/' + actualSystem.log.update.substring(4, 6) + '/' + actualSystem.log.update.substring(0, 4) + ' ' + actualSystem.log.update.substring(9, 11) + ':' + actualSystem.log.update.substring(11)) : 
-                                                        (actualSystem.log.date.substring(6, 8) + '/' + actualSystem.log.date.substring(4, 6) + '/' + actualSystem.log.date.substring(0, 4) + ' ' + actualSystem.log.date.substring(9, 11) + ':' + actualSystem.log.date.substring(11)) }}</span>
+                                                        (actualSystem.log.date.substring(6, 8) + '/' + actualSystem.log.date.substring(4, 6) + '/' + actualSystem.log.date.substring(0, 4) + ' ' + actualSystem.log.date.substring(9, 11) + actualSystem.log.date.substring(11)) }}</span>
                                                 <span ng-show="actualSystem.type == 'Sensor'"> «{{ actualSystem.sleepingTime }}min» </span>
                                             </div>
                                             <div class="col s2 m3" style="margin: 2px 0 0 -10px; text-align: center;">
@@ -2309,14 +2303,17 @@
                                                         ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'"
                                                         style="border-left: 10px solid {{ actualSystem.status == true && reg.voltage == 'false' ? '#ff000070 !important' : 
                                                                 actualSystem.status == true && reg.safety == 'false' ? '#db7093a0 !important' : 
-                                                                reg.state == 'ON' ? '#20b2aaa0 !important' : 'lightgray !important' }}; margin-bottom: 5px;">
+                                                                reg.status = 'ON' && actualSystem.status == true ? '#20b2aaa0 !important' : 'lightgray !important' }}; margin-bottom: 5px;">
                                                         <div class="col s12" ng-show="!reg.auth" style="text-align: left;">
-                                                            <span style="font-size: 1.3em;"><b>{{ actualSystem.status == true && reg.voltage == 'false' ?
-                                                                'Falla de Electricidad' :
-                                                                actualSystem.status == true && reg.safety == 'false' ?
-                                                                'Falla de Seguridad' :
-                                                                reg.state == 'ON' ? 'Sistema Encendido' : 'Sistema Apagado'
-                                                                }}</b></span><br>
+                                                            <span style="font-size: 1.3em;">
+                                                                <b>
+                                                                    {{ actualSystem.status == true && reg.voltage == 'false' ?
+                                                                    'Falla de Electricidad' :
+                                                                    actualSystem.status == true && reg.safety == 'false' ?
+                                                                    'Falla de Seguridad' :
+                                                                    reg.status = 'ON' && actualSystem.status == true ? 'Sistema Encendido' : 'Sistema Apagado'}}
+                                                                </b>
+                                                            </span><br>
                                                             <span>[{{ reg.date.substr(4,13) }} - {{ reg.update.substr(4,13)
                                                                 }}] - {{ reg.update ? calculateDifference(reg.date, reg.update) : '' }}</span> <br>
                                                         </div>
