@@ -202,7 +202,7 @@
                                             <div class="sercices-options waves-effect" style="display: block !important; padding-bottom: 0;
                                                                                               background: {{ getSystemBackgroundColor(system) }};">
                                                 <a href="#!/sistema" ng-click="showWindow('sistema')"
-                                                    style="color: {{ color }};" ng-init="color = getSystemColor(system)">
+                                                    style="color: {{ color }} !important;" ng-init="color = getSystemColor(system)">
                                                     <div class="row" style="margin-bottom: 0;">
                                                         <div class="col s3" style="margin-top: 10px; height: 80px;">
                                                             <div class="pivote" ng-show="system.type == 'PC'">
@@ -3656,7 +3656,7 @@
                                                                     <input id="editSensorHNotify" type="checkbox" ng-model="actualSensor.h.notify" />
                                                                     <span class="chip">
                                                                         <img src="assets/images/gota.jpg" alt="{{ disease }}" style="margin-top: -5px;">
-                                                                        Alerta de humedad
+                                                                        Humedad
                                                                     </span>
                                                                     <input id="editSensorHMinValue" type="number" min="0" max="100" ng-model="actualSensor.h.minValue" style="width: 50px;" placeholder="Min"> - 
                                                                     <input id="editSensorHMaxValue" type="number" min="0" max="100" ng-model="actualSensor.h.maxValue" style="width: 50px;" placeholder="Max"> %
@@ -3669,7 +3669,7 @@
                                                                     <input id="editSensorTNotify" type="checkbox" ng-model="actualSensor.t.notify" />
                                                                     <span class="chip">
                                                                         <img src="assets/images/termometro.png" alt="{{ disease }}" style="margin-top: -5px;">
-                                                                        Alerta de temperatura
+                                                                        Temperatura
                                                                     </span>
                                                                     <input id="editSensorTMinValue" type="number" min="0" max="100" ng-model="actualSensor.t.minValue" style="width: 50px;" placeholder="Min"> - 
                                                                     <input id="editSensorTMaxValue" type="number" min="0" max="100" ng-model="actualSensor.t.maxValue" style="width: 50px;" placeholder="Max"> °C
@@ -3779,7 +3779,7 @@
                                                 </div>
                                             </a>
                                         </li>
-                                        <section style="display: block;">
+                                        <!-- <section style="display: block;"> -->
                                             <li ng-click="loadCultures()" class="sercices-options teal darken white-text"
                                                 style="background: #009688c4 !important">
                                                 <i class="fa fa-leaf" aria-hidden="true"></i>Fichas Técnicas
@@ -3790,7 +3790,7 @@
                                             <li ng-click="automatizaciones()" class="sercices-options teal darken white-text" style="background: #009688c4 !important">
                                                 <i class="fa fa-magic" aria-hidden="true"></i>Automatizaciones
                                             </li> -->
-                                        </section>
+                                        <!-- </section> -->
                                         <li ng-click="showWindow('estadisticas')"
                                             class="sercices-options teal darken white-text"
                                             style="display: none; background: #009688c4 !important">
@@ -3802,7 +3802,7 @@
                                         </li>
                                         <li ng-click="showWindow('notificaciones')"
                                             class="sercices-options teal darken white-text"
-                                            style="display: none; background: #009688c4 !important">
+                                            style="background: #009688c4 !important">
                                             <i class="fa fa-bell-o" aria-hidden="true"></i>Notificaciones
                                         </li>
                                         <li id="installBtn2" onclick="instalar()"
@@ -4041,23 +4041,28 @@
 
                         <!-- #region: NOTIFICACIONES -->
 
-                        <section id="notificaciones" ng-show="selectedWindow == 'notificaciones'">
+                        <section id="notificaciones">
 
-                            <div class="container">
-                                <div class="main-container text-center our-services">
-                                    <ul>
-                                        <li id="suscribe" ng-click="setToken()" class="sercices-options teal darken white-text">
-                                            <i class="fa fa-check-square-o" aria-hidden="true"></i>
-                                            Suscribirse para recibir notificaciones
-                                        </li>
-                                        <li id="unsuscribe" ng-click="deleteToken()"
-                                            class="sercices-options teal darken white-text">
-                                            <i class="fa fa-square-o" aria-hidden="true"></i>
-                                            Desuscribirse para silenciar notificaciones
-                                        </li>
-                                    </ul>
-                                    <p id="tokenViewer">No tiene ninguna notificación</p>
+                            <div class="container ventanaServicios" ng-show="selectedWindow == 'notificaciones'" style="overflow: scroll; min-height: 250px;">
+                                <div class="swal-title">Notificaciones</div>
+                                <br><br>
+                                <div id="activarSonido" class="row" style="margin: 0 30px; border-bottom: 1px solid lightgrey; cursor: pointer;" ng-click="showWindow('servicios')">
+                                    <div class="col s2 center-align">
+                                        <i class="material-icons ng-binding" style="font-size: 2.5em;">{{ getNotificationsStatus() ? 'notifications_active' : 'notifications_off' }}</i>
+                                    </div>
+                                    <div class="col s8 left-align">
+                                        <span style="font-size: 1.5em;" class="ng-binding">Reproducir sonido</span>
+                                    </div>
                                 </div>
+                                <br><br>
+                                <div class="right-align">
+                                    <div class="btn waves-effect waves-light grey" ng-click="showWindow('servicios')" style="margin-right: 20px;">
+                                        &nbsp;&nbsp;
+                                        <i class="material-icons">reply</i>
+                                        &nbsp;&nbsp;
+                                    </div>
+                                </div>
+                                <br>
                             </div>
 
                         </section>
@@ -4797,7 +4802,7 @@
         <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
         <script src="./assets/js/commons.js"></script>
         <!-- <script src="./assets/cultures/listOfCultures.js"></script> -->
-        <script src="./assets/js/core.js?v=26.01.22.0536"></script>
+        <script src="./assets/js/core.js?v=26.03.15.0335"></script>
         <!-- <script src="monitor/js/chartjs/chart.min.js"></script> -->
         <script type="text/javascript" src="./assets/modules/datepicker/daterangepicker.js"></script>
 

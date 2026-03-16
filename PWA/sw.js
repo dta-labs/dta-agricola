@@ -81,63 +81,142 @@ self.addEventListener('activate', e => {
 
 // Firebase Cloud Messaging Push Notification Handling
 
+// self.addEventListener('push', event => {
+//     const notification = event.data.json();
+//     event.waitUntil(
+//         self.registration.showNotification(notification.title, {
+//             body: notification.body,
+//             icon: './assets/images/DTA-Agricola.png',
+//             data: { 
+//                 notifURL: notification.url,
+//                 sound: './assets/sounds/alarma-de-evacuacion.mp3'
+//             }
+//         })
+//     );
+//     // const audio = new Audio('./assets/sounds/alarma-de-evacuacion.mp3');
+//     // audio.play();
+// });
+
+// self.addEventListener('push', function(event) {
+//   const data = event.data.json();
+  
+//   const options = {
+//     body: data.body,
+//     icon: data.icon,
+//     data: { url: data.url }
+//   };
+  
+//   event.waitUntil(
+//     self.registration.showNotification(data.title, options)
+//   );
+
+//   // Reproducir sonido
+//   if (data.sound) {
+//     playSound(data.sound);
+//   }
+// });
+
 self.addEventListener('push', event => {
-    const notification = event.data.json();
+  console.log('🔔 Push event recibido:', event);
+  
+  try {
+    const data = event.data.json();
+    console.log('📦 Datos del push:', data);
+
+    const options = {
+      body: data.body,
+      icon: data.icon || './assets/images/DTA-Agricola.png',
+      data: { url: data.url || './' },
+      requireInteraction: true,
+      silent: false,
+      tag: 'dta-alert'
+    };
+
+    // Mostrar notificación
     event.waitUntil(
-        self.registration.showNotification(notification.title, {
-            body: notification.body,
-            icon: './assets/images/DTA-Agricola.png',
-            data: { 
-                notifURL: notification.url,
-                sound: './assets/sounds/alarma-de-evacuacion.mp3'
-            }
-        })
+      self.registration.showNotification(data.title, options).then(() => {
+        console.log('✅ Notificación mostrada correctamente');
+        
+        // Intentar reproducir sonido directamente
+        if (data.sound) {
+          console.log('🎵 Intentando reproducir sonido:', data.sound);
+          playNotificationSound(data.sound);
+        }
+      })
     );
-    // const audio = new Audio('./assets/sounds/alarma-de-evacuacion.mp3');
-    // audio.play();
+  } catch (error) {
+    console.error('❌ Error procesando push:', error);
+  }
 });
+
+function playNotificationSound(soundUrl) {
+  try {
+    // Usar URL absoluta
+    const baseUrl = self.location.origin;
+    const fullSoundUrl = soundUrl.startsWith('http') ? soundUrl : baseUrl + '/' + soundUrl.replace('./', '');
+    
+    console.log('🎵 URL del sonido:', fullSoundUrl);
+    
+    const audio = new Audio(fullSoundUrl);
+    audio.volume = 1.0;
+    
+    audio.play().then(() => {
+      console.log('✅ Sonido reproducido exitosamente');
+    }).catch(err => {
+      console.log('❌ Error reproduciendo sonido MP3:', err);
+      console.log('🔄 Intentando fallback con Web Audio API...');
+      playSystemBeep();
+    });
+  } catch (e) {
+    console.log('❌ Error creando audio:', e);
+    playSystemBeep();
+  }
+}
+
+function playSystemBeep() {
+  try {
+    const audioContext = new AudioContext();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.frequency.value = 800;
+    oscillator.type = 'sine';
+    gainNode.gain.value = 0.3;
+    
+    oscillator.start();
+    oscillator.stop(audioContext.currentTime + 0.3);
+    
+    console.log('✅ Beep del sistema reproducido');
+  } catch (err) {
+    console.log('❌ Fallback falló:', err);
+  }
+}
+
+function playSound(file) {
+  // Nota: Los Service Workers no pueden reproducir audio directamente.
+  // Necesitas comunicarte con la página cliente.
+  self.clients.matchAll({ includeUncontrolled: true, type: 'window' })
+    .then(clients => {
+      clients.forEach(client => {
+        client.postMessage({ action: 'playSound', file: file });
+      });
+    });
+}
   
 // Handle notification click
 self.addEventListener('notificationclick', event => {
+    console.log('🖱️ Notificación clickeada - reproduciendo sonido');
+    event.notification.close();
+    
+    // Reproducir sonido al hacer clic (siempre funciona por interacción del usuario)
+    playNotificationSound('./assets/sounds/alarma-de-evacuacion.mp3');
+    
+    // Abrir la aplicación
     event.waitUntil(
-        clients.openWindow(event.notification.data.notifURL)
+        clients.openWindow(event.notification.data.url || './')
     );
 });
-
-// self.registration.showNotification("DTA-Agrícola", {
-//     body: "Bienvenido a DTA - Irrigation Control",
-//     icon: "./assets/images/DTA.png",
-//     data: { 
-//         notifURL: "./index.html", 
-//         sound: "./assets/sounds/alarma-de-evacuacion.mp3" 
-//     }
-// });
-
-  
-// self.addEventListener('load', () => {
-//     navigator.serviceWorker.register('/sw.js')
-//     .then((registration) => {
-//         enablePushNotifications();
-//         console.log('Service Worker registered with scope:', registration.scope);
-//     }, (error) => {
-//         console.log('Service Worker registration failed:', error);
-//     });
-// });
-
-
-// navigator.serviceWorker.ready.then(registration => {
-//     if (registration.sync) {
-//         // Background Sync is supported.
-//     } else {
-//         // Background Sync isn't supported.
-//     }
-// });
-
-// navigator.serviceWorker.ready.then(registration => {
-//     if (registration.periodicSync) {
-//         // Periodic Background Sync is supported.
-//     } else {
-//         // Periodic Background Sync isn't supported.
-//     }
-// });
 

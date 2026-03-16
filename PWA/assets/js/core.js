@@ -265,30 +265,30 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
 
     // #region DEVICES
 
-    loadSystems_old = () => {
-        if ($scope.authUser) {
-            let userSystems = $scope.userLocations[convertDotToDash($scope.authUser.email)].systems;
-            if (userSystems) {
-                let lastLocation = Object.keys(userSystems)[Object.keys(userSystems).length - 1];
-                for (let locationKey in userSystems) {
-                    listeners[locationKey] = firebase.database().ref("systems/" + locationKey + "/settings");
-                    listeners[locationKey].on("value", system => {
-                        if (system.val()) {
-                            $scope.systems[locationKey] = system.val();
-                            $scope.systems[locationKey].key = locationKey;
-                            loadSystemUsers(locationKey);
-                            getMetorologicalData(locationKey);
-                            let dir = $scope.systems[locationKey].type == "Sensor" ? "/dayLogs" : "/logs";
-                            $scope.loadSystemLog(locationKey, 1, dir);
-                            // $scope.showWindow('listado');
-                            if (locationKey == lastLocation) $scope.$apply();
-                            if ($scope.actualSystem && locationKey == $scope.actualSystem.key) { $scope.selectSystem($scope.systems[locationKey]); }
-                        }
-                    });
-                }
-            }
-        }
-    }
+    // loadSystems_old = () => {
+    //     if ($scope.authUser) {
+    //         let userSystems = $scope.userLocations[convertDotToDash($scope.authUser.email)].systems;
+    //         if (userSystems) {
+    //             let lastLocation = Object.keys(userSystems)[Object.keys(userSystems).length - 1];
+    //             for (let locationKey in userSystems) {
+    //                 listeners[locationKey] = firebase.database().ref("systems/" + locationKey + "/settings");
+    //                 listeners[locationKey].on("value", system => {
+    //                     if (system.val()) {
+    //                         $scope.systems[locationKey] = system.val();
+    //                         $scope.systems[locationKey].key = locationKey;
+    //                         loadSystemUsers(locationKey);
+    //                         getMetorologicalData(locationKey);
+    //                         let dir = $scope.systems[locationKey].type == "Sensor" ? "/dayLogs" : "/logs";
+    //                         $scope.loadSystemLog(locationKey, 1, dir);
+    //                         // $scope.showWindow('listado');
+    //                         if (locationKey == lastLocation) $scope.$apply();
+    //                         if ($scope.actualSystem && locationKey == $scope.actualSystem.key) { $scope.selectSystem($scope.systems[locationKey]); }
+    //                     }
+    //                 });
+    //             }
+    //         }
+    //     }
+    // }
 
     loadSystems = () => {
         if ($scope.authUser) {
@@ -379,11 +379,36 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                 }
                 updateCompass();
                 hideSpinner(locationKey, log.state);
+                processingAlerts(locationKey);
                 invertLog();
                 setDeviceSpecificData();
                 // $scope.$apply();
             }
         });
+    }
+
+    processingAlerts = (locationKey) => {
+        let alarm = false;
+        switch ($scope.systems[locationKey].type) {
+            case "PC":
+            case "PL":
+                break;
+            case "Sensor":
+                let tempArray = JSON.parse($scope.systems[locationKey].log.dataRaw);
+                let sensors = $scope.systems[locationKey].sensors;
+                for (let i = 0; i < sensors.sensorNumber; i++) {
+                    let sensor = "S" + i;
+                    let temp = Number(tempArray[i * 8]);
+                    if (sensors[sensor].t.notify && temp <= sensors[sensor].t.minValue) {
+                        alarm = true; 
+                        M.toast({ html: 'Alerta de baja temperatura ' + (sensors[sensor].alias ?? sensors[sensor].id) + ' «' + temp + '»' });
+                    }
+                }
+                break;
+            case "Bomba":
+                break;
+        }
+        if (alarm) activarAlarma();
     }
 
     processingSensors = (locationKey) => {
@@ -1791,11 +1816,11 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             switch (system.type) {
                 case 'PC':
                 case 'PL':
-                    color = system.status == 'OFF' || system.status == false ? "#d3d3d3e0" :                                                          // Apagado
+                    color = system.status == 'OFF' ? "#d3d3d3e0" :                                                          // Apagado
                             system.log && (system.log.voltage == 'false' || system.log.voltage == false ) ? "#ff0000c0" :   // Falla elétrica
                             system.log && (system.log.safety  == 'false' ||  system.log.safety == false)  ? '#db7093c0' :   // Falla de seguridad
                             system.log && (system.log.commDelay != '-1') ? '#808080e0' :                                    // Comunicación inestable
-                            "#20b2aab0";                                                                                    // Encendido
+                            system.log && (system.log.status == 'OFF') ? 'yellow' : "#20b2aab0";                                                                                    // Encendido
                     break;
                 case 'Estacionario':
                 case 'Pump':
@@ -3270,9 +3295,101 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         if (typeof str !== 'string') return str;
         return str.split(char).join(replacement);
     }
+    
+    activarAlarma = () => {
+        reproducirSonido('./assets/sounds/alarma-de-evacuacion.mp3');
+    }
+        
+    $scope.getNotificationsStatus = () => {
+        return localStorage.getItem('sonidoHabilitado') === 'true';
+    }
+
+    // Event listener para el checkbox de sonido
+    document.getElementById('activarSonido').addEventListener('click', function() {
+        if (localStorage.getItem('sonidoHabilitado') === 'false') {
+            winActivarAlarma();
+        } else {
+            winDesactivarAlarma();
+        }
+    });
+    
+    function winActivarAlarma() {
+        swal({
+            title: "Alerta sonora desactivada",
+            text: "¿Desea activar las alertas sonoras?",
+            icon: "warning",
+            buttons: {
+                cancel: "Cancelar",
+                confirm: {
+                text: "Activar",
+                value: true,
+                visible: true,
+                className: "btn-confirmar",
+                closeModal: true
+                }
+            },
+        })
+        .then((confirm) => {
+            if (confirm) {
+                localStorage.setItem('sonidoHabilitado', 'true');
+                reproducirSonido('./assets/sounds/Elevator_Bell.mp3');
+                swal("Alerta sonora activada!", {
+                    icon: "success",
+                });
+            } 
+        });
+    }
+    
+    function winDesactivarAlarma() {
+        swal({
+            title: "Alerta sonora activada",
+            text: "¿Desea desactivar las alertas sonoras?",
+            icon: "warning",
+            buttons: {
+                cancel: "Cancelar",
+                confirm: {
+                    text: "Desactivar",
+                    value: true,
+                    visible: true,
+                    className: "btn-confirmar",
+                    closeModal: true
+                }
+            },
+            dangerMode: true,
+        })
+        .then((confirm) => {
+            if (confirm) {
+                localStorage.setItem('sonidoHabilitado', 'false');
+                reproducirSonido('./assets/sounds/android-sms.mp3');
+                swal("Alerta sonora desactivada!", {
+                    icon: "success",
+                });
+            } 
+        });
+    }
+
+    function reproducirSonido(audioPath) {
+        if (localStorage.getItem('sonidoHabilitado') === 'true') {
+            const audio = new Audio(audioPath);
+            audio.play().then(() => {
+                console.log("Sonido habilitado");
+            }).catch(err => {
+                console.error("Error al reproducir:", err);
+                winActivarAlarma();
+            });
+        }
+    }
+
+    // Función para alertas
+    function reproducirAlerta() {
+    if (localStorage.getItem('sonidoHabilitado') === 'true') {
+        const audio = new Audio('alarma.mp3');
+        audio.play();
+    }
+    }
 
     // #endregion SCRIPTS GENERALES
-
+    
     const requestWakeLock = async () => {
         try {
             const wakeLock = await navigator.wakeLock.request('screen');
@@ -3486,6 +3603,8 @@ enablePushNotifications = () => {
     })
 }
 
+// El sonido se maneja directamente desde el Service Worker
+
 handleTokenRefresh = (email) => {
     if (authUser && !userTokenList || !userTokenList.some(item => item === subscriptionJSON)) {
         userTokenList.push(subscriptionJSON);
@@ -3498,7 +3617,7 @@ send_push = (subscription) => {
     const endpoint = encodeURIComponent(subscription);
     const payload = encodeURIComponent('{"title":"Hola desde PHP", "body":"Mi notificación en PHP", "icon":"icon-192.png", "url":"./?v=0.1"}');
 
-    fetch(`http://localhost/web_push/ws/send_push.php?endpoint='${endpoint}'&payload='${payload}'`, {
+    fetch(`https://dta-agricola.web.app/WS/send_push.php?endpoint='${endpoint}'&payload='${payload}'`, {
         method: 'GET',
         headers: {
             'Content-Type': 'text/plain'

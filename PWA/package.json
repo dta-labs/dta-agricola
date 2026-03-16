@@ -1,6 +1,14 @@
 {
+  "name": "dta-agricola-pwa",
+  "version": "1.0.0",
+  "description": "DTA Agricola PWA con HTTPS local",
+  "scripts": {
+    "start": "node server-https.js",
+    "generate-cert": "openssl req -x509 -newkey rsa:4096 -keyout server.key -out server.cert -days 365 -nodes -subj '/CN=localhost'"
+  },
   "dependencies": {
     "firebase-admin": "^13.2.0",
-    "firebase-functions": "^4.6.0"
+    "firebase-functions": "^4.6.0",
+    "express": "^4.18.2"
   }
 }

@@ -49,7 +49,14 @@ function sendNotification() {
     if($tokens) {
         $txt = $_GET["txt"];
         $webPush = new WebPush(getAuth());
-        $payload = '{"title":"DTA-Agrícola", "body":"' . $txt . '", "icon":"DTA.png", "sound":"alarma-de-evacuacion.mp3", "url":"./?v=0.1"}';
+        $payload = json_encode([
+            "title" => "DTA-Agrícola",
+            "body" => $txt,
+            "icon" => "DTA.png",
+            "sound" => "./assets/sounds/alarma-de-evacuacion.mp3",
+            "url" => "./?v=0.1"
+        ]);
+        // $payload = '{"title":"DTA-Agrícola", "body":"' . $txt . '", "icon":"DTA.png", "sound":"alarma-de-evacuacion.mp3", "url":"./?v=0.1"}';
         foreach ($tokens as $token) {
             $subscription = is_string($token) ? json_decode($token, true) : $token;
             // print_r($token);
