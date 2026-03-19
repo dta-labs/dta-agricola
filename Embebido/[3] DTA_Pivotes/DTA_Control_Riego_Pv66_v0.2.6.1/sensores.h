@@ -153,7 +153,7 @@ bool getSensors() {
   isPresure = controlPresion(); 
   isPosition = controlPosicion();
   isSequrity = controlSeguridad();
-  return isVoltage && isSequrity;
+  return isSequrity;
 }
 
 #pragma endregion Sensores

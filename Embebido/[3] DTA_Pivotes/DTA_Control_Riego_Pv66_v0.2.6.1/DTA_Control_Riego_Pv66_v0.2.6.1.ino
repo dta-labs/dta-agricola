@@ -1,7 +1,7 @@
 /****************************************************************************
  *                                                                          * 
- *                    Sistemas DTA Serie Pv66 v0.2.6 A                      *
- *                               2024.03.03                                 *
+ *                    Sistemas DTA Serie Pv66 v0.2.7 A                      *
+ *                               2026.03.17                                 *
  *                                                                          *
  *   Sensores:                                                              *
  *   - Presión ................... A0                                       *
@@ -9,6 +9,8 @@
  *   - Electricidad .............. D10                                      *
  *   - Comunicación............... D2, D3                      				      *
  *   - GPS........................ D11, D12, D13 (Tarjetas amarillas)       *
+ *                                                                          *
+ *   Se reporta la falta de voltaje pero no se detiene el pivote            *
  *                                                                          *
  ****************************************************************************/
 
@@ -40,7 +42,7 @@ void setup() {
   controlPosicion();
   sensorKalman.setDistance(commFrec);
   Serial.begin(115200);
-  Serial.print(F("\n>>> DTA-Agrícola: Serie Pv66 v0.2.6.251114 A\n"));
+  Serial.print(F("\n>>> DTA-Agrícola: Serie Pv66 v0.2.7.260317 A\n"));
   setupGSM();
   if (telefono != strEmpty) { Serial.print(F("    «")); Serial.print(telefono); Serial.print(F("»\n")); }
   // wdt_enable(WDTO_8S);

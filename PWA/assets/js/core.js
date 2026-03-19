@@ -203,7 +203,8 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     };
 
     getUserData = () => {
-        loadUserData($scope.authUser.email).then(result => {
+        // loadUserData($scope.authUser.email).then(result => {
+        loadUserLocations($scope.authUser.email).then(result => {
             $scope.userLocations = result;
             if (result[convertDotToDash($scope.authUser.email)]) {
                 $scope.userProfile = result[convertDotToDash($scope.authUser.email)].profile;
@@ -222,7 +223,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         //     initializeFirebaseUI();
         // }
         $scope.showWindow("login");
-    };
+    }
 
     $scope.logout = () => {
 
@@ -250,7 +251,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         //     //document.getElementById("logout").style.display = "none";
         // });
         // $scope.login();
-    };
+    }
 
     $scope.isSystemOfRole = (role) => {
         let userRole = "";
@@ -394,14 +395,23 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             case "PL":
                 break;
             case "Sensor":
-                let tempArray = JSON.parse($scope.systems[locationKey].log.dataRaw);
+                let logArr = Object.values($scope.logs[locationKey]);
+                let dataRaw = logArr.at(-1).dataRaw;
+                let dataArray = JSON.parse(dataRaw);
+                console.log(locationKey);
+                console.log(dataRaw);
+                console.log(dataArray);
+                let name = $scope.systems[locationKey].name;
                 let sensors = $scope.systems[locationKey].sensors;
                 for (let i = 0; i < sensors.sensorNumber; i++) {
                     let sensor = "S" + i;
-                    let temp = Number(tempArray[i * 8]);
-                    if (sensors[sensor].t.notify && temp <= sensors[sensor].t.minValue) {
+                    let temp = Number(dataArray[i * 8 + 2]);
+                    if (sensors[sensor].t.notify && !Number.isNaN(temp) && temp <= sensors[sensor].t.minValue) {
                         alarm = true; 
-                        M.toast({ html: 'Alerta de baja temperatura ' + (sensors[sensor].alias ?? sensors[sensor].id) + ' «' + temp + '»' });
+                        let alias = sensors[sensor].alias ?? sensors[sensor].id;
+                        let msg = `Alerta ${temp}°C en ${name} - ${alias} `;
+                        M.toast({ html: msg });
+                        console.log(msg);
                     }
                 }
                 break;
@@ -3304,6 +3314,16 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         return localStorage.getItem('sonidoHabilitado') === 'true';
     }
 
+    checkSound = () => {
+        const audio = new Audio("./assets/android-sms.mp3");
+        audio.play().then(() => {
+            console.log("Sonido habilitado");
+        }).catch(err => {
+            console.error("Error al reproducir:", err);
+            winActivarAlarma();
+        });
+    }
+
     // Event listener para el checkbox de sonido
     document.getElementById('activarSonido').addEventListener('click', function() {
         if (localStorage.getItem('sonidoHabilitado') === 'false') {
@@ -3382,10 +3402,10 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
 
     // Función para alertas
     function reproducirAlerta() {
-    if (localStorage.getItem('sonidoHabilitado') === 'true') {
-        const audio = new Audio('alarma.mp3');
-        audio.play();
-    }
+        if (localStorage.getItem('sonidoHabilitado') === 'true') {
+            const audio = new Audio('alarma.mp3');
+            audio.play();
+        }
     }
 
     // #endregion SCRIPTS GENERALES
@@ -3407,6 +3427,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         requestWakeLock();
         // getLocation();
         initializeMap();
+        checkSound();
         listenUserStatus();
         if (!$scope.authUser) {
             $scope.showWindow('login');
@@ -3608,7 +3629,7 @@ enablePushNotifications = () => {
 handleTokenRefresh = (email) => {
     if (authUser && !userTokenList || !userTokenList.some(item => item === subscriptionJSON)) {
         userTokenList.push(subscriptionJSON);
-        setUserToken(email, userTokenList);
+        // setUserToken(email, userTokenList);
         segundoPlano();
     }
 }
