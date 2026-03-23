@@ -351,6 +351,8 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         firebase.database().ref("systems/" + locationKey + "/users").on("value", users => {
             if (users.val()) {
                 $scope.users[locationKey] = users.val();
+                let a = 0;
+                let b = 0;
                 // $scope.$apply();
             }
         });
@@ -395,18 +397,21 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             case "PL":
                 break;
             case "Sensor":
-                let logArr = Object.values($scope.logs[locationKey]);
-                let dataRaw = logArr.at(-1).dataRaw;
+                // let logArr = Object.values($scope.logs[locationKey]);
+                // let dataRaw = logArr.at(-1).dataRaw;
+                let dataRaw = $scope.systems[locationKey].log.dataRaw;
+                let lastAlarmDate = $scope.systems[locationKey].log.date;
+                $scope.systems[locationKey]["lastAlarmDate"] = !$scope.systems[locationKey].lastAlarmDate || $scope.systems[locationKey].lastAlarmDate < lastAlarmDate ? lastAlarmDate : $scope.systems[locationKey]["lastAlarmDate"];
                 let dataArray = JSON.parse(dataRaw);
                 console.log(locationKey);
-                console.log(dataRaw);
+                // console.log(dataRaw);
                 console.log(dataArray);
                 let name = $scope.systems[locationKey].name;
                 let sensors = $scope.systems[locationKey].sensors;
                 for (let i = 0; i < sensors.sensorNumber; i++) {
                     let sensor = "S" + i;
                     let temp = Number(dataArray[i * 8 + 2]);
-                    if (sensors[sensor].t.notify && !Number.isNaN(temp) && temp <= sensors[sensor].t.minValue) {
+                    if ($scope.systems[locationKey].lastAlarmDate && $scope.systems[locationKey].lastAlarmDate == lastAlarmDate && sensors[sensor].t.notify && !Number.isNaN(temp) && temp <= sensors[sensor].t.minValue) {
                         alarm = true; 
                         let alias = sensors[sensor].alias ?? sensors[sensor].id;
                         let msg = `Alerta ${temp}°C en ${name} - ${alias} `;

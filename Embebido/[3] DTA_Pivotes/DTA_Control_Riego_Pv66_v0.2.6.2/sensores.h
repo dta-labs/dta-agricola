@@ -1,5 +1,7 @@
 #pragma region Sensores
 
+#include <math.h>
+
 #pragma region <<Seguridad>>
 
 bool leerCorriente(bool mostrar = false) {
@@ -80,6 +82,8 @@ bool controlPresion() {
 
 #pragma region <<Posición>>
 
+#include <math.h>
+
 bool parseGPSData() {
   bool newData = false;
   // Se parsean por un segundo los datos del GPS y se reportan algunos valores clave
@@ -131,6 +135,22 @@ float getPosition() {
   }
   checkGPSConnection();
   return azimut;
+}
+
+double distancia(double lat1, double lon1, double lat2, double lon2) {
+  const double R = 6371000.0; // Radio de la Tierra en metros
+  double dLat = radians(lat2 - lat1);
+  double dLon = radians(lon2 - lon1);
+  double latProm = radians((lat1 + lat2) / 2.0);
+  double dx = dLon * cos(latProm);
+  double dy = dLat;
+  double dist = R * sqrt(dx * dx + dy * dy);
+  return dist; // en metros
+}
+
+bool controlDistancia(int dist, double lat1, double lon1, double lat2, double lon2) {
+  double d = distancia(lat1, lon1, lat2, lon2);
+  return true;
 }
 
 bool controlPosicion() {
