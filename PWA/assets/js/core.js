@@ -403,15 +403,15 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                 let lastAlarmDate = $scope.systems[locationKey].log.date;
                 $scope.systems[locationKey]["lastAlarmDate"] = !$scope.systems[locationKey].lastAlarmDate || $scope.systems[locationKey].lastAlarmDate < lastAlarmDate ? lastAlarmDate : $scope.systems[locationKey]["lastAlarmDate"];
                 let dataArray = JSON.parse(dataRaw);
-                console.log(locationKey);
+                // console.log(locationKey);
                 // console.log(dataRaw);
-                console.log(dataArray);
+                // console.log(dataArray);
                 let name = $scope.systems[locationKey].name;
                 let sensors = $scope.systems[locationKey].sensors;
                 for (let i = 0; i < sensors.sensorNumber; i++) {
                     let sensor = "S" + i;
                     let temp = Number(dataArray[i * 8 + 2]);
-                    if ($scope.systems[locationKey].lastAlarmDate && $scope.systems[locationKey].lastAlarmDate == lastAlarmDate && sensors[sensor].t.notify && !Number.isNaN(temp) && temp <= sensors[sensor].t.minValue) {
+                    if ($scope.systems[locationKey].lastAlarmDate && $scope.systems[locationKey].lastAlarmDate == lastAlarmDate && sensors[sensor].t && sensors[sensor].t.notify && !Number.isNaN(temp) && temp <= sensors[sensor].t.minValue) {
                         alarm = true; 
                         let alias = sensors[sensor].alias ?? sensors[sensor].id;
                         let msg = `Alerta ${temp}°C en ${name} - ${alias} `;
@@ -1302,7 +1302,13 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             .then((confirm) => {
                 if (confirm) {
                     document.getElementById("modalEditSensor").style.display = "none";
+                    $scope.actualSensor.alias ="";
                     $scope.actualSensor.id ="0x0";
+                    $scope.actualSensor.culture ="";
+                    $scope.actualSensor.latitude ="";
+                    $scope.actualSensor.longitude ="";
+                    if ($scope.actualSensor.t) delete $scope.actualSensor.t;
+                    if ($scope.actualSensor.h) delete $scope.actualSensor.h;
                     $scope.setMachineSettings($scope.actualSystem);
                     swal("Eliminación completada!", {
                         icon: "success",
@@ -2488,17 +2494,19 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     }
 
     const getSensorValue = (campo, sensor, idx) => {
+        let date = campo.log.date ? campo.log.date.substring(6, 8) + "/" + campo.log.date.substring(4, 6) + " " + campo.log.date.substring(9, 11) + ":" + campo.log.date.substring(11, 15) : "";
         let data = campo.log ? JSON.parse(campo.log.dataRaw) : [];
         let text = ``;
         text += `<div style="padding: 0 10px; width: 70px;">`;  // 👈 Ancho definido aquí
         text += `    <div class="row" style="margin-bottom: 5px;">`;
-        text += `        <div class="col s12 left-aling">`;
+        text += `        <div class="col s12 left-aling contenedor-texto">`;
         text += `            <b><span style="font-size: .8em;">${ sensor.alias ? sensor.alias : "Sensor: " + (idx + 1) }</span></b>`;
+        text += `            <br><span style="font-size: .8em;">${date}</span>`;
         text += `        </div>`;
         text += `    </div>`;
         text += `    <div class="row" style="margin-bottom: 5px; border-radius: 6px; background-color: #f5f5f5;">`;
         text += `        <div class="col s4" style="padding-top: 7px;"><img src="./assets/images/Hr.png" alt="Agua" style="width: 15px;"></div>`;
-        text += `        <div class="col s8" style="text-align: right; padding-top: 5px; font-size: 1.2em; color: ` + ($scope.isOutOfRange(data[idx * 8], sensor.h.minValue, sensor.h.maxValue) ? `red` : `green`) + `;"><b>${data[idx * 8] !== "NaN" ? parseFloat(data[idx * 8]).toFixed(0) : ""}%</b></div>`;
+        text += `        <div class="col s8" style="text-align: right; padding-top: 5px; font-size: 1.2em; color: ` + ($scope.isOutOfRange(data[idx * 8], sensor.h.minValue, sensor.h.maxValue) ? `red` : `green`) + `;"><b>${data[idx * 8] !== "NaN" ? parseFloat(data[idx * 8]).toFixed(0) : ""}${sensor.type != 'WM' ? '%' : 'cb'}</b></div>`;
         text += `    </div>`;
         text += `    <div class="row" style="margin-bottom: 5px; border-radius: 6px; background-color: #f5f5f5;">`;
         text += `        <div class="col s4" style="padding-top: 7px;"><img src="./assets/images/termometro.png" alt="Termometro" style="width: 15px;"></div>`;
@@ -2911,6 +2919,30 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                             ctx.fillText(label, chartArea.left + 5, yTop + 5);
                         };
                         
+                        // Función para dibujar una línea horizontal de umbral
+                        const drawThresholdLine = (thresholdValue, color, label) => {
+                            const yPosition = yScale.getPixelForValue(thresholdValue);
+                            
+                            console.log(`Dibujando línea umbral ${label}: y=${yPosition}, value=${thresholdValue}`);
+                            
+                            // Dibujar línea horizontal discontinua
+                            ctx.strokeStyle = color;
+                            ctx.lineWidth = 2;
+                            ctx.setLineDash([5, 5]);
+                            ctx.beginPath();
+                            ctx.moveTo(chartArea.left, yPosition);
+                            ctx.lineTo(chartArea.left + chartArea.width, yPosition);
+                            ctx.stroke();
+                            ctx.setLineDash([]); // Reset line dash
+                            
+                            // Dibujar etiqueta de la línea
+                            ctx.fillStyle = color;
+                            ctx.font = 'bold 11px Arial';
+                            ctx.textAlign = 'right';
+                            ctx.textBaseline = 'bottom';
+                            ctx.fillText(label, chartArea.left + chartArea.width - 5, yPosition - 5);
+                        };
+                        
                         // Dibujar las tres franjas con etiquetas según el tipo de gráfico
                         if (chartType === 'moisture' && sensorType === 'WM') {
                             // Etiquetas para disponibilidad de agua en el suelo
@@ -2918,16 +2950,22 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                             drawBand(40, 80, 'rgba(0, 123, 255, 0.15)', 'Saturado', 'rgba(0, 123, 255, 0.9)');
                             drawBand(15, 40, 'rgba(40, 167, 69, 0.15)', 'Humedad Adecuada', 'rgba(40, 167, 69, 0.9)');
                             drawBand(0, 15, 'rgba(255, 193, 7, 0.15)', 'Necesidad de Riego', 'rgba(255, 131, 7, 0.39)');
+                            // Dibujar línea de umbral de riego
+                            // drawThresholdLine(15, 'rgba(255, 99, 132, 0.8)', 'Umbral Riego (15%)');
                         } else if (chartType === 'moisture') {
                             // Etiquetas para humedad del suelo
                             drawBand(40, 100, 'rgba(0, 123, 255, 0.15)', 'Saturado', 'rgba(0, 123, 255, 0.9)');
                             drawBand(15, 40, 'rgba(40, 167, 69, 0.15)', 'Humedad Adecuada', 'rgba(40, 167, 69, 0.9)');
                             drawBand(0, 15, 'rgba(255, 193, 7, 0.15)', 'Necesidad de Riego', 'rgba(255, 131, 7, 0.39)');
+                            // Dibujar línea de umbral de riego
+                            // drawThresholdLine(15, 'rgba(255, 99, 132, 0.8)', 'Umbral Riego (15%)');
                         } else if (chartType === 'temperature') {
-                            // Etiquetas para humedad ambiental
+                            // Etiquetas para temperatura
                             drawBand(25, 50, 'rgba(255, 123, 0, 0.15)', 'Muy caliente', 'rgba(255, 13, 0, 0.9)');
                             drawBand(5, 25, 'rgba(40, 167, 69, 0.15)', 'Temperatura Normal', 'rgba(40, 167, 69, 0.9)');
                             drawBand(-10, 5, 'rgba(0, 123, 255, 0.15)', 'Helada', 'rgba(0, 123, 255, 0.9)');
+                            // Dibujar línea de umbral de helada
+                            drawThresholdLine(3, 'rgba(54, 162, 235, 0.8)', 'Umbral Helada (5°C)');
                         }
                     };
                     

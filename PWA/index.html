@@ -218,7 +218,7 @@
                                                                 margin-top: 10px; color: {{ color }};">flip</i>
                                                             </div>
                                                             <div ng-show="system.type == 'Estacionario'" style="margin-top: -5px; margin-left: -10px;">
-                                                                <img src="./assets/images/{{ color == 'grey' ? 'parcela-grey.png' : 'parcela.png' }}"
+                                                                <img src="{{ color == 'grey' ? './assets/images/parcela-grey.png' : './assets/images/parcela.png' }}"
                                                                     class="parcela_icon" alt="parcela">
                                                             </div>
                                                             <div ng-show="system.type == 'Pozo'" style="margin-top: -5px; margin-left: -10px; filter: grayscale(100%);">

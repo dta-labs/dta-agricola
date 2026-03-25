@@ -25,6 +25,13 @@
   pointer-events: none;
 }
 
+.contenedor-texto {
+  width: 200px;            /* ancho fijo del contenedor */
+  white-space: nowrap;     /* evita que el texto haga salto de línea */
+  overflow: hidden;        /* oculta el texto que no cabe */
+  text-overflow: ellipsis; /* muestra los "..." al final */
+}
+
 .sensor-bar {
   width: 100%;
   background: #fdfdfd;
