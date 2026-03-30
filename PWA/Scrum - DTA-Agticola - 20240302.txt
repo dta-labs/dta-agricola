@@ -51,6 +51,49 @@
 	[ ] Agregar frecuencia de riego
 	[ ] Crear logs más eficientes
 
+[ ] Sensores
+	[ ] PWA
+		[x] Crear red de sensores
+			[x] Agregar la propiedad "sensingMode: 1"
+			[x] Setear las propiedades:
+				[x] "sleepingTime: 10"
+				[x] "operationMode: 10"
+		[ ] Crear sensor 
+			[x] Mejoras de la Interfaz Usuario
+			[x] Agregar valores por defecto
+				[x] Humedad
+				[x] Temperaturas
+				[x] Presión
+				[x] Flujo
+			[x] Revisar la ubicación
+			[x] Hacer que WM se comporte igual que SHT4 y SHT4
+			[x] Evitar que se creen sensores extras
+			[ ] Refrescar el mapa
+		[ ] Editar sensor
+			[x] Mejoras de la Interfaz Usuario
+			[x] Revisar la ubicación
+			[x] Hacer que WM se comporte igual que SHT4 y SHT4
+			[ ] Revisar la opción de eliminar
+				[ ] Eliminarse el objeto 
+				[ ] Desplazar el resto de los objetos
+			[ ] Refrescar el mapa
+		[ ] Configuraciones
+			[ ] Seleccionar °C/°F
+			[ ] Seleccionar gráfica por defecto
+		[ ] Visualización principal
+			[x] Mostrar mapa
+			[ ] Mostrar listado (tabla)
+			[x] Revisar las UM según el tipo de sensor
+			[ ] Mostrar siempre un valor en los sensores, que no se queden sin datos
+		[ ] Historial
+			[x] Revisar los títulos de las tablas
+			[x] Revisar las UM según el tipo de sensor
+			[ ] Revisar las gráficas
+	[ ] BD de sensores
+		[ ] Crear listado de sensores
+			[ ] Id
+			[ ] Tipo
+
 https://www.alibaba.com/product-detail/DL181-Portable-DC-UPS-USB-5V_1600159215351.html?spm=a2700.pcdrm.0.0.738b25vY25vYRG
 
 

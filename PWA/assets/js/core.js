@@ -266,31 +266,6 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
 
     // #region DEVICES
 
-    // loadSystems_old = () => {
-    //     if ($scope.authUser) {
-    //         let userSystems = $scope.userLocations[convertDotToDash($scope.authUser.email)].systems;
-    //         if (userSystems) {
-    //             let lastLocation = Object.keys(userSystems)[Object.keys(userSystems).length - 1];
-    //             for (let locationKey in userSystems) {
-    //                 listeners[locationKey] = firebase.database().ref("systems/" + locationKey + "/settings");
-    //                 listeners[locationKey].on("value", system => {
-    //                     if (system.val()) {
-    //                         $scope.systems[locationKey] = system.val();
-    //                         $scope.systems[locationKey].key = locationKey;
-    //                         loadSystemUsers(locationKey);
-    //                         getMetorologicalData(locationKey);
-    //                         let dir = $scope.systems[locationKey].type == "Sensor" ? "/dayLogs" : "/logs";
-    //                         $scope.loadSystemLog(locationKey, 1, dir);
-    //                         // $scope.showWindow('listado');
-    //                         if (locationKey == lastLocation) $scope.$apply();
-    //                         if ($scope.actualSystem && locationKey == $scope.actualSystem.key) { $scope.selectSystem($scope.systems[locationKey]); }
-    //                     }
-    //                 });
-    //             }
-    //         }
-    //     }
-    // }
-
     loadSystems = () => {
         if ($scope.authUser) {
             let userSystems = $scope.userLocations[convertDotToDash($scope.authUser.email)].systems;
@@ -810,6 +785,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         })
             .then((confirm) => {
                 if (confirm) {
+                    if ($scope.actualSystem.type == "Sensor") $scope.actualSystem.operationMode = $scope.actualSystem.sleepingTime;
                     $scope.setMachineSettings($scope.actualSystem);
                     swal("Sistema actualizado correctamente!", {
                         icon: "success",
@@ -935,13 +911,25 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     }
 
     $scope.setSensorPosition = () => {
-        getLocation();
-        document.getElementById("newSensorLatitude").value = `${milatitud}`;
-        document.getElementById("newSensorLongitude").value = `${milongitud}`;
-        $scope.newSensorlatitude = milatitud;
-        $scope.newSensorLongitude = milongitud;
-        $scope.actualSensor.latitude = milatitud;
-        $scope.actualSensor.longitude = milongitud;
+        let iter = 0;
+        function ciclo() {
+            getLocation(); // tu función que actualiza milatitud y milongitud
+            if (milatitud && milongitud) {
+                document.getElementById("newSensorLatitude").value = milatitud;
+                document.getElementById("newSensorLongitude").value = milongitud;
+                $scope.newSensor.latitude = milatitud;
+                $scope.newSensor.longitude = milongitud;
+                $scope.actualSensor.latitude = milatitud;
+                $scope.actualSensor.longitude = milongitud;
+            } else {
+                iter++;
+                if (iter < 5) {
+                    setTimeout(ciclo, 2000);
+                }
+            }
+        }
+
+        ciclo();
     }
 
     $scope.convertStrToJSON = (str) => {
@@ -1134,9 +1122,10 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                 "F5_dry_value": 15,
                 "F5_wet_value": 30
             },
-            "operationMode": "5",
-            "sensingProcess": false,
-            "sleepingTime": "5"
+            "sensingMode": "1",
+            "operationMode": "10",
+            "sleepingTime": "10",
+            "sensingProcess": false
         });
     }
 
@@ -1237,23 +1226,25 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     }
 
     $scope.addNewSensorToNet = () => {
-        swal({
-            title: "",
-            text: "Agrear nuevo sensor",
-            icon: "warning",
-            // buttons: true,
-            buttons: {
-                cancel: "Cancelar",
-                confirm: {
-                  text: "Agregar",
-                  value: true,
-                  visible: true,
-                  className: "btn-confirmar",
-                  closeModal: true
-                }
-            },
-            dangerMode: true,
-        })
+        let s = $scope.newSensor;
+        if (s.id && s.latitude && s.longitude) {
+            swal({
+                title: "",
+                text: "Agrear nuevo sensor",
+                icon: "warning",
+                // buttons: true,
+                buttons: {
+                    cancel: "Cancelar",
+                    confirm: {
+                    text: "Agregar",
+                    value: true,
+                    visible: true,
+                    className: "btn-confirmar",
+                    closeModal: true
+                    }
+                },
+                dangerMode: true,
+            })
             .then((confirm) => {
                 if (confirm) {
                     let sensorNumber = 1;
@@ -1274,11 +1265,18 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                     document.getElementById("modalNuevoSensor").style.display = "none";
                     swal("Asignación completada!", {
                         icon: "success",
+                    })
+                    . then (() => {
+                        initializeSystemMap($scope.actualSystem);
+                        // $scope.selectSystem($scope.actualSystem);
                     });
                 } else {
                     swal("Asignación cancelada!");
                 }
             });
+        } else {
+            swal("Completa la información del sensor!");
+        }
     }
 
     $scope.deleteActualSensor = () => {
@@ -2293,28 +2291,30 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                 for (let i = 0; i < campo.sensors.sensorNumber; i++) {
                     let sensorId = "S" + i;
                     let sensor = campo.sensors[sensorId];
-                    let sensorCoord = [sensor.latitude, sensor.longitude];
+                    if (sensor.latitude && sensor.longitude) {
+                        let sensorCoord = [sensor.latitude, sensor.longitude];
 
-                    marker[sensor.id] = L.marker(sensorCoord, { icon: greenIcon });
-                    map.addLayer(marker[sensor.id]);
+                        marker[sensor.id] = L.marker(sensorCoord, { icon: greenIcon });
+                        map.addLayer(marker[sensor.id]);
 
-                    // 👉 Texto fijo junto al marcador de cada sensor
-                    marker[sensor.id].bindTooltip(getSensorValue(campo, sensor, i), {
-                        permanent: true,
-                        direction: "top",
-                        offset: [0, -60]
-                    }).openTooltip();
+                        // 👉 Texto fijo junto al marcador de cada sensor
+                        marker[sensor.id].bindTooltip(getSensorValue(campo, sensor, i), {
+                            permanent: true,
+                            direction: "top",
+                            offset: [0, -60]
+                        }).openTooltip();
 
-                    // Popup adicional (cuando se hace clic)
-                    marker[sensor.id].bindPopup(() => {
-                        const popupContent = document.createElement('div');
-                        popupContent.style.width = '240px';
-                        popupContent.innerHTML = getSensorText(campo, sensor, i);
-                        // setTimeout(() => { 
-                        //     $scope.setChart(i); 
-                        // }, 0);
-                        return popupContent;
-                    });
+                        // Popup adicional (cuando se hace clic)
+                        marker[sensor.id].bindPopup(() => {
+                            const popupContent = document.createElement('div');
+                            popupContent.style.width = '240px';
+                            popupContent.innerHTML = getSensorText(campo, sensor, i);
+                            // setTimeout(() => { 
+                            //     $scope.setChart(i); 
+                            // }, 0);
+                            return popupContent;
+                        });
+                    }
                 }
             }
         }

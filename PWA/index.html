@@ -1522,7 +1522,7 @@
                                     </div>
                                     <div class="col s12 m8">
                                         <table class="striped highlight" ng-init="edit = true">
-                                            <tr>
+                                            <tr style="display: none;">
                                                 <td style="text-align: left;">Sistema</td>
                                                 <td style="text-align: left;"><b><i>{{ actualSystem.type }}</b></i></td>
                                             </tr>
@@ -1545,13 +1545,13 @@
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td style="text-align: left;">Latitud central</td>
+                                                <td style="text-align: left;">Latitud</td>
                                                 <td style="text-align: left;"><input type="number"
                                                         ng-model="actualSystem.latitude" ng-readonly="edit">
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td style="text-align: left;">Longitud central</td>
+                                                <td style="text-align: left;">Longitud</td>
                                                 <td style="text-align: left;"><input type="number"
                                                         ng-model="actualSystem.longitude" ng-readonly="edit">
                                                 </td>
@@ -1579,16 +1579,31 @@
                                             <tr ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'">
                                                 <td style="text-align: left;">Límite de velocidad</td>
                                                 <td style="text-align: left;">
-                                                    <input type="number"
+                                                    <input type="number" 
                                                         ng-model="actualSystem.maxVelocity"
                                                         ng-readonly="edit">
                                                 </td>
                                             </tr>
+                                            <tr ng-show="actualSystem.type == 'Sensor'" ng-init="actualSystem.sensingMode = 1">
+                                                <td style="text-align: left;">Muestreo</td>
+                                                <td style="text-align: left;">
+                                                    <select style="font-size: 1em;" ng-value="actualSystem.sleepingTime"
+                                                        ng-selected="actualSystem.sleepingTime" ng-model="actualSystem.sleepingTime">
+                                                        <option value="" disabled selected>Seleccione la frecuencia</option>
+                                                        <option ng-selected="actualSystem.sleepingTime == 10" value="10">10 min</option>
+                                                        <option ng-selected="actualSystem.sleepingTime == 30" value="30">30 min</option>
+                                                        <option ng-selected="actualSystem.sleepingTime == 60" value="60">60 min</option>
+                                                    </select>
+                                                    Consumo "<b>{{ actualSystem.sleepingTime == 10 ? "elevado" : actualSystem.sleepingTime == 30 ? "medio" : "bajo"}}</b>"
+                                                </td>
+                                            </tr>
                                             <tr>
                                                 <td style="text-align: left;">Zona horaria</td>
-                                                <td class="input-field" style="text-align: left;">
-                                                    <select class="select" ng-model="actualSystem.zona" ng-disabled="edit"
-                                                        style="display: block !important;">
+                                                <td style="text-align: left;">
+                                                    <select class="select" ng-value="actualSystem.zona" 
+                                                            ng-model="actualSystem.zona" 
+                                                            ng-selected="actualSystem.zona"
+                                                            ng-readonly="edit">
                                                         <option ng-selected="actualSystem.zona == -11 ? true : false"
                                                             value="-11">UTC-11 Pacific</option>
                                                         <option ng-selected="actualSystem.zona == -10 ? true : false"
@@ -1670,8 +1685,10 @@
                                             <tr>
                                                 <td style="text-align: left;">Horario verano</td>
                                                 <td style="text-align: left;">
-                                                    <select ng-model="actualSystem.summerHour"
-                                                        ng-disabled="edit" style="display: block !important;">
+                                                    <select class="select" ng-value="actualSystem.summerHour" 
+                                                            ng-model="actualSystem.summerHour" 
+                                                            ng-selected="actualSystem.summerHour"
+                                                            ng-readonly="edit">
                                                         <option
                                                             ng-selected="actualSystem.summerHour == 0 ? true : false"
                                                             value="0">Normal</option>
@@ -1862,7 +1879,7 @@
                             </div>
 
                             <div id="modalConfig" class="modal" style="min-height: 70% !important;" ng-init="as_config = true"> <!-- Modal Configurar Sistema -->
-                                <div class="swal-title">Plan de riego</div>
+                                <div class="swal-title">{{ actualSystem.type != 'Sensor' ? "Plan de riego" : "Sensores" }}</div>
 
                                 <div class="modal-content" ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'"> <!-- Pivotes -->
                                     <table class="striped highlight">
@@ -2020,23 +2037,23 @@
 
                                 <div ng-show="actualSystem.type == 'Sensor'"> <!-- Sensores -->
                                     <div class="modal-content">
-                                        <ul class="collapsible">
-                                            <li class="active"> <!-- Sensores  -->
-                                                <div class="collapsible-header">
+                                        <!-- <ul class="collapsible">
+                                            <li class="active"> Sensores  -->
+                                                <!-- <div class="collapsible-header"> -->
                                                     <!-- <i class="material-icons">spa</i>Sensores: &nbsp;&nbsp;<b style="font-size: 1.2em;">{{ actualSystem.plots[editedPlan].culture }}</b> -->
-                                                    <img src="./assets/images/Red-Sensores.png" class="parcela_icon" style="height: 25px; width: 30px !important; margin: -10px 0 10px 0;" alt="sensor">
+                                                    <!-- <img src="./assets/images/Red-Sensores.png" class="parcela_icon" style="height: 25px; width: 30px !important; margin: -10px 0 10px 0;" alt="sensor">
                                                     &nbsp;&nbsp;&nbsp;Sensores
-                                                </div>
-                                                <div class="collapsible-body">
-                                                    <div style="padding: 10px; border: 1px solid grey; border-radius: 5px; margin: 5px;">
-                                                        <div id="sensores">
-                                                            <div class="row" style="margin: 10px 5px 0 5px;">
+                                                </div> -->
+                                                <!-- <div class="collapsible-body">-->
+                                                    <div style="padding: 5px; border: 1px solid grey; border-radius: 5px; margin: 5px;">
+                                                        <!-- <div id="sensores">-->
+                                                            <div class="row" style="margin: 5px 5px 0 5px;">
                                                                 <div class="col s12" style="padding: 0; margin-bottom: 0;">
                                                                     <ul>
                                                                         <li class="waves-effect modal-trigger"
                                                                             style="width: 100%; border-radius: 5px; margin-bottom: 10px;" 
                                                                             href="#modalEditSensor" ng-click="editSensor(sensor)"
-                                                                            ng-repeat="sensor in actualSystem.sensors" ng-show="sensor.id != null">
+                                                                            ng-repeat="sensor in actualSystem.sensors" ng-show="sensor.id != null"> 
                                                                             <table>
                                                                                 <tr>
                                                                                     <td width="80%" style="text-align: left;">
@@ -2076,41 +2093,18 @@
                                                                 </div> -->
                                                             </div>
                                                         </div>
-                                                    </div>
+                                                    <!-- </div>
                                                     <br>                                                        
                                                 </div>
                                             </li>
-                                            <li> <!-- Estrateia de sensado -->
-                                                <div class="collapsible-header"><i class="material-icons">tune</i><span class="show-in-pc-only">Estrategia de monitoreo</span><span class="show-in-mobil-only">Monitoreo</span></div>
+                                            <li> Estrateia de sensado -->
+                                                <!-- <div class="collapsible-header"><i class="material-icons">tune</i><span class="show-in-pc-only">Estrategia de monitoreo</span><span class="show-in-mobil-only">Monitoreo</span></div>
                                                 <div class="collapsible-body">
                                                     <div class="row" style="border: 1px solid grey; border-radius: 5px; margin: 5px; text-align: left;">
                                                         <div class="input-field col s12" style="padding: 0;">
-                                                            <!-- <table>
-                                                                <tr>
-                                                                    <td style="width: 33%;">
-                                                                        <div class="teal {{ actualSystem.sensingMode == 1 ? 'white-text' : 'lighten-3' }}" ng-click="actualSystem.sensingMode = 1" style="width: 100%; border: 1px solid grey; border-radius: 5px; padding: 2px;">
-                                                                            <i class="material-icons">date_range</i>&nbsp;
-                                                                            <span class="show-in-pc-only">Frecuencia</span>
-                                                                        </div>
-                                                                    </td>
-                                                                    <td style="width: 33%;">
-                                                                        <div class="teal {{ actualSystem.sensingMode == 2 ? 'white-text' : 'lighten-3' }}" ng-click="actualSystem.sensingMode = 2" style="width: 100%; border: 1px solid grey; border-radius: 5px; padding: 2px;">
-                                                                            <i class="material-icons">wb_sunny</i>&nbsp;
-                                                                            <span class="show-in-pc-only">Demanda</span>
-                                                                        </div>
-                                                                    </td>
-                                                                    <td style="width: 33%;">
-                                                                        <div class="teal {{ actualSystem.sensingMode == 3 ? 'white-text' : 'lighten-3' }}" ng-click="actualSystem.sensingMode = 3" style="width: 100%; border: 1px solid grey; border-radius: 5px; padding: 2px;">
-                                                                            <i class="material-icons">streetview</i>&nbsp;
-                                                                            <span class="show-in-pc-only">Predictivo</span>
-                                                                        </div>
-                                                                    </td>
-                                                                </tr>
-                                                            </table>
-                                                        </div> -->
-                                                        <div class="col s12" style="padding: 3px; color: #9e9e9e;" ng-init="actualSystem.sensingMode = 1">
+                                                        <div class="col s12" style="padding: 3px; color: #9e9e9e;" ng-init="actualSystem.sensingMode = 1"> -->
                                                             <!-- Frecuencia de sensado -->
-                                                            <div class="row" style="margin: 0 5px; font-size: 2em;" ng-show="actualSystem.sensingMode == 1"> 
+                                                            <!-- <div class="row" style="margin: 0 5px; font-size: 2em;" ng-show="actualSystem.sensingMode == 1"> 
                                                                 <div class="col s12">
                                                                     <label>Definción de la frecuencia de sensado</label>
                                                                     <div>
@@ -2133,7 +2127,7 @@
                                                                             </label>
                                                                         </p>                                                                    
                                                                     </div>
-                                                                </div>
+                                                                </div> -->
                                                                 <!-- <div class="col s12 m6">
                                                                     <label>Definción de la frecuencia de sensado</label>
                                                                     <div class="input-field">
@@ -2158,10 +2152,10 @@
                                                                         </select>
                                                                     </div>
                                                                 </div> -->
-                                                            </div>
+                                                            <!-- </div> -->
     
                                                             <!-- Esquema de sensado -->
-                                                            <div style="margin-left: 5px; text-align: left;" ng-show="actualSystem.sensingMode == 2">
+                                                            <!-- <div style="margin-left: 5px; text-align: left;" ng-show="actualSystem.sensingMode == 2">
                                                                 <label>Definición del esquema de sensado:</label>
                                                                 <div id="mediciones" style="text-align: left;">
                                                                     <div style="padding: 3px;">
@@ -2232,9 +2226,9 @@
                                                                                     &nbsp; <i class="material-icons">edit</i> &nbsp;
                                                                                 </div>
                                                                             </div>
-                                                                        </div>
+                                                                        </div> -->
                                                                         <!-- Sensado Inteligente -->
-                                                                        <div style="padding: 5px; color: #9e9e9e;" ng-show="actualSystem.sensingMode == 3">
+                                                                        <!-- <div style="padding: 5px; color: #9e9e9e;" ng-show="actualSystem.sensingMode == 3">
                                                                             <p>En la modalidad de <b>Sensado Inteligente</b> su <i style="color: green;"><b>Asistente Agrícola Inteligente</b></i> 
                                                                                 se encargará de sugerir las mejores condiciones de sensado para su <b>suelo</b>, <b>cultivo</b>, <b>clima</b> y 
                                                                                 <b>fase fenológica</b> con la intención de reducir el consumo de batería sin perder detalles del comportamieno del suelo.</p>
@@ -2243,17 +2237,17 @@
                                                                                     <img class="icono" src="assets/images/DTA-Agricola.png" />
                                                                                 </a>
                                                                             </p>
-                                                                        </div>
+                                                                        </div> -->
                                                                         <!-- Programa no seleccionado -->
-                                                                        <div style="text-align: center;" ng-show="!actualSystem.sensingMode || actualSystem.sensingMode < 1">
+                                                                        <!-- <div style="text-align: center;" ng-show="!actualSystem.sensingMode || actualSystem.sensingMode < 1">
                                                                             <img src="assets/images/options.png" alt="options" style="width: 80%;">
                                                                         </div>
                                                                     </div>
                                                                 </div>
-                                                            </div>
+                                                            </div> -->
     
                                                             <!-- Sensado predictivo -->
-                                                            <div style="padding: 5px; color: #9e9e9e; text-align: left;" ng-show="actualSystem.sensingMode == 3">
+                                                            <!-- <div style="padding: 5px; color: #9e9e9e; text-align: left;" ng-show="actualSystem.sensingMode == 3">
                                                                 <p>En la modalidad de <b>Sensado predictivo</b> su <i style="color: green;"><b>Asistente Agrícola Inteligente</b></i> 
                                                                     se encargará de sugerir las mejores condiciones de sensado para su <b>suelo</b>, <b>cultivo</b> y <b>clima</b>.</p>
                                                                 <p style="text-align: center;">
@@ -2267,7 +2261,7 @@
                                                     </div>
                                                     <br>
                                                 </div>
-                                            </li>
+                                            </li> -->
                                         <br>
                                         <div id="btnsPlan" class="right-align">
                                             <div class="btn waves-effect waves-light grey modal-close">
@@ -2490,7 +2484,7 @@
                                                             <thead>
                                                                 <tr>
                                                                     <th><i class="fa fa-calendar" aria-hidden="true" style="font-size: 1.2em;"></i><br> Fecha</th>
-                                                                    <th><img src="./assets/images/Hr.png" alt="Ms" style="width: 20px;"><br> H.Suelo</th>
+                                                                    <th><img src="./assets/images/Hr.png" alt="Ms" style="width: 20px;"><br> {{ sensor.type == 'WM' ? 'Tensión' : 'H.Suelo' }}</th>
                                                                     <th><img src="./assets/images/agua.png" alt="Hr" style="width: 20px;"><br> H.Relativa</th>
                                                                     <th><img src="./assets/images/termometro.png" alt="Temp" style="width: 20px;"><br> Temp.</th>
                                                                     <th><img src="./assets/images/ETo.png" alt="Temp" style="width: 20px;"><br> ETo</th>
@@ -3313,7 +3307,7 @@
 
                             <div id="modalNuevoSensor" class="modal"> <!-- Modal adicionar sensor -->
                                 <div class="modal-content">
-                                    <div class="swal-title">Agregar sensor</div>
+                                    <div class="swal-title">Agregar sensor {{ newSensor.id }}</div>
                                     <div class="row">
                                         <div class="input-field col s12">
                                             <input id="newSensorAlias" type="text" ng-model="newSensor.alias">
@@ -3346,174 +3340,145 @@
                                             </div>
                                         </div>
                                         <br>
-                                        <div class="input-field col s12">
-                                            <select id="newSensorType" ng-model="newSensor.type" ng-value="newSensor.type" ng-selected="newSensor.type">
+                                        <div class="input-field col s12 m6">
+                                            <select id="editSensorType" class="browser-default" ng-model="newSensor.type">
                                                 <option value="WM" selected="{{ newSensor.type == 'WM' ? 'selected' : '' }}">Sonda de <b>suelo WM</b></option>
                                                 <option value="SHT4" selected="{{ newSensor.type == 'SHT4' ? 'selected' : '' }}">Sonda de <b>suelo SHT</b></option>
-                                                <option value="Ms" selected="{{ newSensor.type == 'Ms' ? 'selected' : '' }}">Ms - Humedad suelo</option>                                
+                                                <option value="Ms" selected="{{ newSensor.type == 'Ms' ? 'selected' : '' }}">Sensor de <b>humedad suelo</b></option>                                
                                                 <option value="Tr" selected="{{ newSensor.type == 'Tr' ? 'selected' : '' }}">Sensor de <b>temperatura</b></option>
                                                 <option value="Psi" selected="{{ newSensor.type == 'Psi' ? 'selected' : '' }}">Sensor de <b>presión de agua</b></option>
                                                 <option value="Fl" selected="{{ newSensor.type == 'Fl' ? 'selected' : '' }}">Sensor de <b>caudal</b></option>
                                             </select>
                                             <label style="top: -28px; font-size: .8em;">Tipo de sensor</label>
                                         </div>
+                                        <div class="input-field col s12 m6" ng-show="newSensor.type == 'SHT4' || newSensor.type == 'WM' || newSensor.type == 'Ms'">
+                                            <select id="newSensorCulture" class="browser-default" 
+                                                ng-model="newSensor['culture']" 
+                                                ng-options="culture.culture as culture.culture for culture in listOfCultures">
+                                                <option value="">Seleccionar cultivo</option>
+                                            </select>
+                                            <label style="top: -28px; font-size: .8em;">Cultivo</label>
+                                        </div>
                                         <div class="col s12"
                                             style="background: whitesmoke; box-shadow: 0 0 3px lightgrey; margin-bottom: 20px; 
                                                 border: 1px solid lightgrey; border-radius: 5px;">
                                             <div> <!-- Alertas de enfermedades -->
-                                                <label><b>Alertas de enfermedades</b></label>
+                                                <label><b>Alertas {{ newSensor.type == 'SHT4' || newSensor.type == 'WM' || newSensor.type == 'Ms' ? newSensor['culture'] : '' }}</b></label>
                                                 <div id="newSensorAlerts" class="row">
-                                                    <div ng-show="newSensor.culture == 'Manzana'"> <!-- Manazana -->
-                                                        <div class="input-field col s12 m6">
-                                                            <p>
+                                                    <div class="input-field col s12 left-align">
+                                                        <div ng-repeat="actualCulture in listOfCultures" ng-init="isShowDiseaseDetails = false" 
+                                                        ng-show="newSensor.type == 'SHT4' || newSensor.type == 'WM' || newSensor.type == 'Ms'">
+                                                            <p ng-repeat="disease in actualCulture.diseases" ng-show="actualCulture.culture == newSensor.culture">
                                                                 <label class="left-align">
-                                                                  <input type="checkbox" ng-model="newSensor.alerts.ErwiniaAmylovora" />
-                                                                  <span>Mancha de fuego (Erwinia amylovora)</span>
+                                                                    <input id="disease_{{ disease.name }}" type="checkbox" ng-model="newSensor.alerts[disease.name]" />
+                                                                    <span class="chip">
+                                                                        <img src="assets/images/diseases/{{ disease.photo }}.jpg" alt="{{ disease }}" style="margin-top: -5px;" ng-show="disease.photo">
+                                                                        {{ disease.name }}
+                                                                    </span>
+                                                                </label>
+                                                                <!-- <a class="waves-effect waves-light btn" href="" style="font-size: .8em; border-radius: 50%;" ng-click="showDiseaseDetails(disease)">?</a> -->
+                                                            </p>
+                                                        </div>
+                                                        <!-- Disease details -->
+                                                        <div id="diseaseDetails_{{ actualCulture.culture }}" class="card" ng-show="isShowDiseaseDetails">
+                                                            <div class="card-content">
+                                                                <span class="card-title">{{ disease.name }}</span>
+                                                                <p><img src="assets/images/diseases/{{ disease.photo }}.jpg" alt="{{ disease }}" style="margin-top: -5px;"></p>
+                                                                <table>
+                                                                    <tr>
+                                                                        <td class="left-align">Nombre</td>
+                                                                        <td class="left-align">{{ selectedDisease.name }}</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td class="left-align">Descripción</td>
+                                                                        <td class="left-align">{{ selectedDisease.description }}</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td class="left-align">Síntomas</td>
+                                                                        <td class="left-align">{{ selectedDisease.symptoms }}</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td class="left-align">Condiciones</td>
+                                                                        <td class="left-align">
+                                                                            <p ng-show="selectedDisease.Msmin != '' && selectedDisease.Msmax != ''">
+                                                                                Humedad del suelo:  <br>
+                                                                                - Mmin: {{ selectedDisease.Msmin }} %<br>
+                                                                                - Mmax: {{ selectedDisease.Msmax }} %<br>
+                                                                            </p>
+                                                                            <p ng-show="selectedDisease.Rhmin != '' && selectedDisease.Rhmax != ''">
+                                                                                Humedad relativa:  <br>
+                                                                                - Mmin: {{ selectedDisease.Rhmin }} %<br>
+                                                                                - Mmax: {{ selectedDisease.Rhmax }} %<br>
+                                                                            </p>
+                                                                            <p ng-show="selectedDisease.Tmin != '' && selectedDisease.Tmax != ''">
+                                                                                Temperatura ambiente:  <br>
+                                                                                - Mmin: {{ selectedDisease.Tmin }} °C<br>
+                                                                                - Mmax: {{ selectedDisease.Tmax }} °C<br>
+                                                                            </p>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td class="left-align">Tratamiento</td>
+                                                                        <td class="left-align">{{ selectedDisease.treatment }}</td>
+                                                                    </tr>
+                                                                </table>
+                                                            </div>
+                                                            <div class="card-action right-align">
+                                                                <a href="" class="waves-effect waves-green btn-flat" ng-click="isShowDiseaseDetails = false">Cerrar</a>
+                                                            </div>
+                                                        </div>
+                                                        <div ng-show="newSensor.type == 'SHT4' || newSensor.type == 'WM' || newSensor.type == 'Ms'"> <!-- Humbral de Humedad -->
+                                                            <p style="margin-top: -5px; margin-bottom: 0;">
+                                                                <label class="left-align">
+                                                                    <input id="newSensorHNotify" type="checkbox" ng-model="newSensor.h.notify" />
+                                                                    <span class="chip">
+                                                                        <img src="assets/images/gota.jpg" alt="{{ disease }}" style="margin-top: -5px;">
+                                                                        Humedad
+                                                                    </span>
+                                                                    <input id="newSensorHMinValue" type="number" val="0" min="0" max="100" ng-model="newSensor.h.minValue" style="width: 50px;" placeholder="Min"> - 
+                                                                    <input id="newSensorHMaxValue" type="number" val="0" min="0" max="100" ng-model="newSensor.h.maxValue" style="width: 50px;" placeholder="Max"> %
                                                                 </label>
                                                             </p>
                                                         </div>
-                                                        <div class="input-field col s12 m6">
-                                                            <p>
+                                                        <div ng-show="newSensor.type == 'Tr' || newSensor.type == 'SHT4' || newSensor.type == 'WM'"> <!-- Humbral de temperatura -->
+                                                            <p style="margin-top: -5px; margin-bottom: 0;">
                                                                 <label class="left-align">
-                                                                  <input type="checkbox" ng-model="newSensor.alerts.CydiaPomonella" />
-                                                                  <span>Polilla de la manzana (Cydia pomonella)</span>
+                                                                    <input id="newSensorTNotify" type="checkbox" ng-model="newSensor.t.notify" />
+                                                                    <span class="chip">
+                                                                        <img src="assets/images/termometro.png" alt="{{ disease }}" style="margin-top: -5px;">
+                                                                        Temperatura
+                                                                    </span>
+                                                                    <input id="newSensorTMinValue" type="number" val="0" min="0" max="100" ng-model="newSensor.t.minValue" style="width: 50px;" placeholder="Min"> - 
+                                                                    <input id="newSensorTMaxValue" type="number" val="0" min="0" max="100" ng-model="newSensor.t.maxValue" style="width: 50px;" placeholder="Max"> °C
                                                                 </label>
                                                             </p>
                                                         </div>
-                                                        <div class="input-field col s12 m6">
-                                                            <p>
+                                                        <div ng-show="newSensor.type == 'Psi'"> <!-- Humbral de Presión -->
+                                                            <p style="margin-top: -5px; margin-bottom: 0;">
                                                                 <label class="left-align">
-                                                                  <input type="checkbox" ng-model="newSensor.alerts.TetranychusUrticae" />
-                                                                  <span>Araña roja (Tetranychus urticae)</span>
+                                                                    <input id="newSensorPsiNotify" type="checkbox" ng-model="newSensor.psi.notify" />
+                                                                    <span class="chip">
+                                                                        <img src="assets/images/presion.jpg" alt="{{ disease }}" style="margin-top: -5px;">
+                                                                        Alerta de presión
+                                                                    </span>
+                                                                    <input id="newSensorPsiMinValue" type="number" val="0" min="0" max="100" ng-model="newSensor.psi.minValue" style="width: 50px;" placeholder="Min">
+                                                                    <input id="newSensorPsiMaxValue" type="number" val="0" min="0" max="100" ng-model="newSensor.psi.maxValue" style="width: 50px;" placeholder="Max"> psi
                                                                 </label>
                                                             </p>
                                                         </div>
-                                                        <div class="input-field col s12 m6">
-                                                            <p>
+                                                        <div ng-show="newSensor.type == 'Fl'"> <!-- Humbral de Flujo -->
+                                                            <p style="margin-top: -5px; margin-bottom: 0;">
                                                                 <label class="left-align">
-                                                                  <input type="checkbox" ng-model="newSensor.alerts.PanonychusUlmi" />
-                                                                  <span>Ácaro rojo europeo (Panonychus ulmi)</span>
+                                                                    <input id="newSensorFlNotify" type="checkbox" ng-model="newSensor.fl.notify" />
+                                                                    <span class="chip">
+                                                                        <img src="assets/images/caudal.png" alt="{{ disease }}" style="margin-top: -5px;">
+                                                                        Alerta de caudal
+                                                                    </span>
+                                                                    Min: <input id="newSensorFlMaxValue" type="number" val="0" min="0" max="100" ng-model="newSensor.fl.maxValue" style="width: 50px;">
+                                                                    Max: <input id="newSensorFlMinValue" type="number" val="0" min="0" max="100" ng-model="newSensor.fl.minValue" style="width: 50px;">
                                                                 </label>
                                                             </p>
                                                         </div>
-                                                    </div>
-                                                    <div ng-show="newSensor.culture == 'Durazno'"> <!-- Durazno -->
-                                                        <div class="input-field col s12 m6">
-                                                            <p>
-                                                                <label class="left-align">
-                                                                  <input type="checkbox" ng-model="newSensor.alerts.GrapholitaMolesta" />
-                                                                  <span>Polilla oriental (Grapholita molesta)</span>
-                                                                </label>
-                                                            </p>
-                                                        </div>
-                                                        <div class="input-field col s12 m6">
-                                                            <p>
-                                                                <label class="left-align">
-                                                                  <input type="checkbox" ng-model="newSensor.alerts.MyzusPersicae" />
-                                                                  <span>Pulgón verde (Myzus persicae)</span>
-                                                                </label>
-                                                            </p>
-                                                        </div>
-                                                        <div class="input-field col s12 m6">
-                                                            <p>
-                                                                <label class="left-align">
-                                                                  <input type="checkbox" ng-model="newSensor.alerts.TetranychusUrticae" />
-                                                                  <span>Araña roja (Tetranychus urticae)</span>
-                                                                </label>
-                                                            </p>
-                                                        </div>
-                                                        <div class="input-field col s12 m6">
-                                                            <p>
-                                                                <label class="left-align">
-                                                                  <input type="checkbox" ng-model="newSensor.alerts.FrankliniellaOccidentalis" />
-                                                                  <span>Trips (Frankliniella occidentalis)</span>
-                                                                </label>
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div ng-show="newSensor.type == 'Ms' || newSensor.type == 'SHT4' || actualSensor.type == 'WM'"> <!-- Humbral de Humedad -->
-                                                <label><b>Humbral de Humedad</b></label>
-                                                <div id="newSensorH" class="row">
-                                                    <div class="input-field col s6 m3">
-                                                        <input id="newSensorHMinValue" type="text" placeholder="Mínimo" ng-model="newSensor.h.minValue">
-                                                        <label for="newSensorHMinValue" class="active">Mínimo</label>
-                                                    </div>
-                                                    <div class="input-field col s6 m3">
-                                                        <input id="newSensorHMaxValue" type="text" placeholder="Máximo" ng-model="newSensor.h.maxValue">
-                                                        <label for="newSensorHMaxValue" class="active">Máximo</label>
-                                                    </div>
-                                                    <div class="input-field col s12 m6">
-                                                        <p>
-                                                            <label class="left-align">
-                                                              <input type="checkbox" ng-model="newSensor.h.notify" />
-                                                              <span>Enviar notificaciones</span>
-                                                            </label>
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div ng-show="newSensor.type == 'Tr' || newSensor.type == 'SHT' || newSensor.type == 'SHT4'"> <!-- Humbral de Temperatura -->
-                                                <label><b>Humbral de Temperatura</b></label>
-                                                <div id="newSensorT" class="row">
-                                                    <div class="input-field col s6 m3">
-                                                        <input id="newSensorTMinValue" type="text" placeholder="Mínimo" ng-model="newSensor.t.minValue">
-                                                        <label for="newSensorTMinValue" class="active">Mínimo</label>
-                                                    </div>
-                                                    <div class="input-field col s6 m3">
-                                                        <input id="newSensorTMaxValue" type="text" placeholder="Máximo" ng-model="newSensor.t.maxValue">
-                                                        <label for="newSensorTMaxValue" class="active">Máximo</label>
-                                                    </div>
-                                                    <div class="input-field col s12 m6">
-                                                        <p>
-                                                            <label class="left-align">
-                                                              <input type="checkbox" ng-model="newSensor.t.notify" />
-                                                              <span>Enviar notificaciones</span>
-                                                            </label>
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div ng-show="newSensor.type == 'Psi'"> <!-- Humbral de Presión de agua -->
-                                                <label><b>Humbral de Presión de agua</b></label>
-                                                <div id="newSensorPsi" class="row">
-                                                    <div class="input-field col s6 m3">
-                                                        <input id="newSensorPsiMinValue" type="text" placeholder="Mínimo" ng-model="newSensor.psi.minValue">
-                                                        <label for="newSensorPsiMinValue" class="active">Mínimo</label>
-                                                    </div>
-                                                    <div class="input-field col s6 m3">
-                                                        <input id="newSensorPsiMaxValue" type="text" placeholder="Máximo" ng-model="newSensor.psi.maxValue">
-                                                        <label for="newSensorPsiMaxValue" class="active">Máximo</label>
-                                                    </div>
-                                                    <div class="input-field col s12 m6">
-                                                        <p>
-                                                            <label class="left-align">
-                                                              <input type="checkbox" ng-model="newSensor.psi.notify" />
-                                                              <span>Enviar notificaciones</span>
-                                                            </label>
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div ng-show="newSensor.type == 'Fl'"> <!-- Humbral de Flujo de agua -->
-                                                <label><b>Humbral de Flujo de agua</b></label>
-                                                <div id="newSensorFl" class="row">
-                                                    <div class="input-field col s6 m3">
-                                                        <input id="newSensorFlMinValue" type="text" placeholder="Mínimo" ng-model="newSensor.fl.minValue">
-                                                        <label for="newSensorFlMinValue" class="active">Mínimo</label>
-                                                    </div>
-                                                    <div class="input-field col s6 m3">
-                                                        <input id="newSensorFlMaxValue" type="text" placeholder="Máximo" ng-model="newSensor.fl.maxValue">
-                                                        <label for="newSensorFlMaxValue" class="active">Máximo</label>
-                                                    </div>
-                                                    <div class="input-field col s12 m6">
-                                                        <p>
-                                                            <label class="left-align">
-                                                              <input type="checkbox" ng-model="newSensor.fl.notify" />
-                                                              <span>Enviar notificaciones</span>
-                                                            </label>
-                                                        </p>
                                                     </div>
                                                 </div>
                                             </div>
@@ -3581,16 +3546,17 @@
                                                 ng-options="culture.culture as culture.culture for culture in listOfCultures">
                                                 <option value="">Seleccionar cultivo</option>
                                             </select>
-                                            <label style="top: -28px; font-size: .8em;">Tipo de sensor</label>
+                                            <label style="top: -28px; font-size: .8em;">Cultivo</label>
                                         </div>
                                         <div class="col s12"
                                             style="background: whitesmoke; box-shadow: 0 0 3px lightgrey; margin-bottom: 20px; 
                                                 border: 1px solid lightgrey; border-radius: 5px;">
                                             <div> <!-- Alertas de enfermedades -->
-                                                <label><b>Alertas para el cultivo {{ actualSensor.type }} - {{ actualSensor['culture'] }}</b></label>
+                                                <label><b>Alertas {{ actualSensor.type == 'SHT4' || actualSensor.type == 'WM' || actualSensor.type == 'Ms' ? actualSensor['culture'] : '' }}</b></label>
                                                 <div id="actualSensorAlerts" class="row">
                                                     <div class="input-field col s12 left-align">
-                                                        <div ng-repeat="actualCulture in listOfCultures" ng-init="isShowDiseaseDetails = false">
+                                                        <div ng-repeat="actualCulture in listOfCultures" ng-init="isShowDiseaseDetails = false" 
+                                                        ng-show="actualSensor.type == 'SHT4' || actualSensor.type == 'WM' || actualSensor.type == 'Ms'">
                                                             <p ng-repeat="disease in actualCulture.diseases" ng-show="actualCulture.culture == actualSensor.culture">
                                                                 <label class="left-align">
                                                                     <input id="disease_{{ disease.name }}" type="checkbox" ng-model="actualSensor.alerts[disease.name]" />
@@ -4802,7 +4768,7 @@
         <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
         <script src="./assets/js/commons.js"></script>
         <!-- <script src="./assets/cultures/listOfCultures.js"></script> -->
-        <script src="./assets/js/core.js?v=26.03.18.0209"></script>
+        <script src="./assets/js/core.js?v=26.03.21.0425"></script>
         <!-- <script src="monitor/js/chartjs/chart.min.js"></script> -->
         <script type="text/javascript" src="./assets/modules/datepicker/daterangepicker.js"></script>
 
