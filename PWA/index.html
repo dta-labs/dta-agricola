@@ -3,18 +3,18 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <!-- <meta http-equiv="Content-Security-Policy" content="script-src 'none'"> -->
     <meta name="description"
-        content='"DTA - Irrigation Control\" es la aplicacón de DTA-Agricola para el monitoreo y control inteligente y en tiempo real de sistemas de riego y bombeo.'>
-    <meta name="author" content="DTA-Labs (Laboratorio de Desarrollos Tecnológicos Avanzados) https://dtaamerica.com/">
-    <meta name="keywords" content="Automatización, riego, automation, irrigation, IoT, Pivoe central, central privot, invernaderos, 
+        content='"DTA - Monitoring & Control\" es la aplicacón de DTA-Agricola para el monitoreo y control inteligente y en tiempo real de sistemas de riego y bombeo.'>
+    <meta name="author" content="DTA-Agrícola (Sustentabilidad y Eficiencia Agrícola) https://dtaamerica.com/dta-agricola/">
+    <meta name="keywords" content="Automatización, riego, automation, irrigation, IoT, Pivote central, central privot, invernaderos, 
                                     greenhouse, hidrponia, jardinería, landscape, Inteligencia artificial, Artificial Intelligence,
                                     goteo, aspersión, tiempo real, monitoreo, control, agricultura">
     <meta name="theme-color" content="#0000EF" />
 
-    <title>DTA - Irrigation Control v0.2b</title>
+    <title>DTA - Monitoring & Control v1.0b</title>
 
     <link rel="apple-touch-icon" href="./assets/images/DTA-Agricola.png">
     <link rel="apple-touch-icon" sizes="512x512" href="./assets/images/icons/res/DTA_Agricola_512.png">
@@ -24,9 +24,9 @@
     <link rel="apple-touch-icon" sizes="72x72" href="./assets/images/icons/res/mipmap-hdpi/DTA_Agricola.png">
     <link rel="apple-touch-icon" sizes="48x48" href="./assets/images/icons/res/mipmap-mdpi/DTA_Agricola.png">
     <link rel="apple-touch-startup-image" href="./assets/images/DTA-Agricola.png">
-    <meta name="apple-mobile-web-app-title" content="DTA-Control v0.1b">
+    <meta name="apple-mobile-web-app-title" content="DTA - Monitoring & Control v1.0b">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
 
     <link rel="icon" href="./assets/images/DTA-Agricola.png" />
     <link rel="manifest" href="manifest.json">
@@ -187,7 +187,7 @@
                         
                         <!-- #region: LISTADO -->
 
-                        <section id="listado" class="showContent" ng-show="selectedWindow == 'listado'">
+                        <section id="listado" clas="listado" ng-show="selectedWindow == 'listado'" style="max-height: 100vh; overflow: auto; margin-top: 5px;">
 
                             <div class="" style="width: 100% !important;">
 
@@ -195,7 +195,7 @@
 
                                 <div class="show-in-pc-only" style="margin-top: 15px !important;"></div>
 
-                                <div class="main-container text-center our-services">
+                                <div class="text-center our-services">
                                     <div class="row" style="margin-left: 0; margin-right: 0;">
                                         <div class="col s12 m6 l4 xl3" id="{{ system.key }}" ng-repeat="system in systems"
                                             ng-click="selectSystem(system)" ng-show="system.name">
@@ -555,7 +555,7 @@
 
                                 <div class="show-in-mobil-only" style="margin-top: 50px !important;"></div>
 
-                                <div class="main-container text-center our-services">
+                                <div class="text-center our-services">
 
                                     <!-- Cabecera -->
                                     <div class="switchControl waves-effect input-field" ng-click="showWindow('listado')" 
@@ -2445,7 +2445,7 @@
                                                                             <img src="./assets/images/Hr.png" alt="Ms" style="width: 20px;">
                                                                         </div>
                                                                         <div style="font-size: 0.8em; line-height: 1.2;">
-                                                                            <span ng-show="sensor.type != 'WM'">Humedad<br>Suelo</span>
+                                                                            <span ng-show="sensor.type == 'SHT4' || sensor.type == 'SHT'">Humedad<br>Suelo</span>
                                                                             <span ng-show="sensor.type == 'WM'">Agua<br>Disponible</span>
                                                                         </div>
                                                                     </div>
@@ -2493,7 +2493,7 @@
                                                                 </tr>
                                                             </thead>
                                                             <tbody>
-                                                                <tr ng-repeat="reg in invertedRegisters" ng-init="data=convertStrToJSON(reg.dataRaw)" ng-show="data[(idx * 8)] != 'NaN' && data[(idx * 8) + 1] != 'NaN' && data[(idx * 8) + 4] != 'NaN' && data[(idx * 8) + 5] != 'NaN'">
+                                                                <tr ng-repeat="reg in invertedRegisters" ng-init="data=convertStrToJSON(reg.dataRaw)" ng-show="data[(idx * 8)] != 'NaN' && data[(idx * 8)] != 'NAN' && data[(idx * 8) + 1] != 'NaN' && data[(idx * 8) + 1] != 'NAN' && data[(idx * 8) + 4] != 'NaN' && data[(idx * 8) + 4] != 'NAN' && data[(idx * 8) + 5] != 'NaN' && data[(idx * 8) + 5] != 'NAN'">
                                                                     <td ng-show="selectedTimeOption != 'DIA'">{{ reg.date.substring(6, 8) }}/{{ reg.date.substring(4, 6) }}/{{ reg.date.substring(2, 4) }}</td>
                                                                     <td ng-show="selectedTimeOption == 'DIA'">{{ reg.date.substring(9, 11) }}:{{  reg.date.substring(11) }}</td>
 
@@ -3342,11 +3342,11 @@
                                         <br>
                                         <div class="input-field col s12 m6">
                                             <select id="editSensorType" class="browser-default" ng-model="newSensor.type">
-                                                <option value="WM" selected="{{ newSensor.type == 'WM' ? 'selected' : '' }}">Sonda de <b>suelo WM</b></option>
-                                                <option value="SHT4" selected="{{ newSensor.type == 'SHT4' ? 'selected' : '' }}">Sonda de <b>suelo SHT</b></option>
+                                                <option value="WM" selected="{{ newSensor.type == 'WM' ? 'selected' : '' }}">Sonda <b>tensiómetro</b></option>
+                                                <option value="SHT4" selected="{{ newSensor.type == 'SHT4' ? 'selected' : '' }}">Sonda <b>volumétrica</b></option>
                                                 <option value="Ms" selected="{{ newSensor.type == 'Ms' ? 'selected' : '' }}">Sensor de <b>humedad suelo</b></option>                                
                                                 <option value="Tr" selected="{{ newSensor.type == 'Tr' ? 'selected' : '' }}">Sensor de <b>temperatura</b></option>
-                                                <option value="Psi" selected="{{ newSensor.type == 'Psi' ? 'selected' : '' }}">Sensor de <b>presión de agua</b></option>
+                                                <option value="Psi" selected="{{ newSensor.type == 'Psi' ? 'selected' : '' }}">Sensor de <b>presión</b></option>
                                                 <option value="Fl" selected="{{ newSensor.type == 'Fl' ? 'selected' : '' }}">Sensor de <b>caudal</b></option>
                                             </select>
                                             <label style="top: -28px; font-size: .8em;">Tipo de sensor</label>
@@ -3531,11 +3531,11 @@
                                         <br>
                                         <div class="input-field col s12 m6">
                                             <select id="editSensorType" class="browser-default" ng-model="actualSensor.type">
-                                                <option value="WM" selected="{{ actualSensor.type == 'WM' ? 'selected' : '' }}">Sonda de <b>suelo WM</b></option>
-                                                <option value="SHT4" selected="{{ actualSensor.type == 'SHT4' ? 'selected' : '' }}">Sonda de <b>suelo SHT</b></option>
+                                                <option value="WM" selected="{{ actualSensor.type == 'WM' ? 'selected' : '' }}">Sonda <b>tensómetro</b></option>
+                                                <option value="SHT4" selected="{{ actualSensor.type == 'SHT4' ? 'selected' : '' }}">Sonda <b>volumétrica</b></option>
                                                 <option value="Ms" selected="{{ actualSensor.type == 'Ms' ? 'selected' : '' }}">Sensor de <b>humedad suelo</b></option>                                
                                                 <option value="Tr" selected="{{ actualSensor.type == 'Tr' ? 'selected' : '' }}">Sensor de <b>temperatura</b></option>
-                                                <option value="Psi" selected="{{ actualSensor.type == 'Psi' ? 'selected' : '' }}">Sensor de <b>presión de agua</b></option>
+                                                <option value="Psi" selected="{{ actualSensor.type == 'Psi' ? 'selected' : '' }}">Sensor de <b>presión</b></option>
                                                 <option value="Fl" selected="{{ actualSensor.type == 'Fl' ? 'selected' : '' }}">Sensor de <b>caudal</b></option>
                                             </select>
                                             <label style="top: -28px; font-size: .8em;">Tipo de sensor</label>

@@ -9,7 +9,7 @@
 
 .map {
   margin-top: 0px;
-  height: calc(100vh - 235px);
+  height: calc(100vh - 235px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
   /* height: calc(100vh - 215px); */
 }
 
@@ -31,7 +31,7 @@
 .left_col {
   width: 100%;
   position: relative;
-  height: calc(100vh - 15px);
+  height: calc(100vh - 15px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
 }
 
 
@@ -478,6 +478,11 @@
   .contentEstacionario {
     /* height: calc(100vh - 330px); */
     height:100%;
+    margin-bottom: calc(20px + env(safe-area-inset-bottom));
+  }
+
+  #contenido {
+    scroll-padding-bottom: calc(80px + env(safe-area-inset-bottom));
   }
 }
 

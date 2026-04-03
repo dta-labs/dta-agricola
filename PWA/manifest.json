@@ -1,8 +1,8 @@
 {
     "gcm_sender_id": "103953800507",
-    "name": "DTA - Irrigation Control",
-    "short_name": "DTA - Irrigation Control",
-    "description": "\"DTA - Irrigation Control\" es la aplicacón de DTA-Agricola para el monitoreo y control inteligente y en tiempo real de sistemas de riego y bombeo.",
+    "name": "DTA - Monitoring & Control v1.0b",
+    "short_name": "DTA - Monitoring & Control",
+    "description": "\"DTA - Monitoring & Control v1.0b\" es la aplicacón de DTA-Agricola para el monitoreo y control inteligente y en tiempo real de parcelas, invernaderos, sistemas de riego y bombeo.",
     "background_color": "#ffffff",
     "theme_color": "#ffffff",
     "orientation": "portrait",
