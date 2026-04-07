@@ -7,7 +7,7 @@
 
 void initLoRa() {
   if (!LoRa.begin(FREQUENCY)) while (10);
-  LoRa.setTxPower(20);                    // Ajusta la potencia de transmisión a 20 dBm
+  LoRa.setTxPower(txPOWER);               // Ajusta la potencia de transmisión a 14 dBm
   LoRa.setSignalBandwidth(125E3);         // Ancho de banda de 125 kHz
   LoRa.setSpreadingFactor(12);            // Factor de propagación de 12
   LoRa.setCodingRate4(5);                 // Tasa de codificación 4/5
@@ -17,7 +17,8 @@ void initLoRa() {
 
 void txData(String dataStr) {
   LoRa.idle();
-  Serial.print(F("Tx: ")); Serial.println(dataStr);
+  Serial.print(F("Tx: ")); Serial.print(dataStr);
+  Serial.print(F(" ")); Serial.print(txPOWER); Serial.println(F("dB"));
   LoRa.beginPacket();
   LoRa.print(dataStr);
   LoRa.endPacket();
@@ -50,7 +51,8 @@ void getSoilPerfil(String data) {
 
 bool waitConfirmation() {
   unsigned long startTime = millis();
-  unsigned long randomTimeout = 5000 + random(0, 5000);                                   // Timeout aleatorio
+  randomSeed(startTime);
+  unsigned long randomTimeout = random(2000, 7000);                                   // Timeout aleatorio
   while (millis() - startTime < randomTimeout) {
     int packetSize = LoRa.parsePacket();
     if (packetSize) {
@@ -61,9 +63,8 @@ bool waitConfirmation() {
       }
       if (data.startsWith(NODE_ID) && loraCheckData(data)) {
         TIMER = getTxFrequency(data);
-        Serial.print(F("  ✓ Confirmación recibida - TIMER: "));
-        Serial.print(TIMER);
-        Serial.println(F("min"));
+        Serial.print(F("  ✓ Confirmación recibida - "));
+        Serial.print(TIMER); Serial.println(F("min"));
         return true;
       } else {
         Serial.print(F("  → Mensaje ignorado: "));
@@ -81,8 +82,8 @@ bool waitConfirmation() {
                   TWI_ON);
     wdt_reset();
   }
-  Serial.println(F("    ✗ Tiempo de espera agotado"));
-  return false;
+  Serial.print(F("    ✗ Tiempo de espera ")); Serial.print(randomTimeout); Serial.println(F("ms agotado"));
+  return false; 
 }
 
 #pragma endregion LoRaWAN

@@ -13,7 +13,7 @@ String setupSHT() {
     delay(200);
   }
   sensorType = SHT;
-  sht4.setPrecision(SHT4X_HIGH_PRECISION);
+  sht4.setPrecision(SHT4X_MED_PRECISION);
   sht4.setHeater(SHT4X_NO_HEATER);
   Serial.print(F("  • Sensor SHT4: "));
   return String(sht4.readSerial(), HEX);

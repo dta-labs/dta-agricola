@@ -31,11 +31,15 @@ String setupDS() {
 
 void getTemperature() {
   h_actual = -1;
+  float t_medicion = -999;
+  byte iter = 0;
   do {
     sensorDS.requestTemperatures();
-    t_actual = sensorDS.getTempCByIndex(0); // Leer el valor del sensor
+    t_medicion = sensorDS.getTempCByIndex(0); // Leer el valor del sensor
     wdt_reset();
-  } while (t_actual == -127.0 || t_actual == 85.0 && t_actual <= -30.0 || t_actual >= 70.0);
+    iter++;
+  } while ((t_medicion == -127.0 || t_medicion == 85.0 || t_medicion <= -30.0 || t_medicion >= 70.0) && iter < 3);
+  t_actual = t_medicion != -999 && t_medicion != -127.0 && t_medicion != 85.0 && t_medicion > -30.0 && t_medicion < 70.0 ? t_medicion : t_actual;
 }
 
 #pragma endregion DallasSensor

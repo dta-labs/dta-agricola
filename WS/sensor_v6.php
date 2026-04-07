@@ -7,6 +7,7 @@ class SensorSystem {
     private $settings = null;
     private $users = null;
     private $curlHandle;
+    private $agroCache = []; // Array de cache por ubicación
 
     #region 0.- Funciones básicas
 
@@ -131,7 +132,7 @@ class SensorSystem {
     #region 2.- Procesar datos
 
     public function processData(): void {
-        $this->escribirLog("processData...");
+        // $this->escribirLog("processData...");
         if (isset($_GET['data']) && $_GET['data'] !== '[]') {
             $this->processRegularData();
         } else {
@@ -146,6 +147,7 @@ class SensorSystem {
             $this->sensorsDiscovery($data);
         } else {
             $this->updateLog($data);
+            $this->updateActualData($data);
             $this->verifyAlerts($data);
         }
     }
@@ -196,41 +198,197 @@ class SensorSystem {
         $logData = $this->crearLogData($data);
         $dayLogsFile = $this->baseUrl . "dayLogs.json";
         if ($this->esPrimerRegistroDelDia($dayLogsFile)) {
-            $this->escribirLog("Es primer registro del día...");
+            // $this->escribirLog("Es primer registro del día...");
             $this->procesarPrimerRegistro($dayLogsFile, $logData);
         } else {
-            $this->escribirLog("Adicionar nuevo registro diario...");
+            // $this->escribirLog("Adicionar nuevo registro diario...");
             $currentDate = $this->getCurrentDate($logData['date']);
             $lastDate = $this->obtenerUltimaFechaDia($dayLogsFile);
-            $this->escribirLog("currentDate: " . $currentDate . " ~ lastDate: " . $lastDate);
+            // $this->escribirLog("currentDate: " . $currentDate . " ~ lastDate: " . $lastDate);
             if ($this->esMismoDia($currentDate, $lastDate)) {
-                $this->escribirLog("Procesar mismo día... ");
+                // $this->escribirLog("Procesar mismo día... ");
                 $this->procesarMismoDia($dayLogsFile, $logData);
             } else {
-                $this->escribirLog("Procesar cambio de día... ");
+                // $this->escribirLog("Procesar cambio de día... ");
                 $this->procesarCambioDia($dayLogsFile, $logData, $lastDate);
             }
         }
     }
     
+    private function updateActualData(array $data) {
+        $settings = $this->getSettings();
+        $date = $this->getDateTime($this->getLocalZone())->format('Ymd hia');
+        $data = array_map(function($value) {       // Redondear a 1 decimal, manejar NAN y -127
+            if (is_nan($value) || $value === -127.0) return NAN;
+            return round($value, 1);
+        }, array: $data);                                                  // [Ms, Hr, T, Vcc]
+        $estacion = $this->getFilterObject($settings->key);
+        $limit = $settings->sensors->sensorNumber;
+        for ($i = 0; $i < $limit; $i++) {
+            $l = ($limit - 1) * 4;
+            $data[$i * 4] = $this->getValidOrFallbackValue($data, $i * 4, 0, $l, $date, null);
+            $data[$i * 4 + 1] = $this->getValidOrFallbackValue($data, $i * 4 + 1, 1, $l, $date, $estacion);
+            $data[$i * 4 + 2] = $this->getValidOrFallbackValue($data, $i * 4 + 2, 2, $l, $date, $estacion);
+            $data[$i * 4 + 3] = $this->getValidOrFallbackValue($data, $i * 4 + 3, 3, $l, $date, null);
+        }
+        $dataClean = array_map(function($v) {
+            return is_nan($v) ? -99 : $v;
+        }, $data);
+        $actualDataFile = [
+            'date' => $date,
+            'dataRaw' => $dataClean
+        ];
+        $this->executeRequest($this->baseUrl . "actualData.json", 'PUT', json_encode($actualDataFile));
+    }
+
+    private function getValidOrFallbackValue($data, $i, $j, $limit, $date, $estacion) {
+        if (is_nan($data[$i])) {
+            $indices = range($j, $limit + $j, 4); // genera [j, j+4, j+8, ..., j+36]
+            $valores = array_map(fn($i) => $data[$i] ?? NAN, $indices);
+            $valoresValidos = array_filter($valores, fn($v) => is_numeric($v) && !is_nan($v));
+            if (count($valoresValidos) > 0) {
+                return array_sum($valoresValidos) / count($valoresValidos);
+            } 
+            $settings = $this->getSettings();
+            $idx = "S" . (($i - $j) / 4);
+            $sensorLat = $settings->sensors->{$idx}->latitude;
+            $sensorLon = $settings->sensors->{$idx}->longitude;
+            if ($j === 0) return $this->getSoilMoisturePoint($sensorLat, $sensorLon);       // Ms
+            if ($j === 3) return 2.7;                                                                 // Vcc
+            if ($j === 1 || $j === 2) {
+                if ($estacion) {
+                    $est = $estacion['est'];
+                    $meteo = $this->executeRequest("https://dtaamerica.com/ws/estaciones.php?fi=$date&ff=$date&tp=Hora&re=DTA&es=$est");
+                    if ($j === 1 && isset($meteo['hmin'])) return $meteo['hmin'];                     // Hmin Estación meteorológica
+                    if ($j === 2 && isset($meteo['tprom'])) return $meteo['tprom'];                   // Tprom Estación meteorológica
+                }
+                $response = $this->getTHData($sensorLat, $sensorLon);
+                if ($j === 1 && isset($response[0])) return $response[0];                             // H2M open-meteo.com
+                if ($j === 2 && isset($response[1])) return $response[1];                             // T2M open-meteo.com
+            }
+            return NAN;
+        }
+        return $data[$i];
+    }
+
+    private function getFilterObject($systemId) {
+        $SENSOR_NETWORK = [
+            ['lat' => '29.072296', 'lon' => '-107.532898', 'est' => '_osm', 'sys' => '24530080324' ],
+            ['lat' => '29.0665367', 'lon' => '-107.512', 'est' => '_osm', 'sys' => '24530080449' ],
+            ['lat' => '29.052813', 'lon' => '-107.416114', 'est' => '_nal', 'sys' => '20333844254' ],
+            ['lat' => '29.264143', 'lon' => '-107.337137', 'est' => '_fac', 'sys' => '24530080316' ],
+            ['lat' => '29.2640867', 'lon' => '-107.337137', 'est' => '_fac', 'sys' => '24530080456' ],
+            ['lat' => '29.1126387', 'lon' => '-107.4352774', 'est' => '_lbr', 'sys' => '24530084283' ],
+            ['lat' => '29.077975', 'lon' => '-107.5262367', 'est' => '_osm', 'sys' => '24530094291' ],
+            ['lat' => '28.8634', 'lon' => '-107.2421589', 'est' => '_bac', 'sys' => '24530094135' ],
+            ['lat' => '28.615746', 'lon' => '-107.545181', 'est' => '_mrc', 'sys' => '24530080415' ],
+            ['lat' => '28.6008204', 'lon' => '-107.5425449', 'est' => '_gue', 'sys' => '24530094119' ],
+            ['lat' => '28.60248', 'lon' => '-107.54051', 'est' => '_gue', 'sys' => '24530080423' ],
+            ['lat' => '28.4894', 'lon' => '-107.441965', 'est' => '_mmi', 'sys' => '24530094143' ],
+            ['lat' => '28.4894383', 'lon' => '-107.4418783', 'est' => '_mmi', 'sys' => '24530094150' ],
+            ['lat' => '28.60248', 'lon' => '-107.54051', 'est' => '_gue', 'sys' => '24530080423' ],
+            ['lat' => '28.5080187', 'lon' => '-107.4193631', 'est' => '_bas', 'sys' => '24530080431' ],
+            ['lat' => '28.3936211', 'lon' => '-107.1927627', 'est' => '_ros', 'sys' => '24530094275' ],
+            ['lat' => '28.475049', 'lon' => '-107.314355', 'est' => '_lju', 'sys' => '24530080407' ],
+            ['lat' => '28.204821', 'lon' => '-107.026813', 'est' => '', 'sys' => '24530080332' ]
+        ];
+        $result = array_filter($SENSOR_NETWORK, function($sensorNet) use ($systemId) {
+            return $sensorNet['sys'] === $systemId;
+        });
+        return reset($result) ?: null;
+    }
+
+    private function getTHData($lat, $lon) {
+        $url = "https://api.open-meteo.com/v1/forecast?latitude=$lat&longitude=$lon&hourly=temperature_2m,relative_humidity_2m&timezone=America/Chihuahua";
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);      // máximo 10 segundos
+        $response = curl_exec($ch);
+        $locationKey = round((float)$lat, 4) . ',' . round((float)$lon, 4);
+        if ($response === false) {
+            error_log("Open-Meteo API Error: " . curl_error($ch));
+            return isset($this->agroCache[$locationKey]) ? [null, $this->agroCache[$locationKey]['temp'] ?? null] : [null, null];          // [Hr, Temp]
+        }
+        $data = json_decode($response, true);
+        $times  = $data['hourly']['time'] ?? [];
+        $temps  = $data['hourly']['temperature_2m'] ?? [];
+        $humids = $data['hourly']['relative_humidity_2m'] ?? [];
+        date_default_timezone_set("America/Chihuahua");
+        $currentHour = date("Y-m-d\TH:00");
+        $index = array_search($currentHour, $times);
+        if ($index !== false && isset($temps[$index]) && isset($humids[$index])) {
+            return [$humids[$index], $temps[$index]];                                           // [Hr, Temp]
+        }
+        // Si no encontramos la hora actual, usar la más cercana
+        $closestIndex = $this->findClosestHourIndex($times, $currentHour);
+        if ($closestIndex !== null && isset($temps[$closestIndex]) && isset($humids[$closestIndex])) {
+            return [$humids[$closestIndex], $temps[$closestIndex]];                             // [Hr, Temp]
+        }
+        return isset($this->agroCache[$locationKey]) ? [null, $this->agroCache[$locationKey]['temp'] ?? null] : [null, null];    // [Hr, Temp]
+    }
+    
+    private function findClosestHourIndex($times, $targetTime) {
+        $closestIndex = null;
+        $minDiff = PHP_INT_MAX;
+        
+        foreach ($times as $index => $time) {
+            $diff = abs(strtotime($time) - strtotime($targetTime));
+            if ($diff < $minDiff) {
+                $minDiff = $diff;
+                $closestIndex = $index;
+            }
+        }
+        
+        return $closestIndex;
+    }
+    
+    function getSoilMoisturePoint($lat, $lon) {
+        $agroAPI = '07f1e9d39ef35ee2b22c77c48a4c5a7d';
+        $soilUrl = "https://api.agromonitoring.com/agro/1.0/soil?lat=$lat&lon=$lon&appid=$agroAPI";
+        $resp = file_get_contents($soilUrl);
+        if ($resp === false) return null;                           // Error de conexión
+        $soilData = json_decode($resp, true);
+        if ($soilData === null) return null;                        // Error al decodificar
+        $sm = $soilData['moisture']                                 // Buscar humedad en diferentes posibles claves
+            ?? ($soilData['soil_moisture'] 
+            ?? ($soilData['volumetric_water_content'] ?? null));
+        if ($sm !== null && is_numeric($sm) && $sm < 1) {    // Convertir de fracción a porcentaje si es < 1
+            $sm = $sm * 100.0;
+        }
+        
+        // Almacenar datos de temperatura y humedad para uso futuro (cache por ubicación)
+        $locationKey = round((float)$lat, 4) . ',' . round((float)$lon, 4);
+        $tempKelvin = $soilData['t0'] ?? null;
+        // $tempKelvin = $soilData['t10'] ?? $soilData['t0'] ?? null;
+        $temp = $tempKelvin !== null ? $tempKelvin - 273.15 : null;
+        
+        $this->agroCache[$locationKey] = [
+            'temp' => $temp,
+            'humidity' => null, // No disponible en endpoint soil
+            'timestamp' => time()
+        ];
+        
+        return is_numeric($sm) ? floatval($sm) : null;
+    }
+
     private function crearLogData(array $data): array {
         $date = $this->getDateTime($this->getLocalZone())->format('Ymd hia');
-        $roundedData = array_map(function($value) {                                           // Redondear a 1 decimal, manejar NAN y -127
+        $data = array_map(function($value) {                                           // Redondear a 1 decimal, manejar NAN y -127
             if (is_nan($value) || $value === -127.0) return NAN;
             return round($value, 1);
         }, $data);
         $totalSensors = 10;                                                                   // 10 sensores
-        $valuesPerSensor = 4;                                                                 // [Ms, Hr, T, Vcc]
+        $valuesPerSensor = 6;                                                                 // [Ms, Hr, T, Vcc, Lat, Lng]
         $expandedData = [];
         for ($i = 0; $i < $totalSensors; $i++) {
             $msIndex  = $i * $valuesPerSensor;                                                // Ms
             $hrIndex  = $i * $valuesPerSensor + 1;                                            // Hr
             $tIndex   = $i * $valuesPerSensor + 2;                                            // T
             $vccIndex = $i * $valuesPerSensor + 3;                                            // Vcc
-            $msValue  = $roundedData[$msIndex]  ?? NAN;
-            $hrValue  = $roundedData[$hrIndex]  ?? NAN;
-            $tValue   = $roundedData[$tIndex]   ?? NAN;
-            $vccValue = $roundedData[$vccIndex] ?? NAN;
+            $msValue  = $data[$msIndex]  ?? NAN;
+            $hrValue  = $data[$hrIndex]  ?? NAN;
+            $tValue   = $data[$tIndex]   ?? NAN;
+            $vccValue = $data[$vccIndex] ?? NAN;
             $etc = (!is_nan($tValue) && !is_nan($hrValue)) ? round($this->calcularETo($tValue, $hrValue), 1) : NAN; // Calcular ETc
             $hf = !is_nan($tValue) ? round($this->calcularHorasFrio($tValue), 1) : NAN;       // Calcular Hf
             $expandedData[] = (string)$msValue;                                               // Array expandido: [Ms, Hr, Tmin, Tmax, T, ETc, Hf, Vcc]
@@ -258,7 +416,7 @@ class SensorSystem {
     
     private function procesarPrimerRegistro(string $dayLogsFile, array $logData): void {
         $this->executeRequest($dayLogsFile, 'POST', json_encode($logData));
-        $this->escribirLog("Primer registro del día - guardado en dayLogs.json");
+        // $this->escribirLog("Primer registro del día - guardado en dayLogs.json");
     }
     
     private function getCurrentDate(string $fullDate): string {
@@ -288,21 +446,23 @@ class SensorSystem {
     }
     
     private function procesarCambioDia(string $dayLogsFile, array $logData, ?string $lastDate): void {
-        $this->escribirLog("Cambio de día detectado - calculando promedio");
+        // $this->escribirLog("Cambio de día detectado - calculando promedio");
         $dayLogs = $this->leerDayLogs($dayLogsFile);
         $promedioDataRaw = $this->calcularPromedioDataRaw($dayLogs);
         $this->executeRequest($dayLogsFile, 'DELETE');                                          // Eliminar dayLogs.json completo
-        $this->escribirLog("dayLogs.json eliminado");
+        // $this->escribirLog("dayLogs.json eliminado");
         $summaryLogData = $this->crearRegistroPromedio($lastDate ?? '', $promedioDataRaw);      // Crear registro promedio
         $this->guardarEnLogsPrincipal($summaryLogData);                                         // Guardar promedio en logs.json principal
         $this->executeRequest($dayLogsFile, 'POST', json_encode($logData));                     // Iniciar nuevo día con el registro actual
-        $this->escribirLog("Nuevo día iniciado - registro actual guardado en dayLogs.json");
+        // $this->escribirLog("Nuevo día iniciado - registro actual guardado en dayLogs.json");
     }
 
     private function processEmptyData() {
-        $data = array_fill(0, 80, NAN);
-        $this->updateLog($data);
-        $this->escribirLog("Datos vacíos recibidos");
+        // $data80 = array_fill(0, 80, NAN);
+        // $this->updateLog($data80);
+        $data40 = array_fill(0, 40, NAN);
+        $this->updateActualData($data40);
+        // $this->escribirLog("Datos vacíos recibidos");
     }
 
     #endregion 2.- Procesar datos
@@ -462,7 +622,7 @@ class SensorSystem {
             if (!is_array($dataRaw) || count($dataRaw) !== $totalSensors * $valuesPerSensor) {
                 continue;
             }
-            $this->escribirLog("DataRaw: " . json_encode($dataRaw));
+            // $this->escribirLog("DataRaw: " . json_encode($dataRaw));
             
             for ($i = 0; $i < $totalSensors; $i++) {
                 $msIndex = $i * $valuesPerSensor;     // Ms

@@ -283,7 +283,8 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                             getMetorologicalData(locationKey);
 
                             // Determinar ruta de logs según tipo
-                            let dir = $scope.systems[locationKey].type === "Sensor" ? "dayLogs" : "logs";
+                            // let dir = $scope.systems[locationKey].type === "Sensor" ? "dayLogs" : "logs";
+                            let dir = $scope.systems[locationKey].type === "Sensor" ? "actualData" : "logs";
                             $scope.loadSystemLog(locationKey, 1, `/${dir}`);
 
                             if (locationKey === lastLocation) $scope.$apply();
@@ -296,12 +297,14 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
 
                     // if ($scope.systems[locationKey] && $scope.systems[locationKey].type == "Sensor") {
                         // --- Listener para DAYLOGS ---
-                        listeners[`${locationKey}_dayLogs`] = firebase.database().ref(`systems/${locationKey}/dayLogs`);
+                        // listeners[`${locationKey}_dayLogs`] = firebase.database().ref(`systems/${locationKey}/dayLogs`);
+                        listeners[`${locationKey}_dayLogs`] = firebase.database().ref(`systems/${locationKey}/actualData`);
                         listeners[`${locationKey}_dayLogs`].on("value", dayLogs => {
                             if (dayLogs.val()) {
                                 // $scope.systems[locationKey].dayLogs = dayLogs.val();
                                 // Aquí también puedes disparar funciones adicionales
-                                $scope.loadSystemLog(locationKey, 3000, "/dayLogs");
+                                // $scope.loadSystemLog(locationKey, 3000, "/dayLogs");
+                                $scope.loadSystemLog(locationKey, 3000, "/actualData");
                                 $scope.$apply();
                             }
                         });
@@ -501,7 +504,8 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         $scope.loadCultures();
         setActualSystemPlans();
         $scope.actualizarListaCultivos();
-        let dir = system.type == "Sensor" ? "/dayLogs" : "/logs";
+        // let dir = system.type == "Sensor" ? "/dayLogs" : "/logs";
+        let dir = system.type == "Sensor" ? "/actualData" : "/logs";
         let items = system.type == "Sensor" ? 300 : $scope.limitRegisters;
         $scope.loadSystemLog(system.key, items, dir);
         // invertLog();
@@ -525,7 +529,8 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         if (option != 'DIA') {
             $scope.loadSystemLog(systemKey, $scope.limitRegisters);
         } else {
-            $scope.loadSystemLog(systemKey, $scope.limitRegisters, "/dayLogs");
+            // $scope.loadSystemLog(systemKey, $scope.limitRegisters, "/dayLogs");
+            $scope.loadSystemLog(systemKey, $scope.limitRegisters, "/actualData");
         }
     }
 

@@ -8,6 +8,8 @@ class SensorSystem {
     private $users = null;
     private $curlHandle;
 
+    #region 0.- Funciones básicas
+
     public function __construct(string $id) {
         $this->baseUrl = "https://dta-agricola.firebaseio.com/systems/$id/";
         $this->initCurl();
@@ -54,7 +56,7 @@ class SensorSystem {
         }
     
         $httpCode = curl_getinfo($this->curlHandle, CURLINFO_HTTP_CODE);
-        $this->escribirLog("HTTP $method $url - Código: $httpCode");
+        // $this->escribirLog("HTTP $method $url - Código: $httpCode");
         
         return $httpCode >= 200 && $httpCode < 300 ? json_decode($response) : null;
     }
@@ -109,6 +111,257 @@ class SensorSystem {
         return $this->settings;
     }
 
+    #endregion 0.- Funciones básicas
+
+    #region 1.- Enviar configuración al dispositivo
+
+    public function formatSettingsForDevice(): string {
+        // $this->escribirLog("formatSettingsForDevice...");
+        $settings = $this->getSettings();
+        $sendData = "\"{$settings->operationMode}";
+        for ($i = 0; $i < $settings->sensors->sensorNumber; $i++) {
+            $idx = "S$i";
+            $sendData .= "\"{$settings->sensors->$idx->id}";
+        }
+        return $sendData . "\"";
+    }
+
+    #endregion 1.- Enviar configuración al dispositivo
+
+    #region 2.- Procesar datos
+
+    public function processData(): void {
+        $this->escribirLog("processData...");
+        if (isset($_GET['data']) && $_GET['data'] !== '[]') {
+            $this->processRegularData();
+        } else {
+            $this->processEmptyData();
+        }
+    }
+
+    private function processRegularData() {
+        $settings = $this->getSettings();
+        $data = $this->fillEmptyData($_GET['data']);
+        if ($settings->operationMode && ($settings->operationMode == "" || $settings->operationMode == "0" || $settings->operationMode == 0)) {
+            $this->sensorsDiscovery($data);
+        } else {
+            $this->updateLog($data);
+            $this->verifyAlerts($data);
+        }
+    }
+    
+    private function fillEmptyData($rawData): array {
+        $rawData = str_replace('[,', '[NaN,NaN,NaN,NaN,', $rawData);
+        $rawData = preg_replace_callback('/,{2,}/', function($matches) {    // Reemplazar secuencias de comas vacías por NaN
+            $count = strlen($matches[0]) - 1;                               // Número de huecos
+            $nanBlock = implode(',', array_fill(0, $count * 4, 'NaN'));
+            return ',' . $nanBlock . ',';
+        }, $rawData);
+        $rawData = str_replace(',]', ',NaN,NaN,NaN,NaN]', $rawData);
+        $rawData = trim($rawData, '[]');                                    // Limpiar corchetes
+        $data = explode(',', $rawData);                                     // Convertir a array
+        $numericData = array_map(function($v) {                             // Convertir cada valor a número, usando NAN cuando no sea posible
+            if ($v === 'NaN') {
+                return NAN;                                                 // constante de PHP
+            }
+            return is_numeric($v) ? (float)$v : NAN;
+        }, $data);
+        return $numericData;
+    }
+
+    private function sensorsDiscovery($data) {
+        $actualize = true;
+        $length = count($data);
+        for ($i = 0; $i < $length; $i++) {
+            $idx = "S$i";
+            if (isset($data[$i]) && strpos($data[$i], '0x') === 0) {
+                $settings->sensors->$idx->id = $data[$i];
+                $settings->sensors->$idx->latitude = $settings->sensors->$idx->latitude ?? 0.0;
+                $settings->sensors->$idx->longitude = $settings->sensors->$idx->longitude ?? 0.0;
+                $settings->sensors->$idx->type = $settings->sensors->$idx->type ?? "SHT4";
+            } else {
+                $actualize = false;
+                break;
+            }
+        }
+        if ($actualize) {
+            $settings->sensors->sensorNumber = $length;       // Actualizar el número de sensores
+            $this->settings = $settings;                      // Actualizar la caché local
+            $this->updateSettings($settings);
+        }
+    }
+
+    private function updateLog(array $data): void {
+        // $this->escribirLog("updateLog...");
+        $logData = $this->crearLogData($data);
+        $dayLogsFile = $this->baseUrl . "dayLogs.json";
+        if ($this->esPrimerRegistroDelDia($dayLogsFile)) {
+            $this->escribirLog("Es primer registro del día...");
+            $this->procesarPrimerRegistro($dayLogsFile, $logData);
+        } else {
+            $this->escribirLog("Adicionar nuevo registro diario...");
+            $currentDate = $this->getCurrentDate($logData['date']);
+            $lastDate = $this->obtenerUltimaFechaDia($dayLogsFile);
+            $this->escribirLog("currentDate: " . $currentDate . " ~ lastDate: " . $lastDate);
+            if ($this->esMismoDia($currentDate, $lastDate)) {
+                $this->escribirLog("Procesar mismo día... ");
+                $this->procesarMismoDia($dayLogsFile, $logData);
+            } else {
+                $this->escribirLog("Procesar cambio de día... ");
+                $this->procesarCambioDia($dayLogsFile, $logData, $lastDate);
+            }
+        }
+    }
+    
+    private function crearLogData(array $data): array {
+        $date = $this->getDateTime($this->getLocalZone())->format('Ymd hia');
+        $roundedData = array_map(function($value) {                                           // Redondear a 1 decimal, manejar NAN y -127
+            if (is_nan($value) || $value === -127.0) return NAN;
+            return round($value, 1);
+        }, $data);
+        $totalSensors = 10;                                                                   // 10 sensores
+        $valuesPerSensor = 4;                                                                 // [Ms, Hr, T, Vcc]
+        $expandedData = [];
+        for ($i = 0; $i < $totalSensors; $i++) {
+            $msIndex  = $i * $valuesPerSensor;                                                // Ms
+            $hrIndex  = $i * $valuesPerSensor + 1;                                            // Hr
+            $tIndex   = $i * $valuesPerSensor + 2;                                            // T
+            $vccIndex = $i * $valuesPerSensor + 3;                                            // Vcc
+            $msValue  = $roundedData[$msIndex]  ?? NAN;
+            $hrValue  = $roundedData[$hrIndex]  ?? NAN;
+            $tValue   = $roundedData[$tIndex]   ?? NAN;
+            $vccValue = $roundedData[$vccIndex] ?? NAN;
+            $etc = (!is_nan($tValue) && !is_nan($hrValue)) ? round($this->calcularETo($tValue, $hrValue), 1) : NAN; // Calcular ETc
+            $hf = !is_nan($tValue) ? round($this->calcularHorasFrio($tValue), 1) : NAN;       // Calcular Hf
+            $expandedData[] = (string)$msValue;                                               // Array expandido: [Ms, Hr, Tmin, Tmax, T, ETc, Hf, Vcc]
+            $expandedData[] = (string)$hrValue;                                               // Ms
+            $expandedData[] = (string)$tValue;                                                // Tmin
+            $expandedData[] = (string)$tValue;                                                // Tmax
+            $expandedData[] = (string)$tValue;                                                // T
+            $expandedData[] = (string)$etc;                                                   // ETc
+            $expandedData[] = (string)$hf;                                                    // Hf
+            $expandedData[] = (string)$vccValue;                                              // Vcc
+        }
+        return [
+            'date' => $date,
+            'dataRaw' => json_encode($expandedData),
+            'signal' => $_GET['si'] ?? '',
+            'qos' => $_GET['qos'] ?? '',
+            'reception' => in_array($_GET['rx'] ?? '', ['Ok', 'Er', 'ini']) ? $_GET['rx'] : ''
+        ];
+    }
+
+    private function esPrimerRegistroDelDia(string $dayLogsFile): bool {
+        $response = $this->executeRequest($dayLogsFile);
+        return $response === null;
+    }
+    
+    private function procesarPrimerRegistro(string $dayLogsFile, array $logData): void {
+        $this->executeRequest($dayLogsFile, 'POST', json_encode($logData));
+        $this->escribirLog("Primer registro del día - guardado en dayLogs.json");
+    }
+    
+    private function getCurrentDate(string $fullDate): string {
+        return substr($fullDate, 0, 8);
+    }
+    
+    private function obtenerUltimaFechaDia(string $dayLogsFile): ?string {
+        $response = $this->executeRequest($dayLogsFile);
+        // $this->escribirLog("Response: " . json_encode($response));
+        if ($response === null) return null;
+        $dayLogs = json_decode(json_encode($response), true);
+        if (empty($dayLogs)) return null;
+        $lastLog = end($dayLogs);
+        if (!isset($lastLog['date'])) {
+            return null; // o ajusta según tu estructura
+        }
+        return substr($lastLog['date'], 0, 8);
+    }
+
+    private function esMismoDia(string $currentDate, ?string $lastDate): bool {
+        return $lastDate !== null && $currentDate === $lastDate;
+    }
+    
+    private function procesarMismoDia(string $dayLogsFile, array $logData): void {
+        $this->executeRequest($dayLogsFile, 'POST', json_encode($logData));
+        // $this->escribirLog("Mismo día - guardado en dayLogs.json");
+    }
+    
+    private function procesarCambioDia(string $dayLogsFile, array $logData, ?string $lastDate): void {
+        $this->escribirLog("Cambio de día detectado - calculando promedio");
+        $dayLogs = $this->leerDayLogs($dayLogsFile);
+        $promedioDataRaw = $this->calcularPromedioDataRaw($dayLogs);
+        $this->executeRequest($dayLogsFile, 'DELETE');                                          // Eliminar dayLogs.json completo
+        $this->escribirLog("dayLogs.json eliminado");
+        $summaryLogData = $this->crearRegistroPromedio($lastDate ?? '', $promedioDataRaw);      // Crear registro promedio
+        $this->guardarEnLogsPrincipal($summaryLogData);                                         // Guardar promedio en logs.json principal
+        $this->executeRequest($dayLogsFile, 'POST', json_encode($logData));                     // Iniciar nuevo día con el registro actual
+        $this->escribirLog("Nuevo día iniciado - registro actual guardado en dayLogs.json");
+    }
+
+    private function processEmptyData() {
+        $data = array_fill(0, 80, NAN);
+        $this->updateLog($data);
+        $this->escribirLog("Datos vacíos recibidos");
+    }
+
+    #endregion 2.- Procesar datos
+
+    #region 3.- Verificar Alertas
+
+    private function verifyAlerts($data): void {
+        $settings = $this->getSettings();
+        $usersID = $this->getUsers(); 
+        $dataSize = count($data);
+        $length = $settings->sensors->sensorNumber ?? 0;
+        if ($length == 0) {
+            return;
+        }
+        for ($i = 0; $i < $settings->sensors->sensorNumber; $i++) {
+            $idx = "S$i";
+            $sensor = $settings->sensors->$idx;
+            $sensorType = $sensor->type ?? "SHT4";
+            $sensorLength = ($sensorType == "SHT4" || $sensorType == "WM") ? 4 : (($sensorType == "STH" || $sensorType == "FlP") ? 3 : 1);
+            $sensorID = $sensor->alias ?? $sensor->id;
+            if ($sensorID !== '0x0') {
+                $notificationId = ($settings->name ?? $settings->key) . " - " . $sensorID;
+                $minHumThreshold = $sensor->h->minValue ?? 30;
+                $maxHumThreshold = $sensor->h->maxValue ?? 80;
+                $notifyH = $sensor->h->notify ?? false;
+                $value = $data[$i * $sensorLength] ?? 'NaN';
+                if($value !== 'NaN' && isset($sensor->h) && $notifyH) {
+                    $this->escribirLog("Alerta Humedad...");
+                    $this->sendPushNotification($usersID, "Humedad", $notificationId, $value, $minHumThreshold, $maxHumThreshold);
+                }
+                $minTempThreshold = $sensor->t->minValue ?? 2;
+                $maxTempThreshold = $sensor->t->maxValue ?? 30;
+                $notifyT = $sensor->t->notify ?? false;
+                $value = $data[$i * $sensorLength + 2] ?? 'NaN';
+                if($value !== 'NaN' && isset($sensor->t) && $notifyT) {
+                    $this->escribirLog("Alerta Temperatura...");
+                    $this->sendPushNotification($usersID, "Temperatura", $notificationId, $value, $minTempThreshold, $maxTempThreshold);
+                }
+            }
+        }
+    }
+
+    private function sendPushNotification($usersID, $txt, $sensorID, $value, $minThreshold, $maxThreshold): void {
+        if ($value !== 'NaN' && $value !== '-127' && $value > -127 && $value !== '' && $minThreshold !== 'null' && $maxThreshold !== 'null') {
+            if ($value <= $minThreshold || $maxThreshold <= $value) { 
+                $msg = "Alerta " . ($value <= $minThreshold ? "baja " : "alta ") . $txt; 
+                foreach ($usersID as $user) {
+                    $msg = "{$msg}: {$sensorID} [{$value}" . ($txt == 'Temperatura' ? '°C' : '%') . "]...";
+                    $url = "https://dtaamerica.com/ws/push.php?user={$user}&txt=" . urlencode($msg);
+                    $response = file_get_contents($url);
+                }
+            }
+        }
+    }
+
+    #endregion 3.- Verificar Alertas
+
+    #region 4.- Miscelaneas
+
     private function getUsers(): array {
         if ($this->users === null) {
             $this->users = $this->executeRequest($this->baseUrl . "users.json");
@@ -138,184 +391,6 @@ class SensorSystem {
         $dateTime = new DateTime();
         $dateTime->modify("$localZone hours");
         return $dateTime;
-    }
-
-    public function formatSettingsForDevice(): string {
-        // $this->escribirLog("formatSettingsForDevice...");
-        $settings = $this->getSettings();
-        $sendData = "\"{$settings->operationMode}";
-        
-        for ($i = 0; $i < $settings->sensors->sensorNumber; $i++) {
-            $idx = "S$i";
-            $sendData .= "\"{$settings->sensors->$idx->id}";
-        }
-        
-        return $sendData . "\"";
-    }
-
-    private function updateLog(array $data): void {
-        $this->escribirLog("updateLog...");
-        $settings = $this->getSettings();
-        if (empty($data) || $settings->operationMode == 0) {
-            return;
-        }
-        
-        $logData = $this->crearLogData($data);
-        $dayLogsFile = $this->baseUrl . "dayLogs.json";
-        
-        if ($this->esPrimerRegistroDelDia($dayLogsFile)) {
-            $this->escribirLog("esPrimerRegistroDelDia: No existe registro - es primer registro del día");
-            $this->procesarPrimerRegistro($dayLogsFile, $logData);
-        } else {
-            $this->escribirLog("esPrimerRegistroDelDia: Ya existe registro");
-            $currentDate = $this->getCurrentDate($logData['date']);
-            $this->escribirLog("currentDate: " . $currentDate);
-            $lastDate = $this->obtenerUltimaFechaDia($dayLogsFile);
-            $this->escribirLog("lastDate: " . $lastDate);
-            
-            if ($this->esMismoDia($currentDate, $lastDate)) {
-                $this->escribirLog("Procesar mismo día ");
-                $this->procesarMismoDia($dayLogsFile, $logData);
-            } else {
-                $this->escribirLog("Procesar cambio de día ");
-                $this->procesarCambioDia($dayLogsFile, $logData, $lastDate);
-            }
-        }
-        
-        // Siempre guardar en logs.json principal
-        // $this->guardarEnLogsPrincipal($logData);
-    }
-    
-    /**
-     * Crear estructura de datos del log
-     */
-    private function crearLogData(array $data): array {
-        $date = $this->getDateTime($this->getLocalZone())->format('Ymd hia');
-        
-        // Redondear todos los valores float a 1 decimal
-        $roundedData = array_map(function($value) {
-            if (is_numeric($value) && $value !== "NaN" && $value !== '-127') {
-                return round((float)$value, 1);
-            }
-            return $value;
-        }, $data);
-        
-        // Convertir array de 4 valores por sensor [Ms,Hr,T,Vcc] a 8 valores [Ms,Hr,Tmin,Tmax,T,ETc,Hf,Vcc]
-        $totalSensors = 10;
-        $valuesPerSensor = 4; // [Ms, Hr, T, Vcc]
-        $expandedData = [];
-        
-        for ($i = 0; $i < $totalSensors; $i++) {
-            $msIndex = $i * $valuesPerSensor;     // Ms
-            $hrIndex = $i * $valuesPerSensor + 1; // Hr
-            $tIndex = $i * $valuesPerSensor + 2;  // T
-            $vccIndex = $i * $valuesPerSensor + 3; // Vcc
-            
-            $msValue = $roundedData[$msIndex] ?? "NaN";
-            $hrValue = $roundedData[$hrIndex] ?? "NaN";
-            $tValue = $roundedData[$tIndex] ?? "NaN";
-            $vccValue = $roundedData[$vccIndex] ?? "NaN";
-            
-            // Para registros individuales, Tmin = Tmax = T (es el valor actual)
-            $tValueFloat = is_numeric($tValue) && $tValue !== "NaN" ? round((float)$tValue, 1) : "NaN";
-            
-            // Calcular ETc y Hf para este registro individual
-            $hrValueFloat = is_numeric($hrValue) && $hrValue !== "NaN" ? round((float)$hrValue, 1) : "NaN";
-            $etc = (is_numeric($tValueFloat) && is_numeric($hrValueFloat) && $tValueFloat !== "NaN" && $hrValueFloat !== "NaN") 
-                ? round($this->calcularETo($tValueFloat, $hrValueFloat), 1) 
-                : "NaN";
-            $hf = (is_numeric($tValueFloat) && $tValueFloat !== "NaN") 
-                ? $this->calcularHorasFrio($tValueFloat) 
-                : "NaN";
-            
-            // Construir array expandido: [Ms, Hr, Tmin, Tmax, T, ETc, Hf, Vcc]
-            $expandedData[] = (string) $msValue;        // Ms
-            $expandedData[] = (string) $hrValue;        // Hr
-            $expandedData[] = (string) $tValueFloat;    // Tmin   (igual a T en registro individual)
-            $expandedData[] = (string) $tValueFloat;    // Tmax (igual a T en registro individual)
-            $expandedData[] = (string) $tValueFloat;    // T
-            $expandedData[] = (string) $etc;            // ETc
-            $expandedData[] = (string) $hf;             // Hf
-            $expandedData[] = (string) $vccValue;       // Vcc
-        }
-        
-        return [
-            'date' => $date,
-            'dataRaw' => json_encode($expandedData),
-            'signal' => $_GET['si'] ?? '',
-            'qos' => $_GET['qos'] ?? '',
-            'reception' => in_array($_GET['rx'] ?? '', ['Ok', 'Er', 'ini']) ? $_GET['rx'] : ''
-        ];
-    }
-    
-    private function esPrimerRegistroDelDia(string $dayLogsFile): bool {
-        $response = $this->executeRequest($dayLogsFile);
-        return $response === null;
-    }
-    
-    private function getCurrentDate(string $fullDate): string {
-        return substr($fullDate, 0, 8);
-    }
-    
-    private function obtenerUltimaFechaDia(string $dayLogsFile): ?string {
-        $response = $this->executeRequest($dayLogsFile);
-        $this->escribirLog("Response: " . json_encode($response));
-        if ($response === null) {
-            return null;
-        }
-        $dayLogs = json_decode(json_encode($response), true);
-        if (empty($dayLogs)) {
-            return null;
-        }
-        $lastLog = end($dayLogs);
-
-        if (!isset($lastLog['date'])) {
-            return null; // o ajusta según tu estructura
-        }
-        return substr($lastLog['date'], 0, 8);
-    }
-
-    private function esMismoDia(string $currentDate, ?string $lastDate): bool {
-        return $lastDate !== null && $currentDate === $lastDate;
-    }
-    
-    private function procesarPrimerRegistro(string $dayLogsFile, array $logData): void {
-        $this->executeRequest($dayLogsFile, 'POST', json_encode($logData));
-        $this->escribirLog("Primer registro del día - guardado en dayLogs.json");
-    }
-    
-    private function procesarMismoDia(string $dayLogsFile, array $logData): void {
-        $this->executeRequest($dayLogsFile, 'POST', json_encode($logData));
-        $this->escribirLog("Mismo día - guardado en dayLogs.json");
-    }
-    
-    /**
-     * Procesar cambio de día (calcular promedio y reiniciar) - usando Firebase
-     */
-    private function procesarCambioDia(string $dayLogsFile, array $logData, ?string $lastDate): void {
-        $this->escribirLog("Cambio de día detectado - calculando promedio");
-        
-        $dayLogs = $this->leerDayLogs($dayLogsFile);
-        $promedioDataRaw = $this->calcularPromedioDataRaw($dayLogs);
-        
-        // Eliminar dayLogs.json completo
-        $this->executeRequest($dayLogsFile, 'DELETE');
-        $this->escribirLog("dayLogs.json eliminado");
-        
-        // Crear registro promedio
-        $summaryLogData = $this->crearRegistroPromedio($lastDate ?? '', $promedioDataRaw);
-        
-        // Guardar promedio en archivo de resumen
-        // $summaryFile = $this->baseUrl . "summaryLogs.json";
-        // $this->executeRequest($summaryFile, 'POST', json_encode($summaryLogData));
-        // $this->escribirLog("Resumen del día guardado en summaryLogs.json");
-        
-        // Guardar promedio en logs.json principal
-        $this->guardarEnLogsPrincipal($summaryLogData);
-        
-        // Iniciar nuevo día con el registro actual
-        $this->executeRequest($dayLogsFile, 'POST', json_encode($logData));
-        $this->escribirLog("Nuevo día iniciado - registro actual guardado en dayLogs.json");
     }
     
     /**
@@ -516,53 +591,6 @@ class SensorSystem {
         }
     }
 
-    private function verifyAlerts($data): void {
-        $settings = $this->getSettings();
-        $usersID = $this->getUsers(); 
-        $dataSize = count($data);
-        $length = $settings->sensors->sensorNumber ?? 0;
-        if ($length == 0) {
-            return;
-        }
-        for ($i = 0; $i < $settings->sensors->sensorNumber; $i++) {
-            $idx = "S$i";
-            $sensor = $settings->sensors->$idx;
-            $sensorType = $sensor->type ?? "SHT4";
-            $sensorLength = ($sensorType == "SHT4" || $sensorType == "WM") ? 4 : (($sensorType == "STH" || $sensorType == "FlP") ? 3 : 1);
-            $sensorID = $sensor->alias ?? $sensor->id;
-            if ($sensorID !== '0x0') {
-                $notificationId = ($settings->name ?? $settings->key) . " - " . $sensorID;
-                $minHumThreshold = $sensor->h->minValue ?? 30;
-                $maxHumThreshold = $sensor->h->maxValue ?? 80;
-                $notifyH = $sensor->h->notify ?? false;
-                $value = $data[$i * $sensorLength] ?? 'NaN';
-                if($value !== 'NaN' && isset($sensor->h) && $notifyH) {
-                    $this->sendPushNotification($usersID, "Humedad", $notificationId, $value, $minHumThreshold, $maxHumThreshold);
-                }
-                $minTempThreshold = $sensor->t->minValue ?? 2;
-                $maxTempThreshold = $sensor->t->maxValue ?? 30;
-                $notifyT = $sensor->t->notify ?? false;
-                $value = $data[$i * $sensorLength + 2] ?? 'NaN';
-                if($value !== 'NaN' && isset($sensor->t) && $notifyT) {
-                    $this->sendPushNotification($usersID, "Temperatura", $notificationId, $value, $minTempThreshold, $maxTempThreshold);
-                }
-            }
-        }
-    }
-
-    private function sendPushNotification($usersID, $txt, $sensorID, $value, $minThreshold, $maxThreshold): void {
-        if ($value !== 'NaN' && $value !== '-127' && $value > -127 && $value !== '' && $minThreshold !== 'null' && $maxThreshold !== 'null') {
-            if ($value <= $minThreshold || $maxThreshold <= $value) { 
-                $msg = "Alerta " . ($value <= $minThreshold ? "baja " : "alta ") . $txt; 
-                foreach ($usersID as $user) {
-                    $msg = "{$msg}: {$sensorID} [{$value}" . ($txt == 'Temperatura' ? '°C' : '%') . "]...";
-                    $url = "https://dtaamerica.com/ws/push.php?user={$user}&txt=" . urlencode($msg);
-                    $response = file_get_contents($url);
-                }
-            }
-        }
-    }
-
     public function escribirLog($mensaje) {
         $archivo = __DIR__ . '/log.txt'; // Usamos ruta absoluta
         $fechaHora = date('Y-m-d H:i:s');
@@ -599,133 +627,12 @@ class SensorSystem {
         );
     }
 
-    private function fillEmptyData($rawData, $sensors, $sensorNumber): array {
-		$rawData = str_replace(',,', ',NaN,NaN,NaN,NaN,', $rawData);
-		$rawData = str_replace(',,', ',NaN,NaN,NaN,NaN,', $rawData);
-		$rawData = str_replace('[,', '[NaN,NaN,NaN,NaN,', $rawData);
-		$rawData = str_replace(',]', ',NaN,NaN,NaN,NaN]', $rawData);
-		$rawData = trim($rawData, '[]');	// Remover los corchetes del inicio y final
-		$data = explode(',', $rawData);     // Dividir por comas
-		return $data;
-    }
+    #endregion 4.- Miscelaneas
 
-    public function processData(): void {
-        $this->escribirLog("processData...");
-        if (isset($_GET['data']) && $_GET['data'] !== '[]') {
-            $this->processRegularData();
-        } else {
-            $this->processEmptyData();
-        }
-    }
-
-    private function VWC_modelado($VWC_sensor, $arcilla, $limo, $arena, $t_min): float {
-        $horas = $t_min / 60.0;
-        $PMP = 0.10 * ($arena / 100.0) + 0.15 * ($limo / 100.0) + 0.20 * ($arcilla / 100.0);    // Punto de marchitez permanente según textura
-        $k = 0.01;                                                                              // Pendiente más fuerte
-        $x0 = 24.0;                                                                             // Punto de inflexión temprano (≈ 1 día)
-        $num  = 1.0 / (1.0 + exp($k * ($horas - $x0)));
-        $num0 = 1.0 / (1.0 + exp($k * (0.0 - $x0)));
-        $VWC = $PMP * 100.0 + ($VWC_sensor - $PMP * 100.0) * ($num / $num0);
-        return $VWC;                                                                            // Devolver en porcentaje
-    }
-
-    private function calcularVWC($humedad_sensor, $arcilla, $limo, $arena, $intervalo_min): float {
-        static $riego_detectado = false;
-        static $tiempo_desde_riego = 0;
-        static $humedad_inicial = 0;
-        static $ultima_humedad = 0;
-        if ($humedad_sensor - $ultima_humedad > 3.0) {                                          // Detectar riego
-            $riego_detectado = true;
-            $tiempo_desde_riego = 0;
-            $humedad_inicial = $humedad_sensor;                                                 // Guardar el valor inicial
-        } elseif ($riego_detectado) {
-            $tiempo_desde_riego += $intervalo_min;
-        }
-        $ultima_humedad = $humedad_sensor;
-        $humedad_final = $this->VWC_modelado($humedad_sensor, $arcilla, $limo, $arena, $tiempo_desde_riego);
-        return $humedad_final;
-    }
-
-    private function getHumidity($lat, $lon): float     {
-        $apiKey = "db9c92bd1f6d8d5db0aa0bae36ce093f";
-        $apiUrl = "https://api.openweathermap.org/data/2.5/weather?lat={$lat}&lon={$lon}&appid={$apiKey}&units=metric";
-        $response = @file_get_contents($apiUrl);                    // Obtener datos desde la API, el @ evita warnings directos
-        if ($response === false) return 0.0;
-        $data = json_decode($response, true);
-        if ($data === null || !isset($data["main"]["humidity"])) return 0.0;
-        return round((float)$data["main"]["humidity"], 1);    // Redondear a 1 decimal
-    }
-
-    private function processRegularData() {
-        $settings = $this->getSettings();
-        $data = $this->fillEmptyData($_GET['data'], $settings->sensors, $settings->sensors->sensorNumber);
-        if ($settings->operationMode && ($settings->operationMode == "" || $settings->operationMode == "0" || $settings->operationMode == 0)) {
-            $this->sensorsDiscovery($data);
-        } else {
-            $length = count($data);
-            $readyToUpdate = true;
-            $idx = 0;
-            $msg = "";
-            for ($i = 0; $i < $length; $i++) {
-                if ($data[$i] !== 'NaN' && isset($data[$i + 3])) {
-                    $msg = "Sleeping Time: " . $settings->sleepingTime . " - Lectura HW390: " . $data[$i];
-                    $data[$i] = $this->calcularVWC((float)$data[$i], 30, 20, 50, $settings->sleepingTime);
-                    $msg .= " - VWC: " . $data[$i];
-                    $this->escribirLog($msg);
-                    $value = (float)$data[$i + 3];
-                    if (2.5 < $value && $value < 5.5) {
-                        if ((float)$data[$i + 1] === -1.0) {
-                            $sensorId = "S$idx";
-                            $latitude = $settings->sensors->$sensorId->latitude;
-                            $longitude = $settings->sensors->$sensorId->longitude;
-                            $data[$i + 1] = $this->getHumidity($latitude, $longitude);
-                        }
-                        $i += 3;
-                        $idx++;
-                    } else {
-                        $readyToUpdate = false;
-                        break;
-                    }
-                }
-            }
-            if ($readyToUpdate) {
-                // $this->escribirLog("Data array: " . json_encode($data));
-                $this->updateLog($data);
-                $this->verifyAlerts($data);
-            }
-        }
-    }
-    
-    private function processEmptyData() {
-        // Implementación para procesar datos vacíos si es necesario
-        $this->escribirLog("Datos vacíos recibidos");
-    }
-    
-    private function sensorsDiscovery($data) {
-        $settings = $this->getSettings();
-        $actualize = true;
-        $length = count($data);
-        for ($i = 0; $i < $length; $i++) {
-            $idx = "S$i";
-            if (isset($data[$i]) && strpos($data[$i], '0x') === 0) {
-                $settings->sensors->$idx->id = $data[$i];
-                $settings->sensors->$idx->latitude = $settings->sensors->$idx->latitude ?? 0.0;
-                $settings->sensors->$idx->longitude = $settings->sensors->$idx->longitude ?? 0.0;
-                $settings->sensors->$idx->type = $settings->sensors->$idx->type ?? "SHT4";
-            } else {
-                $actualize = false;
-                break;
-            }
-        }
-        if ($actualize) {
-            $settings->sensors->sensorNumber = $length;       // Actualizar el número de sensores
-            $this->settings = $settings;                      // Actualizar la caché local
-            $this->updateSettings($settings);
-        }
-    }
 }
 
-// Programa principal - solo ejecutar si se accede directamente al archivo
+    #region 5.- Programa principal - solo ejecutar si se accede directamente al archivo
+
 // if (basename($_SERVER['PHP_SELF']) === 'sensor_v6.php') {
     try {
         // Verificar que se proporcionó el ID del sistema
@@ -738,7 +645,7 @@ class SensorSystem {
         $system = new SensorSystem($_GET['id']);
         $urlCompleta = "http://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];     // URL completa
         $system->escribirLog($urlCompleta);
-        print_r($system->formatSettingsForDevice());                             // Enviar configuración al dispositivo
+        print_r($system->formatSettingsForDevice());                                    // Enviar configuración al dispositivo
         $system->processData();                                                         // Procesar datos si están presentes    
     } catch (Exception $e) {
         error_log("Error: " . $e->getMessage());
@@ -746,5 +653,7 @@ class SensorSystem {
         echo "Error: " . $e->getMessage();
     }
 // }
+
+    #endregion 5.- Programa principal - solo ejecutar si se accede directamente al archivo
 
 ?>
