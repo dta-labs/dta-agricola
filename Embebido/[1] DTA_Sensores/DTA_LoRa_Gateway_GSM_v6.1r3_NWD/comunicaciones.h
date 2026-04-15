@@ -52,7 +52,7 @@ void commWatchDogReset(String result, bool readError = false) {
   commError = (signalVar < 6 || QoS > 6 || restartGSM || readError) ? commError + 1 : 0;
   if (commError != 0) { DBG_PRINT(F("commError: ")); DBG_PRINTLN(commError); }
   // if (commError == 2) resetSIM(); 
-  if (commError == 1) { 
+  if (commError == 5) { 
     commError = 0;
     // digitalWrite(watchDogPin, LOW);
     digitalWrite(A0, LOW);

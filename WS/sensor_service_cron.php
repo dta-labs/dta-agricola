@@ -278,7 +278,7 @@ class SensorServiceCron {
      * Realiza la llamada al servicio sensor_v6.php
      */
     private function callSensorService(string $key): array {
-        $url = "https://dtaamerica.com/ws/sensor_v6.php?id=$key&data=[]&rx=Ok&si=26";
+        $url = "https://dtaamerica.com/ws/sensor_v6.php?id=$key&data=[]&rx=Cron&si=26";
         
         curl_setopt_array($this->curlHandle, [
             CURLOPT_URL => $url,
