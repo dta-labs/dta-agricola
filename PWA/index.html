@@ -1090,10 +1090,6 @@
                                                                             style="color: {{ getPlotColor(actualSystem, 'p' + $index) }}; font-size: 3em;" 
                                                                             ng-click="setEditPlanEstacionario('p' + $index); isPlotActive(actualSystem, 'p' + $index) ? stopPlotIrrigation() : startPlotIrrigation()"
                                                                             ng-repeat="plot in actualSystem.plots">filter_{{ $index + 1 }}</i>
-                                                                        <!-- <i class="material-icons" 
-                                                                            style="color: {{ isPlotActive(actualSystem, 'p' + $index) ? 'springgreen' : 'lightgray' }}; font-size: 3em;" 
-                                                                            ng-click="setEditPlanEstacionario('p' + $index); isPlotActive(actualSystem, 'p' + $index) ? stopPlotIrrigation() : startPlotIrrigation()"
-                                                                            ng-repeat="plot in actualSystem.plots">filter_{{ $index + 1 }}</i> -->
                                                                     </div>
                                                                 </td>
                                                             </tr>
@@ -1584,6 +1580,17 @@
                                                         ng-readonly="edit">
                                                 </td>
                                             </tr>
+                                            <tr ng-show="actualSystem.type == 'Sensor'">
+                                                <td style="text-align: left;">Temperatura</td>
+                                                <td style="text-align: left;">
+                                                    <select style="font-size: 1em;" ng-value="actualSystem.tempUnit"
+                                                        ng-selected="actualSystem.tempUnit" ng-model="actualSystem.tempUnit">
+                                                        <option value="" disabled selected>Seleccione la unidad</option>
+                                                        <option ng-selected="actualSystem.tempUnit == 'C'" value="C"><b>C</b>elcius</option>
+                                                        <option ng-selected="actualSystem.tempUnit == 'F'" value="F"><b>F</b>ahrenheit</option>
+                                                    </select>
+                                                </td>
+                                            </tr>
                                             <tr ng-show="actualSystem.type == 'Sensor'" ng-init="actualSystem.sensingMode = 1">
                                                 <td style="text-align: left;">Muestreo</td>
                                                 <td style="text-align: left;">
@@ -1931,50 +1938,12 @@
 
                                 <div ng-show="actualSystem.type == 'Estacionario'"> <!-- Estacionarios -->
                                     <div class="modal-content">
+                                        <ul class="tabs">
+                                            <li class="tab col s3"><a class="active" href="#parcelas">Parcelas</a></li>
+                                            <li class="tab col s3"><a href="#programas">Programación</a></li>
+                                        </ul>
                                         <div id="parcelas">
-                                            <!-- <table class="striped highlight" style="display: none;">
-                                                <thead>
-                                                    <tr>
-                                                        <th width="5%">#</th>
-                                                        <th width="15%">Áreas</th>
-                                                        <th width="60%">Nombre</th>
-                                                        <th width="20%">Cultivo</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr class="modal-trigger"
-                                                        href="#modalEditRiegoEstacionario"
-                                                        ng-repeat="plot in actualSystem.plots"
-                                                        ng-click="setEditPlanEstacionario('p' + $index)"
-                                                        style="color: {{ isPlotActive(actualSystem, 'p' + $index) ? 'green' : 'darkgrey' }};">
-                                                        <td width="5%">{{ $index + 1 }}</td>
-                                                        <td width="15%">
-                                                            <i class="material-icons">
-                                                                {{ plot.poligon ? "map" : "location_off" }}
-                                                            </i>
-                                                        </td>
-                                                        <td class="left-align" width="60%">{{ plot.name }}</td>
-                                                        <td width="20%">{{ plot.culture ? plot.culture : "-"}}</td>
-                                                    </tr>
-                                                    <tr style="display: none;">
-                                                        <td colspan="4" class="right-align">
-                                                            <div class="switch">
-                                                                Cíclico
-                                                                <label>
-                                                                    <span class="blackBg"><b>No</b></span>
-                                                                    <input type="checkbox"
-                                                                        ng-model="actualSystem.autoreverse"
-                                                                        ng-checked="actualSystem.autoreverse"
-                                                                        ng-change="setMachineSettings(actualSystem)">
-                                                                    <span class="lever"></span>
-                                                                    <span
-                                                                        class="redBg"><b>&nbsp;Sí&nbsp;</b></span>
-                                                                </label>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table> -->
+                                            <br>
                                             <div class="row"> <!-- Áreas -->
                                                 <div class="col s6 m3 modal-trigger" 
                                                     ng-repeat="plot in actualSystem.plots" 
@@ -2017,19 +1986,109 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <br>
-                                        <div id="btnsPlan" class="right-align">
-                                            <div class="btn waves-effect waves-light grey modal-close">
-                                                &nbsp;&nbsp;
-                                                <i class="material-icons">reply</i>
-                                                &nbsp;&nbsp;
+                                            <br>
+                                            <div id="btnsPlan" class="right-align">
+                                                <div class="btn waves-effect waves-light grey modal-close">
+                                                    &nbsp;&nbsp;
+                                                    <i class="material-icons">reply</i>
+                                                    &nbsp;&nbsp;
+                                                </div>
+                                                <div class="btn waves-effect waves-light teal lighten-3"
+                                                    ng-click="setMachineConfig()" ng-show="isPlanning && (actualSystem.irrigation == 3 || actualSystem.irrigation == 4 || actualSystem.irrigation == 5)">
+                                                    &nbsp;&nbsp;
+                                                    <i class="material-icons">check</i>
+                                                    &nbsp;&nbsp;
+                                                </div>
                                             </div>
-                                            <div class="btn waves-effect waves-light teal lighten-3"
-                                                ng-click="setMachineConfig()" ng-show="isPlanning && (actualSystem.irrigation == 3 || actualSystem.irrigation == 4 || actualSystem.irrigation == 5)">
-                                                &nbsp;&nbsp;
-                                                <i class="material-icons">check</i>
-                                                &nbsp;&nbsp;
+                                        </div>
+                                        <div id="programas">
+                                            <br>
+                                            <div class="row" style="padding: 0 10px;">
+                                                <div class="input-field col s12 l8">
+                                                    <input type="text" id="programa_estacionario_nombre" ng-model="programaEstacionario.nombre">
+                                                    <label for="programa_estacionario_nombre">Programa<span style="color: red;">*</span></label>
+                                                </div>
+                                                <div class="input-field col s12" style="margin-top: -12px;"></div>
+                                                <div class="input-field col s12 m6 l4">
+                                                    <input id="programa_estacionario_fecha_inicio" type="text" class="datepicker" ng-model="programaEstacionario.fecha_inicio">
+                                                    <label for="programa_estacionario_fecha_inicio">Fecha de inicio<span style="color: red;">*</span></label>
+                                                </div>
+                                                <div class="input-field col s12 m6 l4">
+                                                    <input id="programa_estacionario_hora_inicio" type="text" class="timepicker" ng-model="programaEstacionario.hora_inicio">
+                                                    <label for="programa_estacionario_hora_inicio">Hora de inicio<span style="color: red;">*</span></label>
+                                                </div>
+                                                <div class="input-field col s12" style="border-bottom: 1px solid lightgrey; text-align: left;">Repetir cada:</div>
+                                                <div id="programa_estacionario_periodo" class="input-field col s12 m6 l4" style="text-align: left; display: flex; align-items: left; gap: 5px;">
+                                                    <input name="programa_estacionario_cada" type="number" min="1" value="{{ programaEstacionario.cada ? programaEstacionario.cada : 1 }}" style="width: 60px; text-align: right; margin-top: -12px;" ng-model="programaEstacionario.cada" /> 
+                                                    &nbsp; &nbsp;
+                                                    <select ng-model="programaEstacionario.periodo">
+                                                        <option value="0" selected>veces</option>
+                                                        <option value="1">días</option>
+                                                        <option value="2">semanas</option>
+                                                        <option value="3">meses</option>
+                                                    </select>
+                                                </div>
+                                                <!-- <div class="input-field col s12 m6 l4" ng-show="showProgramDays">
+                                                    <p style="display: flex; align-items: left; gap: 5px;" ng-if="showProgramDays">
+                                                        <span class="btn-dia" style="font-size: 1em;">L</span> 
+                                                        <span class="btn-dia" style="font-size: 1em;">M</span> 
+                                                        <span class="btn-dia" style="font-size: 1em;">M</span> 
+                                                        <span class="btn-dia" style="font-size: 1em;">J</span> 
+                                                        <span class="btn-dia" style="font-size: 1em;">V</span> 
+                                                        <span class="btn-dia" style="font-size: 1em;">S</span> 
+                                                        <span class="btn-dia" style="font-size: 1em;">D</span> 
+                                                    </p>
+                                                </div> -->
+                                                <div class="input-field col s12 m6 l4" style="margin-top: -1px;">
+                                                    <input id="programa_estacionario_fecha_fin" type="text" class="datepicker" ng-model="programaEstacionario.fecha_fin">
+                                                    <label for="programa_estacionario_fecha_fin">Fecha fin<span style="color: red;">*</span></label>
+                                                </div>
+                                                <div class="col s12" style="border-bottom: 1px solid lightgrey; text-align: left;">Temporizadores<span style="color: red;">*</span>:</div>
+                                                <div class="input-field col s12 m4 left-align" style="margin-bottom: -15px;">
+                                                    <span>Parcela 1 </span>
+                                                    <input id="programa_estacionario_parcela" type="number" style="width: 50px; text-align: right; margin-top: -12px;" ng-model="programaEstacionario.t[0]">
+                                                    <span> minutos</span><br>
+                                                    <span>Parcela 2 </span>
+                                                    <input id="programa_estacionario_parcela" type="number" style="width: 50px; text-align: right; margin-top: -12px;" ng-model="programaEstacionario.t[1]">
+                                                    <span> minutos</span><br>
+                                                </div>
+                                                <div class="input-field col s12 m4 left-align" style="margin-bottom: -15px;">
+                                                    <span>Parcela 3 </span>
+                                                    <input id="programa_estacionario_parcela" type="number" style="width: 50px; text-align: right; margin-top: -12px;" ng-model="programaEstacionario.t[2]">
+                                                    <span> minutos</span><br>
+                                                    <span>Parcela 4 </span>
+                                                    <input id="programa_estacionario_parcela" type="number" style="width: 50px; text-align: right; margin-top: -12px;" ng-model="programaEstacionario.t[3]">
+                                                    <span> minutos</span><br>
+                                                </div>
+                                                <div class="input-field col s12 m4 left-align">
+                                                    <span>Parcela 5 </span>
+                                                    <input id="programa_estacionario_parcela" type="number" style="width: 50px; text-align: right; margin-top: -12px;" ng-model="programaEstacionario.t[4]">
+                                                    <span> minutos</span><br>
+                                                    <span>Parcela 6 </span>
+                                                    <input id="programa_estacionario_parcela" type="number" style="width: 50px; text-align: right; margin-top: -12px;" ng-model="programaEstacionario.t[5]">
+                                                    <span> minutos</span><br>
+                                                    <span>Parcela 7 </span>
+                                                    <input id="programa_estacionario_parcela" type="number" style="width: 50px; text-align: right; margin-top: -12px;" ng-model="programaEstacionario.t[6]">
+                                                    <span> minutos</span><br>
+                                                </div>
+                                            </div>
+                                            <br>
+                                            <div id="btnsPlan" class="right-align">
+                                                <div class="btn waves-effect waves-light grey modal-close">
+                                                    &nbsp;&nbsp;
+                                                    <i class="material-icons">reply</i>
+                                                    &nbsp;&nbsp;
+                                                </div>
+                                                <div class="btn waves-effect waves-light red lighten-3" ng-click="stopStationaryProgram()">
+                                                    &nbsp;&nbsp;
+                                                    <i class="material-icons">stop</i>
+                                                    &nbsp;&nbsp;
+                                                </div>
+                                                <div class="btn waves-effect waves-light teal lighten-3" ng-click="startStationaryProgram()">
+                                                    &nbsp;&nbsp;
+                                                    <i class="material-icons">play_arrow</i>
+                                                    &nbsp;&nbsp;
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -2437,7 +2496,7 @@
                                                     <div class="collapsible-header"><i class="material-icons">place</i>{{ idx + 1 }}.- {{ sensor.alias || sensor.id }}</div>
                                                     <div class="collapsible-body" style="padding: 5px 10px;">
                                                         <!-- Botones de selección de tipo de gráfico -->
-                                                        <div class="row" style="margin-bottom: 10px;">
+                                                        <div class="row" style="margin-bottom: 10px;" ng-if="sensor.type != 'Psi'"">
                                                             <div class="col s12" style="text-align: center;">
                                                                 <div class="row" style="display: inline-flex; justify-content: center; width: auto;">
                                                                     <div class="col" ng-click="setChartType('moisture'); setChart(idx, 'myChartH' + idx);" style="margin-right: 5px; text-align: center; padding: 10px; cursor: pointer; color: {{ chartType == 'moisture' ? 'blue' : 'gray' }}; border-bottom: 3px solid {{ chartType == 'moisture' ? 'blue' : 'gray' }};">
@@ -2480,7 +2539,7 @@
                                                                 <button class="btn-small" ng-class="selectedTimeOption == 'MES' ? 'teal' : 'grey lighten-2'" ng-click="reloadSystemLog(actualSystem.key, 'MES');" style="padding: 0 15px; height: 28px; line-height: 28px; font-size: 0.8em; color: {{ selectedTimeOption == 'MES' ? 'white' : '#616161' }};">Mes</button>
                                                             </div>
                                                         </div>
-                                                        <table>
+                                                        <table ng-if="sensor.type == 'Ms' || sensor.type == 'SHT4' || sensor.type == 'WM'">
                                                             <thead>
                                                                 <tr>
                                                                     <th><i class="fa fa-calendar" aria-hidden="true" style="font-size: 1.2em;"></i><br> Fecha</th>
@@ -2499,15 +2558,35 @@
 
                                                                     <td style="color: {{ isOutOfRange(data[idx * 8], sensor.h.minValue, sensor.h.maxValue) ? 'red' : 'green' }};" ng-show="sensor.type != 'WM'"><b>{{ data[(idx * 8)] != "NaN" ? (data[(idx * 8)] | number : 0) : '--' }}%</b></td>
                                                                     <td style="color: {{ isOutOfRange(data[idx * 8], sensor.h.minValue, sensor.h.maxValue) ? 'red' : 'green' }};" ng-show="sensor.type == 'WM'"><b>{{ data[(idx * 8)] != "NaN" ? (data[(idx * 8)] != 240 ? (data[(idx * 8)] != 0 ? (data[(idx * 8)] | number : 0) + 'cb' : 'No listo') : 'Error') : '--' }}</b></td>
+                                                                    <!-- <td style="color: {{ data[idx * 8] < 1 ? 'red' : 'green' }};" ng-show="sensor.type != 'Psi'"><b>{{ data[(idx * 8)] != "NaN" ? (data[(idx * 8)] | number : 0) + 'psi' : 'Apagado' }}</b></td> -->
                                                                     
                                                                     <td style="color: black;"><b>{{ data[(idx * 8) + 1] != "NaN" && data[(idx * 8) + 1] != "-1" ? (data[(idx * 8) + 1] | number : 0) : (meteo[actualSystem.key].main.humidity) }}%</b></td>
                                                                     
-                                                                    <td style="color: {{ isOutOfRange(data[idx * 8 + 4], sensor.t.minValue, sensor.t.maxValue) ? 'red' : 'green' }};"><b>{{ data[(idx * 8) + 4] != "NaN" ? (data[(idx * 8) + 4] | number : 1) : '--' }}°C</b></td>
+                                                                    <td style="color: {{ isOutOfRange(data[idx * 8 + 4], sensor.t.minValue, sensor.t.maxValue) ? 'red' : 'green' }};"><b>{{ data[(idx * 8) + 4] != "NaN" && actualSystem.tempUnit == "C" ? (data[(idx * 8) + 4] | number : 1) + '°C' : data[(idx * 8) + 4] != "NaN" && (actualSystem.tempUnit == "F" || tempUnit == "F") ? (data[(idx * 8) + 4] * 1.8 + 32 | number : 1) + '°F' : '--' }}</b></td>
                                                                     
                                                                     <td><b>{{ data[(idx * 8) + 5] != "NaN" ? (data[(idx * 8) + 5] | number : 1) : '--' }}</b></td>
 
                                                                     <td ng-if="selectedTimeOption == 'DIA'" style="color: {{ data[(idx * 8) + 7] > 3 ? 'green' : data[(idx * 8) + 7] > 2.8 ? 'darkorange' : 'red'}};" title="{{ data[(idx * 8) + 7] }}V"><i class="material-icons">{{ data[(idx * 8) + 7] > 3 ? 'battery_full' : data[(idx * 8) + 7] > 2.8 ? 'battery_alert' : 'battery_unknown'}}</i></td>
                                                                     <td ng-if="selectedTimeOption != 'DIA'" style="color: black;"><b>{{ data[(idx * 8) + 6] != "NaN" ? (data[(idx * 8) + 6] | number : 1) : '--' }}</b></td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                        <table ng-if="sensor.type == 'Psi'">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th><i class="fa fa-calendar" aria-hidden="true" style="font-size: 1.2em;"></i><br> Fecha</th>
+                                                                    <th><img src="./assets/images/pozo.png" alt="Ms" style="width: 20px;"><br> {{ sensor.type == 'WM' ? 'Tensión' : 'H.Suelo' }}</th>
+                                                                    <th ng-if="selectedTimeOption == 'DIA'"><i class="material-icons">battery_charging_full</i><br>Bat.</th>
+                                                                    <th ng-if="selectedTimeOption != 'DIA'"><i class="material-icons">access_time</i><br>T.Encendido</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr ng-repeat="reg in invertedRegisters" ng-init="data=convertStrToJSON(reg.dataRaw)" ng-show="data[(idx * 8)] != 'NaN' && data[(idx * 8)] != 'NAN' && data[(idx * 8) + 1] != 'NaN' && data[(idx * 8) + 1] != 'NAN' && data[(idx * 8) + 4] != 'NaN' && data[(idx * 8) + 4] != 'NAN' && data[(idx * 8) + 5] != 'NaN' && data[(idx * 8) + 5] != 'NAN'">
+                                                                    <td ng-show="selectedTimeOption != 'DIA'">{{ reg.date.substring(6, 8) }}/{{ reg.date.substring(4, 6) }}/{{ reg.date.substring(2, 4) }}</td>
+                                                                    <td ng-show="selectedTimeOption == 'DIA'">{{ reg.date.substring(9, 11) }}:{{  reg.date.substring(11) }}</td>
+                                                                    <td style="color: {{ data[idx * 8] < 1 ? 'red' : 'green' }};"><b>{{ data[(idx * 8)] != "NaN" ? (data[(idx * 8)] | number : 0) + 'psi' : 'Apagado' }}</b></td>
+                                                                    <td ng-if="selectedTimeOption == 'DIA'" style="color: {{ data[(idx * 8) + 7] > 3 ? 'green' : data[(idx * 8) + 7] > 2.8 ? 'darkorange' : 'red'}};" title="{{ data[(idx * 8) + 7] }}V"><i class="material-icons">{{ data[(idx * 8) + 7] > 3 ? 'battery_full' : data[(idx * 8) + 7] > 2.8 ? 'battery_alert' : 'battery_unknown'}}</i></td>
+                                                                    <td ng-if="selectedTimeOption != 'DIA'" style="color: black;"><b>--h</b></td>
                                                                 </tr>
                                                             </tbody>
                                                         </table>
@@ -4367,8 +4446,20 @@
                                         </li>
                                         <li>    <!-- Compartir -->  
                                             <div class="collapsible-header"><i class="fa fa-plus-square-o" aria-hidden="true"></i> Compartir la aplicación</div>
-                                            <div class="collapsible-body">
-                                                <img src="./assets/images/qr-app.png" alt="Aplicación DTA-Agrícola">
+                                            <div class="collapsible-body" ng-init="mostrarQR = false">
+                                                <div style="padding: 20px 0;">
+                                                    <button ng-click="compartirWhatsApp()" style="width: 100px;border: 0;background: transparent;">
+                                                        <img src="./assets/images/whatsapp_black.png" style="width: 60px; border: solid 5px white;" alt="Aplicación DTA-Agrícola"></i><br>
+                                                        WhatsApp
+                                                    </button>
+                                                    <button ng-click="mostrarQR = !mostrarQR" style="width: 100px;border: 0;background: transparent;">
+                                                        <img src="./assets/images/qr.png" style="width: 60px; border: solid 5px white;" alt="Aplicación DTA-Agrícola"></i><br>
+                                                        QR
+                                                    </button>
+                                                </div>
+                                                <div ng-show="mostrarQR" style="padding: 50px;">
+                                                    <img src="./assets/images/qr-app.png" alt="Aplicación DTA-Agrícola">
+                                                </div>
                                             </div>
                                         </li>
                                     </ul>
@@ -4440,7 +4531,7 @@
 
                         <section id="usuarios">
 
-                            <div class="container ventanaServicios" style="width: 80%; min-height: 380px; margin-top: 100px; max-width: 300px;" ng-show="selectedWindow == 'login'">
+                            <div class="container ventanaServicios" style="width: 80%; min-height: 530px; margin-top: 100px; max-width: 400px;" ng-show="selectedWindow == 'login'">
                                 <div class="swal-title">Acceder</div>
 
                                 <div style="padding: 0 20px;">
@@ -4455,7 +4546,6 @@
                                                 <label for="signinPassword">Contraseña</label>
                                             </div>
                                         </div>
-                                
                                     </div>
                                     <div class="modal-footer">
                                         <a id="signinBtn" class="waves-effect waves-light btn valign-wrapper" style="width: 100%; border-radius: 5px;">
@@ -4468,7 +4558,12 @@
                                         </a>
                                     </div>
                                     <div style="text-align: right; margin: 15px 0 5px 0; width: 100%;">
-                                        <a class="modal-trigger" href="#modalSignup">Registrarse</a>
+                                        <a class="modal-trigger" href="#modalSignup">Crear cuenta nueva</a>
+                                    </div>
+                                    <div>
+                                        <br>
+                                        <hr>
+                                        <p style="margin-top: -20px; background: #fefefe; width: 100px; margin-left: calc(50% - 50px);">Inicio rápido</p>
                                     </div>
                                     <div class="modal-footer">
                                         <a id="signinGoogle" class="waves-effect waves-light btn valign-wrapper white" 
@@ -4480,6 +4575,10 @@
                                                 </div>
                                             </div>
                                         </a>
+                                    </div>
+                                    <div style="margin-top: 30px;">
+                                        Consulte nuestras polítcas de privacidad y de uso en 
+                                        <a href="https://dtaamerica.com/privacidad-es.html">Español</a> / <a href="https://dtaamerica.com/privacidad-en.html">Inglés</a>
                                     </div>
                                 </div>
                                 
@@ -4636,7 +4735,7 @@
                                     <div class="col s1 right-align" style="margin-left: 25px;" ng-show="authUser">
                                         <span ng-show="authUser"> -->
                                             <a href="#!servicios" ng-click="showWindow('servicios')" style="color: black;">
-                                                <i class="material-icons" style="margin-top: 7px;margin-left: 10px;">menu</i>
+                                                <i class="material-icons" style="margin-top: 7px;margin-left: 10px;">more_vert</i>
                                                 <!-- <i class="fa fa-ellipsis-v" aria-hidden="true"
                                                     style="font-size: 2em; margin-top: 5px;"></i> -->
                                             </a>
@@ -4768,7 +4867,7 @@
         <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
         <script src="./assets/js/commons.js"></script>
         <!-- <script src="./assets/cultures/listOfCultures.js"></script> -->
-        <script src="./assets/js/core.js?v=26.03.21.0425"></script>
+        <script src="./assets/js/core.js?v=26.04.25.0552"></script>
         <!-- <script src="monitor/js/chartjs/chart.min.js"></script> -->
         <script type="text/javascript" src="./assets/modules/datepicker/daterangepicker.js"></script>
 

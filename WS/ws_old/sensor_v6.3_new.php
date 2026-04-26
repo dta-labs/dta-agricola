@@ -80,12 +80,9 @@ class SensorSystem {
     }
 
     private function escribirLog($mensaje) {
-        $localZone = $this->getLocalZone();
-        $fechaHora = $this->getDateTime($localZone)->format('Y-m-d H:i:s');
-        $fecha = substr($fechaHora, 0, 10);
-        $archivo = __DIR__ . '/' . $fecha . '_log.txt';
-        $hora = substr($fechaHora, 11, 8);
-        $entrada = "[{$hora}] {$mensaje}\n";
+        $archivo = __DIR__ . '/log.txt';
+        $fechaHora = date('Y-m-d H:i:s');
+        $entrada = "[{$fechaHora}] {$mensaje}\n";
         if (!is_writable(dirname($archivo))) {
             error_log("Error: El directorio no tiene permisos de escritura: " . dirname($archivo));
             return false;

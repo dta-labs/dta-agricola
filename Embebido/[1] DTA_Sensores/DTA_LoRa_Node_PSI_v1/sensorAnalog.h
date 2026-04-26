@@ -22,7 +22,13 @@ float readAnalogicData() {                          // Lectura analógica filtra
     delayMicroseconds(30);
   }
   float result = median(values, N);
-  return (result / 1024.0f) * vcc;                  // Convierte a voltaje real
+  Serial.print("A1: "); Serial.print(result); 
+  // result = (result / 1024.0f) * vcc;
+  // Serial.print(" volt: "); Serial.print(result); 
+  float psi = constrain(map(result, 157, 170.0, 40.0, 50.0), 0, 500);   // 0x0001 [ ]
+  // float psi = constrain(map(result, 157, 170.0, 40.0, 50.0), 0, 500);   // 0x0002 [Ok]
+  Serial.print("v psi: "); Serial.println(psi); 
+  return psi;                  // Convierte a voltaje real
 }
 
 #pragma endregion Sensores

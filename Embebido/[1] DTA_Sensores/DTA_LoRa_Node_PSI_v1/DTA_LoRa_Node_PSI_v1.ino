@@ -25,7 +25,8 @@ void setup() {
 }
 
 void setupSensors() {
-  NODE_ID += "0002"; 
+  pinMode(sensorPin, INPUT);
+  NODE_ID += "0001"; 
   Serial.println("  • Sensor PSI: " + NODE_ID);
 }
 

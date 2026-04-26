@@ -7,6 +7,7 @@
 #define commaChar F(",")
 #define FREQUENCY 915E6                       // 433E6 or 915E6*, the MHz frequency of module
 #define TIME_SCAN 5                           // Tiempo de escaneo en minutos
+#define isConfirmationNeeded false            // Enviar confirmación o no
 #pragma endregion Variables
 
 #pragma region Programa Principal
@@ -80,7 +81,7 @@ void loraRxData() {
     Serial.print(F("\n Rx: ")); 
     if (loraCheckData(data)) {
       Serial.print(data);
-      sendConfirmation(data);
+      if (isConfirmationNeeded) sendConfirmation(data);
     } else {
       Serial.print(data); Serial.print(F("« ✘ Error de lectura... »"));
     }

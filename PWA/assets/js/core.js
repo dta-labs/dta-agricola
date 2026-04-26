@@ -82,9 +82,19 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         {"id": "10", "type": "Areno Franco"},
         {"id": "11", "type": "Arenoso"}
     ];
+    $scope.programaEstacionario = {
+        nombre: '',
+        fecha_inicio: '',
+        fecha_fin: '',
+        hora_inicio: '',
+        cada: 1,
+        periodo: 0,
+        t: [0, 0, 0, 0, 0, 0, 0]
+    };
     $scope.chartItems = 24;
     // Variable para controlar el tipo de gráfico seleccionado: 'moisture', 'humidity' o 'temperature'
     $scope.chartType = 'moisture';
+    $scope.tempUnit = "F";
     
     // Método para cambiar el tipo de gráfico seleccionado
     $scope.setChartType = (type) => {
@@ -392,7 +402,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                     if ($scope.systems[locationKey].lastAlarmDate && $scope.systems[locationKey].lastAlarmDate == lastAlarmDate && sensors[sensor].t && sensors[sensor].t.notify && !Number.isNaN(temp) && temp <= sensors[sensor].t.minValue) {
                         alarm = true; 
                         let alias = sensors[sensor].alias ?? sensors[sensor].id;
-                        let msg = `Alerta ${temp}°C en ${name} - ${alias} `;
+                        let msg = `Alerta ${temp}°C/${(temp * 9/5 + 32).toFixed(1)}°F en ${name} - ${alias} `;
                         M.toast({ html: msg });
                         console.log(msg);
                     }
@@ -758,6 +768,183 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                     }
                 });
         }
+    }
+
+    $scope.stopStationaryProgram = () => {
+        swal({
+            title: "Programa de riego",
+            text: "¿Desea detener la programación del riego?",
+            icon: "warning",
+            // buttons: true,
+            buttons: {
+                cancel: "Cancelar",
+                confirm: {
+                  text: "Confirmar",
+                  value: true,
+                  visible: true,
+                  className: "btn-confirmar",
+                  closeModal: true
+                }
+            },
+            dangerMode: true,
+        }).then((confirm) => {
+                if (confirm) {
+                    stopStationaryProgram();
+                    $scope.setMachineSettings($scope.actualSystem);
+                    swal("Programa de riego iniciado correctamente!", {
+                        icon: "success",
+                    });
+                } else {
+                    swal("No se detuvo el programa!");
+                }
+            });
+    }
+
+    stopStationaryProgram = () => {
+        for (let i = 0; i < 7; i++) {
+            $scope.actualSystem.plots[`p${i}`].forcedStart = -1;
+            $scope.actualSystem.plots[`p${i}`].irrigationPlan = 0;
+            $scope.actualSystem.plots[`p${i}`].schedule = [];
+        }
+        let a = 0;
+    }
+
+    $scope.startStationaryProgram = () => {
+        let p = $scope.programaEstacionario;
+        if ($scope.actualSystem.type != "Estacionario" || !p.nombre || !p.fecha_inicio || !p.hora_inicio || !p.fecha_fin  || (!p.t[0] && !p.t[1] && !p.t[2] && !p.t[3] && !p.t[4] && !p.t[5] && !p.t[6])) {
+            swal("Por complete los datos marcados con *");
+            return;
+        }
+        swal({
+            title: "Programa de riego",
+            text: "¿Desea iniciar con la programación del riego?",
+            icon: "warning",
+            // buttons: true,
+            buttons: {
+                cancel: "Cancelar",
+                confirm: {
+                  text: "Confirmar",
+                  value: true,
+                  visible: true,
+                  className: "btn-confirmar",
+                  closeModal: true
+                }
+            },
+            dangerMode: true,
+        }).then((confirm) => {
+                if (confirm) {
+                    createStationaryProgram(p);
+                    $scope.setMachineSettings($scope.actualSystem);
+                    swal("Programa de riego iniciado correctamente!", {
+                        icon: "success",
+                    });
+                } else {
+                    swal("No se inicializó el programa!");
+                }
+            });
+    }
+
+    createStationaryProgram = (p) => {
+        let fecha_inicio = p.fecha_inicio;
+        let hora_inicio = p.hora_inicio;
+        let id = generarIdUnico();
+        switch (p.periodo) {
+            case ("0"):   // veces
+                let counter = p.cada;
+                for (let i = 0; i < counter; i++) {
+                    nueva_fecha_hora = excecuteProgram(id, p, fecha_inicio, hora_inicio);
+                    fecha_inicio = nueva_fecha_hora.slice(0,10);
+                    hora_inicio = nueva_fecha_hora.slice(11,16);
+                }
+                break;
+            case ("1"):   // días
+                runLoop(p, fecha_inicio, hora_inicio, 1440);
+                break;
+            case ("2"):   // semanas
+                runLoop(p, fecha_inicio, hora_inicio, 10080);
+                break;
+            case ("3"):   // meses de 30 días
+                runLoop(p, fecha_inicio, hora_inicio, 43200);
+                break;
+        }
+    }
+
+    runLoop = (id, p, fecha_inicio, hora_inicio, periodo) => {
+        let inicio = parseFechaHora(fecha_inicio, hora_inicio);
+        fecha_inicio = inicio.toISOString().slice(0,10);
+        while (menorIgual(fecha_inicio, p.fecha_fin)) {
+            let nueva_fecha_hora = excecuteProgram(id, p, fecha_inicio, hora_inicio);
+            inicio = new Date(inicio.getTime() + p.cada * periodo * 60000); 
+            fecha_inicio = inicio.toISOString().slice(0,10);
+        }
+    }
+
+    excecuteProgram = (id, p, fecha_inicio, hora_inicio) => {
+        let fechas_parcelas = generarSecuenciaParcelas(fecha_inicio, hora_inicio, p.t);
+        for (let i = 0; i < 7; i++) {
+            if (p.t[i] > 0) {
+                if (!$scope.actualSystem.plots[`p${i}`].schedule) {
+                    $scope.actualSystem.plots[`p${i}`].schedule = [];
+                }
+                $scope.actualSystem.plots[`p${i}`].schedule.push({
+                    id: id,
+                    nombre: p.nombre,
+                    date: fechas_parcelas[i].slice(0,10),
+                    t: p.t[i],
+                    time: fechas_parcelas[i].slice(11,16)
+                }); 
+                $scope.actualSystem.plots[`p${i}`].forcedStart = 1;
+                $scope.actualSystem.plots[`p${i}`].irrigationPlan = 1;
+            }
+        }
+        return fechas_parcelas[fechas_parcelas.length - 1];
+    }
+
+    generarIdUnico = () => {
+        return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+    }
+
+    function generarSecuenciaParcelas(fecha_inicio, hora_inicio, tiempos) {
+        const resultados = [];
+        let inicio = parseFechaHora(fecha_inicio, hora_inicio);
+        inicio = new Date(inicio.getTime() + inicio.getTimezoneOffset() * 60000 + $scope.actualSystem.zona * 60 * 60000);
+        tiempos.forEach((minutos) => {
+            const inicioStr = inicio.toISOString().slice(0,16).replace('T',' ');    // Guardar inicio de la parcela actual
+            resultados.push(inicioStr);
+            inicio = new Date(inicio.getTime() + minutos * 60000);                  // Calcular nuevo inicio sumando minutos
+        });
+        resultados.push(inicio.toISOString().slice(0,16).replace('T',' '));
+        return resultados;
+    }
+
+    function parseFechaHora(fechaStr, horaStr) {
+        let year, month, day;
+        if (/^\d{4}-\d{2}-\d{2}$/.test(fechaStr)) {    // Detectar si la fecha viene en formato ISO (YYYY-MM-DD)
+            [year, month, day] = fechaStr.split('-').map(Number);
+            month = month - 1; // JS usa meses 0-11
+        } else {
+            const [mesStr, diaStr, anioStr] = fechaStr.split(' ');    // Caso "Apr 25, 2026"
+            year = parseInt(anioStr, 10);
+            day = parseInt(diaStr.replace(',', ''), 10);
+            const meses = {
+                Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5,
+                Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11
+            };
+            month = meses[mesStr];
+        }
+        let [h, m] = horaStr.split(/[: ]/);    // Parsear hora (ej: "02:46 AM")
+        let hour = parseInt(h, 10);
+        let minute = parseInt(m, 10);
+        const ampm = horaStr.slice(-2);
+        if (ampm === "PM" && hour < 12) hour += 12;
+        if (ampm === "AM" && hour === 12) hour = 0;
+        return new Date(year, month, day, hour, minute);    // Crear objeto Date en hora local
+    }
+
+    function menorIgual(f1, f2) {
+        const d1 = parseFechaHora(f1, "0:0am");
+        const d2 = parseFechaHora(f2, "0:0am");
+        return d1.getTime() <= d2.getTime();
     }
 
     $scope.setMachineState = () => {                                       // New *******************
@@ -2182,17 +2369,9 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     $scope.setToken = () => {
         if ($scope.authUser) {
             handleTokenRefresh($scope.authUser.email);
-            segundoPlano();
         }
     }
 
-    segundoPlano = () => {
-        if (window.matchMedia('(display-mode: standalone)').matches) {
-            alert("Para recibir notificaciones sin abrir la app, activa el inicio automático en: Configuración > Aplicaciones > Inicio Automático.");
-            window.location.href = "intent://settings#Intent;scheme=android-app;action=android.settings.APPLICATION_SETTINGS;end";
-        }
-    }
-    
     $scope.deleteToken = () => {
         unSuscribeToNotifications($scope.authUser.email);
     }
@@ -2423,15 +2602,15 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         text += `    </div>`;
         text += `    <div class="row" style="margin-bottom: 5px; padding: 10px; border-radius: 3px; background-color: #f5f5f5;">`;
         text += `        <div class="col s2"><img src="./assets/images/Hr.png" alt="Agua" style="width: 30px;"></div>`;
-        text += `        <div class="col s8">`;
+        text += `        <div class="col s7">`;
         text += `           <div>Humedad (%)</div>`;
         text += `           <div style="width: 100%; background-color: lightgrey; height: 6px; border-radius: 3px;">`;
         text += `               <div style="background-color: ` + ($scope.isOutOfRange(data[idx * 8], sensor.h.minValue, sensor.h.maxValue) ? `red` : `green`) + `; width: ` + parseFloat(data[idx * 8]) + `%; height: 6px; border-radius: 3px;"></div>`;
-        text += `               <span style="font-size: .8em; margin-left: ` + sensor.h.minValue + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i><b>${sensor.h.minValue}</b></span>`;
-        text += `               <span style="font-size: .8em; margin-left: ` + (sensor.h.maxValue - sensor.h.minValue - 15) + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i><b>${sensor.h.maxValue}</b></span>`;
+        text += `               <span style="font-size: .8em; margin-left: ` + (sensor.h.minValue < 10 ? 3 : 10) + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i><b>${sensor.h.minValue}</b></span>`;
+        text += `               <span style="font-size: .8em; margin-left: ` + (sensor.h.maxValue - sensor.h.minValue - 20) + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i><b>${sensor.h.maxValue}</b></span>`;
         text += `           </div>`;
         text += `        </div>`;
-        text += `        <div class="col s2" style="text-align: right; padding-top: 7px; font-size: 1.5em; color: ` + ($scope.isOutOfRange(data[idx * 8], sensor.h.minValue, sensor.h.maxValue) ? `red` : `green`) + `;"><b>${data[idx * 8] !== "NaN" ? parseFloat(data[idx * 8]).toFixed(0) : "--"}</b></div>`;
+        text += `        <div class="col s3" style="text-align: right; padding-top: 7px; font-size: 1.5em; color: ` + ($scope.isOutOfRange(data[idx * 8], sensor.h.minValue, sensor.h.maxValue) ? `red` : `green`) + `;"><b>${data[idx * 8] !== "NaN" ? parseFloat(data[idx * 8]).toFixed(0) : "--"}</b></div>`;
         text += `    </div>`;
 
         // Clima
@@ -2443,22 +2622,22 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         text += `    </div>`;
         text += `    <div class="row" style="margin-bottom: 5px; padding: 10px; border-radius: 6px; background-color: #f5f5f5;">`;
         text += `        <div class="col s2"><img src="./assets/images/termometro.png" alt="Termometro" style="width: 30px;"></div>`;
-        text += `        <div class="col s8">`;
-        text += `           <div>Temperatura (°C)</div>`;
+        text += `        <div class="col s7">`;
+        text += `           <div style="font-size: .99em;">Temperatura (°C/°F)</div>`;
         text += `           <div style="width: 100%; background-color: lightgrey; height: 6px; border-radius: 3px;">`;
-        text += `               <div style="background-color: ` + ($scope.isOutOfRange(data[idx * 8 + 4], sensor.t.minValue, sensor.t.maxValue) ? `red` : `green`) + `; width: ` + parseFloat(data[idx * 8 + 4]) + `%; height: 6px; border-radius: 3px;"></div>`;
-        text += `               <span style="font-size: .8em; margin-left: ` + sensor.t.minValue + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i><b>${sensor.t.minValue}</b></span>`;
-        text += `               <span style="font-size: .8em; margin-left: ` + (sensor.t.maxValue - sensor.t.minValue - 15) + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i><b>${sensor.t.maxValue}</b></span>`;
+        text += `               <div style="background-color: ` + ($scope.isOutOfRange(data[idx * 8 + 4], sensor.t.minValue, sensor.t.maxValue) ? `red` : `green`) + `; width: ` + (parseFloat(data[idx * 8 + 4]) < 10 ? parseFloat(data[idx * 8 + 4]) + 5 : parseFloat(data[idx * 8 + 4])) + `%; height: 6px; border-radius: 3px;"></div>`;
+        text += `               <span style="font-size: .8em; margin-left: ` + (sensor.t.minValue > 10 ? 3 : 10) + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i><b>${sensor.t.minValue}</b></span>`;
+        text += `               <span style="font-size: .8em; margin-left: ` + (sensor.t.maxValue - sensor.t.minValue - 20) + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i><b>${sensor.t.maxValue}</b></span>`;
         text += `           </div>`;
         text += `        </div>`;
-        text += `        <div class="col s2" style="text-align: right; padding-top: 7px; font-size: 1.5em; color: ` + ($scope.isOutOfRange(data[idx * 8 + 4], sensor.t.minValue, sensor.t.maxValue) ? `red` : `green`) + `;"><b>${data[idx * 8 + 4] !== "NaN" ? parseFloat(data[idx * 8 + 4]).toFixed(0) : "--"}</b></div>`;
+        text += `        <div class="col s3" style="text-align: right; padding-top: 7px; font-size: 1.5em; color: ` + ($scope.isOutOfRange(data[idx * 8 + 4], sensor.t.minValue, sensor.t.maxValue) ? `red` : `green`) + `;"><b>${data[idx * 8 + 4] !== "NaN" ? (parseFloat(data[idx * 8 + 4]).toFixed(0) + "/" + parseFloat(data[idx * 8 + 4] * 1.8 + 32).toFixed(0)) : "--"}</b></div>`;
         text += `    </div>`;
         text += `    <div class="row" style="margin-bottom: 5px; padding: 10px; border-radius: 6px; background-color: #f5f5f5;">`;
         text += `        <div class="col s2"><img src="./assets/images/agua.png" alt="Termometro" style="width: 25px;"></div>`;
-        text += `        <div class="col s8">`;
+        text += `        <div class="col s7">`;
         text += `           <div style="margin-top: 5px;">Humedad (%)</div>`;
         text += `        </div>`;
-        text += `        <div class="col s2" style="text-align: right; padding-top: 2px; font-size: 1.5em;"><b>${data[idx * 8 + 1] !== "NaN" ? parseFloat(data[idx * 8 + 1]).toFixed(0) : "--"}</b></div>`;
+        text += `        <div class="col s3" style="text-align: right; padding-top: 2px; font-size: 1.5em;"><b>${data[idx * 8 + 1] !== "NaN" ? parseFloat(data[idx * 8 + 1]).toFixed(0) : "--"}</b></div>`;
         text += `    </div>`;
 
         // Cultivo
@@ -2470,17 +2649,17 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         text += `    </div>`;
         text += `    <div class="row" style="margin-bottom: 5px; padding: 10px; border-radius: 6px; background-color: #f5f5f5;">`;
         text += `        <div class="col s2"><img src="./assets/images/nieve.png" alt="Horas frío" style="width: 25px;"></div>`;
-        text += `        <div class="col s8">`;
+        text += `        <div class="col s7">`;
         text += `           <div style="margin-top: 5px;">Horas frío (u)</div>`;
         text += `        </div>`;
-        text += `        <div class="col s2" style="text-align: right; padding-top: 2px; font-size: 1.5em;"><b>${data[idx * 8 + 6] !== "NaN" ? parseFloat(data[idx * 8 + 6]).toFixed(0) : "--"}</b></div>`;
+        text += `        <div class="col s3" style="text-align: right; padding-top: 2px; font-size: 1.5em;"><b>${data[idx * 8 + 6] !== "NaN" ? parseFloat(data[idx * 8 + 6]).toFixed(0) : "--"}</b></div>`;
         text += `    </div>`;
         text += `    <div class="row" style="margin-bottom: 5px; padding: 10px; border-radius: 6px; background-color: #f5f5f5;">`;
         text += `        <div class="col s2"><img src="./assets/images/ETo.png" alt="Termometro" style="width: 25px;"></div>`;
-        text += `        <div class="col s8">`;
+        text += `        <div class="col s7">`;
         text += `           <div style="margin-top: 5px;">ETc (mm/día)</div>`;
         text += `        </div>`;
-        text += `        <div class="col s2" style="text-align: right; padding-top: 2px; font-size: 1.5em;"><b>${data[idx * 8 + 5] !== "NaN" ? parseFloat(data[idx * 8 + 5]).toFixed(0) : "--"}</b></div>`;
+        text += `        <div class="col s3" style="text-align: right; padding-top: 2px; font-size: 1.5em;"><b>${data[idx * 8 + 5] !== "NaN" ? parseFloat(data[idx * 8 + 5]).toFixed(0) : "--"}</b></div>`;
         text += `    </div>`;
         // text += `    <div class="row" style="margin-bottom: 5px; padding: 10px; border-radius: 6px; background-color: #f5f5f5;">`;
         // text += `        <div class="col s2"><img src="./assets/images/DPV.png" alt="Termometro" style="width: 30px;"></div>`;
@@ -2502,21 +2681,31 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         let date = campo.log.date ? campo.log.date.substring(6, 8) + "/" + campo.log.date.substring(4, 6) + " " + campo.log.date.substring(9, 11) + ":" + campo.log.date.substring(11, 15) : "";
         let data = campo.log ? JSON.parse(campo.log.dataRaw) : [];
         let text = ``;
-        text += `<div style="padding: 0 10px; width: 70px;">`;  // 👈 Ancho definido aquí
+        text += `<div style="padding: 0 10px; width: 100px;">`;  // 👈 Ancho definido aquí
         text += `    <div class="row" style="margin-bottom: 5px;">`;
         text += `        <div class="col s12 left-aling contenedor-texto">`;
         text += `            <b><span style="font-size: .8em;">${ sensor.alias ? sensor.alias : "Sensor: " + (idx + 1) }</span></b>`;
         text += `            <br><span style="font-size: .8em;">${date}</span>`;
         text += `        </div>`;
         text += `    </div>`;
-        text += `    <div class="row" style="margin-bottom: 5px; border-radius: 6px; background-color: #f5f5f5;">`;
-        text += `        <div class="col s4" style="padding-top: 7px;"><img src="./assets/images/Hr.png" alt="Agua" style="width: 15px;"></div>`;
-        text += `        <div class="col s8" style="text-align: right; padding-top: 5px; font-size: 1.2em; color: ` + ($scope.isOutOfRange(data[idx * 8], sensor.h.minValue, sensor.h.maxValue) ? `red` : `green`) + `;"><b>${data[idx * 8] !== "NaN" ? parseFloat(data[idx * 8]).toFixed(0) : ""}${sensor.type != 'WM' ? '%' : 'cb'}</b></div>`;
-        text += `    </div>`;
-        text += `    <div class="row" style="margin-bottom: 5px; border-radius: 6px; background-color: #f5f5f5;">`;
-        text += `        <div class="col s4" style="padding-top: 7px;"><img src="./assets/images/termometro.png" alt="Termometro" style="width: 15px;"></div>`;
-        text += `        <div class="col s8" style="text-align: right; padding-top: 5px; font-size: 1.2em; color: ` + ($scope.isOutOfRange(data[idx * 8 + 2], sensor.t.minValue, sensor.t.maxValue) ? `red` : `green`) + `;"><b>${data[idx * 8 + 2] !== "NaN" ? parseFloat(data[idx * 8 + 2]).toFixed(0) : ""}°C</b></div>`;
-        text += `    </div>`;
+        if (sensor.type == "Ms" || sensor.type == "SHT4" || sensor.type == "WM") {
+            text += `    <div class="row" style="margin-bottom: 5px; border-radius: 6px; background-color: #f5f5f5;">`;
+            text += `        <div class="col s3" style="padding-top: 7px;"><img src="./assets/images/Hr.png" alt="Agua" style="width: 15px;"></div>`;
+            text += `        <div class="col s9" style="text-align: right; padding-top: 5px; font-size: 1.2em; color: ` + ($scope.isOutOfRange(data[idx * 8], sensor.h.minValue, sensor.h.maxValue) ? `red` : `green`) + `;"><b>${data[idx * 8] !== "NaN" ? parseFloat(data[idx * 8]).toFixed(0) : ""}${sensor.type != 'WM' ? '%' : 'cb'}</b></div>`;
+            text += `    </div>`;
+            text += `    <div class="row" style="margin-bottom: 5px; border-radius: 6px; background-color: #f5f5f5;">`;
+            text += `        <div class="col s3" style="padding-top: 7px;"><img src="./assets/images/termometro.png" alt="Termometro" style="width: 15px;"></div>`;
+            text += `        <div class="col s9" style="text-align: right; padding-top: 5px; font-size: 1.2em; color: ` + ($scope.isOutOfRange(data[idx * 8 + 2], sensor.t.minValue, sensor.t.maxValue) ? `red` : `green`) + `;">`;
+            text += `            <b>${data[idx * 8 + 2] !== "NaN" && campo.tempUnit == "C" ? parseFloat(data[idx * 8 + 2]).toFixed(0) + "°C" : data[idx * 8 + 2] !== "NaN" && (campo.tempUnit == "F" || $scope.tempUnit == "F") ? parseFloat(data[idx * 8 + 2] * 9/5 + 32).toFixed(0) + "°F" : ""}</b></div>`;
+            text += `        </div>`;
+            text += `    </div>`;
+        }
+        if (sensor.type == "Psi") {
+            text += `    <div class="row" style="margin-bottom: 5px; border-radius: 6px; background-color: #f5f5f5;">`;
+            text += `        <div class="col s3" style="padding-top: 7px;"><img src="./assets/images/pozo.png" alt="Agua" style="width: 15px;"></div>`;
+            text += `        <div class="col s9" style="text-align: right; padding-top: 5px; font-size: 1.2em; color: ` + (data[idx * 8] < 1 ? `red` : `green`) + `;"><b>${data[idx * 8] && !isNaN(data[idx * 8])  && data[idx * 8] !== null ? parseFloat(data[idx * 8]).toFixed(0) : "--"}psi</b></div>`;
+            text += `    </div>`;
+        }
         text += `</div>`;
         return text;
     }
@@ -2730,6 +2919,9 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             case "WM":
                 processResultsFromWMSensors(result, title, chartId, chartLabel, sensorType);
                 break;
+            case "Psi":
+                processResultsFromPsiSensors(result, title, chartId, chartLabel, sensorType);
+                break;
         }
     }
 
@@ -2828,9 +3020,29 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         chart(moisture, humidity, temp_min, temp_max, temperature, labels, title, i, chartLabel, $scope.chartType);
     }
 
+    function mapping(value, inMin, inMax, outMin, outMax) {
+        return (value - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
+    }
+
+    function constraining(value, min, max) {
+        return Math.min(Math.max(value, min), max);
+    }
+
     // Conversión de cb a % humedad
     function cbToPercent(cbValue) {
-        if (cbValue === null || isNaN(cbValue) || cbValue === 240) return null;
+        if (cbValue === null || isNaN(cbValue) || cbValue >= 240) return null;
+        let percent = 0;
+        if (cbValue <= 10) percent =  mapping(cbValue, 0, 10, 100, 80);
+        else if (cbValue <= 30) percent =  mapping(cbValue, 10, 30, 80, 60);
+        else if (cbValue <= 60) percent =  mapping(cbValue, 30, 60, 60, 40);
+        else if (cbValue <= 100) percent =  mapping(cbValue, 60, 100, 40, 30);
+        else if (cbValue <= 150) percent =  mapping(cbValue, 100, 150, 30, 20);
+        else percent =  mapping(cbValue, 150, 240, 20, 0);
+        return Math.round(constraining(percent, 0, 100));
+    }
+
+    function cbToPercent_old(cbValue) {
+        if (cbValue === null || isNaN(cbValue) || cbValue >= 240) return null;
         // Definir puntos de referencia físicos (ajústalos según tu suelo)
         const SATURATION_CB = 10;   // suelo saturado ~5–10 cb
         const FIELD_CAPACITY_CB = 30; // capacidad de campo ~10–30 cb
@@ -2872,6 +3084,25 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         chart(moisture, humidity, temp_min, temp_max, temperature, labels, title, i, chartLabel, $scope.chartType, sensorType);
     }
 
+    const processResultsFromPsiSensors = (result, title, i, chartLabel, sensorType) => {
+        const items = result[0] ? parseInt(JSON.parse(result[0].dataRaw).length / 8) : 0;
+        let labels = [];
+        let moisture = [];
+        lastDate = "";
+        result.forEach(element => {
+            let data = JSON.parse(element.dataRaw);
+            moisture.push(data[i * 8] != "NaN" ? parseFloat(data[i * 8]) : null);
+            date = element.date.substr(6, 2) + "/" + element.date.substr(4, 2);
+            if (lastDate != date) {
+                lastDate = date;
+            } else {
+                date = "";
+            }
+            labels.push(($scope.selectedTimeOption != 'DIA' ? date : '') + " " + ($scope.selectedTimeOption == 'DIA' ? element.date.substr(9, 14) : ''));
+        });
+        chart(moisture, [], [], [], [], labels, title, i, chartLabel, $scope.chartType, "Psi");
+    }
+
     // const chart = (moisture, humidity, temperature, labels, title, i, chartLabel, chartType = 'moisture') => {
     // Código original modificado: ahora acepta chartType para mostrar solo un gráfico
     const chart = (moisture, humidity, temp_min, temp_max, temperature, labels, title, i, chartLabel, chartType = 'moisture', sensorType = '') => {
@@ -2883,7 +3114,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             charts[i] = new Chart(canvas, {
                 type: type,
                 data: getDataArray(moisture, humidity, temp_min, temp_max, temperature, labels, chartType),
-                options: getOptions(title, chartType)
+                options: getOptions(title, chartType, sensorType)
             });
             
             // Demora de 1.5 segundos antes de dibujar las franjas
@@ -2951,26 +3182,32 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                         // Dibujar las tres franjas con etiquetas según el tipo de gráfico
                         if (chartType === 'moisture' && sensorType === 'WM') {
                             // Etiquetas para disponibilidad de agua en el suelo
-                            drawBand(80, 100, 'rgba(255, 30, 0, 0.15)', 'Sensor no listo', 'rgba(255, 30, 0, 0.9)');
-                            drawBand(40, 80, 'rgba(0, 123, 255, 0.15)', 'Saturado', 'rgba(0, 123, 255, 0.9)');
-                            drawBand(15, 40, 'rgba(40, 167, 69, 0.15)', 'Humedad Adecuada', 'rgba(40, 167, 69, 0.9)');
-                            drawBand(0, 15, 'rgba(255, 193, 7, 0.15)', 'Necesidad de Riego', 'rgba(255, 131, 7, 0.39)');
+                            drawBand(80, 100, 'rgba(0, 123, 255, 0.15)', 'Saturado - No regar', 'rgba(0, 123, 255, 0.9)');
+                            drawBand(60, 80, 'rgba(40, 167, 69, 0.15)', 'Adecuado - No regar', 'rgba(40, 167, 69, 0.9)');
+                            drawBand(40, 60, 'rgba(210, 255, 7, 0.15)', 'Secándose - Programar riego', 'rgba(118, 144, 2, 0.9)');
+                            drawBand(30, 40, 'rgba(255, 193, 7, 0.15)', 'Estrés moderado - Regar', 'rgba(183, 138, 2, 0.9)');
+                            drawBand(20, 30, 'rgba(255, 106, 7, 0.15)', 'Seco - Regar urgente', 'rgba(255, 106, 7, 0.9)');
+                            drawBand(0, 20, 'rgba(255, 0, 0, 0.15)', 'Muy seco - Regar inmediatamente', 'rgba(255, 0, 0, 0.9)');
                             // Dibujar línea de umbral de riego
-                            // drawThresholdLine(15, 'rgba(255, 99, 132, 0.8)', 'Umbral Riego (15%)');
+                        } else if (sensorType === 'Psi') {
+                            // Etiquetas para temperatura
+                            drawBand(10, 100, 'rgba(40, 167, 69, 0.15)', 'Encendido', 'rgba(40, 167, 69, 0.9)');
+                            drawBand(0, 10, 'rgba(255, 123, 0, 0.15)', 'Apagado', 'rgba(255, 13, 0, 0.9)');
+                            // Dibujar línea de umbral de helada
+                            drawThresholdLine(3, 'rgba(255, 13, 0, 0.8)', 'Presión mínima (1psi)');
                         } else if (chartType === 'moisture') {
                             // Etiquetas para humedad del suelo
                             drawBand(40, 100, 'rgba(0, 123, 255, 0.15)', 'Saturado', 'rgba(0, 123, 255, 0.9)');
                             drawBand(15, 40, 'rgba(40, 167, 69, 0.15)', 'Humedad Adecuada', 'rgba(40, 167, 69, 0.9)');
                             drawBand(0, 15, 'rgba(255, 193, 7, 0.15)', 'Necesidad de Riego', 'rgba(255, 131, 7, 0.39)');
                             // Dibujar línea de umbral de riego
-                            // drawThresholdLine(15, 'rgba(255, 99, 132, 0.8)', 'Umbral Riego (15%)');
                         } else if (chartType === 'temperature') {
                             // Etiquetas para temperatura
                             drawBand(25, 50, 'rgba(255, 123, 0, 0.15)', 'Muy caliente', 'rgba(255, 13, 0, 0.9)');
                             drawBand(5, 25, 'rgba(40, 167, 69, 0.15)', 'Temperatura Normal', 'rgba(40, 167, 69, 0.9)');
                             drawBand(-10, 5, 'rgba(0, 123, 255, 0.15)', 'Helada', 'rgba(0, 123, 255, 0.9)');
                             // Dibujar línea de umbral de helada
-                            drawThresholdLine(3, 'rgba(54, 162, 235, 0.8)', 'Umbral Helada (5°C)');
+                            drawThresholdLine(3, 'rgba(54, 162, 235, 0.8)', 'Umbral Helada (5°C/41°F)');
                         }
                     };
                     
@@ -3102,7 +3339,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
 
     // const getOptions = (_title) => {
     // Código original modificado: ahora oculta leyenda y título y acepta chartType para fondo de humedad
-    const getOptions = (_title, chartType = 'moisture') => {
+    const getOptions = (_title, chartType = 'moisture', sensorType) => {
         // Definir escalas fijas según el tipo de gráfico
         let yScaleConfig;
         switch(chartType) {
@@ -3129,6 +3366,42 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                 };
                 break;
             case 'moisture':
+                if (sensorType === 'WM') {
+                    yScaleConfig =  {
+                        min: 0,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                // Correspondencia % ↔ cb
+                                switch (value) {
+                                    case 100: return '0';
+                                    case 90:  return '5';
+                                    case 80:  return '10';
+                                    case 70:  return '20';
+                                    case 60:  return '30';
+                                    case 50:  return '40';
+                                    case 40:  return '60';
+                                    case 30:  return '100';
+                                    case 20:  return '150';
+                                    case 10:  return '200';
+                                    case 0:   return '240';
+                                    default:  return value; // valor por defecto
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    yScaleConfig = {
+                        beginAtZero: true,
+                        type: 'linear',
+                        min: 0,
+                        max: 100,
+                        ticks: {
+                            stepSize: 10
+                        }
+                    };
+                }
+                break;
             default:
                 yScaleConfig = {
                     beginAtZero: true,
@@ -3353,6 +3626,13 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         if (typeof str !== 'string') return str;
         return str.split(char).join(replacement);
     }
+
+    $scope.compartirWhatsApp = () => {
+        const url = "https://dta-agricola.web.app";  
+        const mensaje = "DTA - Monitoring & Control: " + url;
+        const enlace = "https://wa.me/?text=" + encodeURIComponent(mensaje);
+        window.open(enlace, "_blank");
+    }
     
     activarAlarma = () => {
         reproducirSonido('./assets/sounds/alarma-de-evacuacion.mp3');
@@ -3404,7 +3684,10 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                 swal("Alerta sonora activada!", {
                     icon: "success",
                 });
-            } 
+            } else {
+                localStorage.setItem('sonidoHabilitado', 'false');
+                reproducirSonido('./assets/sounds/android-sms.mp3');
+            }
         });
     }
     
@@ -3432,7 +3715,10 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                 swal("Alerta sonora desactivada!", {
                     icon: "success",
                 });
-            } 
+            } else {
+                localStorage.setItem('sonidoHabilitado', 'true');
+                reproducirSonido('./assets/sounds/Elevator_Bell.mp3');
+            }
         });
     }
 
@@ -3678,7 +3964,6 @@ handleTokenRefresh = (email) => {
     if (authUser && !userTokenList || !userTokenList.some(item => item === subscriptionJSON)) {
         userTokenList.push(subscriptionJSON);
         // setUserToken(email, userTokenList);
-        segundoPlano();
     }
 }
 
