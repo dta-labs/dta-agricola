@@ -15,7 +15,7 @@ String setupSHT() {
   sensorType = SHT;
   sht4.setPrecision(SHT4X_HIGH_PRECISION);
   sht4.setHeater(SHT4X_NO_HEATER);
-  Serial.println(F("  • Sensor SHT4x inicializado correctamente..."));
+  Serial.print(F("  • Sensor SHT4x: "));
   return String(sht4.readSerial(), HEX);
 }
 

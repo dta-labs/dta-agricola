@@ -1,15 +1,17 @@
 #pragma region Variables
 
-String NODE_ID = "DTA-SHT4-0x";         // Identificador del nodo DTA-SHT-0x0001
+String NODE_ID_BASE = "DTA-SHT4-0x";    // Identificador del nodo DTA-SHT-0x0001
+String NODE_ID = NODE_ID_BASE;
 #define comma F(",")
-#define noSensor F("00")
+#define noSensor F("0")
 #define SHT F("SHT")
 #define DS F("DS")
 #define sensorPin A0                    // Pin del sensor de humedad
 #define VCC A1                          // Pin de alimentación del sensor de humedad
 #define activeHeater false
 #define NUM_MUESTRAS 20
-int TIMER = 0;                          // Tiempo de espera en minutos
+byte txPOWER = 10;                      // Ajusta la potencia de transmisión a 14 dBm
+int TIMER = 5;                          // Tiempo de espera en minutos
 String sensorType;                      // Tipo de sensor SHT | DS
 float t_actual = -999;
 float h_actual = -1;

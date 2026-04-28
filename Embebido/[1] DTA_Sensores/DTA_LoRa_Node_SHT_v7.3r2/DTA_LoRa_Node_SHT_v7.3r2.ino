@@ -23,13 +23,10 @@ void setup() {
   Serial.println(F("~ Sonda de humedad del suelo"));
   Serial.println(F("~ Humedad y temperatura ambiente"));
   Serial.println(F("  • Protocolo: DTA-SHT4-0xId,Ms,Hr,T°C,Vcc,CS"));
-  initLoRa();
-  setupSensors();
   Serial.println(F("  • Sensor de humedad del suelo inicializado correctamente..."));
-  Serial.println(F("~ Configuración:"));
-  Serial.print(F("  • ID: ")); Serial.println(NODE_ID);
-  Serial.print(F("  • Suelo Saturado: ")); Serial.print(suelo.pSat); Serial.println(F("%"));
-  Serial.print(F("  • Suelo C. Campo: ")); Serial.print(suelo.pCC); Serial.println(F("%\n"));
+  setupSensors();
+  initLoRa();
+  Serial.println();
   wdt_enable(WDTO_8S);
 }
 
@@ -38,28 +35,41 @@ void setupSensors() {
   id = id == noSensor ? setupSHT() : id;
   id.toUpperCase();
   NODE_ID += id;
+  Serial.println(NODE_ID);
 }
 
 void loop() {
   wdt_reset();
-  if (NODE_ID != noSensor) {
+  if (NODE_ID.indexOf(NODE_ID_BASE + noSensor) != 0) {
     if (sensorType == SHT) {
       readSHT();
     } else {
-      // Serial.println(F("Leyendo temperatura..."));
       getTemperature();
     }
   }
   wdt_reset();
-  // Serial.println(F("Leyendo humedad..."));
   moisture = getMoisture();
-  wdt_reset();
-  txData(createDataStr());
-  wdt_reset();
-  if (waitConfirmation()) lowPower();
+  bool isConfirm = false;
+  if (txPOWER > 10 && getVcc() > 3.0) {
+    txPOWER -= 2;
+    LoRa.setTxPower(txPOWER);
+  }
+  byte iter = 0;
+  do {
+    wdt_reset();
+    txData(createDataStr());
+    iter++;
+    wdt_reset();
+    isConfirm = waitConfirmation();
+    if (!isConfirm && txPOWER < 20) {
+      txPOWER += 2;
+      LoRa.setTxPower(txPOWER);
+    }
+  } while (!isConfirm && iter < 5 && (getVcc() > 3.0 || iter < 1));
+  lowPower();
 }
 
-String createDataStr_old() {
+String createDataStr() {
   String dataStr = NODE_ID;
   dataStr += comma;
   dataStr += String(moisture);
@@ -74,7 +84,7 @@ String createDataStr_old() {
   return dataStr;
 }
 
-String createDataStr() {
+String createDataStr_() {
   char buffer[64];
   snprintf(buffer, sizeof(buffer), "%s,%d,%d,%d,%.1f",
            NODE_ID.c_str(), moisture, h_actual, t_actual, getVcc());
@@ -84,20 +94,14 @@ String createDataStr() {
 }
 
 void lowPower() {
-  // wdt_disable();
-  int estado = digitalRead(LINK); // Leer el estado del pin
-  delay(5000);
-  if (estado == HIGH) {
-    // LoRa.idle();
-    int minutes = TIMER * 15;
-    for (int i = 0; i < minutes; i++) {
-      wdt_reset();
-      LowPower.powerDown(SLEEP_4S, ADC_OFF, BOD_OFF);
-      wdt_reset();
-      if(digitalRead(LINK) == LOW) break;
-    }
-  } 
-  // wdt_enable(WDTO_8S);
+  Serial.flush();             // Espera a que se envíe todo
+  int cycles = TIMER * 7.5;   // número de ciclos de 8s
+  for (int i = 0; i < cycles; i++) {
+    wdt_reset();
+    LowPower.powerDown(SLEEP_8S, ADC_OFF, BOD_OFF);
+    wdt_reset();
+    if (digitalRead(LINK) == LOW) break;
+  }
 }
 
 #pragma endregion Programa Principal
