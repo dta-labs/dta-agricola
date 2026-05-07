@@ -52,8 +52,9 @@ function sendNotification() {
         $payload = json_encode([
             "title" => "DTA-Agrícola",
             "body" => $txt,
-            "icon" => "DTA.png",
-            "sound" => "./assets/sounds/alarma-de-evacuacion.mp3",
+            "icon" => "./assets/images/DTA.png",
+            "sound" => "default",
+            // "sound" => "./assets/sounds/alarma-de-evacuacion.mp3",
             "url" => "./?v=0.1"
         ]);
         // $payload = '{"title":"DTA-Agrícola", "body":"' . $txt . '", "icon":"DTA.png", "sound":"alarma-de-evacuacion.mp3", "url":"./?v=0.1"}';
@@ -61,14 +62,27 @@ function sendNotification() {
             $subscription = is_string($token) ? json_decode($token, true) : $token;
             // print_r($token);
             if ($subscription && isset($subscription['endpoint'])) {
+                // print_r("Enviar notificación... " . json_encode($subscription) . " ");
                 $webPush->sendOneNotification(
                     Subscription::create($subscription),
                     $payload,
-                    ['TTL' => 5000]
+                    ['TTL' => 5000, 'urgency' => 'high']
                 );
             }
         }
-        $webPush->flush();
+        // $webPush->flush();
+        print_r("Procesar resultados");
+        $reports = $webPush->flush();
+        if (empty($reports) || $reports === null) {
+            echo "⚠️ flush() no devolvió reportes. Nada se encoló.\n";
+        } else {
+            foreach ($reports as $report) {
+                $endpoint = $report->getEndpoint();
+                echo $report->isSuccess()
+                    ? "✅ Push enviado correctamente a {$endpoint}\n"
+                    : "❌ Error al enviar a {$endpoint}: {$report->getReason()}\n";
+            }
+        }
         exit;
     }
 }

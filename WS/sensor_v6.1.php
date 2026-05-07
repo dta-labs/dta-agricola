@@ -79,32 +79,6 @@ class SensorSystem {
         return $dateTime;
     }
 
-    private function escribirLog($mensaje) {
-        $localZone = $this->getLocalZone();
-        $fechaHora = $this->getDateTime($localZone)->format('Y-m-d H:i:s');
-        $fecha = substr($fechaHora, 0, 10);
-        $archivo = __DIR__ . '/' . $fecha . '_log.txt';
-        $hora = substr($fechaHora, 11, 8);
-        $entrada = "[{$hora}] {$mensaje}\n";
-        if (!is_writable(dirname($archivo))) {
-            error_log("Error: El directorio no tiene permisos de escritura: " . dirname($archivo));
-            return false;
-        }
-        $manejador = @fopen($archivo, 'a');
-        if ($manejador === false) {
-            $error = error_get_last();
-            error_log("Error al abrir el archivo de log: " . ($error['message'] ?? 'Error desconocido'));
-            return false;
-        }
-        if (fwrite($manejador, $entrada) === false) {
-            error_log("Error al escribir en el archivo de log");
-            fclose($manejador);
-            return false;
-        }
-        fclose($manejador);
-        return true;
-    }
-
     #endregion 0.- Funciones básicas
 
     #region 1.- Enviar configuración al dispositivo
@@ -131,6 +105,23 @@ class SensorSystem {
     #endregion 1.- Enviar configuración al dispositivo
 
     #region 2.- Lanzar en segundo plano el procesamiento de datos
+
+    private function escribirLog($mensaje): void {
+        $localZone = $this->getLocalZone();
+        $queryString = http_build_query([
+            'mensaje'   => $mensaje,
+            'localZone' => $localZone
+        ]);
+        $log_writer = "https://dtaamerica.com/ws/log_writer.php?$queryString";
+        $cmd = "curl -s \"$log_writer\" > /dev/null 2>&1 &";
+
+        $proc = @popen($cmd, 'r');
+        if ($proc === false) {
+            error_log("No se pudo lanzar el proceso de log");
+        } else {
+            pclose($proc);
+        }
+    }
 
     public function lanzarProcesamientoSegundoPlano(): void {
         $queryString = http_build_query($_GET);

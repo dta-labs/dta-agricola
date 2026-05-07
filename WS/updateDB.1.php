@@ -8,10 +8,20 @@ class DatabaseUpdater {
     private $curlHandle;
     private $agroCache = [];
     private $isRealData = true;
-
+    private $date = '';
+    public $signal = '';
+    public $qos = '';
+    public $reception = '';
+    
+    
     public function __construct(string $id) {
+        $this->signal = $_GET['si'] ?? '';
+        $this->qos = $_GET['qos'] ?? '';
+        $this->reception = $_GET['rx'] ?? '';
         $this->baseUrl = "https://dta-agricola.firebaseio.com/systems/$id/";
         $this->initCurl();
+        $this->settings = $this->getSettings();
+        $this->date = $this->getDateTime($this->getLocalZone())->format('Ymd hia');
     }
 
     private function initCurl(): void {
@@ -95,7 +105,7 @@ class DatabaseUpdater {
         if (isset($_GET['data'])) {
             if ($_GET['data'] == '[]') {
                 $lastLogDate = $this->getLastLogDate();
-                if ($lastLogDate === null || !$this->isWithinRange($lastLogDate, 3)) {
+                if ($lastLogDate === null || !$this->isWithinRange($lastLogDate, 9)) {
                     $data = array_fill(0, 40, NAN);
                     $this->isRealData = false;
                 }
@@ -132,7 +142,7 @@ class DatabaseUpdater {
     }
 
     private function processActualData($data) {
-        $settings = $this->getSettings();
+        $settings = $this->settings;
         $data = $this->updateActualData($data);
         if ($settings->operationMode && ($settings->operationMode == "" || $settings->operationMode == "0" || $settings->operationMode == 0)) {
             $this->sensorsDiscovery($data);
@@ -160,8 +170,8 @@ class DatabaseUpdater {
     }
 
     private function updateActualData(array $data) {
-        $settings = $this->getSettings();
-        $date = $this->getDateTime($this->getLocalZone())->format('Ymd hia');
+        $settings = $this->settings;
+        $date = $this->date;
         $data = array_map(function($value) {
             if (is_nan($value) || $value === -127.0) return NAN;
             return round($value, 1);
@@ -184,7 +194,7 @@ class DatabaseUpdater {
     private function getValidOrFallbackValue($data, $i, $j, $limit, $date, $estacion) {
         if (is_nan($data[$i])) {
             $idx = "S" . (($i - $j) / 4);
-            $settings = $this->getSettings();
+            $settings = $this->settings;
             $sensorType = $settings->sensors->{$idx}->type;
             if (in_array($sensorType, ["SHT", "SHT4", "WM"])) {
                 $medias = $this->calcularMedias($data, $i, $j);
@@ -253,7 +263,7 @@ class DatabaseUpdater {
         return $closestIndex;
     }
 
-    function getSoilMoisturePoint($lat, $lon) {
+    private function getSoilMoisturePoint($lat, $lon) {
         $agroAPI = '07f1e9d39ef35ee2b22c77c48a4c5a7d';
         $soilUrl = "https://api.agromonitoring.com/agro/1.0/soil?lat=$lat&lon=$lon&appid=$agroAPI";
         $context = stream_context_create(['http' => ['timeout' => 5]]);
@@ -278,19 +288,20 @@ class DatabaseUpdater {
 
     private function calcularMedias($data, $i, $j) {
         $idx = "S" . (($i - $j) / 4);
-        $settings = $this->getSettings();
+        $settings = $this->settings;
         $sensorType = $settings->sensors->{$idx}->type;
-        $tiposValidos = ["SHT", "SHT4", "WM"];
-        if (!isset($tiposValidos[$sensorType])) return NAN;
+        // $tiposValidos = ["SHT", "SHT4", "WM"];
+        // if (!isset($tiposValidos[$sensorType])) return NAN;
         $media = $counter = 0;
         for ($s = 0; $s < $settings->sensors->sensorNumber; $s++) {
             $sensorType = $settings->sensors->{"S".$s}->type;
-            if (is_numeric($data[$s * 4 + $j]) && !is_nan($data[$s * 4 + $j]) && isset($tiposValidos[$sensorType])) {
+            // if (is_numeric($data[$s * 4 + $j]) && !is_nan($data[$s * 4 + $j]) && isset($tiposValidos[$sensorType])) {
+            if (is_numeric($data[$s * 4 + $j]) && !is_nan($data[$s * 4 + $j])) {
                 $media += $data[$s * 4 + $j];
                 $counter++;
             }
         }
-        return $counter ? $media / $counter : NAN;
+        return $counter > 0 ? $media / $counter : NAN;
     }
 
     private function ruidoGauss($media, $sigma) {
@@ -316,32 +327,35 @@ class DatabaseUpdater {
 
     private function getFilterObject($systemId) {
         $SENSOR_NETWORK = [
-            ['lat' => '29.072296', 'lon' => '-107.532898', 'est' => '_osm', 'sys' => '24530080324' ],
-            ['lat' => '29.0665367', 'lon' => '-107.512', 'est' => '_osm', 'sys' => '24530080449' ],
-            ['lat' => '29.052813', 'lon' => '-107.416114', 'est' => '_nal', 'sys' => '20333844254' ],
-            ['lat' => '29.264143', 'lon' => '-107.337137', 'est' => '_fac', 'sys' => '24530080316' ],
-            ['lat' => '29.2640867', 'lon' => '-107.337137', 'est' => '_fac', 'sys' => '24530080456' ],
-            ['lat' => '29.1126387', 'lon' => '-107.4352774', 'est' => '_lbr', 'sys' => '24530084283' ],
-            ['lat' => '29.077975', 'lon' => '-107.5262367', 'est' => '_osm', 'sys' => '24530094291' ],
-            ['lat' => '28.8634', 'lon' => '-107.2421589', 'est' => '_bac', 'sys' => '24530094135' ],
-            ['lat' => '28.615746', 'lon' => '-107.545181', 'est' => '_mrc', 'sys' => '24530080415' ],
-            ['lat' => '28.6008204', 'lon' => '-107.5425449', 'est' => '_mrc', 'sys' => '24530094119' ],
-            ['lat' => '28.60248', 'lon' => '-107.54051', 'est' => '_mrc', 'sys' => '24530080423' ],
-            ['lat' => '28.4894', 'lon' => '-107.441965', 'est' => '_mmi', 'sys' => '24530094143' ],
-            ['lat' => '28.4894383', 'lon' => '-107.4418783', 'est' => '_mmi', 'sys' => '24530094150' ],
-            ['lat' => '28.5080187', 'lon' => '-107.4193631', 'est' => '_bas', 'sys' => '24530080431' ],
-            ['lat' => '28.3936211', 'lon' => '-107.1927627', 'est' => '_ros', 'sys' => '24530094275' ],
-            ['lat' => '28.475049', 'lon' => '-107.314355', 'est' => '_lju', 'sys' => '24530080407' ],
-            ['lat' => '28.204821', 'lon' => '-107.026813', 'est' => '', 'sys' => '24530080332' ]
+            ['systemId' => '24530080324', 'est' => '_osm'],  // Heber Alonso Morales Andujoo
+            ['systemId' => '24530080449', 'est' => '_osm'],  // Luis Carlos Estrada Estrada
+            ['systemId' => '20333844254', 'est' => '_nal'],  // Manuel Enrique Rivera Cano
+            ['systemId' => '24530080316', 'est' => '_fac'],  // Ruben Alberto Dominguez Montano
+            ['systemId' => '24530080456', 'est' => '_fac'],  // Silvia Yadira Rivera Alvarez
+            ['systemId' => '24530084283', 'est' => '_lbr'],  // Alvaro Loya Andujo
+            ['systemId' => '24530094291', 'est' => '_osm'],  // Alfredo Quintana Juarez
+            ['systemId' => '24530094135', 'est' => '_bac'],  // Laura Carmina Arriola Ordoñez(Jesús Manuel Mariscal)
+            ['systemId' => '24530080415', 'est' => '_mrc'],  // Salvador Saenz Mendoza
+            ['systemId' => '24530094119', 'est' => '_mrc'],  // Guadalupe Lozano Garcia (Ramiro)
+            ['systemId' => '24530080423', 'est' => '_mrc'],  // Francisco Terán
+            ['systemId' => '25331424856', 'est' => '_mmi'],  // Luly Camacho
+            ['systemId' => '24530094143', 'est' => '_mmi'],  // Claudio_PROFRUT_Rancho González Lardizabal
+            ['systemId' => '24530094150', 'est' => '_mmi'],  // Claudio_PROFRUT_Estanque González Lardizabal
+            ['systemId' => '24530094127', 'est' => '_mmi'],  // Álvaro Mingura
+            ['systemId' => '24530080431', 'est' => '_bas'],  // Trinidad Estrada Valadez
+            ['systemId' => '24530094275', 'est' => '_ros'],  // Ignacio Luis Delgado Casale
+            ['systemId' => '24530080407', 'est' => '_lju'],  // Javier Hernández Caballero
+            ['systemId' => '24530080332', 'est' => '_lac']   // Carlos Macyshyn Rasor (Capilla)
         ];
         $result = array_filter($SENSOR_NETWORK, function($sensorNet) use ($systemId) {
-            return $sensorNet['sys'] === $systemId;
+            return $sensorNet['systemId'] === $systemId;
         });
         return reset($result) ?: null;
     }
 
     private function updateLog(array $data): void {
         $logData = $this->crearLogData($data);
+        // print_r($logData);
         $dayLogsFile = $this->baseUrl . "dayLogs.json";
         if ($this->esPrimerRegistroDelDia($dayLogsFile)) {
             $this->procesarPrimerRegistro($dayLogsFile, $logData);
@@ -357,9 +371,6 @@ class DatabaseUpdater {
     }
 
     private function crearLogData(array $data): array {
-        $localZone = $this->isRealData ? $this->getLocalZone() : 0;
-        $localZone = 0;
-        $date = $this->getDateTime($localZone)->format('Ymd hia');
         $data = array_map(function($value) {
             if (is_nan($value) || $value === -127.0) return NAN;
             return round($value, 1);
@@ -388,11 +399,11 @@ class DatabaseUpdater {
             $expandedData[] = (string)$vccValue;
         }
         return [
-            'date' => $date,
+            'date' => $this->date,
             'dataRaw' => json_encode($expandedData),
-            'signal' => $_GET['si'] ?? '',
-            'qos' => $_GET['qos'] ?? '',
-            'reception' => in_array($_GET['rx'] ?? '', ['Ok', 'Er', 'ini', 'Cron']) ? $_GET['rx'] : ''
+            'signal' => $this->signal,
+            'qos' => $this->qos,
+            'reception' => $this->reception
         ];
     }
 
@@ -418,7 +429,7 @@ class DatabaseUpdater {
     }
 
     private function getLocalZone(): int {
-        $settings = $this->getSettings();
+        $settings = $this->settings;
         $timeZone = $settings->zona ?? 0;
         $summerHour = $settings->summerHour ?? 0;
         return intval($timeZone) + intval($summerHour);
@@ -483,9 +494,9 @@ class DatabaseUpdater {
         return [
             'date' => ($lastDate ?: date('Ymd')) . ' 0000am',
             'dataRaw' => json_encode($promedioDataRaw),
-            'signal' => $_GET['si'] ?? '',
-            'qos' => $_GET['qos'] ?? '',
-            'reception' => in_array($_GET['rx'] ?? '', ['Ok', 'Er', 'ini', 'Cron']) ? $_GET['rx'] : ''
+            'signal' => $this->signal,
+            'qos' => $this->qos,
+            'reception' => $this->reception
         ];
     }
     
@@ -602,7 +613,7 @@ class DatabaseUpdater {
     }
 
     private function sensorsDiscovery($data) {
-        $settings = $this->getSettings();
+        $settings = $this->settings;
         $actualize = true;
         $length = count($data);
         for ($i = 0; $i < $length; $i++) {
@@ -634,19 +645,9 @@ class DatabaseUpdater {
 
     private function callAlerts($data): void {
         $queryString = http_build_query($_GET);
-        
-        // Llamar a alertas.php en segundo plano
-        $alertUrl = "https://dtaamerica.com/WS/alertas.php?$queryString";
-        
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $alertUrl);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 1);
-        curl_setopt($ch, CURLOPT_NOSIGNAL, 1);
-        curl_exec($ch);
-        curl_close($ch);
-        
-        // $this->escribirLog("Lanzado alertas.php en segundo plano para sistema: $systemId");
+        $alertUrl = "https://dtaamerica.com/ws/alertas.php?$queryString";
+        $cmd = "curl -s \"$alertUrl\" > /dev/null 2>&1 &";
+        pclose(popen($cmd, 'r'));
     }
 
     public function escribirLog($mensaje) {
@@ -684,8 +685,9 @@ try {
         echo "Error: Falta el parámetro 'id' del sistema";
         exit;
     }
-    
+
     $updater = new DatabaseUpdater($_GET['id']);
+    // print_r($updater->signal . " " . $updater->qos . " " . $updater->reception);
     $updater->processData();
     
 } catch (Exception $e) {

@@ -564,7 +564,7 @@
                                         <div class="row" style="margin-bottom: 0;">
                                             <div class="col s2 m2 valign-wrapper" style="margin: 2px 0 0 10px; cursor: pointer;">
                                                 <i class="material-icons"
-                                                    style="font-size: 3.5em; ">chevron_left</i>
+                                                    style="font-size: 3.5em; ">keyboard_backspace</i>
                                             </div>
                                             <div class="col s7 m6">
                                                 <div class="limitar" style="font-size: 1.5em;">
@@ -2002,74 +2002,16 @@
                                             </div>
                                         </div>
                                         <div id="programas">
-                                            <br>
-                                            <div class="row" style="padding: 0 10px;">
-                                                <div class="input-field col s12 l8">
-                                                    <input type="text" id="programa_estacionario_nombre" ng-model="programaEstacionario.nombre">
-                                                    <label for="programa_estacionario_nombre">Programa<span style="color: red;">*</span></label>
+                                            <br><br>
+                                            <div class="row" ng-repeat="plan in actualSystem.irrigationPlan" style="border-bottom: 1px solid lightgrey;">
+                                                <div class="col s1 modal-trigger" href="#modalStationaryProgram" ng-click="editStationaryProgram(plan)">{{ $index + 1 }}</div>
+                                                <div class="col s7 m9 left-align modal-trigger" href="#modalStationaryProgram" ng-click="editStationaryProgram(plan)">
+                                                    <b>{{ plan.nombre }}</b>
                                                 </div>
-                                                <div class="input-field col s12" style="margin-top: -12px;"></div>
-                                                <div class="input-field col s12 m6 l4">
-                                                    <input id="programa_estacionario_fecha_inicio" type="text" class="datepicker" ng-model="programaEstacionario.fecha_inicio">
-                                                    <label for="programa_estacionario_fecha_inicio">Fecha de inicio<span style="color: red;">*</span></label>
-                                                </div>
-                                                <div class="input-field col s12 m6 l4">
-                                                    <input id="programa_estacionario_hora_inicio" type="text" class="timepicker" ng-model="programaEstacionario.hora_inicio">
-                                                    <label for="programa_estacionario_hora_inicio">Hora de inicio<span style="color: red;">*</span></label>
-                                                </div>
-                                                <div class="input-field col s12" style="border-bottom: 1px solid lightgrey; text-align: left;">Repetir cada:</div>
-                                                <div id="programa_estacionario_periodo" class="input-field col s12 m6 l4" style="text-align: left; display: flex; align-items: left; gap: 5px;">
-                                                    <input name="programa_estacionario_cada" type="number" min="1" value="{{ programaEstacionario.cada ? programaEstacionario.cada : 1 }}" style="width: 60px; text-align: right; margin-top: -12px;" ng-model="programaEstacionario.cada" /> 
-                                                    &nbsp; &nbsp;
-                                                    <select ng-model="programaEstacionario.periodo">
-                                                        <option value="0" selected>veces</option>
-                                                        <option value="1">días</option>
-                                                        <option value="2">semanas</option>
-                                                        <option value="3">meses</option>
-                                                    </select>
-                                                </div>
-                                                <!-- <div class="input-field col s12 m6 l4" ng-show="showProgramDays">
-                                                    <p style="display: flex; align-items: left; gap: 5px;" ng-if="showProgramDays">
-                                                        <span class="btn-dia" style="font-size: 1em;">L</span> 
-                                                        <span class="btn-dia" style="font-size: 1em;">M</span> 
-                                                        <span class="btn-dia" style="font-size: 1em;">M</span> 
-                                                        <span class="btn-dia" style="font-size: 1em;">J</span> 
-                                                        <span class="btn-dia" style="font-size: 1em;">V</span> 
-                                                        <span class="btn-dia" style="font-size: 1em;">S</span> 
-                                                        <span class="btn-dia" style="font-size: 1em;">D</span> 
-                                                    </p>
-                                                </div> -->
-                                                <div class="input-field col s12 m6 l4" style="margin-top: -1px;">
-                                                    <input id="programa_estacionario_fecha_fin" type="text" class="datepicker" ng-model="programaEstacionario.fecha_fin">
-                                                    <label for="programa_estacionario_fecha_fin">Fecha fin<span style="color: red;">*</span></label>
-                                                </div>
-                                                <div class="col s12" style="border-bottom: 1px solid lightgrey; text-align: left;">Temporizadores<span style="color: red;">*</span>:</div>
-                                                <div class="input-field col s12 m4 left-align" style="margin-bottom: -15px;">
-                                                    <span>Parcela 1 </span>
-                                                    <input id="programa_estacionario_parcela" type="number" style="width: 50px; text-align: right; margin-top: -12px;" ng-model="programaEstacionario.t[0]">
-                                                    <span> minutos</span><br>
-                                                    <span>Parcela 2 </span>
-                                                    <input id="programa_estacionario_parcela" type="number" style="width: 50px; text-align: right; margin-top: -12px;" ng-model="programaEstacionario.t[1]">
-                                                    <span> minutos</span><br>
-                                                </div>
-                                                <div class="input-field col s12 m4 left-align" style="margin-bottom: -15px;">
-                                                    <span>Parcela 3 </span>
-                                                    <input id="programa_estacionario_parcela" type="number" style="width: 50px; text-align: right; margin-top: -12px;" ng-model="programaEstacionario.t[2]">
-                                                    <span> minutos</span><br>
-                                                    <span>Parcela 4 </span>
-                                                    <input id="programa_estacionario_parcela" type="number" style="width: 50px; text-align: right; margin-top: -12px;" ng-model="programaEstacionario.t[3]">
-                                                    <span> minutos</span><br>
-                                                </div>
-                                                <div class="input-field col s12 m4 left-align">
-                                                    <span>Parcela 5 </span>
-                                                    <input id="programa_estacionario_parcela" type="number" style="width: 50px; text-align: right; margin-top: -12px;" ng-model="programaEstacionario.t[4]">
-                                                    <span> minutos</span><br>
-                                                    <span>Parcela 6 </span>
-                                                    <input id="programa_estacionario_parcela" type="number" style="width: 50px; text-align: right; margin-top: -12px;" ng-model="programaEstacionario.t[5]">
-                                                    <span> minutos</span><br>
-                                                    <span>Parcela 7 </span>
-                                                    <input id="programa_estacionario_parcela" type="number" style="width: 50px; text-align: right; margin-top: -12px;" ng-model="programaEstacionario.t[6]">
-                                                    <span> minutos</span><br>
+                                                <div class="col s4 m2">
+                                                    <div class="btn-small waves-effect waves-light teal lighten-1 modal-close" style="padding: 0 10px; margin-top: -5px; margin-bottom: 5px;">
+                                                        <i class="material-icons" ng-click="startStationaryProgram(plan)">play_arrow</i>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <br>
@@ -2084,9 +2026,9 @@
                                                     <i class="material-icons">stop</i>
                                                     &nbsp;&nbsp;
                                                 </div>
-                                                <div class="btn waves-effect waves-light teal lighten-3" ng-click="startStationaryProgram()">
+                                                <div class="btn waves-effect waves-light teal modal-trigger" href="#modalStationaryProgram" ng-click="newStationaryProgram()">
                                                     &nbsp;&nbsp;
-                                                    <i class="material-icons">play_arrow</i>
+                                                    <i class="material-icons">add</i>
                                                     &nbsp;&nbsp;
                                                 </div>
                                             </div>
@@ -2332,6 +2274,105 @@
                                                 ng-click="updateSensingScheme()" ng-show="isSystemOfRole('propietario') || isSystemOfRole('administrador')">
                                                 &nbsp; <i class="material-icons">check</i> &nbsp;
                                             </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="modalStationaryProgram" class="modal" style="min-height: 70% !important;" ng-init="as_config = true"> <!-- Modal Programa Estacionario -->
+                                <div class="swal-title">Programa de riego</div>
+                                <div class="modal-content">
+                                    <br>
+                                    <div class="row" style="padding: 0 10px;">
+                                        <div class="input-field col s12 l8">
+                                            <input type="text" id="programa_estacionario_nombre" ng-model="programaEstacionario.nombre">
+                                            <label for="programa_estacionario_nombre">Programa<span style="color: red;">*</span></label>
+                                        </div>
+                                        <div class="input-field col s12" style="margin-top: -12px;"></div>
+                                        <div class="input-field col s12 m6 l4">
+                                            <input id="programa_estacionario_fecha_inicio" type="text" class="datepicker" ng-model="programaEstacionario.fecha_inicio">
+                                            <label for="programa_estacionario_fecha_inicio">Fecha de inicio<span style="color: red;">*</span></label>
+                                        </div>
+                                        <div class="input-field col s12 m6 l4">
+                                            <input id="programa_estacionario_hora_inicio" type="text" class="timepicker" ng-model="programaEstacionario.hora_inicio">
+                                            <label for="programa_estacionario_hora_inicio">Hora de inicio<span style="color: red;">*</span></label>
+                                        </div>
+                                        <div class="input-field col s12" style="border-bottom: 1px solid lightgrey; text-align: left;">Repetir cada:</div>
+                                        <div id="programa_estacionario_periodo" class="input-field col s12 m6 l4" style="text-align: left; display: flex; align-items: left; gap: 5px;">
+                                            <input name="programa_estacionario_cada" type="number" min="1" value="{{ programaEstacionario.cada ? programaEstacionario.cada : 1 }}" style="width: 60px; text-align: right; margin-top: -12px;" ng-model="programaEstacionario.cada" /> 
+                                            &nbsp; &nbsp;
+                                            <select ng-model="programaEstacionario.periodo">
+                                                <option value="0">veces</option>
+                                                <option value="1">días</option>
+                                                <option value="2">semanas</option>
+                                                <option value="3">meses</option>
+                                            </select>
+                                        </div>
+                                        <!-- <div class="input-field col s12 m6 l4" ng-show="showProgramDays">
+                                            <p style="display: flex; align-items: left; gap: 5px;" ng-if="showProgramDays">
+                                                <span class="btn-dia" style="font-size: 1em;">L</span> 
+                                                <span class="btn-dia" style="font-size: 1em;">M</span> 
+                                                <span class="btn-dia" style="font-size: 1em;">M</span> 
+                                                <span class="btn-dia" style="font-size: 1em;">J</span> 
+                                                <span class="btn-dia" style="font-size: 1em;">V</span> 
+                                                <span class="btn-dia" style="font-size: 1em;">S</span> 
+                                                <span class="btn-dia" style="font-size: 1em;">D</span> 
+                                            </p>
+                                        </div> -->
+                                        <div class="input-field col s12 m6 l4" style="margin-top: -1px;">
+                                            <input id="programa_estacionario_fecha_fin" type="text" class="datepicker" ng-model="programaEstacionario.fecha_fin">
+                                            <label for="programa_estacionario_fecha_fin">Fecha fin<span style="color: red;">*</span></label>
+                                        </div>
+                                        <div class="col s12" style="border-bottom: 1px solid lightgrey; text-align: left;">Temporizadores<span style="color: red;">*</span>:</div>
+                                        <div class="input-field col s12 m4 left-align" style="margin-bottom: -15px;">
+                                            <span>Parcela 1 </span>
+                                            <input id="programa_estacionario_parcela" type="number" style="width: 50px; text-align: right; margin-top: -12px;" ng-model="programaEstacionario.t[0]">
+                                            <span> minutos</span><br>
+                                            <span>Parcela 2 </span>
+                                            <input id="programa_estacionario_parcela" type="number" style="width: 50px; text-align: right; margin-top: -12px;" ng-model="programaEstacionario.t[1]">
+                                            <span> minutos</span><br>
+                                        </div>
+                                        <div class="input-field col s12 m4 left-align" style="margin-bottom: -15px;">
+                                            <span>Parcela 3 </span>
+                                            <input id="programa_estacionario_parcela" type="number" style="width: 50px; text-align: right; margin-top: -12px;" ng-model="programaEstacionario.t[2]">
+                                            <span> minutos</span><br>
+                                            <span>Parcela 4 </span>
+                                            <input id="programa_estacionario_parcela" type="number" style="width: 50px; text-align: right; margin-top: -12px;" ng-model="programaEstacionario.t[3]">
+                                            <span> minutos</span><br>
+                                        </div>
+                                        <div class="input-field col s12 m4 left-align">
+                                            <span>Parcela 5 </span>
+                                            <input id="programa_estacionario_parcela" type="number" style="width: 50px; text-align: right; margin-top: -12px;" ng-model="programaEstacionario.t[4]">
+                                            <span> minutos</span><br>
+                                            <span>Parcela 6 </span>
+                                            <input id="programa_estacionario_parcela" type="number" style="width: 50px; text-align: right; margin-top: -12px;" ng-model="programaEstacionario.t[5]">
+                                            <span> minutos</span><br>
+                                            <span>Parcela 7 </span>
+                                            <input id="programa_estacionario_parcela" type="number" style="width: 50px; text-align: right; margin-top: -12px;" ng-model="programaEstacionario.t[6]">
+                                            <span> minutos</span><br>
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <div id="btnsPlan" class="right-align">
+                                        <div class="btn waves-effect waves-light grey modal-close">
+                                            &nbsp;&nbsp;
+                                            <i class="material-icons">reply</i>
+                                            &nbsp;&nbsp;
+                                        </div>
+                                        <div class="btn waves-effect waves-light red modal-close" ng-click="deleteStationaryProgram(programaEstacionario)">
+                                            &nbsp;&nbsp;
+                                            <i class="material-icons">delete</i>
+                                            &nbsp;&nbsp;
+                                        </div>
+                                        <!-- <div class="btn waves-effect waves-light grey modal-close" ng-click="saveIrrigationPlan()">
+                                            &nbsp;&nbsp;
+                                            <i class="material-icons">save</i>
+                                            &nbsp;&nbsp;
+                                        </div> -->
+                                        <div class="btn waves-effect waves-light teal lighten-3 modal-close" ng-click="startStationaryProgram(programaEstacionario)">
+                                            &nbsp;&nbsp;
+                                            <i class="material-icons">play_arrow</i>
+                                            &nbsp;&nbsp;
                                         </div>
                                     </div>
                                 </div>
@@ -4867,7 +4908,7 @@
         <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
         <script src="./assets/js/commons.js"></script>
         <!-- <script src="./assets/cultures/listOfCultures.js"></script> -->
-        <script src="./assets/js/core.js?v=26.04.25.0552"></script>
+        <script src="./assets/js/core.js?v=26.04.29.1158"></script>
         <!-- <script src="monitor/js/chartjs/chart.min.js"></script> -->
         <script type="text/javascript" src="./assets/modules/datepicker/daterangepicker.js"></script>
 

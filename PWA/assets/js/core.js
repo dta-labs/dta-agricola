@@ -809,15 +809,15 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         let a = 0;
     }
 
-    $scope.startStationaryProgram = () => {
-        let p = $scope.programaEstacionario;
+    $scope.startStationaryProgram = (p) => {
+        // let p = $scope.programaEstacionario;
         if ($scope.actualSystem.type != "Estacionario" || !p.nombre || !p.fecha_inicio || !p.hora_inicio || !p.fecha_fin  || (!p.t[0] && !p.t[1] && !p.t[2] && !p.t[3] && !p.t[4] && !p.t[5] && !p.t[6])) {
             swal("Por complete los datos marcados con *");
             return;
         }
         swal({
             title: "Programa de riego",
-            text: "¿Desea iniciar con la programación del riego?",
+            text: "¿Desea iniciar con la programación del riego? Esta acción eliminará la programación anterior",
             icon: "warning",
             // buttons: true,
             buttons: {
@@ -833,7 +833,11 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             dangerMode: true,
         }).then((confirm) => {
                 if (confirm) {
-                    createStationaryProgram(p);
+                    stopStationaryProgram();
+                    $scope.setMachineSettings($scope.actualSystem);
+                    let id = createStationaryProgram(p);
+                    if (!p.id) p.id = id;
+                    $scope.saveIrrigationPlan(p);
                     $scope.setMachineSettings($scope.actualSystem);
                     swal("Programa de riego iniciado correctamente!", {
                         icon: "success",
@@ -844,12 +848,40 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             });
     }
 
+    $scope.newStationaryProgram = () => {
+        $scope.programaEstacionario  = {
+            nombre: '',
+            fecha_inicio: '',
+            fecha_fin: '',
+            hora_inicio: '',
+            cada: 1,
+            periodo: 0,
+            t: [0, 0, 0, 0, 0, 0, 0]
+        };
+    }
+
+    $scope.editStationaryProgram = (programa) => {
+        $scope.programaEstacionario = programa;
+    }
+
+    $scope.saveIrrigationPlan = (p) => {
+        if (!$scope.actualSystem.irrigationPlan) $scope.actualSystem.irrigationPlan = {};
+        $scope.actualSystem.irrigationPlan[p.id] = p;
+        $scope.setMachineSettings($scope.actualSystem);
+    }
+
+    $scope.deleteStationaryProgram = (programa) => {
+        let p = programa;
+        delete $scope.actualSystem.irrigationPlan[p.id];
+        $scope.setMachineSettings($scope.actualSystem);
+    }
+
     createStationaryProgram = (p) => {
-        let fecha_inicio = p.fecha_inicio;
-        let hora_inicio = p.hora_inicio;
         let id = generarIdUnico();
-        switch (p.periodo) {
+        switch (p.periodo + "") {
             case ("0"):   // veces
+                let fecha_inicio = p.fecha_inicio;
+                let hora_inicio = p.hora_inicio;
                 let counter = p.cada;
                 for (let i = 0; i < counter; i++) {
                     nueva_fecha_hora = excecuteProgram(id, p, fecha_inicio, hora_inicio);
@@ -858,44 +890,50 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                 }
                 break;
             case ("1"):   // días
-                runLoop(p, fecha_inicio, hora_inicio, 1440);
+                runLoop(id, p, 1440);
                 break;
             case ("2"):   // semanas
-                runLoop(p, fecha_inicio, hora_inicio, 10080);
+                runLoop(id, p, 10080);
                 break;
             case ("3"):   // meses de 30 días
-                runLoop(p, fecha_inicio, hora_inicio, 43200);
+                runLoop(id, p, 43200);
                 break;
         }
+        return id;
     }
 
-    runLoop = (id, p, fecha_inicio, hora_inicio, periodo) => {
-        let inicio = parseFechaHora(fecha_inicio, hora_inicio);
-        fecha_inicio = inicio.toISOString().slice(0,10);
+    runLoop = (id, p, periodo) => {
+        let inicio = parseFechaHora(p.fecha_inicio, p.hora_inicio);
+        // let z_inicio = new Date(inicio.getTime() + inicio.getTimezoneOffset() * 60000 + $scope.actualSystem.zona * 60 * 60000);
+        // let fecha_inicio = z_inicio.toISOString().slice(0,10);
+        let fecha_inicio = p.fecha_inicio;
         while (menorIgual(fecha_inicio, p.fecha_fin)) {
-            let nueva_fecha_hora = excecuteProgram(id, p, fecha_inicio, hora_inicio);
+            let nueva_fecha_hora = excecuteProgram(id, p, fecha_inicio, p.hora_inicio);
+            fecha_inicio = fecha_inicio.includes("-") ? fecha_inicio + " " + p.hora_inicio : parseFechaHora2(fecha_inicio).year + "-" + parseFechaHora2(fecha_inicio).month + "-" + parseFechaHora2(fecha_inicio).day + " " + p.hora_inicio;
+            inicio = new Date(fecha_inicio); 
             inicio = new Date(inicio.getTime() + p.cada * periodo * 60000); 
-            fecha_inicio = inicio.toISOString().slice(0,10);
+            let d = String(inicio.getDate()).padStart(2, "0"); 
+            let m = String(inicio.getMonth() + 1).padStart(2, "0"); 
+            fecha_inicio = inicio.getFullYear() + "-" + m + "-" + d;
         }
     }
 
     excecuteProgram = (id, p, fecha_inicio, hora_inicio) => {
         let fechas_parcelas = generarSecuenciaParcelas(fecha_inicio, hora_inicio, p.t);
         for (let i = 0; i < 7; i++) {
-            if (p.t[i] > 0) {
-                if (!$scope.actualSystem.plots[`p${i}`].schedule) {
-                    $scope.actualSystem.plots[`p${i}`].schedule = [];
-                }
-                $scope.actualSystem.plots[`p${i}`].schedule.push({
-                    id: id,
-                    nombre: p.nombre,
-                    date: fechas_parcelas[i].slice(0,10),
-                    t: p.t[i],
-                    time: fechas_parcelas[i].slice(11,16)
-                }); 
-                $scope.actualSystem.plots[`p${i}`].forcedStart = 1;
-                $scope.actualSystem.plots[`p${i}`].irrigationPlan = 1;
+            if (!$scope.actualSystem.plots[`p${i}`].schedule) {
+                $scope.actualSystem.plots[`p${i}`].schedule = [];
             }
+            $scope.actualSystem.plots[`p${i}`].schedule.push({
+                id: id,
+                nombre: p.nombre,
+                date: fechas_parcelas[i].slice(0,10),
+                t: "",
+                time: fechas_parcelas[i].slice(11,16),
+                value: p.t[i] * 60 * 1000,
+            }); 
+            $scope.actualSystem.plots[`p${i}`].forcedStart = 1;
+            $scope.actualSystem.plots[`p${i}`].irrigationPlan = 1;
         }
         return fechas_parcelas[fechas_parcelas.length - 1];
     }
@@ -907,14 +945,36 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     function generarSecuenciaParcelas(fecha_inicio, hora_inicio, tiempos) {
         const resultados = [];
         let inicio = parseFechaHora(fecha_inicio, hora_inicio);
-        inicio = new Date(inicio.getTime() + inicio.getTimezoneOffset() * 60000 + $scope.actualSystem.zona * 60 * 60000);
+        // inicio = new Date(inicio.getTime() + inicio.getTimezoneOffset() * 60000 + $scope.actualSystem.zona * 60 * 60000);
         tiempos.forEach((minutos) => {
-            const inicioStr = inicio.toISOString().slice(0,16).replace('T',' ');    // Guardar inicio de la parcela actual
-            resultados.push(inicioStr);
-            inicio = new Date(inicio.getTime() + minutos * 60000);                  // Calcular nuevo inicio sumando minutos
+            if (minutos > 0) {
+                // const inicioStr = inicio.toISOString().slice(0,16).replace('T',' ');    // Guardar inicio de la parcela actual
+                let year = inicio.getFullYear();
+                let month = String(inicio.getMonth() + 1).padStart(2, "0");
+                let day = String(inicio.getDate()).padStart(2, "0");
+                let hour = String(inicio.getHours()).padStart(2, "0"); 
+                let min = String(inicio.getMinutes()).padStart(2, "0");
+                // let ampm = hour > 11 ? "PM" : "AM";
+                // hour = hour > 12 ? hour - 12 : hour;
+                // hour = hour < 10 ? "0" + hour : hour;
+                // min = min < 10 ? "0" + min : min;
+                // const inicioStr = year + "-" + month + "-" + day + " " + hour + ":" + min + " " + ampm;    // Guardar inicio de la parcela actual
+                const inicioStr = year + "-" + month + "-" + day + " " + hour + ":" + min;    // Guardar inicio de la parcela actual
+                resultados.push(inicioStr);
+                inicio = new Date(inicio.getTime() + minutos * 60000);                  // Calcular nuevo inicio sumando minutos
+            }
         });
         resultados.push(inicio.toISOString().slice(0,16).replace('T',' '));
         return resultados;
+    }
+
+    function parseFechaHora2(fechaStr) {
+        const [mesStr, diaStr, anioStr] = fechaStr.split(' ');    // Caso "Apr 25, 2026"
+        year = parseInt(anioStr, 10);
+        day = parseInt(diaStr.replace(',', ''), 10);
+        const meses = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        month = meses.indexOf(mesStr) + 1;
+        return { year, month, day };
     }
 
     function parseFechaHora(fechaStr, horaStr) {
@@ -923,14 +983,10 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             [year, month, day] = fechaStr.split('-').map(Number);
             month = month - 1; // JS usa meses 0-11
         } else {
-            const [mesStr, diaStr, anioStr] = fechaStr.split(' ');    // Caso "Apr 25, 2026"
-            year = parseInt(anioStr, 10);
-            day = parseInt(diaStr.replace(',', ''), 10);
-            const meses = {
-                Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5,
-                Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11
-            };
-            month = meses[mesStr];
+            let objDate = parseFechaHora2(fechaStr);
+            year = objDate.year;    // Caso "Apr 25, 2026"
+            month = objDate.month - 1;
+            day = objDate.day;
         }
         let [h, m] = horaStr.split(/[: ]/);    // Parsear hora (ej: "02:46 AM")
         let hour = parseInt(h, 10);
@@ -2485,7 +2541,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                         marker[sensor.id].bindTooltip(getSensorValue(campo, sensor, i), {
                             permanent: true,
                             direction: "top",
-                            offset: [0, -60]
+                            offset: [0, -20]
                         }).openTooltip();
 
                         // Popup adicional (cuando se hace clic)
@@ -2517,58 +2573,66 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                 break;
             case "Sensor":
                 icon = "./assets/images/marcador_sensor.png";
-                break;
+                return L.icon({
+                    iconUrl: icon,
+                    shadowUrl: '',
+                    iconSize: [20, 20],       // tamaño del icono
+                    shadowSize: [20, 20],     // opcional, ajusta si usas sombra
+                    iconAnchor: [10, 20],     // punto del icono que corresponde a la ubicación
+                    shadowAnchor: [10, 20],   // ajusta si usas sombra
+                    popupAnchor: [0, -20]     // punto desde el cual se abre el popup
+                });
         }
         return L.icon({
             iconUrl: icon,
             shadowUrl: '',
-            iconSize: [52, 52], // size of the icon
-            shadowSize: [50, 64], // size of the shadow
-            iconAnchor: [26, 52], // point of the icon which will correspond to marker's location
-            shadowAnchor: [4, 62],  // the same for the shadow
-            popupAnchor: [0, -52] // point from which the popup should open relative to the iconAnchor
+            iconSize: [30, 30],       // tamaño del icono
+            shadowSize: [30, 30],     // opcional, ajusta si usas sombra
+            iconAnchor: [10, 30],     // punto del icono que corresponde a la ubicación
+            shadowAnchor: [15, 30],   // ajusta si usas sombra
+            popupAnchor: [0, -30]     // punto desde el cual se abre el popup
         });
     }
 
     const getMarkerText = (campo) => {
-        let text = `<table class="striped highlight">`;
-        text += `    <tr>`;
-        text += `        <td style="text-align: left;">Nombre:</td>`;
-        text += `        <td style="text-align: left;"><b>${campo.name ? campo.name : "" }</b></td>`;
-        text += `    </tr>`;
+        const drivingUrl = `https://www.google.com/maps/dir/?api=1&origin=Current+Location&destination=${campo.latitude.toFixed(5)},${campo.longitude.toFixed(5)}&travelmode=driving`;
+        const walkingUrl = `https://www.google.com/maps/dir/?api=1&origin=Current+Location&destination=${campo.latitude.toFixed(5)},${campo.longitude.toFixed(5)}&travelmode=walking`;
+
+        let text = ``;
+        text += `<div style="padding: 5px 10px;">`;
+        text += `    <div class="row" style="margin-bottom: 5px;">`;
+        text += `        <div class="col s12">`;
+        text += `            <i class="material-icons">golf_course</i>`;
+        text += `            <b><span style="font-size: 1.4em;">${campo.name ?? "" }</span></b>`;
+        text += `        </div>`;
         if (campo.type != 'Sensor') {
-            text += `    <tr>`;
-            text += `        <td style="text-align: left;">Estado:</td>`;
-            text += `        <td style="text-align: left;"><b>${campo.status == "ON" ? "Encendido" : "Apagado" }</b></td>`;
-            text += `    </tr>`;
+            text += `        <div class="col s4">`;
+            text += `            <b><span style="font-size: 1em;"><i class="material-icons" style="color: ${campo.status == "ON" ? "green" : "red"}">power_settings_new</i></span></b>`;
+            text += `        </div>`;
             if (campo.type == 'PC') {
-                text += `    <tr>`;
-                text += `        <td style="text-align: left;">Velocidad:</td>`;
-                text += `        <td style="text-align: left;"><b>${campo.direction ? "Avanzar" : "Retroceder"} ${campo.log && campo.log.speed ? campo.log.speed : 0}%</b></td>`;
-                text += `    </tr>`;
+                text += `        <div class="col s4">`;
+                text += `            <b><span style="font-size: 1em;"><i class="material-icons">${campo.direction ? "refresh" : "replay"}</i></span></b>`;
+                text += `        </div>`;
+                text += `        <div class="col s4">`;
+                text += `            <b><span style="font-size: 1em;"><b>${campo.log.speed ?? "0%" }</span></b>`;
+                text += `        </div>`;
             }
-            text += `    <tr>`;
-            text += `        <td style="text-align: left;">Caudal:</td>`;
-            text += `        <td style="text-align: left;"><b>${campo.caudal ? campo.caudal : "0" }</b> m<sup>3</sup>/s</td>`;
-            text += `    </tr>`;
+            text += `        <div class="col s4">`;
+            text += `            <b><span style="font-size: 1em;"><b>${campo.caudal ?? "0" }m<sup>3</sup>/s</span></b>`;
+            text += `        </div>`;
         }
-        // text += `    <tr>`;
-        // text += `        <td style="text-align: left;">Hr:</td>`;
-        // text += `        <td style="text-align: left;"><b>${ $scope.meteo[campo.key].main.humidity ? $scope.meteo[campo.key].main.humidity : "" }%</b></td>`;
-        // text += `    </tr>`;
-        // text += `    <tr>`;
-        // text += `        <td style="text-align: left;">Tamb:</td>`;
-        // text += `        <td style="text-align: left;"><b>${ $scope.meteo[campo.key].main.temp ? ($scope.meteo[campo.key].main.temp - 273.15).toFixed(1) : "" }°C</b></td>`;
-        // text += `    </tr>`;
-        // text += `    <tr>`;
-        // text += `        <td style="text-align: left;">Viento:</td>`;
-        // text += `        <td style="text-align: left;"><b>${ $scope.meteo[campo.key].wind.speed ? ($scope.meteo[campo.key].wind.speed).toFixed(1) : "" } km/h</b></td>`;
-        // text += `    </tr>`;
-        text += `    <tr>`;
-        text += `        <td style="text-align: left;">Localiz:</td>`;
-        text += `        <td style="text-align: left;">[<b>${campo.latitude.toFixed(5)},${campo.longitude.toFixed(5)}</b>]</td>`;
-        text += `    </tr>`;
-        text += `</table>`;
+        text += `        <div class="col s6">`;
+        text += `            <a href="${walkingUrl}" target="_blank">`;
+        text += `               <i class="material-icons Small">directions_walk</i>`;
+        text += `            </a>`;
+        text += `        </div>`;
+        text += `        <div class="col s6">`;
+        text += `            <a href="${drivingUrl}" target="_blank">`;
+        text += `               <i class="material-icons Small">directions</i>`;
+        text += `            </a>`;
+        text += `        </div>`;
+        text += `    </div>`;
+        text += `</div>`;
         return text;
     }
 
@@ -2606,8 +2670,8 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         text += `           <div>Humedad (%)</div>`;
         text += `           <div style="width: 100%; background-color: lightgrey; height: 6px; border-radius: 3px;">`;
         text += `               <div style="background-color: ` + ($scope.isOutOfRange(data[idx * 8], sensor.h.minValue, sensor.h.maxValue) ? `red` : `green`) + `; width: ` + parseFloat(data[idx * 8]) + `%; height: 6px; border-radius: 3px;"></div>`;
-        text += `               <span style="font-size: .8em; margin-left: ` + (sensor.h.minValue < 10 ? 3 : 10) + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i><b>${sensor.h.minValue}</b></span>`;
-        text += `               <span style="font-size: .8em; margin-left: ` + (sensor.h.maxValue - sensor.h.minValue - 20) + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i><b>${sensor.h.maxValue}</b></span>`;
+        text += `               <span style="font-size: .8em; margin-left: ` + (sensor.h.minValue < 10 ? 3 : 10) + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i><b>${sensor.h.minValue ?? ''}</b></span>`;
+        text += `               <span style="font-size: .8em; margin-left: ` + (sensor.h.maxValue - sensor.h.minValue - 20) + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i><b>${sensor.h.maxValue ?? ''}</b></span>`;
         text += `           </div>`;
         text += `        </div>`;
         text += `        <div class="col s3" style="text-align: right; padding-top: 7px; font-size: 1.5em; color: ` + ($scope.isOutOfRange(data[idx * 8], sensor.h.minValue, sensor.h.maxValue) ? `red` : `green`) + `;"><b>${data[idx * 8] !== "NaN" ? parseFloat(data[idx * 8]).toFixed(0) : "--"}</b></div>`;
@@ -2626,8 +2690,8 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         text += `           <div style="font-size: .99em;">Temperatura (°C/°F)</div>`;
         text += `           <div style="width: 100%; background-color: lightgrey; height: 6px; border-radius: 3px;">`;
         text += `               <div style="background-color: ` + ($scope.isOutOfRange(data[idx * 8 + 4], sensor.t.minValue, sensor.t.maxValue) ? `red` : `green`) + `; width: ` + (parseFloat(data[idx * 8 + 4]) < 10 ? parseFloat(data[idx * 8 + 4]) + 5 : parseFloat(data[idx * 8 + 4])) + `%; height: 6px; border-radius: 3px;"></div>`;
-        text += `               <span style="font-size: .8em; margin-left: ` + (sensor.t.minValue > 10 ? 3 : 10) + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i><b>${sensor.t.minValue}</b></span>`;
-        text += `               <span style="font-size: .8em; margin-left: ` + (sensor.t.maxValue - sensor.t.minValue - 20) + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i><b>${sensor.t.maxValue}</b></span>`;
+        text += `               <span style="font-size: .8em; margin-left: ` + (sensor.t.minValue > 10 ? 3 : 10) + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i><b>${sensor.t.minValue ?? ''}</b></span>`;
+        text += `               <span style="font-size: .8em; margin-left: ` + (sensor.t.maxValue - sensor.t.minValue - 20) + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i><b>${sensor.t.maxValue ?? ''}</b></span>`;
         text += `           </div>`;
         text += `        </div>`;
         text += `        <div class="col s3" style="text-align: right; padding-top: 7px; font-size: 1.5em; color: ` + ($scope.isOutOfRange(data[idx * 8 + 4], sensor.t.minValue, sensor.t.maxValue) ? `red` : `green`) + `;"><b>${data[idx * 8 + 4] !== "NaN" ? (parseFloat(data[idx * 8 + 4]).toFixed(0) + "/" + parseFloat(data[idx * 8 + 4] * 1.8 + 32).toFixed(0)) : "--"}</b></div>`;
@@ -2681,11 +2745,11 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         let date = campo.log.date ? campo.log.date.substring(6, 8) + "/" + campo.log.date.substring(4, 6) + " " + campo.log.date.substring(9, 11) + ":" + campo.log.date.substring(11, 15) : "";
         let data = campo.log ? JSON.parse(campo.log.dataRaw) : [];
         let text = ``;
-        text += `<div style="padding: 0 10px; width: 100px;">`;  // 👈 Ancho definido aquí
+        text += `<div style="padding: 0 10px; width: 90px;">`;  // 👈 Ancho definido aquí
         text += `    <div class="row" style="margin-bottom: 5px;">`;
         text += `        <div class="col s12 left-aling contenedor-texto">`;
         text += `            <b><span style="font-size: .8em;">${ sensor.alias ? sensor.alias : "Sensor: " + (idx + 1) }</span></b>`;
-        text += `            <br><span style="font-size: .8em;">${date}</span>`;
+        // text += `            <br><span style="font-size: .8em;">${date}</span>`;
         text += `        </div>`;
         text += `    </div>`;
         if (sensor.type == "Ms" || sensor.type == "SHT4" || sensor.type == "WM") {

@@ -142,7 +142,7 @@ class AlertProcessor {
         $length = $settings->sensors->sensorNumber ?? 0;
         if ($length == 0) return;
         $usersList = $this->getUsers(); 
-        
+
         $alertMessages = [];
         
         for ($i = 0; $i < $settings->sensors->sensorNumber; $i++) {
@@ -162,7 +162,7 @@ class AlertProcessor {
                     if ($msg != "") {
                         $alertMessage = "Alerta {$msg} humedad: {$value}% en {$notificationId}";
                         $alertMessages[] = $alertMessage;
-                        $this->escribirLog($alertMessage);
+                        // $this->escribirLog($alertMessage);
                     }
                 }
                 
@@ -173,7 +173,7 @@ class AlertProcessor {
                     if ($msg != "") {
                         $alertMessage = "Alerta {$msg} temperatura: {$value}°C en {$notificationId}";
                         $alertMessages[] = $alertMessage;
-                        $this->escribirLog($alertMessage);
+                        // $this->escribirLog($alertMessage);
                     }
                 }
             }
@@ -194,17 +194,9 @@ class AlertProcessor {
     }
 
     private function callPushService(string $user, string $message): void {
-        $pushUrl = "https://dtaamerica.com/WS/push.php?user=" . urlencode($user) . "&txt=" . urlencode($message);
-        
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $pushUrl);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 3);
-        curl_setopt($ch, CURLOPT_NOSIGNAL, 1);
-        curl_exec($ch);
-        curl_close($ch);
-        
-        $this->escribirLog("Llamada a push.php para usuario: $user, mensaje: $message");
+        $pushUrl = "https://dtaamerica.com/ws/push.php?user=" . urlencode($user) . "&txt=" . urlencode($message);
+        $cmd = "curl -s \"$pushUrl\" > /dev/null 2>&1 &";
+        pclose(popen($cmd, 'r'));
     }
 
     public function escribirLog($mensaje) {
@@ -242,7 +234,7 @@ try {
         echo "Error: Falta el parámetro 'id' del sistema";
         exit;
     }
-    
+
     $alertProcessor = new AlertProcessor($_GET['id']);
     $alertProcessor->processAlerts();
     
