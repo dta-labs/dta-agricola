@@ -1,0 +1,354 @@
+{
+  "growsmart": [
+    {
+      "degree": 13.5,
+      "timer": 100,
+      "wather": 0.17
+    },
+    {
+      "degree": 15.5,
+      "timer": 87,
+      "wather": 0.2
+    },
+    null,
+    {
+      "degree": 31.1,
+      "timer": 43.5,
+      "wather": 0.4
+    },
+    {
+      "degree": 38.9,
+      "timer": 34.8,
+      "wather": 0.5
+    },
+    {
+      "degree": 46.6,
+      "timer": 29,
+      "wather": 0.6
+    },
+    {
+      "degree": 54.4,
+      "timer": 24.9,
+      "wather": 0.7
+    },
+    {
+      "degree": 62.2,
+      "timer": 21.7,
+      "wather": 0.8
+    },
+    {
+      "degree": 69.9,
+      "timer": 19.3,
+      "wather": 0.9
+    },
+    {
+      "degree": 77.7,
+      "timer": 17.4,
+      "wather": 1
+    },
+    {
+      "degree": 85.5,
+      "timer": 15.8,
+      "wather": 1.1
+    },
+    {
+      "degree": 93.2,
+      "timer": 14.5,
+      "wather": 1.2
+    },
+    {
+      "degree": 101,
+      "timer": 13.4,
+      "wather": 1.3
+    },
+    {
+      "degree": 108.8,
+      "timer": 12.4,
+      "wather": 1.4
+    },
+    {
+      "degree": 116.6,
+      "timer": 11.6,
+      "wather": 1.5
+    },
+    {
+      "degree": 124.3,
+      "timer": 10.9,
+      "wather": 1.6
+    },
+    {
+      "degree": 132.1,
+      "timer": 10.2,
+      "wather": 1.7
+    },
+    {
+      "degree": 139.9,
+      "timer": 9.7,
+      "wather": 1.8
+    },
+    {
+      "degree": 147.6,
+      "timer": 9.2,
+      "wather": 1.9
+    },
+    {
+      "degree": 155.4,
+      "timer": 8.7,
+      "wather": 2
+    }
+  ],
+  "lindsay": [
+    {
+      "degree": 12.04,
+      "timer": 100,
+      "wather": 0.12
+    },
+    {
+      "degree": 13.38,
+      "timer": 90,
+      "wather": 0.13
+    },
+    {
+      "degree": 15.06,
+      "timer": 80,
+      "wather": 0.15
+    },
+    {
+      "degree": 17.21,
+      "timer": 70,
+      "wather": 0.17
+    },
+    {
+      "degree": 18.53,
+      "timer": 65,
+      "wather": 0.19
+    },
+    {
+      "degree": 20.07,
+      "timer": 60,
+      "wather": 0.2
+    },
+    {
+      "degree": 21.9,
+      "timer": 55,
+      "wather": 0.22
+    },
+    {
+      "degree": 24.09,
+      "timer": 50,
+      "wather": 0.24
+    },
+    {
+      "degree": 26.77,
+      "timer": 45,
+      "wather": 0.27
+    },
+    {
+      "degree": 30.11,
+      "timer": 40,
+      "wather": 0.3
+    },
+    {
+      "degree": 34.41,
+      "timer": 35,
+      "wather": 0.35
+    },
+    {
+      "degree": 40.15,
+      "timer": 30,
+      "wather": 0.4
+    },
+    {
+      "degree": 48.18,
+      "timer": 25,
+      "wather": 0.48
+    },
+    {
+      "degree": 60.22,
+      "timer": 20,
+      "wather": 0.6
+    },
+    {
+      "degree": 80.3,
+      "timer": 15,
+      "wather": 0.81
+    },
+    {
+      "degree": 100.37,
+      "timer": 12,
+      "wather": 1.01
+    },
+    {
+      "degree": 133.83,
+      "timer": 9,
+      "wather": 1.34
+    },
+    {
+      "degree": 200.74,
+      "timer": 6,
+      "wather": 2.01
+    },
+    {
+      "degree": 401.48,
+      "timer": 3,
+      "wather": 4.03
+    }
+  ],
+  "valley": [
+    {
+      "degree": 9,
+      "timer": 100,
+      "wather": 0.123
+    },
+    {
+      "degree": 10,
+      "timer": 90,
+      "wather": 0.14
+    },
+    {
+      "degree": 11.3,
+      "timer": 80,
+      "wather": 0.15
+    },
+    {
+      "degree": 12.9,
+      "timer": 70,
+      "wather": 0.18
+    },
+    {
+      "degree": 14.7,
+      "timer": 61.4,
+      "wather": 0.2
+    },
+    {
+      "degree": 15,
+      "timer": 60,
+      "wather": 0.2
+    },
+    {
+      "degree": 18,
+      "timer": 50,
+      "wather": 0.25
+    },
+    {
+      "degree": 20,
+      "timer": 45,
+      "wather": 0.27
+    },
+    {
+      "degree": 22,
+      "timer": 41,
+      "wather": 0.3
+    },
+    {
+      "degree": 22.5,
+      "timer": 40,
+      "wather": 0.31
+    },
+    {
+      "degree": 25.7,
+      "timer": 35,
+      "wather": 0.35
+    },
+    {
+      "degree": 29.3,
+      "timer": 30.7,
+      "wather": 0.4
+    },
+    {
+      "degree": 30,
+      "timer": 30,
+      "wather": 0.41
+    },
+    {
+      "degree": 36,
+      "timer": 25,
+      "wather": 0.49
+    },
+    {
+      "degree": 36.6,
+      "timer": 24.6,
+      "wather": 0.5
+    },
+    {
+      "degree": 43.9,
+      "timer": 20.5,
+      "wather": 0.6
+    },
+    {
+      "degree": 45,
+      "timer": 20,
+      "wather": 0.61
+    },
+    {
+      "degree": 51.1,
+      "timer": 17.6,
+      "wather": 0.7
+    },
+    {
+      "degree": 51.4,
+      "timer": 17.5,
+      "wather": 0.7
+    },
+    {
+      "degree": 58.4,
+      "timer": 15.4,
+      "wather": 0.8
+    },
+    {
+      "degree": 60,
+      "timer": 15,
+      "wather": 0.82
+    },
+    {
+      "degree": 65.7,
+      "timer": 13.7,
+      "wather": 0.9
+    },
+    {
+      "degree": 72,
+      "timer": 12.5,
+      "wather": 0.98
+    },
+    {
+      "degree": 73.2,
+      "timer": 12.3,
+      "wather": 1
+    },
+    {
+      "degree": 90,
+      "timer": 10,
+      "wather": 1.23
+    },
+    {
+      "degree": 91.8,
+      "timer": 9.8,
+      "wather": 1.25
+    },
+    {
+      "degree": 109.8,
+      "timer": 8.2,
+      "wather": 1.5
+    },
+    {
+      "degree": 120,
+      "timer": 7.5,
+      "wather": 1.64
+    },
+    {
+      "degree": 128.6,
+      "timer": 7,
+      "wather": 1.75
+    },
+    {
+      "degree": 147.5,
+      "timer": 6.1,
+      "wather": 2
+    },
+    {
+      "degree": 180,
+      "timer": 5,
+      "wather": 2.46
+    }
+  ]
+}

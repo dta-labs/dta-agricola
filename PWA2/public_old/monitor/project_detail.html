@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>DTA - Agrícola</title>
+
+    <!-- Bootstrap core CSS -->
+
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <link href="fonts/css/font-awesome.min.css" rel="stylesheet">
+    <link href="css/animate.min.css" rel="stylesheet">
+
+    <!-- Custom styling plus plugins -->
+    <link href="css/custom.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="css/maps/jquery-jvectormap-2.0.1.css" />
+    <link href="css/icheck/flat/green.css" rel="stylesheet" />
+    <link href="css/floatexamples.css" rel="stylesheet" type="text/css" />
+
+    <link rel="stylesheet" href="js/leaflet/leaflet.css">
+    <link rel="stylesheet" href="css/dta-styles.css">
+
+    <script src="js/jquery.min.js"></script>
+
+    <!--[if lt IE 9]>
+        <script src="../assets/js/ie8-responsive-file-warning.js"></script>
+        <![endif]-->
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+          <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+          <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+</head>
+
+<body class="nav-md">
+
+    <div class="container body">
+
+        <div class="main_container">
+
+            <div class="left_col">
+                <div class="left_col scroll-view main-menu">
+
+                    <div class="navbar nav_title" style="border: 0;">
+                        <a href="index.html" class="site_title"><img src="images/DTA-Agricola.png" class="img-menu-logo"
+                                alt="DTA-Agricola"> <span>DTA - Agrícola</span></a>
+                    </div>
+                    <div class="clearfix"></div>
+
+                    <br />
+
+                    <!-- sidebar menu -->
+                    <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
+
+                        <div class="menu_section">
+                            <h3>General</h3>
+                            <ul class="nav side-menu">
+                                <li><a href="index.html"><i class="fa fa-home"></i> Panel central </a></li>
+                                <li><a href="projects.html"><i class="fa fa-edit"></i> Proyectos </a></li>
+                                <li><a href="profile.html"><i class="fa fa-user"></i> Productores </a></li>
+                            </ul>
+                        </div>
+
+                    </div>
+                    <!-- /sidebar menu -->
+
+                    <!-- /menu footer buttons -->
+                    <div class="sidebar-footer hidden-small">
+                        <a data-toggle="tooltip" data-placement="top" title="Settings">
+                            <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
+                        </a>
+                        <a data-toggle="tooltip" data-placement="top" title="FullScreen">
+                            <span class="glyphicon glyphicon-fullscreen" aria-hidden="true"></span>
+                        </a>
+                        <a data-toggle="tooltip" data-placement="top" title="Lock">
+                            <span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span>
+                        </a>
+                        <a data-toggle="tooltip" data-placement="top" title="Logout">
+                            <span class="glyphicon glyphicon-off" aria-hidden="true"></span>
+                        </a>
+                    </div>
+                    <!-- /menu footer buttons -->
+                </div>
+            </div>
+
+            <!-- top navigation -->
+            <div class="top_nav">
+
+                <div class="nav_menu">
+                    <nav class="" role="navigation">
+                        <div class="nav toggle">
+                            <a id="menu_toggle"><i class="fa fa-bars"></i></a>
+                        </div>
+
+                        <ul class="nav navbar-nav navbar-right">
+                            <li class="">
+                                <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown"
+                                    aria-expanded="false">
+                                    <img src="images/img.jpg" alt="">Cosme Santiesteban
+                                    <span class=" fa fa-angle-down"></span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-usermenu animated fadeInDown pull-right">
+                                    <li><a href="javascript:;"> Perfil</a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:;">
+                                            <span class="badge bg-red pull-right">50%</span>
+                                            <span>Configuraciones</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:;">Ayuda</a>
+                                    </li>
+                                    <li><a href="login.html"><i class="fa fa-sign-out pull-right"></i> Salir</a>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+
+            </div>
+            <!-- /top navigation -->
+
+            <!-- page content -->
+            <div class="right_col" role="main">
+
+                <div class="">
+                    <div class="page-title">
+                        <div class="title_left">
+                            <h3>Detalles del proyecto <small> </small></h3>
+                        </div>
+
+                        <div class="title_right">
+                            <div class="col-md-5 col-sm-5 col-xs-12 form-group pull-right top_search">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="Buscar...">
+                                    <span class="input-group-btn">
+                            <button class="btn btn-default" type="button">Ir!</button>
+                        </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="x_panel">
+                                <div class="x_title">
+                                    <h2>Proyecto 1 <small> Inicio: 01.05.2020</small></h2>
+                                    <ul class="nav navbar-right panel_toolbox">
+                                        <li><a href="#"><i class="fa fa-chevron-up"></i></a>
+                                        </li>
+                                        <li><a href="#"><i class="fa fa-close"></i></a>
+                                        </li>
+                                    </ul>
+                                    <div class="clearfix"></div>
+                                </div>
+
+                                <div class="x_content">
+
+                                    <div class="col-md-9 col-sm-9 col-xs-12">
+
+                                        <ul class="stats-overview">
+                                            <li>
+                                                <span class="name"> Presupuesto estimado </span>
+                                                <span class="value text-success"> 2300 </span>
+                                            </li>
+                                            <li>
+                                                <span class="name"> Presupuesto empleado </span>
+                                                <span class="value text-success"> 2000 </span>
+                                            </li>
+                                            <li class="hidden-phone">
+                                                <span class="name"> Tiempo activo </span>
+                                                <span class="value text-success"> 20 </span>
+                                            </li>
+                                        </ul>
+                                        <br />
+
+                                        <div id="mainb" style="height:350px;"></div>
+
+                                    </div>
+
+                                    <!-- start project-detail sidebar -->
+                                    <div class="col-md-3 col-sm-3 col-xs-12">
+
+                                        <section class="panel">
+
+                                            <div class="x_title">
+                                                <h2>Descripción del proyecto</h2>
+                                                <div class="clearfix"></div>
+                                            </div>
+                                            <div class="panel-body">
+                                                <h3 class="green">Cosecha de Oro</h3>
+
+                                                <p>Proyecto financiado por FIRA</p>
+                                                <br />
+
+                                                <div class="project_detail">
+                                                    <p class="title">Cliente</p>
+                                                    <p>Samuel Martínez</p>
+                                                    <p class="title">Sistema de riego</p>
+                                                    <p>Riego por goteo</p>
+                                                    <p class="title">Cultivo</p>
+                                                    <p>Manzana</p>
+                                                    <p class="title">Ubicación</p>
+                                                    <p>Km 10 Corredor comercial</p>
+                                                    <p class="title">Responsable</p>
+                                                    <p>Eduardo Marín</p>
+                                                    <p class="title">Instalación</p>
+                                                    <p>01.05.2020</p>
+                                                </div>
+
+                                            </div>
+
+                                        </section>
+
+                                    </div>
+                                    <!-- end project-detail sidebar -->
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- footer content -->
+                <footer>
+                    <div class="">
+                        <p class="pull-right">&copy; 2020 por <a>DTA - Labs</a>, todos los derechos reservados. |
+                            <span class="lead"> <img src="images/DTA-Agricola2.png" class="img-footer-logo"
+                                alt="DTA-Agricola"> DTA - Agrícola!</span>
+                        </p>
+                    </div>
+                    <div class="clearfix"></div>
+                </footer>
+                <!-- /footer content -->
+
+            </div>
+            <!-- /page content -->
+        </div>
+
+    </div>
+
+    <div id="custom_notifications" class="custom-notifications dsp_none">
+        <ul class="list-unstyled notifications clearfix" data-tabbed_notifications="notif-group">
+        </ul>
+        <div class="clearfix"></div>
+        <div id="notif-group" class="tabbed_notifications"></div>
+    </div>
+
+    <script src="js/bootstrap.min.js"></script>
+
+    <!-- chart js -->
+    <script src="js/chartjs/chart.min.js"></script>
+    <!-- bootstrap progress js -->
+    <script src="js/progressbar/bootstrap-progressbar.min.js"></script>
+    <script src="js/nicescroll/jquery.nicescroll.min.js"></script>
+    <!-- icheck -->
+    <script src="js/icheck/icheck.min.js"></script>
+
+    <script src="js/custom.js"></script>
+
+    <!-- echart -->
+    <script src="js/echart/echarts-all.js"></script>
+    <script src="js/echart/green.js"></script>
+
+    <script>
+        var myChart9 = echarts.init(document.getElementById('mainb'), theme);
+        myChart9.setOption({
+            title: {
+                x: 'center',
+                y: 'top',
+                padding: [0, 0, 20, 0],
+                text: 'Cosecha de Oro :: Retorno vs Entrada vs Expedición',
+                textStyle: {
+                    fontSize: 15,
+                    fontWeight: 'normal'
+                }
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            toolbox: {
+                show: true,
+                feature: {
+                    dataView: {
+                        show: true,
+                        readOnly: false
+                    },
+                    restore: {
+                        show: true
+                    },
+                    saveAsImage: {
+                        show: true
+                    }
+                }
+            },
+            calculable: true,
+            legend: {
+                data: ['Retormo', 'Efectifo', 'Tiempo'],
+                y: 'bottom'
+            },
+            xAxis: [
+                {
+                    type: 'category',
+                    data: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+            }
+        ],
+            yAxis: [
+                {
+                    type: 'value',
+                    name: 'Cantidad',
+                    axisLabel: {
+                        formatter: '{value} ml'
+                    }
+            },
+                {
+                    type: 'value',
+                    name: 'Horas',
+                    axisLabel: {
+                        formatter: '{value} °C'
+                    }
+            }
+        ],
+            series: [
+                {
+                    name: 'Retormo',
+                    type: 'bar',
+                    data: [2.0, 4.9, 7.0, 23.2, 25.6, 76.7, 135.6, 162.2, 32.6, 20.0, 6.4, 3.3]
+            },
+                {
+                    name: 'Efectifo',
+                    type: 'bar',
+                    data: [2.6, 5.9, 9.0, 26.4, 28.7, 70.7, 175.6, 182.2, 48.7, 18.8, 6.0, 2.3]
+            },
+                {
+                    name: 'Tiempo',
+                    type: 'line',
+                    yAxisIndex: 1,
+                    data: [2.0, 2.2, 3.3, 4.5, 6.3, 10.2, 20.3, 23.4, 23.0, 16.5, 12.0, 6.2]
+            }
+        ]
+        });
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,803 @@
+{
+  "Johanmartens92@gmail-com": {
+    "profile": {
+      "direccion": "",
+      "estado": "Chihuahua",
+      "localidad": "",
+      "nombre": "Johan Martens",
+      "plan": "basico",
+      "zipCode": ""
+    },
+    "systems": {
+      "526258372598": "propietario"
+    }
+  },
+  "Maurydelgado3@hotmail-com": {
+    "systems": {
+      "24530094275": "propietario"
+    }
+  },
+  "Petersp863@gmail-com": {
+    "profile": {
+      "direccion": "",
+      "estado": "Chihuahua",
+      "localidad": "",
+      "nombre": "Peters",
+      "plan": "basico",
+      "zipCode": ""
+    },
+    "systems": {
+      "526251020232": "undefined",
+      "526251037317": "trabajador"
+    }
+  },
+  "SANTIESTEBANTOCA@GMAIL-COM": {
+    "profile": {
+      "direccion": "H. Castillo # 310",
+      "estado": "Chihuahua",
+      "localidad": "Ciego de Ávila",
+      "nombre": "Jorge L. Santiesteban Toca",
+      "plan": "basico",
+      "zipCode": ""
+    },
+    "systems": {
+      "000000000000": "trabajador"
+    }
+  },
+  "a361728@uach-mx": {
+    "systems": {
+      "24530080316": "propietario",
+      "24530080456": "propietario"
+    },
+    "token": [
+      "{\"endpoint\":\"https://web.push.apple.com/QDzrtGTkTQcTj7ymHkKkXiE4TFPzagUAvB6up8VywZKksW49ZlMY0pIq3LjM00jOHixfUmge3rvJ1jf1DZtQtYWCfGqFhLvBEL5FKkeIKGMeHJ8jDIrKCd75Y20ajLo7fi2wtIIAa44JvcOxHoKV22Mq0qadPdkXrtclLQHvazY\",\"keys\":{\"p256dh\":\"BLsvnKnca2SqlD1vpQjMDblbs5Tt-cgl1XfmDPmXOqo-3HLAk3qeoBcIvFBKE8fw8QVJUGkz2vde3Jx_KeG7AW0\",\"auth\":\"2hsB04UZ4z2wuGkLMR5LaQ\"}}",
+      "{\"endpoint\":\"https://fcm.googleapis.com/fcm/send/dPtso5y0n60:APA91bFVbVVcG5K5R2e4M05IhXqM4g5xRKEeT7MdWD6cHF7oY7v_br463ozE4PNit-oMuLsHgPXijecDG11j8sl38fZBzKFB2KHmnbFucgFEQGFWgdWJeb1MVJQPH1TD3laX5ITvPIdM\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BHpz-pUSbgAFH7tH6nJLtGOiIYHlRn5KNLc1PffVB3AzGwwKSfNdVpmeNzc3Sm-aB-TR91lGTcCZhPRR-1via9M\",\"auth\":\"rkcUN4olD5GTu40ThVd5ew\"}}",
+      "{\"endpoint\":\"https://fcm.googleapis.com/fcm/send/eJXQaHzMwg0:APA91bGu7Ys7PUoEiL8XdLVrEwBqjAeyR28V55VmBLkdouiXEFvtyEsqQjD4ZdOeod7KSVL2bMC6AuyXjYD2g2Ih1RcYOn1iqbG2bTkUfeGlh53hF4IYE4mKkLA9AABDdynYNSUG_JbE\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BC3HU-SCrA4ykKDtgteZOJvWmGbfJFfSH2_s1SGSP_5k-JRwhhKm3Ewz5lrRZBCMPuegKpL1Z0X8KVV-uKs9-t0\",\"auth\":\"N9ueT-Iqv7njGZB-OgtZmQ\"}}"
+    ]
+  },
+  "alamzp@gmail-com": {
+    "systems": {
+      "000000000000": "observador",
+      "111111111111": "observador",
+      "111111111112": "observador",
+      "111111111113": "observador",
+      "20333844270": "trabajador",
+      "24530080316": "observador",
+      "24530080456": "observador",
+      "24530094275": "observador",
+      "333333333333": "observador",
+      "526251259145": "observador",
+      "526251531996": "observador"
+    },
+    "token": [
+      "{\"endpoint\":\"https://fcm.googleapis.com/fcm/send/dOoTRDgs33c:APA91bFEtH6t5ktgXi4m7kLEboehW9p0Ww6J5Du1M2HEGdYX9ciYQVULi3vCno2xEIAjlIvfuUa1VOj8gP81KEMrwVjnXY-xnGjLGYghmMWzfsRglFz4kk9O6yUAUYOLlTO6CV8HTuzb\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BK-IQA43PGzO2ZXZiiTUsXIK2wQFrwhNM2qvp38rdtXPqkTwTl6D09LRzQB6W6MjRkhux8foELp5M7WQX5MMi5Y\",\"auth\":\"806_biXqXe4e4DNZfL6M7g\"}}"
+    ]
+  },
+  "alejandroquintana7@icloud-com": {
+    "systems": {
+      "24530094291": "propietario"
+    }
+  },
+  "aletinmendozav@gmail-com": {
+    "profile": {
+      "direccion": "",
+      "estado": "Chihuahua",
+      "localidad": "",
+      "nombre": "A. Mendoza",
+      "plan": "basico",
+      "zipCode": ""
+    },
+    "systems": {
+      "000000000000": "trabajador"
+    }
+  },
+  "alvaromingura@gmail-com": {
+    "systems": {
+      "24530094127": "propietario"
+    }
+  },
+  "andresloya1370@gmail-com": {
+    "systems": {
+      "24530094283": "observador"
+    }
+  },
+  "as123456@dta-dta": {
+    "systems": {
+      "prueba": "propietario"
+    }
+  },
+  "bernardokrahnp@gmail-com": {
+    "profile": {
+      "direccion": "",
+      "estado": "Chihuahua",
+      "localidad": "",
+      "nombre": "Bernardo Krahn",
+      "plan": "basico",
+      "zipCode": ""
+    },
+    "systems": {
+      "526251342314": "propietario"
+    },
+    "token": "e-pDTmPGiQQ:APA91bE27cenPIOs-YxfW1UTrRRpLTvgX2zWDAqxOiSdBYdPZ6rPiJJ7g75YexARDuCU8GUpJSfQnIqPxf6RBSAALtwxkiwz4aCrTaFoy8Z5uss5Nd-fLqJLT6GrNk2BDF5bErKQJpX2"
+  },
+  "caarlosestra76@gmail-com": {
+    "systems": {
+      "24530094267": "propietario"
+    },
+    "token": [
+      "{\"endpoint\":\"https://fcm.googleapis.com/fcm/send/e9UxdsR4MvE:APA91bGN8sa6QBX1bAU2mHXH2MCb1twC60gtUg8SsiAtrWLFewELl5BTAnDnuIX-Z2Xp02yI-KuTenp1-6EWAPSrtmYipsId1dvznGcRURI3EWEKrnsO0isXzl1Hi-lry6NnZdfGxdi8\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BEhi47VSv-H4ekOg7Dsjierp48UGBqUKytlyg7vpd3QtUdd5UofbuJ33PI4aip__FUDAkwYGQFPS4gUoc1YhoAY\",\"auth\":\"sE6zCke_MJp5snW-ZxThuA\"}}",
+      "{\"endpoint\":\"https://fcm.googleapis.com/fcm/send/dfMATHVDa2M:APA91bETMn8TT2d30sDvVBlOcIcIE2KCL-sTJcu0XM-MCYvxcCTLF8BXj_Rcq8ldrGhqamo1ZdAux894BWWHDJ7x_OQLeVKHzqAGIVTjuF5xwSwPJRu4jsxd6IAu54ur40EqqXyNm5-k\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BH898Tlr_FKzCtyc2ymTnjh-sffxWs1yywiZBmVUXmOgCh48uFiCq5dEo-AqZQIZ6_QOwmtjjRfSfmgsvhqaQwk\",\"auth\":\"YWiAipc-nHWnKrxjAwCNmw\"}}"
+    ]
+  },
+  "carlosmacy@dtaamerica-com": {
+    "systems": {
+      "24530080332": "propietario"
+    }
+  },
+  "carlosmacy@hotmail-com": {
+    "systems": {
+      "24530080332": "propietario"
+    }
+  },
+  "castilloloyan@gmail-com": {
+    "profile": {
+      "direccion": "",
+      "estado": "Chihuahua",
+      "localidad": "",
+      "nombre": "Castillo Loyan",
+      "plan": "basico",
+      "zipCode": ""
+    },
+    "systems": {
+      "526251477680": "propietario"
+    }
+  },
+  "cesargonzalezg1997@gmail-com": {
+    "profile": {
+      "direccion": "",
+      "estado": "Chihuahua",
+      "localidad": "",
+      "nombre": "César González",
+      "plan": "basico",
+      "zipCode": ""
+    },
+    "systems": {
+      "24530094143": "propietario",
+      "24530094150": "propietario",
+      "526251201079": "propietario"
+    }
+  },
+  "cgg040892@gmail-com": {
+    "systems": {
+      "20333844270": "propietario",
+      "24530094143": "propietario",
+      "24530094150": "propietario",
+      "526251201079": "propietario"
+    },
+    "token": [
+      "{\"endpoint\":\"https://web.push.apple.com/QDC4mdsra3XAEDq25gW0Q36vOlFrX_fn4F5g2Gd4G9JRvoMYU4yInQTqCPSvFuKK6yxdkCLyWt3RIwKSQ6Fp2edx4dA-OcUmCxJjzUJr8MSLqlL2NnWiCKv4LEKSBlYi2Y6Zo2pr45XnFL1bt3QbZDapk0XPowNuwwmlKvVHWKw\",\"keys\":{\"p256dh\":\"BPhHsKBBwW0KAyCWMrnwTnYJMIGsbik0qJ_owNxFU7-_Wh9WC7lHpQUg3MWgjT090ihG2ygXJcEBx8G17K4tewk\",\"auth\":\"c926Ocz8eqX6m00VD9ulTg\"}}"
+    ]
+  },
+  "clopeza@fira-gob-mx": {
+    "systems": {
+      "526251020266": "propietario"
+    }
+  },
+  "corneliokrahn@gmail-com": {
+    "systems": {
+      "526251342314": "trabajador"
+    },
+    "token": "eZNzmGkMHno:APA91bG8fc7Sj6LdztDTYGzfcQgJuBy5NtKMmIopNHIVYdzECQ0Tzd4PG5ZLi03dBUs0Z-A1IRXHvShLsAZEnFdCKOuH-SntAGTaAxTuSMP8ctqepkRPnMCZhnyoKoSSQrak5O29u7Km"
+  },
+  "corneliowieb93wq@gmail-com": {
+    "systems": {
+      "526251259145": "propietario",
+      "526258372598": "propietario"
+    }
+  },
+  "cosme@tec-mx": {
+    "systems": {
+      "000000000000": "observador",
+      "111111111111": "observador",
+      "526251020232": "observador",
+      "526251020266": "observador",
+      "526251020596": "observador",
+      "526251020642": "observador",
+      "526251020790": "observador",
+      "526251024489": "observador",
+      "526251037317": "observador",
+      "526251059200": "observador",
+      "526251060168": "observador",
+      "526251193016": "observador",
+      "526251201079": "observador",
+      "526251259145": "observador",
+      "526251271378": "observador",
+      "526251342314": "observador",
+      "526251452797": "observador",
+      "526251477680": "observador",
+      "526251529489": "observador",
+      "526251531996": "observador",
+      "526251579804": "observador",
+      "526255917395": "observador",
+      "526258372598": "observador"
+    },
+    "token": "ej1CRGGD3T0:APA91bHeLfTMh5c-u84k9Emmy-C5OF5rGnUZbqyQhD0_PygGjby2yXNi8qfjxRJRatvgKWhRzzgZqLXmkcDYXKxEuaWtpqME4XWxwOzjNnklCK5yEjPsJQ7f-_WqpG3uTvvwLTFGphcL"
+  },
+  "cosmedaniel2220@gmail-com": {
+    "systems": {
+      "000000000000": "propietario",
+      "24530080332": "observador",
+      "24530080407": "observador",
+      "24530080415": "observador",
+      "24530094135": "observador",
+      "24530094309": "trabajador",
+      "333333333333": "propietario",
+      "526251201079": "observador",
+      "526258372598": "trabajador"
+    },
+    "token": [
+      "{\"endpoint\":\"https://fcm.googleapis.com/fcm/send/edQlgMiby_I:APA91bFrooRxPORGrl7SlO6rlx4v09ch07XttoOgCNXWhkrTD4fJJisy_-9XdVzeKwQgpqwVX5lbXCsaVXmF1458_uCpdY7Jeh3tvZsxQL6TEZ_9cewWJyT2mupZmbugW5fpIklvYWLs\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BKNuxyA5fJZk22-tVecSEf97MV4r-oJkVCjpGki0fpFOGc2th02Hn3vL2xX6s3YQnO0nyzdxKIWDqRjOypj-wX4\",\"auth\":\"L0XKQeDWqSTurBA9G4xc-Q\"}}"
+    ]
+  },
+  "csantiestebantoca@gmail-com": {
+    "profile": {
+      "direccion": "C. 37 1/2 No. 4009",
+      "estado": "Chihuahua",
+      "localidad": "Chihuahua",
+      "nombre": "Cosme E. Santiesteban Toca",
+      "plan": "profesional",
+      "zipCode": "31060"
+    },
+    "systems": {
+      "000000000000": "administrador",
+      "000000000001": "administrador",
+      "111111111111": "administrador",
+      "111111111112": "propietario",
+      "111111111113": "propietario",
+      "20333844254": "propietario",
+      "20333844270": "propietario",
+      "222222222222": "propietario",
+      "24530080316": "propietario",
+      "24530080324": "propietario",
+      "24530080332": "propietario",
+      "24530080407": "propietario",
+      "24530080415": "propietario",
+      "24530080423": "propietario",
+      "24530080431": "propietario",
+      "24530080449": "propietario",
+      "24530080456": "propietario",
+      "24530094119": "propietario",
+      "24530094127": "propietario",
+      "24530094134": "propietario",
+      "24530094135": "propietario",
+      "24530094143": "propietario",
+      "24530094150": "propietario",
+      "24530094267": "propietario",
+      "24530094275": "propietario",
+      "24530094283": "propietario",
+      "24530094291": "propietario",
+      "24530094309": "propietario",
+      "25331424849": "propietario",
+      "25331424856": "propietario",
+      "333333333333": "propietario",
+      "333333333335": "propietario",
+      "333333333344": "propietario",
+      "526143664779": "propietario",
+      "526143664806": "propietario",
+      "526251020232": "administrador",
+      "526251020266": "administrador",
+      "526251020596": "administrador",
+      "526251020642": "administrador",
+      "526251020790": "administrador",
+      "526251024489": "administrador",
+      "526251037317": "administrador",
+      "526251059200": "administrador",
+      "526251060168": "observador",
+      "526251193016": "administrador",
+      "526251201079": "administrador",
+      "526251259145": "propietario",
+      "526251271378": "administrador",
+      "526251342314": "administrador",
+      "526251452797": "administrador",
+      "526251477680": "administrador",
+      "526251529489": "administrador",
+      "526251531996": "propietario",
+      "526251579804": "propietario",
+      "526255917395": "administrador",
+      "526258372598": "administrador",
+      "8952020024530080332": "propietario",
+      "Nieves-Norte": "propietario"
+    },
+    "token": [
+      "{\"endpoint\":\"https://wns2-bn3p.notify.windows.com/w/?token=BQYAAABpKs7Ha%2fuoqN%2bX6JFoM9fwXN0G15fNg36i6z9duRkL5DPkahxTUs3TYYUGXziMJzXe383bYsYbBnipndFtOArmYxQGJSLT1EJoA9vRy7GoLWfQWWT29IEjIv1qFcJZ3150R4M3nxUhraccUTUSeCrEqKawi%2fRNfPCqxvuLKKvVqPowmPFWxscrehy2ePr%2fs8t%2ffl5Q9nXEfKECYvBiD6gks0XBVe6QALwcpOi2244TKyNP%2bzUyyZu9ShkOHwSaqlVrZisS1ChIH4MdqrbQCRodUA7tSdMUaQ2m5z4GfURH7xsujjAT2k2SJsAuWdLuQW%2facUy4Z1d%2bfzxeJHMJWKGn\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BGqP8nrOCFAdo3Wu0F3DsJ3d_dSdWlsAU0QbrAfcd9XJWyPAljOPHOUYdxdUi-oeaH4vR7h1eukpiqvsLrH7ZHo\",\"auth\":\"vlS3eUL1n8MPbC4DIgUWmA\"}}",
+      "{\"endpoint\":\"https://fcm.googleapis.com/fcm/send/ePyvyrKWmQo:APA91bH4W-Op1LHwKkD8Ty_ljCYOuxcAxYzzg-YGv8IFzG9dGSclPQMGosFCsRuNphpU1gzdDbQG398I72to62dQk8NzaJGZotGU-q2KiUOlo_SPbD5tull6BqeloAm801NjKaGzrHJP\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BIvirx8rZF-luhXAJHSLgdmC5iaSmboFecBziL2dIHcoVUNg_xNr25RFqC-JEUKvqQBkTJzaDqpBWctIe2JbNV8\",\"auth\":\"i2JHiIfzfieNh9NLz2gGHg\"}}",
+      "{\"endpoint\":\"https://fcm.googleapis.com/fcm/send/dk2JXyfRkpE:APA91bH3OFnEfARTgwF_hsYa5RWwHVmnD5PdptpxIyIJlll9DNe1orCnJz8hl5Tidb5RU_-w-zD_92x0d61VEC-TPqP4u5RiZLbZ4OP0XAr9fg_07oqXw4Rx10XZgRZCl_Qx7X41hq4_\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BH64R66lljVkm_mUgXspp2rlaFHFuqwPzvi1h0NOQgqodylU6nDTFZikHJqfJ6IwDoOmyeq0304KMj5McEKxdM4\",\"auth\":\"Rt5PA5ykxa8quGsHbIy61A\"}}",
+      "{\"endpoint\":\"https://wns2-bn3p.notify.windows.com/w/?token=BQYAAACFpqXJReubd0LKsNm0FGb8gNyaTgGR8ecVymDrOs2sY06Ijr1WS%2ffxnh8qwEwMu4KtkYKZ49DCr49eNT5Nzj9v2gqf%2bTNtajEPB6S9vE8P1nMKY%2fHcUgiT7z7KBev7c8wWvfdb8ejAhmDvmktYdi97nPtJNkrW6%2fFYcxTRt4mP0JVmBrf%2f6yJIhfiwem9v7TV5kOmr07caSF%2bwN1FtUQoIAQMcWn4A3OwxHoAew8oWpdeozETWQtCjPs78bTRoE%2b7ro83e4zAiRavITHGtCM5DN6FuJiq8e4rSlEF3R%2b5drrTYq3FfPTsZw45m29NkzOQ%2b7f3dXQ8xgowBHGJUlScz\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BGsIW3tpKB_tHsYjgHoVP1Am-SHkxGe0HyZr__Z6fTmACazd3BBawPpFKQbs8wufo2fcGpp0RIpzUTch1AwsT5Q\",\"auth\":\"mOi3UWM37u5n0vZNNzuhNA\"}}",
+      "{\"endpoint\":\"https://wns2-bn3p.notify.windows.com/w/?token=BQYAAACvt%2ft3pwoFFEubp%2bVZseaDOE6N8rYi62niCkgqwra%2fcbiyrp7sKLNmG4wXHtH1lQtFRNjHPQfEC5mdtJpJrVJQ0usTRjFvlUbt2Wu0b%2ftBg2b9T3usxRWLWYHpGYPW4kDaMuSZ53xShXpyXaNY41%2bCHw8EXTXca6GRk3lpm8cHr%2bBrbe%2bSV76OJtm9Px%2fLpULj5IHJf1NwwT8Q6SxkAMp6VobJmvWkyw5E%2bWj3i28is3GjyPwDiSh0A5QQUdBpTZkgLxP7CwK7cUFdSkoTDGlweTubdJ6pCL1IeJBoNYDf5QTriCahylpz8pHwGRs0bK%2bnJ%2fTspLwkCdG7A0pJs%2bhh\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BPRrSSB4f1EJp1WKWfpcty5Rnmf0PlDLDmZ3kq_m5ReCMKbL55bvYpsblnh0Jp2a3IqxiDWXHexwZ49DrPDJZHA\",\"auth\":\"EQC0zoNrFGencjomEf9lZg\"}}",
+      "{\"endpoint\":\"https://wns2-bn3p.notify.windows.com/w/?token=BQYAAAAnJrmPZbvOpPxwtApPbH4F1STnwb2wHNkTGlDkKCRS6VRynDjxI0mbPfCSXocoOkbKmeW8%2bvXbRRwkwYpHZVOnxh7q2j6M%2fYr2ICQxjpCfgn0n5a1%2fpkwL0fQkBUL3aiiSVLjJGgF3UAz09MaglTgWrZvnN1u0ryJkcx4OolroDrnY1V8FWC82wuX2NdX%2b95x%2bV85aJCZtqX%2bIFpnnlrJJEMpqsc0QxB1nkBNHz0QqFRwsUZ%2b4%2f55%2bLww8FUp6NLVFd79asrm3%2bJWomRm%2f64EAMn3bp6swa1DnPoRuwzudHy8dJvq3c6BTI4ZFI01jAsU6GR8UpPUJLkrmnx%2fF0VKf\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BLDbYFLpQWbCNY6Bhm44o4ZCoLy0MCdEf89IdxX9R2iECkmNfzK37wY4CGK86C6R3p81PPFzdLA6xv1_749rZfs\",\"auth\":\"qt6VmbLqkrUnyLi3DQmACQ\"}}",
+      "{\"endpoint\":\"https://wns2-bn3p.notify.windows.com/w/?token=BQYAAACg2spgVrfYXzupFv%2bEyXeVdnJGg6IaiLLN4jV86UhV1MPrxQX08JAnGRkuwAo7Ti8LEfaUGKFuyLP5ybKAWMKjZ9HAboNHTLV1Nidu%2feLN0dPU1fk8onNG35Q7Yb1yyX5a%2bOzgXWAUVZiAXgdZlEpM92Fhv1FT43fAeY44EdrxIw7Xrz1emgZVcdqn5PeoOSTq7BYS%2f9aJHh9jEE8n%2bu2cCMoIrPE6MlglpBNKMVpYsyle9QXa97nIuIJ7T7BSwdZQVAQ9zqQ5K9LfpwV0Kb4M4q4SC9Z%2bka3xeyVAyLGmh%2farN3fXqjAmtyqxO7%2fSXZwaYoyH1NMvRQv78xOx42st\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BPb0Hjt7cjm82_M1DCOqYj6btwtUCqBu2KjDdV-S2tWBhs8i2pt1U2WCVVN_kv3vOzV5SXI021slAF4qfOK2FJQ\",\"auth\":\"X-6welpVww2AlY65yQqyyw\"}}",
+      "{\"endpoint\":\"https://wns2-bn3p.notify.windows.com/w/?token=BQYAAACB3sVpIAmhLaBtlCMEJV2RdKmdqGHPpdmUqBOQdv8wxMP6DTdsAbLDyI5DapvI69ioFhWX0zlDDjKq0YkzLXKkdf%2f8rFtgRVAB1xucAlTFUFfOSELzaGsiRogGGh752puw7jYux4o2XsG2DmUa06CmH05co3lO763rj2vwIpcq2hINz9UX6La3QM8Qo3UmGhuUBeBOBK40%2fCxjQPNjLzgssD%2bQSMcz3%2f8AhEagmiu3%2fWtMEDcihzHZGKHlPssLS%2fuXmD3TgFkgBp5TmF2a4I%2b1Tq%2fccr4PLRNtITIPbWS5L4B5QdCN%2feV%2bL8hYXop0sZU%3d\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BKR6wdKCKzZVFow-84Ml3y0NR2X2dYQ3db8HGcgIjuaH5bzOzBhEMJDYHQ3uOWt9gafaWBu0KaIJUINJO3D39Gg\",\"auth\":\"uLVHPFFGnhr25MzxIu8Hnw\"}}",
+      "{\"endpoint\":\"https://wns2-bn3p.notify.windows.com/w/?token=BQYAAADsu8v6vHo6QInOpYZUjEkxFCzqMPS5cyU%2fak4Gb6CuhBDfNmakVyaf7%2bPtQCquzeB7DWx1sFh5AdYNBdGGEGTpMC0JJrW5KnRLSxntrOtvLh8HYWN3uWW%2fL4Ahijp3cpYKrSQ2MfIX8yq0pcczi8shKGFLz4%2f2y%2fzsR6K3m5J%2fZ4QCpN29Y9iq5G2BfbtPmMoRlX3TCJ4B9IrcCKv4jGVUNObfWaASfPIAUNm0oTwC0gVeeSlFkCW2aMJ6lQfIoZLjiLp1TNDBNkh7E0Cs0FlpaIXDxOg9xcJz%2b7gNIP6KE8AXyKpswRaBHNEqPTuh7N792uRMM8jEUDe78dFeixmO\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BDTBhqXsWSEM6RXVv2kYWmb44tQbj9lMznHNfib0VbBAw_b1R02WME81CuQ40ecODteN1EmnSVRIKMiSd-55fd4\",\"auth\":\"5sYj81FnisSBxGoqqHJfPg\"}}",
+      "{\"endpoint\":\"https://wns2-bn3p.notify.windows.com/w/?token=BQYAAAAFAPQ3MQbt%2fKmNFSSaMQact4SRP9ia9ZPDYynG83XfllA27D5dm4BUQvMJgjxzHb4D2RqC%2f2Yf%2fsziA1zg6N6DDU5N2VocyNCOhkeEfqAJMlcQ3YQblEzHCqZpLAXsOWSlq10hUQyCajP%2fOQUyxm8sdkKmxHOcTblLrW9GSFkvFEszu0jq9PANHcAyEj2KVoCsDkD%2fFL7Ll%2bsSPP8rxYgMZuevQuR6lSyNZHe2%2fH%2bbfsb9Vu%2f6hGJmXCdiflyqVsWe0gpr15bpgzfK0WsOq20c9HKqkdzDHxNzX%2fJcsmKaC5LkjIsRf5Mae%2bfQNbEeaOh%2fU2DjpFaaFPaC5t0GFcaf\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BE2iz42lErbHhSmM8ygMa37ZP34WHnPPswyg8YCXbSXBFHbsa9JcZzPlT2s292n7CceoE4glfN7TIX48lDFFaZs\",\"auth\":\"CRYsSUuWU8Q-OO8f9T2teA\"}}",
+      "{\"endpoint\":\"https://wns2-bn3p.notify.windows.com/w/?token=BQYAAACnNkKIEP%2b5v8mE3HgDtrtU2qiomcR%2fLg6%2fuJ7%2f1TDSOmEqew74ccpByPODHdYxZF%2fM4ga7yYia4TUBSrDJV7UPijP9Tq0S8pDIgjUtUeGbWoROzrUQwsbkeNx7iC3ik%2f5goS1S6tU7jwcjcw0lddCfuKwgP%2f1FAqzKW127x%2b51Wh1uu5FJw%2fq8sP7OcSpuO74eGFkhp5HW8zkxBrRwvIsktkXXoTEMb%2bMNiyhoiG2VJfgy6IMkHNRVITW%2f%2fYfpLI3EU6j60wniHT7xSuu6tujcPKhT%2bRXdmX6je8D2P5rXdu4JTMoLzDRmGjF%2fWBAbEcIzV8%2fbjtSNvNI03CSaqEhp\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BC8mFtAU0JBxHEesrpDRb9NgUUZsXjSLuuvLbg-Yi7RCuEyjX2YWlmidLtVagRxeG2vcT6Mejv95WRwes-MIV6s\",\"auth\":\"0yNDhidelgfZ8OcXJ_biKA\"}}",
+      "{\"endpoint\":\"https://wns2-bn3p.notify.windows.com/w/?token=BQYAAADFo%2f1qK6SWf2JwTLbI6pL6PiaEQyuB2LkKnU3WzCobnxEhjLQ%2fi1quucVOkr1pkOwcriAodaS0Fn3v66qhzgZK8JfJ%2fu0u0rSGkfS8OzJ8fqxi03bu6PruzR6tQ6mf26yrYddy7%2b6re6Sok8a0pXSt1FT2PZoCaYf623tmhNA8rzMZRSv0Dr1zWBRByNy1SHgL5f5d%2bjNaH4GFmyWbkOho77P4fEECpGUP6nKWRzQYJBFSXbmnPpndfLW0kU%2bSbgFa2YtaMPnPgboayGeAkO4%2btpjPjp%2bD1Pmx2OWpX6a%2fKGz5B%2bsKllLPbkBBZP4i57y%2fz3HzfxxU5iEwZh4zk0NX\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BD-TMpHOrk31CBXDV08RvnCSSgUkK4IgD7ZySrCVS1riBLjfwx66a6dcF6Yxb0b1GM5VQ5nG6YsEf1RWaX8Ney8\",\"auth\":\"NSvHbEXZhSKP_PpnUf92gQ\"}}",
+      "{\"endpoint\":\"https://wns2-bn3p.notify.windows.com/w/?token=BQYAAABfkJtDNLpvy9tKv4iovRvEAUKjsPTshuF%2fWIibphUUWYLAqf297A7i62dZWZDeL67mCU9dDAqHaGtUEw11W0OE5WyMevrMr5z9gvus927fJxKGItO%2fp6ZEshPyo0l2Q%2fX5BZ%2fWFjZCySAfG7umJJxBUjQ7nnQU2BlrPTsTGYg310CA3yaccNT54IpQbfSmrUzo1e2SbNiwqJzxcj%2blhAvQn%2fQhDmx%2fW3xR3%2ftqH%2fYSPgE77%2fWkeTrciu4f%2fQVp9pYBV%2fM2ceIGhUZUROJ2z1zuiVb4SKZe9LPPVMYjCMO5LS8ApC1Y6ADJe%2bco9xyDhgk8psnGH8f1l2zEjAm6wvVN\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BOZgEg-Rwh10j1EQp1A2VDVdJQD0N8eL71LONujVIWlqKwtl6ynK8krq-NjgBkgz7qOBA7cFbeBqZeiys9YXS0I\",\"auth\":\"6xU4jIqunSVZyxZN8ZhHGw\"}}",
+      "{\"endpoint\":\"https://wns2-bl2p.notify.windows.com/w/?token=BQYAAABew6HkuSdmeDLtq%2fSmdxW3M0gevkn4dPJBA4iOgSeMf6ft6%2fbQkp9P7ft0s8hju1V4a8eDpe7nWs%2fv7xLUGLmkuMGeWwSN%2fFFBjxJCxH8vF0wE28QDe9lJ0tlL7q4d8pxZmVvGtiVlRnFIMt5dh5crp4ny533Khp7Y6r%2fYWQAYWAZai3xyC0rDTIfgd805FgQ1%2bbNh4ru68PTlbfOt8HYqmChv1vO9XrBCDjklBEO483tUqc8BCF%2bKXj7l3hM6AvOouiheZsEr6n5rbd%2bMMXU%2fAToNcakZj6EpBlmX2UkI4OwngOg1XeKyZCRJRrpiCvfnkDdEHT%2bkg7ZyMr73q%2fUi\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BOwitsAFRaENJz-UF2WiVMu_bIyxYwJ1-6cwL44ARAmVBtKhkOIQ2IemuCtWHL9Gi4IGdn-eyYbOyNvVB4wjiUE\",\"auth\":\"eCJRkYwfpKNvBZZiySZxwg\"}}",
+      "{\"endpoint\":\"https://wns2-bl2p.notify.windows.com/w/?token=BQYAAADdKqJJqt3X09ZKb4v2%2fBGxP5A%2fc8IYFbGu5aXSX3hQPzeIl784FXYkacVBnBDFszo5s%2fEbFE5T933PLcLaobYSa5PsnCUmuKmM2O6mmKoPqBCUcHRBKjELDW6t1hz0Jt75Sdf4rEKiS9jEy6H5OG8UuaFssJNqcZ%2bmGEyBKw1Rr7e5G1l%2fGkBlb6DHrZwKuWANYBoGEl6mczaldCwXtswt4xv0dFMM%2boYJoiCJiRVxlbHXO2axxr94qfXq9zwgFRvmQsafWMhhHRcP81tV3ozOkJ8eKiXdmqnk59ifrbraaB%2f6zLOpNhXx2PJLtEpqG%2b0ZEsEqq1YKpfvXidDrgAza\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BFskFhbwsILF3YgvcZTquDHp9i_pVHPjMhpE4VbYOm8Qq0fJZCkijOVojWkaX-0tJ6dn2H2Zb7RypuhAuVOGMD0\",\"auth\":\"HhnfXIZUNHtZ2eNN0Ccl5Q\"}}",
+      "{\"endpoint\":\"https://wns2-bl2p.notify.windows.com/w/?token=BQYAAACgZgSRYqvsYeIR3Ojab%2buDXAxE3lrT%2blEevelIz9C7t3A7EluPdscmVEhkQc1yxUNAqndxrcMC2fRFsW%2ftBDNZzRPebjYPuNPXuwoj9OqniXotYGw2LawjbiHYP%2bkL6wiIYrd620zYjBot%2fAqlYTV2vFKxLUlimiutPBGc1KgduNagqCb1kaNk2QJiKOf53OwippepyQfa3TjZce3IrRuCE7t5IOhRGvpw6Gl35ChQzODTSb61ts3uOKypaUTdLvlYHAJaDPuU0Sav3BbbuhfWSqsbISCB%2f8verBC6Ls8BX8JoKiw5FWNCwf2V5yhk3M0ZHESZgUAzlCCUPwS6dl%2ff\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BB9UVm0fXvNA_jiDCZawsX45yVO9Ov0e6EQsnt6haBvWGxYDbz7CEA1lD5tkb6-3rV7XgKEQqyoxEKvTAf3ZBXQ\",\"auth\":\"slbOsXkQQWwUeH6qvi8MGA\"}}",
+      "{\"endpoint\":\"https://wns2-bl2p.notify.windows.com/w/?token=BQYAAAD%2fIIsZUE1FfYqK2T6AuMiYg64yxddLtLGuRt6zFa79xgGuB654fMrj4y%2bzm93yzXFxGquuslTwvam0LPSwQiYgG7LQb49IXJosYNM6SA7xERfO%2fz6zA86St5tJzsK1d9B0%2blTyn95PduqnFilGshzvbu9hCACJGAQ3%2fYhiMRC2zHItZm3EgFQDZZmxLzdIZHDpuLBqO7nkpZ1kKIWZ%2b8Z7lcsFkdCGkmg8iXq8R%2fEdhTIlSAI7Ru2UlPicfsNQ0beI%2f%2fdi5FnaFFpqcvwUqUHpSaZcdG40Yo4lona%2fqsldCoNsPTkTaVi7f2TnyCxXhpG7cCulDZBf4rq8pWdmph%2fk\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BK-PfcdMThlFaIIrEM8tg1z6zUsuGmNB1eXcTEBaft5GhaMROROJjDqLFWr5Rg-iqlmh25B6twGVtnbcEVSZL4s\",\"auth\":\"v55iaIHzOYTB50KZV0FVNw\"}}",
+      "null",
+      "{\"endpoint\":\"https://wns2-bn3p.notify.windows.com/w/?token=BQYAAAAFSLYff7Mvqb3dcU2w3NqCDl9Ydeo8csRqkNrVqTvu29hfBMnP%2f6I9MEeaa4HfnIPdWt3ijbfslZwrHlQpCFavd1HWY9ryiX5OHwwNzGLwEVhWcnWB%2fedXnWSAZ%2fkFiGcincjPfQFYCToECu3I%2fBk1Ga3%2fENCZS2olIgDuqi9T3jnSnKH1vgqcNCQ53i2Y%2b8C8uy%2bDVeviRzuj%2bFTLz2yQhxHAnmryCt%2fFloZVg%2f9BvMZs2fgpJlfo5h1aBstUr5fhvu%2f4HWw72SYp%2bxeIVFf%2b2OuA%2fJOP6HIcEwUHlUY1QI6Lmw6jT7dysHsFJznL4M1h4GtjgheBeiti9hXmrR6y\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BGLjKXZFFoRrlHN0zUdkMKNEHDcB5ZyjlUGIMIymbXXdJ7P6HQUtihtTVUmrgM4__UEz4wxNSfCgX_dul4F_hg4\",\"auth\":\"L4-o24wGUxIkhNwP2pIg_Q\"}}",
+      "{\"endpoint\":\"https://wns2-bn3p.notify.windows.com/w/?token=BQYAAACgOO%2bbnW3ux3FHsQ%2fkIQ%2fYPBg%2fp5hPPNy1EBNtxxidZcE1O5PqFvakw841aWEzs7k3sBy0QKrdCAgv8%2fGBP%2fynk2TC%2bSD%2fwIvC8TAG5nCTBIPiF7jE1iXq%2fjRSs8xkcyRnCc4VuMZ35WEOa0loKHXodNdSkl5bVjVZy4GuzmPmDFNNUL32Oxgo1pzwWMMUHq5CYIsUmZWiXR0Oz4HqoVHQxiyvL8L6ryqKvyn3TC2KwioH5r2dkx4cb0e%2fitL9DYMQ%2fytmPtR7q8LUe%2f9sGf%2bfXxYQmHtjwBs9rWbs%2bMbQyTL8xzozGjUx4qpJalxpo%2fPvCA5LNL4w639wvCGI61Mu\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BP5zqv0vv8LX7vdp5icJ5mdR9SaYqhoAoSy2zw5B1H1sI0FufaygqnOdgkJrX-sqSYcQ4BpQ3s8lgSDYSw8b4uc\",\"auth\":\"rwKVj42lK5ucTrSIsfbG_g\"}}",
+      "{\"endpoint\":\"https://fcm.googleapis.com/fcm/send/eEoQMFVfbnI:APA91bHEq12kPfdgvl8Ej9NDapjmTyZlp2Qrpj9SXV0PGLjjjlWN9f_jM0NBLYsmnQMFesjz0eWbL5fQ51uI61_cg8EaOqqMwCCWN28UW4oJmSF3Hfy4IwtgMWl6dBQ8W388BWlm8sst\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BMdK_I_HXaKi8khAd_7Yy1A9iahjoVp7A7d4dZFJOca10TxDfZkL-KrH9Zvv7Q5GCsClUI71lbDlBceRD93ZwBY\",\"auth\":\"3YHLPvmHg3F3I-FZJl3C_Q\"}}",
+      "{\"endpoint\":\"https://wns2-bn3p.notify.windows.com/w/?token=BQYAAADa15HQ0Q%2febNe%2bYChWGVcKkq8KMwJH2q4oxvHjKPsoFzb2To3olQ73V5DqM3RBhMcNGzozXfHItUqky9m%2f2CKn9MJRxONd%2b16tgY01s28B3D95XXkAv%2fK9cDPTeeV72GuV92bQ37Vfhuo6cU7S0iJIbsf5xEwjNjqcbiwLjtaOnfUedk1i%2fyQqP2389iU8VJH%2fcDXHF%2fQ9XuHeibOHIG1HglQg%2fIyJcdVr7eJlL6sCtFpzqGjpP6pyOX6hJp7Fcunb6SyfiL1TcDpNKy7JlrMBrEbEPpRIahG%2fy%2bc71F1ATYxKmjeff7VqYx1WbqlEYBY%3d\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BJZeRZF6SVhE-oJB5K37xJJzyF8-2tqQ4oyKFyRXCXAwibnPmKmBqLXibMFe1EF5kd0KZKPOTVuKl2oRN_qUJZk\",\"auth\":\"S6LbEBc4A9PDZmwgvY29eQ\"}}",
+      "{\"endpoint\":\"https://fcm.googleapis.com/fcm/send/cvMVmKVeZeA:APA91bGeHDQYOV0JiyCBdJyihf7_ERmWZGduBMISB7xgcxWtjiRWo9ET1ScJv6IS181s__sDWjztyUDYkBZksL7r7COzVQiEs0ei-YPVJiaYAYxZHR8_5HCnUjdEtstrueo4Eq3bwD0S\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BMZzERM2mKtL4IiRuZzMf8an4Wu-CPHF5Qj_fp-L6F2BJv842KqPndZkQP_ph5QjmQQIu4Syp70yyIOyVQ6Sm7A\",\"auth\":\"UTOcK6rhQ7TYKynmsLQEzg\"}}",
+      "{\"endpoint\":\"https://fcm.googleapis.com/fcm/send/e6Nx0-Qxr50:APA91bHoXpy6EpSm0GW6z5RXgQWWwuok7rnWy6UQPifrBX7BZRrIAQeCl4gYjPEagGBEJYQRM723SweaadUjHVJSfKYIAeMSc2UvutUyNKlpWVaQVMl5UY9AxoI5NBGUmbyG6-SvHCwD\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BBPMRNtnGQharGNdquR_GeZoezzU62YLsksCTpF068oKXIsls6qJO6oV8XXHtP68ISdUYmqo0UP3vtrVks3ih44\",\"auth\":\"yo4jetjI40x8fSlSwMKmIQ\"}}"
+    ]
+  },
+  "danieladantiestebane@gmail-com": {
+    "systems": {
+      "000000000000": "propietario",
+      "111111111111": "propietario",
+      "333333333333": "propietario"
+    }
+  },
+  "danielasantiestebane@gmail-com": {
+    "systems": {
+      "000000000000": "propietario",
+      "111111111111": "propietario",
+      "333333333333": "propietario"
+    }
+  },
+  "dannykrahnb@gmail-com": {
+    "systems": {
+      "526251342314": "propietario"
+    }
+  },
+  "david_loya1998@hotmail-com": {
+    "systems": {
+      "24530094283": "observador"
+    }
+  },
+  "davidarandam@hotmail-com-mx": {
+    "systems": {
+      "526251529489": "propietario"
+    }
+  },
+  "dta-labs-contact@gmail-com": {
+    "token": "dMyPQxMsEEY:APA91bGPtkWGYIDIO1dseey9TIdw58yaE9hXf7sVXXwWgcWuxjmZ-POSp4O4K19sV6v0GohC5UITkzPva4GmB-btufSkST2sygCppw8D3XA5TRsGnYfTj4pnwxWzQDSfgk1r7EsAvnjk"
+  },
+  "dwiebe27@icloud-com": {
+    "systems": {
+      "526251259145": "propietario"
+    }
+  },
+  "eletiti23@gmail-com": {
+    "systems": {
+      "111111111111": "trabajador",
+      "526251531996": "trabajador"
+    },
+    "token": [
+      "{\"endpoint\":\"https://fcm.googleapis.com/fcm/send/f7iqZsTjVoc:APA91bHIuIXb9tql55lW39_UKYEJrGkSJb3T3fBdLI5QGxTi9ca8QYX4RgNIk43XnUT1liLmpRRBDvG6xdm6h8-_nS51BvYaLsYnijSbUztY0KQnkVRgubaxQAKJANx6hxmP8iy1B0uW\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BA9r4_p6RHm0kM3OJ4O7jOm2l11ZeOm5JbU29y_N7GmcsrjqUshqJZ-dSiuK5CpPLm2gf-FyMtqIDsM5V8pELjs\",\"auth\":\"YVAoZ0mSZzb-bKwxQKjBIw\"}}"
+    ]
+  },
+  "eljorgeapodaca@gmail-com": {
+    "systems": {
+      "000000000000": "trabajador",
+      "526251037317": "propietario"
+    }
+  },
+  "enanoabeto1903@gmail-com": {
+    "systems": {
+      "526251259145": "observador"
+    }
+  },
+  "enanobeto1903@gmail-com": {
+    "systems": {
+      "526251259145": "observador"
+    }
+  },
+  "enriqueloewen10@gmail-com": {
+    "systems": {
+      "526251259145": "propietario",
+      "526258372598": "propietario"
+    }
+  },
+  "este_ba_n9@hotmail-com": {
+    "systems": {
+      "20333844254": "propietario"
+    }
+  },
+  "estebanguerrerocorpus@gmail-com": {
+    "systems": {
+      "24530080415": "trabajador"
+    }
+  },
+  "example@example-com": {
+    "profile": {
+      "bankAccount": "12345652352233",
+      "direccion": "",
+      "estado": "",
+      "zipCode": ""
+    }
+  },
+  "facturacion-campo15@outlook-com": {
+    "systems": {
+      "526251020232": "trabajador",
+      "526251037317": "propietario",
+      "526251060168": "trabajador",
+      "526251259145": "propietario",
+      "526258372598": "propietario"
+    },
+    "token": "docR_jW4fzA:APA91bEXvDqrgTGOCPDaVMTW1EiFhRS12QjD2c_dBIG0W9LRQBsbCJ5pbE5kJYLch3-PIPdb2eksLyEIUtPMC8UoN5HBwVwQ9EOEOmXjHTIDGc49v17vogQForAylUWCWKRxnOcYy7KZ"
+  },
+  "fastabraham9@gmail-com": {
+    "systems": {
+      "526251020232": "propietario",
+      "526251037317": "propietario",
+      "526251060168": "propietario",
+      "526251259145": "propietario",
+      "526258372598": "propietario"
+    },
+    "token": "fxIcT43x4tY:APA91bGOKYl_b9HNHnKqNoSGBgoxVfCVi6YV0ugnPpoTs6j9AGNh1MTqPdZGI8RadBPdvS7O8bN_76VYRsuy9NuH_47Q_iBpMzLPrF5yRddWQCwDQ234O4OYl4wU-cWcslKdoKEKqWft"
+  },
+  "franciscojteran1@gmail-com": {
+    "systems": {
+      "24530080423": "propietario"
+    }
+  },
+  "franzwe70@icloud-com": {
+    "systems": {
+      "526251259145": "propietario",
+      "526258372598": "propietario"
+    }
+  },
+  "geiseltr2015@gmail-com": {
+    "systems": {
+      "000000000000": "trabajador"
+    }
+  },
+  "goclaudio-gonzalez@gmail-com": {
+    "token": "c8FjVqzP8Vc:APA91bGfbDKPy9CVZPfBMiU-Nw7tuB-qd0MWeaqDUiapG8a46bw3wqw1LdVE6uxKE4ty8hYNE6iQBDCCFMpxr5_A3K-jCeMVsjEeI5KZM98KvlniDJoLMRq_GcVbdQUQ85LjSDZw2XHH"
+  },
+  "goldenlulu@live-com-mx": {
+    "systems": {
+      "25331424856": "propietario"
+    }
+  },
+  "hebermorales179@gmail-com": {
+    "systems": {
+      "24530080324": "propietario"
+    },
+    "token": [
+      "{\"endpoint\":\"https://fcm.googleapis.com/fcm/send/cc1lDQPax6I:APA91bHyqpqr39K9__aoztOYaUgxAmc1ARzkq3VpnLar9FbM3OhuAa9b7SxYRrzES9lSf-o-VthtjJSMe-CAvH6ELkO2x9QJh-mzVLRevvz-MGe29j0dBkr-yFmgr6pibHa0q3CrQCaW\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BKlqP87WSI97uIiR-SBmDIEFZ17K8Pz3UFNTDnvo0T5A-qMJN71I_7mP5Y5NiwLnd79FdrCezyqCjJ0D1_8i6h8\",\"auth\":\"KLTuwh1R-F9-XbH4VJSq7g\"}}"
+    ]
+  },
+  "hmorales@uach-mx": {
+    "systems": {
+      "111111111111": "trabajador",
+      "526251531996": "propietario",
+      "hugoar54": "propietario"
+    }
+  },
+  "iaz-juanjesusmh@gmail-com": {
+    "systems": {
+      "526251020266": "propietario"
+    }
+  },
+  "igludeca@gmail-com": {
+    "systems": {
+      "24530094275": "propietario"
+    },
+    "token": [
+      "{\"endpoint\":\"https://web.push.apple.com/QEVTSfwZyuZSIzod_NySs3wyFaZ_wDWr96eY3Prtkl1NUgdDXJ0F4pWNjfJTv7jcnkljC2QD6qwU1zKhOAXVn-3OwdyYF7b5E0lvvuF2FkyCJ53ekIvnfHVJo3XkcUjYCwz9hn_FEqqBWSboFQ1Ydi9DDtxPPwJRCaN1tF60wU0\",\"keys\":{\"p256dh\":\"BK453mKvQS20epSL_wHW9ns61WZ5RiSWsy37K90YXERDu-SQoVeg8o3apg2XxpfCd4J6QyCxWtM3bJdG5tsAWPE\",\"auth\":\"rHgWfLouZGQ-25283MPi1w\"}}"
+    ]
+  },
+  "ildelgado2@gmail-com": {
+    "systems": {
+      "24530094275": "propietario"
+    },
+    "token": [
+      "{\"endpoint\":\"https://web.push.apple.com/QNLEXcdZG1hv6yOGFlpiHyfPu3qkuRvw6eOQu9rv36kb1k0T9EE9MFXaqJodmFkrlSqFWxMXDfK2YhDGfj1Pff_ga6HPyfYTr6pXUQgl3cUD03G9S9fQY5Oo8YNnoSWq6p9TwQti6BqKYCxJuPQpmKklh5a00--uhTpX0MjYDXU\",\"keys\":{\"p256dh\":\"BGkZ47KZC12ydkFu_4tq3tgKSMIKwurU7O7S4z8Q_eMSBLSY4DGsLZHD9-cqG3Z3Qjz_hESRUyh08L1LFfdySnk\",\"auth\":\"lAKUVG9Lt79muiivTrXEEQ\"}}"
+    ]
+  },
+  "jardinesnieves@gmail-com": {
+    "systems": {
+      "526251477680": "propietario"
+    }
+  },
+  "jardinesyplantas@hotmail-com": {
+    "systems": {
+      "24530094309": "propietario",
+      "526143664779": "propietario",
+      "526143664806": "propietario"
+    },
+    "token": [
+      "{\"endpoint\":\"https://fcm.googleapis.com/fcm/send/chAmckOxuxY:APA91bHN4KIfscE8YszjnIRfLXLFBitTkjWvTzyGxfplvBeld7ciobaOZeg5b8X21h7sFFKFBCUzA3jCE2kSUtgEzkHrJ5vo94JWs8y4hxcBfH-cxszOUCVFdmOC_eIDUWbyTmn25Qrf\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BAiyYRn9LyoStTcn1V0OnypX3RCD1rA-Ugb97_HHzU4sbD3ZYL_gooxlhy8VSWxR6owOvum86LQyU1Z6YbJlVew\",\"auth\":\"dUrRi9dSvkqQjLAnMCQi-w\"}}"
+    ]
+  },
+  "jardinesyplantas@hotmail-com?": {
+    "systems": {
+      "526143664806": "propietario"
+    }
+  },
+  "javestval@hotmail-com": {
+    "systems": {
+      "24530080431": "propietario"
+    }
+  },
+  "jfast473@gmail-com": {
+    "systems": {
+      "526251020232": "propietario",
+      "526251037317": "propietario",
+      "526251060168": "propietario",
+      "526251259145": "propietario",
+      "526258372598": "propietario"
+    },
+    "token": "eSFB66HhSRU:APA91bEaxjJydL0VG60l9rV9eRPS-LjqoUI9rj6wYVDouK94MQWsZ3oREBowP527Jh9bvW3nMQpHkfGxgKcvkRyw9MYV05rg2zxWPKksr6o3dY7AUOiHJYOxh6-9DMuNUPpuES4cjHXG"
+  },
+  "johan710608@gmail-com": {
+    "systems": {
+      "526251024489": "propietario",
+      "526251193016": "propietario",
+      "526251271378": "propietario",
+      "526251452797": "propietario",
+      "526255917395": "propietario"
+    },
+    "token": "cEC1Sralb0w:APA91bEIAy-82yusHjrvhyYm3i5hkrViFYfQaQ3xctnlGQtt1MYEBiAsjGalNMB74ujC02ayDQl2iz3NM_4DdSToErmj-c_RNA8qriNUCgvpWXhSsWk-ZLN2x67P34ol2sJ_5kZrO-QU"
+  },
+  "johanmartens92@gmail-com": {
+    "systems": {
+      "526251020232": "trabajador",
+      "526251037317": "trabajador",
+      "526258372598": "trabajador"
+    },
+    "token": "cPetNyQ6kkM:APA91bHjj0D61rR1fzjOQVzylnnr0BjSoqU4C_4x5EN3JcjnwKoF2kKAOFSgJqn2lHwnjC1njKMwQGi6yztvRbWA3PTkuSJMz7BClfg5GiqWtRCegiOgAf9B7Vr19-iIdA6iCPpWdMh0"
+  },
+  "jose-moreno-unefa2@gmail-com": {
+    "systems": {
+      "000000000000": "propietario",
+      "111111111111": "propietario"
+    }
+  },
+  "juanpala-kj@gmail-com": {
+    "systems": {
+      "526251024489": "propietario",
+      "526251193016": "propietario",
+      "526251271378": "propietario",
+      "526251452797": "propietario",
+      "526255917395": "propietario"
+    },
+    "token": "eUv69PugmwY:APA91bENdr0ojoqxIafK0ghMAbPyjygZTAu8Lrk-MDxvis725jpNSvrZQ0v0bqj1FNGGqbetnvLkjUVQufV3wpGf0uiAqOB9Od8A2asbBJJ3BsP99oRvIMrl-ijrP-_lOFG5rwmeEQhh"
+  },
+  "julian2609nm@gmail-com": {
+    "systems": {
+      "24530094291": "propietario"
+    },
+    "token": [
+      "{\"endpoint\":\"https://fcm.googleapis.com/fcm/send/dIN654hA7mM:APA91bHPEXhLnRL1RfwGG8UmKj948hLx9dZ-NVTKvEQKOqOwze1_Z5F9cZe7806HK3dJQwsBnMMABi73Aif8QEh-l4ouuHGDiuZC3OZXgxzHIOEtrJTjg8qquRcGv3XlbVR78MHYgiLe\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BPuas31boU2eYoQRA3EnIV4Q_stBHTESPtA1yl-uAMxAfGAVai3fJjrfpb6y3YU72O9x6l3GD7XXYpGiBJfr40I\",\"auth\":\"kpdV4hIy0pe6cZbZobwOJA\"}}",
+      "{\"endpoint\":\"https://fcm.googleapis.com/fcm/send/dt3UYSlBas8:APA91bHOndSP2Kbiyl9Hx_MYZEhe4cJ5KhIIn_iz0CzgwyB1wqoDc8X_GgPgxtjVxc2AFH58r64Pkxaq75dYjPbJFZ_g1bzYuDMh58xs_J9aRik0jkZ8_Wybv7cwwJRdW1B3beMddgo3\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BIwJm4BXfGN5_3jdFPcPRx5jO8aeHfXUNj0o-LazAAEQt6O3iV0FUKFzZPesARZ1etPTaNNt9iQivRPDbUbDr94\",\"auth\":\"BIZkS7fx9UWqJFJmnvTsgw\"}}",
+      "{\"endpoint\":\"https://fcm.googleapis.com/fcm/send/fXeHxufNmgs:APA91bFQ--qzOkIhL6199Qd6wVVs3IQwJjadw3UiMNnochkqAux6H_uWGwcR8Xya4T5k8CSjzcmD_FLX64AAX2hzSFE-Rg9kUHzf9yQUlNhzpgYdO3I34xQk8seHZuRx_nDM7kyUSi5q\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BIbcDBwAHNvOc7C9sqedVLKfXZ1EmIHE8yC3i2DEiew8vWUo2ImOxCZzokpNY5m3trQlKaxXlJ2V7BV9njV1FbE\",\"auth\":\"-nNIurnK4Ahx9N2CSJUNPg\"}}"
+    ]
+  },
+  "julietaayalardz@gmail-com": {
+    "systems": {
+      "000000000000": "observador",
+      "111111111111": "observador"
+    }
+  },
+  "locoxavi5@gmail-com": {
+    "systems": {
+      "24530080407": "propietario"
+    }
+  },
+  "luiscarlosestradaestrada75@gmail-com": {
+    "systems": {
+      "999999999": "propietario",
+      "24530080449": "propietario"
+    }
+  },
+  "luisestradach91@gmail-com": {
+    "systems": {
+      "Gtw-05": "propietario"
+    },
+    "token": [
+      "{\"endpoint\":\"https://fcm.googleapis.com/fcm/send/ebdWvGcnHcg:APA91bGokpgTKfQG5vb6srE2z5N7S-icqmRoZnJCPFJpBADcpJ_D4Z6NCuoRn-oK0jierjjojGiKOzVqwdRstyMM-ISeUS0OhbtmNpYNzSqETb1DSReHkHOSGbx2o0yQT6ZRiGNU1Tjo\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BEg-vzsNJ5i_NEDsJrd-pzubYSgrUYxQXn9VO2DVjPeQq1gyVxe3dcpD9uK0Qn0gqIJmxM60HgzyM7Ggwj1wiTY\",\"auth\":\"bsnXSotx29RPLAAcFhD-gQ\"}}"
+    ]
+  },
+  "manuelmariscal1@gmail-com": {
+    "systems": {
+      "24530094135": "propietario"
+    }
+  },
+  "mariomanzenas31690@gmail-com": {
+    "systems": {
+      "24530094127": "trabajador"
+    }
+  },
+  "maurydelgado3@gmail-com": {
+    "systems": {
+      "24530094275": "propietario"
+    }
+  },
+  "mcjorgec@gmail-com": {
+    "systems": {
+      "526143664806": "propietario",
+      "526251477680": "propietario"
+    },
+    "token": [
+      "{\"endpoint\":\"https://fcm.googleapis.com/fcm/send/d9WgicT7MZc:APA91bH68CP4j6HLu60Bd61Xt08Id1h2lfzuzBkdnCxOv49_u0zW0SeUE_o0teD6ZcWa02gttAbIaGgg4RyLngxZreSKh8iyM5RIgjq2FqCprprYUUjJZ-5dILEABd2rK-f2-UN194BS\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BJGUiPEfXZLU9RXAh5aUFoXtQshj_Z2uw52igKdgFLLgPnl-fD1LKCqyf-XgNXNst9E0twacPbtoDddnzu-BIKA\",\"auth\":\"kSGImm_CNwqMiD8dhx459g\"}}"
+    ]
+  },
+  "mechemendianaranjo@gmail-com": {
+    "systems": {
+      "000000000000": "trabajador"
+    }
+  },
+  "mendozahernandez09@hotmail-com": {
+    "systems": {
+      "526251020266": "propietario"
+    }
+  },
+  "nanoglez1998@gmail-com": {
+    "systems": {
+      "24530080423": "trabajador"
+    }
+  },
+  "nicokrahn0@gmail-com": {
+    "systems": {
+      "526251024489": "propietario",
+      "526251193016": "propietario",
+      "526251271378": "propietario",
+      "526251452797": "propietario",
+      "526255917395": "propietario"
+    }
+  },
+  "nievesramoncastillo@gmail-com": {
+    "systems": {
+      "24530094309": "propietario"
+    },
+    "token": [
+      "{\"endpoint\":\"https://fcm.googleapis.com/fcm/send/cCcFZHuEJbc:APA91bFCXgZIL5DAqWlmv8aEeCzSdjjaFdkYT39b3NY32dlY3KBKEJwembeznYFO8kgBANQ1kL1HCy7VQAsfibkPTE8rsVZ4sXhKLw-d-CO65mcxS1AFIr8IOZU7PdGSW03XDJJ-a9xP\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BOHP_PzZS3zGCmaHGUiHkrMQ9lArlD7Z6uc2ISJq2bi6wUN8ZLP7yEMBDYJO6xXvYL7nzklRL23A5GPI-arPEQ8\",\"auth\":\"3mOimg2RetXpwRplfu4eGw\"}}",
+      "{\"endpoint\":\"https://fcm.googleapis.com/fcm/send/c6wUCgZzcU4:APA91bHKnvPh0pkQGW6bmGI7lztCpHkDeMnwbyep_o3NrH7ZdxA03AaZfo03g2osuxDMixGOu9s470-QFfbHoFBjEW7z04UP4d5cEqQKh17Tr6dVyrFxblzUFxzDzkaXDgqNFvlp6aIt\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BOBN6Xl-am62DxEswwvQ6-IhPWYu6PAGZU4UsSMWNCLmBqWM1Mw56VKz3Z1a7qbQKhJ_b50_f0dIa0opzippHec\",\"auth\":\"-wIK5Q62xXrrDTaIvxEWnw\"}}"
+    ]
+  },
+  "noragua_2000@yahoo-com": {
+    "systems": {
+      "526251020596": "propietario"
+    }
+  },
+  "petersp863@gmail-com": {
+    "token": "cNBfBDR7hk0:APA91bGXEnpGaY5gWASkB-tmz7K7ZgHA5k7SJbO5JP8-HW64Xbu3jBZWQmJChQRJC-tSlVjArPJdweawO5x7oNyKmLG6ztjnYsGPXqtvBfQR3hkvs0VF6n_xVmrTqAlUkHbv2x8I7oVQ"
+  },
+  "poloes40@gmail-com": {
+    "systems": {
+      "24530080431": "propietario"
+    },
+    "token": [
+      "{\"endpoint\":\"https://fcm.googleapis.com/fcm/send/fFcZ4HHHW0c:APA91bGeAegbfvUPY1LZ-0N1w0v-k4CVuDSGVugvDMFEqn444oF1CKi_01xsceutdeJEvShFtMnjLXFHY4pj-TIxhYago1RFBU5_BYBIn4MrS8Pu8qF1wOjSDWyA37rVIOIzAA7oAWoY\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BFxteTHVKSaKT1QTuBh2qlM63Hxi9XYVWTPc6Z14sac8NNTmIQmxP-vxguMGR3k0s8O_mWTgxQ6YWMoAfDA3ReM\",\"auth\":\"JQhGSImzq-pqaJ9j2ifRyQ\"}}",
+      "{\"endpoint\":\"https://fcm.googleapis.com/fcm/send/eHTQlvU2m94:APA91bFI0Mp2IyoU8bM5nfY4uGhkitmcMdE8YPmGZxhRDrfFLa3m1ElyjOnKE_A73iTrDvalGcOA_wVbTJ8JLGTMV00Gso6aYyftOo_T4RUO82sFfG7mhY_sma6qbHjMxXgmaUe31SKc\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BAnZ6hmNeOZ-i4t1v7GjZ8EEkcYrdOPkdzwtKtJazyOtXl3rd50etcmdnRffBRPU913g_6AcX8Hfelq3g78L33o\",\"auth\":\"zqztW3Hal21ad3R_Y39LeA\"}}"
+    ]
+  },
+  "ponchojaquez@gmail-com": {
+    "systems": {
+      "000000000000": "trabajador",
+      "24530080316": "observador",
+      "24530080324": "observador",
+      "24530080456": "observador",
+      "24530094291": "observador",
+      "333333333333": "observador",
+      "526143664779": "observador",
+      "526143664806": "observador",
+      "526251201079": "propietario",
+      "526251342314": "propietario",
+      "526258372598": "trabajador"
+    },
+    "token": [
+      "{\"endpoint\":\"https://fcm.googleapis.com/fcm/send/ckVGPSNawy0:APA91bGC54kA0H_khknodB4AaR3NWgr1urG0Mi0y690X1Qu4n6Poz7jOyvWRwF7Xl5hkmFmRZd-sIEQIj7SAECjYg1x1pfq6a2w6fNXCvWEm2OvzhfuuiZZ5-f1am7xs3YMtbPjbSSBb\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BMzpWnzwKPDFIzbQBpkhB7AfN0f7FZg7Qi5ppJrOFLibSaX2cottB-HgWl5JE6VeQ1njbjujYA3h7pg1AOVEMtM\",\"auth\":\"kTAbcBPpDVbMA8iVSH5G_w\"}}",
+      "{\"endpoint\":\"https://fcm.googleapis.com/fcm/send/euLhSY51Irw:APA91bFqI091AOWyu8WHw55VxCsNdSV3C_nKKpOSQtAfzrspdlgCkEiZVBuwKR5JNdHEo-imFAIC4Ux0KlJz1p9n5x6wnYsfLHpQo8N2SaehT64GUqZ_5uZDujJ-44sLnRLw-LfFqJbM\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BDpVNfo54WmUMg7zAay0y0Oagm9G_Wc3mCk-9wF-2cC6X2gzLSAXs3BC3Hx6oF2gA1e5pQ55BO-9OO9CKfYJuxM\",\"auth\":\"G-u8Gopp8h2-fkekaoBREg\"}}",
+      "{\"endpoint\":\"https://fcm.googleapis.com/fcm/send/fqFOlm1Busw:APA91bEEepIl-OCQt5M5MUMOg7DCETO6Lq2h6srUV-FQdBSWEZ3JhJzBpMVqCLdFPg_Bs2qgSqpe0kauUU4THMDdlM38dZB_hT6eNg897zq6CARjM75QXfRVX1tKjHlhfM3MmJFfQyBo\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BMCOeNIiONGf2-9oCDf19RIt8P3JwK97zXhE-jULcdZWfB0osWcCpRhLyqiJ9Cpd4SyATjxCvqdWCJ0fANWIrr8\",\"auth\":\"Y57R6iGnbzTg0E_ZnUnZiw\"}}"
+    ]
+  },
+  "prueba@dtaamerica-com": {
+    "systems": {
+      "000000000000": "observador",
+      "111111111111": "observador",
+      "111111111112": "observador",
+      "111111111113": "observador",
+      "526251060168": "observador"
+    }
+  },
+  "ram-teran@hotmail-com": {
+    "systems": {
+      "24530094119": "propietario"
+    }
+  },
+  "rasconbandamaria@gmail-com": {
+    "systems": {
+      "25331424856": "trabajador"
+    }
+  },
+  "rivso689@icloud-com": {
+    "systems": {
+      "20333844254": "propietario"
+    }
+  },
+  "rodrigoyanez@tec-mx": {
+    "token": "fBO4FJFX6eg:APA91bFxNO1afxRqiUXz2Dtz7CRARBFecoNhIDk3ePjZnodl4sRFyHduwe3uFsmkowL-SG_mw2RxIzWP_SeA2iL-X2WudxMQCfuKEzFtc3dvJhVQXAOPmge8sitx7_5htnfJLferfyJ7"
+  },
+  "ruben-domriv26@gmail-com": {
+    "token": [
+      "{\"endpoint\":\"https://fcm.googleapis.com/fcm/send/dWBci-y9gGM:APA91bGUBp1AzD6D23vjQYli7XS725UokIMFYOr57vkoQVbNT8oNURZoUV-sLA4nudPdsEIyzWGOtxjW-4LWbRBTeQ1OvEZv7C8I33EHL0PBK453vip2EytakT5X807RoRbm-DHiFPyG\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BPti0Jx9ank8VBJUvPvOmCEONNPvn-9PUWaL5s8yY8KlBXCoQMl6Db3IFv-aZlKjay-Ac2oiy1FnqZPEYT18tDQ\",\"auth\":\"6VlAProMbDI0mCRmCkJjZA\"}}",
+      "{\"endpoint\":\"https://fcm.googleapis.com/fcm/send/dllYd-hJfNk:APA91bEjeYtcp9FRYoDYrCJsWif9ju97mZokKGuBhfPxDFtq1LoZMCURGwi2Q742O9WJRd7AWfvvsUifYy4qi0ulP1r6FkfgwKWfVLunuwuMTQJ59ArzoEhxX9lqvybCBD7Y1e45lnVc\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BEzDVQA2ZpxB0Ol4dn1sfZMj7YBOAcOovyHnphelI5gQ3U2PcPO-kf9znMAxCRR2mbchJCJI5j4yy7TFI16_wDM\",\"auth\":\"K5hMF4qB6AAsWwekIrYRCQ\"}}"
+    ]
+  },
+  "rubenadominguez2000@gmail-com": {
+    "systems": {
+      "0xF46A38E": "propietario"
+    }
+  },
+  "rubendominguez2000@gmail-com": {
+    "systems": {
+      "24530080316": "propietario",
+      "24530080456": "propietario"
+    }
+  },
+  "rubenr495@hotmail-com": {
+    "systems": {
+      "526251020596": "propietario"
+    }
+  },
+  "salvasa1968@hotmail-com": {
+    "system": "",
+    "systems": {
+      "24530080415": "propietario"
+    },
+    "token": [
+      "{\"endpoint\":\"https://fcm.googleapis.com/fcm/send/cCrUVLBwQHY:APA91bE7Cr8qsReQzaA-EGeyADuYS5oWle_udEe30nCkJmoaw8S24BkcIbWh_DY5w_rdbopsnUoKgclFOAafvpoPEKFOVuRx9At3OwCNYVqTS182lli1qz9zTVONQ7FwKuqQJV2ll3WQ\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BNvXRQOQm0BwWodnbzd_Rt3u-sGk9NNB2fFCCwfNsF1NOowgG8YFuU92k3ZvLaVB9J65keRTxnZlyjJDOSSPf-A\",\"auth\":\"LoGC7Ln6zndMr2JUjHeeyw\"}}"
+    ]
+  },
+  "santiestebantoca@gmail-com": {
+    "systems": {
+      "000000000000": "desarrollador",
+      "111111111111": "desarrollador"
+    }
+  },
+  "superiorganaderia@gmail-com": {
+    "systems": {
+      "24530094143": "propietario",
+      "24530094150": "propietario",
+      "526251201079": "propietario"
+    }
+  },
+  "varoloy59@gmail-com": {
+    "systems": {
+      "24530094283": "propietario"
+    },
+    "token": [
+      "{\"endpoint\":\"https://fcm.googleapis.com/fcm/send/fdO7c-HIouw:APA91bFRcJu0SZZ-XFnGkOzPKU5awZYg7ViWQ_B6T1lr5cvFIDb4hOxjxt0RAxRQnJ7Qmcu3Hv3GiRS-upCHefUGcBRL-IN6dGrZQ7XZb_4YEu0z3bxtaQNBu-ZKKVdG1Ln4-oVh5hOe\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BErvJiqPODyjrYiYcmnEeoBdHxlOfBu9pTDUE6BXM1h9JdTfIznRepW7Dqf7bCiKUk0dMK8utr2PXry6QHkRz6E\",\"auth\":\"Q5HO8dBdxGYbo7f0FUbmWA\"}}"
+    ]
+  },
+  "wretar@gmail-com": {
+    "systems": {
+      "111111111111": "trabajador"
+    }
+  },
+  "xavierhernandezc152@gmail-com": {
+    "systems": {
+      "24530080407": "propietario"
+    }
+  },
+  "xavihola5@hotmail-com": {
+    "token": [
+      "{\"endpoint\":\"https://fcm.googleapis.com/fcm/send/d2WnwWrWeFQ:APA91bHRhk2cf0xEhLhbXH2U3SKNuY_2pTxIRQm6PBhVAw1vBvnCvmUlyszaWScSI0YtHbpD-d4vZbTtubfECGZRWKvDFOmb2ukeC4eHIessdWpG57qVON0TsPkzRRotw0YcxuaYJEii\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BLQVRT2IcIEbdXR7CbHsEIh4UX0aZhJjxZWQTVDSJ_waejWBJXSxnM7BPoAfshkRRYs5M9HepBuDzAM5YhT2ckM\",\"auth\":\"6_Ea-Ac-kbASHQ6FoSLheQ\"}}",
+      "{\"endpoint\":\"https://fcm.googleapis.com/fcm/send/eTO3JGuvKc4:APA91bHZxRQqv5P-dQ_Bb6jkHYoOAaNQz--73DD9cs9A0Ns91R8wYUcEWU1_4LYTX9tBpwL8eQK9GSjTtZdTgCzZv79dTTgV_lwm1ACXF1ZaHh2-XxKGNHx0d-t_9nM7ov_lQyd8BXvP\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BAWUKtd4PyDgZ2lLlpq5mHefXvCJNcCRCLVOCk49abYEmT-uTU-jCN0GYXung7oZEGNMGCihfckp4fqA4sP_VGI\",\"auth\":\"OBrVag3qUwO3AnjjdBdmtQ\"}}"
+    ]
+  },
+  "yadirarivera2000@gmail-com": {
+    "systems": {
+      "24530080316": "propietario",
+      "24530080456": "propietario"
+    }
+  }
+}

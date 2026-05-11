@@ -1,0 +1,5829 @@
+{
+  "agave": {
+    "culture": "Agave",
+    "detail": "Tequila",
+    "diseases": [
+      {
+        "Msmax": "30",
+        "Msmin": "0",
+        "Rhmax": "100",
+        "Rhmin": "60",
+        "Tmax": "100",
+        "Tmin": "25",
+        "name": "Picudo del agave",
+        "photo": "bug-vector-icon"
+      },
+      {
+        "Msmax": "30",
+        "Msmin": "0",
+        "Rhmax": "100",
+        "Rhmin": "60",
+        "Tmax": "100",
+        "Tmin": "25",
+        "name": "Gusano barrenador",
+        "photo": "bug-vector-icon"
+      }
+    ],
+    "owner": "DTA-Agrícola",
+    "plan": [
+      {
+        "action": "Preparación del Suelo",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Arado",
+        "day": "-45~-60",
+        "detail": "Profundidad de 30~40 cm",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Rastreo",
+        "day": "-30~-45",
+        "detail": "Realizar 2~3 pases",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Nivelación",
+        "day": "-20~-30",
+        "detail": "Importante para uniformidad de riego",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Formación de Camas",
+        "day": "-15~-20",
+        "detail": "Facilitar plantación y drenaje",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Plantación",
+        "day": "0",
+        "detail": "Densidad de 4,000~6,000 plantas/ha",
+        "dose": "",
+        "type": "s"
+      },
+      {
+        "action": "Riegos",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Riego de Establecimiento",
+        "day": "0~30",
+        "detail": "Asegurar prendimiento de plantas",
+        "dose": "80~100",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Crecimiento Vegetativo",
+        "day": "60~180",
+        "detail": "Mantener humedad adecuada",
+        "dose": "100~150",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Maduración",
+        "day": "2~3",
+        "detail": "Incrementar humedad para acumulación de azúcares",
+        "dose": "150~200",
+        "type": "r"
+      },
+      {
+        "action": "Fertilización",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Fertilización de Fondo",
+        "day": "-15~-20",
+        "detail": "Aplicar en camas o al voleo",
+        "dose": "100~120 kg N/ha, 60~80 kg P2O5/ha, 60~80 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Crecimiento",
+        "day": "60~180",
+        "detail": "Aplicar en cobertera",
+        "dose": "50~80 kg N/ha, 30~40 kg P2O5/ha, 30~40 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Maduración",
+        "day": "2~3",
+        "detail": "Aplicar en cobertera",
+        "dose": "80~100 kg N/ha, 40~60 kg P2O5/ha, 40~60 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Tratamiento de Malezas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Control Químico Preemergente",
+        "day": "0~15",
+        "detail": "Aplicar en suelo húmedo",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Químico Postemergente",
+        "day": "30~60",
+        "detail": "Aplicar cuando malezas están en activo crecimiento",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Manual",
+        "day": "60~120",
+        "detail": "Eliminar malezas alrededor de plantas",
+        "dose": "",
+        "type": "m"
+      },
+      {
+        "action": "Tratamiento de Plagas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Monitoreo",
+        "day": "Durante todo el ciclo del cultivo",
+        "detail": "Identificar plagas y umbrales de daño",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Insecticidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Respetar tiempos de carencia",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Fungicidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Rotar mecanismos de acción",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Cosecha",
+        "day": "2100~3650",
+        "detail": "Realizar cuando plantas alcancen madurez",
+        "dose": "",
+        "type": "c"
+      }
+    ],
+    "price": "0.00"
+  },
+  "aguacate": {
+    "culture": "Aguacate",
+    "detail": "",
+    "diseases": [
+      {
+        "Msmax": "",
+        "Msmin": "",
+        "Rhmax": "100",
+        "Rhmin": "70",
+        "Tmax": "30",
+        "Tmin": "20",
+        "name": "Trips",
+        "photo": "bug-vector-icon"
+      },
+      {
+        "Msmax": "",
+        "Msmin": "",
+        "Rhmax": "100",
+        "Rhmin": "70",
+        "Tmax": "30",
+        "Tmin": "20",
+        "name": "Barrenador del hueso",
+        "photo": "bug-vector-icon"
+      },
+      {
+        "Msmax": "",
+        "Msmin": "",
+        "Rhmax": "100",
+        "Rhmin": "70",
+        "Tmax": "30",
+        "Tmin": "20",
+        "name": "Mosca de la fruta",
+        "photo": "bug-vector-icon"
+      }
+    ],
+    "owner": "DTA-Agrícola",
+    "plan": [
+      {
+        "action": "Preparación del Suelo",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Desmonte y Limpieza",
+        "day": "-30~-45",
+        "detail": "Eliminar vegetación existente",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Arado Profundo",
+        "day": "-30~-45",
+        "detail": "Profundidad de 40~50 cm",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Rastreo",
+        "day": "-15~-20",
+        "detail": "Realizar 2~3 pases",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Trazado de Hoyos",
+        "day": "-10~-15",
+        "detail": "Distancia entre plantas de 8~10 m",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Siembra",
+        "day": "0",
+        "detail": "Utilizar plantones o árboles injertados",
+        "dose": "",
+        "type": "s"
+      },
+      {
+        "action": "Riegos",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Riego de Establecimiento",
+        "day": "0~180",
+        "detail": "Asegurar prendimiento de plantas",
+        "dose": "80~100",
+        "type": ""
+      },
+      {
+        "action": "Riego de Crecimiento Vegetativo",
+        "day": "180~720",
+        "detail": "Mantener humedad adecuada",
+        "dose": "100~120",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Floración",
+        "day": "720~780",
+        "detail": "Evitar estrés hídrico",
+        "dose": "80~100",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Llenado de Frutos",
+        "day": "780~900",
+        "detail": "Mantener humedad para desarrollo de frutos",
+        "dose": "100~120",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Maduración",
+        "day": "900~1080",
+        "detail": "Reducir riego para facilitar cosecha",
+        "dose": "80~100",
+        "type": "r"
+      },
+      {
+        "action": "Fertilización",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Fertilización de Fondo",
+        "day": "-15~-20",
+        "detail": "Aplicar en hoyos de siembra",
+        "dose": "80~100 kg N/ha, 60~80 kg P2O5/ha, 80~100 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Crecimiento",
+        "day": "180~720",
+        "detail": "Aplicar en corona alrededor de plantas",
+        "dose": "60~80 kg N/ha, 40~60 kg P2O5/ha, 60~80 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Floración",
+        "day": "720~780",
+        "detail": "Aplicar en corona alrededor de plantas",
+        "dose": "40~60 kg N/ha, 30~40 kg P2O5/ha, 40~60 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Fructificación",
+        "day": "780~900",
+        "detail": "Aplicar en corona alrededor de plantas",
+        "dose": "60~80 kg N/ha, 40~60 kg P2O5/ha, 60~80 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Tratamiento de Malezas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Control Químico Preemergente",
+        "day": "0~15",
+        "detail": "Aplicar en suelo húmedo",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Químico Postemergente",
+        "day": "180~720",
+        "detail": "Aplicar cuando malezas están en activo crecimiento",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Manual",
+        "day": "720~1080",
+        "detail": "Eliminar malezas alrededor de plantas",
+        "dose": "",
+        "type": "m"
+      },
+      {
+        "action": "Tratamiento de Plagas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Monitoreo",
+        "day": "Durante todo el ciclo del cultivo",
+        "detail": "Identificar plagas y umbrales de daño",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Insecticidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Respetar tiempos de carencia",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Fungicidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Rotar mecanismos de acción",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Cosecha",
+        "day": "900~1080",
+        "detail": "Realizar cuando los frutos alcanzan madurez",
+        "dose": "",
+        "type": "c"
+      }
+    ],
+    "price": "0.00"
+  },
+  "algodon": {
+    "culture": "Algodón",
+    "detail": "",
+    "diseases": [
+      {
+        "Msmax": "30",
+        "Msmin": "0",
+        "Rhmax": "100",
+        "Rhmin": "60",
+        "Tmax": "35",
+        "Tmin": "25",
+        "name": "Gusano rosado",
+        "photo": "bug-vector-icon"
+      },
+      {
+        "Msmax": "30",
+        "Msmin": "0",
+        "Rhmax": "100",
+        "Rhmin": "60",
+        "Tmax": "35",
+        "Tmin": "25",
+        "name": "Mosca blanca",
+        "photo": "bug-vector-icon"
+      },
+      {
+        "Msmax": "30",
+        "Msmin": "0",
+        "Rhmax": "100",
+        "Rhmin": "60",
+        "Tmax": "35",
+        "Tmin": "25",
+        "name": "Picudo del algodonero",
+        "photo": "bug-vector-icon"
+      }
+    ],
+    "owner": "DTA-Agrícola",
+    "plan": [
+      {
+        "action": "Preparación del Suelo",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Arado Profundo",
+        "day": "-30~-45",
+        "detail": "Profundidad de 25~30 cm",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Rastreo",
+        "day": "-15~-20",
+        "detail": "Realizar 2~3 pases",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Nivelación",
+        "day": "-10~-15",
+        "detail": "Asegurar uniformidad del terreno",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Trazado de Surcos",
+        "day": "-10~-15",
+        "detail": "Distancia entre surcos de 0.8~1 m",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Siembra",
+        "day": "0",
+        "detail": "Utilizar semillas de algodón tratadas",
+        "dose": "",
+        "type": "s"
+      },
+      {
+        "action": "Riegos",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Riego de Establecimiento",
+        "day": "0~30",
+        "detail": "Asegurar prendimiento de plantas",
+        "dose": "40~50",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Crecimiento Vegetativo",
+        "day": "30~90",
+        "detail": "Mantener humedad adecuada",
+        "dose": "60~80",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Floración",
+        "day": "90~120",
+        "detail": "Evitar estrés hídrico",
+        "dose": "40~50",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Formación de Cápsulas",
+        "day": "120~150",
+        "detail": "Mantener humedad para desarrollo de cápsulas",
+        "dose": "60~80",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Maduración",
+        "day": "150~180",
+        "detail": "Reducir riego para facilitar cosecha",
+        "dose": "40~50",
+        "type": "r"
+      },
+      {
+        "action": "Fertilización",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Fertilización de Fondo",
+        "day": "-15~-20",
+        "detail": "Aplicar en surcos o al voleo",
+        "dose": "60~80 kg N/ha, 40~60 kg P2O5/ha, 40~60 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Crecimiento",
+        "day": "30~90",
+        "detail": "Aplicar en cobertera",
+        "dose": "40~60 kg N/ha, 30~40 kg P2O5/ha, 30~40 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Floración",
+        "day": "90~120",
+        "detail": "Aplicar en cobertera",
+        "dose": "30~40 kg N/ha, 20~30 kg P2O5/ha, 20~30 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Formación de Cápsulas",
+        "day": "120~150",
+        "detail": "Aplicar en cobertera",
+        "dose": "40~60 kg N/ha, 30~40 kg P2O5/ha, 30~40 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Tratamiento de Malezas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Control Químico Preemergente",
+        "day": "0~15",
+        "detail": "Aplicar en suelo húmedo",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Químico Postemergente",
+        "day": "30~90",
+        "detail": "Aplicar cuando malezas están en activo crecimiento",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Manual",
+        "day": "90~150",
+        "detail": "Eliminar malezas alrededor de plantas",
+        "dose": "",
+        "type": "m"
+      },
+      {
+        "action": "Tratamiento de Plagas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Monitoreo",
+        "day": "Durante todo el ciclo del cultivo",
+        "detail": "Identificar plagas y umbrales de daño",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Insecticidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Respetar tiempos de carencia",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Fungicidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Rotar mecanismos de acción",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Cosecha",
+        "day": "150~180",
+        "detail": "Realizar cuando las cápsulas se abren",
+        "dose": "",
+        "type": "c"
+      }
+    ],
+    "price": "0.00"
+  },
+  "avena": {
+    "culture": "Avena",
+    "detail": "",
+    "diseases": [
+      {
+        "Msmax": "100",
+        "Msmin": "70",
+        "Rhmax": "100",
+        "Rhmin": "65",
+        "Tmax": "25",
+        "Tmin": "15",
+        "name": "Pulgón verde",
+        "photo": "bug-vector-icon"
+      },
+      {
+        "Msmax": "100",
+        "Msmin": "70",
+        "Rhmax": "100",
+        "Rhmin": "65",
+        "Tmax": "25",
+        "Tmin": "15",
+        "name": "Gusano trozador",
+        "photo": "bug-vector-icon"
+      }
+    ],
+    "owner": "DTA-Agrícola",
+    "plan": [
+      {
+        "action": "Preparación del Suelo",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Desmonte y Limpieza",
+        "day": "-30~-45",
+        "detail": "Eliminar vegetación existente",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Arado Profundo",
+        "day": "-30~-45",
+        "detail": "Profundidad de 20~25 cm",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Rastreo",
+        "day": "-15~-20",
+        "detail": "Realizar 2~3 pases",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Formación de Surcos",
+        "day": "-10~-15",
+        "detail": "Distancia entre surcos de 0.5~0.6 m",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Siembra",
+        "day": "0",
+        "detail": "Siembra directa o en surcos",
+        "dose": "",
+        "type": "s"
+      },
+      {
+        "action": "Riegos",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Riego de Establecimiento",
+        "day": "0~30",
+        "detail": "Mantener suelo húmedo",
+        "dose": "20~30",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Crecimiento Vegetativo",
+        "day": "30~90",
+        "detail": "Mantener humedad adecuada",
+        "dose": "30~40",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Llenado de Grano",
+        "day": "90~120",
+        "detail": "Evitar estrés hídrico",
+        "dose": "20~30",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Maduración",
+        "day": "120~150",
+        "detail": "Reducir riego para facilitar cosecha",
+        "dose": "20~30",
+        "type": "r"
+      },
+      {
+        "action": "Fertilización",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Fertilización de Fondo",
+        "day": "-15~-20",
+        "detail": "Aplicar en surcos de siembra",
+        "dose": "80~100 kg N/ha, 60~80 kg P2O5/ha, 80~100 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Crecimiento",
+        "day": "30~90",
+        "detail": "Aplicar en corona alrededor de plantas",
+        "dose": "60~80 kg N/ha, 40~60 kg P2O5/ha, 60~80 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Llenado de Grano",
+        "day": "90~120",
+        "detail": "Aplicar en corona alrededor de plantas",
+        "dose": "40~60 kg N/ha, 30~40 kg P2O5/ha, 40~60 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Tratamiento de Malezas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Control Químico Preemergente",
+        "day": "0~15",
+        "detail": "Aplicar en suelo húmedo",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Químico Postemergente",
+        "day": "30~120",
+        "detail": "Aplicar cuando malezas están en activo crecimiento",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Manual",
+        "day": "120~150",
+        "detail": "Eliminar malezas alrededor de plantas",
+        "dose": "",
+        "type": "m"
+      },
+      {
+        "action": "Tratamiento de Plagas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Monitoreo",
+        "day": "Durante todo el ciclo del cultivo",
+        "detail": "Identificar plagas y umbrales de daño",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Insecticidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Respetar tiempos de carencia",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Fungicidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Rotar mecanismos de acción",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Cosecha",
+        "day": "120~150",
+        "detail": "Realizar cuando los granos alcanzan madurez",
+        "dose": "",
+        "type": "c"
+      }
+    ],
+    "price": "0.00"
+  },
+  "brocoli": {
+    "culture": "Brócoli",
+    "detail": "",
+    "diseases": [
+      {
+        "Msmax": "100",
+        "Msmin": "70",
+        "Rhmax": "100",
+        "Rhmin": "70",
+        "Tmax": "25",
+        "Tmin": "15",
+        "name": "Gusano medidor",
+        "photo": "bug-vector-icon"
+      },
+      {
+        "Msmax": "100",
+        "Msmin": "70",
+        "Rhmax": "100",
+        "Rhmin": "70",
+        "Tmax": "25",
+        "Tmin": "15",
+        "name": "Pulgón",
+        "photo": "bug-vector-icon"
+      },
+      {
+        "Msmax": "100",
+        "Msmin": "70",
+        "Rhmax": "100",
+        "Rhmin": "70",
+        "Tmax": "25",
+        "Tmin": "15",
+        "name": "Mosca minadora",
+        "photo": "bug-vector-icon"
+      }
+    ],
+    "owner": "DTA-Agrícola",
+    "plan": [
+      {
+        "action": "Preparación del Suelo",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Desmonte y Limpieza",
+        "day": "-30~-45",
+        "detail": "Eliminar vegetación existente",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Arado Superficial",
+        "day": "-30~-45",
+        "detail": "Profundidad de 20~25 cm",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Rastreo",
+        "day": "-15~-20",
+        "detail": "Realizar 2~3 pases",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Formación de Camas",
+        "day": "-10~-15",
+        "detail": "Distancia entre camas de 0.8~1 m",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Siembra",
+        "day": "0",
+        "detail": "Utilizar plántulas o trasplante",
+        "dose": "",
+        "type": "s"
+      },
+      {
+        "action": "Riegos",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Riego de Establecimiento",
+        "day": "0~30",
+        "detail": "Asegurar prendimiento de plantas",
+        "dose": "30~40",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Crecimiento Vegetativo",
+        "day": "30~90",
+        "detail": "Mantener humedad adecuada",
+        "dose": "40~50",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Formación de Pella",
+        "day": "90~120",
+        "detail": "Evitar estrés hídrico",
+        "dose": "30~40",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Maduración",
+        "day": "120~150",
+        "detail": "Reducir riego para facilitar cosecha",
+        "dose": "30~40",
+        "type": "r"
+      },
+      {
+        "action": "Fertilización",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Fertilización de Fondo",
+        "day": "-15~-20",
+        "detail": "Aplicar en camas de siembra",
+        "dose": "120~150 kg N/ha, 80~100 kg P2O5/ha, 100~120 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Crecimiento",
+        "day": "30~90",
+        "detail": "Aplicar en corona alrededor de plantas",
+        "dose": "80~100 kg N/ha, 60~80 kg P2O5/ha, 80~100 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Formación de Pella",
+        "day": "90~120",
+        "detail": "Aplicar en corona alrededor de plantas",
+        "dose": "60~80 kg N/ha, 40~60 kg P2O5/ha, 60~80 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Tratamiento de Malezas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Control Químico Preemergente",
+        "day": "0~15",
+        "detail": "Aplicar en suelo húmedo",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Químico Postemergente",
+        "day": "30~150",
+        "detail": "Aplicar cuando malezas están en activo crecimiento",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Manual",
+        "day": "150~180",
+        "detail": "Eliminar malezas alrededor de plantas",
+        "dose": "",
+        "type": "m"
+      },
+      {
+        "action": "Tratamiento de Plagas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Monitoreo",
+        "day": "Durante todo el ciclo del cultivo",
+        "detail": "Identificar plagas y umbrales de daño",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Insecticidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Respetar tiempos de carencia",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Fungicidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Rotar mecanismos de acción",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Cosecha",
+        "day": "90~150",
+        "detail": "Realizar cuando las pellas alcanzan madurez",
+        "dose": "",
+        "type": "c"
+      }
+    ],
+    "price": "0.00"
+  },
+  "cafe": {
+    "culture": "Café",
+    "detail": "",
+    "diseases": [
+      {
+        "Msmax": "100",
+        "Msmin": "70",
+        "Rhmax": "100",
+        "Rhmin": "80",
+        "Tmax": "28",
+        "Tmin": "14",
+        "name": "Broca del café",
+        "photo": "bug-vector-icon"
+      },
+      {
+        "Msmax": "100",
+        "Msmin": "70",
+        "Rhmax": "100",
+        "Rhmin": "80",
+        "Tmax": "28",
+        "Tmin": "14",
+        "name": "Roya",
+        "photo": "bug-vector-icon"
+      },
+      {
+        "Msmax": "100",
+        "Msmin": "70",
+        "Rhmax": "100",
+        "Rhmin": "80",
+        "Tmax": "28",
+        "Tmin": "14",
+        "name": "Minador de hoja",
+        "photo": "bug-vector-icon"
+      }
+    ],
+    "owner": "DTA-Agrícola",
+    "plan": [
+      {
+        "action": "Preparación del Suelo",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Arado",
+        "day": "-30~-45",
+        "detail": "Profundidad de 20~25 cm",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Rastreo",
+        "day": "-15~-20",
+        "detail": "Realizar 2~3 pases",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Trazado de Surcos",
+        "day": "-10~-15",
+        "detail": "Distancia entre surcos de 1.2~1.5 m",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Siembra",
+        "day": "0",
+        "detail": "Utilizar plántulas o semillas de café",
+        "dose": "",
+        "type": "s"
+      },
+      {
+        "action": "Riegos",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Riego de Establecimiento",
+        "day": "0~30",
+        "detail": "Asegurar prendimiento de plantas",
+        "dose": "40~50",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Crecimiento Vegetativo",
+        "day": "30~180",
+        "detail": "Mantener humedad adecuada",
+        "dose": "60~80",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Floración",
+        "day": "180~210",
+        "detail": "Evitar estrés hídrico",
+        "dose": "40~50",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Llenado de Frutos",
+        "day": "210~270",
+        "detail": "Mantener humedad para desarrollo de frutos",
+        "dose": "60~80",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Maduración",
+        "day": "270~330",
+        "detail": "Reducir riego para facilitar cosecha",
+        "dose": "40~50",
+        "type": "r"
+      },
+      {
+        "action": "Fertilización",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Fertilización de Fondo",
+        "day": "-15~-20",
+        "detail": "Aplicar en surcos o al voleo",
+        "dose": "40~60 kg N/ha, 30~40 kg P2O5/ha, 40~60 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Crecimiento",
+        "day": "30~180",
+        "detail": "Aplicar en cobertera",
+        "dose": "30~40 kg N/ha, 20~30 kg P2O5/ha, 30~40 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Floración",
+        "day": "180~210",
+        "detail": "Aplicar en cobertera",
+        "dose": "20~30 kg N/ha, 10~20 kg P2O5/ha, 20~30 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Fructificación",
+        "day": "210~270",
+        "detail": "Aplicar en cobertera",
+        "dose": "30~40 kg N/ha, 20~30 kg P2O5/ha, 30~40 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Tratamiento de Malezas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Control Químico Preemergente",
+        "day": "0~15",
+        "detail": "Aplicar en suelo húmedo",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Químico Postemergente",
+        "day": "30~60",
+        "detail": "Aplicar cuando malezas están en activo crecimiento",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Manual",
+        "day": "60~120",
+        "detail": "Eliminar malezas alrededor de plantas",
+        "dose": "",
+        "type": "m"
+      },
+      {
+        "action": "Tratamiento de Plagas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Monitoreo",
+        "day": "Durante todo el ciclo del cultivo",
+        "detail": "Identificar plagas y umbrales de daño",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Insecticidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Respetar tiempos de carencia",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Fungicidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Rotar mecanismos de acción",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Cosecha",
+        "day": "330~360",
+        "detail": "Realizar cuando frutos alcanzan madurez",
+        "dose": "",
+        "type": "c"
+      }
+    ],
+    "price": "0.00"
+  },
+  "cana_azucar": {
+    "culture": "Caña de azúcar",
+    "detail": "",
+    "diseases": [
+      {
+        "Msmax": "100",
+        "Msmin": "70",
+        "Rhmax": "100",
+        "Rhmin": "70",
+        "Tmax": "28",
+        "Tmin": "35",
+        "name": "Diatraea spp.",
+        "photo": "bug-vector-icon"
+      },
+      {
+        "Msmax": "100",
+        "Msmin": "70",
+        "Rhmax": "100",
+        "Rhmin": "70",
+        "Tmax": "35",
+        "Tmin": "25",
+        "name": "Mosca pinta",
+        "photo": "bug-vector-icon"
+      },
+      {
+        "Msmax": "100",
+        "Msmin": "70",
+        "Rhmax": "100",
+        "Rhmin": "70",
+        "Tmax": "35",
+        "Tmin": "25",
+        "name": "Termitas",
+        "photo": "bug-vector-icon"
+      }
+    ],
+    "owner": "DTA-Agrícola",
+    "plan": [
+      {
+        "action": "Preparación del Suelo",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Arado Profundo",
+        "day": "-60~-90",
+        "detail": "Profundidad de 30~40 cm",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Rastreo",
+        "day": "-30~-45",
+        "detail": "Realizar 2~3 pases",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Surcado",
+        "day": "-15~20",
+        "detail": "Distancia entre surcos de 1.2~1.5 m",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Siembra",
+        "day": "0",
+        "detail": "Utilizar semilla de caña (trozos de tallo)",
+        "dose": "",
+        "type": "s"
+      },
+      {
+        "action": "Riegos",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Riego de Presiembra",
+        "day": "-10~-15",
+        "detail": "Humedecer el perfil del suelo",
+        "dose": "80~100",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Siembra",
+        "day": "0",
+        "detail": "Asegurar brotación de yemas",
+        "dose": "50~60",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Establecimiento",
+        "day": "30~60",
+        "detail": "Favorecer enraizamiento y macollamiento",
+        "dose": "80~100",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Crecimiento Vegetativo",
+        "day": "90~180",
+        "detail": "Mantener humedad adecuada",
+        "dose": "100~150",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Maduración",
+        "day": "180~360",
+        "detail": "Reducir riego para acumulación de sacarosa",
+        "dose": "80~100",
+        "type": "r"
+      },
+      {
+        "action": "Fertilización",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Fertilización de Fondo",
+        "day": "-15~-20",
+        "detail": "Aplicar en surcos o al voleo",
+        "dose": "100~120 kg N/ha, 60~80 kg P2O5/ha, 60~80 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Macollamiento",
+        "day": "30~60",
+        "detail": "Aplicar en cobertera",
+        "dose": "60~80 kg N/ha, 30~40 kg P2O5/ha, 30~40 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Crecimiento",
+        "day": "90~180",
+        "detail": "Aplicar en cobertera",
+        "dose": "80~100 kg N/ha, 40~60 kg P2O5/ha, 40~60 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Maduración",
+        "day": "180~360",
+        "detail": "Aplicar en cobertera",
+        "dose": "60~80 kg N/ha, 30~40 kg P2O5/ha, 30~40 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Tratamiento de Malezas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Control Químico Preemergente",
+        "day": "0~15",
+        "detail": "Aplicar en suelo húmedo",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Químico Postemergente",
+        "day": "30~60",
+        "detail": "Aplicar cuando malezas están en activo crecimiento",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Manual",
+        "day": "60~120",
+        "detail": "Eliminar malezas alrededor de plantas",
+        "dose": "",
+        "type": "m"
+      },
+      {
+        "action": "Tratamiento de Plagas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Monitoreo",
+        "day": "Durante todo el ciclo del cultivo",
+        "detail": "Identificar plagas y umbrales de daño",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Insecticidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Respetar tiempos de carencia",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Fungicidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Rotar mecanismos de acción",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Cosecha",
+        "day": "12~24 meses después de la siembra",
+        "detail": "Realizar cuando plantas alcancen madurez",
+        "dose": "",
+        "type": "c"
+      }
+    ],
+    "price": "0.00"
+  },
+  "cebada": {
+    "culture": "Cebada",
+    "detail": "",
+    "diseases": [
+      {
+        "Msmax": "50",
+        "Msmin": "30",
+        "Rhmax": "100",
+        "Rhmin": "60",
+        "Tmax": "22",
+        "Tmin": "15",
+        "name": "Pulgón",
+        "photo": "bug-vector-icon"
+      },
+      {
+        "Msmax": "50",
+        "Msmin": "30",
+        "Rhmax": "100",
+        "Rhmin": "60",
+        "Tmax": "22",
+        "Tmin": "15",
+        "name": "Gusano trozador",
+        "photo": "bug-vector-icon"
+      },
+      {
+        "Msmax": "50",
+        "Msmin": "30",
+        "Rhmax": "100",
+        "Rhmin": "60",
+        "Tmax": "22",
+        "Tmin": "15",
+        "name": "Gorgojo",
+        "photo": "bug-vector-icon"
+      }
+    ],
+    "owner": "DTA-Agrícola",
+    "plan": [
+      {
+        "action": "Preparación del Suelo",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Desmonte y Limpieza",
+        "day": "-30~-45",
+        "detail": "Eliminar vegetación existente",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Arado Profundo",
+        "day": "-30~-45",
+        "detail": "Profundidad de 20~25 cm",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Rastreo",
+        "day": "-15~20",
+        "detail": "Realizar 2~3 pases",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Formación de Surcos",
+        "day": "-10~-15",
+        "detail": "Distancia entre surcos de 0.5~0.6 m",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Siembra",
+        "day": "0",
+        "detail": "Siembra directa o en surcos",
+        "dose": "",
+        "type": "s"
+      },
+      {
+        "action": "Riegos",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Riego de Establecimiento",
+        "day": "0~30",
+        "detail": "Mantener suelo húmedo",
+        "dose": "20~30",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Crecimiento Vegetativo",
+        "day": "30~90",
+        "detail": "Mantener humedad adecuada",
+        "dose": "30~40",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Llenado de Grano",
+        "day": "90~120",
+        "detail": "Evitar estrés hídrico",
+        "dose": "20~30",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Maduración",
+        "day": "120~150",
+        "detail": "Reducir riego para facilitar cosecha",
+        "dose": "20~30",
+        "type": "r"
+      },
+      {
+        "action": "Fertilización",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Fertilización de Fondo",
+        "day": "-15~-20",
+        "detail": "Aplicar en surcos de siembra",
+        "dose": "80~100 kg N/ha, 60~80 kg P2O5/ha, 80~100 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Crecimiento",
+        "day": "30~90",
+        "detail": "Aplicar en corona alrededor de plantas",
+        "dose": "60~80 kg N/ha, 40~60 kg P2O5/ha, 60~80 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Llenado de Grano",
+        "day": "90~120",
+        "detail": "Aplicar en corona alrededor de plantas",
+        "dose": "40~60 kg N/ha, 30~40 kg P2O5/ha, 40~60 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Tratamiento de Malezas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Control Químico Preemergente",
+        "day": "0~15",
+        "detail": "Aplicar en suelo húmedo",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Químico Postemergente",
+        "day": "30~120",
+        "detail": "Aplicar cuando malezas están en activo crecimiento",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Manual",
+        "day": "120~150",
+        "detail": "Eliminar malezas alrededor de plantas",
+        "dose": "",
+        "type": "m"
+      },
+      {
+        "action": "Tratamiento de Plagas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Monitoreo",
+        "day": "Durante todo el ciclo del cultivo",
+        "detail": "Identificar plagas y umbrales de daño",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Insecticidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Respetar tiempos de carencia",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Fungicidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Rotar mecanismos de acción",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Cosecha",
+        "day": "120~150",
+        "detail": "Realizar cuando los granos alcanzan madurez",
+        "dose": "",
+        "type": "c"
+      }
+    ],
+    "price": "0.00"
+  },
+  "cebolla": {
+    "culture": "Cebolla",
+    "detail": "",
+    "diseases": [
+      {
+        "Msmax": "50",
+        "Msmin": "30",
+        "Rhmax": "100",
+        "Rhmin": "65",
+        "Tmax": "28",
+        "Tmin": "18",
+        "name": "Trips",
+        "photo": "bug-vector-icon"
+      },
+      {
+        "Msmax": "50",
+        "Msmin": "30",
+        "Rhmax": "100",
+        "Rhmin": "65",
+        "Tmax": "28",
+        "Tmin": "18",
+        "name": "Mosca de la cebolla",
+        "photo": "bug-vector-icon"
+      },
+      {
+        "Msmax": "50",
+        "Msmin": "30",
+        "Rhmax": "100",
+        "Rhmin": "65",
+        "Tmax": "28",
+        "Tmin": "18",
+        "name": "Gusano trozador",
+        "photo": "bug-vector-icon"
+      }
+    ],
+    "owner": "DTA-Agrícola",
+    "plan": [
+      {
+        "action": "Preparación del Suelo",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Desmonte y Limpieza",
+        "day": "-30~-45",
+        "detail": "Eliminar vegetación existente",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Arado Superficial",
+        "day": "-30~-45",
+        "detail": "Profundidad de 20~25 cm",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Rastreo",
+        "day": "-15~-20",
+        "detail": "Realizar 2~3 pases",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Formación de Camas",
+        "day": "-10~-15",
+        "detail": "Distancia entre camas de 0.6~0.8 m",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Siembra",
+        "day": "0",
+        "detail": "Utilizar plántulas o trasplante",
+        "dose": "",
+        "type": "s"
+      },
+      {
+        "action": "Riegos",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Riego de Establecimiento",
+        "day": "0~30",
+        "detail": "Mantener suelo húmedo",
+        "dose": "20~30",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Crecimiento Vegetativo",
+        "day": "30~90",
+        "detail": "Mantener humedad adecuada",
+        "dose": "30~40",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Formación de Bulbo",
+        "day": "90~120",
+        "detail": "Evitar estrés hídrico",
+        "dose": "20~30",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Maduración",
+        "day": "120~150",
+        "detail": "Reducir riego para facilitar cosecha",
+        "dose": "20~30",
+        "type": "r"
+      },
+      {
+        "action": "Fertilización",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Fertilización de Fondo",
+        "day": "-15~-20",
+        "detail": "Aplicar en camas de siembra",
+        "dose": "100~120 kg N/ha, 60~80 kg P2O5/ha, 80~100 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Crecimiento",
+        "day": "30~90",
+        "detail": "Aplicar en corona alrededor de plantas",
+        "dose": "80~100 kg N/ha, 40~60 kg P2O5/ha, 60~80 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Formación de Bulbo",
+        "day": "90~120",
+        "detail": "Aplicar en corona alrededor de plantas",
+        "dose": "60~80 kg N/ha, 30~40 kg P2O5/ha, 40~60 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Tratamiento de Malezas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Control Químico Preemergente",
+        "day": "0~15",
+        "detail": "Aplicar en suelo húmedo",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Químico Postemergente",
+        "day": "30~120",
+        "detail": "Aplicar cuando malezas están en activo crecimiento",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Manual",
+        "day": "120~150",
+        "detail": "Eliminar malezas alrededor de plantas",
+        "dose": "",
+        "type": "m"
+      },
+      {
+        "action": "Tratamiento de Plagas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Monitoreo",
+        "day": "Durante todo el ciclo del cultivo",
+        "detail": "Identificar plagas y umbrales de daño",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Insecticidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Respetar tiempos de carencia",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Fungicidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Rotar mecanismos de acción",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Cosecha",
+        "day": "90~150",
+        "detail": "Realizar cuando los bulbos alcanzan madurez",
+        "dose": "",
+        "type": "c"
+      }
+    ],
+    "price": "0.00"
+  },
+  "chile": {
+    "culture": "Chile",
+    "detail": "",
+    "diseases": [
+      {
+        "Msmax": "",
+        "Msmin": "",
+        "Rhmax": "100",
+        "Rhmin": "70",
+        "Tmax": "30",
+        "Tmin": "20",
+        "name": "Trips",
+        "photo": "bug-vector-icon"
+      },
+      {
+        "Msmax": "",
+        "Msmin": "",
+        "Rhmax": "100",
+        "Rhmin": "70",
+        "Tmax": "30",
+        "Tmin": "20",
+        "name": "Mosca de la cebblanca",
+        "photo": "bug-vector-icon"
+      },
+      {
+        "Msmax": "",
+        "Msmin": "",
+        "Rhmax": "100",
+        "Rhmin": "70",
+        "Tmax": "30",
+        "Tmin": "20",
+        "name": "Pulgón",
+        "photo": "bug-vector-icon"
+      }
+    ],
+    "owner": "DTA-Agrícola",
+    "plan": [
+      {
+        "action": "Preparación del Suelo",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Arado",
+        "day": "-30~-45",
+        "detail": "Profundidad de 20~25 cm",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Rastreo",
+        "day": "-15~-20",
+        "detail": "Realizar 2~3 pases",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Incorporación de Materia Orgánica",
+        "day": "-15~-20",
+        "detail": "Mejorar estructura y fertilidad del suelo",
+        "dose": "20~30 t/ha",
+        "type": "p"
+      },
+      {
+        "action": "Formación de Camas",
+        "day": "10~15",
+        "detail": "Facilitar riego y drenaje",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Siembra",
+        "day": "0",
+        "detail": "Densidad de 25,000~30,000 plantas/ha",
+        "dose": "",
+        "type": "s"
+      },
+      {
+        "action": "Riegos",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Riego de Presiembra",
+        "day": "-10~-15",
+        "detail": "Humedecer el perfil del suelo",
+        "dose": "80~100",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Siembra",
+        "day": "0",
+        "detail": "Asegurar germinación",
+        "dose": "40~50",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Establecimiento",
+        "day": "10~15",
+        "detail": "Favorecer enraizamiento",
+        "dose": "40~50",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Crecimiento Vegetativo",
+        "day": "30~45",
+        "detail": "Mantener humedad adecuada",
+        "dose": "60~80",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Floración y Fructificación",
+        "day": "60~90",
+        "detail": "Evitar estrés hídrico",
+        "dose": "80~100",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Maduración",
+        "day": "90~120",
+        "detail": "Mantener humedad hasta cosecha",
+        "dose": "60~80",
+        "type": "r"
+      },
+      {
+        "action": "Fertilización",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Fertilización de Fondo",
+        "day": "-15~-20",
+        "detail": "Aplicar en surcos o al voleo",
+        "dose": "80~100 kg N/ha, 60~80 kg P2O5/ha, 60~80 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Crecimiento",
+        "day": "30~45",
+        "detail": "Aplicar en cobertera",
+        "dose": "40~60 kg N/ha, 20~30 kg P2O5/ha, 20~30 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Floración y Fructificación",
+        "day": "60~90",
+        "detail": "Aplicar en cobertera",
+        "dose": "30~40 kg N/ha, 20~30 kg P2O5/ha, 20~30 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Tratamiento de Malezas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Control Químico Preemergente",
+        "day": "0~5",
+        "detail": "Aplicar en suelo húmedo",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Químico Postemergente",
+        "day": "20~30",
+        "detail": "Aplicar cuando malezas están en activo crecimiento",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Manual",
+        "day": "40~60",
+        "detail": "Eliminar malezas antes de floración",
+        "dose": "",
+        "type": "m"
+      },
+      {
+        "action": "Tratamiento de Plagas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Monitoreo",
+        "day": "Durante todo el ciclo del cultivo",
+        "detail": "Identificar plagas y umbrales de daño",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Insecticidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Respetar tiempos de carencia",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Fungicidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Rotar mecanismos de acción",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Cosecha",
+        "day": "90~120",
+        "detail": "Realizar cuando frutos alcancen madurez comercial",
+        "dose": "",
+        "type": "c"
+      }
+    ],
+    "price": "0.00"
+  },
+  "citricos": {
+    "culture": "Cítricos",
+    "detail": "",
+    "diseases": [
+      {
+        "Msmax": "",
+        "Msmin": "",
+        "Rhmax": "100",
+        "Rhmin": "75",
+        "Tmax": "32",
+        "Tmin": "22",
+        "name": "Minador de hoja",
+        "photo": "bug-vector-icon"
+      },
+      {
+        "Msmax": "",
+        "Msmin": "",
+        "Rhmax": "100",
+        "Rhmin": "75",
+        "Tmax": "32",
+        "Tmin": "22",
+        "name": "Mosca de la fruta",
+        "photo": "bug-vector-icon"
+      },
+      {
+        "Msmax": "",
+        "Msmin": "",
+        "Rhmax": "100",
+        "Rhmin": "75",
+        "Tmax": "32",
+        "Tmin": "22",
+        "name": "Ácaro rojo",
+        "photo": "bug-vector-icon"
+      }
+    ],
+    "owner": "DTA-Agrícola",
+    "plan": [
+      {
+        "action": "Preparación del Suelo",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Desmonte y Limpieza",
+        "day": "-30~-45",
+        "detail": "Eliminar vegetación existente",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Arado Profundo",
+        "day": "-30~-45",
+        "detail": "Profundidad de 30~40 cm",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Nivelación",
+        "day": "-15~-20",
+        "detail": "Asegurar uniformidad del terreno",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Trazado de Hoyos",
+        "day": "-10~-15",
+        "detail": "Distancia entre plantas de 6~8 m",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Siembra",
+        "day": "0",
+        "detail": "Utilizar plantones o árboles injertados",
+        "dose": "",
+        "type": "s"
+      },
+      {
+        "action": "Riegos",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Riego de Establecimiento",
+        "day": "0~180",
+        "detail": "Asegurar prendimiento de plantas",
+        "dose": "80~100",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Crecimiento Vegetativo",
+        "day": "180~540",
+        "detail": "Mantener humedad adecuada",
+        "dose": "100~120",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Floración",
+        "day": "540~600",
+        "detail": "Evitar estrés hídrico",
+        "dose": "80~100",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Llenado de Frutos",
+        "day": "600~720",
+        "detail": "Mantener humedad para desarrollo de frutos",
+        "dose": "100~120",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Maduración",
+        "day": "720~840",
+        "detail": "Reducir riego para facilitar cosecha",
+        "dose": "80~100",
+        "type": "r"
+      },
+      {
+        "action": "Fertilización",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Fertilización de Fondo",
+        "day": "-15~-20",
+        "detail": "Aplicar en hoyos de siembra",
+        "dose": "80~100 kg N/ha, 60~80 kg P2O5/ha, 80~100 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Crecimiento",
+        "day": "180~540",
+        "detail": "Aplicar en corona alrededor de plantas",
+        "dose": "60~80 kg N/ha, 40~60 kg P2O5/ha, 60~80 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Floración",
+        "day": "540~600",
+        "detail": "Aplicar en corona alrededor de plantas",
+        "dose": "40~60 kg N/ha, 30~40 kg P2O5/ha, 40~60 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Fructificación",
+        "day": "600~720",
+        "detail": "Aplicar en corona alrededor de plantas",
+        "dose": "60~80 kg N/ha, 40~60 kg P2O5/ha, 60~80 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Tratamiento de Malezas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Control Químico Preemergente",
+        "day": "0~15",
+        "detail": "Aplicar en suelo húmedo",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Químico Postemergente",
+        "day": "30~180",
+        "detail": "Aplicar cuando malezas están en activo crecimiento",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Manual",
+        "day": "180~540",
+        "detail": "Eliminar malezas alrededor de plantas",
+        "dose": "",
+        "type": "m"
+      },
+      {
+        "action": "Tratamiento de Plagas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Monitoreo",
+        "day": "Durante todo el ciclo del cultivo",
+        "detail": "Identificar plagas y umbrales de daño",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Insecticidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Respetar tiempos de carencia",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Fungicidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Rotar mecanismos de acción",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Cosecha",
+        "day": "720~840",
+        "detail": "Realizar cuando los frutos alcanzan madurez",
+        "dose": "",
+        "type": "c"
+      }
+    ],
+    "price": "0.00"
+  },
+  "durazno": {
+    "culture": "Durazno",
+    "detail": "",
+    "diseases": [
+      {
+        "Msmax": "",
+        "Msmin": "",
+        "Rhmax": "100",
+        "Rhmin": "70",
+        "Tmax": "28",
+        "Tmin": "18",
+        "name": "Polilla oriental (Grapholita molesta)",
+        "photo": "bug-vector-icon"
+      },
+      {
+        "Msmax": "",
+        "Msmin": "",
+        "Rhmax": "100",
+        "Rhmin": "70",
+        "Tmax": "28",
+        "Tmin": "18",
+        "name": "Pulgón verde (Myzus persicae)",
+        "photo": "bug-vector-icon"
+      },
+      {
+        "Msmax": "",
+        "Msmin": "",
+        "Rhmax": "100",
+        "Rhmin": "70",
+        "Tmax": "28",
+        "Tmin": "18",
+        "name": "Araña roja (Tetranychus urticae)",
+        "photo": "bug-vector-icon"
+      },
+      {
+        "Msmax": "",
+        "Msmin": "",
+        "Rhmax": "100",
+        "Rhmin": "70",
+        "Tmax": "28",
+        "Tmin": "18",
+        "name": "Trips (Frankliniella occidentalis)",
+        "photo": "bug-vector-icon"
+      }
+    ],
+    "owner": "DTA-Agrícola",
+    "plan": [
+      {
+        "action": "Desmonte y Limpieza",
+        "day": "-60~-90",
+        "detail": "Eliminar vegetación existente",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Arado Profundo",
+        "day": "-60~-90",
+        "detail": "Profundidad de 30~40 cm. Favorece penetración radicular en suelos arcillosos",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Rastreo",
+        "day": "-30~-45",
+        "detail": "Realizar 2~3 pases",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Formación de Hoyos",
+        "day": "-15~-30",
+        "detail": "Distancia entre hoyos de 4~5 m",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Fertilización de Fondo",
+        "day": "-30~-45",
+        "detail": "Aplicar en hoyos de plantación. Mezclar con tierra para evitar quemaduras",
+        "dose": "100~120 kg N/ha, 80~100 kg P2O5/ha, 100~120 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Plantación",
+        "day": "0",
+        "detail": "Utilizar árboles injertados de 1~2 años, sobre patrones resistentes a nematodos",
+        "dose": "",
+        "type": "s"
+      },
+      {
+        "action": "Riego de Establecimiento",
+        "day": "0~90",
+        "detail": "Mantener suelo húmedo",
+        "dose": "30~50",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Crecimiento Vegetativo",
+        "day": "90~365",
+        "detail": "Mantener humedad adecuada. Aumentar frecuencia en primavera-verano",
+        "dose": "50~80",
+        "type": "r"
+      },
+      {
+        "action": "Fertilización de Crecimiento",
+        "day": "90~365",
+        "detail": "Aplicar en corona alrededor de árboles. Evitar contacto directo con tronco",
+        "dose": "80~100 kg N/ha, 60~80 kg P2O5/ha, 80~100 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Poda de Formación",
+        "day": "365~450",
+        "detail": "Eliminar ramas mal orientadas y fomentar estructura abierta",
+        "dose": "",
+        "type": "s"
+      },
+      {
+        "action": "Riego de Floración y Fructificación",
+        "day": "365~730",
+        "detail": "Evitar estrés hídrico especialmente en prefloración y cuajado",
+        "dose": "80~100",
+        "type": "r"
+      },
+      {
+        "action": "Fertilización de Floración y Fructificación",
+        "day": "365~730",
+        "detail": "Aplicar en corona. Priorizar potasio para mejorar calidad de fruto",
+        "dose": "60~80 kg N/ha, 40~60 kg P2O5/ha, 60~80 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Riego de Maduración",
+        "day": "730~820",
+        "detail": "Reducir riego 10~15 días antes de cosecha para mejorar concentración de azúcares",
+        "dose": "60~80",
+        "type": "r"
+      },
+      {
+        "action": "Control Químico Preemergente",
+        "day": "0~30",
+        "detail": "Aplicar en suelo húmedo",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Químico Postemergente",
+        "day": "30~730",
+        "detail": "Aplicar cuando malezas están en activo crecimiento",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Manual",
+        "day": "730~820",
+        "detail": "Eliminar malezas en zona de goteo, especialmente en etapa de maduración",
+        "dose": "",
+        "type": "m"
+      },
+      {
+        "action": "Monitoreo de Heladas",
+        "day": "0~120",
+        "detail": "Instalar sensores de temperatura y activar protección si baja de 2°C",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Monitoreo de Plagas",
+        "day": "Durante todo el ciclo del cultivo",
+        "detail": "Usar trampas de feromonas para polilla oriental y conteo visual para pulgón",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Insecticidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Rotar ingredientes activos. Respetar tiempos de carencia",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Fungicidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Rotar mecanismos de acción. Enfocar en prevención de monilia y cribado",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Cosecha",
+        "day": "730~820",
+        "detail": "Cosechar cuando el fruto alcanza color de fondo amarillo y firmeza adecuada",
+        "dose": "",
+        "type": "c"
+      }
+    ],
+    "price": "0.00"
+  },
+  "frambuesa": {
+    "culture": "Frambuesa",
+    "detail": "",
+    "diseases": [
+      {
+        "Msmax": "",
+        "Msmin": "",
+        "Rhmax": "100",
+        "Rhmin": "80",
+        "Tmax": "24",
+        "Tmin": "16",
+        "name": "Ácaro rojo",
+        "photo": "bug-vector-icon"
+      },
+      {
+        "Msmax": "",
+        "Msmin": "",
+        "Rhmax": "100",
+        "Rhmin": "80",
+        "Tmax": "24",
+        "Tmin": "16",
+        "name": "Mosca de la fruta",
+        "photo": "bug-vector-icon"
+      },
+      {
+        "Msmax": "",
+        "Msmin": "",
+        "Rhmax": "100",
+        "Rhmin": "80",
+        "Tmax": "24",
+        "Tmin": "16",
+        "name": "Trips (Frankliniella occidentalis)",
+        "photo": "bug-vector-icon"
+      }
+    ],
+    "owner": "DTA-Agrícola",
+    "plan": [
+      {
+        "action": "Preparación del Suelo",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Desmonte y Limpieza",
+        "day": "-30~-45",
+        "detail": "Eliminar vegetación existente",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Arado Superficial",
+        "day": "-30~-45",
+        "detail": "Profundidad de 20~25 cm",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Rastreo",
+        "day": "-15~-20",
+        "detail": "Realizar 2~3 pases",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Formación de Camas",
+        "day": "-10~-15",
+        "detail": "Distancia entre camas de 1.5~2 m",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Siembra",
+        "day": "0",
+        "detail": "Utilizar plantas o estolones enraizados",
+        "dose": "",
+        "type": "s"
+      },
+      {
+        "action": "Riegos",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Riego de Establecimiento",
+        "day": "0~30",
+        "detail": "Asegurar prendimiento de plantas",
+        "dose": "30~40",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Crecimiento Vegetativo",
+        "day": "30~180",
+        "detail": "Mantener humedad adecuada",
+        "dose": "40~50",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Floración",
+        "day": "180~240",
+        "detail": "Evitar estrés hídrico",
+        "dose": "30~40",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Fructificación",
+        "day": "240~300",
+        "detail": "Mantener humedad para desarrollo de frutos",
+        "dose": "40~50",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Maduración",
+        "day": "300~360",
+        "detail": "Reducir riego para facilitar cosecha",
+        "dose": "30~40",
+        "type": "r"
+      },
+      {
+        "action": "Fertilización",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Fertilización de Fondo",
+        "day": "-15~-20",
+        "detail": "Aplicar en camas de siembra",
+        "dose": "80~100 kg N/ha, 60~80 kg P2O5/ha, 80~100 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Crecimiento",
+        "day": "30~180",
+        "detail": "Aplicar en corona alrededor de plantas",
+        "dose": "60~80 kg N/ha, 40~60 kg P2O5/ha, 60~80 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Floración",
+        "day": "180~240",
+        "detail": "Aplicar en corona alrededor de plantas",
+        "dose": "40~60 kg N/ha, 30~40 kg P2O5/ha, 40~60 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Fructificación",
+        "day": "240~300",
+        "detail": "Aplicar en corona alrededor de plantas",
+        "dose": "60~80 kg N/ha, 40~60 kg P2O5/ha, 60~80 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Tratamiento de Malezas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Control Químico Preemergente",
+        "day": "0~15",
+        "detail": "Aplicar en suelo húmedo",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Químico Postemergente",
+        "day": "30~360",
+        "detail": "Aplicar cuando malezas están en activo crecimiento",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Manual",
+        "day": "360~420",
+        "detail": "Eliminar malezas alrededor de plantas",
+        "dose": "",
+        "type": "m"
+      },
+      {
+        "action": "Tratamiento de Plagas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Monitoreo",
+        "day": "Durante todo el ciclo del cultivo",
+        "detail": "Identificar plagas y umbrales de daño",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Insecticidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Respetar tiempos de carencia",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Fungicidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Rotar mecanismos de acción",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Cosecha",
+        "day": "240~360",
+        "detail": "Realizar cuando los frutos alcanzan madurez",
+        "dose": "",
+        "type": "c"
+      }
+    ],
+    "price": "0.00"
+  },
+  "fresa": {
+    "culture": "Fresa",
+    "detail": "",
+    "diseases": [
+      {
+        "Msmax": "100",
+        "Msmin": "70",
+        "Rhmax": "100",
+        "Rhmin": "75",
+        "Tmax": "24",
+        "Tmin": "15",
+        "name": "Ácaro",
+        "photo": "bug-vector-icon"
+      },
+      {
+        "Msmax": "100",
+        "Msmin": "70",
+        "Rhmax": "100",
+        "Rhmin": "75",
+        "Tmax": "24",
+        "Tmin": "15",
+        "name": "Gusano trozador",
+        "photo": "bug-vector-icon"
+      },
+      {
+        "Msmax": "100",
+        "Msmin": "70",
+        "Rhmax": "100",
+        "Rhmin": "75",
+        "Tmax": "24",
+        "Tmin": "15",
+        "name": "Trips (Frankliniella occidentalis)",
+        "photo": "bug-vector-icon"
+      }
+    ],
+    "owner": "DTA-Agrícola",
+    "plan": [
+      {
+        "action": "Preparación del Suelo",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Desmonte y Limpieza",
+        "day": "-30~-45",
+        "detail": "Eliminar vegetación existente",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Arado Superficial",
+        "day": "-30~-45",
+        "detail": "Profundidad de 20~25 cm",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Rastreo",
+        "day": "-15~-20",
+        "detail": "Realizar 2~3 pases",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Formación de Camas",
+        "day": "-10~-15",
+        "detail": "Distancia entre camas de 1~1.2 m",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Siembra",
+        "day": "0",
+        "detail": "Utilizar plantas o estolones enraizados",
+        "dose": "",
+        "type": "s"
+      },
+      {
+        "action": "Riegos",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Riego de Establecimiento",
+        "day": "0~30",
+        "detail": "Asegurar prendimiento de plantas",
+        "dose": "30~40",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Crecimiento Vegetativo",
+        "day": "30~120",
+        "detail": "Mantener humedad adecuada",
+        "dose": "40~50",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Floración",
+        "day": "120~180",
+        "detail": "Evitar estrés hídrico",
+        "dose": "30~40",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Fructificación",
+        "day": "180~240",
+        "detail": "Mantener humedad para desarrollo de frutos",
+        "dose": "40~50",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Maduración",
+        "day": "240~300",
+        "detail": "Reducir riego para facilitar cosecha",
+        "dose": "30~40",
+        "type": "r"
+      },
+      {
+        "action": "Fertilización",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Fertilización de Fondo",
+        "day": "-15~-20",
+        "detail": "Aplicar en camas de siembra",
+        "dose": "60~80 kg N/ha, 40~60 kg P2O5/ha, 60~80 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Crecimiento",
+        "day": "30~120",
+        "detail": "Aplicar en corona alrededor de plantas",
+        "dose": "40~60 kg N/ha, 30~40 kg P2O5/ha, 40~60 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Floración",
+        "day": "120~180",
+        "detail": "Aplicar en corona alrededor de plantas",
+        "dose": "30~40 kg N/ha, 20~30 kg P2O5/ha, 30~40 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Fructificación",
+        "day": "180~240",
+        "detail": "Aplicar en corona alrededor de plantas",
+        "dose": "40~60 kg N/ha, 30~40 kg P2O5/ha, 40~60 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Tratamiento de Malezas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Control Químico Preemergente",
+        "day": "0~15",
+        "detail": "Aplicar en suelo húmedo",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Químico Postemergente",
+        "day": "30~240",
+        "detail": "Aplicar cuando malezas están en activo crecimiento",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Manual",
+        "day": "240~300",
+        "detail": "Eliminar malezas alrededor de plantas",
+        "dose": "",
+        "type": "m"
+      },
+      {
+        "action": "Tratamiento de Plagas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Monitoreo",
+        "day": "Durante todo el ciclo del cultivo",
+        "detail": "Identificar plagas y umbrales de daño",
+        "dose": "",
+        "type": "m"
+      },
+      {
+        "action": "Aplicación de Insecticidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Respetar tiempos de carencia",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Aplicación de Fungicidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Rotar mecanismos de acción",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Cosecha",
+        "day": "180~300",
+        "detail": "Realizar cuando los frutos alcanzan madurez",
+        "dose": "",
+        "type": "c"
+      }
+    ],
+    "price": "0.00"
+  },
+  "frijol": {
+    "culture": "Frijol",
+    "detail": "",
+    "diseases": [
+      {
+        "Msmax": "60",
+        "Msmin": "30",
+        "Rhmax": "100",
+        "Rhmin": "65",
+        "Tmax": "30",
+        "Tmin": "20",
+        "name": "Mosca del frijol",
+        "photo": "bug-vector-icon"
+      },
+      {
+        "Msmax": "60",
+        "Msmin": "30",
+        "Rhmax": "100",
+        "Rhmin": "65",
+        "Tmax": "30",
+        "Tmin": "20",
+        "name": "Gusano cogollero",
+        "photo": "bug-vector-icon"
+      },
+      {
+        "Msmax": "60",
+        "Msmin": "30",
+        "Rhmax": "100",
+        "Rhmin": "65",
+        "Tmax": "30",
+        "Tmin": "20",
+        "name": "Trips",
+        "photo": "bug-vector-icon"
+      }
+    ],
+    "owner": "DTA-Agrícola",
+    "plan": [
+      {
+        "action": "Preparación del Suelo",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Arado",
+        "day": "-30~-45",
+        "detail": "Profundidad de 15~20 cm",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Rastreo",
+        "day": "-15~-20",
+        "detail": "Realizar 2~3 pases",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Nivelación",
+        "day": "-10~-15",
+        "detail": "Importante para uniformidad de riego",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Siembra",
+        "day": "0",
+        "detail": "Densidad de 200,000~300,000 plantas/ha",
+        "dose": "",
+        "type": "s"
+      },
+      {
+        "action": "Riegos",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Riego de Presiembra",
+        "day": "-10~-15",
+        "detail": "Humedecer el perfil del suelo",
+        "dose": "50~60",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Siembra",
+        "day": "0",
+        "detail": "Asegurar germinación",
+        "dose": "30~40",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Establecimiento",
+        "day": "10~15",
+        "detail": "Favorecer enraizamiento",
+        "dose": "30~40",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Floración",
+        "day": "30~40",
+        "detail": "Evitar estrés hídrico",
+        "dose": "40~50",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Llenado de Vainas",
+        "day": "45~55",
+        "detail": "Mantener humedad adecuada",
+        "dose": "40~50",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Maduración",
+        "day": "60~70",
+        "detail": "Reducir riego para facilitar cosecha",
+        "dose": "30~40",
+        "type": "r"
+      },
+      {
+        "action": "Fertilización",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "rn"
+      },
+      {
+        "action": "Fertilización de Fondo",
+        "day": "-15~-20",
+        "detail": "Aplicar en surcos o al voleo",
+        "dose": "30~40 kg N/ha, 40~60 kg P2O5/ha, 20~30 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Crecimiento",
+        "day": "20~30",
+        "detail": "Aplicar en cobertera",
+        "dose": "20~30 kg N/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Floración",
+        "day": "30~40",
+        "detail": "Aplicar en cobertera",
+        "dose": "10~20 kg N/ha, 10~20 kg P2O5/ha",
+        "type": "f"
+      },
+      {
+        "action": "Tratamiento de Malezas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Control Químico Preemergente",
+        "day": "0~5",
+        "detail": "Aplicar en suelo húmedo",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Químico Postemergente",
+        "day": "15~25",
+        "detail": "Aplicar cuando malezas están en activo crecimiento",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Manual",
+        "day": "30~45",
+        "detail": "Eliminar malezas antes de floración",
+        "dose": "",
+        "type": "m"
+      },
+      {
+        "action": "Tratamiento de Plagas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Monitoreo",
+        "day": "Durante todo el ciclo del cultivo",
+        "detail": "Identificar plagas y umbrales de daño",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Insecticidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Respetar tiempos de carencia",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Fungicidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Rotar mecanismos de acción",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Cosecha",
+        "day": "60~80",
+        "detail": "Realizar cuando vainas alcancen madurez",
+        "dose": "",
+        "type": "c"
+      }
+    ],
+    "price": "0.00"
+  },
+  "jalapeno_1": {
+    "culture": "Jalapeño",
+    "detail": "",
+    "owner": "DTA-Agrícola",
+    "plan": [
+      {
+        "action": "Preparación del Suelo",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Desmonte y Limpieza",
+        "day": "-30~-45",
+        "detail": "Eliminar vegetación existente",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Arado Superficial",
+        "day": "-30~-45",
+        "detail": "Profundidad de 15~20 cm",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Rastreo",
+        "day": "-15~-20",
+        "detail": "Realizar 2~3 pases",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Formación de Camas",
+        "day": "-10~-15",
+        "detail": "Distancia entre camas de 0.8~1 m",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Siembra",
+        "day": "0",
+        "detail": "Utilizar plántulas o trasplante",
+        "dose": "",
+        "type": "s"
+      },
+      {
+        "action": "Riegos",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Riego de Establecimiento",
+        "day": "0~30",
+        "detail": "Mantener suelo húmedo",
+        "dose": "20~30",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Crecimiento Vegetativo",
+        "day": "30~90",
+        "detail": "Mantener humedad adecuada",
+        "dose": "30~40",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Floración y Fructificación",
+        "day": "90~120",
+        "detail": "Evitar estrés hídrico",
+        "dose": "30~40",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Maduración",
+        "day": "120~150",
+        "detail": "Reducir riego para mejorar calidad",
+        "dose": "20~30",
+        "type": "r"
+      },
+      {
+        "action": "Fertilización",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Fertilización de Fondo",
+        "day": "-15~-20",
+        "detail": "Aplicar en camas de siembra",
+        "dose": "100~120 kg N/ha, 60~80 kg P2O5/ha, 80~100 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Crecimiento",
+        "day": "30~90",
+        "detail": "Aplicar en corona alrededor de plantas",
+        "dose": "80~100 kg N/ha, 40~60 kg P2O5/ha, 60~80 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Floración y Fructificación",
+        "day": "90~120",
+        "detail": "Aplicar en corona alrededor de plantas",
+        "dose": "60~80 kg N/ha, 30~40 kg P2O5/ha, 40~60 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Tratamiento de Malezas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Control Químico Preemergente",
+        "day": "0~15",
+        "detail": "Aplicar en suelo húmedo",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Químico Postemergente",
+        "day": "30~120",
+        "detail": "Aplicar cuando malezas están en activo crecimiento",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Manual",
+        "day": "120~150",
+        "detail": "Eliminar malezas alrededor de plantas",
+        "dose": "",
+        "type": "m"
+      },
+      {
+        "action": "Tratamiento de Plagas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Monitoreo",
+        "day": "Durante todo el ciclo del cultivo",
+        "detail": "Identificar plagas y umbrales de daño",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Insecticidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Respetar tiempos de carencia",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Fungicidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Rotar mecanismos de acción",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Cosecha",
+        "day": "120~150",
+        "detail": "Realizar cuando los frutos alcanzan madurez",
+        "dose": "",
+        "type": "c"
+      }
+    ],
+    "price": "0.00"
+  },
+  "jalapeno_2": {
+    "culture": "Jalapeno",
+    "detail": "Transplante",
+    "owner": "DTA-Agrícola",
+    "plan": [
+      {
+        "action": "Preparación del Suelo",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Desmonte y Limpieza",
+        "day": "-30~-45",
+        "detail": "Eliminar vegetación existente",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Arado Superficial",
+        "day": "-30~-45",
+        "detail": "Profundidad de 15~20 cm",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Rastreo",
+        "day": "-15~-20",
+        "detail": "Realizar 2~3 pases",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Formación de Camas",
+        "day": "-10~-15",
+        "detail": "Distancia entre camas de 0.8~1 m",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Trasplante",
+        "day": "0",
+        "detail": "Utilizar plántulas de 4~6 semanas",
+        "dose": "",
+        "type": "s"
+      },
+      {
+        "action": "Riegos",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Riego de Establecimiento",
+        "day": "0~30",
+        "detail": "Mantener suelo húmedo",
+        "dose": "20~30",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Crecimiento Vegetativo",
+        "day": "30~90",
+        "detail": "Mantener humedad adecuada",
+        "dose": "30~40",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Floración y Fructificación",
+        "day": "90~120",
+        "detail": "Evitar estrés hídrico",
+        "dose": "30~40",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Maduración",
+        "day": "120~150",
+        "detail": "Reducir riego para mejorar calidad",
+        "dose": "20~30",
+        "type": "r"
+      },
+      {
+        "action": "Fertilización",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Fertilización de Fondo",
+        "day": "-15~-20",
+        "detail": "Aplicar en camas de trasplante",
+        "dose": "100~120 kg N/ha, 60~80 kg P2O5/ha, 80~100 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Crecimiento",
+        "day": "30~90",
+        "detail": "Aplicar en corona alrededor de plantas",
+        "dose": "80~100 kg N/ha, 40~60 kg P2O5/ha, 60~80 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Floración y Fructificación",
+        "day": "90~120",
+        "detail": "Aplicar en corona alrededor de plantas",
+        "dose": "60~80 kg N/ha, 30~40 kg P2O5/ha, 40~60 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Tratamiento de Malezas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Control Químico Preemergente",
+        "day": "0~15",
+        "detail": "Aplicar en suelo húmedo",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Químico Postemergente",
+        "day": "30~120",
+        "detail": "Aplicar cuando malezas están en activo crecimiento",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Manual",
+        "day": "120~150",
+        "detail": "Eliminar malezas alrededor de plantas",
+        "dose": "",
+        "type": "m"
+      },
+      {
+        "action": "Tratamiento de Plagas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Monitoreo",
+        "day": "Durante todo el ciclo del cultivo",
+        "detail": "Identificar plagas y umbrales de daño",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Insecticidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Respetar tiempos de carencia",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Fungicidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Rotar mecanismos de acción",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Cosecha",
+        "day": "120~150",
+        "detail": "Realizar cuando los frutos alcanzan madurez",
+        "dose": "",
+        "type": "c"
+      }
+    ],
+    "price": "0.00"
+  },
+  "lechuga": {
+    "culture": "Lechuga",
+    "detail": "",
+    "diseases": [
+      {
+        "Msmax": "100",
+        "Msmin": "50",
+        "Rhmax": "100",
+        "Rhmin": "70",
+        "Tmax": "28",
+        "Tmin": "15",
+        "name": "Pulgón verde",
+        "photo": "bug-vector-icon"
+      },
+      {
+        "Msmax": "100",
+        "Msmin": "50",
+        "Rhmax": "100",
+        "Rhmin": "70",
+        "Tmax": "28",
+        "Tmin": "15",
+        "name": "Trips",
+        "photo": "bug-vector-icon"
+      },
+      {
+        "Msmax": "100",
+        "Msmin": "50",
+        "Rhmax": "100",
+        "Rhmin": "70",
+        "Tmax": "28",
+        "Tmin": "15",
+        "name": "Gusano cogollero",
+        "photo": "bug-vector-icon"
+      }
+    ],
+    "owner": "DTA-Agrícola",
+    "plan": [
+      {
+        "action": "Preparación del Suelo",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Desmonte y Limpieza",
+        "day": "-30~-45",
+        "detail": "Eliminar vegetación existente",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Arado Superficial",
+        "day": "-30~-45",
+        "detail": "Profundidad de 20~25 cm",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Rastreo",
+        "day": "-15~-20",
+        "detail": "Realizar 2~3 pases",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Formación de Camas",
+        "day": "-10~-15",
+        "detail": "Distancia entre camas de 0.6~0.8 m",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Siembra",
+        "day": "0",
+        "detail": "Utilizar plántulas o trasplante",
+        "dose": "",
+        "type": "s"
+      },
+      {
+        "action": "Riegos",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Riego de Establecimiento",
+        "day": "0~15",
+        "detail": "Asegurar prendimiento de plantas",
+        "dose": "20~30",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Crecimiento Vegetativo",
+        "day": "15~45",
+        "detail": "Mantener humedad adecuada",
+        "dose": "30~40",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Formación de Cabeza",
+        "day": "45~60",
+        "detail": "Evitar estrés hídrico",
+        "dose": "20~30",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Maduración",
+        "day": "60~75",
+        "detail": "Reducir riego para facilitar cosecha",
+        "dose": "20~30",
+        "type": "r"
+      },
+      {
+        "action": "Fertilización",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Fertilización de Fondo",
+        "day": "-15~-20",
+        "detail": "Aplicar en camas de siembra",
+        "dose": "80~100 kg N/ha, 60~80 kg P2O5/ha, 80~100 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Crecimiento",
+        "day": "15~45",
+        "detail": "Aplicar en corona alrededor de plantas",
+        "dose": "60~80 kg N/ha, 40~60 kg P2O5/ha, 60~80 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Formación de Cabeza",
+        "day": "45~60",
+        "detail": "Aplicar en corona alrededor de plantas",
+        "dose": "40~60 kg N/ha, 30~40 kg P2O5/ha, 40~60 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Tratamiento de Malezas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Control Químico Preemergente",
+        "day": "0~15",
+        "detail": "Aplicar en suelo húmedo",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Químico Postemergente",
+        "day": "15~75",
+        "detail": "Aplicar cuando malezas están en activo crecimiento",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Manual",
+        "day": "75~90",
+        "detail": "Eliminar malezas alrededor de plantas",
+        "dose": "",
+        "type": "m"
+      },
+      {
+        "action": "Tratamiento de Plagas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Monitoreo",
+        "day": "Durante todo el ciclo del cultivo",
+        "detail": "Identificar plagas y umbrales de daño",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Insecticidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Respetar tiempos de carencia",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Fungicidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Rotar mecanismos de acción",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Cosecha",
+        "day": "45~75",
+        "detail": "Realizar cuando las cabezas alcanzan madurez",
+        "dose": "",
+        "type": "c"
+      }
+    ],
+    "price": "0.00"
+  },
+  "maiz": {
+    "culture": "Maíz",
+    "detail": "",
+    "diseases": [
+      {
+        "Msmax": "100",
+        "Msmin": "50",
+        "Rhmax": "100",
+        "Rhmin": "70",
+        "Tmax": "30",
+        "Tmin": "20",
+        "name": "Gusano cogollero",
+        "photo": "bug-vector-icon"
+      },
+      {
+        "Msmax": "100",
+        "Msmin": "50",
+        "Rhmax": "100",
+        "Rhmin": "70",
+        "Tmax": "30",
+        "Tmin": "20",
+        "name": "Barrenador del tallo",
+        "photo": "bug-vector-icon"
+      }
+    ],
+    "owner": "DTA-Agrícola",
+    "plan": [
+      {
+        "action": "Preparación del Suelo",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Arado",
+        "day": "-30~-45",
+        "detail": "Profundidad de 20~25 cm",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Rastreo",
+        "day": "-15~-20",
+        "detail": "Realizar 2~3 pases",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Nivelación",
+        "day": "-10~-15",
+        "detail": "Importante para uniformidad de riego",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Siembra",
+        "day": "0",
+        "detail": "Densidad de 50,000~70,000 plantas/ha",
+        "dose": "",
+        "type": "s"
+      },
+      {
+        "action": "Riegos",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Riego de Presiembra",
+        "day": "-10~-15",
+        "detail": "Humedecer el perfil del suelo",
+        "dose": "80~100",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Siembra",
+        "day": "0",
+        "detail": "Asegurar germinación",
+        "dose": "40~50",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Germinación",
+        "day": "7~10",
+        "detail": "Mantener humedad del suelo",
+        "dose": "40~50",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Desarrollo Vegetativo",
+        "day": "30~45",
+        "detail": "Crítico para crecimiento y macollamiento",
+        "dose": "60~80",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Floración",
+        "day": "60~70",
+        "detail": "Evitar estrés hídrico en floración",
+        "dose": "80~100",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Llenado de Grano",
+        "day": "80~90",
+        "detail": "Mantener humedad hasta madurez fisiológica",
+        "dose": "80~100",
+        "type": "r"
+      },
+      {
+        "action": "Fertilización",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Fertilización de Fondo",
+        "day": "-15~20",
+        "detail": "Aplicar en surcos o al voleo",
+        "dose": "80~100 kg N/ha, 40~60 kg P2O5/ha, 40~60 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización Foliar",
+        "day": "30, 45 y 60",
+        "detail": "Complementar nutrición",
+        "dose": "10~15 kg N/ha, 5~10 kg P2O5/ha, 5~10 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Tratamiento de Malezas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Control Químico Preemergente",
+        "day": "0~5",
+        "detail": "Aplicar en suelo húmedo",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Químico Postemergente",
+        "day": "20~30",
+        "detail": "Aplicar cuando malezas están en activo crecimiento",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Manual",
+        "day": "30~45",
+        "detail": "Eliminar malezas antes de floración",
+        "dose": "",
+        "type": "m"
+      },
+      {
+        "action": "Tratamiento de Plagas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Monitoreo",
+        "day": "Durante todo el ciclo del cultivo",
+        "detail": "Identificar plagas y umbrales de daño",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Insecticidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Respetar tiempos de carencia",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Cosecha",
+        "day": "110~130",
+        "detail": "Realizar cuando grano tenga 14~15% de humedad",
+        "dose": "",
+        "type": "c"
+      }
+    ],
+    "price": "0.00"
+  },
+  "manzana": {
+    "culture": "Manzana",
+    "detail": "",
+    "diseases": [
+      {
+        "Msmax": "",
+        "Msmin": "",
+        "Rhmax": "100",
+        "Rhmin": "60",
+        "Tmax": "25",
+        "Tmin": "18",
+        "name": "Mancha de fuego (Erwinia amylovora)",
+        "photo": "Mancha de fuego (Erwinia amylovora)"
+      },
+      {
+        "Msmax": "",
+        "Msmin": "",
+        "Rhmax": "100",
+        "Rhmin": "60",
+        "Tmax": "25",
+        "Tmin": "18",
+        "name": "Polilla de la manzana (Cydia pomonella)",
+        "photo": "Polilla de la manzana (Cydia pomonella)"
+      },
+      {
+        "Msmax": "",
+        "Msmin": "",
+        "Rhmax": "100",
+        "Rhmin": "60",
+        "Tmax": "25",
+        "Tmin": "18",
+        "name": "Araña roja (Tetranychus urticae)",
+        "photo": "Araña roja (Tetranychus urticae)"
+      },
+      {
+        "Msmax": "",
+        "Msmin": "",
+        "Rhmax": "100",
+        "Rhmin": "60",
+        "Tmax": "25",
+        "Tmin": "18",
+        "name": "Ácaro rojo europeo (Panonychus ulmi)",
+        "photo": "Ácaro rojo europeo (Panonychus ulmi)"
+      },
+      {
+        "Msmax": "",
+        "Msmin": "",
+        "Rhmax": "100",
+        "Rhmin": "60",
+        "Tmax": "25",
+        "Tmin": "18",
+        "name": "Pulgón lanígero (Eriosoma lanigerum)",
+        "photo": "Pulgón lanígero (Eriosoma lanigerum)"
+      },
+      {
+        "Msmax": "",
+        "Msmin": "",
+        "Rhmax": "100",
+        "Rhmin": "60",
+        "Tmax": "25",
+        "Tmin": "18",
+        "name": "Mosca de la fruta (Rhagoletis pomonella)",
+        "photo": "Mosca de la fruta (Rhagoletis pomonella)"
+      },
+      {
+        "Msmax": "",
+        "Msmin": "",
+        "Rhmax": "100",
+        "Rhmin": "60",
+        "Tmax": "25",
+        "Tmin": "18",
+        "name": "Trips (Frankliniella spp.)",
+        "photo": "Trips (Frankliniella spp.)"
+      },
+      {
+        "Msmax": "",
+        "Msmin": "",
+        "Rhmax": "100",
+        "Rhmin": "60",
+        "Tmax": "25",
+        "Tmin": "18",
+        "name": "Carpocapsa (Grapholita molesta)",
+        "photo": "Carpocapsa (Grapholita molesta)"
+      }
+    ],
+    "owner": "DTA-Agrícola",
+    "plan": [
+      {
+        "action": "Preparación del Suelo",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Desmonte y Limpieza",
+        "day": "-60~-90",
+        "detail": "Eliminar vegetación existente",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Arado Profundo",
+        "day": "-60~-90",
+        "detail": "Profundidad de 30~40 cm",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Rastreo",
+        "day": "-30~-45",
+        "detail": "Realizar 2~3 pases",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Formación de Hoyos",
+        "day": "-15~-30",
+        "detail": "Distancia entre hoyos de 4~5 m",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Plantación",
+        "day": "0",
+        "detail": "Utilizar árboles injertados de 1~2",
+        "dose": "",
+        "type": "s"
+      },
+      {
+        "action": "Riegos",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Riego de Establecimiento",
+        "day": "0~90",
+        "detail": "Mantener suelo húmedo",
+        "dose": "30~50",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Crecimiento Vegetativo",
+        "day": "90~365",
+        "detail": "Mantener humedad adecuada",
+        "dose": "50~80",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Floración y Fructificación",
+        "day": "365~730",
+        "detail": "Evitar estrés hídrico",
+        "dose": "80~100",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Maduración",
+        "day": "730~820",
+        "detail": "Reducir riego para mejorar calidad",
+        "dose": "60~80",
+        "type": "r"
+      },
+      {
+        "action": "Fertilización",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Fertilización de Fondo",
+        "day": "-30~-45",
+        "detail": "Aplicar en hoyos de plantación",
+        "dose": "100~120 kg N/ha, 80~100 kg P2O5/ha, 100~120 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Crecimiento",
+        "day": "90~365",
+        "detail": "Aplicar en corona alrededor de árboles",
+        "dose": "80~100 kg N/ha, 60~80 kg P2O5/ha, 80~100 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Floración y Fructificación",
+        "day": "365~730",
+        "detail": "Aplicar en corona alrededor de árboles",
+        "dose": "60~80 kg N/ha, 40~60 kg P2O5/ha, 60~80 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Tratamiento de Malezas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Control Químico Preemergente",
+        "day": "0~30",
+        "detail": "Aplicar en suelo húmedo",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Químico Postemergente",
+        "day": "30~730",
+        "detail": "Aplicar cuando malezas están en activo crecimiento",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Manual",
+        "day": "730~820",
+        "detail": "Eliminar malezas alrededor de árboles",
+        "dose": "",
+        "type": "m"
+      },
+      {
+        "action": "Tratamiento de Plagas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Monitoreo",
+        "day": "Durante todo el ciclo del cultivo",
+        "detail": "Identificar plagas y umbrales de daño",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Insecticidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Respetar tiempos de carencia",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Fungicidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Rotar mecanismos de acción",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Cosecha",
+        "day": "730~820",
+        "detail": "Realizar cuando los frutos alcanzan madurez",
+        "dose": "",
+        "type": "c"
+      }
+    ],
+    "price": "0.00"
+  },
+  "nuez": {
+    "culture": "Nuéz",
+    "detail": "",
+    "diseases": [
+      {
+        "Msmax": "",
+        "Msmin": "",
+        "Rhmax": "70",
+        "Rhmin": "30",
+        "Tmax": "100",
+        "Tmin": "25",
+        "name": "Gorgojo de la nuez",
+        "photo": "bug-vector-icon"
+      },
+      {
+        "Msmax": "",
+        "Msmin": "",
+        "Rhmax": "70",
+        "Rhmin": "30",
+        "Tmax": "100",
+        "Tmin": "25",
+        "name": "Barrenador del tronco",
+        "photo": "bug-vector-icon"
+      }
+    ],
+    "owner": "DTA-Agrícola",
+    "plan": [
+      {
+        "action": "Preparación del Suelo",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Desmonte y Limpieza",
+        "day": "-30~-45",
+        "detail": "Eliminar vegetación existente",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Arado Profundo",
+        "day": "-30~-45",
+        "detail": "Profundidad de 40~50 cm",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Rastreo",
+        "day": "-15~-20",
+        "detail": "Realizar 2~3 pases",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Trazado de Hoyos",
+        "day": "-10~-15",
+        "detail": "Distancia entre plantas de 10~12 m",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Siembra",
+        "day": "0",
+        "detail": "Utilizar plantones o árboles injertados",
+        "dose": "",
+        "type": "s"
+      },
+      {
+        "action": "Riegos",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Riego de Establecimiento",
+        "day": "0~180",
+        "detail": "Asegurar prendimiento de plantas",
+        "dose": "80~100",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Crecimiento Vegetativo",
+        "day": "180~720",
+        "detail": "Mantener humedad adecuada",
+        "dose": "100~120",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Floración",
+        "day": "720~780",
+        "detail": "Evitar estrés hídrico",
+        "dose": "80~100",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Llenado de Frutos",
+        "day": "780~900",
+        "detail": "Mantener humedad para desarrollo de frutos",
+        "dose": "100~120",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Maduración",
+        "day": "900~1080",
+        "detail": "Reducir riego para facilitar cosecha",
+        "dose": "80~100",
+        "type": "r"
+      },
+      {
+        "action": "Fertilización",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Fertilización de Fondo",
+        "day": "-15~-20",
+        "detail": "Aplicar en hoyos de siembra",
+        "dose": "80~100 kg N/ha, 60~80 kg P2O5/ha, 80~100 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Crecimiento",
+        "day": "180~720",
+        "detail": "Aplicar en corona alrededor de plantas",
+        "dose": "60~80 kg N/ha, 40~60 kg P2O5/ha, 60~80 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Floración",
+        "day": "720~780",
+        "detail": "Aplicar en corona alrededor de plantas",
+        "dose": "40~60 kg N/ha, 30~40 kg P2O5/ha, 40~60 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Fructificación",
+        "day": "780~900",
+        "detail": "Aplicar en corona alrededor de plantas",
+        "dose": "60~80 kg N/ha, 40~60 kg P2O5/ha, 60~80 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Tratamiento de Malezas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Control Químico Preemergente",
+        "day": "0~15",
+        "detail": "Aplicar en suelo húmedo",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Químico Postemergente",
+        "day": "180~720",
+        "detail": "Aplicar cuando malezas están en activo crecimiento",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Manual",
+        "day": "720~1080",
+        "detail": "Eliminar malezas alrededor de plantas",
+        "dose": "",
+        "type": "m"
+      },
+      {
+        "action": "Tratamiento de Plagas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Monitoreo",
+        "day": "Durante todo el ciclo del cultivo",
+        "detail": "Identificar plagas y umbrales de daño",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Insecticidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Respetar tiempos de carencia",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Fungicidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Rotar mecanismos de acción",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Cosecha",
+        "day": "900~1080",
+        "detail": "Realizar cuando los frutos alcanzan madurez",
+        "dose": "",
+        "type": "c"
+      }
+    ],
+    "price": "0.00"
+  },
+  "papa": {
+    "culture": "Papa",
+    "detail": "",
+    "diseases": [
+      {
+        "Msmax": "100",
+        "Msmin": "60",
+        "Rhmax": "100",
+        "Rhmin": "80",
+        "Tmax": "22",
+        "Tmin": "15",
+        "name": "Escarabajo de la papa",
+        "photo": "bug-vector-icon"
+      },
+      {
+        "Msmax": "100",
+        "Msmin": "60",
+        "Rhmax": "100",
+        "Rhmin": "80",
+        "Tmax": "22",
+        "Tmin": "15",
+        "name": "Barrenador del tronco",
+        "photo": "bug-vector-icon"
+      }
+    ],
+    "owner": "DTA-Agrícola",
+    "plan": [
+      {
+        "action": "Preparación del Suelo",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "|n"
+      },
+      {
+        "action": "Desmonte y Limpieza",
+        "day": "-30~-45",
+        "detail": "Eliminar vegetación existente",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Arado Profundo",
+        "day": "-30~-45",
+        "detail": "Profundidad de 30~40 cm",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Rastreo",
+        "day": "-15~-20",
+        "detail": "Realizar 2~3 pases",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Formación de Surcos",
+        "day": "-10~-15",
+        "detail": "Distancia entre surcos de 0.8~1 m",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Siembra",
+        "day": "0",
+        "detail": "Utilizar tubérculos~semilla",
+        "dose": "",
+        "type": "s"
+      },
+      {
+        "action": "Riegos",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Riego de Establecimiento",
+        "day": "0~30",
+        "detail": "Mantener suelo húmedo",
+        "dose": "30~40",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Crecimiento Vegetativo",
+        "day": "30~90",
+        "detail": "Mantener humedad adecuada",
+        "dose": "40~50",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Tuberización",
+        "day": "90~120",
+        "detail": "Evitar estrés hídrico",
+        "dose": "30~40",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Maduración",
+        "day": "120~150",
+        "detail": "Reducir riego para facilitar cosecha",
+        "dose": "20~30",
+        "type": "r"
+      },
+      {
+        "action": "Fertilización",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Fertilización de Fondo",
+        "day": "-15~-20",
+        "detail": "Aplicar en surcos de siembra",
+        "dose": "120~150 kg N/ha, 80~100 kg P2O5/ha, 100~120 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Crecimiento",
+        "day": "30~90",
+        "detail": "Aplicar en corona alrededor de plantas",
+        "dose": "80~100 kg N/ha, 60~80 kg P2O5/ha, 80~100 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Tuberización",
+        "day": "90~120",
+        "detail": "Aplicar en corona alrededor de plantas",
+        "dose": "60~80 kg N/ha, 40~60 kg P2O5/ha, 60~80 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Tratamiento de Malezas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Control Químico Preemergente",
+        "day": "0~15",
+        "detail": "Aplicar en suelo húmedo",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Químico Postemergente",
+        "day": "30~120",
+        "detail": "Aplicar cuando malezas están en activo crecimiento",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Manual",
+        "day": "120~150",
+        "detail": "Eliminar malezas alrededor de plantas",
+        "dose": "",
+        "type": "m"
+      },
+      {
+        "action": "Tratamiento de Plagas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Monitoreo",
+        "day": "Durante todo el ciclo del cultivo",
+        "detail": "Identificar plagas y umbrales de daño",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Insecticidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Respetar tiempos de carencia",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Fungicidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Rotar mecanismos de acción",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Cosecha",
+        "day": "90~150",
+        "detail": "Realizar cuando los tubérculos alcanzan madurez",
+        "dose": "",
+        "type": "c"
+      }
+    ],
+    "price": "0.00"
+  },
+  "platano": {
+    "culture": "Plátano",
+    "detail": "",
+    "diseases": [
+      {
+        "Msmax": "100",
+        "Msmin": "70",
+        "Rhmax": "100",
+        "Rhmin": "85",
+        "Tmax": "30",
+        "Tmin": "25",
+        "name": "Picudo negro",
+        "photo": "bug-vector-icon"
+      },
+      {
+        "Msmax": "100",
+        "Msmin": "70",
+        "Rhmax": "100",
+        "Rhmin": "85",
+        "Tmax": "30",
+        "Tmin": "25",
+        "name": "Trips",
+        "photo": "bug-vector-icon"
+      },
+      {
+        "Msmax": "100",
+        "Msmin": "70",
+        "Rhmax": "100",
+        "Rhmin": "85",
+        "Tmax": "30",
+        "Tmin": "25",
+        "name": "Nematodo del nudo",
+        "photo": "bug-vector-icon"
+      }
+    ],
+    "owner": "DTA-Agrícola",
+    "plan": [
+      {
+        "action": "Preparación del Suelo",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Desmonte y Limpieza",
+        "day": "-30~-45",
+        "detail": "Eliminar vegetación existente",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Arado Profundo",
+        "day": "-30~-45",
+        "detail": "Profundidad de 30~40 cm",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Nivelación",
+        "day": "-15~-20",
+        "detail": "Asegurar uniformidad del terreno",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Trazado de Hoyos",
+        "day": "10~15",
+        "detail": "Distancia entre plantas de 4~5 m",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Siembra",
+        "day": "0",
+        "detail": "Utilizar hijuelos o cormos de plátano",
+        "dose": "",
+        "type": "s"
+      },
+      {
+        "action": "Riegos",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Riego de Establecimiento",
+        "day": "0~60",
+        "detail": "Asegurar prendimiento de plantas",
+        "dose": "80~100",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Crecimiento Vegetativo",
+        "day": "60~180",
+        "detail": "Mantener humedad adecuada",
+        "dose": "120~150",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Floración",
+        "day": "180~240",
+        "detail": "Evitar estrés hídrico",
+        "dose": "100~120",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Llenado de Frutos",
+        "day": "240~300",
+        "detail": "Mantener humedad para desarrollo de frutos",
+        "dose": "120~150",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Maduración",
+        "day": "300~360",
+        "detail": "Reducir riego para facilitar cosecha",
+        "dose": "80~100",
+        "type": "r"
+      },
+      {
+        "action": "Fertilización",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Fertilización de Fondo",
+        "day": "-15~-20",
+        "detail": "Aplicar en hoyos de siembra",
+        "dose": "80~100 kg N/ha, 60~80 kg P2O5/ha, 120~150 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Crecimiento",
+        "day": "60~180",
+        "detail": "Aplicar en corona alrededor de plantas",
+        "dose": "60~80 kg N/ha, 40~60 kg P2O5/ha, 80~100 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Floración",
+        "day": "180~240",
+        "detail": "Aplicar en corona alrededor de plantas",
+        "dose": "40~60 kg N/ha, 30~40 kg P2O5/ha, 60~80 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Fructificación",
+        "day": "240~300",
+        "detail": "Aplicar en corona alrededor de plantas",
+        "dose": "60~80 kg N/ha, 40~60 kg P2O5/ha, 80~100 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Tratamiento de Malezas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Control Químico Preemergente",
+        "day": "0~15",
+        "detail": "Aplicar en suelo húmedo",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Químico Postemergente",
+        "day": "30~90",
+        "detail": "Aplicar cuando malezas están en activo crecimiento",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Manual",
+        "day": "90~180",
+        "detail": "Eliminar malezas alrededor de plantas",
+        "dose": "",
+        "type": "m"
+      },
+      {
+        "action": "Tratamiento de Plagas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Monitoreo",
+        "day": "Durante todo el ciclo del cultivo",
+        "detail": "Identificar plagas y umbrales de daño",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Insecticidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Respetar tiempos de carencia",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Fungicidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Rotar mecanismos de acción",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Cosecha",
+        "day": "360~420",
+        "detail": "Realizar cuando los frutos alcanzan madurez",
+        "dose": "",
+        "type": "c"
+      }
+    ],
+    "price": "0.00"
+  },
+  "sorgo": {
+    "culture": "Sorgo",
+    "detail": "",
+    "diseases": [
+      {
+        "Msmax": "30",
+        "Msmin": "0",
+        "Rhmax": "100",
+        "Rhmin": "60",
+        "Tmax": "32",
+        "Tmin": "20",
+        "name": "Gusano cogollero",
+        "photo": "Gusano cogollero"
+      },
+      {
+        "Msmax": "30",
+        "Msmin": "0",
+        "Rhmax": "100",
+        "Rhmin": "60",
+        "Tmax": "32",
+        "Tmin": "20",
+        "name": "Nematodo del nudo",
+        "photo": "Nematodo del nudo"
+      }
+    ],
+    "owner": "DTA-Agrícola",
+    "plan": [
+      {
+        "action": "Preparación del Suelo",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Arado",
+        "day": "-30~-45",
+        "detail": "Profundidad de 20~25 cm",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Rastreo",
+        "day": "-15~-20",
+        "detail": "Realizar 2~3 pases",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Nivelación",
+        "day": "-10~-15",
+        "detail": "Importante para uniformidad de riego",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Siembra",
+        "day": "0",
+        "detail": "Densidad de 100,000~150,000 plantas/ha",
+        "dose": "",
+        "type": "s"
+      },
+      {
+        "action": "Riegos",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Riego de Presiembra",
+        "day": "-10~1-5",
+        "detail": "Humedecer el perfil del suelo",
+        "dose": "80~100",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Siembra",
+        "day": "0",
+        "detail": "Asegurar germinación",
+        "dose": "40~50",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Establecimiento",
+        "day": "10~15",
+        "detail": "Favorecer enraizamiento",
+        "dose": "40~50",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Crecimiento Vegetativo",
+        "day": "30~45",
+        "detail": "Mantener humedad adecuada",
+        "dose": "60~80",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Floración",
+        "day": "60~70",
+        "detail": "Evitar estrés hídrico",
+        "dose": "80~100",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Maduración",
+        "day": "80~90",
+        "detail": "Mantener humedad hasta cosecha",
+        "dose": "60~80",
+        "type": "r"
+      },
+      {
+        "action": "Fertilización",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Fertilización de Fondo",
+        "day": "-15~-20",
+        "detail": "Aplicar en surcos o al voleo",
+        "dose": "80~100 kg N/ha, 40~60 kg P2O5/ha, 40~60 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Macollamiento",
+        "day": "30~40",
+        "detail": "Aplicar en cobertera",
+        "dose": "40~60 kg N/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Llenado de Grano",
+        "day": "60~70",
+        "detail": "Aplicar en cobertera",
+        "dose": "20~30 kg N/ha",
+        "type": "f"
+      },
+      {
+        "action": "Tratamiento de Malezas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Control Químico Preemergente",
+        "day": "0~5",
+        "detail": "Aplicar en suelo húmedo",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Químico Postemergente",
+        "day": "20~30",
+        "detail": "Aplicar cuando malezas están en activo crecimiento",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Manual",
+        "day": "40~60",
+        "detail": "Eliminar malezas antes de floración",
+        "dose": "",
+        "type": "m"
+      },
+      {
+        "action": "Tratamiento de Plagas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Monitoreo",
+        "day": "Durante todo el ciclo del cultivo",
+        "detail": "Identificar plagas y umbrales de daño",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Insecticidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Respetar tiempos de carencia",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Fungicidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Rotar mecanismos de acción",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Cosecha",
+        "day": "90~110",
+        "detail": "Realizar cuando granos alcancen madurez fisiológica",
+        "dose": "",
+        "type": "c"
+      }
+    ],
+    "price": "0.00"
+  },
+  "tomate": {
+    "culture": "Tomate",
+    "detail": "",
+    "diseases": [
+      {
+        "Msmax": "",
+        "Msmin": "",
+        "Rhmax": "100",
+        "Rhmin": "70",
+        "Tmax": "28",
+        "Tmin": "20",
+        "name": "Mosca blanca",
+        "photo": "bug-vector-icon"
+      },
+      {
+        "Msmax": "",
+        "Msmin": "",
+        "Rhmax": "100",
+        "Rhmin": "70",
+        "Tmax": "28",
+        "Tmin": "20",
+        "name": "Tuta absoluta",
+        "photo": "bug-vector-icon"
+      },
+      {
+        "Msmax": "",
+        "Msmin": "",
+        "Rhmax": "100",
+        "Rhmin": "70",
+        "Tmax": "28",
+        "Tmin": "20",
+        "name": "Trips",
+        "photo": "bug-vector-icon"
+      }
+    ],
+    "owner": "DTA-Agrícola",
+    "plan": [
+      {
+        "action": "Preparación del Suelo",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Arado",
+        "day": "-30~-45",
+        "detail": "Profundidad de 20~25 cm",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Rastreo",
+        "day": "-15~-20",
+        "detail": "Realizar 2~3 pases",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Incorporación de Materia Orgánica",
+        "day": "-15~-20",
+        "detail": "Mejorar estructura y fertilidad del suelo",
+        "dose": "20~30 t/ha",
+        "type": "p"
+      },
+      {
+        "action": "Formación de Camas",
+        "day": "-10~-15",
+        "detail": "Facilitar riego y drenaje",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Siembra",
+        "day": "0",
+        "detail": "Densidad de 25,000~30,000 plantas/ha",
+        "dose": "",
+        "type": "s"
+      },
+      {
+        "action": "Riegos",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Riego de Presiembra",
+        "day": "-10~-15",
+        "detail": "Humedecer el perfil del suelo",
+        "dose": "80~100",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Siembra",
+        "day": "0",
+        "detail": "Asegurar germinación",
+        "dose": "40~50",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Establecimiento",
+        "day": "10~15",
+        "detail": "Favorecer enraizamiento",
+        "dose": "40~50",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Crecimiento Vegetativo",
+        "day": "30~45",
+        "detail": "Mantener humedad adecuada",
+        "dose": "60~80",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Floración y Fructificación",
+        "day": "60~90",
+        "detail": "Evitar estrés hídrico",
+        "dose": "80~100",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Maduración",
+        "day": "90~120",
+        "detail": "Mantener humedad hasta cosecha",
+        "dose": "60~80",
+        "type": "r"
+      },
+      {
+        "action": "Fertilización",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Fertilización de Fondo",
+        "day": "-15~-20",
+        "detail": "Aplicar en surcos o al voleo",
+        "dose": "80~100 kg N/ha, 60~80 kg P2O5/ha, 60~80 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Crecimiento",
+        "day": "30~45",
+        "detail": "Aplicar en cobertera",
+        "dose": "40~60 kg N/ha, 20~30 kg P2O5/ha, 20~30 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Floración y Fructificación",
+        "day": "60~90",
+        "detail": "Aplicar en cobertera",
+        "dose": "30~40 kg N/ha, 20~30 kg P2O5/ha, 20~30 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Tratamiento de Malezas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Control Químico Preemergente",
+        "day": "0~5",
+        "detail": "Aplicar en suelo húmedo",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Químico Postemergente",
+        "day": "20~30",
+        "detail": "Aplicar cuando malezas están en activo crecimiento",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Manual",
+        "day": "40~60",
+        "detail": "Eliminar malezas antes de floración",
+        "dose": "",
+        "type": "m"
+      },
+      {
+        "action": "Tratamiento de Plagas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Monitoreo",
+        "day": "Durante todo el ciclo del cultivo",
+        "detail": "Identificar plagas y umbrales de daño",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Insecticidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Respetar tiempos de carencia",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Fungicidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Rotar mecanismos de acción",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Cosecha",
+        "day": "90~120",
+        "detail": "Realizar cuando frutos alcancen madurez comercial",
+        "dose": "",
+        "type": "c"
+      }
+    ],
+    "price": "0.00"
+  },
+  "trigo": {
+    "culture": "Trigo",
+    "detail": "",
+    "diseases": [
+      {
+        "Msmax": "",
+        "Msmin": "",
+        "Rhmax": "100",
+        "Rhmin": "60",
+        "Tmax": "25",
+        "Tmin": "15",
+        "name": "Pulgón verde",
+        "photo": "bug-vector-icon"
+      },
+      {
+        "Msmax": "",
+        "Msmin": "",
+        "Rhmax": "100",
+        "Rhmin": "60",
+        "Tmax": "25",
+        "Tmin": "15",
+        "name": "Gorgojo del grano",
+        "photo": "bug-vector-icon"
+      }
+    ],
+    "owner": "DTA-Agrícola",
+    "plan": [
+      {
+        "action": "Preparación del Suelo",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Arado",
+        "day": "-30~-45",
+        "detail": "Profundidad de 20~25 cm",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Rastreo",
+        "day": "-15~-20",
+        "detail": "Realizar 2~3 pases",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Nivelación",
+        "day": "-10~-15",
+        "detail": "Importante para uniformidad de riego",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Siembra",
+        "day": "0",
+        "detail": "Densidad de 120~150 kg/ha",
+        "dose": "",
+        "type": "s"
+      },
+      {
+        "action": "Riegos",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Riego de Presiembra",
+        "day": "-10~-15",
+        "detail": "Humedecer el perfil del suelo",
+        "dose": "80~100",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Siembra",
+        "day": "0",
+        "detail": "Asegurar germinación",
+        "dose": "40~50",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Macollamiento",
+        "day": "30~40",
+        "detail": "Favorecer el desarrollo de macollos",
+        "dose": "60~80",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Elongación",
+        "day": "50~60",
+        "detail": "Evitar estrés hídrico",
+        "dose": "80~100",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Floración",
+        "day": "70~80",
+        "detail": "Crítico para llenado de grano",
+        "dose": "80~100",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Maduración",
+        "day": "90~100",
+        "detail": "Mantener humedad hasta cosecha",
+        "dose": "60~80",
+        "type": "r"
+      },
+      {
+        "action": "Fertilización",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Fertilización de Fondo",
+        "day": "-15~20",
+        "detail": "Aplicar en surcos o al voleo",
+        "dose": "80~100 kg N/ha, 40~60 kg P2O5/ha, 40~60 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Macollamiento",
+        "day": "30~40",
+        "detail": "Aplicar en cobertera",
+        "dose": "40~60 kg N/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Llenado de Grano",
+        "day": "70~80",
+        "detail": "Aplicar en cobertera",
+        "dose": "20~30 kg N/ha",
+        "type": "f"
+      },
+      {
+        "action": "Tratamiento de Malezas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Control Químico Preemergente",
+        "day": "0~5",
+        "detail": "Aplicar en suelo húmedo",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Químico Postemergente",
+        "day": "30~40",
+        "detail": "Aplicar cuando malezas están en activo crecimiento",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Manual",
+        "day": "50~60",
+        "detail": "Eliminar malezas antes de floración",
+        "dose": "",
+        "type": "m"
+      },
+      {
+        "action": "Tratamiento de Plagas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Monitoreo",
+        "day": "Durante todo el ciclo del cultivo",
+        "detail": "Identificar plagas y umbrales de daño",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Insecticidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Respetar tiempos de carencia",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Cosecha",
+        "day": "110~130",
+        "detail": "Realizar cuando grano tenga 12~14% de humedad",
+        "dose": "",
+        "type": "c"
+      }
+    ],
+    "price": "0.00"
+  },
+  "vid": {
+    "culture": "Vid",
+    "detail": "",
+    "owner": "DTA-Agrícola",
+    "plan": [
+      {
+        "action": "Preparación del Suelo",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Desmonte y Limpieza",
+        "day": "-60~-90 antes de la plantación",
+        "detail": "Eliminar vegetación existente",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Arado Profundo",
+        "day": "-60~-90 antes de la plantación",
+        "detail": "Profundidad de 40~50 cm",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Rastreo",
+        "day": "-30~-45 antes de la plantación",
+        "detail": "Realizar 2~3 pases",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Formación de Surcos",
+        "day": "-15~-30 antes de la plantación",
+        "detail": "Distancia entre surcos de 2.5~3 m",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Plantación",
+        "day": "0",
+        "detail": "Utilizar plantas injertadas o estacas",
+        "dose": "",
+        "type": "s"
+      },
+      {
+        "action": "Riegos",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Riego de Establecimiento",
+        "day": "0~90 después de la plantación",
+        "detail": "Mantener suelo húmedo",
+        "dose": "40~50",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Crecimiento Vegetativo",
+        "day": "90~180 después de la plantación",
+        "detail": "Mantener humedad adecuada",
+        "dose": "60~80",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Floración y Cuajado",
+        "day": "180~240 después de la plantación",
+        "detail": "Evitar estrés hídrico",
+        "dose": "40~50",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Maduración",
+        "day": "240~300 después de la plantación",
+        "detail": "Reducir riego para mejorar calidad",
+        "dose": "40~50",
+        "type": "r"
+      },
+      {
+        "action": "Fertilización",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Fertilización de Fondo",
+        "day": "-30~-45 antes de la plantación",
+        "detail": "Aplicar en surcos de plantación",
+        "dose": "80~100 kg N/ha, 60~80 kg P2O5/ha, 80~100 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Crecimiento",
+        "day": "90~180 después de la plantación",
+        "detail": "Aplicar en corona alrededor de plantas",
+        "dose": "60~80 kg N/ha, 40~60 kg P2O5/ha, 60~80 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Floración y Cuajado",
+        "day": "180~240 después de la plantación",
+        "detail": "Aplicar en corona alrededor de plantas",
+        "dose": "40~60 kg N/ha, 30~40 kg P2O5/ha, 40~60 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Tratamiento de Malezas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Control Químico Preemergente",
+        "day": "0~30 después de la plantación",
+        "detail": "Aplicar en suelo húmedo",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Químico Postemergente",
+        "day": "30~300 después de la plantación",
+        "detail": "Aplicar cuando malezas están en activo crecimiento",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Manual",
+        "day": "300~360 después de la plantación",
+        "detail": "Eliminar malezas alrededor de plantas",
+        "dose": "",
+        "type": "m"
+      },
+      {
+        "action": "Tratamiento de Plagas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Monitoreo",
+        "day": "Durante todo el ciclo del cultivo",
+        "detail": "Identificar plagas y umbrales de daño",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Insecticidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Respetar tiempos de carencia",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Fungicidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Rotar mecanismos de acción",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Cosecha",
+        "day": "240~300 después de la plantación",
+        "detail": "Realizar cuando los frutos alcanzan madurez",
+        "dose": "",
+        "type": "c"
+      }
+    ],
+    "price": "0.00"
+  },
+  "zanahoria": {
+    "culture": "Zanahoria",
+    "detail": "",
+    "diseases": [
+      {
+        "Msmax": "100",
+        "Msmin": "70",
+        "Rhmax": "100",
+        "Rhmin": "70",
+        "Tmax": "25",
+        "Tmin": "15",
+        "name": "Mosca de la zanahoria",
+        "photo": "bug-vector-icon"
+      },
+      {
+        "Msmax": "100",
+        "Msmin": "70",
+        "Rhmax": "100",
+        "Rhmin": "70",
+        "Tmax": "25",
+        "Tmin": "15",
+        "name": "Gusano trozador",
+        "photo": "bug-vector-icon"
+      }
+    ],
+    "owner": "DTA-Agrícola",
+    "plan": [
+      {
+        "action": "Preparación del Suelo",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Desmonte y Limpieza",
+        "day": "-30~-45",
+        "detail": "Eliminar vegetación existente",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Arado Profundo",
+        "day": "-30~-45",
+        "detail": "Profundidad de 30~40 cm",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Rastreo",
+        "day": "-15~-20",
+        "detail": "Realizar 2~3 pases",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Formación de Camas",
+        "day": "-10~-15",
+        "detail": "Distancia entre camas de 0.6~0.8 m",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Siembra",
+        "day": "0",
+        "detail": "Siembra directa o trasplante de plántulas",
+        "dose": "",
+        "type": "s"
+      },
+      {
+        "action": "Riegos",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Riego de Establecimiento",
+        "day": "0~30",
+        "detail": "Mantener suelo húmedo",
+        "dose": "20~30",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Crecimiento Vegetativo",
+        "day": "30~90",
+        "detail": "Mantener humedad adecuada",
+        "dose": "30~40",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Engrosamiento de Raíces",
+        "day": "90~120",
+        "detail": "Evitar estrés hídrico",
+        "dose": "20~30",
+        "type": "r"
+      },
+      {
+        "action": "Riego de Maduración",
+        "day": "120~150",
+        "detail": "Reducir riego para facilitar cosecha",
+        "dose": "20~30",
+        "type": "r"
+      },
+      {
+        "action": "Fertilización",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Fertilización de Fondo",
+        "day": "-15~-20",
+        "detail": "Aplicar en camas de siembra",
+        "dose": "80~100 kg N/ha, 60~80 kg P2O5/ha, 80~100 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Crecimiento",
+        "day": "30~90",
+        "detail": "Aplicar en corona alrededor de plantas",
+        "dose": "60~80 kg N/ha, 40~60 kg P2O5/ha, 60~80 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Fertilización de Engrosamiento de Raíces",
+        "day": "90~120",
+        "detail": "Aplicar en corona alrededor de plantas",
+        "dose": "40~60 kg N/ha, 30~40 kg P2O5/ha, 40~60 kg K2O/ha",
+        "type": "f"
+      },
+      {
+        "action": "Tratamiento de Malezas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Control Químico Preemergente",
+        "day": "0~15",
+        "detail": "Aplicar en suelo húmedo",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Químico Postemergente",
+        "day": "30~120",
+        "detail": "Aplicar cuando malezas están en activo crecimiento",
+        "dose": "Según producto",
+        "type": "m"
+      },
+      {
+        "action": "Control Manual",
+        "day": "120~150",
+        "detail": "Eliminar malezas alrededor de plantas",
+        "dose": "",
+        "type": "m"
+      },
+      {
+        "action": "Tratamiento de Plagas",
+        "day": "",
+        "detail": "",
+        "dose": "",
+        "type": "n"
+      },
+      {
+        "action": "Monitoreo",
+        "day": "Durante todo el ciclo del cultivo",
+        "detail": "Identificar plagas y umbrales de daño",
+        "dose": "",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Insecticidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Respetar tiempos de carencia",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Aplicación de Fungicidas",
+        "day": "Según umbral de daño económico",
+        "detail": "Rotar mecanismos de acción",
+        "dose": "Según producto",
+        "type": "p"
+      },
+      {
+        "action": "Cosecha",
+        "day": "90~150",
+        "detail": "Realizar cuando las raíces alcanzan madurez",
+        "dose": "",
+        "type": "c"
+      }
+    ],
+    "price": "0.00"
+  }
+}

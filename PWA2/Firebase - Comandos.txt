@@ -1,0 +1,25 @@
+https://firebase.google.com/docs/cli/
+
+curl -sL https://firebase.tools | bash
+npm install -g firebase-tools
+
+firebase login				// Log into Firebase using your Google account
+firebase projects:list		// Listing your Firebase projects
+firebase init				// Initialize a Firebase project
+
+firebase use --add			// Add a project alias
+firebase serve				// Serve and test your Firebase project locally
+firebase serve --only hosting
+firebase serve --only functions,hosting // uses a flag
+
+firebase deploy				// To deploy to a Firebase project
+firebase deploy -m "Comentario"
+firebase deploy --only hosting,storage
+				--only hosting		// Firebase Hosting content
+				--only database		// Firebase Realtime Database rules
+				--only storage		// Cloud Storage for Firebase rules
+				--only firestore	// Cloud Firestore rules and indexes for all configured databases
+				--only functions	// Cloud Functions for Firebase (more specific versions of this flag are possible)
+firebase deploy --only functions:function1
+firebase deploy --only functions:function1,functions:function2
+
