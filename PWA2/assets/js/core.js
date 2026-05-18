@@ -52,13 +52,13 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     $scope.selectedWindow = 'intro';
     let listeners = {};
     $scope.systems = {};
-    $scope.systemsFails = {};
+    // $scope.systemsFails = {};
     $scope.showMore = false;
-    $scope.statisticSelectedSystem = {};
+    // $scope.statisticSelectedSystem = {};
     let sendCommand = {};
     $scope.limitRegisters = 10;
     $scope.logs = {};
-    $scope.logDetail = {};
+    // $scope.logDetail = {};
     $scope.users = {};
     $scope.meteo = [];
     $scope.as_config = false;
@@ -298,7 +298,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                             if ($scope.actualSystem && locationKey === $scope.actualSystem.key) {
                                 $scope.selectSystem($scope.systems[locationKey]);
                             }
-                            $scope.$apply();
+                            // $scope.$apply();
                         }
                     });
 
@@ -4027,8 +4027,8 @@ window.addEventListener("beforeinstallprompt", eventHandler, errorHandler);
 
 function eventHandler(event) {
     beforeInstallPrompt = event;
-    installBtn1.style.display = 'block';
-    installBtn2.style.display = 'block';
+    if (installBtn1) installBtn1.style.display = 'block';
+    if (installBtn2) installBtn2.style.display = 'block';
 }
 
 function errorHandler(e) {

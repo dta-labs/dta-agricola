@@ -305,31 +305,33 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                         }
                     });
 
-                    // if ($scope.systems[locationKey] && $scope.systems[locationKey].type == "Sensor") {
-                        // --- Listener para DAYLOGS ---
-                        listeners[`${locationKey}_dayLogs`] = firebase.database().ref(`systems/${locationKey}/dayLogs`);
-                        // listeners[`${locationKey}_dayLogs`] = firebase.database().ref(`systems/${locationKey}/actualData`);
-                        listeners[`${locationKey}_dayLogs`].on("value", dayLogs => {
-                            if (dayLogs.val()) {
-                                // $scope.systems[locationKey].dayLogs = dayLogs.val();
-                                // Aquí también puedes disparar funciones adicionales
-                                $scope.loadSystemLog(locationKey, 3000, "/dayLogs");
-                                // $scope.loadSystemLog(locationKey, 3000, "/actualData");
-                                $scope.$apply();
-                            }
-                        });
-                    // } else {
-                        // --- Listener para LOGS ---
-                        listeners[`${locationKey}_logs`] = firebase.database().ref(`systems/${locationKey}/logs`);
-                        listeners[`${locationKey}_logs`].on("value", logs => {
-                            if (logs.val()) {
-                                // $scope.systems[locationKey].logs = logs.val();
-                                // Aquí puedes disparar funciones adicionales si lo requieres
-                                $scope.loadSystemLog(locationKey, 30, `/logs`);
-                                $scope.$apply();
-                            }
-                        });
-                    // }
+                    if (false) {
+                        if ($scope.systems[locationKey] && $scope.systems[locationKey].type == "Sensor") {
+                            // --- Listener para DAYLOGS ---
+                            listeners[`${locationKey}_dayLogs`] = firebase.database().ref(`systems/${locationKey}/dayLogs`);
+                            // listeners[`${locationKey}_dayLogs`] = firebase.database().ref(`systems/${locationKey}/actualData`);
+                            listeners[`${locationKey}_dayLogs`].on("value", dayLogs => {
+                                if (dayLogs.val()) {
+                                    // $scope.systems[locationKey].dayLogs = dayLogs.val();
+                                    // Aquí también puedes disparar funciones adicionales
+                                    $scope.loadSystemLog(locationKey, 3000, "/dayLogs");
+                                    // $scope.loadSystemLog(locationKey, 3000, "/actualData");
+                                    $scope.$apply();
+                                }
+                            });
+                        } else {
+                            // --- Listener para LOGS ---
+                            listeners[`${locationKey}_logs`] = firebase.database().ref(`systems/${locationKey}/logs`);
+                            listeners[`${locationKey}_logs`].on("value", logs => {
+                                if (logs.val()) {
+                                    // $scope.systems[locationKey].logs = logs.val();
+                                    // Aquí puedes disparar funciones adicionales si lo requieres
+                                    $scope.loadSystemLog(locationKey, 30, `/logs`);
+                                    $scope.$apply();
+                                }
+                            });
+                        }
+                    }
                 }
             }
         }
