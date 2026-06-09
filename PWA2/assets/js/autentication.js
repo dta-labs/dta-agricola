@@ -79,31 +79,31 @@ signinBtn.addEventListener('click', async (e) => {
 
 // #region SignOut
 
-signout1.addEventListener('click', async (e) => {
-    e.preventDefault();
-    try {
-        signinMail.value = "";
-        signinPassword.value = "";
-        await signOut(auth);
-        swal("Sesión cerrada con éxito!", { icon: "success" });
-        setTimeout(location.reload(), 5000);
-    } catch (err) {
-        alert(err.message);
-    }
-});
+// signout1.addEventListener('click', async (e) => {
+//     e.preventDefault();
+//     try {
+//         signinMail.value = "";
+//         signinPassword.value = "";
+//         await signOut(auth);
+//         swal("Sesión cerrada con éxito!", { icon: "success" });
+//         setTimeout(location.reload(), 5000);
+//     } catch (err) {
+//         alert(err.message);
+//     }
+// });
 
-signout2.addEventListener('click', async (e) => {
-    e.preventDefault();
-    try {
-        signinMail.value = "";
-        signinPassword.value = "";
-        await signOut(auth);
-        swal("Sesión cerrada con éxito!", { icon: "success" });
-        setTimeout(location.reload(), 5000);
-    } catch (err) {
-        alert(err.message);
-    }
-});
+// signout2.addEventListener('click', async (e) => {
+//     e.preventDefault();
+//     try {
+//         signinMail.value = "";
+//         signinPassword.value = "";
+//         await signOut(auth);
+//         swal("Sesión cerrada con éxito!", { icon: "success" });
+//         setTimeout(location.reload(), 5000);
+//     } catch (err) {
+//         alert(err.message);
+//     }
+// });
 
 // #endregion SignOut
 

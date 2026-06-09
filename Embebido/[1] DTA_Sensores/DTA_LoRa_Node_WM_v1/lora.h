@@ -37,7 +37,7 @@ bool loraCheckData(String data) {
 int getTxFrequency(String data) {
   int commaIdx = data.indexOf(comma);
   data = data.substring(commaIdx + 1, data.lastIndexOf(comma)); // Elimina IdSensor y CheckSum
-  return data.toInt();
+  return data.indexOf(comma) == -1 ? data.toInt() : -1;
 }
 
 void getSoilPerfil(String data) {
@@ -52,7 +52,7 @@ void getSoilPerfil(String data) {
 bool waitConfirmation() {
   unsigned long startTime = millis();
   randomSeed(startTime);
-  unsigned long randomTimeout = random(2000, 7000);                                   // Timeout aleatorio
+  unsigned long randomTimeout = random(5000, 15000);                                   // Timeout aleatorio
   while (millis() - startTime < randomTimeout) {
     int packetSize = LoRa.parsePacket();
     if (packetSize) {
@@ -62,10 +62,13 @@ bool waitConfirmation() {
         wdt_reset();
       }
       if (data.startsWith(NODE_ID) && loraCheckData(data)) {
-        TIMER = getTxFrequency(data);
-        Serial.print(F("  ✓ Confirmación recibida - "));
-        Serial.print(TIMER); Serial.println(F("min"));
-        return true;
+        int waitingTimer = getTxFrequency(data);
+        if (waitingTimer != -1) {
+          TIMER = waitingTimer;
+          Serial.print(F("  ✓ Confirmación recibida - "));
+          Serial.print(TIMER); Serial.println(F("min"));
+          return true;
+        }
       } else {
         Serial.print(F("  → Mensaje ignorado: "));
         Serial.println(data);

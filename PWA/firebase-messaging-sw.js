@@ -1,3 +1,60 @@
+importScripts("https://www.gstatic.com/firebasejs/5.10.1/firebase-app.js");
+importScripts("https://www.gstatic.com/firebasejs/5.10.1/firebase-messaging.js");
+importScripts('assets/js/firebaseConfig.js');
+
+firebase.initializeApp(config);
+
+const messaging = firebase.messaging();
+
+// Manejo de mensajes en segundo plano (Firebase v5 usa setBackgroundMessageHandler)
+messaging.setBackgroundMessageHandler(function(payload) {
+  console.log('📩 Mensaje en segundo plano recibido:', payload);
+
+  const notificationTitle = payload.notification?.title || 'DTA-Agrícola';
+  const notificationOptions = {
+    body: payload.notification?.body || 'Nueva alerta',
+    icon: payload.notification?.icon || './assets/images/DTA-Agricola.png',
+    data: {
+      url: payload.notification?.click_action || './',
+      sound: payload.data?.sound || './assets/sounds/alarma-de-evacuacion.mp3'
+    },
+    requireInteraction: true,
+    tag: 'dta-alert'
+  };
+
+  return self.registration.showNotification(notificationTitle, notificationOptions);
+});
+
+// Click en notificación → abrir PWA activa o fallback relativo
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  const targetUrl = event.notification.data?.url || './';
+
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clientList => {
+      for (const client of clientList) {
+        if (
+          client.url.includes('dtaamerica.com/PWA2') ||
+          client.url.includes('dta-agricola.web.app')
+        ) {
+          return client.focus();
+        }
+      }
+      return clients.openWindow(targetUrl);
+    })
+  );
+
+  // Enviar mensaje al cliente para reproducir sonido
+  if (event.notification.data?.sound) {
+    self.clients.matchAll({ includeUncontrolled: true, type: 'window' })
+      .then(clients => {
+        clients.forEach(client => {
+          client.postMessage({ action: 'playSound', file: event.notification.data.sound });
+        });
+      });
+  }
+});
+
 // importScripts("https://www.gstatic.com/firebasejs/5.10.1/firebase-app.js");
 // importScripts("https://www.gstatic.com/firebasejs/5.10.1/firebase-messaging.js");
 // importScripts('assets/js/firebaseConfig.js');
@@ -5,7 +62,63 @@
 // firebase.initializeApp(config);
 
 // const messaging = firebase.messaging();
-// messaging.onBackgroundMessage((payload) => {
-//   // Handle background messages
-//   console.log('Background message received:', payload);
+
+// // Manejo de mensajes en segundo plano
+// messaging.setBackgroundMessageHandler(function(payload) {
+//   console.log('Mensaje en segundo plano recibido:', payload);
+
+//   const notificationTitle = payload.notification?.title || 'DTA-Agrícola';
+//   const notificationOptions = {
+//     body: payload.notification?.body || 'Nueva alerta',
+//     icon: payload.notification?.icon || './assets/images/DTA-Agricola.png',
+//     data: {
+//       url: payload.notification?.click_action || './',
+//       sound: payload.data?.sound || './assets/sounds/alarma-de-evacuacion.mp3'
+//     },
+//     requireInteraction: true,
+//     tag: 'dta-alert'
+//   };
+
+//   self.registration.showNotification(notificationTitle, notificationOptions);
 // });
+
+// // Click en notificación → abrir PWA activa o fallback relativo
+// self.addEventListener('notificationclick', event => {
+//   event.notification.close();
+//   const targetUrl = event.notification.data?.url || './';
+
+//   event.waitUntil(
+//     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clientList => {
+//       // Si ya hay una PWA abierta en cualquiera de tus dominios, la enfoca
+//       for (const client of clientList) {
+//         if (
+//           client.url.includes('dtaamerica.com/PWA2') ||
+//           client.url.includes('dta-agricola.web.app')
+//         ) {
+//           return client.focus();
+//         }
+//       }
+//       // Si no hay ninguna abierta, abre la raíz relativa del SW
+//       return clients.openWindow(targetUrl);
+//     })
+//   );
+
+//   // Reproducir sonido al hacer clic
+//   playNotificationSound(event.notification.data?.sound);
+// });
+
+// // Función para reproducir sonido
+// function playNotificationSound(soundUrl) {
+//   try {
+//     const baseUrl = self.location.origin;
+//     const fullSoundUrl = soundUrl.startsWith('http')
+//       ? soundUrl
+//       : baseUrl + '/' + soundUrl.replace('./', '');
+//     const audio = new Audio(fullSoundUrl);
+//     audio.play().catch(err => {
+//       console.log('❌ Error reproduciendo sonido:', err);
+//     });
+//   } catch (e) {
+//     console.log('❌ Error creando audio:', e);
+//   }
+// }

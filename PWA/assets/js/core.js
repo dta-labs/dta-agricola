@@ -3995,16 +3995,45 @@ function instalar() {
 }
 
 function serviceWorker() {
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker
-            .register('./sw.js')
-            .then(reg => {
-                enablePushNotifications();
-                console.log("Service Worker registrado correctamente: ", reg); 
-            })
-            .catch(err => console.log("Error registrado Service Worker", err));
-    }
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./firebase-messaging-sw.js', { scope: './' })
+      .then(reg => {
+        console.log("✅ SW unificado registrado:", reg);
+        enablePushNotifications(); // aquí ya se engancha el push sobre el SW unificado
+      })
+      .catch(err => console.log("❌ Error registrando SW unificado:", err));
+  }
 }
+
+// function serviceWorker() {
+//   if ('serviceWorker' in navigator) {
+//     navigator.serviceWorker.register('./sw.js', { scope: './cache/' })
+//       .then(reg => {
+//         console.log("✅ SW de caché registrado:", reg);
+//         enablePushNotifications();
+//       })
+//       .catch(err => console.log("❌ Error registrando SW de caché:", err));
+
+//     navigator.serviceWorker.register('./firebase-messaging-sw.js', { scope: './' })
+//       .then(reg => console.log("✅ SW de Firebase registrado:", reg))
+//       .catch(err => console.log("❌ Error registrando SW de Firebase:", err));
+//   }
+// }
+
+// function serviceWorker() {
+//     if ('serviceWorker' in navigator) {
+//         navigator.serviceWorker.register('./sw.js')
+//             .then(reg => {
+//                 console.log("✅ SW de caché registrado:", reg);
+//                 enablePushNotifications();
+//             })
+//             .catch(err => console.log("❌ Error registrando SW de caché:", err));
+
+//         navigator.serviceWorker.register('./firebase-messaging-sw.js')
+//             .then(reg => console.log("✅ SW de Firebase registrado:", reg))
+//             .catch(err => console.log("❌ Error registrando SW de Firebase:", err));
+//     }
+// }
 
 serviceWorker();
 
@@ -4029,7 +4058,7 @@ enablePushNotifications = () => {
 handleTokenRefresh = (email) => {
     if (authUser && !userTokenList || !userTokenList.some(item => item === subscriptionJSON)) {
         userTokenList.push(subscriptionJSON);
-        // setUserToken(email, userTokenList);
+        setUserToken(email, userTokenList);
     }
 }
 
@@ -4080,6 +4109,24 @@ navigator.setAppBadge(unreadCount).catch((error) => {
 // Clear the badge
 navigator.clearAppBadge().catch((error) => {
     // Do something with the error.
+});
+
+// Escuchar mensajes del SW
+navigator.serviceWorker.addEventListener('message', event => {
+  if (event.data && event.data.action === 'playSound') {
+    const soundUrl = event.data.file;
+    console.log('🎵 Reproduciendo sonido en la PWA:', soundUrl);
+
+    try {
+      const audio = new Audio(soundUrl);
+      audio.volume = 1.0;
+      audio.play().catch(err => {
+        console.error('❌ Error reproduciendo sonido en la PWA:', err);
+      });
+    } catch (e) {
+      console.error('❌ Error creando audio en la PWA:', e);
+    }
+  }
 });
 
 // #endregion Progresive Web Application

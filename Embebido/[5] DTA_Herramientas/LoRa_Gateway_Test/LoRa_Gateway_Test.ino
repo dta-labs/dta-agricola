@@ -6,7 +6,7 @@
 #define startAddress F("0x")
 #define commaChar F(",")
 #define FREQUENCY 915E6                       // 433E6 or 915E6*, the MHz frequency of module
-#define TIME_SCAN 5                           // Tiempo de escaneo en minutos
+#define TIME_SCAN 3                           // Tiempo de escaneo en minutos
 #define isConfirmationNeeded true            // Enviar confirmación o no
 #pragma endregion Variables
 
@@ -15,7 +15,7 @@
 void setup() {
   Serial.begin(250000);
   while (!Serial) delay(10);  // Pausar Arduino Zero, Leonardo, etc. hasta que se active el puerto serie
-  Serial.println(F("\n\nLoRa Gateway Tester v6.1"));
+  Serial.println(F("\n\nLoRa Gateway Tester v6.2"));
   initLoRa();
 }
 
@@ -64,11 +64,13 @@ void sendConfirmation(String data) {
 }
 
 bool loraCheckData(String data) {
-  int idx = data.lastIndexOf(F(",")) + 1;
-  int dataCheckSum = (data.substring(idx)).toInt();
-  data = data.substring(0, idx);
-  int calculatedCheckSum = calculateSum(data);
-  return data.indexOf(F("DTA")) == 0 && dataCheckSum == calculatedCheckSum;
+  int idx = data.lastIndexOf(commaChar);
+  int dataCheckSum = (data.substring(idx + 1)).toInt();                   // Lee CheckSum
+  data = data.substring(0, idx + 1);                                      // Elimina CheckSum
+  int calculatedCheckSum = calculateSum(data);                            // Calcula CheckSum
+  int commaIdx = data.indexOf(commaChar); 
+  String dataInfo = data.substring(commaIdx + 1, data.length() - 1);      // Elimina IdSensor
+  return data.startsWith(F("DTA")) && dataInfo.indexOf(commaChar) != -1 && dataCheckSum == calculatedCheckSum;  // Inicia con DTA, no es una confirmación y CheckSum correcta
 }
 
 void loraRxData() {
@@ -83,7 +85,7 @@ void loraRxData() {
       Serial.print(data);
       if (isConfirmationNeeded) sendConfirmation(data);
     } else {
-      Serial.print(data); Serial.print(F("« ✘ Error de lectura... »"));
+      Serial.print(data); Serial.print(F(" « ✘ Error de lectura... »"));
     }
   }
 }

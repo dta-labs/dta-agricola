@@ -60,7 +60,8 @@
 
     <div id="contenido" style="height: 100%; display: none;">
 
-        <div class="top-navbar"> <!-- Barra de menú -->
+        <!-- Barra de menú -->
+        <div id="top-navbar" class="top-navbar" ng-show="selectedWindow != 'login'">
             <div class="row">
                 <div class="col s3 m1" style="margin-left: -15px; margin-top: 7px;" ng-show="selectedWindow == 'listado'">
                     <img class="img-logo-cel" src="./assets/images/DTA.png" alt="DTA-Agricola">
@@ -104,12 +105,12 @@
                 <br>
                 <div class="" style="width: 100% !important;">
 
-                    <div class="text-center our-services">
+                    <div class="text-center our-services" ng-show="systems">
                         <div class="row" style="margin-left: 0; margin-right: 0;">
                             <div class="col s12 m6 l4 xl3" id="{{ system.key }}" ng-repeat="system in systems"
                                 ng-click="selectSystem(system)" ng-show="system.name">
                                 <div class="sercices-options waves-effect" style="display: block !important; padding-bottom: 0;
-                                                                                    background: {{ getSystemBackgroundColor(system) }};">
+                                                                                    background: {{ getSystemBackgroundColor(system) }}; color: {{ getSystemTextColor(system) }};">
                                     <a href="#!/sistema" ng-click="showWindow('sistema')"
                                         style="color: {{ color }} !important;" ng-init="color = getSystemColor(system)">
                                         <div class="row" style="margin-bottom: 0;">
@@ -298,15 +299,45 @@
                                     </a>
                                 </div>
                             </div>
-                            <div class="col s12" ng-show="authUser">
-                                <div class="col s12 sercices-options waves-effect white-text teal lighten-3 center-align modal-trigger"
-                                    style="width: 100%; padding: 10px 0; background: #80cbc4f0 !important;">
+                        </div>
+                        <br>
+                        <br>
+                        <br>
+                        <br>
+                    </div>
+                    <div class="text-center our-services" ng-show="systems">
+                        Poner aquí cosas lindas :-)
+                        <br>
+                        <br>
+                        <br>
+                        <br>
+                    </div>
+                    <div class="text-center our-services" >
+                        <div class="row" style="margin: 0; background: #ffffffac; width: 100%; position: fixed; bottom: 0; z-index: 1;">
+                            <div class="col s12" ng-show="authUser"><hr></div>
+                            <div class="col s6" ng-show="authUser">
+                                <div class="col s12 sercices-options boton-gradiente-bioleta waves-effect white-text teal lighten-3 center-align modal-trigger"
+                                    style="width: 100%; padding: 10px 0;">
                                     <a class="modal-trigger" href="#modalNuevoEquipo"
                                         style="color: white !important;" ng-click="createNewDevice()">
                                         <div class="row" style="margin-bottom: 0;">
                                             <div class="col s12">
-                                                <i class="material-icons" style="font-size: 2.5em;">add</i>
-                                                <p style="font-size: 1.3em; margin: -10px 0 0 0;">Agregar equipo</p>
+                                                <i class="material-icons" style="font-size: 1.5em; border-radius: 50%; width: 20px; vertical-align: middle;">add_circle_outline</i>
+                                                <span style="font-size: 1em; margin: -10px 0 0 0; vertical-align: middle;">Agregar equipo <span class="show-in-pc-only">existente</span></span>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="col s6" ng-show="authUser">
+                                <div class="col s12 sercices-options boton-gradiente-rojo waves-effect white-text teal lighten-3 center-align modal-trigger"
+                                    style="width: 100%; padding: 10px 0;">
+                                    <a class="modal-trigger" href="https://dtaamerica.com/dta-agricola"
+                                        style="color: white !important;">
+                                        <div class="row" style="margin-bottom: 0;">
+                                            <div class="col s12">
+                                                <i class="material-icons" style="font-size: 1em; border-radius: 50%; border: 2px solid; width: 20px; vertical-align: middle;">shopping_cart</i>
+                                                <span style="font-size: 1em; margin: -10px 0 0 0; vertical-align: middle;">Adquirir equipo <span class="show-in-pc-only">nuevo</span></span>
                                             </div>
                                         </div>
                                     </a>
@@ -314,7 +345,6 @@
                             </div>
                         </div>
                     </div>
-                    
                 </div>
                 <br>
                 <br>
@@ -4135,54 +4165,55 @@
 
             <section id="usuarios">
 
-                <div class="container ventanaServicios" style="width: 80%; min-height: 530px; margin-top: 100px; max-width: 400px;" ng-show="selectedWindow == 'login'">
-                    <div class="swal-title">Acceder</div>
+                <img src="./assets/images/fondo-web.png" class="show-in-pc-only" style="position: fixed; top: 0; width: 100%; height: 100%; z-index: -1;" alt="Login" ng-show="selectedWindow == 'login'">
+                <img src="./assets/images/fondo-cel.png" class="show-in-mobil-only" style="position: fixed; top: 0; width: 100%; height: 100%; z-index: -1;" alt="Login" ng-show="selectedWindow == 'login'">
+                <div class="shadow-login" ng-show="selectedWindow == 'login'"></div>
+                <div class="container" style="width: 95%; min-height: 530px; margin-top: calc(100vh - 520px); max-width: 400px; text-align: center; position: relative;" ng-show="selectedWindow == 'login'">
+                    <img src="./assets/images/DTA2.png" style="width: 60%;" alt="Login">
+                    <div class="swal-title" style="font-size: 1.5em !important; margin-bottom: 30px !important; color: darkslategray;">Todos tus sistemas en <br>un solo lugar</div>
+                    <!-- <div class="swal-title" style="font-size: 1em !important; ">Únete a los productores que como tú confían en DTA-Agrícola como su herramienta de gestión integral.</div> -->
 
                     <div style="padding: 0 20px;">
                         <div class="modal-content">
-                            <div class="row" >
-                                <div class="input-field col s12">
-                                    <input id="signinMail" type="email" class="validate">
-                                    <label for="signinMail">Correo</label>
+                            <a id="signinGoogle" class="waves-effect waves-light btn valign-wrapper white btn-login">
+                                <div class="row valign-wrapper" style="width: fit-content; margin: auto;">
+                                    <div class="col s12 valign-wrapper" style="margin-top: 5px;">
+                                        <div style="margin: 5px 20px 0 0;"><img src="./assets/images/google-icon-1.png" alt="Google" style="width: 24px;"></div>
+                                        <div style="margin-top: -5px; color: black;"><b>Continuar con Google</b></div>
+                                    </div>
                                 </div>
-                                <div class="input-field col s12">
-                                    <input id="signinPassword" type="password" class="validate">
-                                    <label for="signinPassword">Contraseña</label>
+                            </a>
+                            <br><br>
+                            <hr>
+                            <!-- <p style="margin-top: -20px; background: #eef4f5; width: 50px; margin-left: calc(50% - 25px); text-align: center;">O</p> -->
+                            <div class="row" style="margin-bottom: 0;" ng-init="dtaLoginEmail = true">
+                                <div class="input-field col s12 input-login" style="margin-bottom: 0; margin-bottom: 0; background: #1312247a; color: white;" ng-show="dtaLoginEmail == true">
+                                    <input id="signinMail" type="email" class="validate" placeholder="Correo electrónico" style="color: white;">
+                                    <i class="material-icons input-login-btn" ng-click="dtaLoginEmail = false">arrow_forward</i>
+                                </div>
+                                <div class="input-field col s12 input-login" style="margin-bottom: 0; margin-bottom: 0; background: #1312247a; color: white;" ng-show="dtaLoginEmail == false">
+                                    <input id="signinPassword" type="password" class="validate" placeholder="Contraseña" style="color: white;">
+                                    <p style="margin-top: 0;"><i class="material-icons input-login-btn" ng-click="dtaLoginEmail = true" style="left: 30%; font-size: 2.2em;">arrow_back</i></p>
+                                    <img id="signinBtn" class="input-login-btn" src="./assets/images/DTA-Agricola.png" alt="Google" style="width: 35px; border: 0; top: -97px;">
                                 </div>
                             </div>
                         </div>
-                        <div class="modal-footer">
-                            <a id="signinBtn" class="waves-effect waves-light btn valign-wrapper" style="width: 100%; border-radius: 5px;">
+                        <!-- <div class="modal-footer">
+                            <a id="signinBtn" class="waves-effect waves-light btn valign-wrapper white btn-login">
                                 <div class="row valign-wrapper" style="width: fit-content; margin: auto;">
-                                    <div class="col s12 valign-wrapper">
+                                    <div class="col s12 valign-wrapper" style="margin-top: 5px;">
                                         <div style="margin: 5px 20px 0 0;"><img src="./assets/images/DTA-Agricola.png" alt="Google" style="width: 24px;"></div>
-                                        <div style="margin-top: -5px;">Ingresar</div>
+                                        <div style="margin-top: -5px;"><b>Continuar con DTA-Agrícola</b></div>
                                     </div>
                                 </div>
                             </a>
-                        </div>
+                        </div> -->
                         <div style="text-align: right; margin: 15px 0 5px 0; width: 100%;">
-                            <a class="modal-trigger" href="#modalSignup">Crear cuenta nueva</a>
+                            <a class="modal-trigger" href="#modalSignup" style="color: white; font-weight: bold; z-index: 2; position: relative;">Crear cuenta nueva</a>
                         </div>
-                        <div>
-                            <br>
-                            <hr>
-                            <p style="margin-top: -20px; background: #fefefe; width: 100px; margin-left: calc(50% - 50px);">Inicio rápido</p>
-                        </div>
-                        <div class="modal-footer">
-                            <a id="signinGoogle" class="waves-effect waves-light btn valign-wrapper white" 
-                                style="border: 1px solid black; border-radius: 5px; margin-top: 10px; width: 100%;">
-                                <div class="row valign-wrapper" style="width: fit-content; margin: auto;">
-                                    <div class="col s12 valign-wrapper">
-                                        <div style="margin: 5px 20px 0 0;"><img src="./assets/images/google-icon-1.png" alt="Google" style="width: 24px;"></div>
-                                        <div style="margin-top: -5px; color: black;">Google</div>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-                        <div style="margin-top: 30px;">
-                            Consulte nuestras polítcas de privacidad y de uso en 
-                            <a href="https://dtaamerica.com/privacidad-es.html">Español</a> / <a href="https://dtaamerica.com/privacidad-en.html">Inglés</a>
+                        <div class="tyc">
+                            Al continuar, aceptas los términos y condiciones de uso de DTA-Agrícola 
+                            <a href="https://dtaamerica.com/privacidad-es.html" style="color: white; font-weight: bold;">Español</a> / <a href="https://dtaamerica.com/privacidad-en.html" style="color: white; font-weight: bold;">Inglés</a>
                         </div>
                     </div>
                     
@@ -4335,8 +4366,11 @@
     <script src="./assets/modules/chart.js/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
     <script src="./assets/js/commons.js"></script>
+    <!-- OneSignal SDK -->
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+    <script src="./assets/modules/push-notification/push.js" defer></script>
     <!-- <script src="./assets/cultures/listOfCultures.js"></script> -->
-    <script src="./assets/js/core.js?v=26.04.29.1158"></script>
+    <script src="./assets/js/core.js?v=26.05.28.1058"></script>
     <!-- <script src="monitor/js/chartjs/chart.min.js"></script> -->
     <script type="text/javascript" src="./assets/modules/datepicker/daterangepicker.js"></script>
 

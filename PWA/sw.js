@@ -1,50 +1,209 @@
-;
-const CACHE_NAME = 'DTA_Irrigation_Control_v0.2b';
-urlsToCache = [
-    './',
-    './assets/css/responsive.css',
-    './assets/css/style.css',
-    './assets/images/icons/res/mipmap-mdpi/DTA_Agricola.png',
-    './assets/images/icons/res/mipmap-hdpi/DTA_Agricola.png',
-    './assets/images/icons/res/mipmap-xhdpi/DTA_Agricola.png',
-    './assets/images/icons/res/mipmap-xxhdpi/DTA_Agricola.png',
-    './assets/images/icons/res/mipmap-xxxhdpi/DTA_Agricola.png',
-    './assets/images/icons/web_hi_res_512.png',
-    './assets/images/DTA-Agricola lineal.png',
-    './assets/images/DTA-Agricola.png',
-    './assets/images/fondo-cel.png',
-    './assets/images/fondo-web.png',
-    './assets/images/intro.webp'
-]
+// firebase-messaging-sw.js (único SW)
+importScripts("https://www.gstatic.com/firebasejs/5.10.1/firebase-app.js");
+importScripts("https://www.gstatic.com/firebasejs/5.10.1/firebase-messaging.js");
+importScripts('assets/js/firebaseConfig.js');
 
-// Almacenar en cachpe los archivos estáticos
+firebase.initializeApp(config);
+const messaging = firebase.messaging();
+
+// Cache básico
+const CACHE_NAME = 'DTA_Irrigation_Control_v0.3';
+const urlsToCache = [
+  './',
+  './assets/css/responsive.css',
+  './assets/css/style.css',
+  './assets/images/icons/res/mipmap-mdpi/DTA_Agricola.png',
+  './assets/images/icons/res/mipmap-hdpi/DTA_Agricola.png',
+  './assets/images/icons/res/mipmap-xhdpi/DTA_Agricola.png',
+  './assets/images/icons/res/mipmap-xxhdpi/DTA_Agricola.png',
+  './assets/images/icons/res/mipmap-xxxhdpi/DTA_Agricola.png',
+  './assets/images/icons/web_hi_res_512.png',
+  './assets/images/DTA-Agricola lineal.png',
+  './assets/images/DTA-Agricola.png',
+  './assets/images/fondo-cel.png',
+  './assets/images/fondo-web.png',
+  './assets/images/intro.webp'
+];
+
 self.addEventListener('install', e => {
-    e.waitUntil(
-        caches.open(CACHE_NAME)
-            .then(cache => {
-                return cache.addAll(urlsToCache)
-                    .then(() => self.skipWaiting())
-            })
-            .catch(err => console.log('Falló el registro de caché', err))
-    )
+  e.waitUntil(
+    caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
+  );
 });
 
-// Una vez que se instala el SW, se activa y busca 
-// los recursos para hacer que funcione sin conexción
 self.addEventListener('activate', e => {
-    const cacheWhiteList = [ CACHE_NAME ]
-    e.waitUntil(
-        caches.keys()
-            .then(cachesNames => {
-                cachesNames.map(cacheName => {
-                    if (cacheWhiteList.indexOf(cacheName) === -1) {
-                        return caches.delete(cacheName)
-                    }
-                })
-            })
-            .then(() => self.clients.claim())
+  e.waitUntil(
+    caches.keys().then(names =>
+      Promise.all(names.map(name => {
+        if (name !== CACHE_NAME) return caches.delete(name);
+      }))
     )
+  );
 });
+
+// Interceptar fetch
+self.addEventListener('fetch', e => {
+  e.respondWith(
+    caches.match(e.request).then(res => res || fetch(e.request))
+  );
+});
+
+// Notificaciones en segundo plano
+messaging.setBackgroundMessageHandler(payload => {
+  const notificationTitle = payload.notification?.title || 'DTA-Agrícola';
+  const notificationOptions = {
+    body: payload.notification?.body || 'Nueva alerta',
+    icon: payload.notification?.icon || './assets/images/DTA-Agricola.png',
+    data: {
+      url: payload.notification?.click_action || './',
+      sound: payload.data?.sound || './assets/sounds/alarma-de-evacuacion.mp3'
+    },
+    requireInteraction: true,
+    tag: 'dta-alert'
+  };
+  return self.registration.showNotification(notificationTitle, notificationOptions);
+});
+
+// Click en notificación
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  const targetUrl = event.notification.data?.url || './';
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
+      for (const client of list) {
+        if (client.url.includes('dta-agricola.web.app')) return client.focus();
+      }
+      return clients.openWindow(targetUrl);
+    })
+  );
+  if (event.notification.data?.sound) {
+    self.clients.matchAll({ includeUncontrolled: true, type: 'window' })
+      .then(clients => clients.forEach(c =>
+        c.postMessage({ action: 'playSound', file: event.notification.data.sound })
+      ));
+  }
+});
+
+
+
+
+// ;
+// const CACHE_NAME = 'DTA_Irrigation_Control_v0.2b';
+// const urlsToCache = [
+//   './',
+//   './assets/css/responsive.css',
+//   './assets/css/style.css',
+//   './assets/images/icons/res/mipmap-mdpi/DTA_Agricola.png',
+//   './assets/images/icons/res/mipmap-hdpi/DTA_Agricola.png',
+//   './assets/images/icons/res/mipmap-xhdpi/DTA_Agricola.png',
+//   './assets/images/icons/res/mipmap-xxhdpi/DTA_Agricola.png',
+//   './assets/images/icons/res/mipmap-xxxhdpi/DTA_Agricola.png',
+//   './assets/images/icons/web_hi_res_512.png',
+//   './assets/images/DTA-Agricola lineal.png',
+//   './assets/images/DTA-Agricola.png',
+//   './assets/images/fondo-cel.png',
+//   './assets/images/fondo-web.png',
+//   './assets/images/intro.webp'
+// ];
+
+// // Instalar y cachear recursos
+// self.addEventListener('install', e => {
+//   e.waitUntil(
+//     caches.open(CACHE_NAME)
+//       .then(cache => cache.addAll(urlsToCache))
+//       .then(() => self.skipWaiting())
+//       .catch(err => console.log('❌ Falló el registro de caché', err))
+//   );
+// });
+
+// // Activar y limpiar cachés viejos
+// self.addEventListener('activate', e => {
+//   const cacheWhiteList = [CACHE_NAME];
+//   e.waitUntil(
+//     caches.keys().then(cacheNames => {
+//       return Promise.all(
+//         cacheNames.map(cacheName => {
+//           if (!cacheWhiteList.includes(cacheName)) {
+//             return caches.delete(cacheName);
+//           }
+//         })
+//       );
+//     }).then(() => self.clients.claim())
+//   );
+// });
+
+// // Interceptar peticiones y servir desde caché
+// self.addEventListener('fetch', e => {
+//   e.respondWith(
+//     caches.match(e.request).then(res => {
+//       if (res) {
+//         return res; // recurso en caché
+//       }
+//       // Si no está en caché, pedirlo a la red y cachearlo
+//       const fetchRequest = e.request.clone();
+//       return fetch(fetchRequest).then(response => {
+//         if (!response || response.status !== 200 || response.type !== 'basic') {
+//           return response;
+//         }
+//         const responseToCache = response.clone();
+//         caches.open(CACHE_NAME).then(cache => {
+//           cache.put(e.request, responseToCache);
+//         });
+//         return response;
+//       });
+//     })
+//   );
+// });
+
+
+
+// ;
+// const CACHE_NAME = 'DTA_Irrigation_Control_v0.2b';
+// urlsToCache = [
+//     './',
+//     './assets/css/responsive.css',
+//     './assets/css/style.css',
+//     './assets/images/icons/res/mipmap-mdpi/DTA_Agricola.png',
+//     './assets/images/icons/res/mipmap-hdpi/DTA_Agricola.png',
+//     './assets/images/icons/res/mipmap-xhdpi/DTA_Agricola.png',
+//     './assets/images/icons/res/mipmap-xxhdpi/DTA_Agricola.png',
+//     './assets/images/icons/res/mipmap-xxxhdpi/DTA_Agricola.png',
+//     './assets/images/icons/web_hi_res_512.png',
+//     './assets/images/DTA-Agricola lineal.png',
+//     './assets/images/DTA-Agricola.png',
+//     './assets/images/fondo-cel.png',
+//     './assets/images/fondo-web.png',
+//     './assets/images/intro.webp'
+// ]
+
+// // Almacenar en cachpe los archivos estáticos
+// self.addEventListener('install', e => {
+//     e.waitUntil(
+//         caches.open(CACHE_NAME)
+//             .then(cache => {
+//                 return cache.addAll(urlsToCache)
+//                     .then(() => self.skipWaiting())
+//             })
+//             .catch(err => console.log('Falló el registro de caché', err))
+//     )
+// });
+
+// // Una vez que se instala el SW, se activa y busca 
+// // los recursos para hacer que funcione sin conexción
+// self.addEventListener('activate', e => {
+//     const cacheWhiteList = [ CACHE_NAME ]
+//     e.waitUntil(
+//         caches.keys()
+//             .then(cachesNames => {
+//                 cachesNames.map(cacheName => {
+//                     if (cacheWhiteList.indexOf(cacheName) === -1) {
+//                         return caches.delete(cacheName)
+//                     }
+//                 })
+//             })
+//             .then(() => self.clients.claim())
+//     )
+// });
 
 // Cuando el navefador recupera una URL
 // self.addEventListener('fetch', e => {
@@ -116,107 +275,104 @@ self.addEventListener('activate', e => {
 //   }
 // });
 
-self.addEventListener('push', event => {
-  console.log('🔔 Push event recibido:', event);
+// self.addEventListener('push', event => {
+//   console.log('🔔 Push event recibido:', event);
   
-  try {
-    const data = event.data.json();
-    console.log('📦 Datos del push:', data);
+//   try {
+//     const data = event.data.json();
+//     console.log('📦 Datos del push:', data);
 
-    const options = {
-      body: data.body,
-      icon: data.icon || './assets/images/DTA-Agricola.png',
-      data: { url: data.url || './' },
-      requireInteraction: true,
-      silent: false,
-      tag: 'dta-alert'
-    };
+//     const options = {
+//       body: data.body,
+//       icon: data.icon || './assets/images/DTA-Agricola.png',
+//       data: { url: data.url || './' },
+//       requireInteraction: true,
+//       silent: false,
+//       tag: 'dta-alert'
+//     };
 
-    // Mostrar notificación
-    event.waitUntil(
-      self.registration.showNotification(data.title, options).then(() => {
-        console.log('✅ Notificación mostrada correctamente');
+//     // Mostrar notificación
+//     event.waitUntil(
+//       self.registration.showNotification(data.title, options).then(() => {
+//         console.log('✅ Notificación mostrada correctamente');
         
-        // Intentar reproducir sonido directamente
-        if (data.sound) {
-          console.log('🎵 Intentando reproducir sonido:', data.sound);
-          playNotificationSound(data.sound);
-        }
-      })
-    );
-  } catch (error) {
-    console.error('❌ Error procesando push:', error);
-  }
-});
+//         // Intentar reproducir sonido directamente
+//         if (data.sound) {
+//           console.log('🎵 Intentando reproducir sonido:', data.sound);
+//           playNotificationSound(data.sound);
+//         }
+//       })
+//     );
+//   } catch (error) {
+//     console.error('❌ Error procesando push:', error);
+//   }
+// });
 
-function playNotificationSound(soundUrl) {
-  try {
-    // Usar URL absoluta
-    const baseUrl = self.location.origin;
-    const fullSoundUrl = soundUrl.startsWith('http') ? soundUrl : baseUrl + '/' + soundUrl.replace('./', '');
+// function playNotificationSound(soundUrl) {
+//   try {
+//     // Usar URL absoluta
+//     const baseUrl = self.location.origin;
+//     const fullSoundUrl = soundUrl.startsWith('http') ? soundUrl : baseUrl + '/' + soundUrl.replace('./', '');
     
-    console.log('🎵 URL del sonido:', fullSoundUrl);
+//     console.log('🎵 URL del sonido:', fullSoundUrl);
     
-    const audio = new Audio(fullSoundUrl);
-    audio.volume = 1.0;
+//     const audio = new Audio(fullSoundUrl);
+//     audio.volume = 1.0;
     
-    audio.play().then(() => {
-      console.log('✅ Sonido reproducido exitosamente');
-    }).catch(err => {
-      console.log('❌ Error reproduciendo sonido MP3:', err);
-      console.log('🔄 Intentando fallback con Web Audio API...');
-      playSystemBeep();
-    });
-  } catch (e) {
-    console.log('❌ Error creando audio:', e);
-    playSystemBeep();
-  }
-}
+//     audio.play().then(() => {
+//       console.log('✅ Sonido reproducido exitosamente');
+//     }).catch(err => {
+//       console.log('❌ Error reproduciendo sonido MP3:', err);
+//       console.log('🔄 Intentando fallback con Web Audio API...');
+//       playSystemBeep();
+//     });
+//   } catch (e) {
+//     console.log('❌ Error creando audio:', e);
+//     playSystemBeep();
+//   }
+// }
 
-function playSystemBeep() {
-  try {
-    const audioContext = new AudioContext();
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
+// function playSystemBeep() {
+//   try {
+//     const audioContext = new AudioContext();
+//     const oscillator = audioContext.createOscillator();
+//     const gainNode = audioContext.createGain();
     
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
+//     oscillator.connect(gainNode);
+//     gainNode.connect(audioContext.destination);
     
-    oscillator.frequency.value = 800;
-    oscillator.type = 'sine';
-    gainNode.gain.value = 0.3;
+//     oscillator.frequency.value = 800;
+//     oscillator.type = 'sine';
+//     gainNode.gain.value = 0.3;
     
-    oscillator.start();
-    oscillator.stop(audioContext.currentTime + 0.3);
+//     oscillator.start();
+//     oscillator.stop(audioContext.currentTime + 0.3);
     
-    console.log('✅ Beep del sistema reproducido');
-  } catch (err) {
-    console.log('❌ Fallback falló:', err);
-  }
-}
+//     console.log('✅ Beep del sistema reproducido');
+//   } catch (err) {
+//     console.log('❌ Fallback falló:', err);
+//   }
+// }
 
-function playSound(file) {
-  // Nota: Los Service Workers no pueden reproducir audio directamente.
-  // Necesitas comunicarte con la página cliente.
-  self.clients.matchAll({ includeUncontrolled: true, type: 'window' })
-    .then(clients => {
-      clients.forEach(client => {
-        client.postMessage({ action: 'playSound', file: file });
-      });
-    });
-}
+// function playSound(file) {
+//   // Nota: Los Service Workers no pueden reproducir audio directamente.
+//   // Necesitas comunicarte con la página cliente.
+//   self.clients.matchAll({ includeUncontrolled: true, type: 'window' })
+//     .then(clients => {
+//       clients.forEach(client => {
+//         client.postMessage({ action: 'playSound', file: file });
+//       });
+//     });
+// }
   
 // Handle notification click
-self.addEventListener('notificationclick', event => {
-    console.log('🖱️ Notificación clickeada - reproduciendo sonido');
-    event.notification.close();
-    
-    // Reproducir sonido al hacer clic (siempre funciona por interacción del usuario)
-    playNotificationSound('./assets/sounds/alarma-de-evacuacion.mp3');
-    
-    // Abrir la aplicación
-    event.waitUntil(
-        clients.openWindow(event.notification.data.url || './')
-    );
-});
+// self.addEventListener('notificationclick', event => {
+//     console.log('Notificación clickeada - reproduciendo sonido');
+//     event.notification.close();
+//     // playNotificationSound('./assets/sounds/alarma-de-evacuacion.mp3');
+//     // Abrir la aplicación
+//     event.waitUntil(
+//         clients.openWindow(event.notification.data.url || './')
+//     );
+// });
 

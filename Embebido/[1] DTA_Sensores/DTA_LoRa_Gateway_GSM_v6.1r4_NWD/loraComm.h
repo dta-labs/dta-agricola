@@ -90,6 +90,16 @@ void processData(String data, String rssi) {      // DTA-SHT-0x00000000,%Ms,%Hr,
 }
 
 bool loraCheckData(String data) {
+  int idx = data.lastIndexOf(commaChar);
+  int dataCheckSum = (data.substring(idx + 1)).toInt();                   // Lee CheckSum
+  data = data.substring(0, idx + 1);                                      // Elimina CheckSum
+  int calculatedCheckSum = calculateSum(data);                            // Calcula CheckSum
+  int commaIdx = data.indexOf(commaChar); 
+  String dataInfo = data.substring(commaIdx + 1, data.length() - 1);      // Elimina IdSensor
+  return data.startsWith(F("DTA")) && dataInfo.indexOf(commaChar) != -1 && dataCheckSum == calculatedCheckSum;  // Inicia con DTA, no es una confirmación y CheckSum correcta
+}
+
+bool loraCheckData_old(String data) {
   int idx = data.lastIndexOf(commaChar) + 1;
   int dataCheckSum = (data.substring(idx)).toInt();
   data = data.substring(0, idx);
@@ -99,7 +109,6 @@ bool loraCheckData(String data) {
 
 void loraRxData() {
   if (LoRa.parsePacket()) {
-    // DBG_PRINT(F("."));
     String data = strEmpty;
     while (LoRa.available()) {
       data += (char)LoRa.read();

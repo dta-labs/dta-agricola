@@ -1,0 +1,20 @@
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Node (si se usa en el futuro)
+node_modules/
+dist/
+build/
+
+# Archivos temporales
+*.tmp
+temp/

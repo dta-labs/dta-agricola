@@ -145,6 +145,11 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         $scope.selectedWindow = windowsName;
         if (windowsName == "listado") {
             systemsETL();
+            const navBar = document.getElementById("top-navbar");
+            if (navBar) {
+                navBar.style.backgroundColor = "#00000000"; 
+                navBar.style.color = "#000"; 
+            }
         }
         // window.scrollTo(0, 0);
         showContent();
@@ -221,7 +226,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                 $scope.userProfile = result[convertDotToDash($scope.authUser.email)].profile;
                 let tokenList = result[convertDotToDash($scope.authUser.email)].token;
                 userTokenList = tokenList ? tokenList : [];
-                // handleTokenRefresh($scope.authUser.email);
+                handleTokenRefresh($scope.authUser.email);
                 loadSystems();
             }
             $scope.showWindow('listado');
@@ -266,7 +271,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
 
     $scope.isSystemOfRole = (role) => {
         let userRole = "";
-        if ($scope.actualSystem && $scope.userLocations && $scope.authUser) {
+        if ($scope.actualSystem && $scope.userLocations && $scope.authUser && $scope.userLocations[convertDotToDash($scope.authUser.email)] && $scope.userLocations[convertDotToDash($scope.authUser.email)].systems) {
             userRole = $scope.userLocations[convertDotToDash($scope.authUser.email)].systems[$scope.actualSystem.key];
         }
         let result = (userRole == role) ? true : false;
@@ -325,6 +330,9 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                         }
                     }
                 }
+                $scope.$apply();
+            } else {
+                $scope.systems = [];
             }
         }
     }
@@ -504,6 +512,8 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     }
 
     $scope.selectSystem = (system) => {
+        document.getElementById("top-navbar").style.backgroundColor = $scope.getSystemBackgroundColor(system);
+        document.getElementById("top-navbar").style.color = $scope.getSystemTextColor(system);
         setDeviceData(system);
         $scope.loadCultures();
         setActualSystemPlans();
@@ -2069,6 +2079,28 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             actualStatus |= $scope.actualSystem.plots[plot].forcedStart == 1 ? 1 : 0;
         }
         $scope.actualSystem.status = actualStatus;
+    }
+
+    $scope.getSystemTextColor = (system) => {
+        let color = "#d3d3d3e0";
+        if (system) {
+            switch (system.type) {
+                case 'PC':
+                case 'PL':
+                    color = system.status == 'OFF' ? "#000" :                                                          // Apagado
+                            system.log && (system.log.voltage == 'false' || system.log.voltage == false ) ? "#fff" :   // Falla elétrica
+                            system.log && (system.log.safety  == 'false' ||  system.log.safety == false)  ? '#000' :   // Falla de seguridad
+                            system.log && (system.log.commDelay != '-1') ? '#fff' :                                    // Comunicación inestable
+                            system.log && (system.log.status == 'OFF') ? 'yellow' : "#fff";                                                                                    // Encendido
+                    break;
+                case 'Estacionario':
+                case 'Pump':
+                case 'Sensor':
+                    color = "#000";
+                    break;
+            }
+        }
+        return color;
     }
 
     $scope.getSystemBackgroundColor = (system) => {
@@ -4039,43 +4071,79 @@ function instalar() {
     if (beforeInstallPrompt) beforeInstallPrompt.prompt();
 }
 
+serviceWorker();
+
 function serviceWorker() {
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker
-            .register('./sw.js')
+        // Limpiar SWs anteriores
+        navigator.serviceWorker.getRegistrations().then(registrations => {
+            registrations.forEach(registration => {
+                if (registration.active && registration.active.scriptURL.includes('sw.js')) {
+                    registration.unregister();
+                    console.log("🗑️ SW anterior (sw.js) eliminado");
+                }
+            });
+        });
+
+        navigator.serviceWorker.register('./OneSignalSDKWorker.js')
             .then(reg => {
-                enablePushNotifications();
-                console.log("Service Worker registrado correctamente: "); 
-                // console.log("Service Worker registrado correctamente: ", reg); 
+                console.log("✅ SW de OneSignal + caché registrado:", reg);
+                console.log("SW state:", reg.installing ? 'installing' : reg.waiting ? 'waiting' : reg.active ? 'active' : 'unknown');
             })
-            .catch(err => console.log("Error registrado Service Worker", err));
+            .catch(err => console.log("❌ Error registrando SW de OneSignal:", err));
+    } else {
+        console.log("❌ Service Worker no soportado");
     }
 }
 
-serviceWorker();
+// function serviceWorker() {
+//   if ('serviceWorker' in navigator) {
+//     navigator.serviceWorker.register('./firebase-messaging-sw.js', { scope: './' })
+//       .then(reg => {
+//         console.log("✅ SW unificado registrado:", reg);
+//         enablePushNotifications(); // aquí ya se engancha el push sobre el SW unificado
+//       })
+//       .catch(err => console.log("❌ Error registrando SW unificado:", err));
+//   }
+// }
 
-enablePushNotifications = () => {
-    Notification.requestPermission().then(permission => {
-        if (permission === 'granted') {
-            navigator.serviceWorker.ready.then(sw => {
-                sw.pushManager.subscribe({
-                    userVisibleOnly: true,
-                    applicationServerKey: 'BG1caHGzzvPNBWM4NuN5oIpqaRaVFKld8iwNtpx100P3bkMYhEDYfWcCs9sy0Ay3t170750tQlLM8XCzxpysD7o'
-                }).then(subscription => {
-                    subscriptionJSON = JSON.stringify(subscription);
-                    // console.log(subscriptionJSON);
-                })
-            })
-        }
-    })
-}
+// function serviceWorker() {
+//     if ('serviceWorker' in navigator) {
+//         navigator.serviceWorker.register('./sw.js')
+//             .then(reg => {
+//             console.log("✅ SW de caché registrado:", reg);
+//             enablePushNotifications();
+//             })
+//             .catch(err => console.log("❌ Error registrando SW de caché:", err));
+
+//         navigator.serviceWorker.register('./firebase-messaging-sw.js')
+//             .then(reg => console.log("✅ SW de Firebase registrado:", reg))
+//             .catch(err => console.log("❌ Error registrando SW de Firebase:", err));
+//     }
+// }
+
+// enablePushNotifications = () => {
+//     Notification.requestPermission().then(permission => {
+//         if (permission === 'granted') {
+//             navigator.serviceWorker.ready.then(sw => {
+//                 sw.pushManager.subscribe({
+//                     userVisibleOnly: true,
+//                     applicationServerKey: 'BG1caHGzzvPNBWM4NuN5oIpqaRaVFKld8iwNtpx100P3bkMYhEDYfWcCs9sy0Ay3t170750tQlLM8XCzxpysD7o'
+//                 }).then(subscription => {
+//                     subscriptionJSON = JSON.stringify(subscription);
+//                     console.log(subscriptionJSON);
+//                 })
+//             })
+//         }
+//     })
+// }
 
 // El sonido se maneja directamente desde el Service Worker
 
 handleTokenRefresh = (email) => {
     if (authUser && !userTokenList || !userTokenList.some(item => item === subscriptionJSON)) {
         userTokenList.push(subscriptionJSON);
-        // setUserToken(email, userTokenList);
+        setUserToken(email, userTokenList);
     }
 }
 
@@ -4126,6 +4194,24 @@ navigator.setAppBadge(unreadCount).catch((error) => {
 // Clear the badge
 navigator.clearAppBadge().catch((error) => {
     // Do something with the error.
+});
+
+// Escuchar mensajes del SW
+navigator.serviceWorker.addEventListener('message', event => {
+  if (event.data && event.data.action === 'playSound') {
+    const soundUrl = event.data.file;
+    console.log('🎵 Reproduciendo sonido en la PWA:', soundUrl);
+
+    try {
+      const audio = new Audio(soundUrl);
+      audio.volume = 1.0;
+      audio.play().catch(err => {
+        console.error('❌ Error reproduciendo sonido en la PWA:', err);
+      });
+    } catch (e) {
+      console.error('❌ Error creando audio en la PWA:', e);
+    }
+  }
 });
 
 // #endregion Progresive Web Application
