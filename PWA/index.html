@@ -332,7 +332,7 @@
                                                         <div class="col s7 limitar left-align" ng-show="system.type == 'Estacionario'">
                                                             <div style="font-size: 1em;"><b>{{ system.name }}</b></div>
                                                             <div style="font-size: .6em;">
-                                                                <span ng-repeat="plot in system.plots" style="color: {{ getPlotColor(system, 'p' + $index) }}; font-size: 1.2em;">
+                                                                <span ng-repeat="plot in system.plots" ng-if="$index != 7" style="color: {{ getPlotColor(system, 'p' + $index) }}; font-size: 1.2em;">
                                                                     <i class="material-icons" style="margin-top: 3px;">filter_{{ $index + 1 }}</i>&nbsp;
                                                                 </span>
                                                                 <!-- <span ng-repeat="plot in system.plots" style="color: {{ isPlotActive(system, 'p' + $index) ? 'black' : system.log.state == 'OFF' ? 'grey' : 'white' }}; font-size: 1.2em;">
@@ -1089,7 +1089,7 @@
                                                                         <i class="material-icons" 
                                                                             style="color: {{ getPlotColor(actualSystem, 'p' + $index) }}; font-size: 3em;" 
                                                                             ng-click="setEditPlanEstacionario('p' + $index); isPlotActive(actualSystem, 'p' + $index) ? stopPlotIrrigation() : startPlotIrrigation()"
-                                                                            ng-repeat="plot in actualSystem.plots">filter_{{ $index + 1 }}</i>
+                                                                            ng-repeat="plot in actualSystem.plots" ng-if="$index != 7">filter_{{ $index + 1 }}</i>
                                                                     </div>
                                                                 </td>
                                                             </tr>
@@ -1138,7 +1138,7 @@
                                                                     Acción
                                                                 </td>
                                                             </tr>
-                                                            <tr ng-repeat="plot in actualSystem.plots" 
+                                                            <tr ng-repeat="plot in actualSystem.plots" ng-if="$index != 7"
                                                                 style="color: {{ isPlotActive(actualSystem, 'p' + $index) ? 'green' : 'darkgrey' }};">
                                                                 <td class="modal-trigger"
                                                                     href="#modalEditRiegoEstacionario"
@@ -1940,7 +1940,7 @@
                                     <div class="modal-content">
                                         <ul class="tabs">
                                             <li class="tab col s3"><a class="active" href="#parcelas">Parcelas</a></li>
-                                            <li class="tab col s3"><a href="#programas">Programación</a></li>
+                                            <li class="tab col s3"><a href="#programas">Programas</a></li>
                                         </ul>
                                         <div id="parcelas">
                                             <br>
@@ -1948,7 +1948,7 @@
                                                 <div class="col s6 m3 modal-trigger" 
                                                     ng-repeat="plot in actualSystem.plots" 
                                                     href="#modalEditRiegoEstacionario" 
-                                                    ng-click="setEditPlanEstacionario('p' + $index)">
+                                                    ng-click="setEditPlanEstacionario('p' + $index)" ng-if="$index < 7">
                                                     <div class="row">
                                                         <div class="col s12">
                                                             <div class="card card-panel hoverable" style="padding: 5px; border-radius: 5px; box-shadow: 2px 2px 10px gray !important;">
@@ -1966,7 +1966,7 @@
                                                 </div>
                                                 <div class="col s6 m3">
                                                     <div class="row">
-                                                        <div class="col s12">
+                                                        <div class="col s12" ng-click="setEditPlanEstacionario('p7'); isPlotActive(actualSystem, 'p7') ? stopPlotIrrigation() : startPlotIrrigation()">
                                                             <div class="card card-panel hoverable" style="padding: 5px; border-radius: 5px; box-shadow: 2px 2px 10px gray !important; ">
                                                                 <div class="card-image">
                                                                     <img src="assets/images/pozo.png" style="filter: grayscale(100%);">
@@ -1974,12 +1974,7 @@
                                                                 </div>
                                                                 <div class="card-content" style="padding: 5px;">
                                                                     <span class="card-title black-text" style="font-size: 1em;">Pozo</span>
-                                                                    <div class="switch">
-                                                                        <label>
-                                                                            <input type="checkbox" ng-model="actualSystem.status" ng-checked="actualSystem.status" ng-click="setActualSystemStatus()">
-                                                                            <span class="lever"></span>
-                                                                        </label>
-                                                                    </div>
+                                                                    <p class="limite-una-linea">&nbsp;</p>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -4896,7 +4891,7 @@
         <script src="./assets/js/firebaseConfig.js"></script>
         <script src="./assets/js/firebaseComm.js"></script>
         <script src="./assets/js/autentication.js" type="module"></script>
-        <!-- <script src="./assets/js/notifications.js"></script> -->
+        <script src="./assets/js/notifications.js"></script>
         <!-- <script src="./assets/modules/angularjs/angular.min.js"></script> -->
         <script src="./assets/js/jquery.min.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>

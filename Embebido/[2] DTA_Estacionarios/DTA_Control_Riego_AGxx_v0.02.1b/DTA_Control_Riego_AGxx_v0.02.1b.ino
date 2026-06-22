@@ -42,12 +42,13 @@ void setup() {
     pinMode(i + offSet, OUTPUT);
     activeTime[i] = millis();
   }
-  pinMode(pinCommRST, OUTPUT);
-  digitalWrite(pinCommRST, HIGH);
-  DBG_PRINTLN(F("\n\n<<< DTA-Agrícola: Serie AGxx v0.02.250823 A >>>"));
+  // pinMode(pinCommRST, OUTPUT);
+  // digitalWrite(pinCommRST, HIGH);
+  DBG_PRINTLN(F("\n\n<<< DTA-Agrícola: Serie AGxx v0.02.260612 A >>>"));
   apagarTodo();
-  gestionarComunicaciones();
-  waitFor(360);                                         // Demora de 6 minutos (360 segundos), para proteger al motor
+  // gestionarComunicaciones();
+  setupGSM();
+  waitFor(testFunc ? 0 : 360);                                         // Demora de 6 minutos (360 segundos), para proteger la bomba
   restoreStatus();
 }
 
@@ -55,13 +56,14 @@ void loop() {
   gestionarComunicaciones();
   showVars();
   acciones();
-  waitFor(5);                                           // Demora de 5 segundos
+  waitFor(6);                                           // Demora de 6 segundos
 }
 
 #pragma region Acciones
 
 void restoreStatus() {
   if (hayEstadoGuardado()) {
+    Serial.println(F("Último estado..."));
     recuperarEstado();
     showVars();
     acciones();
@@ -72,7 +74,8 @@ void restoreStatus() {
 
 void acciones() {
   if (statusVar == "ON") {
-    bool isPump = irrigationMode == 'P' ? setPlotStatusParalell() : irrigationMode == 'S' ? setPlotStatusSerial('S') : setPlotStatusSerial('C');
+    // bool isPump = irrigationMode == 'P' ? setPlotStatusParalell() : irrigationMode == 'S' ? setPlotStatusSerial('S') : setPlotStatusSerial('C');
+    bool isPump = setPlotStatusParalell();
     activatePump(isPump);
     if (!isPump) { apagarTodo(); }
   } else {
@@ -83,11 +86,12 @@ void acciones() {
 bool setPlotStatusParalell() {                          // Estado de la bomba y puertas Paralelo
   bool isPump = false;
   for (byte i = 0; i < plots; i++) {
-    if (activationTime[i] > 0 && (millis() - activeTime[i]) < activationTime[i]) {
-      activarDesactivarPuerta(i, true);                 // Activar puerta
+    // if (activationTime[i] > 0 && (millis() - activeTime[i]) <= activationTime[i]) {
+    if (activationTime[i] > 0) {
+      activatePlot(i, true);                 // Activar puerta
       isPump = true;
     } else {
-      activarDesactivarPuerta(i, false);                // Desactivar puerta
+      activatePlot(i, false);                // Desactivar puerta
       activationTime[i] = 0;
       activeTime[i] = 0;
     }
@@ -99,7 +103,7 @@ bool setPlotStatusSerial(char cyclic) {                 // Estado de la bomba y 
   if (cyclic == 'C' || plot < plots - 1 || (plot == plots - 1 && (millis() - activeTime[plot]) < activationTime[plot])) {
     // digitalWrite(pinBomba, LOW);                        // Bomba de agua encendida
     setPlot();
-    activarDesactivarPuerta(plot, true);
+    activatePlot(plot, true);
     return true;
   }
   return false;
@@ -112,14 +116,14 @@ void setPlot() {                                        // Estado de la bomba y 
     plot = (plot < plots - 1) ? plot + 1 : 0;
     // DBG_PRINT(F("Change to plot: ")); DBG_PRINT(plot + 1); DBG_PRINT(F(": ")); DBG_PRINT(millis() - activeTime[plot]); DBG_PRINT(F(" >= ")); DBG_PRINTLN(activationTime[plot]);
     for (byte i = 0; i < plots; i++) {
-      activarDesactivarPuerta(i, false);
+      activatePlot(i, false);
       // activationTime[i] = 0;
       activeTime[i] = millis();
     }
   }
 }
 
-void activarDesactivarPuerta(int plot, bool action) {   // Activar/Desactivar puerta
+void activatePlot(int plot, bool action) {   // Activar/Desactivar puerta
   if (systemType[plot] == 'F') {
     digitalWrite(plot + offSet, action ? LOW : HIGH);   // Fijo: fija un voltaje
   } else if (systemType[plot] == 'P' && (action && activationFrecuency[plot] == 0 || !action && activationFrecuency[plot] == 1)) {
@@ -137,7 +141,7 @@ void activatePump(bool isPump) {                        // Activar/Desactivar la
 void apagarTodo() {
   digitalWrite(pinBomba, HIGH);                         // Bomba pagada
   for (byte i = 0; i < plots; i++) {
-    activarDesactivarPuerta(i, false);
+    activatePlot(i, false);
     activationTime[i] = 0;
     activeTime[i] = millis();
   }
@@ -146,6 +150,7 @@ void apagarTodo() {
 
 void waitFor(int time) {
   for (int i = 0; i < time; i++) {
+    if (!(i % 10) && i > 0) Serial.print(F("."));
     delay(1000);
     // systemWatchDog();
   }

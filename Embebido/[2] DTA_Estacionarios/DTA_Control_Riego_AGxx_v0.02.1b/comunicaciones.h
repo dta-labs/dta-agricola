@@ -29,9 +29,11 @@ String sendATCommand(String cmd, int wait = responseTime, bool response = false)
 
 void commWatchDogReset(String result, bool readError = false) {
   restartGSM = (result.indexOf(F("ERROR")) != -1 || result.indexOf(F("601")) != -1  || result.indexOf(F("604")) != -1) ? true : false;
-  commError = (signalVar < 6 || QoS > 6 || restartGSM || readError) ? commError + 1 : 0;
+  commError = (signalVar < 6 || restartGSM || readError) ? commError + 1 : 0;
   if (commError != 0) { DBG_PRINT(F("commError: ")); DBG_PRINTLN(commError); }
-  if (commError == 1) { 
+  if (commError == 5) { 
+    Serial.print(F("Resetting system by communication errors..."));
+    delay(500);
     commError = 0;
     digitalWrite(watchDogPin, LOW);
     resetSoftware();
@@ -134,41 +136,23 @@ String getSectorStatus() {
 }
 
 String setURL(byte baseURL=true) {
-  // String url = httpServer1; url += baseURL; url += httpServer2; url += (String)telefono; 
-  // Serial.println(telefono);
-  // Serial.println(url);
-  // // String url = httpServer; url += telefono; 
-  // url += F("&st="); url += statusVar;
-  // url += F("&dt="); url += getSectorStatus();
-  // url += F("&rx="); url += (String)(systemStart ? "ini" : commRx ? "Ok" : "Er");
-  // url += F("&si="); url += (String)signalVar;
-  // url += F("&qos="); url += (String)QoS + "\"";
-  char url[140];
-  strcpy_P(url, (PGM_P)httpServer1);
-  strcat(url, baseURL ? domainName : domainIP);
-  strcat_P(url, (PGM_P)httpServer2);
-  strcat(url, telefono.c_str());
-  strcat(url, "&st="); strcat(url, statusVar.c_str());
-  String sector = getSectorStatus();
-  strcat(url, "&dt="); strcat(url, sector.c_str());
-  strcat(url, "&rx=");
-  strcat(url, systemStart ? "ini" : commRx ? "Ok" : "Er");
-  char temp[6];
-  itoa(signalVar, temp, 10); strcat(url, "&si="); strcat(url, temp);
-  itoa(QoS, temp, 10); strcat(url, "&qos="); strcat(url, temp);
-  strcat(url, "\"");
-  url[sizeof(url) - 1] = '\0'; // Seguridad extra
-  // DBG_PRINTLN(url);
+  getSignalMetrics();
+  String url = httpServer1; url += baseURL ? domainName : domainIP; url += httpServer2; url += (String)telefono; 
+  url += F("&st="); url += statusVar;
+  url += F("&dt="); url += getSectorStatus();
+  url += F("&rx="); url += (String)(systemStart ? "ini" : commRx ? "Ok" : "Er");
+  url += F("&si="); url += (String)signalVar;
+  url += F("&qos="); url += (String)QoS + "\"";
   sendATCommand(url, 15, true);
-  String result = sendATCommand(F("AT+HTTPACTION=0"), 10000, true);
-  return (result.indexOf("+HTTPACTION: 0,603,0") == -1) ? sendATCommand(F("AT+HTTPREAD=0,300"), 0, true) : "";
+  String result = sendATCommand(F("AT+HTTPACTION=0"), 10000);
+  return (result.indexOf("+HTTPACTION: 0,603,0") == -1) ? sendATCommand(F("AT+HTTPREAD=0,300"), 0) : "";
   // return result.indexOf("+HTTPACTION: 0,603,0") == -1;
 }
 
 String httpRequest() {
-  if (testFunc) { return F("\"ON\"P\"7\"60000\"F\"0\"F\"0\"F\"0\"F\"45000\"F\"0\"F\"60000\"F\""); }
+  if (testComm) { return F("\"ON\"P\"8\"0\"F\"0\"F\"0\"F\"0\"F\"0\"F\"0\"F\"0\"F\"6000000\"F\""); }
   String result = "";
-  if (telefono != strEmpty /*&& signalVar > 0*/) {
+  if (telefono != strEmpty) {
     DBG_PRINTLN(F("Inicio de la comunicación..."));
     sendATCommand(F("AT+HTTPINIT"));
     sendATCommand(F("AT+HTTPPARA=\"CID\",1"));
@@ -182,6 +166,7 @@ String httpRequest() {
     if (expected == real && expected != 0) {
       result = result.substring(result.indexOf('"'), result.lastIndexOf('"') + 1);
       // result.replace(F("\""), commaChar);
+      commError = 0;
     } else { result = ""; }
     commWatchDogReset(result, expected != real);
   } else { 
@@ -222,7 +207,7 @@ void gestionarComunicaciones() {
     comunicaciones();
   }
   commLoops++;
-  if (commLoops > 10) commLoops = 0;
+  if (commLoops > 9) commLoops = 0;
 }
 
 void showVars() {

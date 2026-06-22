@@ -314,7 +314,8 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                             // listeners[`${locationKey}_dayLogs`] = firebase.database().ref(`systems/${locationKey}/actualData`);
                             listeners[`${locationKey}_dayLogs`].on("value", dayLogs => {
                                 if (dayLogs.val()) {
-                                    $scope.loadSystemLog(locationKey, 300, "/dayLogs");
+                                    $scope.loadSystemLog(locationKey, 30, "/logs");
+                                    // $scope.loadSystemLog(locationKey, 300, "/dayLogs");
                                     $scope.$apply();
                                 }
                             });
@@ -518,9 +519,10 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         $scope.loadCultures();
         setActualSystemPlans();
         $scope.actualizarListaCultivos();
-        let dir = system.type == "Sensor" ? "/dayLogs" : "/logs";
-        // let dir = system.type == "Sensor" ? "/actualData" : "/logs";
-        let items = system.type == "Sensor" ? 300 : $scope.limitRegisters;
+        let dir = "/logs";
+        let items = system.type == "Sensor" ? 30 : $scope.limitRegisters;
+        // let dir = system.type == "Sensor" ? "/dayLogs" : "/logs";
+        // let items = system.type == "Sensor" ? 300 : $scope.limitRegisters;
         $scope.loadSystemLog(system.key, items, dir);
         // invertLog();
         // $scope.actualSystem.posicionActual = parseInt($scope.actualSystem.log.position ? $scope.actualSystem.log.position : "0") + parseInt($scope.actualSystem.summerHour ? $scope.actualSystem.summerHour : "0");
@@ -534,11 +536,11 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         $scope.getSensorNetworks();
     }
 
-    $scope.selectedTimeOption = 'DIA'; // "DIA", "SEMANA", "MES" (default: "DIA")
+    $scope.selectedTimeOption = 'MES'; // "DIA", "SEMANA", "MES" (default: "MES"), "CICLO" (último ciclo de riego), "AÑO" (último año)
 
     $scope.reloadSystemLog = (systemKey, option = 'DIA') => {
         $scope.selectedTimeOption = option;
-        $scope.limitRegisters = option == 'DIA' ? 300 : option == 'SEMANA' ? 7 : 30;
+        $scope.limitRegisters = option == 'DIA' ? 300 : option == 'SEMANA' ? 7 : option == 'MES' ? 30 : option == 'CICLO' ? 180 : 365;
         $scope.chartItems = $scope.limitRegisters;
         if (option != 'DIA') {
             $scope.loadSystemLog(systemKey, $scope.limitRegisters);
@@ -1335,7 +1337,8 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                 "p3": newPlot,
                 "p4": newPlot,
                 "p5": newPlot,
-                "p6": newPlot
+                "p6": newPlot,
+                "p7": newPlot
             },
             "position": "0",
             "sensorPresion": "0"
@@ -1754,6 +1757,12 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
 
     $scope.setEditPlanEstacionario = (index) => {
         $scope.editedPlan = index;
+        if (index == "p7") {
+            $scope.actualSystem.length = 8;
+            if (!$scope.actualSystem.plots[index]) {
+                $scope.actualSystem.plots[index] = newPlot;
+            }
+        }
         let asEpPlot = $scope.actualSystem.plots[index];
         asEpPlot["startDate"] = asEpPlot["startDate"] ? asEpPlot["startDate"] : " ";
         $scope.actualizarListaCultivos();
@@ -1798,6 +1807,26 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             if (count == sensorNetwork.sensors.sensorNumber) break;
         }
         $scope.sensorsList = sensorsList;
+    }
+
+    $scope.getSensorImage = (sensorType) => {
+        return sensorType == 'NPKML' ? 'assets/images/sNPKML.png' :
+            sensorType == 'NPK' ? 'assets/images/sNPK.png' : 
+            sensorType == 'WM' ? 'assets/images/sWM.png' : 
+            sensorType == 'SHT4' ? 'assets/images/sVWC.png' : 
+            sensorType == 'Tr' ? 'assets/images/sTemp.png' : 
+            sensorType == 'Psi' ? 'assets/images/sPSI.png' : 
+            sensorType == 'Fl' ? 'assets/images/sCaudal.png' : '';
+    }
+
+    $scope.getSensorName = (sensorType) => {
+        return sensorType == 'NPKML' ? 'Perfil' :
+        sensorType == 'NPK' ? 'Nutrientes' : 
+        sensorType == 'WM' ? 'Tensiómetro' : 
+        sensorType == 'SHT4' ? 'WVC' : 
+        sensorType == 'Tr' ? 'Temperatura' : 
+        sensorType == 'Psi' ? 'Presión' : 
+        sensorType == 'Fl' ? 'Caudal' : '';
     }
 
     $scope.getSensorName = (sensor, sensorId) => {
@@ -2003,9 +2032,15 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     }
     
     $scope.startPlotIrrigation = () => {
+        let text = "";
+        if ($scope.editedPlan == "p7") {
+            text = "¿Desea iniciar el pozo?";
+        } else {
+            text = "¿Desea iniciar el riego de " + ($scope.actualSystem.plots[$scope.editedPlan].name ? $scope.actualSystem.plots[$scope.editedPlan].name : "la Sección " + (parseInt($scope.editedPlan.slice(-1)) + 1)) + "?";
+        }  
         swal({
             title: "Plan de riego",
-            text: "¿Desea iniciar el riego de " + ($scope.actualSystem.plots[$scope.editedPlan].name ? $scope.actualSystem.plots[$scope.editedPlan].name : "la Sección " + (parseInt($scope.editedPlan.slice(-1)) + 1)) + "?",
+            text: text,
             icon: "warning",
             // buttons: ["Cancelar", true],
             buttons: {
@@ -2039,9 +2074,15 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     }
 
     $scope.stopPlotIrrigation = () => {
+        let text = "";
+        if ($scope.editedPlan == "p7") {
+            text = "¿Desea detener el pozo?";
+        } else {
+            text = "¿Desea detener el riego de " + ($scope.actualSystem.plots[$scope.editedPlan].name ? $scope.actualSystem.plots[$scope.editedPlan].name : "la Sección " + (parseInt($scope.editedPlan.slice(-1)) + 1)) + "?";
+        }  
         swal({
             title: "Plan de riego",
-            text: "¿Desea detener el riego de "  + ($scope.actualSystem.plots[$scope.editedPlan].name ? $scope.actualSystem.plots[$scope.editedPlan].name : "la Sección " + (parseInt($scope.editedPlan.slice(-1)) + 1)) + "?",
+            text: text,
             icon: "warning",
             // buttons: ["Cancelar", true],
             buttons: {
@@ -2580,6 +2621,27 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                             // }, 0);
                             return popupContent;
                         });
+
+                        marker[sensor.id].on("popupopen", () => {
+                            document.getElementById(`btnHome${i}`).addEventListener("click", () => {
+                                showPopupChart("Home", i);
+                            });
+                            document.getElementById(`btnMs${i}`).addEventListener("click", () => {
+                                showPopupChart("Ms", i);
+                            });
+                            document.getElementById(`btnT${i}`).addEventListener("click", () => {
+                                showPopupChart("T", i);
+                            });
+                            document.getElementById(`btnHr${i}`).addEventListener("click", () => {
+                                showPopupChart("Hr", i);
+                            });
+                            document.getElementById(`btnHf${i}`).addEventListener("click", () => {
+                                showPopupChart("Hf", i);
+                            });
+                            document.getElementById(`btnIndicaciones${i}`).addEventListener("click", () => {
+                                showPopupChart("Indicaciones", i);
+                            });
+                        });
                     }
                 }
             }
@@ -2612,17 +2674,18 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         return L.icon({
             iconUrl: icon,
             shadowUrl: '',
-            iconSize: [30, 30],       // tamaño del icono
-            shadowSize: [30, 30],     // opcional, ajusta si usas sombra
-            iconAnchor: [10, 30],     // punto del icono que corresponde a la ubicación
-            shadowAnchor: [15, 30],   // ajusta si usas sombra
-            popupAnchor: [0, -30]     // punto desde el cual se abre el popup
+            iconSize: [50, 50],       // tamaño del icono
+            shadowSize: [50, 50],     // opcional, ajusta si usas sombra
+            iconAnchor: [25, 50],     // punto del icono que corresponde a la ubicación
+            shadowAnchor: [25, 50],   // ajusta si usas sombra
+            popupAnchor: [0, -50]     // punto desde el cual se abre el popup
         });
     }
 
     const getMarkerText = (campo) => {
         const drivingUrl = `https://www.google.com/maps/dir/?api=1&origin=Current+Location&destination=${campo.latitude.toFixed(5)},${campo.longitude.toFixed(5)}&travelmode=driving`;
         const walkingUrl = `https://www.google.com/maps/dir/?api=1&origin=Current+Location&destination=${campo.latitude.toFixed(5)},${campo.longitude.toFixed(5)}&travelmode=walking`;
+        let label = campo.type == 'Sensor' ? "Sensores" : "Planes";
 
         let text = ``;
         text += `<div style="padding: 5px 10px;">`;
@@ -2631,38 +2694,46 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         text += `            <i class="material-icons">golf_course</i>`;
         text += `            <b><span style="font-size: 1.4em;">${campo.name ?? "" }</span></b>`;
         text += `        </div>`;
-        if (campo.type != 'Sensor') {
-            text += `        <div class="col s12"><hr></div>`;
-            text += `        <div class="col s4">`;
-            text += `            <span style="font-size: 1em;">`;
-            text += `                <i class="material-icons" style="color: ${campo.status == "ON" || campo.status == true ? "green" : "red"}">power_settings_new</i></br>`;
-            text += `                <b>${campo.status == "ON" || campo.status == true ? "ON" : "OFF"}</b>`;
-            text += `            </span>`;
-            text += `        </div>`;
-            if (campo.type == 'PC') {
-                text += `        <div class="col s4">`;
-                text += `            <span style="font-size: 1em;">`;
-                text += `               <i class="material-icons">${campo.direction ? "refresh" : "replay"}</i></br>`;
-                text += `               <b>${campo.log.speed ? campo.log.speed : "0" }%</b>`;
-                text += `            </span>`;
-                text += `        </div>`;
-            } else {
-                text += `        <div class="col s4">`;
-                text += `            <span style="font-size: 1em;"><b><i class="material-icons">opacity</i>${campo.caudal ? campo.caudal : "0" }m<sup>3</sup>/s</b></span>`;
-                text += `        </div>`;
-            }
-        }
         text += `        <div class="col s12"><hr></div>`;
-        text += `        <div class="col s4"><i class="material-icons Small">directions</i></div>`;
-        text += `        <div class="col s4">`;
-        text += `            <a href="${walkingUrl}" target="_blank">`;
-        text += `               <i class="material-icons Small">directions_walk</i>`;
-        text += `            </a>`;
-        text += `        </div>`;
-        text += `        <div class="col s4">`;
-        text += `            <a href="${drivingUrl}" target="_blank">`;
-        text += `               <i class="material-icons Small">directions_car</i>`;
-        text += `            </a>`;
+        text += `        <div class="col s12" style="border-radius: 10px; background: #f5f5f5; color: #434343;">`;
+        text += `           <table>`;
+        text += `               <tr>`;
+        text += `                   <td class="modal-trigger" href="#modalHistorial" style="text-align: center; cursor: pointer;">`;
+        text += `                       <div class="center-align" style="margin-top: -5px;" ng-show="authUser &amp;&amp; selectedWindow == 'sistema'">`;
+        text += `                           <i class="material-icons" style="font-size: 2em;">equalizer</i> `;
+        text += `                       </div>`;
+        text += `                       <div class="center-align" style="margin-top: -5px;" style="margin-top: -5px;">`;
+        text += `                           <b>Historial</b>`;
+        text += `                       </div>`;
+        text += `                   </td>`;
+        text += `                   <td class="modal-trigger" href="#modalConfig" style="text-align: center; cursor: pointer;">`;
+        text += `                       <div class="center-align" ng-show="authUser &amp;&amp; selectedWindow == 'sistema'">`;
+        text += `                           <i class="fa fa-list" aria-hidden="true" style="font-size: 1.5em;"></i>`;
+        text += `                       </div>                                                    `;
+        text += `                       <div class="center-align">`;
+        text += `                           <b>${label}</b>`;
+        text += `                       </div>`;
+        text += `                   </td>`;
+        text += `                   <td class="modal-trigger" href="#modalUsuarios" style="text-align: center; cursor: pointer;">`;
+        text += `                       <div class="center-align" ng-show="authUser &amp;&amp; selectedWindow == 'sistema'">`;
+        text += `                           <i class="fa fa-users" aria-hidden="true" style="font-size: 1.5em;"></i> `;
+        text += `                       </div>`;
+        text += `                       <div class="center-align">`;
+        text += `                           <b>Usuarios</b>`;
+        text += `                       </div>`;
+        text += `                   </td>`;
+        text += `                   <td style="text-align: center; cursor: pointer;">`;
+        text += `                       <a href="${drivingUrl}" target="_blank" style="margin-top: -5px; color: #434343">`;
+        text += `                           <div class="center-align" ng-show="authUser &amp;&amp; selectedWindow == 'sistema'">`;
+        text += `                               <i class="material-icons Small">directions</i>`;
+        text += `                           </div>`;
+        text += `                           <div class="center-align" style="margin-top: -7px">`;
+        text += `                               <b>Ir</b>`;
+        text += `                           </div>`;
+        text += `                       </a>`;
+        text += `                   </td>`;
+        text += `               </tr>`;
+        text += `           </table>`;
         text += `        </div>`;
         text += `    </div>`;
         text += `</div>`;
@@ -2673,9 +2744,10 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     }
 
     const getSensorText = (campo, sensor, idx) => {
-        // let data = JSON.parse(campo.log.dataRaw.replace(/""/g, '"","",""'));
+        const drivingUrl = `https://www.google.com/maps/dir/?api=1&origin=Current+Location&destination=${sensor.latitude},${sensor.longitude}&travelmode=driving`;
+        const walkingUrl = `https://www.google.com/maps/dir/?api=1&origin=Current+Location&destination=${sensor.latitude},${sensor.longitude}&travelmode=walking`;
+
         let data = campo.log ? JSON.parse(campo.log.dataRaw) : [];
-        // console.log("Valor:", data[idx * 4 + 2], "Min:", sensor.t.minValue, "Max:", sensor.t.maxValue, "Condición:", data[idx * 4 + 2] < sensor.t.minValue || data[idx * 4 + 2] > sensor.t.maxValue);
         let text = ``;
         text += `<div style="padding: 5px 10px;">`;
         text += `    <div class="row" style="margin-bottom: 5px;">`;
@@ -2684,94 +2756,181 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         text += `            <b><span style="font-size: 1.4em;">${ sensor.alias ? sensor.alias : sensor.id }</span></b>`;
         text += `        </div>`;
         text += `    </div>`;
-        // text += `    <div class="row" style="margin-bottom: 5px;">`;
-        // text += `       <div class="col s12" style="height: 250px !important;">`;
-        // text += `           <canvas id="myChart${idx}"></canvas>`;
-        // text += `       </div>`;
-        // text += `    </div>`;
+        text += `    <div id="showPopupGraphics" style="display:none;">`;
+        text += `       <div class="row" style="margin-bottom: 5px;">`;
+        text += `           <div class="col s12" style="border-bottom: 1px solid #ccc;">`;
+        text += `               <b><span style="font-size: 1.2em; color: gray;">Gráficas</span></b>`;
+        text += `           </div>`;
+        text += `           <div class="col s12" style="height: 250px !important;">`;
+        text += `               <canvas id="myChart${idx}"></canvas>`;
+        text += `           </div>`;
+        text += `       </div>`;
+        text += `    </div>`;
 
         // Suelo
 
-        text += `    <div class="row" style="margin-bottom: 5px; border-bottom: 1px solid #ccc;">`;
-        text += `        <div class="col s12">`;
-        text += `            <b><span style="font-size: 1.2em; color: gray;">Suelo</span></b>`;
-        text += `        </div>`;
-        text += `    </div>`;
-        text += `    <div class="row" style="margin-bottom: 5px; padding: 10px; border-radius: 3px; background-color: #f5f5f5;">`;
-        text += `        <div class="col s2"><img src="./assets/images/Hr.png" alt="Agua" style="width: 30px;"></div>`;
-        text += `        <div class="col s7">`;
-        text += `           <div>Humedad (%)</div>`;
-        text += `           <div style="width: 100%; background-color: lightgrey; height: 6px; border-radius: 3px;">`;
-        text += `               <div style="background-color: ` + ($scope.isOutOfRange(data[idx * 8], sensor.h.minValue, sensor.h.maxValue) ? `red` : `green`) + `; width: ` + parseFloat(data[idx * 8]) + `%; height: 6px; border-radius: 3px;"></div>`;
-        text += `               <span style="font-size: .8em; margin-left: ` + (sensor.h.minValue < 10 ? 3 : 10) + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i><b>${sensor.h.minValue ?? ''}</b></span>`;
-        text += `               <span style="font-size: .8em; margin-left: ` + (sensor.h.maxValue - sensor.h.minValue - 20) + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i><b>${sensor.h.maxValue ?? ''}</b></span>`;
+        text += `    <div id="showPopupSueloClima" style="display: block;">`;
+        text += `       <div class="row" style="margin-bottom: 5px; border-bottom: 1px solid #ccc;">`;
+        text += `           <div class="col s12">`;
+        text += `               <b><span style="font-size: 1.2em; color: gray;">Suelo</span></b>`;
         text += `           </div>`;
-        text += `        </div>`;
-        text += `        <div class="col s3" style="text-align: right; padding-top: 7px; font-size: 1.5em; color: ` + ($scope.isOutOfRange(data[idx * 8], sensor.h.minValue, sensor.h.maxValue) ? `red` : `green`) + `;"><b>${data[idx * 8] !== "NaN" ? parseFloat(data[idx * 8]).toFixed(0) : "--"}</b></div>`;
-        text += `    </div>`;
+        text += `       </div>`;
+        text += `       <div class="row" style="margin-bottom: 5px; padding: 10px; border-radius: 3px; background-color: #f5f5f5;">`;
+        text += `           <div class="col s2"><img src="./assets/images/Hr.png" alt="Agua" style="width: 30px;"></div>`;
+        text += `           <div class="col s7">`;
+        text += `              <div>Humedad (%)</div>`;
+        text += `              <div style="width: 100%; background-color: lightgrey; height: 6px; border-radius: 3px;">`;
+        text += `                  <div style="background-color: ` + ($scope.isOutOfRange(data[idx * 8], sensor.h.minValue, sensor.h.maxValue) ? `red` : `green`) + `; width: ` + parseFloat(data[idx * 8]) + `%; height: 6px; border-radius: 3px;"></div>`;
+        text += `                  <span style="font-size: .8em; margin-left: ` + (sensor.h.minValue < 10 ? 3 : 10) + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i><b>${sensor.h.minValue ?? ''}</b></span>`;
+        text += `                  <span style="font-size: .8em; margin-left: ` + (sensor.h.maxValue - sensor.h.minValue - 20) + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i><b>${sensor.h.maxValue ?? ''}</b></span>`;
+        text += `              </div>`;
+        text += `           </div>`;
+        text += `           <div class="col s3" style="text-align: right; padding-top: 7px; font-size: 1.5em; color: ` + ($scope.isOutOfRange(data[idx * 8], sensor.h.minValue, sensor.h.maxValue) ? `red` : `green`) + `;"><b>${data[idx * 8] !== "NaN" ? parseFloat(data[idx * 8]).toFixed(0) : "--"}</b></div>`;
+        text += `       </div>`;
 
         // Clima
         
-        text += `    <div class="row" style="margin-bottom: 5px; border-bottom: 1px solid #ccc;">`;
-        text += `        <div class="col s12">`;
-        text += `            <b><span style="font-size: 1.2em; color: gray;">Clima</span></b>`;
-        text += `        </div>`;
-        text += `    </div>`;
-        text += `    <div class="row" style="margin-bottom: 5px; padding: 10px; border-radius: 6px; background-color: #f5f5f5;">`;
-        text += `        <div class="col s2"><img src="./assets/images/termometro.png" alt="Termometro" style="width: 30px;"></div>`;
-        text += `        <div class="col s7">`;
-        text += `           <div style="font-size: .99em;">Temperatura (°C/°F)</div>`;
-        text += `           <div style="width: 100%; background-color: lightgrey; height: 6px; border-radius: 3px;">`;
-        text += `               <div style="background-color: ` + ($scope.isOutOfRange(data[idx * 8 + 4], sensor.t.minValue, sensor.t.maxValue) ? `red` : `green`) + `; width: ` + (parseFloat(data[idx * 8 + 4]) < 10 ? parseFloat(data[idx * 8 + 4]) + 5 : parseFloat(data[idx * 8 + 4])) + `%; height: 6px; border-radius: 3px;"></div>`;
-        text += `               <span style="font-size: .8em; margin-left: ` + (sensor.t.minValue > 10 ? 3 : 10) + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i><b>${sensor.t.minValue ?? ''}</b></span>`;
-        text += `               <span style="font-size: .8em; margin-left: ` + (sensor.t.maxValue - sensor.t.minValue - 20) + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i><b>${sensor.t.maxValue ?? ''}</b></span>`;
+        text += `       <div class="row" style="margin-bottom: 5px; border-bottom: 1px solid #ccc;">`;
+        text += `           <div class="col s12">`;
+        text += `               <b><span style="font-size: 1.2em; color: gray;">Clima</span></b>`;
         text += `           </div>`;
-        text += `        </div>`;
-        text += `        <div class="col s3" style="text-align: right; padding-top: 7px; font-size: 1.5em; color: ` + ($scope.isOutOfRange(data[idx * 8 + 4], sensor.t.minValue, sensor.t.maxValue) ? `red` : `green`) + `;"><b>${data[idx * 8 + 4] !== "NaN" ? (parseFloat(data[idx * 8 + 4]).toFixed(0) + "/" + parseFloat(data[idx * 8 + 4] * 1.8 + 32).toFixed(0)) : "--"}</b></div>`;
-        text += `    </div>`;
-        text += `    <div class="row" style="margin-bottom: 5px; padding: 10px; border-radius: 6px; background-color: #f5f5f5;">`;
-        text += `        <div class="col s2"><img src="./assets/images/agua.png" alt="Termometro" style="width: 25px;"></div>`;
-        text += `        <div class="col s7">`;
-        text += `           <div style="margin-top: 5px;">Humedad (%)</div>`;
-        text += `        </div>`;
-        text += `        <div class="col s3" style="text-align: right; padding-top: 2px; font-size: 1.5em;"><b>${data[idx * 8 + 1] !== "NaN" ? parseFloat(data[idx * 8 + 1]).toFixed(0) : "--"}</b></div>`;
+        text += `       </div>`;
+        text += `       <div class="row" style="margin-bottom: 5px; padding: 10px; border-radius: 6px; background-color: #f5f5f5;">`;
+        text += `           <div class="col s2"><img src="./assets/images/termometro.png" alt="Termometro" style="width: 30px;"></div>`;
+        text += `           <div class="col s7">`;
+        text += `              <div style="font-size: .99em;">Temperatura (°C/°F)</div>`;
+        text += `              <div style="width: 100%; background-color: lightgrey; height: 6px; border-radius: 3px;">`;
+        text += `                  <div style="background-color: ` + ($scope.isOutOfRange(data[idx * 8 + 4], sensor.t.minValue, sensor.t.maxValue) ? `red` : `green`) + `; width: ` + (parseFloat(data[idx * 8 + 4]) < 10 ? parseFloat(data[idx * 8 + 4]) + 5 : parseFloat(data[idx * 8 + 4])) + `%; height: 6px; border-radius: 3px;"></div>`;
+        text += `                  <span style="font-size: .8em; margin-left: ` + (sensor.t.minValue > 10 ? 3 : 10) + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i><b>${sensor.t.minValue ?? ''}</b></span>`;
+        text += `                  <span style="font-size: .8em; margin-left: ` + (sensor.t.maxValue - sensor.t.minValue - 20) + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i><b>${sensor.t.maxValue ?? ''}</b></span>`;
+        text += `              </div>`;
+        text += `           </div>`;
+        text += `           <div class="col s3" style="text-align: right; padding-top: 7px; font-size: 1.5em; color: ` + ($scope.isOutOfRange(data[idx * 8 + 4], sensor.t.minValue, sensor.t.maxValue) ? `red` : `green`) + `;"><b>${data[idx * 8 + 4] !== "NaN" ? (parseFloat(data[idx * 8 + 4]).toFixed(0) + "/" + parseFloat(data[idx * 8 + 4] * 1.8 + 32).toFixed(0)) : "--"}</b></div>`;
+        text += `       </div>`;
+        text += `       <div class="row" style="margin-bottom: 5px; padding: 10px; border-radius: 6px; background-color: #f5f5f5;">`;
+        text += `           <div class="col s2"><img src="./assets/images/agua.png" alt="Termometro" style="width: 25px;"></div>`;
+        text += `           <div class="col s7">`;
+        text += `              <div style="margin-top: 5px;">Humedad (%)</div>`;
+        text += `           </div>`;
+        text += `           <div class="col s3" style="text-align: right; padding-top: 2px; font-size: 1.5em;"><b>${data[idx * 8 + 1] !== "NaN" ? parseFloat(data[idx * 8 + 1]).toFixed(0) : "--"}</b></div>`;
+        text += `       </div>`;
         text += `    </div>`;
 
         // Cultivo
 
+        text += `    <div id="showPupupCultivo" style="display: none;">`;
+        text += `       <div class="row" style="margin-bottom: 5px; border-bottom: 1px solid #ccc;">`;
+        text += `           <div class="col s12">`;
+        text += `               <b><span style="font-size: 1.2em; color: gray;">Cultivo</span></b>`;
+        text += `           </div>`;
+        text += `       </div>`;
+        text += `       <div class="row" style="margin-bottom: 5px; padding: 10px; border-radius: 6px; background-color: #f5f5f5;">`;
+        text += `           <div class="col s2"><img src="./assets/images/nieve.png" alt="Horas frío" style="width: 25px;"></div>`;
+        text += `           <div class="col s7">`;
+        text += `              <div style="margin-top: 5px;">Horas frío (u)</div>`;
+        text += `           </div>`;
+        text += `           <div class="col s3" style="text-align: right; padding-top: 2px; font-size: 1.5em;"><b>${data[idx * 8 + 6] !== "NaN" ? parseFloat(data[idx * 8 + 6]).toFixed(0) : "--"}</b></div>`;
+        text += `       </div>`;
+        text += `       <div class="row" style="margin-bottom: 5px; padding: 10px; border-radius: 6px; background-color: #f5f5f5;">`;
+        text += `           <div class="col s2"><img src="./assets/images/ETo.png" alt="Termometro" style="width: 25px;"></div>`;
+        text += `           <div class="col s7">`;
+        text += `              <div style="margin-top: 5px;">ETc (mm/día)</div>`;
+        text += `           </div>`;
+        text += `           <div class="col s3" style="text-align: right; padding-top: 2px; font-size: 1.5em;"><b>${data[idx * 8 + 5] !== "NaN" ? parseFloat(data[idx * 8 + 5]).toFixed(0) : "--"}</b></div>`;
+        text += `       </div>`;
+        text += `       <div class="row" style="margin-bottom: 5px; padding: 10px; border-radius: 6px; background-color: #f5f5f5;">`;
+        text += `           <div class="col s2"><img src="./assets/images/DPV.png" alt="Termometro" style="width: 30px;"></div>`;
+        text += `           <div class="col s8">`;
+        text += `              <div>DPV (kPa)</div>`;
+        text += `              <div style="width: 100%; background-color: lightgrey; height: 6px; border-radius: 3px;">`;
+        text += `                  <div style="background-color: ` + ($scope.isOutOfRange(data[idx * 4 + 2], sensor.t.minValue, sensor.t.maxValue) ? `red` : `green`) + `; width: ` + parseFloat(data[idx * 4 + 2]) + `%; height: 6px; border-radius: 3px;"></div>`;
+        text += `                  <span style="font-size: .8em; margin-left: ` + sensor.t.minValue + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i><b>${sensor.t.minValue}</b></span>`;
+        text += `                  <span style="font-size: .8em; margin-left: ` + (sensor.t.maxValue - sensor.t.minValue - 15) + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i><b>${sensor.t.maxValue}</b></span>`;
+        text += `              </div>`;
+        text += `           </div>`;
+        text += `           <div class="col s2" style="text-align: right; padding-top: 7px; font-size: 1.5em; color: ` + ($scope.isOutOfRange(data[idx * 4 + 2], sensor.t.minValue, sensor.t.maxValue) ? `red` : `green`) + `;"><b>${data[idx * 4 + 2] !== "NaN" ? parseFloat(data[idx * 4 + 2]).toFixed(0) : "--"}</b></div>`;
+        text += `       </div>`;
+        text += `    </div>`;
+
+        // Indicaciones
+
+        text += `    <div id="showPupupIndicaciones" style="display: none;">`;
+        text += `       <div class="row" style="margin-bottom: 5px; border-bottom: 1px solid #ccc;">`;
+        text += `           <div class="col s12">`;
+        text += `               <b><span style="font-size: 1.2em; color: gray;">Indicaciones</span></b>`;
+        text += `           </div>`;
+        text += `       </div>`;
+        text += `       <div class="row" style="margin-bottom: 5px; padding: 10px; border-radius: 6px; background-color: #f5f5f5;">`;
+        text += `           <div class="col s4"><i class="material-icons Small">directions</i></div>`;
+        text += `           <div class="col s4">`;
+        text += `               <a href="${walkingUrl}" target="_blank">`;
+        text += `                  <i class="material-icons Small">directions_walk</i>`;
+        text += `               </a>`;
+        text += `           </div>`;
+        text += `           <div class="col s4">`;
+        text += `               <a href="${drivingUrl}" target="_blank">`;
+        text += `                  <i class="material-icons Small">directions_car</i>`; 
+        text += `               </a>`;
+        text += `           </div>`;
+        text += `       </div>`;
+        text += `    </div>`;
+
+        // Opciones
+
         text += `    <div class="row" style="margin-bottom: 5px; border-bottom: 1px solid #ccc;">`;
         text += `        <div class="col s12">`;
-        text += `            <b><span style="font-size: 1.2em; color: gray;">Cultivo</span></b>`;
+        text += `            <b><span style="font-size: 1.2em; color: gray;">Opciones</span></b>`;
         text += `        </div>`;
         text += `    </div>`;
         text += `    <div class="row" style="margin-bottom: 5px; padding: 10px; border-radius: 6px; background-color: #f5f5f5;">`;
-        text += `        <div class="col s2"><img src="./assets/images/nieve.png" alt="Horas frío" style="width: 25px;"></div>`;
-        text += `        <div class="col s7">`;
-        text += `           <div style="margin-top: 5px;">Horas frío (u)</div>`;
+        text += `        <div id="btnHome${idx}" class="col s2 center-align" style="cursor: pointer;"><img src="./assets/images/DTA-Agricola.png" alt="Resumen" style="width: 25px;">Inicio</div>`;
+        text += `        <div id="btnMs${idx}" class="col s2 center-align" style="cursor: pointer;"><img src="./assets/images/Hr.png" alt="Humedad del suelo" style="width: 25px;">&nbsp;&nbsp;Hs</div>`;
+        text += `        <div id="btnT${idx}" class="col s2 center-align" style="cursor: pointer;"><img src="./assets/images/termometro.png" alt="Temperatura" style="width: 25px;">Temp</div>`;
+        text += `        <div id="btnHr${idx}" class="col s2 center-align" style="cursor: pointer;"><img src="./assets/images/agua.png" alt="Humedad relativa" style="width: 25px;">&nbsp;&nbsp;Hr</div>`;
+        text += `        <div id="btnHf${idx}" class="col s2 center-align" style="cursor: pointer;"><img src="./assets/images/DPV.png" alt="Horas frío" style="width: 25px;">Cultivo</div>`;
+        text += `        <div id="btnIndicaciones${idx}" class="col s2 center-align" style="cursor: pointer;">`;
+        text += `           <a href="${drivingUrl}" target="_blank" style="color: #434343;">`;
+        text += `               <i class="material-icons Small" style="font-size: 2.5em; margin-top: -5px;">directions</i>&nbsp;&nbsp;&nbsp;Ir`;
+        text += `           </a>`;
         text += `        </div>`;
-        text += `        <div class="col s3" style="text-align: right; padding-top: 2px; font-size: 1.5em;"><b>${data[idx * 8 + 6] !== "NaN" ? parseFloat(data[idx * 8 + 6]).toFixed(0) : "--"}</b></div>`;
         text += `    </div>`;
-        text += `    <div class="row" style="margin-bottom: 5px; padding: 10px; border-radius: 6px; background-color: #f5f5f5;">`;
-        text += `        <div class="col s2"><img src="./assets/images/ETo.png" alt="Termometro" style="width: 25px;"></div>`;
-        text += `        <div class="col s7">`;
-        text += `           <div style="margin-top: 5px;">ETc (mm/día)</div>`;
-        text += `        </div>`;
-        text += `        <div class="col s3" style="text-align: right; padding-top: 2px; font-size: 1.5em;"><b>${data[idx * 8 + 5] !== "NaN" ? parseFloat(data[idx * 8 + 5]).toFixed(0) : "--"}</b></div>`;
-        text += `    </div>`;
-        // text += `    <div class="row" style="margin-bottom: 5px; padding: 10px; border-radius: 6px; background-color: #f5f5f5;">`;
-        // text += `        <div class="col s2"><img src="./assets/images/DPV.png" alt="Termometro" style="width: 30px;"></div>`;
-        // text += `        <div class="col s8">`;
-        // text += `           <div>DPV (kPa)</div>`;
-        // text += `           <div style="width: 100%; background-color: lightgrey; height: 6px; border-radius: 3px;">`;
-        // text += `               <div style="background-color: ` + ($scope.isOutOfRange(data[idx * 4 + 2], sensor.t.minValue, sensor.t.maxValue) ? `red` : `green`) + `; width: ` + parseFloat(data[idx * 4 + 2]) + `%; height: 6px; border-radius: 3px;"></div>`;
-        // text += `               <span style="font-size: .8em; margin-left: ` + sensor.t.minValue + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i><b>${sensor.t.minValue}</b></span>`;
-        // text += `               <span style="font-size: .8em; margin-left: ` + (sensor.t.maxValue - sensor.t.minValue - 15) + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i><b>${sensor.t.maxValue}</b></span>`;
-        // text += `           </div>`;
-        // text += `        </div>`;
-        // text += `        <div class="col s2" style="text-align: right; padding-top: 7px; font-size: 1.5em; color: ` + ($scope.isOutOfRange(data[idx * 4 + 2], sensor.t.minValue, sensor.t.maxValue) ? `red` : `green`) + `;"><b>${data[idx * 4 + 2] !== "NaN" ? parseFloat(data[idx * 4 + 2]).toFixed(0) : "--"}</b></div>`;
-        // text += `    </div>`;
+
         text += `</div>`;
         return text;
+    }
+
+    const showPopupChart = (type, idx) => {
+        document.getElementById("showPopupSueloClima").style.display = "none";
+        document.getElementById("showPupupCultivo").style.display = "none";
+        document.getElementById("showPopupGraphics").style.display = "none";
+        document.getElementById("showPupupIndicaciones").style.display = "none";
+        switch (type) {
+            case "Home": 
+                document.getElementById("showPopupSueloClima").style.display = "block";
+                break;
+            case "Ms": 
+                document.getElementById("showPopupGraphics").style.display = "block";
+                $scope.setChartType('moisture'); 
+                $scope.setChart(idx, 'myChart' + idx);
+                break;
+            case "T": 
+                document.getElementById("showPopupGraphics").style.display = "block";
+                $scope.setChartType('temperature'); 
+                $scope.setChart(idx, 'myChart' + idx);
+                break;
+            case "Hr": 
+                document.getElementById("showPopupGraphics").style.display = "block";
+                $scope.setChartType('humidity'); 
+                $scope.setChart(idx, 'myChart' + idx);
+                break;
+            case "Hf": 
+                document.getElementById("showPupupCultivo").style.display = "block";
+                break;
+            case "Indicaciones": 
+                // document.getElementById("showPupupIndicaciones").style.display = "block";
+                const drivingUrl = `https://www.google.com/maps/dir/?api=1&origin=Current+Location&destination=${sensor.latitude},${sensor.longitude}&travelmode=driving`;
+                break;
+        }
     }
 
     const getSensorValue = (campo, sensor, idx) => {
@@ -3049,21 +3208,23 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         let idx = 'S' + chartId;
         let title = $scope.actualSystem.sensors[idx].alias ? $scope.actualSystem.sensors[idx].alias : $scope.actualSystem.sensors[idx].id;
         let sensorType = $scope.actualSystem.sensors[idx].type;
+        let threshold = $scope.actualSystem.sensors[idx].t.minValue;;
         switch (sensorType) {
             case "Ms":
-                processResultsFromMsSensors(result, title, chartId, chartLabel, sensorType);
+                processResultsFromMsSensors(result, title, chartId, threshold, chartLabel, sensorType);
                 break;
             case "SHT":
-                processResultsFromSHTSensors(result, title, chartId, chartLabel, sensorType);
+                processResultsFromSHTSensors(result, title, chartId, threshold, chartLabel, sensorType);
                 break;
             case "SHT4":
-                processResultsFromSHT4Sensors(result, title, chartId, chartLabel, sensorType);
+                processResultsFromSHT4Sensors(result, title, chartId, threshold, chartLabel, sensorType);
                 break;
             case "WM":
-                processResultsFromWMSensors(result, title, chartId, chartLabel, sensorType);
+                processResultsFromWMSensors(result, title, chartId, threshold, chartLabel, sensorType);
                 break;
             case "Psi":
-                processResultsFromPsiSensors(result, title, chartId, chartLabel, sensorType);
+                threshold = null;
+                processResultsFromPsiSensors(result, title, chartId, threshold, chartLabel, sensorType);
                 break;
         }
     }
@@ -3076,7 +3237,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         return result;
     }
 
-    const processResultsFromMsSensors = (result, title, i, chartLabel, sensorType) => {
+    const processResultsFromMsSensors = (result, title, i, threshold, chartLabel, sensorType) => {
         const items = result[0] ? JSON.parse(result[0].dataRaw).length : 0;
         let labels = [];
         let moisture = [];
@@ -3101,7 +3262,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             labels.push(date + " " + element.date.substr(9, 14));
         });
         // Código original modificado: ahora pasa $scope.chartType como parámetro
-        chart(moisture, temperature, labels, title, i, chartLabel, $scope.chartType);
+        chart(moisture, temperature, labels, title, i, threshold, chartLabel, $scope.chartType);
     }
 
     const getStValues = (idx) => {
@@ -3114,7 +3275,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         $scope.actualSystem.log["maxValue"]  = maxVal < 0 ? 0 : maxVal > 100 ? 100 : maxVal;
     }
 
-    const processResultsFromSHTSensors = (result, title, i, chartLabel, sensorType) => {
+    const processResultsFromSHTSensors = (result, title, i, threshold, chartLabel, sensorType) => {
         const items = result[0] ? parseInt(JSON.parse(result[0].dataRaw).length / 3) : 0;
         let labels = [];
         let moisture = [];
@@ -3133,10 +3294,10 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             }
             labels.push(date + " " + element.date.substr(9, 14));
         });
-        chart(moisture, humidity, temperature, labels, title, i, chartLabel, $scope.chartType);
+        chart(moisture, humidity, temperature, labels, title, i, threshold, chartLabel, $scope.chartType);
     }
 
-    const processResultsFromSHT4Sensors = (result, title, i, chartLabel, sensorType) => {
+    const processResultsFromSHT4Sensors = (result, title, i, threshold, chartLabel, sensorType) => {
         const items = result[0] ? parseInt(JSON.parse(result[0].dataRaw).length / 8) : 0;
         let labels = [];
         let moisture = [];
@@ -3160,7 +3321,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             }
             labels.push(($scope.selectedTimeOption != 'DIA' ? date : '') + " " + ($scope.selectedTimeOption == 'DIA' ? element.date.substr(9, 14) : ''));
         });
-        chart(moisture, humidity, temp_min, temp_max, temperature, labels, title, i, chartLabel, $scope.chartType);
+        chart(moisture, humidity, temp_min, temp_max, temperature, labels, title, i, threshold, chartLabel, $scope.chartType);
     }
 
     function mapping(value, inMin, inMax, outMin, outMax) {
@@ -3197,7 +3358,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         return Math.round(percent);
     }
 
-    const processResultsFromWMSensors = (result, title, i, chartLabel, sensorType) => {
+    const processResultsFromWMSensors = (result, title, i, threshold, chartLabel, sensorType) => {
         const items = result[0] ? parseInt(JSON.parse(result[0].dataRaw).length / 8) : 0;
         let labels = [];
         let moisture = [];
@@ -3224,10 +3385,10 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             }
             labels.push(($scope.selectedTimeOption != 'DIA' ? date : '') + " " + ($scope.selectedTimeOption == 'DIA' ? element.date.substr(9, 14) : ''));
         });
-        chart(moisture, humidity, temp_min, temp_max, temperature, labels, title, i, chartLabel, $scope.chartType, sensorType);
+        chart(moisture, humidity, temp_min, temp_max, temperature, labels, title, i, threshold, chartLabel, $scope.chartType, sensorType);
     }
 
-    const processResultsFromPsiSensors = (result, title, i, chartLabel, sensorType) => {
+    const processResultsFromPsiSensors = (result, title, i, threshold, chartLabel, sensorType) => {
         const items = result[0] ? parseInt(JSON.parse(result[0].dataRaw).length / 8) : 0;
         let labels = [];
         let moisture = [];
@@ -3243,12 +3404,12 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             }
             labels.push(($scope.selectedTimeOption != 'DIA' ? date : '') + " " + ($scope.selectedTimeOption == 'DIA' ? element.date.substr(9, 14) : ''));
         });
-        chart(moisture, [], [], [], [], labels, title, i, chartLabel, $scope.chartType, "Psi");
+        chart(moisture, [], [], [], [], labels, title, i, threshold, chartLabel, $scope.chartType, "Psi");
     }
 
     // const chart = (moisture, humidity, temperature, labels, title, i, chartLabel, chartType = 'moisture') => {
     // Código original modificado: ahora acepta chartType para mostrar solo un gráfico
-    const chart = (moisture, humidity, temp_min, temp_max, temperature, labels, title, i, chartLabel, chartType = 'moisture', sensorType = '') => {
+    const chart = (moisture, humidity, temp_min, temp_max, temperature, labels, title, i, threshold, chartLabel, chartType = 'moisture', sensorType = '') => {
         try {
             let canvas = document.getElementById(chartLabel);
             if (!canvas) return;
@@ -3259,114 +3420,114 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                 data: getDataArray(moisture, humidity, temp_min, temp_max, temperature, labels, chartType),
                 options: getOptions(title, chartType, sensorType)
             });
-            
-            // Demora de 1.5 segundos antes de dibujar las franjas
-            setTimeout(() => {
-            
-                // Agregar franjas de humedad para gráficos de humedad del suelo y humedad ambiental
-                if (chartType === 'moisture' || chartType === 'temperature') {
-                    // console.log('Dibujando franjas para humedad - chartType:', chartType);
-                    const drawBands = () => {
-                        const ctx = canvas.getContext('2d');
-                        const chart = charts[i];
-                        if (!chart || !chart.chartArea) {
-                            requestAnimationFrame(drawBands);
-                            return;
-                        }
-                        
-                        // console.log('Chart y chartArea disponibles:', !!chart, !!chart.chartArea);
-                        
-                        const chartArea = chart.chartArea;
-                        const yScale = chart.scales.y;
-                        
-                        // Función para dibujar una franja
-                        const drawBand = (yMin, yMax, color, label, labelColor) => {
-                            const yTop = yScale.getPixelForValue(yMax);
-                            const yBottom = yScale.getPixelForValue(yMin);
-                            
-                            // console.log(`Dibujando franja ${label}: yTop=${yTop}, yBottom=${yBottom}`);
-                            
-                            // Dibujar rectángulo de fondo
-                            ctx.fillStyle = color;
-                            ctx.fillRect(chartArea.left, yTop, chartArea.width, yBottom - yTop);
-                            
-                            // Dibujar etiqueta
-                            ctx.fillStyle = labelColor;
-                            ctx.font = 'bold 12px Arial';
-                            ctx.textAlign = 'left';
-                            ctx.textBaseline = 'top';
-                            ctx.fillText(label, chartArea.left + 5, yTop + 5);
-                        };
-                        
-                        // Función para dibujar una línea horizontal de umbral
-                        const drawThresholdLine = (thresholdValue, color, label) => {
-                            const yPosition = yScale.getPixelForValue(thresholdValue);
-                            
-                            // console.log(`Dibujando línea umbral ${label}: y=${yPosition}, value=${thresholdValue}`);
-                            
-                            // Dibujar línea horizontal discontinua
-                            ctx.strokeStyle = color;
-                            ctx.lineWidth = 2;
-                            ctx.setLineDash([5, 5]);
-                            ctx.beginPath();
-                            ctx.moveTo(chartArea.left, yPosition);
-                            ctx.lineTo(chartArea.left + chartArea.width, yPosition);
-                            ctx.stroke();
-                            ctx.setLineDash([]); // Reset line dash
-                            
-                            // Dibujar etiqueta de la línea
-                            ctx.fillStyle = color;
-                            ctx.font = 'bold 11px Arial';
-                            ctx.textAlign = 'right';
-                            ctx.textBaseline = 'bottom';
-                            ctx.fillText(label, chartArea.left + chartArea.width - 5, yPosition - 5);
-                        };
-                        
-                        // Dibujar las tres franjas con etiquetas según el tipo de gráfico
-                        if (chartType === 'moisture' && sensorType === 'WM') {
-                            // Etiquetas para disponibilidad de agua en el suelo
-                            drawBand(80, 100, 'rgba(0, 123, 255, 0.15)', 'Saturado - No regar', 'rgba(0, 123, 255, 0.9)');
-                            drawBand(60, 80, 'rgba(40, 167, 69, 0.15)', 'Adecuado - No regar', 'rgba(40, 167, 69, 0.9)');
-                            drawBand(40, 60, 'rgba(210, 255, 7, 0.15)', 'Secándose - Programar riego', 'rgba(118, 144, 2, 0.9)');
-                            drawBand(30, 40, 'rgba(255, 193, 7, 0.15)', 'Estrés moderado - Regar', 'rgba(183, 138, 2, 0.9)');
-                            drawBand(20, 30, 'rgba(255, 106, 7, 0.15)', 'Seco - Regar urgente', 'rgba(255, 106, 7, 0.9)');
-                            drawBand(0, 20, 'rgba(255, 0, 0, 0.15)', 'Muy seco - Regar inmediatamente', 'rgba(255, 0, 0, 0.9)');
-                            // Dibujar línea de umbral de riego
-                        } else if (sensorType === 'Psi') {
-                            // Etiquetas para temperatura
-                            drawBand(10, 100, 'rgba(40, 167, 69, 0.15)', 'Encendido', 'rgba(40, 167, 69, 0.9)');
-                            drawBand(0, 10, 'rgba(255, 123, 0, 0.15)', 'Apagado', 'rgba(255, 13, 0, 0.9)');
-                            // Dibujar línea de umbral de helada
-                            drawThresholdLine(3, 'rgba(255, 13, 0, 0.8)', 'Presión mínima (1psi)');
-                        } else if (chartType === 'moisture') {
-                            // Etiquetas para humedad del suelo
-                            drawBand(40, 100, 'rgba(0, 123, 255, 0.15)', 'Saturado', 'rgba(0, 123, 255, 0.9)');
-                            drawBand(15, 40, 'rgba(40, 167, 69, 0.15)', 'Humedad Adecuada', 'rgba(40, 167, 69, 0.9)');
-                            drawBand(0, 15, 'rgba(255, 193, 7, 0.15)', 'Necesidad de Riego', 'rgba(255, 131, 7, 0.39)');
-                            // Dibujar línea de umbral de riego
-                        } else if (chartType === 'temperature') {
-                            // Etiquetas para temperatura
-                            drawBand(25, 50, 'rgba(255, 123, 0, 0.15)', 'Muy caliente', 'rgba(255, 13, 0, 0.9)');
-                            drawBand(5, 25, 'rgba(40, 167, 69, 0.15)', 'Temperatura Normal', 'rgba(40, 167, 69, 0.9)');
-                            drawBand(-10, 5, 'rgba(0, 123, 255, 0.15)', 'Helada', 'rgba(0, 123, 255, 0.9)');
-                            // Dibujar línea de umbral de helada
-                            drawThresholdLine(3, 'rgba(54, 162, 235, 0.8)', 'Umbral Helada (5°C/41°F)');
-                        }
-                    };
-                    
-                    requestAnimationFrame(drawBands);
-                } else {
-                    // console.log('No se dibujan franjas porque chartType no es moisture ni humidity');
-                }
-            
-            }, 1500); // Cierre del setTimeout con 1.5 segundos de demora
-            
+            drawChartBackground(threshold, canvas, charts[i], sensorType, chartType);
             if (canvas.parentNode) canvas.parentNode.style.height = '250px';    
         } catch (error) {
             console.error('Error al crear el gráfico:', error);
         }
     }
 
+    const drawChartBackground = (threshold, canvas, charts, sensorType, chartType) => {        
+        // Demora de 1.5 segundos antes de dibujar las franjas
+        setTimeout(() => {
+        
+            // Agregar franjas de humedad para gráficos de humedad del suelo y humedad ambiental
+            if (chartType === 'moisture' || chartType === 'temperature') {
+                // console.log('Dibujando franjas para humedad - chartType:', chartType);
+                const drawBands = () => {
+                    const ctx = canvas.getContext('2d');
+                    const chart = charts;
+                    if (!chart || !chart.chartArea) {
+                        requestAnimationFrame(drawBands);
+                        return;
+                    }
+                    const yScale = chart.scales.y;
+                    const chartArea = chart.chartArea;
+                    
+                    // Dibujar las tres franjas con etiquetas según el tipo de gráfico
+                    if (chartType === 'moisture' && sensorType === 'WM') {
+                        // Etiquetas para disponibilidad de agua en el suelo
+                        drawBand(ctx, chartArea, yScale, 80, 100, 'rgba(0, 123, 255, 0.15)', 'Saturado - No regar', 'rgba(0, 123, 255, 0.9)');
+                        drawBand(ctx, chartArea, yScale, 60, 80, 'rgba(40, 167, 69, 0.15)', 'Adecuado - No regar', 'rgba(40, 167, 69, 0.9)');
+                        drawBand(ctx, chartArea, yScale, 40, 60, 'rgba(210, 255, 7, 0.15)', 'Secándose - Programar riego', 'rgba(118, 144, 2, 0.9)');
+                        drawBand(ctx, chartArea, yScale, 30, 40, 'rgba(255, 193, 7, 0.15)', 'Estrés moderado - Regar', 'rgba(183, 138, 2, 0.9)');
+                        drawBand(ctx, chartArea, yScale, 20, 30, 'rgba(255, 106, 7, 0.15)', 'Seco - Regar urgente', 'rgba(255, 106, 7, 0.9)');
+                        drawBand(ctx, chartArea, yScale, 0, 20, 'rgba(255, 0, 0, 0.15)', 'Muy seco - Regar inmediatamente', 'rgba(255, 0, 0, 0.9)');
+                        // Dibujar línea de umbral de riego
+                    } else if (sensorType === 'Psi') {
+                        // Etiquetas para temperatura
+                        drawBand(ctx, chartArea, yScale, 10, 100, 'rgba(40, 167, 69, 0.15)', 'Encendido', 'rgba(40, 167, 69, 0.9)');
+                        drawBand(ctx, chartArea, yScale, 0, 10, 'rgba(255, 123, 0, 0.15)', 'Apagado', 'rgba(255, 13, 0, 0.9)');
+                        // Dibujar línea de umbral de helada
+                        drawThresholdLine(ctx, yScale, sensorType, chartType, chartArea, 3, 'rgba(255, 13, 0, 0.8)', 'Presión mínima (1psi)');
+                    } else if (chartType === 'moisture') {
+                        // Etiquetas para humedad del suelo
+                        drawBand(ctx, chartArea, yScale, 40, 100, 'rgba(0, 123, 255, 0.15)', 'Saturado', 'rgba(0, 123, 255, 0.9)');
+                        drawBand(ctx, chartArea, yScale, 15, 40, 'rgba(40, 167, 69, 0.15)', 'Humedad Adecuada', 'rgba(40, 167, 69, 0.9)');
+                        drawBand(ctx, chartArea, yScale, 0, 15, 'rgba(255, 193, 7, 0.15)', 'Necesidad de Riego', 'rgba(255, 131, 7, 0.39)');
+                        // Dibujar línea de umbral de riego
+                    } else if (chartType === 'temperature') {
+                        // Etiquetas para temperatura
+                        drawBand(ctx, chartArea, yScale, 25, 50, 'rgba(255, 123, 0, 0.15)', 'Muy caliente', 'rgba(255, 13, 0, 0.9)');
+                        drawBand(ctx, chartArea, yScale, 5, 25, 'rgba(40, 167, 69, 0.15)', 'Temperatura Normal', 'rgba(40, 167, 69, 0.9)');
+                        drawBand(ctx, chartArea, yScale, -10, 5, 'rgba(0, 123, 255, 0.15)', 'Helada', 'rgba(0, 123, 255, 0.9)');
+                        // Dibujar línea de umbral de helada
+                        drawThresholdLine(ctx, yScale, sensorType, chartType, chartArea, threshold, 'rgba(54, 162, 235, 0.8)', 'Umbral Helada');
+                    }
+                };
+                
+                requestAnimationFrame(drawBands);
+            } else {
+                // console.log('No se dibujan franjas porque chartType no es moisture ni humidity');
+            }
+        
+        }, 1500); // Cierre del setTimeout con 1.5 segundos de demora
+    }
+
+    // Función para dibujar una franja
+    const drawBand = (ctx, chartArea, yScale, yMin, yMax, color, label, labelColor) => {
+        const yTop = yScale.getPixelForValue(yMax);
+        const yBottom = yScale.getPixelForValue(yMin);
+        
+        // console.log(`Dibujando franja ${label}: yTop=${yTop}, yBottom=${yBottom}`);
+        
+        // Dibujar rectángulo de fondo
+        ctx.fillStyle = color;
+        ctx.fillRect(chartArea.left, yTop, chartArea.width, yBottom - yTop);
+        
+        // Dibujar etiqueta
+        ctx.fillStyle = labelColor;
+        ctx.font = 'bold 12px Arial';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        ctx.fillText(label, chartArea.left + 5, yTop + 5);
+    };
+                        
+    // Función para dibujar una línea horizontal de umbral
+    const drawThresholdLine = (ctx, yScale, sensorType, chartType, chartArea, thresholdValue, color, label) => {
+        const yPosition = yScale.getPixelForValue(thresholdValue);
+        label = `${label}: ${thresholdValue}${sensorType === 'Psi' ? 'psi' : chartType === 'temperature' ? '°C' : '%'}`;
+        
+        // console.log(`Dibujando línea umbral ${label}: y=${yPosition}, value=${thresholdValue}`);
+        
+        // Dibujar línea horizontal discontinua
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5, 5]);
+        ctx.beginPath();
+        ctx.moveTo(chartArea.left, yPosition);
+        ctx.lineTo(chartArea.left + chartArea.width, yPosition);
+        ctx.stroke();
+        ctx.setLineDash([]); // Reset line dash
+        
+        // Dibujar etiqueta de la línea
+        ctx.fillStyle = color;
+        ctx.font = 'bold 11px Arial';
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText(label, chartArea.left + chartArea.width - 5, yPosition - 5);
+    };
+                        
     const skipped = (ctx, value) => ctx.p0.skip || ctx.p1.skip ? value : undefined;
 
     const getDataArray = (_moisture, _humidity, _temp_min, _temp_max,  _temperature, _labels, chartType = 'moisture') => {
@@ -3786,7 +3947,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     }
 
     checkSound = () => {
-        const audio = new Audio("./assets/android-sms.mp3");
+        const audio = new Audio("./assets/sounds/android-sms.mp3");
         audio.play().then(() => {
             console.log("Sonido habilitado");
         }).catch(err => {

@@ -31,4 +31,6 @@ void loop() {
       Serial.println(F(" -> Tx")); Serial.flush();
     }
   }
+  // delay(100);
+  // Serial.print(F("."));
 }

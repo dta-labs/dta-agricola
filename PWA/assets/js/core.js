@@ -1332,7 +1332,8 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                 "p3": newPlot,
                 "p4": newPlot,
                 "p5": newPlot,
-                "p6": newPlot
+                "p6": newPlot,
+                "p7": newPlot
             },
             "position": "0",
             "sensorPresion": "0"
@@ -1752,6 +1753,12 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
 
     $scope.setEditPlanEstacionario = (index) => {
         $scope.editedPlan = index;
+        if (index == "p7") {
+            $scope.actualSystem.length = 8;
+            if (!$scope.actualSystem.plots[index]) {
+                $scope.actualSystem.plots[index] = newPlot;
+            }
+        }
         let asEpPlot = $scope.actualSystem.plots[index];
         asEpPlot["startDate"] = asEpPlot["startDate"] ? asEpPlot["startDate"] : " ";
         $scope.actualizarListaCultivos();
@@ -2001,9 +2008,15 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     }
     
     $scope.startPlotIrrigation = () => {
+        let text = "";
+        if ($scope.editedPlan == "p7") {
+            text = "¿Desea iniciar el pozo?";
+        } else {
+            text = "¿Desea iniciar el riego de " + ($scope.actualSystem.plots[$scope.editedPlan].name ? $scope.actualSystem.plots[$scope.editedPlan].name : "la Sección " + (parseInt($scope.editedPlan.slice(-1)) + 1)) + "?";
+        }  
         swal({
             title: "Plan de riego",
-            text: "¿Desea iniciar el riego de " + ($scope.actualSystem.plots[$scope.editedPlan].name ? $scope.actualSystem.plots[$scope.editedPlan].name : "la Sección " + (parseInt($scope.editedPlan.slice(-1)) + 1)) + "?",
+            text: text,
             icon: "warning",
             // buttons: ["Cancelar", true],
             buttons: {
@@ -2037,9 +2050,15 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     }
 
     $scope.stopPlotIrrigation = () => {
+        let text = "";
+        if ($scope.editedPlan == "p7") {
+            text = "¿Desea detener el pozo?";
+        } else {
+            text = "¿Desea detener el riego de " + ($scope.actualSystem.plots[$scope.editedPlan].name ? $scope.actualSystem.plots[$scope.editedPlan].name : "la Sección " + (parseInt($scope.editedPlan.slice(-1)) + 1)) + "?";
+        }  
         swal({
             title: "Plan de riego",
-            text: "¿Desea detener el riego de "  + ($scope.actualSystem.plots[$scope.editedPlan].name ? $scope.actualSystem.plots[$scope.editedPlan].name : "la Sección " + (parseInt($scope.editedPlan.slice(-1)) + 1)) + "?",
+            text: text,
             icon: "warning",
             // buttons: ["Cancelar", true],
             buttons: {

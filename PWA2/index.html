@@ -25,8 +25,11 @@
     <link rel="apple-touch-icon" sizes="48x48" href="./assets/images/icons/res/mipmap-mdpi/DTA_Agricola.png">
     <link rel="apple-touch-startup-image" href="./assets/images/DTA-Agricola.png">
     <meta name="apple-mobile-web-app-title" content="DTA - Monitoring & Control v1.0b">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes"><!-- Compatibilidad con iOS antiguos -->
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="mobile-web-app-capable" content="yes"><!-- Estándar moderno -->
+
+
 
     <link rel="icon" href="./assets/images/DTA-Agricola.png" />
     <link rel="manifest" href="manifest.json">
@@ -82,8 +85,14 @@
                         </a>
                     </span>
                     <span ng-if="authUser" class="valign-wrapper">
-                        <img id="imgAuthMobil" src="{{ authUser.photoURL }}" class="img-auth" 
-                            style="width: 32px; height: 32px; border-radius: 50%; margin-top: 2px;" ng-show="authUser.photoURL" alt="usuario">
+                        <img id="imgAuthMobil" 
+                            ng-src="{{ authUser.photoURL }}"
+                            style="width: 32px; height: 32px; border-radius: 50%; margin-top: 2px;" 
+                            ng-show="authUser.photoURL" 
+                            alt="usuario">
+
+                        <!-- <img id="imgAuthMobil" src="{{ authUser.photoURL }}" class="img-auth" 
+                            style="width: 32px; height: 32px; border-radius: 50%; margin-top: 2px;" ng-show="authUser.photoURL" alt="usuario"> -->
                         <i class="fa fa-user" aria-hidden="true" style="margin-top: 5px; margin-bottom: 4px;" ng-show="!authUser.photoURL"></i>
                         <p style="margin-top: 3px;color: black;border-radius: 50%;border: 2px solid;width: 30px;height: 30px;text-align: center;margin-left: 10px;font-variant-caps: small-caps;font-size: 1.2em;" ng-show="!authUser.photoURL">
                             {{ authUser.displayName ? authUser.displayName[0] : authUser.email[0] }}
@@ -128,16 +137,18 @@
                                                     margin-top: 10px; color: {{ color }};">flip</i>
                                                 </div>
                                                 <div ng-show="system.type == 'Estacionario'" style="margin-top: -5px; margin-left: -10px;">
-                                                    <img src="{{ color == 'grey' ? './assets/images/parcela-grey.png' : './assets/images/parcela.png' }}"
-                                                        class="parcela_icon" alt="parcela">
+                                                        <img ng-src="{{ color == 'grey' ? './assets/images/parcela-grey.png' : './assets/images/parcela.png' }}"
+                                                            class="parcela_icon" 
+                                                            alt="parcela">
                                                 </div>
                                                 <div ng-show="system.type == 'Pozo'" style="margin-top: -5px; margin-left: -10px; filter: grayscale(100%);">
-                                                    <img src="./assets/images/pozo.png"
-                                                        class="parcela_icon" alt="parcela">
+                                                    <img src="assets/images/pozo.png" class="parcela_icon" alt="parcela">
                                                 </div>
                                                 <div ng-show="system.type == 'Sensor'" style="margin-top: -5px; margin-left: -10px;">
-                                                    <img src="./assets/images/Red-Sensores.png" class="parcela_icon" 
-                                                        style="height: 50px; opacity: 0.7; filter: grayscale(100%);" alt="sensor">
+                                                    <img src="assets/images/Red-Sensores.png" 
+                                                        class="parcela_icon" 
+                                                        style="height: 50px; opacity: 0.7; filter: grayscale(100%);" 
+                                                        alt="sensor">
                                                 </div>
                                             </div>
 
@@ -242,7 +253,7 @@
                                             <div class="col s7 limitar left-align" ng-show="system.type == 'Estacionario'">
                                                 <div style="font-size: 1em;"><b>{{ system.name }}</b></div>
                                                 <div style="font-size: .6em;">
-                                                    <span ng-repeat="plot in system.plots" style="color: {{ getPlotColor(system, 'p' + $index) }}; font-size: 1.2em;">
+                                                    <span ng-repeat="plot in system.plots" ng-if="$index != 7" style="color: {{ getPlotColor(system, 'p' + $index) }}; font-size: 1.2em;">
                                                         <i class="material-icons" style="margin-top: 3px;">filter_{{ $index + 1 }}</i>&nbsp;
                                                     </span>
                                                     <!-- <span ng-repeat="plot in system.plots" style="color: {{ isPlotActive(system, 'p' + $index) ? 'black' : system.log.state == 'OFF' ? 'grey' : 'white' }}; font-size: 1.2em;">
@@ -292,8 +303,7 @@
                                             </div>
 
                                             <div class="col s2" style="margin: 2px 0 0 -10px; text-align: right;">
-                                                <img src="{{ meteo[system.key].weather.iconUrl }}"
-                                                    alt="Weather icon" ng-if="meteo[system.key].weather.iconUrl">
+                                                <img ng-src="{{meteo[system.key].weather.iconUrl}}" alt="Weather icon">
                                             </div>
                                         </div>
                                     </a>
@@ -628,7 +638,31 @@
                                     <div class="col s12" style="margin-left: 12%; width: 73%; position: fixed; top: 65px;">
                                         <table style="background: #0000003d;">
                                             <tr style="border-top: 2px solid lightgrey;">
-                                                <td style="text-align: center;">
+                                                <td class="modal-trigger" href="#modalHistorial" style="text-align: center; cursor: pointer;">
+                                                    <div class="center-align" ng-show="authUser &amp;&amp; selectedWindow == 'sistema'">
+                                                        <i class="material-icons" style="font-size: 2em;">equalizer</i> 
+                                                    </div>
+                                                    <div class="center-align" style="margin-top: -10px;">
+                                                        <b>Historial</b>
+                                                    </div>
+                                                </td>
+                                                <td class="modal-trigger" href="#modalConfig" style="text-align: center; cursor: pointer;">
+                                                    <div class="center-align" ng-show="authUser &amp;&amp; selectedWindow == 'sistema'">
+                                                        <i class="fa fa-list" aria-hidden="true" style="font-size: 1.5em;"></i>
+                                                    </div>                                                    
+                                                    <div class="center-align">
+                                                        <b>Planes</b>
+                                                    </div>
+                                                </td>
+                                                <td class="modal-trigger" href="#modalUsuarios" style="text-align: center; cursor: pointer;">
+                                                    <div class="center-align" ng-show="authUser &amp;&amp; selectedWindow == 'sistema'">
+                                                        <i class="fa fa-users" aria-hidden="true" style="font-size: 1.5em;"></i> 
+                                                    </div>
+                                                    <div class="center-align">
+                                                        <b>Usuarios</b>
+                                                    </div>
+                                                </td>
+                                                <!-- <td style="text-align: center;">
                                                     <div class="center-align">
                                                         <i class="fa fa-tint" aria-hidden="true" style="font-size: 1.7em; margin: 2px 0 3px 0;"></i>
                                                     </div>
@@ -643,7 +677,7 @@
                                                     <div class="center-align">
                                                         <b>{{ actualSystem.log.signal ? (actualSystem.log.signal * 100 / 30 | number : 0) : 0 }}</b>%
                                                     </div>
-                                                </td>
+                                                </td> -->
                                             </tr>
                                         </table>
                                     </div>
@@ -655,16 +689,11 @@
                                                         <i class="material-icons" 
                                                             style="color: {{ getPlotColor(actualSystem, 'p' + $index) }}; font-size: 3em;" 
                                                             ng-click="setEditPlanEstacionario('p' + $index); isPlotActive(actualSystem, 'p' + $index) ? stopPlotIrrigation() : startPlotIrrigation()"
-                                                            ng-repeat="plot in actualSystem.plots">filter_{{ $index + 1 }}</i>
+                                                            ng-repeat="plot in actualSystem.plots" ng-if="$index != 7">filter_{{ $index + 1 }}</i>
 
-                                                        <!-- <span class="col s5 center-align" ng-click="stopSystem()"
-                                                            style="border: 2px solid grey; margin: 0 2px; background: {{ actualSystem.status ? 'transparent' : 'red' }}">
-                                                            <i class="fa fa-stop" aria-hidden="true"
-                                                                style="color: {{ actualSystem.status ? 'grey' : 'white' }};"></i>
-                                                        </span> -->
-
-                                                        <i class="material-icons" style="color: {{ actualSystem.status ? 'springgreen' : 'lightgray' }}; font-size: 3em;" 
-                                                            ng-click="stopSystem()">power_settings_new</i>
+                                                        <img src="assets/images/pozo.png" alt="pozo" 
+                                                            style="width: 40px; border: 5px solid {{ getPlotColor(actualSystem, 'p7') }}; border-radius: 5px; background: {{ getPlotColor(actualSystem, 'p7') }};"
+                                                            ng-click="setEditPlanEstacionario('p7'); isPlotActive(actualSystem, 'p7') ? stopPlotIrrigation() : startPlotIrrigation()">
                                                     </div>
                                                 </td>
                                             </tr>
@@ -680,7 +709,31 @@
                                         <!-- <table style="background: #ffffff3d;"> -->
                                         <table style="background: #0000003d;">
                                             <tr style="border-top: 2px solid lightgrey; color: white;">
-                                                <td style="text-align: center;">
+                                                <td class="modal-trigger" href="#modalHistorial" style="text-align: center; cursor: pointer;">
+                                                    <div class="center-align" ng-show="authUser &amp;&amp; selectedWindow == 'sistema'">
+                                                        <i class="material-icons" style="font-size: 2em;">equalizer</i> 
+                                                    </div>
+                                                    <div class="center-align" style="margin-top: -10px;">
+                                                        <b>Historial</b>
+                                                    </div>
+                                                </td>
+                                                <td class="modal-trigger" href="#modalConfig" style="text-align: center; cursor: pointer;">
+                                                    <div class="center-align" ng-show="authUser &amp;&amp; selectedWindow == 'sistema'">
+                                                        <i class="fa fa-list" aria-hidden="true" style="font-size: 1.5em;"></i>
+                                                    </div>                                                    
+                                                    <div class="center-align">
+                                                        <b>Sensores</b>
+                                                    </div>
+                                                </td>
+                                                <td class="modal-trigger" href="#modalUsuarios" style="text-align: center; cursor: pointer;">
+                                                    <div class="center-align" ng-show="authUser &amp;&amp; selectedWindow == 'sistema'">
+                                                        <i class="fa fa-users" aria-hidden="true" style="font-size: 1.5em;"></i> 
+                                                    </div>
+                                                    <div class="center-align">
+                                                        <b>Usuarios</b>
+                                                    </div>
+                                                </td>
+                                                <!-- <td style="text-align: center;">
                                                     <div class="center-align">
                                                         <img src="./assets/images/termometro_blanco.png" alt="termómetro" style="width: 25px;">
                                                     </div>
@@ -695,7 +748,7 @@
                                                     <div class="center-align">
                                                         <b>{{ actualSystem.log.signal ? (actualSystem.log.signal * 100 / 30 | number : 0) : 0 }}</b>%
                                                     </div>
-                                                </td>
+                                                </td> -->
                                             </tr>
                                         </table>
                                     </div>
@@ -882,8 +935,10 @@
                                                 </td>
                                                 <td>
                                                     <div style="font-size: small; margin-top: 10px;">Cielo</div>
-                                                    <img src="{{ meteo[actualSystem.key].weather.iconUrl }}" alt="Weather icon"
-                                                    ng-if="meteo[actualSystem.key].weather.iconUrl" style="margin-top: -10px;">
+                                                    <img ng-src="{{ meteo[actualSystem.key].weather.iconUrl }}" 
+                                                        alt="Weather icon"
+                                                        *ng-if="meteo[actualSystem.key].weather.iconUrl" 
+                                                        style="margin-top: -10px;">
                                                     <!-- <p style="font-size: x-small; margin-top: -20px;">{{ meteo[actualSystem.key].clouds.all | number : 0}}%</p> -->
                                                 </td>
                                             </tr>
@@ -1475,7 +1530,7 @@
                                     <div class="col s6 m3 modal-trigger" 
                                         ng-repeat="plot in actualSystem.plots" 
                                         href="#modalEditRiegoEstacionario" 
-                                        ng-click="setEditPlanEstacionario('p' + $index)">
+                                        ng-click="setEditPlanEstacionario('p' + $index)" ng-if="$index < 7">
                                         <div class="row">
                                             <div class="col s12">
                                                 <div class="card card-panel hoverable" style="padding: 5px; border-radius: 5px; box-shadow: 2px 2px 10px gray !important;">
@@ -1493,7 +1548,7 @@
                                     </div>
                                     <div class="col s6 m3">
                                         <div class="row">
-                                            <div class="col s12">
+                                            <div class="col s12" ng-click="setEditPlanEstacionario('p7'); isPlotActive(actualSystem, 'p7') ? stopPlotIrrigation() : startPlotIrrigation()">
                                                 <div class="card card-panel hoverable" style="padding: 5px; border-radius: 5px; box-shadow: 2px 2px 10px gray !important; ">
                                                     <div class="card-image">
                                                         <img src="assets/images/pozo.png" style="filter: grayscale(100%);">
@@ -1501,12 +1556,7 @@
                                                     </div>
                                                     <div class="card-content" style="padding: 5px;">
                                                         <span class="card-title black-text" style="font-size: 1em;">Pozo</span>
-                                                        <div class="switch">
-                                                            <label>
-                                                                <input type="checkbox" ng-model="actualSystem.status" ng-checked="actualSystem.status" ng-click="setActualSystemStatus()">
-                                                                <span class="lever"></span>
-                                                            </label>
-                                                        </div>
+                                                        <p class="limite-una-linea">&nbsp;</p>
                                                     </div>
                                                 </div>
                                             </div>
@@ -1584,10 +1634,12 @@
                                                                 ng-repeat="sensor in actualSystem.sensors" ng-show="sensor.id != null"> 
                                                                 <table>
                                                                     <tr>
-                                                                        <td width="80%" style="text-align: left;">
-                                                                            <span style="text-align: left; color: rgb(55, 54, 54); font-size: 1.3em;"><b>{{ sensor.alias ? sensor.alias : "Sin nombre"}}</b> </span><br>
-                                                                            <span style="text-align: left; color: grey; font-size: .8em;">ID: <b>{{ sensor.id }}</b> </span><br>
-                                                                            <span style="text-align: left; color: grey; font-size: .8em;">Tipo: <b>{{ sensor.type }}</b> </span>
+                                                                        <td width="20%" style="text-align: center;">
+                                                                            <img src="{{ getSensorImage(sensor.type) }}" style="width: 40px;" alt="{{ sensor.type }}">
+                                                                        </td>
+                                                                        <td width="60%" style="text-align: left;">
+                                                                            <div style="text-align: left; color: rgb(55, 54, 54); font-size: 1.3em;"><b>{{ sensor.alias ? sensor.alias : "Sin nombre"}}</b> </div>
+                                                                            <div style="text-align: left; color: grey; font-size: .8em;">id: <b><i>{{ sensor.id }}</i></b></div>
                                                                         </td>
                                                                         <td width="20%" style="text-align: center;">
                                                                             <i class="material-icons">create</i> 
@@ -1826,7 +1878,7 @@
                             </div>
                             <div class="input-field col s12" style="border-bottom: 1px solid lightgrey; text-align: left;">Repetir cada:</div>
                             <div id="programa_estacionario_periodo" class="input-field col s12 m6 l4" style="text-align: left; display: flex; align-items: left; gap: 5px;">
-                                <input name="programa_estacionario_cada" type="number" min="1" value="{{ programaEstacionario.cada ? programaEstacionario.cada : 1 }}" style="width: 60px; text-align: right; margin-top: -12px;" ng-model="programaEstacionario.cada" /> 
+                                <input name="programa_estacionario_cada" type="number" min="1" style="width: 60px; text-align: right; margin-top: -12px;" ng-model="programaEstacionario.cada" /> 
                                 &nbsp; &nbsp;
                                 <select ng-model="programaEstacionario.periodo">
                                     <option value="0">veces</option>
@@ -2102,9 +2154,11 @@
                                             </div>
                                             <div class="row">
                                                 <div class="col s12" style="text-align: right;">
-                                                    <button class="btn-small" ng-class="selectedTimeOption == 'DIA' ? 'teal' : 'grey lighten-2'" ng-click="reloadSystemLog(actualSystem.key, 'DIA');" style="margin-right: 5px; padding: 0 15px; height: 28px; line-height: 28px; font-size: 0.8em; color: {{ selectedTimeOption == 'DIA' ? 'white' : '#616161' }};">Día</button>
-                                                    <button class="btn-small" ng-class="selectedTimeOption == 'SEMANA' ? 'teal' : 'grey lighten-2'" ng-click="reloadSystemLog(actualSystem.key, 'SEMANA');" style="margin-right: 5px; padding: 0 15px; height: 28px; line-height: 28px; font-size: 0.8em; color: {{ selectedTimeOption == 'SEMANA' ? 'white' : '#616161' }};">Semana</button>
+                                                    <!-- <button class="btn-small" ng-class="selectedTimeOption == 'DIA' ? 'teal' : 'grey lighten-2'" ng-click="reloadSystemLog(actualSystem.key, 'DIA');" style="margin-right: 5px; padding: 0 15px; height: 28px; line-height: 28px; font-size: 0.8em; color: {{ selectedTimeOption == 'DIA' ? 'white' : '#616161' }};">Día</button>
+                                                    <button class="btn-small" ng-class="selectedTimeOption == 'SEMANA' ? 'teal' : 'grey lighten-2'" ng-click="reloadSystemLog(actualSystem.key, 'SEMANA');" style="margin-right: 5px; padding: 0 15px; height: 28px; line-height: 28px; font-size: 0.8em; color: {{ selectedTimeOption == 'SEMANA' ? 'white' : '#616161' }};">Semana</button> -->
                                                     <button class="btn-small" ng-class="selectedTimeOption == 'MES' ? 'teal' : 'grey lighten-2'" ng-click="reloadSystemLog(actualSystem.key, 'MES');" style="padding: 0 15px; height: 28px; line-height: 28px; font-size: 0.8em; color: {{ selectedTimeOption == 'MES' ? 'white' : '#616161' }};">Mes</button>
+                                                    <button class="btn-small" ng-class="selectedTimeOption == 'CICLO' ? 'teal' : 'grey lighten-2'" ng-click="reloadSystemLog(actualSystem.key, 'CICLO');" style="padding: 0 15px; height: 28px; line-height: 28px; font-size: 0.8em; color: {{ selectedTimeOption == 'CICLO' ? 'white' : '#616161' }};">Ciclo</button>
+                                                    <!-- <button class="btn-small" ng-class="selectedTimeOption == 'AÑO' ? 'teal' : 'grey lighten-2'" ng-click="reloadSystemLog(actualSystem.key, 'AÑO');" style="padding: 0 15px; height: 28px; line-height: 28px; font-size: 0.8em; color: {{ selectedTimeOption == 'AÑO' ? 'white' : '#616161' }};">Año</button> -->
                                                 </div>
                                             </div>
                                             <table ng-if="sensor.type == 'Ms' || sensor.type == 'SHT4' || sensor.type == 'WM'">
@@ -2546,15 +2600,30 @@
                                                 </a>
                                                 <div class="row" style="display: none;">
                                                     <div class="input-field col s4">
-                                                        <input id="editDayManual" type="number" class="right-align" min="0" max="30" value="{{ getDayFromMs(actualSystem.plots[editedPlan].value) }}">
+                                                        <input id="editDayManual" 
+                                                            type="number" 
+                                                            class="right-align" 
+                                                            min="0" max="30" 
+                                                            ng-model="actualSystem.plots[editedPlan].dayValue"
+                                                            ng-value="getDayFromMs(actualSystem.plots[editedPlan].value)">
                                                         <label>Días</label>
                                                     </div>
                                                     <div class="input-field col s4">
-                                                        <input id="editHourManual" type="number" class="right-align" min="0" max="24" value="{{ getHourFromMs(actualSystem.plots[editedPlan].value) }}">
+                                                        <input id="editHourManual" 
+                                                            type="number" 
+                                                            class="right-align" 
+                                                            min="0" max="24" 
+                                                            ng-model="actualSystem.plots[editedPlan].value"
+                                                            ng-value="{{ getHourFromMs(actualSystem.plots[editedPlan].value) }}">
                                                         <label>Horas</label>
                                                     </div>
                                                     <div class="input-field col s4">
-                                                        <input id="editMinutesManual" type="number" class="right-align" min="0" max="60" value="{{ getMinutesFromMs(actualSystem.plots[editedPlan].value) }}">
+                                                        <input id="editMinutesManual" 
+                                                            type="number" 
+                                                            class="right-align" 
+                                                            min="0" max="60" 
+                                                            ng-model="actualSystem.plots[editedPlan].value"
+                                                            ng-value="{{ getMinutesFromMs(actualSystem.plots[editedPlan].value) }}">
                                                         <label>Min</label>
                                                     </div>
                                                     <div class="col s12 red-text"><b>Nota: </b><i>"Los cambios en el tiempo de riego se hacen efectivos al hacer clic en el botón iniciar"</i></div>
@@ -2576,8 +2645,11 @@
                                                 </a>
                                                 <div class="row">
                                                     <div class="input-field col s12 m6">
-                                                        <input type="datetime-local" id="startDate" name="schDate"
-                                                            ng-model="actualSystem.plots[editedPlan].startDate" value="{{ actualSystem.plots[editedPlan].startDate }}">
+                                                        <input type="datetime-local" 
+                                                            id="startDate" 
+                                                            name="schDate"
+                                                            ng-model="actualSystem.plots[editedPlan].startDate" 
+                                                            ng-value="{{ actualSystem.plots[editedPlan].startDate }}">
                                                         <label class="active" for="startDate">Fecha de siembra: </label>
                                                     </div>
                                                 </div>
@@ -3074,8 +3146,10 @@
                                                         <label class="left-align">
                                                             <input id="disease_{{ disease.name }}" type="checkbox" ng-model="newSensor.alerts[disease.name]" />
                                                             <span class="chip">
-                                                                <img src="assets/images/diseases/{{ disease.photo }}.jpg" alt="{{ disease }}" style="margin-top: -5px;" ng-show="disease.photo">
-                                                                {{ disease.name }}
+                                                                <img ng-src="assets/images/diseases/{{ disease.photo || bug-vector-icon.jpg }}.jpg" 
+                                                                    alt="{{ disease.name }}" 
+                                                                    style="margin-top: -5px;">
+                                                                    {{ disease.name }}
                                                             </span>
                                                         </label>
                                                         <!-- <a class="waves-effect waves-light btn" href="" style="font-size: .8em; border-radius: 50%;" ng-click="showDiseaseDetails(disease)">?</a> -->
@@ -3085,7 +3159,7 @@
                                                 <div id="diseaseDetails_{{ actualCulture.culture }}" class="card" ng-show="isShowDiseaseDetails">
                                                     <div class="card-content">
                                                         <span class="card-title">{{ disease.name }}</span>
-                                                        <p><img src="assets/images/diseases/{{ disease.photo }}.jpg" alt="{{ disease }}" style="margin-top: -5px;"></p>
+                                                        <p><img ng-src="assets/images/diseases/{{ disease.photo || bug-vector-icon.jpg }}.jpg" alt="{{ disease.name }}" style="margin-top: -5px;"></p>
                                                         <table>
                                                             <tr>
                                                                 <td class="left-align">Nombre</td>
@@ -3134,7 +3208,7 @@
                                                         <label class="left-align">
                                                             <input id="newSensorHNotify" type="checkbox" ng-model="newSensor.h.notify" />
                                                             <span class="chip">
-                                                                <img src="assets/images/gota.jpg" alt="{{ disease }}" style="margin-top: -5px;">
+                                                                <img src="assets/images/gota.jpg" alt="Gota" style="margin-top: -5px;">
                                                                 Humedad
                                                             </span>
                                                             <input id="newSensorHMinValue" type="number" val="0" min="0" max="100" ng-model="newSensor.h.minValue" style="width: 50px;" placeholder="Min"> - 
@@ -3147,7 +3221,7 @@
                                                         <label class="left-align">
                                                             <input id="newSensorTNotify" type="checkbox" ng-model="newSensor.t.notify" />
                                                             <span class="chip">
-                                                                <img src="assets/images/termometro.png" alt="{{ disease }}" style="margin-top: -5px;">
+                                                                <img src="assets/images/termometro.png" alt="Termómetro" style="margin-top: -5px;">
                                                                 Temperatura
                                                             </span>
                                                             <input id="newSensorTMinValue" type="number" val="0" min="0" max="100" ng-model="newSensor.t.minValue" style="width: 50px;" placeholder="Min"> - 
@@ -3160,7 +3234,7 @@
                                                         <label class="left-align">
                                                             <input id="newSensorPsiNotify" type="checkbox" ng-model="newSensor.psi.notify" />
                                                             <span class="chip">
-                                                                <img src="assets/images/presion.jpg" alt="{{ disease }}" style="margin-top: -5px;">
+                                                                <img src="assets/images/presion.jpg" alt="Presión" style="margin-top: -5px;">
                                                                 Alerta de presión
                                                             </span>
                                                             <input id="newSensorPsiMinValue" type="number" val="0" min="0" max="100" ng-model="newSensor.psi.minValue" style="width: 50px;" placeholder="Min">
@@ -3173,7 +3247,7 @@
                                                         <label class="left-align">
                                                             <input id="newSensorFlNotify" type="checkbox" ng-model="newSensor.fl.notify" />
                                                             <span class="chip">
-                                                                <img src="assets/images/caudal.png" alt="{{ disease }}" style="margin-top: -5px;">
+                                                                <img src="assets/images/caudal.png" alt="Caudal" style="margin-top: -5px;">
                                                                 Alerta de caudal
                                                             </span>
                                                             Min: <input id="newSensorFlMaxValue" type="number" val="0" min="0" max="100" ng-model="newSensor.fl.maxValue" style="width: 50px;">
@@ -3238,15 +3312,25 @@
 
                 <div id="modalEditSensor" class="modal"> <!-- Modal editar sensor -->
                     <div class="modal-content">
-                        <div class="swal-title">Editar sensor {{ actualSensor.id }}</div>
-                        <div class="row">
+                        <div class="swal-title">Editar: {{ actualSensor.alias ? actualSensor.alias : actualSensor.id }}</div>
+                        <div class="row" style="text-align: center;">
+                            <div class="input-field col s12">
+                                <img src="{{ getSensorImage (actualSensor.type) }}" style="width: 100px;" alt="WM">
+                            </div>
                             <div class="input-field col s12">
                                 <input id="editSensorAlias" type="text" ng-model="actualSensor.alias">
                                 <label>Alias</label>
                             </div>
                             <div class="input-field col s12">
-                                <input id="editSensorID" type="text" placeholder="id" ng-model="actualSensor.id">
-                                <label for="editSensorID">Identificador</label>
+                                <div class="row" ng-init="isSensorIdEnebled = false">
+                                    <div class="col 10">
+                                        <input id="editSensorID" type="text" placeholder="id" ng-model="actualSensor.id" ng-disabled="!isSensorIdEnebled">
+                                        <label for="editSensorID">Identificador</label>
+                                    </div>
+                                    <div class="col 2">
+                                        <i class="material-icons" ng-click="isSensorIdEnebled = !isSensorIdEnebled">create</i>
+                                    </div>
+                                </div>
                             </div>
                             <div class="col s12"
                                 style="background: whitesmoke; box-shadow: 0 0 3px lightgrey; margin-bottom: 20px;">
@@ -3304,7 +3388,7 @@
                                                     <label class="left-align">
                                                         <input id="disease_{{ disease.name }}" type="checkbox" ng-model="actualSensor.alerts[disease.name]" />
                                                         <span class="chip">
-                                                            <img src="assets/images/diseases/{{ disease.photo }}.jpg" alt="{{ disease }}" style="margin-top: -5px;" ng-show="disease.photo">
+                                                            <img ng-src="assets/images/diseases/{{ disease.photo || bug-vector-icon.jpg }}.jpg" alt="{{ disease.name }}" style="margin-top: -5px;" ng-show="disease.photo">
                                                             {{ disease.name }}
                                                         </span>
                                                     </label>
@@ -3315,7 +3399,7 @@
                                             <div id="diseaseDetails_{{ actualCulture.culture }}" class="card" ng-show="isShowDiseaseDetails">
                                                 <div class="card-content">
                                                     <span class="card-title">{{ disease.name }}</span>
-                                                    <p><img src="assets/images/diseases/{{ disease.photo }}.jpg" alt="{{ disease }}" style="margin-top: -5px;"></p>
+                                                    <p><img ng-src="assets/images/diseases/{{ disease.photo || bug-vector-icon.jpg }}.jpg" alt="{{ disease.name }}" style="margin-top: -5px;"></p>
                                                     <table>
                                                         <tr>
                                                             <td class="left-align">Nombre</td>
@@ -3364,7 +3448,7 @@
                                                     <label class="left-align">
                                                         <input id="editSensorHNotify" type="checkbox" ng-model="actualSensor.h.notify" />
                                                         <span class="chip">
-                                                            <img src="assets/images/gota.jpg" alt="{{ disease }}" style="margin-top: -5px;">
+                                                            <img src="assets/images/gota.jpg" alt="Gota" style="margin-top: -5px;">
                                                             Humedad
                                                         </span>
                                                         <input id="editSensorHMinValue" type="number" min="0" max="100" ng-model="actualSensor.h.minValue" style="width: 50px;" placeholder="Min"> - 
@@ -3377,7 +3461,7 @@
                                                     <label class="left-align">
                                                         <input id="editSensorTNotify" type="checkbox" ng-model="actualSensor.t.notify" />
                                                         <span class="chip">
-                                                            <img src="assets/images/termometro.png" alt="{{ disease }}" style="margin-top: -5px;">
+                                                            <img src="assets/images/termometro.png" alt="Termómetro" style="margin-top: -5px;">
                                                             Temperatura
                                                         </span>
                                                         <input id="editSensorTMinValue" type="number" min="0" max="100" ng-model="actualSensor.t.minValue" style="width: 50px;" placeholder="Min"> - 
@@ -3390,7 +3474,7 @@
                                                     <label class="left-align">
                                                         <input id="editSensorPsiNotify" type="checkbox" ng-model="actualSensor.psi.notify" />
                                                         <span class="chip">
-                                                            <img src="assets/images/presion.jpg" alt="{{ disease }}" style="margin-top: -5px;">
+                                                            <img src="assets/images/presion.jpg" alt="Presión" style="margin-top: -5px;">
                                                             Alerta de presión
                                                         </span>
                                                         <input id="editSensorPsiMinValue" type="number" min="0" max="100" ng-model="actualSensor.psi.minValue" style="width: 50px;" placeholder="Min">
@@ -3403,7 +3487,7 @@
                                                     <label class="left-align">
                                                         <input id="editSensorFlNotify" type="checkbox" ng-model="actualSensor.fl.notify" />
                                                         <span class="chip">
-                                                            <img src="assets/images/caudal.png" alt="{{ disease }}" style="margin-top: -5px;">
+                                                            <img src="assets/images/caudal.png" alt="Caudal" style="margin-top: -5px;">
                                                             Alerta de caudal
                                                         </span>
                                                         Min: <input id="editSensorFlMaxValue" type="number" min="0" max="100" ng-model="actualSensor.fl.maxValue" style="width: 50px;">
@@ -3747,7 +3831,7 @@
             </section>
 
             <audio id="alertSound">
-                <source src="./assets/sounds/alarma-de-evacuacin-evacuacion.mp3" type="audio/mpeg">
+                <source src="./assets/sounds/alarma-de-evacuacion.mp3" type="audio/mpeg">
                 Your browser does not support the audio element.
             </audio>
 
@@ -4256,7 +4340,9 @@
                                     </a>
                                 </div>
                                 <div class="col s12 m3" ng-show="authUser" style="text-align: center;">
-                                    <img id="imgAuthMobil" src="{{ authUser.photoURL || './assets/images/DTA-Agricola.png' }}" class="img-auth"
+                                    <img id="imgAuthMobil" 
+                                        ng-src="{{ authUser.photoURL || './assets/images/DTA-Agricola.png' }}" alt="Foto de perfil"
+                                        class="img-auth"
                                         style="width: 100px; height: 100px; border-radius: 50%; margin-top: 2px;">
                                     <!-- <i class="fa fa-user" aria-hidden="true"
                                         style="margin-top: 5px; margin-bottom: 4px;"
@@ -4370,7 +4456,7 @@
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
     <script src="./assets/modules/push-notification/push.js" defer></script>
     <!-- <script src="./assets/cultures/listOfCultures.js"></script> -->
-    <script src="./assets/js/core.js?v=26.05.28.1058"></script>
+    <script src="./assets/js/core.js?v=26.06.15.0758"></script>
     <!-- <script src="monitor/js/chartjs/chart.min.js"></script> -->
     <script type="text/javascript" src="./assets/modules/datepicker/daterangepicker.js"></script>
 

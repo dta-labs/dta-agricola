@@ -56,7 +56,7 @@ void discoverNewSensor(String data) {             // DTA-GTW-0x0000
 }
 
 void loraTxData(String dataStr) {
-  // DBG_PRINT(F("\n        ~ Confirmación: ")); DBG_PRINT(dataStr);
+  Serial.print(F("\n        ~ Confirmación: ")); Serial.println(dataStr);
   LoRa.idle();
   LoRa.beginPacket();
   LoRa.print(dataStr);
@@ -85,7 +85,7 @@ void processData(String data, String rssi) {      // DTA-SHT-0x00000000,%Ms,%Hr,
   if (index != -1) {
     String newData = data.substring(commaIdx + 1, data.lastIndexOf(commaChar));
     dataToSend[index] = newData;
-    sendConfirmation(sensorId);
+    sendConfirmation(data.substring(0, commaIdx));
   }
 }
 

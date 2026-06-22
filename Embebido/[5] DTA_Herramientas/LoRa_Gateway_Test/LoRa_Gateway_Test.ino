@@ -6,8 +6,8 @@
 #define startAddress F("0x")
 #define commaChar F(",")
 #define FREQUENCY 915E6                       // 433E6 or 915E6*, the MHz frequency of module
-#define TIME_SCAN 3                           // Tiempo de escaneo en minutos
-#define isConfirmationNeeded true            // Enviar confirmación o no
+#define TIME_SCAN 30                           // Tiempo de escaneo en minutos
+#define isConfirmationNeeded false            // Enviar confirmación o no
 #pragma endregion Variables
 
 #pragma region Programa Principal
