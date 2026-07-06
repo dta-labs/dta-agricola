@@ -222,11 +222,9 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         // loadUserData($scope.authUser.email).then(result => {
         loadUserLocations($scope.authUser.email).then(result => {
             $scope.userLocations = result;
+            handleTokenRefresh($scope.authUser.email);
             if (result[convertDotToDash($scope.authUser.email)]) {
                 $scope.userProfile = result[convertDotToDash($scope.authUser.email)].profile;
-                let tokenList = result[convertDotToDash($scope.authUser.email)].token;
-                userTokenList = tokenList ? tokenList : [];
-                handleTokenRefresh($scope.authUser.email);
                 loadSystems();
             }
             $scope.showWindow('listado');
@@ -276,6 +274,12 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         }
         let result = (userRole == role) ? true : false;
         return result;
+    }
+
+    $scope.loginEmailVerify = () => {
+        const mail = document.getElementById("signinMail").value;
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return regex.test(mail);
     }
 
     // #endregion USER
@@ -2491,7 +2495,19 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     // #region NOTICIACIÓN
     $scope.setToken = () => {
         if ($scope.authUser) {
-            handleTokenRefresh($scope.authUser.email);
+            if (typeof regenerateFcmToken === "function") {
+                regenerateFcmToken($scope.authUser.email).then(token => {
+                    if (token) {
+                        console.log("Token FCM activo:", token);
+                    } else {
+                        console.error("No se genero ni guardo token FCM desde el boton Activar notificaciones.");
+                    }
+                }).catch(error => {
+                    console.error("Error al activar notificaciones desde el boton:", error);
+                });
+            } else {
+                handleTokenRefresh($scope.authUser.email);
+            }
         }
     }
 
@@ -4239,14 +4255,18 @@ function serviceWorker() {
         // Limpiar SWs anteriores
         navigator.serviceWorker.getRegistrations().then(registrations => {
             registrations.forEach(registration => {
-                if (registration.active && registration.active.scriptURL.includes('sw.js')) {
+                const scriptUrl = registration.active ? new URL(registration.active.scriptURL) : null;
+                if (registration.active && (
+                    scriptUrl.pathname.endsWith('/sw.js') ||
+                    scriptUrl.pathname.endsWith('/OneSignalSDKWorker.js')
+                )) {
                     registration.unregister();
                     console.log("🗑️ SW anterior (sw.js) eliminado");
                 }
             });
         });
 
-        navigator.serviceWorker.register('./OneSignalSDKWorker.js')
+        navigator.serviceWorker.register('./firebase-messaging-sw.js', { scope: './' })
             .then(reg => {
                 console.log("✅ SW de OneSignal + caché registrado:", reg);
                 console.log("SW state:", reg.installing ? 'installing' : reg.waiting ? 'waiting' : reg.active ? 'active' : 'unknown');
@@ -4302,10 +4322,19 @@ function serviceWorker() {
 // El sonido se maneja directamente desde el Service Worker
 
 handleTokenRefresh = (email) => {
-    if (authUser && !userTokenList || !userTokenList.some(item => item === subscriptionJSON)) {
-        userTokenList.push(subscriptionJSON);
-        setUserToken(email, userTokenList);
+    if (typeof registerFirebaseMessaging === "function") {
+        return registerFirebaseMessaging(email).then(token => {
+            if (token) {
+                console.log("Token FCM activo:", token);
+            } else {
+                console.error("No se genero ni guardo token FCM durante el registro automatico.");
+            }
+            return token;
+        });
     }
+
+    console.error("Firebase Messaging no esta disponible; no se guardaran tokens legacy.");
+    return Promise.resolve(null);
 }
 
 send_push = (subscription) => {
@@ -4348,19 +4377,25 @@ window.addEventListener("beforeunload", function (e) {
 
 // Set the badge
 const unreadCount = 24;
-navigator.setAppBadge(unreadCount).catch((error) => {
-    //Do something with the error.
-});
+if ("setAppBadge" in navigator) {
+    navigator.setAppBadge(unreadCount).catch((error) => {
+        console.log("No se pudo establecer el badge:", error);
+    });
+}
 
 // Clear the badge
-navigator.clearAppBadge().catch((error) => {
-    // Do something with the error.
-});
+if ("clearAppBadge" in navigator) {
+    navigator.clearAppBadge().catch((error) => {
+        console.log("No se pudo limpiar el badge:", error);
+    });
+}
 
 // Escuchar mensajes del SW
+if ('serviceWorker' in navigator) {
 navigator.serviceWorker.addEventListener('message', event => {
   if (event.data && event.data.action === 'playSound') {
     const soundUrl = event.data.file;
+    if (!soundUrl || soundUrl === 'default') return;
     console.log('🎵 Reproduciendo sonido en la PWA:', soundUrl);
 
     try {
@@ -4374,5 +4409,6 @@ navigator.serviceWorker.addEventListener('message', event => {
     }
   }
 });
+}
 
 // #endregion Progresive Web Application

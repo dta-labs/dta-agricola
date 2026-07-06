@@ -7,6 +7,7 @@ class DatabaseUpdater {
     private $users = null;
     private $curlHandle;
     private $agroCache = [];
+    private $weatherCache = [];
     private $isRealData = true;
     private $date = '';
     public $signal = '';
@@ -144,7 +145,7 @@ class DatabaseUpdater {
     private function processActualData($data) {
         $settings = $this->settings;
         $data = $this->updateActualData($data);
-        if ($settings->operationMode && ($settings->operationMode == "" || $settings->operationMode == "0" || $settings->operationMode == 0)) {
+        if (isset($settings->operationMode) && (string)$settings->operationMode === "0") {
             $this->sensorsDiscovery($data);
         } else {
             $this->updateLog($data);
@@ -204,13 +205,15 @@ class DatabaseUpdater {
                 $sensorLon = $settings->sensors->{$idx}->longitude;
                 $sensorId  = $settings->sensors->{$idx}->id;
                 if ($j === 0) return $this->getRndValue($this->getSoilMoisturePoint($sensorLat, $sensorLon), 1.0, $sensorId);
-                if ($j === 3) return 3.0;
+                if ($j === 3) return 5.5;
                 if ($j === 1 || $j === 2) {
                     if ($estacion) {
                         $est = $estacion['est'];
                         $meteo = $this->executeRequest("https://dtaamerica.com/ws/estaciones.php?fi=$date&ff=$date&tp=Hora&re=DTA&es=$est");
-                        if ($j === 1 && isset($meteo['hmin'])) return $this->getRndValue($meteo['hmin'], 1.0, $sensorId);
-                        if ($j === 2 && isset($meteo['tprom'])) return $this->getRndValue($meteo['tprom'], 1.0, $sensorId);
+                        $hmin = $this->getFieldValue($meteo, 'hmin');
+                        $tprom = $this->getFieldValue($meteo, 'tprom');
+                        if ($j === 1 && is_numeric($hmin)) return $this->getRndValue((float)$hmin, 1.0, $sensorId);
+                        if ($j === 2 && is_numeric($tprom)) return $this->getRndValue((float)$tprom, 1.0, $sensorId);
                     }
                     $response = $this->getTHData($sensorLat, $sensorLon);
                     if ($j === 1 && isset($response[0])) return $this->getRndValue($response[0], 1.0, $sensorId);
@@ -223,31 +226,72 @@ class DatabaseUpdater {
     }
 
     private function getTHData($lat, $lon) {
-        $url = "https://api.open-meteo.com/v1/forecast?latitude=$lat&longitude=$lon&hourly=temperature_2m,relative_humidity_2m&timezone=America/Chihuahua";
+        $weather = $this->getWeatherData($lat, $lon);
+        if ($weather) {
+            return [$weather['humidity'] ?? null, $weather['temp'] ?? null];
+        }
+
+        $locationKey = round((float)$lat, 4) . ',' . round((float)$lon, 4);
+        return isset($this->agroCache[$locationKey]) ? [null, $this->agroCache[$locationKey]['temp'] ?? null] : [null, null];
+    }
+
+    private function getWeatherData($lat, $lon): ?array {
+        if (!is_numeric($lat) || !is_numeric($lon)) return null;
+
+        $locationKey = round((float)$lat, 4) . ',' . round((float)$lon, 4);
+        if (isset($this->weatherCache[$locationKey]) && (time() - $this->weatherCache[$locationKey]['timestamp']) < 600) {
+            return $this->weatherCache[$locationKey]['data'];
+        }
+
+        $query = http_build_query([
+            'latitude' => $lat,
+            'longitude' => $lon,
+            'hourly' => 'temperature_2m,relative_humidity_2m,wind_speed_10m,shortwave_radiation,surface_pressure,et0_fao_evapotranspiration,precipitation,soil_temperature_54cm,soil_moisture_27_to_81cm',
+            'timezone' => 'America/Chihuahua',
+            'wind_speed_unit' => 'ms',
+            'past_days' => 1,
+            'forecast_days' => 1
+        ]);
+        $url = "https://api.open-meteo.com/v1/forecast?$query";
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_TIMEOUT, 10);
         $response = curl_exec($ch);
-        $locationKey = round((float)$lat, 4) . ',' . round((float)$lon, 4);
         if ($response === false) {
             error_log("Open-Meteo API Error: " . curl_error($ch));
-            return isset($this->agroCache[$locationKey]) ? [null, $this->agroCache[$locationKey]['temp'] ?? null] : [null, null];
+            curl_close($ch);
+            return null;
         }
+        curl_close($ch);
+
         $data = json_decode($response, true);
+        if (!is_array($data)) return null;
+
         $times  = $data['hourly']['time'] ?? [];
-        $temps  = $data['hourly']['temperature_2m'] ?? [];
-        $humids = $data['hourly']['relative_humidity_2m'] ?? [];
-        date_default_timezone_set("America/Chihuahua");
-        $currentHour = date("Y-m-d\TH:00");
+        $currentHour = (new DateTime('now', new DateTimeZone('America/Chihuahua')))->format("Y-m-d\TH:00");
         $index = array_search($currentHour, $times);
-        if ($index !== false && isset($temps[$index]) && isset($humids[$index])) {
-            return [$humids[$index], $temps[$index]];
-        }
-        $closestIndex = $this->findClosestHourIndex($times, $currentHour);
-        if ($closestIndex !== null && isset($temps[$closestIndex]) && isset($humids[$closestIndex])) {
-            return [$humids[$closestIndex], $temps[$closestIndex]];
-        }
-        return isset($this->agroCache[$locationKey]) ? [null, $this->agroCache[$locationKey]['temp'] ?? null] : [null, null];
+        if ($index === false) $index = $this->findClosestHourIndex($times, $currentHour);
+        if ($index === null) return null;
+
+        $hourly = $data['hourly'] ?? [];
+        $weather = [
+            'temp' => $hourly['temperature_2m'][$index] ?? null,
+            'humidity' => $hourly['relative_humidity_2m'][$index] ?? null,
+            'windSpeed' => $hourly['wind_speed_10m'][$index] ?? null,
+            'shortwaveRadiation' => $hourly['shortwave_radiation'][$index] ?? null,
+            'surfacePressure' => $hourly['surface_pressure'][$index] ?? null,
+            'eto' => $hourly['et0_fao_evapotranspiration'][$index] ?? null,
+            'precipitation' => $hourly['precipitation'][$index] ?? null,
+            'soilTemp' => $hourly['soil_temperature_54cm'][$index] ?? null,
+            'soilMoisture' => $hourly['soil_moisture_27_to_81cm'][$index] ?? null
+        ];
+
+        $this->weatherCache[$locationKey] = [
+            'data' => $weather,
+            'timestamp' => time()
+        ];
+
+        return $weather;
     }
 
     private function findClosestHourIndex($times, $targetTime) {
@@ -263,7 +307,35 @@ class DatabaseUpdater {
         return $closestIndex;
     }
 
+    private function getFieldValue($source, string $field) {
+        if (is_array($source)) {
+            if (array_key_exists($field, $source)) return $source[$field];
+            $first = reset($source);
+            return $first !== false ? $this->getFieldValue($first, $field) : null;
+        }
+        if (is_object($source)) {
+            if (isset($source->{$field})) return $source->{$field};
+            $vars = get_object_vars($source);
+            $first = reset($vars);
+            return $first !== false ? $this->getFieldValue($first, $field) : null;
+        }
+        return null;
+    }
+
     private function getSoilMoisturePoint($lat, $lon) {
+        $weather = $this->getWeatherData($lat, $lon);
+        $sm = $weather['soilMoisture'] ?? null;
+        if ($sm !== null && is_numeric($sm) && $sm < 1) {
+            $sm = $sm * 100.0;
+        }
+        $locationKey = round((float)$lat, 4) . ',' . round((float)$lon, 4);
+        $this->agroCache[$locationKey] = [
+            'temp' => is_array($weather) ? ($weather['soilTemp'] ?? null) : null,
+            'humidity' => null,
+            'timestamp' => time()
+        ];
+
+        /*
         $agroAPI = '07f1e9d39ef35ee2b22c77c48a4c5a7d';
         $soilUrl = "https://api.agromonitoring.com/agro/1.0/soil?lat=$lat&lon=$lon&appid=$agroAPI";
         $context = stream_context_create(['http' => ['timeout' => 5]]);
@@ -275,7 +347,6 @@ class DatabaseUpdater {
         if ($sm !== null && is_numeric($sm) && $sm < 1) {
             $sm = $sm * 100.0;
         }
-        $locationKey = round((float)$lat, 4) . ',' . round((float)$lon, 4);
         $tempKelvin = $soilData['t0'] ?? null;
         $temp = $tempKelvin !== null ? $tempKelvin - 273.15 : null;
         $this->agroCache[$locationKey] = [
@@ -283,6 +354,8 @@ class DatabaseUpdater {
             'humidity' => null,
             'timestamp' => time()
         ];
+        */
+
         return is_numeric($sm) ? floatval($sm) : null;
     }
 
@@ -387,7 +460,12 @@ class DatabaseUpdater {
             $hrValue  = $data[$hrIndex]  ?? NAN;
             $tValue   = $data[$tIndex]   ?? NAN;
             $vccValue = $data[$vccIndex] ?? NAN;
-            $etc = (!is_nan($tValue) && !is_nan($hrValue)) ? round($this->calcularETo($tValue, $hrValue), 1) : NAN;
+            $sensorSettings = $this->settings->sensors->{"S".$i} ?? null;
+            $weather = $sensorSettings ? $this->getWeatherData(
+                $sensorSettings->latitude ?? null,
+                $sensorSettings->longitude ?? null
+            ) : null;
+            $etc = (!is_nan($tValue) && !is_nan($hrValue)) ? round($this->calcularETo($tValue, $hrValue, $weather, $sensorSettings), 1) : NAN;
             $hf = !is_nan($tValue) ? round($this->calcularHorasFrio($tValue), 1) : NAN;
             $expandedData[] = (string)$msValue;
             $expandedData[] = (string)$hrValue;
@@ -407,13 +485,56 @@ class DatabaseUpdater {
         ];
     }
 
-    private function calcularETo(float $temp, float $hr): float {
-        $tMean = $temp;
-        $hrDecimal = $hr / 100;
-        $ra = 0.408 * exp(0.051 * $tMean);
-        $ea = $hrDecimal * 0.6108 * exp(17.27 * $tMean / ($tMean + 237.3));
-        $eTo = 0.408 * $ra * (0.05 * $tMean) * (1 - $hrDecimal);
-        return round(max(0, $eTo), 1);
+    private function calcularETo(float $temp, float $hr, ?array $weather = null, $sensorSettings = null): float {
+        $kc = $this->getCropCoefficient($sensorSettings);
+        $apiEto = $weather['eto'] ?? null;
+        if (is_numeric($apiEto)) {
+            return round(max(0, (float)$apiEto * $kc), 1);
+        }
+
+        $windSpeed = $weather['windSpeed'] ?? null;
+        $shortwaveRadiation = $weather['shortwaveRadiation'] ?? null;
+        $surfacePressure = $weather['surfacePressure'] ?? null;
+        if (is_numeric($windSpeed) && is_numeric($shortwaveRadiation) && is_numeric($surfacePressure)) {
+            $eto = $this->calcularEToPenmanMonteith(
+                $temp,
+                $hr,
+                (float)$windSpeed,
+                (float)$shortwaveRadiation,
+                (float)$surfacePressure
+            );
+            return round(max(0, $eto * $kc), 1);
+        }
+
+        $hrDecimal = max(0, min(1, $hr / 100));
+        $fallbackEto = 0.408 * (0.408 * exp(0.051 * $temp)) * (0.05 * $temp) * (1 - $hrDecimal);
+        return round(max(0, $fallbackEto * $kc), 1);
+    }
+
+    private function calcularEToPenmanMonteith(float $temp, float $hr, float $windSpeed, float $shortwaveRadiation, float $surfacePressure): float {
+        $es = 0.6108 * exp((17.27 * $temp) / ($temp + 237.3));
+        $ea = $es * max(0, min(1, $hr / 100));
+        $delta = (4098 * $es) / pow($temp + 237.3, 2);
+        $pressureKpa = $surfacePressure > 20 ? $surfacePressure / 10 : $surfacePressure;
+        $gamma = 0.000665 * $pressureKpa;
+        $u2 = max(0.1, $windSpeed);
+        $rs = max(0, $shortwaveRadiation) * 0.0036;
+        $rn = 0.77 * $rs;
+        $numerator = (0.408 * $delta * $rn) + ($gamma * (37 / ($temp + 273)) * $u2 * max(0, $es - $ea));
+        $denominator = $delta + ($gamma * (1 + 0.34 * $u2));
+        if ($denominator <= 0) return 0.0;
+        return $numerator / $denominator;
+    }
+
+    private function getCropCoefficient($sensorSettings): float {
+        $settings = $this->settings;
+        foreach (['cropCoefficient', 'kc', 'Kc', 'cultivoKc', 'coeficienteCultivo'] as $field) {
+            $value = $this->getFieldValue($sensorSettings, $field);
+            if (is_numeric($value)) return max(0, (float)$value);
+            $value = $this->getFieldValue($settings, $field);
+            if (is_numeric($value)) return max(0, (float)$value);
+        }
+        return 1.0;
     }
 
     private function calcularHorasFrio(float $temp): float {
@@ -480,7 +601,6 @@ class DatabaseUpdater {
         $this->executeRequest($dayLogsFile, 'DELETE');
         $summaryLogData = $this->crearRegistroPromedio($lastDate ?? '', $promedioDataRaw);
         $this->guardarEnLogsPrincipal($summaryLogData);
-        $this->guardarEnLogsPrincipal($summaryLogData);
         $this->executeRequest($dayLogsFile, 'POST', json_encode($logData));
     }
 
@@ -527,6 +647,8 @@ class DatabaseUpdater {
         
         $sumsETc = array_fill(0, $totalSensors, 0);
         $sumsHf = array_fill(0, $totalSensors, 0);
+        $countsETc = array_fill(0, $totalSensors, 0);
+        $countsHf = array_fill(0, $totalSensors, 0);
         
         foreach ($dayLogs as $log) {
             $dataRaw = json_decode($log->dataRaw, true);
@@ -585,10 +707,12 @@ class DatabaseUpdater {
                 
                 if ($etcValue !== "NaN" && is_numeric($etcValue)) {
                     $sumsETc[$i] += round((float)$etcValue, 1);
+                    $countsETc[$i]++;
                 }
                 
                 if ($hfValue !== "NaN" && is_numeric($hfValue)) {
                     $sumsHf[$i] += round((float)$hfValue, 1);
+                    $countsHf[$i]++;
                 }
                 
                 if ($vccValue !== "NaN" && is_numeric($vccValue)) {
@@ -604,8 +728,8 @@ class DatabaseUpdater {
             $result[] = $minsTmin[$i] !== PHP_FLOAT_MAX ? $minsTmin[$i] : "NaN";
             $result[] = $maxsTmax[$i] !== PHP_FLOAT_MIN ? $maxsTmax[$i] : "NaN";
             $result[] = $countsT[$i] > 0 ? round($sumsT[$i] / $countsT[$i], 1) : "NaN";
-            $result[] = $sumsETc[$i] > 0 ? round($sumsETc[$i], 1) : "NaN";
-            $result[] = $sumsHf[$i] != 0 ? round($sumsHf[$i], 1) : "NaN";
+            $result[] = $countsETc[$i] > 0 ? round($sumsETc[$i], 1) : "NaN";
+            $result[] = $countsHf[$i] > 0 ? round($sumsHf[$i], 1) : "NaN";
             $result[] = $lastVcc[$i] ?: "NaN";
         }
         

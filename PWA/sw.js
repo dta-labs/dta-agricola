@@ -8,6 +8,8 @@ const messaging = firebase.messaging();
 
 // Cache básico
 const CACHE_NAME = 'DTA_Irrigation_Control_v0.3';
+const PWA_LAUNCH_URL = './index.html';
+const NOTIFICATION_SOUND_FILE = './assets/sounds/alarma-de-evacuacion.mp3';
 const urlsToCache = [
   './',
   './assets/css/responsive.css',
@@ -55,10 +57,11 @@ messaging.setBackgroundMessageHandler(payload => {
     body: payload.notification?.body || 'Nueva alerta',
     icon: payload.notification?.icon || './assets/images/DTA-Agricola.png',
     data: {
-      url: payload.notification?.click_action || './',
-      sound: payload.data?.sound || './assets/sounds/alarma-de-evacuacion.mp3'
+      url: payload.notification?.click_action || PWA_LAUNCH_URL,
+      sound: payload.data?.sound || NOTIFICATION_SOUND_FILE
     },
     requireInteraction: true,
+    silent: false,
     tag: 'dta-alert'
   };
   return self.registration.showNotification(notificationTitle, notificationOptions);
@@ -67,21 +70,35 @@ messaging.setBackgroundMessageHandler(payload => {
 // Click en notificación
 self.addEventListener('notificationclick', event => {
   event.notification.close();
-  const targetUrl = event.notification.data?.url || './';
+  const targetUrl = event.notification.data?.url || PWA_LAUNCH_URL;
+  const soundFile = event.notification.data?.sound || NOTIFICATION_SOUND_FILE;
+
+  const playNotificationSound = client => {
+    if (!client || !soundFile) return client;
+
+    client.postMessage({
+      action: 'playSound',
+      file: soundFile
+    });
+
+    return client;
+  };
+
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
       for (const client of list) {
-        if (client.url.includes('dta-agricola.web.app')) return client.focus();
+        if (
+          client.url.includes('dta-agricola.web.app') ||
+          client.url.includes('dtaamerica.com')
+        ) {
+          return client.focus().then(playNotificationSound);
+        }
       }
-      return clients.openWindow(targetUrl);
+
+      return clients.openWindow(targetUrl || PWA_LAUNCH_URL)
+        .then(playNotificationSound);
     })
   );
-  if (event.notification.data?.sound) {
-    self.clients.matchAll({ includeUncontrolled: true, type: 'window' })
-      .then(clients => clients.forEach(c =>
-        c.postMessage({ action: 'playSound', file: event.notification.data.sound })
-      ));
-  }
 });
 
 

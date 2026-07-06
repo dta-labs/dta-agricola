@@ -316,7 +316,7 @@
                         <br>
                     </div>
                     <div class="text-center our-services" ng-show="systems">
-                        Poner aquí cosas lindas :-)
+                        <div class="shadow-login" ng-show="selectedWindow == 'login'"></div>
                         <br>
                         <br>
                         <br>
@@ -3818,6 +3818,12 @@
                         </div>
                     </div>
                     <br><br>
+                    <div class="center-align">
+                        <button class="btn waves-effect waves-light" ng-click="setToken()">
+                            Activar notificaciones
+                        </button>
+                    </div>
+                    <br><br>
                     <div class="right-align">
                         <div class="btn waves-effect waves-light grey" ng-click="showWindow('listado')" style="margin-right: 20px;">
                             &nbsp;&nbsp;
@@ -4271,14 +4277,14 @@
                             <hr>
                             <!-- <p style="margin-top: -20px; background: #eef4f5; width: 50px; margin-left: calc(50% - 25px); text-align: center;">O</p> -->
                             <div class="row" style="margin-bottom: 0;" ng-init="dtaLoginEmail = true">
-                                <div class="input-field col s12 input-login" style="margin-bottom: 0; margin-bottom: 0; background: #1312247a; color: white;" ng-show="dtaLoginEmail == true">
-                                    <input id="signinMail" type="email" class="validate" placeholder="Correo electrónico" style="color: white;">
-                                    <i class="material-icons input-login-btn" ng-click="dtaLoginEmail = false">arrow_forward</i>
+                                <div class="input-field col s12 input-login signinMail" style="margin-bottom: 0; background: #1312247a; color: white;" ng-show="dtaLoginEmail == true">
+                                    <input id="signinMail" type="email" class="validatem signinMail" placeholder="Correo electrónico" style="color: white; border-bottom: 0;">
+                                    <i class="material-icons input-login-btn-ff" ng-click="dtaLoginEmail = !loginEmailVerify();">arrow_forward</i>
                                 </div>
-                                <div class="input-field col s12 input-login" style="margin-bottom: 0; margin-bottom: 0; background: #1312247a; color: white;" ng-show="dtaLoginEmail == false">
-                                    <input id="signinPassword" type="password" class="validate" placeholder="Contraseña" style="color: white;">
-                                    <p style="margin-top: 0;"><i class="material-icons input-login-btn" ng-click="dtaLoginEmail = true" style="left: 30%; font-size: 2.2em;">arrow_back</i></p>
-                                    <img id="signinBtn" class="input-login-btn" src="./assets/images/DTA-Agricola.png" alt="Google" style="width: 35px; border: 0; top: -97px;">
+                                <div class="input-field col s12 input-login signinPassword" style="margin-bottom: 0; background: #1312247a; color: white;" ng-show="dtaLoginEmail == false">
+                                    <input id="signinPassword" type="password" class="validatem signinPassword" placeholder="Contraseña" style="color: white; border-bottom: 0;">
+                                    <i class="material-icons input-login-btn-rr" ng-click="dtaLoginEmail = true">arrow_back</i>
+                                    <img id="signinBtn" class="input-login-btn-img" src="./assets/images/DTA-Agricola.png" alt="Google">
                                 </div>
                             </div>
                         </div>
@@ -4434,12 +4440,15 @@
 
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/4.0.0/firebaseui.css" />
-    <!-- <script src="https://www.gstatic.com/firebasejs/5.10.1/firebase-messaging.js"></script> -->
-    <script src="https://www.gstatic.com/firebasejs/5.10.1/firebase.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-analytics.js"></script>
     <script src="https://www.gstatic.com/firebasejs/ui/4.0.0/firebase-ui-auth__es_419.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/7.3.0/firebase-analytics.js"></script>
     <script src="./assets/js/firebaseConfig.js"></script>
     <script src="./assets/js/firebaseComm.js"></script>
+    <script src="./assets/js/firebaseMessaging.js?v=26.07.05.015"></script>
     <script src="./assets/js/autentication.js" type="module"></script>
     <!-- <script src="./assets/js/notifications.js"></script> -->
     <!-- <script src="./assets/modules/angularjs/angular.min.js"></script> -->
@@ -4452,11 +4461,11 @@
     <script src="./assets/modules/chart.js/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
     <script src="./assets/js/commons.js"></script>
-    <!-- OneSignal SDK -->
-    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-    <script src="./assets/modules/push-notification/push.js" defer></script>
+    <!-- OneSignal queda fuera del arranque principal para usar Firebase Cloud Messaging. -->
+    <!-- <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script> -->
+    <!-- <script src="./assets/modules/push-notification/push.js" defer></script> -->
     <!-- <script src="./assets/cultures/listOfCultures.js"></script> -->
-    <script src="./assets/js/core.js?v=26.06.15.0758"></script>
+    <script src="./assets/js/core.js?v=26.07.05.011"></script>
     <!-- <script src="monitor/js/chartjs/chart.min.js"></script> -->
     <script type="text/javascript" src="./assets/modules/datepicker/daterangepicker.js"></script>
 

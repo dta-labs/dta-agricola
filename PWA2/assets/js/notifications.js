@@ -1,14 +1,43 @@
 // Add this at the top of your notifications.js
 const FIREBASE_AUTH = firebase.auth();
 let FIREBASE_MESSAGING;
+const NOTIFICATIONS_FCM_VAPID_KEY = "BCUVqEwpfFtJi-ikOB0_NU5nxLQDV0uHO0PTVLdTBDvxeqJtDqU20lFF159RI5T1v6aBM_JMc3AmzK5xMoUOg4o";
+
+function notificationFcmTokenKey(token) {
+    return token.replace(/[.#$/\[\]]/g, "_");
+}
+
+function isNotificationFcmToken(token) {
+    return typeof token === "string" &&
+        token.length > 100 &&
+        token.indexOf(":") > -1 &&
+        token.indexOf("{") !== 0 &&
+        token.indexOf("http") !== 0;
+}
+
+function saveNotificationFcmToken(userId, token) {
+    if (typeof saveFcmToken === "function") {
+        return saveFcmToken(userId, token);
+    }
+
+    const userKey = userId.indexOf("@") > -1 ? convertDotToDash(userId) : userId;
+    const userRef = firebase.database().ref("users/" + userKey);
+    if (!isNotificationFcmToken(token)) {
+        return userRef.child("token").remove();
+    }
+
+    return userRef.child("fcmTokens/" + notificationFcmTokenKey(token)).set({
+        token: token,
+        platform: navigator.platform || null,
+        userAgent: navigator.userAgent,
+        updatedAt: firebase.database.ServerValue.TIMESTAMP,
+    }).then(() => userRef.child("token").remove());
+}
 
 function initializeMessaging() {
     // Ensure Firebase is fully loaded before initializing messaging
     if (firebase.messaging.isSupported()) {
         FIREBASE_MESSAGING = firebase.messaging();
-        
-        // Add VAPID key configuration
-        FIREBASE_MESSAGING.usePublicVapidKey('BCUVqEwpfFtJi-ikOB0_NU5nxLQDV0uHO0PTVLdTBDvxeqJtDqU20lFF159RI5T1v6aBM_JMc3AmzK5xMoUOg4o');
         console.log('Firebase messaging initialized');
     } else {
         console.error('Firebase messaging is not supported in this browser');
@@ -30,13 +59,13 @@ function setupMessaging() {
     // Add error handling for token refresh
     if (FIREBASE_MESSAGING) {
         FIREBASE_MESSAGING.onTokenRefresh(() => {
-            FIREBASE_MESSAGING.getToken()
+            registerFirebaseMessaging(user.email || user.uid)
                 .then((refreshedToken) => {
                     console.log('Token refreshed:', refreshedToken);
                     // Update token on server if user is logged in
                     const user = FIREBASE_AUTH.currentUser;
                     if (user) {
-                        handleTokenRefresh(user.uid);
+                        saveNotificationFcmToken(user.email || user.uid, refreshedToken);
                     }
                 })
                 .catch((err) => {
@@ -55,20 +84,32 @@ function suscribeToNotifications(userId) {
         return;
     }
 
-    FIREBASE_MESSAGING.requestPermission()
-        .then(() => {
-            console.log('Notification permission granted');
-            let _token = FIREBASE_MESSAGING.getToken();
-            return _token;
-        })
+    const tokenRequest = typeof registerFirebaseMessaging === "function"
+        ? registerFirebaseMessaging(userId)
+        : navigator.serviceWorker.register("./firebase-messaging-sw.js", { scope: "./" })
+            .then((registration) => Notification.requestPermission()
+                .then((permission) => {
+                    if (permission !== "granted") {
+                        console.error("No se otorgo permiso para notificaciones:", permission);
+                        return null;
+                    }
+                    return FIREBASE_MESSAGING.getToken({
+                        vapidKey: NOTIFICATIONS_FCM_VAPID_KEY,
+                        serviceWorkerRegistration: registration,
+                    });
+                }));
+
+    tokenRequest
         .then((token) => {
             console.log("Token: " + token);
             console.log("User: " + userId);
             
             // Ensure token is saved to database
             if (token) {
-                firebase.database().ref("users/" + userId + "/token").set(token);
-                document.getElementById('tokenViewer').innerHTML = "Token: " + token;
+                saveNotificationFcmToken(userId, token)
+                    .then(() => {
+                        document.getElementById('tokenViewer').innerHTML = "Token: " + token;
+                    });
             } else {
                 console.warn('No token available');
             }

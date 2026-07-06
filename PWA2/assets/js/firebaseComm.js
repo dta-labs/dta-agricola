@@ -160,7 +160,12 @@ function getMeassurementValues(locationKey, registers) {
 }
 
 function setUserToken(email, token) {
-    firebase.database().ref("users/" + convertDotToDash(email) + "/token").set(token);
+    if (typeof saveFcmToken === "function") {
+        return saveFcmToken(email, token);
+    }
+
+    console.warn("No se guardo token legacy; Firebase Messaging no esta disponible.");
+    return Promise.resolve();
 }
 
 // #region Ejemplos

@@ -4015,6 +4015,19 @@ function instalar() {
 
 function serviceWorker() {
   if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(registrations => {
+      registrations.forEach(registration => {
+        const scriptUrl = registration.active ? new URL(registration.active.scriptURL) : null;
+        if (registration.active && (
+          scriptUrl.pathname.endsWith('/sw.js') ||
+          scriptUrl.pathname.endsWith('/OneSignalSDKWorker.js')
+        )) {
+          registration.unregister();
+          console.log("SW anterior eliminado");
+        }
+      });
+    });
+
     navigator.serviceWorker.register('./firebase-messaging-sw.js', { scope: './' })
       .then(reg => {
         console.log("✅ SW unificado registrado:", reg);
@@ -4054,31 +4067,26 @@ function serviceWorker() {
 //     }
 // }
 
-serviceWorker();
+const enablePushNotifications = () => Promise.resolve(null);
 
-enablePushNotifications = () => {
-    Notification.requestPermission().then(permission => {
-        if (permission === 'granted') {
-            navigator.serviceWorker.ready.then(sw => {
-                sw.pushManager.subscribe({
-                    userVisibleOnly: true,
-                    applicationServerKey: 'BG1caHGzzvPNBWM4NuN5oIpqaRaVFKld8iwNtpx100P3bkMYhEDYfWcCs9sy0Ay3t170750tQlLM8XCzxpysD7o'
-                }).then(subscription => {
-                    subscriptionJSON = JSON.stringify(subscription);
-                    console.log(subscriptionJSON);
-                })
-            })
-        }
-    })
-}
+serviceWorker();
 
 // El sonido se maneja directamente desde el Service Worker
 
 handleTokenRefresh = (email) => {
-    if (authUser && !userTokenList || !userTokenList.some(item => item === subscriptionJSON)) {
-        userTokenList.push(subscriptionJSON);
-        setUserToken(email, userTokenList);
+    if (typeof registerFirebaseMessaging === "function") {
+        return registerFirebaseMessaging(email).then(token => {
+            if (token) {
+                console.log("Token FCM activo:", token);
+            } else {
+                console.error("No se genero ni guardo token FCM durante el registro automatico.");
+            }
+            return token;
+        });
     }
+
+    console.error("Firebase Messaging no esta disponible; no se guardaran tokens legacy.");
+    return Promise.resolve(null);
 }
 
 send_push = (subscription) => {
@@ -4121,16 +4129,21 @@ window.addEventListener("beforeunload", function (e) {
 
 // Set the badge
 const unreadCount = 24;
-navigator.setAppBadge(unreadCount).catch((error) => {
-    //Do something with the error.
-});
+if ("setAppBadge" in navigator) {
+    navigator.setAppBadge(unreadCount).catch((error) => {
+        console.log("No se pudo establecer el badge:", error);
+    });
+}
 
 // Clear the badge
-navigator.clearAppBadge().catch((error) => {
-    // Do something with the error.
-});
+if ("clearAppBadge" in navigator) {
+    navigator.clearAppBadge().catch((error) => {
+        console.log("No se pudo limpiar el badge:", error);
+    });
+}
 
 // Escuchar mensajes del SW
+if ('serviceWorker' in navigator) {
 navigator.serviceWorker.addEventListener('message', event => {
   if (event.data && event.data.action === 'playSound') {
     const soundUrl = event.data.file;
@@ -4147,5 +4160,6 @@ navigator.serviceWorker.addEventListener('message', event => {
     }
   }
 });
+}
 
 // #endregion Progresive Web Application

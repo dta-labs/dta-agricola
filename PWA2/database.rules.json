@@ -1,12 +1,18 @@
-// {
-//   "rules": {
-//     ".read": "auth != null",
-//     ".write": "auth != null"
-//   }
-// }
 {
   "rules": {
     ".read": true,
-    ".write": true
+    ".write": "auth != null",
+    "users": {
+      "$userKey": {
+        "fcmTokens": {
+          ".read": "auth != null",
+          ".write": "auth != null"
+        },
+        "fcmStatus": {
+          ".read": "auth != null",
+          ".write": "auth != null"
+        }
+      }
+    }
   }
 }

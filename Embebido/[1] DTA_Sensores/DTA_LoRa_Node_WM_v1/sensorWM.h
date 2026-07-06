@@ -17,12 +17,12 @@
  *    3.1. If the direction is reversed, the WM1_Resistance A and B formulas would have to be swapped              *
  *                                                                                                                 *
  * 4. Necesidad de riego:                                                                                          *
- *      0– 10 cb	Suelo saturado, exceso de agua - No regar (riesgo de anoxia)                                     *
- *     10– 30 cb	Humedad óptima para la mayoría de cultivos - No regar aún                                        *
- *     30– 60 cb	Suelo comenzando a secarse, plantas sensibles sienten estrés - Programar riego pronto            *
- *     60–100 cb	Humedad limitada, estrés moderado - Regar necesario                                              *
- *    100–150 cb	Suelo seco, difícil extracción de agua - Regar urgente                                           *
- *       >150 cb	Muy seco, plantas en fuerte estrés - Regar inmediatamente                                        *
+ *      0– 10 cb	Suelo saturado, exceso de agua - No regar (riesgo de anoxia)                                   *
+ *     10– 30 cb	Humedad óptima para la mayoría de cultivos - No regar aún                                      *
+ *     30– 60 cb	Suelo comenzando a secarse, plantas sensibles sienten estrés - Programar riego pronto          *
+ *     60–100 cb	Humedad limitada, estrés moderado - Regar necesario                                            *
+ *    100–150 cb	Suelo seco, difícil extracción de agua - Regar urgente                                         *
+ *       >150 cb	Muy seco, plantas en fuerte estrés - Regar inmediatamente                                      *
  *                                                                                                                 *
  *******************************************************************************************************************/
 
