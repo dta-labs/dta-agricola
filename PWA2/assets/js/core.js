@@ -2952,23 +2952,28 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     const getSensorValue = (campo, sensor, idx) => {
         let date = campo.log.date ? campo.log.date.substring(6, 8) + "/" + campo.log.date.substring(4, 6) + " " + campo.log.date.substring(9, 11) + ":" + campo.log.date.substring(11, 15) : "";
         let data = campo.log ? JSON.parse(campo.log.dataRaw) : [];
+        let msValue = data[idx * 8] !== "NaN" ? parseFloat(data[idx * 8]).toFixed(0) : -99;
+        let msColor = sensor.type != 'WM' ? (msValue <= sensor.h.minValue ? "#ff000080" : (msValue >= sensor.h.maxValue ? "#0000ff80" : "#00ff0080")) :
+                                            (msValue <= 10 ? "#0000ff80" : (msValue <= 60 ? "#00ff0080" : "#ff000080"));
+        let msStatus = sensor.type != 'WM' ? (msValue <= sensor.h.minValue ? "Seco" : (msValue >= sensor.h.maxValue ? "Saturado" : "Adecuado")) : (msValue <= 10 ? "Saturado" : (msValue <= 60 ? "Adecuado" : "Seco"));
         let text = ``;
-        text += `<div style="padding: 0 10px; width: 90px;">`;  // 👈 Ancho definido aquí
+        text += `<div style="padding: 0 10px; width: 130px;">`;  // 👈 Ancho definido aquí
         text += `    <div class="row" style="margin-bottom: 5px;">`;
         text += `        <div class="col s12 left-aling contenedor-texto">`;
         text += `            <b><span style="font-size: .8em;">${ sensor.alias ? sensor.alias : "Sensor: " + (idx + 1) }</span></b>`;
-        // text += `            <br><span style="font-size: .8em;">${date}</span>`;
         text += `        </div>`;
         text += `    </div>`;
         if (sensor.type == "Ms" || sensor.type == "SHT4" || sensor.type == "WM") {
             text += `    <div class="row" style="margin-bottom: 5px; border-radius: 6px; background-color: #f5f5f5;">`;
-            text += `        <div class="col s3" style="padding-top: 7px;"><img src="./assets/images/Hr.png" alt="Agua" style="width: 15px;"></div>`;
-            text += `        <div class="col s9" style="text-align: right; padding-top: 5px; font-size: 1.2em; color: ` + ($scope.isOutOfRange(data[idx * 8], sensor.h.minValue, sensor.h.maxValue) ? `red` : `green`) + `;"><b>${data[idx * 8] !== "NaN" ? parseFloat(data[idx * 8]).toFixed(0) : ""}${sensor.type != 'WM' ? '%' : 'cb'}</b></div>`;
-            text += `    </div>`;
-            text += `    <div class="row" style="margin-bottom: 5px; border-radius: 6px; background-color: #f5f5f5;">`;
             text += `        <div class="col s3" style="padding-top: 7px;"><img src="./assets/images/termometro.png" alt="Termometro" style="width: 15px;"></div>`;
-            text += `        <div class="col s9" style="text-align: right; padding-top: 5px; font-size: 1.2em; color: ` + ($scope.isOutOfRange(data[idx * 8 + 2], sensor.t.minValue, sensor.t.maxValue) ? `red` : `green`) + `;">`;
-            text += `            <b>${data[idx * 8 + 2] !== "NaN" && campo.tempUnit == "C" ? parseFloat(data[idx * 8 + 2]).toFixed(0) + "°C" : data[idx * 8 + 2] !== "NaN" && (campo.tempUnit == "F" || $scope.tempUnit == "F") ? parseFloat(data[idx * 8 + 2] * 9/5 + 32).toFixed(0) + "°F" : ""}</b></div>`;
+            text += `        <div class="col s9" style="text-align: center; padding-top: 5px; font-size: 1.2em; color: ` + ($scope.isOutOfRange(data[idx * 8 + 2], sensor.t.minValue, sensor.t.maxValue) ? `red` : `green`) + `;">`;
+            text += `            <b>${data[idx * 8 + 2] !== "NaN" && campo.tempUnit == "C" ? parseFloat(data[idx * 8 + 2]).toFixed(0) + "°C" : data[idx * 8 + 2] !== "NaN" && (campo.tempUnit == "F" || $scope.tempUnit == "F") ? parseFloat(data[idx * 8 + 2] * 9/5 + 32).toFixed(0) + "°F" : ""}</b>`;
+            text += `        </div>`;
+            text += `    </div>`;
+            text += `    <div class="row" style="margin-bottom: 5px; border-radius: 6px; background-color: ${ msColor };">`;
+            text += `        <div class="col s3" style="padding-top: 7px;"><img src="./assets/images/Hr_white.png" alt="Agua" style="width: 15px;"></div>`;
+            text += `        <div class="col s9" style="text-align: right; padding-top: 5px; font-size: 1.2em; color: white; margin-left: -15px;">`;
+            text += `           <b>${ msStatus } ${ msValue }${ sensor.type != 'WM' ? '%' : 'cb' }</b>`;
             text += `        </div>`;
             text += `    </div>`;
         }
@@ -3148,65 +3153,6 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         }
         return color;
     }
-
-    // function showFields() {
-    //     let campos = $scope.systems;
-    //     for (let idx in campos) {
-    //         let campo = campos[idx];
-    //         coordinate = [campo.latitude, campo.longitude];
-    //         let text = `
-    //             <a href='javascript:angular.element(
-    //                 document.getElementById("ControladorPrincipal")).scope().showSelectdSystem("${campo.key}");'>
-    //                 <h6>${campo.name}</h6>
-    //                 Estado: ${campo.status}<br>
-    //                 Riego: ${campo.irrigation == "a" ? "Automático" : campo.irrigation == "s" ? "Semiautomático" : "Manual"}<br>
-    //                 Config: ${campo.direction} ${campo.velocity}%<br>
-    //                 Caudal: ${campo.caudal}"<br>
-    //                 Lat: ${campo.latitude}<br>
-    //                 Lng: ${campo.longitude}
-    //             </a>`;
-    //         addMarker(coordinate, text);
-    //         addCircle(coordinate, parseInt(campo.length), campo);
-    //     }
-    //     // coord = [28.7114403, -106.9131596]
-    //     // addMarker(coord, 'DTA-Agrícola<br>' + new Date());
-    //     // addCircle(coord, 30);
-    // }
-
-    // function addPopup(coord = [28.407, -106.867], text = "DTA-Agrícola") {
-    //     L.popup()
-    //         .setLatLng(coord)
-    //         .setContent(text)
-    //         .openOn(map);
-    // }
-
-    // function addPolygon(polygon = [
-    //     [51.509, -0.08],
-    //     [51.503, -0.06],
-    //     [51.51, -0.047]
-    // ]) {
-    //     L.polygon(polygon).addTo(map);
-    // }
-
-    // geoLocation = (key) => {
-    //     map.locate({
-    //         setView: true,
-    //         maxZoom: 17
-    //     });
-    //     map.on('locationfound', onLocationFound);
-    //     map.on('locationerror', onLocationError);
-    // }
-
-    // onLocationFound = (e) => {
-    //     // var radius = e.accuracy;
-    //     // L.circle(e.latlng, radius).addTo(map);
-    //     // L.marker(e.latlng).addTo(map)
-    //     //     .bindPopup("Ud. está aquí con un error " + radius + " metros").openPopup();
-    // }
-
-    // onLocationError = (e) => {
-    //     alert(e.message);
-    // }
 
     // #endregion Leaflet
 
@@ -3448,7 +3394,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         setTimeout(() => {
         
             // Agregar franjas de humedad para gráficos de humedad del suelo y humedad ambiental
-            if (chartType === 'moisture' || chartType === 'temperature') {
+            // if (chartType === 'moisture' || chartType === 'temperature') {
                 // console.log('Dibujando franjas para humedad - chartType:', chartType);
                 const drawBands = () => {
                     const ctx = canvas.getContext('2d');
@@ -3481,7 +3427,11 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                         drawBand(ctx, chartArea, yScale, 40, 100, 'rgba(0, 123, 255, 0.15)', 'Saturado', 'rgba(0, 123, 255, 0.9)');
                         drawBand(ctx, chartArea, yScale, 15, 40, 'rgba(40, 167, 69, 0.15)', 'Humedad Adecuada', 'rgba(40, 167, 69, 0.9)');
                         drawBand(ctx, chartArea, yScale, 0, 15, 'rgba(255, 193, 7, 0.15)', 'Necesidad de Riego', 'rgba(255, 131, 7, 0.39)');
-                        // Dibujar línea de umbral de riego
+                    } else if (chartType === 'humidity') {
+                        // Etiquetas para humedad del suelo
+                        drawBand(ctx, chartArea, yScale, 60, 100, 'rgba(0, 123, 255, 0.15)', 'Alta', 'rgba(0, 123, 255, 0.9)');
+                        drawBand(ctx, chartArea, yScale, 40, 60, 'rgba(40, 167, 69, 0.15)', 'Adecuada', 'rgba(40, 167, 69, 0.9)');
+                        drawBand(ctx, chartArea, yScale, 0, 40, 'rgba(255, 193, 7, 0.15)', 'Baja', 'rgba(255, 131, 7, 0.39)');
                     } else if (chartType === 'temperature') {
                         // Etiquetas para temperatura
                         drawBand(ctx, chartArea, yScale, 25, 50, 'rgba(255, 123, 0, 0.15)', 'Muy caliente', 'rgba(255, 13, 0, 0.9)');
@@ -3493,9 +3443,9 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                 };
                 
                 requestAnimationFrame(drawBands);
-            } else {
-                // console.log('No se dibujan franjas porque chartType no es moisture ni humidity');
-            }
+            // } else {
+            //     // console.log('No se dibujan franjas porque chartType no es moisture ni humidity');
+            // }
         
         }, 1500); // Cierre del setTimeout con 1.5 segundos de demora
     }
@@ -4248,6 +4198,10 @@ function instalar() {
     if (beforeInstallPrompt) beforeInstallPrompt.prompt();
 }
 
+const APP_UPDATE_CHECK_INTERVAL = 5 * 60 * 1000;
+const APP_UPDATE_SIGNATURES_KEY = "dta-app-asset-signatures-v1";
+let appUpdatePromptVisible = false;
+
 serviceWorker();
 
 function serviceWorker() {
@@ -4270,11 +4224,124 @@ function serviceWorker() {
             .then(reg => {
                 console.log("✅ SW de OneSignal + caché registrado:", reg);
                 console.log("SW state:", reg.installing ? 'installing' : reg.waiting ? 'waiting' : reg.active ? 'active' : 'unknown');
+                reg.update();
+                setInterval(() => reg.update(), APP_UPDATE_CHECK_INTERVAL);
             })
             .catch(err => console.log("❌ Error registrando SW de OneSignal:", err));
     } else {
         console.log("❌ Service Worker no soportado");
     }
+}
+
+function getSameOriginAppAssetUrls() {
+    const urls = new Set([new URL("./index.html", window.location.href).href]);
+
+    document.querySelectorAll('script[src], link[rel="stylesheet"][href]').forEach(element => {
+        const assetUrl = element.src || element.href;
+        if (!assetUrl) return;
+
+        const url = new URL(assetUrl, window.location.href);
+        if (url.origin === window.location.origin) {
+            url.search = "";
+            url.hash = "";
+            urls.add(url.href);
+        }
+    });
+
+    return Array.from(urls).sort();
+}
+
+function hashText(value) {
+    let hash = 0;
+    for (let index = 0; index < value.length; index++) {
+        hash = ((hash << 5) - hash) + value.charCodeAt(index);
+        hash |= 0;
+    }
+    return String(hash);
+}
+
+function readStoredAppSignatures() {
+    try {
+        return JSON.parse(localStorage.getItem(APP_UPDATE_SIGNATURES_KEY) || "{}");
+    } catch (error) {
+        return {};
+    }
+}
+
+function saveAppSignatures(signatures) {
+    localStorage.setItem(APP_UPDATE_SIGNATURES_KEY, JSON.stringify(signatures));
+}
+
+function fetchAssetSignature(url) {
+    return fetch(url, { cache: "no-store" })
+        .then(response => {
+            if (!response.ok) throw new Error("No se pudo revisar " + url);
+            return response.text();
+        })
+        .then(text => hashText(text));
+}
+
+function showAppUpdatePopup(version) {
+    if (appUpdatePromptVisible) return;
+    appUpdatePromptVisible = true;
+
+    const reloadApp = () => {
+        window.location.reload();
+    };
+
+    if (typeof swal === "function") {
+        swal({
+            title: "Actualizacion disponible",
+            text: "Hay una nueva version de la app. Se recargara para aplicar los cambios.",
+            icon: "info",
+            buttons: {
+                confirm: {
+                    text: "Actualizar",
+                    value: true,
+                    visible: true,
+                    closeModal: true
+                }
+            },
+            closeOnClickOutside: false,
+            closeOnEsc: false
+        }).then(reloadApp);
+        return;
+    }
+
+    window.alert("Hay una nueva version de la app. Se recargara para aplicar los cambios.");
+    reloadApp();
+}
+
+function checkForAppUpdates() {
+    const assetUrls = getSameOriginAppAssetUrls();
+    const storedSignatures = readStoredAppSignatures();
+    const currentSignatures = {};
+
+    Promise.all(assetUrls.map(url => (
+        fetchAssetSignature(url)
+            .then(signature => {
+                currentSignatures[url] = signature;
+            })
+            .catch(error => console.log("No se pudo revisar actualizacion:", error))
+    ))).then(() => {
+        const hasStoredSignatures = Object.keys(storedSignatures).length > 0;
+        const hasChangedAsset = assetUrls.some(url => (
+            storedSignatures[url] && currentSignatures[url] && storedSignatures[url] !== currentSignatures[url]
+        ));
+
+        if (Object.keys(currentSignatures).length > 0) {
+            saveAppSignatures(currentSignatures);
+        }
+
+        if (hasStoredSignatures && hasChangedAsset) {
+            showAppUpdatePopup("assets");
+        }
+    });
+}
+
+function startAppUpdateChecks() {
+    checkForAppUpdates();
+    setInterval(checkForAppUpdates, APP_UPDATE_CHECK_INTERVAL);
 }
 
 // function serviceWorker() {
@@ -4408,7 +4475,17 @@ navigator.serviceWorker.addEventListener('message', event => {
       console.error('❌ Error creando audio en la PWA:', e);
     }
   }
+
+  if (event.data && event.data.action === 'appUpdated') {
+    showAppUpdatePopup(event.data.version);
+  }
 });
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", startAppUpdateChecks);
+} else {
+  startAppUpdateChecks();
+}
 }
 
 // #endregion Progresive Web Application

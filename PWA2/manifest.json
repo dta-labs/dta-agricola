@@ -1,5 +1,6 @@
 {
     "gcm_sender_id": "103953800507",
+    "id": "./index.html",
     "name": "DTA - Monitoring & Control v2.0b",
     "short_name": "DTA - Monitoring & Control",
     "description": "\"DTA - Monitoring & Control v2.0b\" es la aplicacón de DTA-Agricola para el monitoreo y control inteligente y en tiempo real de parcelas, invernaderos, sistemas de riego y bombeo.",
@@ -9,6 +10,9 @@
     "display": "standalone",
     "start_url": "./index.html",
     "scope": "./",
+    "launch_handler": {
+        "client_mode": "focus-existing"
+    },
     "lang": "es-MX",
     "icons": [
         {

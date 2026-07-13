@@ -1,0 +1,12 @@
+{
+  "name": "Línea Clara - Control de líneas",
+  "short_name": "Línea Clara",
+  "description": "Control de líneas telefónicas, clientes, dispositivos y ubicaciones.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f5f5ef",
+  "theme_color": "#123f34",
+  "lang": "es-MX",
+  "icons": [{"src":"icons/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+}

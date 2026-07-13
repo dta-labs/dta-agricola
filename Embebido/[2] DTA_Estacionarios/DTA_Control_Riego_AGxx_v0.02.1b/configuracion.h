@@ -11,7 +11,7 @@ static byte plots = 8;                      // Plots: 3 | 7
 String telefono = "";
 
 // Actuadores y variables
-#define testFunc true
+#define testFunc false
 #define testComm false
 #define responseTime 15
 #define strEmpty F("")

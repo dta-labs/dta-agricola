@@ -73,7 +73,7 @@
                     <i class="material-icons" style="font-size: 2.5em; ">keyboard_backspace</i>
                 </div>
                 <div class="col s6 m9 l10 center-align limitar">
-                    <p id="control_de_riego" style="font-size: 1.2em; {{ selectedWindow == 'listado' ? 'margin: 10px 0 0 0;' : 'margin: 0;' }}">{{ selectedWindow == 'listado' ? 'CONTROL DE RIEGO' : actualSystem.name }}</p>
+                    <p id="control_de_riego" style="font-size: 1.2em; {{ selectedWindow == 'listado' ? 'margin: 10px 0 0 0;' : 'margin: 0;' }}"><b>{{ selectedWindow == 'listado' ? 'CONTROL DE RIEGO' : actualSystem.name }}</b></p>
                     <p ng-show="selectedWindow == 'sistema'" style="margin: 0; font-size: .9em;">{{ actualSystem.log.update ? (actualSystem.log.update.substring(6, 8) + '/' + actualSystem.log.update.substring(4, 6) + '/' + actualSystem.log.update.substring(0, 4) + ' ' + actualSystem.log.update.substring(9, 11) + ':' + actualSystem.log.update.substring(11)) : 
                             (actualSystem.log.date.substring(6, 8) + '/' + actualSystem.log.date.substring(4, 6) + '/' + actualSystem.log.date.substring(0, 4) + ' ' + actualSystem.log.date.substring(9, 11) + actualSystem.log.date.substring(11)) }}</p>
                     <!-- <p ng-show="selectedWindow == 'sistema' && actualSystem.type == 'Sensor'" style="margin-top: -5px; font-size: .9em;"> «{{ actualSystem.sleepingTime }}min» </p> -->
@@ -364,11 +364,16 @@
                     <div class="swal-title">Agregar equipo</div>
                     <div class="modal-content" style="padding: 24px 24px 0 24px;" ng-init="steep = 0; newDevice.type = '';">
                         <div class="row" style="margin-bottom: 0;">
+                            <div class="row">
+                                <div class="col s12" style="font-size: 1.5em; border-bottom: 1px solid;"">
+                                    {{ steep == 0 ? '' : (newDevice.type == 'PC' ? 'Pivote central' : newDevice.type == 'Estacionario' ? 'Estacionario' : newDevice.type == 'Sensor' ? 'Sensor' : 'Pozo') }}
+                                </div>
+                            </div>
 
                             <div class="input-field col s12 row" ng-show="steep == 0">   <!-- Seleccionar sistemas -->
 
                                 <div class="col s6">
-                                    <div class="card tarjeta-sensores" ng-click="newDevice.type='PC';" style="box-shadow: 8px 8px 8px gray !important;">
+                                    <div class="card tarjeta-sensores" ng-click="newDevice.type='PC'; steep = steep + 1" style="box-shadow: 8px 8px 8px gray !important;">
                                         <div class="card-image">
                                             <img src="./assets/images/Pv66.png" style="height: 80px; width: 80px; margin: auto;">
                                         </div>
@@ -379,7 +384,7 @@
                                 </div>
 
                                 <div class="col s6">
-                                    <div class="card tarjeta-sensores" ng-click="newDevice.type='Estacionario'" style="box-shadow: 8px 8px 8px gray !important;">
+                                    <div class="card tarjeta-sensores" ng-click="newDevice.type='Estacionario'; steep = steep + 1" style="box-shadow: 8px 8px 8px gray !important;">
                                         <div class="card-image">
                                             <img src="./assets/images/AG7-Xtreme.png" style="height: 80px; width: 100px; margin: auto;">
                                         </div>
@@ -390,7 +395,7 @@
                                 </div>
 
                                 <div class="col s6">
-                                    <div class="card tarjeta-sensores" ng-click="newDevice.type='Sensor'" style="box-shadow: 8px 8px 8px gray !important;">
+                                    <div class="card tarjeta-sensores" ng-click="newDevice.type='Sensor'; steep = steep + 1" style="box-shadow: 8px 8px 8px gray !important;">
                                         <div class="card-image">
                                             <img src="./assets/images/Gateway.png" style="height: 80px; width: 80px; margin: auto;">
                                         </div>
@@ -401,7 +406,7 @@
                                 </div>
                                 
                                 <div class="col s6">
-                                    <div class="card tarjeta-sensores" ng-click="newDevice.type='Pozo'" style="box-shadow: 8px 8px 8px gray !important;">
+                                    <div class="card tarjeta-sensores" ng-click="newDevice.type='Pozo'; steep = steep + 1" style="box-shadow: 8px 8px 8px gray !important;">
                                         <div class="card-image">
                                             <img src="./assets/images/Eq1.png" style="height: 80px; width: 120px; margin: auto;">
                                         </div>
@@ -452,15 +457,15 @@
                                 <div class="input-field col s6"
                                     ng-show="newDevice.type == 'PC' || newDevice.type == 'PL'">
                                     <input id="newDeviceLarge" type="number" placeholder="metros"
-                                        ng-model="newDevice.length">
-                                    <label for="newDeviceLarge">Largo del equipo</label>
+                                        ng-model="newDevice.length" ng-value="newDevice.length ? newDevice.length : 540">
+                                    <label for="newDeviceLarge">Largo del equipo (m)</label>
                                 </div>
                                 <!-- Límite de velocidad -->
                                 <div class="input-field col s6"
                                     ng-show="newDevice.type == 'PC' || newDevice.type == 'PL'">
                                     <input id="newDeviceMaxVelocity" type="number" placeholder="%"
-                                        ng-model="newDevice.maxVelocity">
-                                    <label for="newDeviceLarge">Límite de velocidad</label>
+                                        ng-model="newDevice.maxVelocity" ng-value="newDevice.maxVelocity ? newDevice.maxVelocity : 100">
+                                    <label for="newDeviceLarge">Límite de velocidad (%)</label>
                                 </div>
                             </div>
                                 
@@ -535,7 +540,7 @@
                         <a href="" class="waves-effect waves-green btn grey lighten-3 black-text"
                             ng-click="steep = steep - 1" ng-show="steep != 0">Anterior</a>
                         <a href="" class="waves-effect waves-green btn teal lighten-3"
-                            ng-click="steep = steep + 1" ng-show="((steep == 0 && newDevice.type != '') || (steep == 1))">Siguiente</a>
+                            ng-click="steep = steep + 1" ng-show="steep == 1">Siguiente</a>
                         <a href="" class="waves-effect waves-green btn teal lighten-3"
                             ng-click="steep = 0; updateNewDevice()" ng-show="steep == 2">Agregar</a>
                     </div>

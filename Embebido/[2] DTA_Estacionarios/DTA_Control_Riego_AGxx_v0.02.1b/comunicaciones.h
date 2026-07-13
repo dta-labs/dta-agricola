@@ -6,7 +6,7 @@
 
 void(*resetSoftware)(void) = 0;  // Puntero a dirección 0
 
-String sendATCommand(String cmd, int wait = responseTime, bool response = false) {
+String sendATCommand(String cmd, int wait = responseTime, bool response = testFunc) {
   // Serial.println(cmd);
   gprs.println(cmd);
   delay(wait);  // Pequeña espera inicial tras enviar
@@ -91,7 +91,7 @@ String getTelefono() {
 }
 
 void setupGSM() {
-  if (restartGSM) {
+  if (restartGSM || testFunc) {
     DBG_PRINT(F("GSM inicializado"));
     gprs.begin(9600);
     gprs.listen();
@@ -150,7 +150,7 @@ String setURL(byte baseURL=true) {
 }
 
 String httpRequest() {
-  if (testComm) { return F("\"ON\"P\"8\"0\"F\"0\"F\"0\"F\"0\"F\"0\"F\"0\"F\"0\"F\"6000000\"F\""); }
+  if (testComm) { return F("\"ON\"P\"8\"0\"F\"6000000\"F\"0\"F\"0\"F\"0\"F\"0\"F\"0\"F\"0\"F\""); }
   String result = "";
   if (telefono != strEmpty) {
     DBG_PRINTLN(F("Inicio de la comunicación..."));
