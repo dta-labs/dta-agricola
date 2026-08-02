@@ -1,0 +1,12 @@
+{
+  "name":"Control de sensores DTA",
+  "short_name":"Sensores DTA",
+  "description":"Registro y control de sensores y redes en campo.",
+  "start_url":"./",
+  "scope":"./",
+  "display":"standalone",
+  "background_color":"#f4f6f2",
+  "theme_color":"#174d3a",
+  "lang":"es-MX",
+  "icons":[{"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+}

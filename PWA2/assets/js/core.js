@@ -210,7 +210,16 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                 console.log("Error de autenticación");
                 $scope.$apply(function () {
                     $scope.authUser = null;
+                    // Estas preferencias pertenecen al dispositivo, no a la sesion.
+                    const notificationsPreference = localStorage.getItem('notificacionesHabilitadas');
+                    const soundPreference = localStorage.getItem('sonidoHabilitado');
                     localStorage.clear();
+                    if (notificationsPreference !== null) {
+                        localStorage.setItem('notificacionesHabilitadas', notificationsPreference);
+                    }
+                    if (soundPreference !== null) {
+                        localStorage.setItem('sonidoHabilitado', soundPreference);
+                    }
                 });
                 $scope.showWindow('login');
                 //location.href = "./landing/index.html"
@@ -222,7 +231,9 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         // loadUserData($scope.authUser.email).then(result => {
         loadUserLocations($scope.authUser.email).then(result => {
             $scope.userLocations = result;
-            handleTokenRefresh($scope.authUser.email);
+            if (typeof syncFirebaseMessagingIfAuthorized === "function") {
+                syncFirebaseMessagingIfAuthorized($scope.authUser.email);
+            }
             if (result[convertDotToDash($scope.authUser.email)]) {
                 $scope.userProfile = result[convertDotToDash($scope.authUser.email)].profile;
                 loadSystems();
@@ -380,7 +391,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                 processingAlerts(locationKey);
                 invertLog();
                 setDeviceSpecificData();
-                // $scope.$apply();
+                $scope.$apply();
             }
         });
     }
@@ -1238,6 +1249,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     }
 
     $scope.createNewDevice = () => {
+        $scope.stopNewDeviceQrScanner();
         getLocation();
         $scope.newDevice = {
             "active": true,
@@ -1256,6 +1268,192 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         };
         $scope.showWindow('listado');
     }
+
+    let newDeviceQrScanner = null;
+
+    const setNewDeviceQrStatus = (message, isError) => {
+        $scope.newDeviceQrMessage = message;
+        $scope.newDeviceQrError = Boolean(isError);
+        if (!$scope.$$phase) {
+            $scope.$apply();
+        }
+    };
+
+    $scope.stopNewDeviceQrScanner = () => {
+        const scanner = newDeviceQrScanner;
+        newDeviceQrScanner = null;
+        if (scanner) {
+            scanner.stop()
+                .catch(error => console.warn("No fue posible detener el lector QR.", error))
+                .finally(() => {
+                    try {
+                        scanner.clear();
+                    } catch (error) {
+                        console.warn("No fue posible limpiar el lector QR.", error);
+                    }
+                });
+        }
+
+        $scope.newDeviceQrScanning = false;
+    };
+
+    $scope.toggleNewDeviceQrScanner = async () => {
+        if ($scope.newDeviceQrScanning) {
+            $scope.stopNewDeviceQrScanner();
+            $scope.newDeviceQrMessage = "";
+            return;
+        }
+
+        if (typeof Html5Qrcode === "undefined") {
+            setNewDeviceQrStatus("No fue posible cargar el lector de códigos QR.", true);
+            return;
+        }
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            setNewDeviceQrStatus("La cámara requiere abrir la aplicación mediante HTTPS.", true);
+            return;
+        }
+
+        try {
+            newDeviceQrScanner = new Html5Qrcode("newDeviceQrReader", {
+                formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
+                verbose: false
+            });
+            $scope.newDeviceQrScanning = true;
+            setNewDeviceQrStatus("Apunta la cámara al código QR del equipo.", false);
+
+            await $timeout(() => {});
+            await newDeviceQrScanner.start(
+                { facingMode: "environment" },
+                {
+                    fps: 10,
+                    qrbox: (viewfinderWidth, viewfinderHeight) => {
+                        const size = Math.floor(Math.min(viewfinderWidth, viewfinderHeight) * 0.7);
+                        return { width: size, height: size };
+                    }
+                },
+                decodedText => {
+                    if (!decodedText || !newDeviceQrScanner) {
+                        return;
+                    }
+                    $scope.newDevice.key = decodedText.trim();
+                    $scope.stopNewDeviceQrScanner();
+                    setNewDeviceQrStatus("Código QR leído correctamente.", false);
+                }
+            );
+        } catch (error) {
+            $scope.stopNewDeviceQrScanner();
+            const permissionDenied = error && (error.name === "NotAllowedError" || error.name === "PermissionDeniedError");
+            setNewDeviceQrStatus(
+                permissionDenied
+                    ? "Permite el acceso a la cámara para leer el código QR."
+                    : "No fue posible iniciar la cámara. Verifica que no esté siendo utilizada por otra aplicación.",
+                true
+            );
+        }
+    };
+
+    let sensorQrScanner = null;
+    let sensorQrMode = null;
+
+    const setSensorQrStatus = (mode, message, isError) => {
+        const prefix = mode === "edit" ? "editSensorQr" : "newSensorQr";
+        $scope[prefix + "Message"] = message;
+        $scope[prefix + "Error"] = Boolean(isError);
+        if (!$scope.$$phase) {
+            $scope.$apply();
+        }
+    };
+
+    $scope.stopSensorQrScanner = () => {
+        const scanner = sensorQrScanner;
+        const mode = sensorQrMode;
+        sensorQrScanner = null;
+        sensorQrMode = null;
+
+        if (scanner) {
+            scanner.stop()
+                .catch(error => console.warn("No fue posible detener el lector QR del sensor.", error))
+                .finally(() => {
+                    try {
+                        scanner.clear();
+                    } catch (error) {
+                        console.warn("No fue posible limpiar el lector QR del sensor.", error);
+                    }
+                });
+        }
+
+        if (mode === "edit") {
+            $scope.editSensorQrScanning = false;
+        } else {
+            $scope.newSensorQrScanning = false;
+        }
+    };
+
+    $scope.toggleSensorQrScanner = async mode => {
+        const scanningProperty = mode === "edit" ? "editSensorQrScanning" : "newSensorQrScanning";
+        if ($scope[scanningProperty]) {
+            $scope.stopSensorQrScanner();
+            setSensorQrStatus(mode, "", false);
+            return;
+        }
+
+        $scope.stopSensorQrScanner();
+
+        if (typeof Html5Qrcode === "undefined") {
+            setSensorQrStatus(mode, "No fue posible cargar el lector de códigos QR.", true);
+            return;
+        }
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            setSensorQrStatus(mode, "La cámara requiere abrir la aplicación mediante HTTPS.", true);
+            return;
+        }
+
+        try {
+            const readerId = mode === "edit" ? "editSensorQrReader" : "newSensorQrReader";
+            sensorQrMode = mode;
+            sensorQrScanner = new Html5Qrcode(readerId, {
+                formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
+                verbose: false
+            });
+            $scope[scanningProperty] = true;
+            setSensorQrStatus(mode, "Apunta la cámara al código QR del sensor.", false);
+
+            await $timeout(() => {});
+            await sensorQrScanner.start(
+                { facingMode: "environment" },
+                {
+                    fps: 10,
+                    qrbox: (viewfinderWidth, viewfinderHeight) => {
+                        const size = Math.floor(Math.min(viewfinderWidth, viewfinderHeight) * 0.7);
+                        return { width: size, height: size };
+                    }
+                },
+                decodedText => {
+                    if (!decodedText || !sensorQrScanner || sensorQrMode !== mode) {
+                        return;
+                    }
+
+                    if (mode === "edit") {
+                        $scope.actualSensor.id = decodedText.trim();
+                    } else {
+                        $scope.newSensor.id = decodedText.trim();
+                    }
+                    $scope.stopSensorQrScanner();
+                    setSensorQrStatus(mode, "Código QR leído correctamente.", false);
+                }
+            );
+        } catch (error) {
+            $scope.stopSensorQrScanner();
+            const permissionDenied = error && (error.name === "NotAllowedError" || error.name === "PermissionDeniedError");
+            setSensorQrStatus(
+                mode,
+                permissionDenied
+                    ? "Permite el acceso a la cámara para leer el código QR."
+                    : "No fue posible iniciar la cámara. Verifica que no esté siendo utilizada por otra aplicación.",
+                true
+            );
+        }
+    };
 
     $scope.setNewDeviceParams = () => {
         switch ($scope.newDevice.type) {
@@ -2493,26 +2691,45 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     // #endregion PLAN DE RIEGO
 
     // #region NOTICIACIÓN
-    $scope.setToken = () => {
-        if ($scope.authUser) {
-            if (typeof regenerateFcmToken === "function") {
-                regenerateFcmToken($scope.authUser.email).then(token => {
-                    if (token) {
-                        console.log("Token FCM activo:", token);
-                    } else {
-                        console.error("No se genero ni guardo token FCM desde el boton Activar notificaciones.");
-                    }
-                }).catch(error => {
-                    console.error("Error al activar notificaciones desde el boton:", error);
-                });
-            } else {
-                handleTokenRefresh($scope.authUser.email);
-            }
-        }
+    $scope.notificationsEnabled = () => {
+        return localStorage.getItem('notificacionesHabilitadas') === 'true' &&
+            typeof Notification !== 'undefined' && Notification.permission === 'granted';
     }
 
+    $scope.toggleNotifications = () => {
+        if (!$scope.authUser) return;
+
+        if ($scope.notificationsEnabled()) {
+            localStorage.setItem('notificacionesHabilitadas', 'false');
+            return Promise.resolve($scope.deleteToken()).finally(() => $scope.$applyAsync());
+        }
+
+        if (typeof enableFirebaseMessaging !== "function") return;
+        return enableFirebaseMessaging($scope.authUser.email).then(result => {
+            if (result.token) {
+                console.log("Token FCM activo:", result.token);
+            } else if (result.permission === 'granted') {
+                console.error("El permiso fue concedido, pero Firebase no pudo generar el token FCM.");
+                if (typeof swal === 'function') {
+                    swal({
+                        title: "No se pudo registrar el dispositivo",
+                        text: "El permiso de notificaciones está activo, pero no se pudo generar el token FCM. Verifica la conexión y vuelve a intentarlo.",
+                        icon: "warning",
+                    });
+                }
+            }
+            $scope.$applyAsync();
+        }).catch(error => {
+            console.error("Error al activar notificaciones:", error);
+            $scope.$applyAsync();
+        });
+    }
+
+    // Conserva compatibilidad con llamadas anteriores.
+    $scope.setToken = $scope.toggleNotifications;
+
     $scope.deleteToken = () => {
-        unSuscribeToNotifications($scope.authUser.email);
+        return unSuscribeToNotifications($scope.authUser.email);
     }
     // #endregion NOTICIACIÓN
 
@@ -2952,10 +3169,13 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     const getSensorValue = (campo, sensor, idx) => {
         let date = campo.log.date ? campo.log.date.substring(6, 8) + "/" + campo.log.date.substring(4, 6) + " " + campo.log.date.substring(9, 11) + ":" + campo.log.date.substring(11, 15) : "";
         let data = campo.log ? JSON.parse(campo.log.dataRaw) : [];
-        let msValue = data[idx * 8] !== "NaN" ? parseFloat(data[idx * 8]).toFixed(0) : -99;
-        let msColor = sensor.type != 'WM' ? (msValue <= sensor.h.minValue ? "#ff000080" : (msValue >= sensor.h.maxValue ? "#0000ff80" : "#00ff0080")) :
+        let hmin = sensor.h.minValue !== "NaN" ? parseInt(sensor.h.minValue) : 25;
+        let hmax = sensor.h.maxValue !== "NaN" ? parseInt(sensor.h.maxValue) : 60;
+        let msValue = data[idx * 8] !== "NaN" ? parseInt(data[idx * 8]) : -99;
+        let msColor = sensor.type != 'WM' ? (msValue <= hmin ? "#ff000080" : (msValue >= hmax ? "#0000ff80" : "#00ff0080")) :
                                             (msValue <= 10 ? "#0000ff80" : (msValue <= 60 ? "#00ff0080" : "#ff000080"));
-        let msStatus = sensor.type != 'WM' ? (msValue <= sensor.h.minValue ? "Seco" : (msValue >= sensor.h.maxValue ? "Saturado" : "Adecuado")) : (msValue <= 10 ? "Saturado" : (msValue <= 60 ? "Adecuado" : "Seco"));
+        let msStatus = sensor.type != 'WM' ? (msValue <= hmin ? "Seco" : (msValue >= hmax ? "Saturado" : "Adecuado")) : 
+                                            (msValue <= 10 ? "Saturado" : (msValue <= 60 ? "Adecuado" : "Seco"));
         let text = ``;
         text += `<div style="padding: 0 10px; width: 130px;">`;  // 👈 Ancho definido aquí
         text += `    <div class="row" style="margin-bottom: 5px;">`;
@@ -2972,7 +3192,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             text += `    </div>`;
             text += `    <div class="row" style="margin-bottom: 5px; border-radius: 6px; background-color: ${ msColor };">`;
             text += `        <div class="col s3" style="padding-top: 7px;"><img src="./assets/images/Hr_white.png" alt="Agua" style="width: 15px;"></div>`;
-            text += `        <div class="col s9" style="text-align: right; padding-top: 5px; font-size: 1.2em; color: white; margin-left: -15px;">`;
+            text += `        <div class="col s9" style="text-align: right; padding-top: 5px; font-size: 1.2em; color: white; text-shadow: -1px -1px 0 black, 1px -1px 0 black, -1px  1px 0 black, 1px  1px 0 black; margin-left: -15px;">`;
             text += `           <b>${ msStatus } ${ msValue }${ sensor.type != 'WM' ? '%' : 'cb' }</b>`;
             text += `        </div>`;
             text += `    </div>`;
@@ -3908,8 +4128,14 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         reproducirSonido('./assets/sounds/alarma-de-evacuacion.mp3');
     }
         
-    $scope.getNotificationsStatus = () => {
+    $scope.getSoundStatus = () => {
         return localStorage.getItem('sonidoHabilitado') === 'true';
+    }
+
+    $scope.toggleNotificationSound = () => {
+        const enabled = !$scope.getSoundStatus();
+        localStorage.setItem('sonidoHabilitado', String(enabled));
+        if (enabled) reproducirSonido('./assets/sounds/Elevator_Bell.mp3');
     }
 
     checkSound = () => {
@@ -3922,15 +4148,6 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         });
     }
 
-    // Event listener para el checkbox de sonido
-    document.getElementById('activarSonido').addEventListener('click', function() {
-        if (localStorage.getItem('sonidoHabilitado') === 'false') {
-            winActivarAlarma();
-        } else {
-            winDesactivarAlarma();
-        }
-    });
-    
     function winActivarAlarma() {
         swal({
             title: "Alerta sonora desactivada",
@@ -4461,6 +4678,7 @@ if ("clearAppBadge" in navigator) {
 if ('serviceWorker' in navigator) {
 navigator.serviceWorker.addEventListener('message', event => {
   if (event.data && event.data.action === 'playSound') {
+    if (localStorage.getItem('sonidoHabilitado') !== 'true') return;
     const soundUrl = event.data.file;
     if (!soundUrl || soundUrl === 'default') return;
     console.log('🎵 Reproduciendo sonido en la PWA:', soundUrl);

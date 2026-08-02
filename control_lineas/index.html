@@ -59,7 +59,7 @@
 
         <div class="table-wrap table-responsive">
           <table class="table align-middle text-nowrap mb-0">
-            <thead><tr><th>Línea / ICCID</th><th>Cliente</th><th>Dispositivo</th><th>Ubicación</th><th>Instalación</th><th>Actualización</th><th><span class="sr-only">Acciones</span></th></tr></thead>
+            <thead><tr><th>Línea / ICCID</th><th>Cliente</th><th>Cuenta padre</th><th>Ciclo</th><th>Dispositivo</th><th>Ubicación</th><th>Instalación</th><th>Actualización</th><th><span class="sr-only">Acciones</span></th></tr></thead>
             <tbody id="linesTable"></tbody>
           </table>
         </div>
@@ -83,6 +83,8 @@
         <label class="col-12 col-md-6 d-flex flex-column gap-2"><span>ICCID *</span><input class="form-control" id="iccid" required inputmode="numeric" maxlength="22" placeholder="8952012345678901234"></label>
         <label class="col-12 col-md-6 d-flex flex-column gap-2"><span>Número asignado *</span><input class="form-control" id="phone" required type="tel" placeholder="+52 55 1234 5678"></label>
         <label class="col-12 col-md-6 d-flex flex-column gap-2"><span>Cliente asignado *</span><input class="form-control" id="client" required placeholder="Nombre del cliente"></label>
+        <label class="col-12 col-md-6 d-flex flex-column gap-2"><span>Cuenta padre</span><input class="form-control" id="parentAccount" maxlength="160" placeholder="Cuenta o grupo principal"></label>
+        <label class="col-12 col-md-6 d-flex flex-column gap-2"><span>Ciclo</span><input class="form-control" id="cycle" maxlength="80" placeholder="Ej. Mensual, 2026-01"></label>
         <label class="col-12 col-md-6 d-flex flex-column gap-2"><span>Tipo de dispositivo *</span><select class="form-select" id="device" required><option value="">Selecciona una opción</option><option>Red de Sensores</option><option>Pivotes</option><option>Sectores</option><option>Bombeo</option><option>Sistemas de Prueba</option><option>No asignado</option></select></label>
         <label class="col-12 d-flex flex-column gap-2"><span>Ubicación *</span><input class="form-control" id="location" required placeholder="Sucursal, rancho, unidad o referencia"></label>
         <label class="col-12 col-md-6 d-flex flex-column gap-2"><span>Latitud</span><input class="form-control" id="latitude" type="number" step="any" min="-90" max="90" placeholder="19.432608"></label>

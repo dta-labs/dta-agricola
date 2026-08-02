@@ -4127,12 +4127,24 @@
                             <div class="container ventanaServicios" ng-show="selectedWindow == 'notificaciones'" style="overflow: scroll; min-height: 250px;">
                                 <div class="swal-title">Notificaciones</div>
                                 <br><br>
-                                <div id="activarSonido" class="row" style="margin: 0 30px; border-bottom: 1px solid lightgrey; cursor: pointer;" ng-click="showWindow('servicios')">
-                                    <div class="col s2 center-align">
-                                        <i class="material-icons ng-binding" style="font-size: 2.5em;">{{ getNotificationsStatus() ? 'notifications_active' : 'notifications_off' }}</i>
+                                <div class="row" style="margin: 0 30px; border-bottom: 1px solid lightgrey; padding: 12px 0;">
+                                    <div class="col s10">
+                                        <label>
+                                            <input type="checkbox"
+                                                ng-checked="getPushNotificationsStatus()"
+                                                ng-click="togglePushNotifications($event)" />
+                                            <span style="font-size: 1.25em; color: #222;">Recibir notificaciones</span>
+                                        </label>
                                     </div>
-                                    <div class="col s8 left-align">
-                                        <span style="font-size: 1.5em;" class="ng-binding">Reproducir sonido</span>
+                                </div>
+                                <div class="row" style="margin: 0 30px; border-bottom: 1px solid lightgrey; padding: 12px 0;">
+                                    <div class="col s10">
+                                        <label>
+                                            <input type="checkbox"
+                                                ng-checked="getNotificationsStatus()"
+                                                ng-click="toggleNotificationSound($event)" />
+                                            <span style="font-size: 1.25em; color: #222;">Reproducir sonido</span>
+                                        </label>
                                     </div>
                                 </div>
                                 <br><br>
@@ -4149,7 +4161,7 @@
                         </section>
 
                         <audio id="alertSound">
-                            <source src="./assets/sounds/alarma-de-evacuacin-evacuacion.mp3" type="audio/mpeg">
+                            <source src="./assets/sounds/alarma-de-evacuacion.mp3" type="audio/mpeg">
                             Your browser does not support the audio element.
                         </audio>
 
@@ -4892,7 +4904,7 @@
         <script src="https://www.gstatic.com/firebasejs/ui/4.0.0/firebase-ui-auth__es_419.js"></script>
         <script src="./assets/js/firebaseConfig.js"></script>
         <script src="./assets/js/firebaseComm.js"></script>
-        <script src="./assets/js/firebaseMessaging.js?v=26.07.05.017"></script>
+        <script src="./assets/js/firebaseMessaging.js?v=26.07.21.2"></script>
         <script src="./assets/js/autentication.js" type="module"></script>
         <!-- <script src="./assets/js/notifications.js"></script> -->
         <!-- <script src="./assets/modules/angularjs/angular.min.js"></script> -->
@@ -4906,7 +4918,7 @@
         <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
         <script src="./assets/js/commons.js"></script>
         <!-- <script src="./assets/cultures/listOfCultures.js"></script> -->
-        <script src="./assets/js/core.js?v=26.04.29.1158"></script>
+        <script src="./assets/js/core.js?v=26.07.21.6"></script>
         <!-- <script src="monitor/js/chartjs/chart.min.js"></script> -->
         <script type="text/javascript" src="./assets/modules/datepicker/daterangepicker.js"></script>
 

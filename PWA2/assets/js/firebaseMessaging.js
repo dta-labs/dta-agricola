@@ -1,6 +1,8 @@
 const DTA_FCM_VAPID_KEY = "BCUVqEwpfFtJi-ikOB0_NU5nxLQDV0uHO0PTVLdTBDvxeqJtDqU20lFF159RI5T1v6aBM_JMc3AmzK5xMoUOg4o";
 const DTA_PWA_LAUNCH_URL = "./index.html";
 const DTA_NOTIFICATION_SOUND_FILE = "./assets/sounds/alarma-de-evacuacion.mp3";
+const DTA_NOTIFICATIONS_ENABLED_KEY = "notificacionesHabilitadas";
+const DTA_NOTIFICATION_SOUND_ENABLED_KEY = "sonidoHabilitado";
 let foregroundMessagingConfigured = false;
 
 traceFcm("script-loaded", "firebaseMessaging.js cargado.");
@@ -31,6 +33,14 @@ function getNotificationPermission() {
   traceFcm("getNotificationPermission", "leyendo permiso");
   if (!("Notification" in window)) return "unsupported";
   return Notification.permission;
+}
+
+function notificationsAreLocallyEnabled() {
+  return localStorage.getItem(DTA_NOTIFICATIONS_ENABLED_KEY) === "true";
+}
+
+function notificationSoundIsLocallyEnabled() {
+  return localStorage.getItem(DTA_NOTIFICATION_SOUND_ENABLED_KEY) === "true";
 }
 
 function isLikelyFcmRegistrationToken(token) {
@@ -200,12 +210,13 @@ function buildForegroundNotificationOptions(payload) {
     options: {
       body: notification.body || "Nueva alerta",
       icon: data.icon || notification.icon || "./assets/images/DTA-Agricola.png",
+      image: data.image || notification.image || undefined,
       data: {
         url: data.click_action || DTA_PWA_LAUNCH_URL,
         sound: data.sound || DTA_NOTIFICATION_SOUND_FILE,
       },
       requireInteraction: true,
-      silent: false,
+      silent: !notificationSoundIsLocallyEnabled(),
       tag: notification.tag || data.alertType || "dta-alert",
     },
   };
@@ -374,7 +385,12 @@ function requestTokenFromFirebase(messaging, registration) {
 
 function handlePermissionResult(email, permission) {
   traceFcm("handlePermissionResult", permission);
-  if (permission === "granted") return Promise.resolve(true);
+  if (permission === "granted") {
+    localStorage.setItem(DTA_NOTIFICATIONS_ENABLED_KEY, "true");
+    return Promise.resolve(true);
+  }
+
+  localStorage.setItem(DTA_NOTIFICATIONS_ENABLED_KEY, "false");
 
   errorFcm("handlePermissionResult", `No se genero token; permiso: ${permission}`);
   return saveTokenStatus(email, "permission-not-granted", { permission })
@@ -461,12 +477,12 @@ function regenerateFcmToken(email) {
     .then((registration) => getAndSaveFcmToken(email, true, registration));
 }
 
-function registerFirebaseMessaging(email) {
+function registerFirebaseMessaging(email, forcePrompt) {
   traceFcm("registerFirebaseMessaging", email);
 
   return logStoredFcmTokens(email)
     .then(registerMessagingServiceWorker)
-    .then((registration) => getAndSaveFcmToken(email, true, registration))
+    .then((registration) => getAndSaveFcmToken(email, !!forcePrompt, registration))
     .then((token) => {
       traceFcm("registerFirebaseMessaging", `flujo automatico finalizado. Token: ${token || "sin token"}`);
       return token;
@@ -478,6 +494,30 @@ function registerFirebaseMessaging(email) {
         message: error && error.message ? error.message : String(error),
       }).then(() => null);
     });
+}
+
+function enableFirebaseMessaging(email) {
+  traceFcm("enableFirebaseMessaging", email);
+  return registerFirebaseMessaging(email, true).then((token) => ({
+    permission: getNotificationPermission(),
+    enabled: notificationsAreLocallyEnabled(),
+    token,
+  }));
+}
+
+function syncFirebaseMessagingIfAuthorized(email) {
+  traceFcm("syncFirebaseMessagingIfAuthorized", email);
+
+  if (getNotificationPermission() !== "granted") return Promise.resolve(null);
+
+  // Usuarios que ya concedieron el permiso antes de existir esta preferencia
+  // quedan habilitados sin volver a mostrarles el prompt del navegador.
+  if (localStorage.getItem(DTA_NOTIFICATIONS_ENABLED_KEY) === null) {
+    localStorage.setItem(DTA_NOTIFICATIONS_ENABLED_KEY, "true");
+  }
+
+  if (!notificationsAreLocallyEnabled()) return Promise.resolve(null);
+  return registerFirebaseMessaging(email, false);
 }
 
 function removeCurrentFcmToken(email) {

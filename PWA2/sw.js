@@ -92,6 +92,7 @@ self.addEventListener('push', event => {
   const options = {
     body: notification.body || 'Nueva alerta',
     icon: data.icon || notification.icon || '/assets/images/DTA-Agricola.png',
+    image: data.image || notification.image || undefined,
     data: {
       url: data.click_action || PWA_LAUNCH_URL,
       sound: data.sound || NOTIFICATION_SOUND_FILE

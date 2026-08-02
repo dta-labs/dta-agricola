@@ -85,8 +85,9 @@ String createDataStr() {
 }
 
 void lowPower() {
-  Serial.flush();             // Espera a que se envíe todo
-  int cycles = TIMER * 7.5;   // número de ciclos de 8s
+  Serial.flush();                                     // Espera a que se envíe todo
+  int JITTER = TIMER > 5 ? TIMER + random(-2, 2) : 0; // Agregar aleatoriedad 
+  int cycles = TIMER * 7.5 + JITTER;                  // número de ciclos de 8s
   for (int i = 0; i < cycles; i++) {
     wdt_reset();
     LowPower.powerDown(SLEEP_8S, ADC_OFF, BOD_OFF);

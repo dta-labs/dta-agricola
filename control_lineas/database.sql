@@ -11,6 +11,8 @@ CREATE TABLE IF NOT EXISTS phone_lines (
   iccid VARCHAR(22) NOT NULL,
   phone VARCHAR(30) NOT NULL,
   client VARCHAR(160) NOT NULL,
+  parent_account VARCHAR(10) NULL,
+  cycle VARCHAR(5) NULL,
   device VARCHAR(80) NOT NULL,
   location VARCHAR(255) NOT NULL,
   latitude DECIMAL(10, 7) NULL,
@@ -23,6 +25,8 @@ CREATE TABLE IF NOT EXISTS phone_lines (
   UNIQUE KEY uq_phone_lines_iccid (iccid),
   KEY idx_phone_lines_phone (phone),
   KEY idx_phone_lines_client (client),
+  KEY idx_phone_lines_parent_account (parent_account),
+  KEY idx_phone_lines_cycle (cycle),
   KEY idx_phone_lines_status (status),
   KEY idx_phone_lines_updated_at (updated_at)
 ) ENGINE=InnoDB;

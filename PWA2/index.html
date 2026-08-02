@@ -475,10 +475,30 @@
                                     ng-model="newDevice.name">
                                     <label for="newDeviceName">Nombre del equipo (alias)</label>
                                 </div>
-                                <div class="input-field col s12">    <!-- Código -->
+                                <div class="input-field col s9 m10">    <!-- Código -->
                                     <input id="newDeviceKey" type="text" placeholder="Código del equipo"
                                     ng-model="newDevice.key">
-                                    <label for="newDeviceKey">Código identificador del equipo</label>
+                                    <label for="newDeviceKey">Identificador del equipo</label>
+                                </div>
+                                <div class="input-field col s3 m2">
+                                    <button type="button"
+                                        class="btn waves-effect waves-light teal lighten-3"
+                                        style="margin-top: 8px;"
+                                        ng-click="toggleNewDeviceQrScanner()">
+                                        <i class="material-icons left">{{ newDeviceQrScanning ? 'close' : 'qr_code_scanner' }}</i>
+                                    </button>
+                                </div>
+                                <div class="input-field col s12">
+                                    <div ng-show="newDeviceQrScanning"
+                                        style="position: relative; width: 100%; max-width: 420px; margin: 12px auto 0;">
+                                        <div id="newDeviceQrReader"
+                                            style="width: 100%; min-height: 220px; overflow: hidden; background: #111; border-radius: 8px;"></div>
+                                    </div>
+                                    <p ng-show="newDeviceQrMessage"
+                                        ng-style="{ color: newDeviceQrError ? '#c62828' : '#00796b' }"
+                                        style="margin: 8px 0 0;">
+                                        {{ newDeviceQrMessage }}
+                                    </p>
                                 </div>
                                 <div class="input-field col s6" ng-show="newDevice.type == 'Estacionario'">    <!-- Serie -->
                                     <select class="select" ng-model="newDevice.length">
@@ -536,13 +556,19 @@
                         </div>
                     </div>
                     <div class="modal-footer" style="margin-bottom: 10px;">
-                        <a href="" class="modal-close waves-effect waves-green btn grey lighten-3 black-text" ng-click="steep = 0">Cancelar</a>
+                        <a href="" class="modal-close waves-effect waves-green btn grey lighten-3 black-text" ng-click="steep = 0; stopNewDeviceQrScanner()">Cancelar</a>
                         <a href="" class="waves-effect waves-green btn grey lighten-3 black-text"
-                            ng-click="steep = steep - 1" ng-show="steep != 0">Anterior</a>
+                            ng-click="steep = steep - 1" ng-show="steep != 0">
+                            <i class="material-icons">&nbsp;&nbsp;arrow_back&nbsp;&nbsp;</i>
+                        </a>
                         <a href="" class="waves-effect waves-green btn teal lighten-3"
-                            ng-click="steep = steep + 1" ng-show="steep == 1">Siguiente</a>
+                            ng-click="steep = steep + 1" ng-show="steep == 1">
+                            <i class="material-icons">&nbsp;&nbsp;arrow_forward&nbsp;&nbsp;</i>
+                        </a>
                         <a href="" class="waves-effect waves-green btn teal lighten-3"
-                            ng-click="steep = 0; updateNewDevice()" ng-show="steep == 2">Agregar</a>
+                            ng-click="steep = 0; updateNewDevice()" ng-show="steep == 2">
+                            <i class="material-icons">&nbsp;&nbsp;add&nbsp;&nbsp;</i>
+                        </a>
                     </div>
                 </div>
 
@@ -3037,7 +3063,7 @@
                             <div class="input-field col s12 row" ng-show="steepSensor == 0">   <!-- Seleccionar sensor -->
                                 
                                 <div class="col s6">
-                                    <div class="card tarjeta-sensores" ng-click="newSensor.type='NPKML';" style="box-shadow: 8px 8px 8px gray !important;">
+                                    <div class="card tarjeta-sensores" ng-click="newSensor.type='NPKML'; steepSensor = steepSensor + 1" style="box-shadow: 8px 8px 8px gray !important;">
                                         <div class="card-image">
                                             <img src="./assets/images/sNPKML.png" style="height: 80px; width: 80px; margin: auto;">
                                         </div>
@@ -3048,7 +3074,7 @@
                                 </div>
 
                                 <div class="col s6">
-                                    <div class="card tarjeta-sensores" ng-click="newSensor.type='NPK';" style="box-shadow: 8px 8px 8px gray !important;">
+                                    <div class="card tarjeta-sensores" ng-click="newSensor.type='NPK'; steepSensor = steepSensor + 1" style="box-shadow: 8px 8px 8px gray !important;">
                                         <div class="card-image">
                                             <img src="./assets/images/sNPK.png" style="height: 80px; width: 80px; margin: auto;">
                                         </div>
@@ -3059,7 +3085,7 @@
                                 </div>
 
                                 <div class="col s6">
-                                    <div class="card tarjeta-sensores" ng-click="newSensor.type='WM';" style="box-shadow: 8px 8px 8px gray !important;">
+                                    <div class="card tarjeta-sensores" ng-click="newSensor.type='WM'; steepSensor = steepSensor + 1" style="box-shadow: 8px 8px 8px gray !important;">
                                         <div class="card-image">
                                             <img src="./assets/images/sWM.jpg" style="height: 80px; width: 80px; margin: auto;">
                                         </div>
@@ -3070,7 +3096,7 @@
                                 </div>
 
                                 <div class="col s6">
-                                    <div class="card tarjeta-sensores" ng-click="newSensor.type='SHT4';" style="box-shadow: 8px 8px 8px gray !important;">
+                                    <div class="card tarjeta-sensores" ng-click="newSensor.type='SHT4'; steepSensor = steepSensor + 1" style="box-shadow: 8px 8px 8px gray !important;">
                                         <div class="card-image">
                                             <img src="./assets/images/sVWC.png" style="height: 80px; width: 80px; margin: auto;">
                                         </div>
@@ -3081,7 +3107,7 @@
                                 </div>
 
                                 <div class="col s6">
-                                    <div class="card tarjeta-sensores" ng-click="newSensor.type='Tr';" style="box-shadow: 8px 8px 8px gray !important;">
+                                    <div class="card tarjeta-sensores" ng-click="newSensor.type='Tr'; steepSensor = steepSensor + 1" style="box-shadow: 8px 8px 8px gray !important;">
                                         <div class="card-image">
                                             <img src="./assets/images/sTemp.png" style="height: 80px; width: 80px; margin: auto;">
                                         </div>
@@ -3092,7 +3118,7 @@
                                 </div>
 
                                 <div class="col s6">
-                                    <div class="card tarjeta-sensores" ng-click="newSensor.type='Psi';" style="box-shadow: 8px 8px 8px gray !important;">
+                                    <div class="card tarjeta-sensores" ng-click="newSensor.type='Psi'; steepSensor = steepSensor + 1" style="box-shadow: 8px 8px 8px gray !important;">
                                         <div class="card-image">
                                             <img src="./assets/images/sPSI.png" style="height: 80px; width: 80px; margin: auto;">
                                         </div>
@@ -3103,7 +3129,7 @@
                                 </div>
 
                                 <div class="col s6">
-                                    <div class="card tarjeta-sensores" ng-click="newSensor.type='Fl';" style="box-shadow: 8px 8px 8px gray !important;">
+                                    <div class="card tarjeta-sensores" ng-click="newSensor.type='Fl'; steepSensor = steepSensor + 1" style="box-shadow: 8px 8px 8px gray !important;">
                                         <div class="card-image">
                                             <img src="./assets/images/sCaudal.png" style="height: 80px; width: 80px; margin: auto;">
                                         </div>
@@ -3271,9 +3297,29 @@
                                     <input id="newSensorAlias" type="text" ng-model="newSensor.alias">
                                     <label>Alias</label>
                                 </div>
-                                <div class="input-field col s12">   <!-- Identificador -->
+                                <div class="input-field col s9 m10">   <!-- Identificador -->
                                     <input id="newSensorID" type="text" placeholder="id" ng-model="newSensor.id">
                                     <label for="newSensorID">Identificador</label>
+                                </div>
+                                <div class="input-field col s3 m2">
+                                    <button type="button"
+                                        class="btn waves-effect waves-light teal lighten-3"
+                                        style="margin-top: 8px;"
+                                        ng-click="toggleSensorQrScanner('new')">
+                                        <i class="material-icons left">{{ newSensorQrScanning ? 'close' : 'qr_code_scanner' }}</i>
+                                    </button>
+                                </div>
+                                <div class="input-field col s12">
+                                    <div ng-show="newSensorQrScanning"
+                                        style="position: relative; width: 100%; max-width: 420px; margin: 12px auto 0;">
+                                        <div id="newSensorQrReader"
+                                            style="width: 100%; min-height: 220px; overflow: hidden; background: #111; border-radius: 8px;"></div>
+                                    </div>
+                                    <p ng-show="newSensorQrMessage"
+                                        ng-style="{ color: newSensorQrError ? '#c62828' : '#00796b' }"
+                                        style="margin: 8px 0 0;">
+                                        {{ newSensorQrMessage }}
+                                    </p>
                                 </div>
                                 <!-- Ubicación -->
                                 <div class="col s12"
@@ -3303,14 +3349,18 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <a href="" class="modal-close waves-effect grey waves-grey btn-flat white-text" ng-click="steepSensor = 0">
+                        <a href="" class="modal-close waves-effect grey waves-grey btn-flat white-text" ng-click="steepSensor = 0; stopSensorQrScanner()">
                             <i class="material-icons">&nbsp;&nbsp;reply&nbsp;&nbsp;</i></a>
                         <a href="" class="waves-effect waves-green btn grey lighten-3 black-text"
-                            ng-click="steepSensor = steepSensor - 1" ng-show="steepSensor != 0">Anterior</a>
+                            ng-click="steepSensor = steepSensor - 1" ng-show="steepSensor != 0">
+                            <i class="material-icons">&nbsp;&nbsp;arrow_back&nbsp;&nbsp;</i>
+                        </a>
                         <a href="" class="waves-effect waves-green btn teal lighten-3"
-                            ng-click="steepSensor = steepSensor + 1" ng-show="steepSensor != 2 && newSensor.type != ''">Siguiente</a>
+                            ng-click="steepSensor = steepSensor + 1" ng-show="steepSensor != 0 && steepSensor != 2 && newSensor.type != ''">
+                            <i class="material-icons">&nbsp;&nbsp;arrow_forward&nbsp;&nbsp;</i>
+                        </a>
                         <a href="" class="modal-close waves-effect teal waves-green btn-flat white-text"
-                            ng-click="steepSensor = 0; addNewSensorToNet()" ng-show="steepSensor == 2">
+                            ng-click="steepSensor = 0; stopSensorQrScanner(); addNewSensorToNet()" ng-show="steepSensor == 2">
                             <i class="material-icons">&nbsp;&nbsp;check&nbsp;&nbsp;</i></a>
                     </div>
                 </div>
@@ -3328,12 +3378,32 @@
                             </div>
                             <div class="input-field col s12">
                                 <div class="row" ng-init="isSensorIdEnebled = false">
-                                    <div class="col 10">
+                                    <div class="col s8 m9">
                                         <input id="editSensorID" type="text" placeholder="id" ng-model="actualSensor.id" ng-disabled="!isSensorIdEnebled">
                                         <label for="editSensorID">Identificador</label>
                                     </div>
-                                    <div class="col 2">
+                                    <div class="col s2 m1">
                                         <i class="material-icons" ng-click="isSensorIdEnebled = !isSensorIdEnebled">create</i>
+                                    </div>
+                                    <div class="col s2">
+                                        <button type="button"
+                                            class="btn waves-effect waves-light teal lighten-3"
+                                            style="padding: 0 12px;"
+                                            ng-click="toggleSensorQrScanner('edit')">
+                                            <i class="material-icons">{{ editSensorQrScanning ? 'close' : 'qr_code_scanner' }}</i>
+                                        </button>
+                                    </div>
+                                    <div class="col s12">
+                                        <div ng-show="editSensorQrScanning"
+                                            style="position: relative; width: 100%; max-width: 420px; margin: 12px auto 0;">
+                                            <div id="editSensorQrReader"
+                                                style="width: 100%; min-height: 220px; overflow: hidden; background: #111; border-radius: 8px;"></div>
+                                        </div>
+                                        <p ng-show="editSensorQrMessage"
+                                            ng-style="{ color: editSensorQrError ? '#c62828' : '#00796b' }"
+                                            style="margin: 8px 0 0;">
+                                            {{ editSensorQrMessage }}
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -3507,13 +3577,13 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <a href="" class="modal-close waves-effect grey waves-grey btn-flat white-text">
+                        <a href="" class="modal-close waves-effect grey waves-grey btn-flat white-text" ng-click="stopSensorQrScanner()">
                             <i class="material-icons">&nbsp;&nbsp;reply&nbsp;&nbsp;</i></a>
                         <a href="" class="modal-close waves-effect red waves-grey btn-flat white-text" 
-                            ng-click="deleteActualSensor()" ng-show="isSystemOfRole('propietario') || isSystemOfRole('administrador')">
+                            ng-click="stopSensorQrScanner(); deleteActualSensor()" ng-show="isSystemOfRole('propietario') || isSystemOfRole('administrador')">
                             <i class="material-icons">&nbsp;&nbsp;delete&nbsp;&nbsp;</i></a>
                         <a href="" class="modal-close waves-effect teal waves-green btn-flat white-text"
-                            ng-click="editActualSensor()" ng-show="isSystemOfRole('propietario') || isSystemOfRole('administrador')"><i
+                            ng-click="stopSensorQrScanner(); editActualSensor()" ng-show="isSystemOfRole('propietario') || isSystemOfRole('administrador')"><i
                                 class="material-icons">&nbsp;&nbsp;check&nbsp;&nbsp;</i></a>
                     </div>
                 </div>
@@ -3814,19 +3884,21 @@
                 <div class="container ventanaServicios" ng-show="selectedWindow == 'notificaciones'" style="overflow: scroll; min-height: 250px;">
                     <div class="swal-title">Notificaciones</div>
                     <br><br>
-                    <div id="activarSonido" class="row" style="margin: 0 30px; border-bottom: 1px solid lightgrey; cursor: pointer;" ng-click="showWindow('listado')">
+                    <div class="row" style="margin: 0 30px; border-bottom: 1px solid lightgrey; cursor: pointer;" ng-click="toggleNotifications()">
                         <div class="col s2 center-align">
-                            <i class="material-icons ng-binding" style="font-size: 2.5em;">{{ getNotificationsStatus() ? 'notifications_active' : 'notifications_off' }}</i>
+                            <i class="material-icons" style="font-size: 2.5em;">{{ notificationsEnabled() ? 'check_box' : 'check_box_outline_blank' }}</i>
                         </div>
                         <div class="col s8 left-align">
-                            <span style="font-size: 1.5em;" class="ng-binding">Reproducir sonido</span>
+                            <span style="font-size: 1.5em;">Recibir notificaciones</span>
                         </div>
                     </div>
-                    <br><br>
-                    <div class="center-align">
-                        <button class="btn waves-effect waves-light" ng-click="setToken()">
-                            Activar notificaciones
-                        </button>
+                    <div class="row" style="margin: 0 30px; border-bottom: 1px solid lightgrey; cursor: pointer;" ng-click="toggleNotificationSound()">
+                        <div class="col s2 center-align">
+                            <i class="material-icons" style="font-size: 2.5em;">{{ getSoundStatus() ? 'check_box' : 'check_box_outline_blank' }}</i>
+                        </div>
+                        <div class="col s8 left-align">
+                            <span style="font-size: 1.5em;">Reproducir sonido</span>
+                        </div>
                     </div>
                     <br><br>
                     <div class="right-align">
@@ -4453,7 +4525,7 @@
     <script src="https://www.gstatic.com/firebasejs/ui/4.0.0/firebase-ui-auth__es_419.js"></script>
     <script src="./assets/js/firebaseConfig.js"></script>
     <script src="./assets/js/firebaseComm.js"></script>
-    <script src="./assets/js/firebaseMessaging.js?v=26.07.05.015"></script>
+    <script src="./assets/js/firebaseMessaging.js?v=26.07.22.002"></script>
     <script src="./assets/js/autentication.js" type="module"></script>
     <!-- <script src="./assets/js/notifications.js"></script> -->
     <!-- <script src="./assets/modules/angularjs/angular.min.js"></script> -->
@@ -4465,12 +4537,13 @@
     <script src="./assets/modules/leaflet-semicircle/semicircle.js"></script>
     <script src="./assets/modules/chart.js/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
+    <script src="./assets/modules/html5-qrcode/html5-qrcode.min.js"></script>
     <script src="./assets/js/commons.js"></script>
     <!-- OneSignal queda fuera del arranque principal para usar Firebase Cloud Messaging. -->
     <!-- <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script> -->
     <!-- <script src="./assets/modules/push-notification/push.js" defer></script> -->
     <!-- <script src="./assets/cultures/listOfCultures.js"></script> -->
-    <script src="./assets/js/core.js?v=26.07.05.011"></script>
+    <script src="./assets/js/core.js?v=26.07.22.002"></script>
     <!-- <script src="monitor/js/chartjs/chart.min.js"></script> -->
     <script type="text/javascript" src="./assets/modules/datepicker/daterangepicker.js"></script>
 

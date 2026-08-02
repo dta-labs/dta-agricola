@@ -2,7 +2,7 @@
 
 #define RESETDATA(x, y) for (int i = 0; i < y; i++) x[i] = String()
 
-String sendATCommand(String cmd, int wait = responseTime, bool response = false) {
+String sendATCommand(String cmd, int wait = responseTime, bool response = testComm) {
   gprs.println(cmd);
   delay(wait);  // Pequeña espera inicial tras enviar
   systemWatchDog();
@@ -48,7 +48,7 @@ void resetSIM() {
   telefono = strEmpty;
 }
 
-void commWatchDogReset(String result, bool readError = false) {
+void commWatchDogReset(String result, bool readError = testComm) {
   restartGSM = (result.indexOf(F("ERROR")) != -1 || result.indexOf(F("601")) != -1  || result.indexOf(F("604")) != -1) ? true : false;
   commError = (signalVar < 4 || restartGSM || readError) ? commError + 1 : 0;
   if (commError != 0) { DBG_PRINT(F("commError: ")); DBG_PRINTLN(commError); }

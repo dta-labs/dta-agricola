@@ -28,6 +28,20 @@ function fcmTokenKey(token) {
   return token.replace(/[.#$/\[\]]/g, "_");
 }
 
+function localFcmTokenKey(email) {
+  return `dta-current-fcm-token-${currentUserKey(email)}`;
+}
+
+function replacePreviousDeviceToken(email, token) {
+  const storageKey = localFcmTokenKey(email);
+  const previousToken = localStorage.getItem(storageKey);
+
+  if (!previousToken || previousToken === token) return Promise.resolve();
+
+  traceFcm("replacePreviousDeviceToken", "Eliminando el token anterior de este dispositivo.");
+  return fcmTokensRef(email).child(fcmTokenKey(previousToken)).remove();
+}
+
 function getNotificationPermission() {
   traceFcm("getNotificationPermission", "leyendo permiso");
   if (!("Notification" in window)) return "unsupported";
@@ -187,7 +201,9 @@ function saveFcmToken(email, token) {
     return removeLegacyPushTokens(email).then(() => cleanStoredFcmTokens(email));
   }
 
-  return writeFcmToken(email, token)
+  return replacePreviousDeviceToken(email, token)
+    .then(() => writeFcmToken(email, token))
+    .then(() => localStorage.setItem(localFcmTokenKey(email), token))
     .then(() => removeLegacyPushTokens(email))
     .then(() => cleanStoredFcmTokens(email))
     .then(() => traceFcm("saveFcmToken", `Token guardado en BD: ${token}`))
@@ -577,6 +593,7 @@ function removeCurrentFcmToken(email) {
 
       return messaging.deleteToken(token)
         .then(() => fcmTokensRef(email).child(fcmTokenKey(token)).remove())
+        .then(() => localStorage.removeItem(localFcmTokenKey(email)))
         .then(() => removeLegacyPushTokens(email))
         .then(() => cleanStoredFcmTokens(email));
     });

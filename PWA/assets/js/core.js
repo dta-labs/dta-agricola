@@ -190,6 +190,27 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
 
     }
 
+    clearSessionDataPreservingLocalPermissions = () => {
+        const preservedValues = {};
+        const preservedPrefixes = [
+            'dta-push-enabled-',
+            'dta-sound-enabled-',
+            'dta-current-fcm-token-',
+            'dta-fcm-migration-prompt-',
+            'dta-app-asset-signatures-'
+        ];
+
+        for (let index = 0; index < localStorage.length; index++) {
+            const key = localStorage.key(index);
+            if (key === 'sonidoHabilitado' || preservedPrefixes.some(prefix => key.startsWith(prefix))) {
+                preservedValues[key] = localStorage.getItem(key);
+            }
+        }
+
+        localStorage.clear();
+        Object.keys(preservedValues).forEach(key => localStorage.setItem(key, preservedValues[key]));
+    }
+
     listenUserStatus = () => {
         firebase.auth().onAuthStateChanged(user => {
             if (user) {
@@ -204,7 +225,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                 console.log("Error de autenticación");
                 $scope.$apply(function () {
                     $scope.authUser = null;
-                    localStorage.clear();
+                    clearSessionDataPreservingLocalPermissions();
                 });
                 $scope.showWindow('login');
                 //location.href = "./landing/index.html"
@@ -217,10 +238,55 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         loadUserLocations($scope.authUser.email).then(result => {
             $scope.userLocations = result;
             if (result[convertDotToDash($scope.authUser.email)]) {
-                $scope.userProfile = result[convertDotToDash($scope.authUser.email)].profile;
-                let tokenList = result[convertDotToDash($scope.authUser.email)].token;
+                const currentUserData = result[convertDotToDash($scope.authUser.email)];
+                $scope.userProfile = currentUserData.profile;
+                let tokenList = currentUserData.token;
                 userTokenList = tokenList ? tokenList : [];
-                handleTokenRefresh($scope.authUser.email);
+                const hasLegacyPushToken = typeof tokenList === 'string'
+                    ? tokenList.trim().length > 0
+                    : !!tokenList && Object.keys(tokenList).length > 0;
+                const hasInvalidFcmToken = currentUserData.fcmTokens
+                    && Object.values(currentUserData.fcmTokens).some(value => {
+                        const token = typeof value === 'string' ? value : value && value.token;
+                        return typeof isLikelyFcmRegistrationToken === 'function'
+                            ? !isLikelyFcmRegistrationToken(token)
+                            : true;
+                    });
+                const pushWasEnabled = readNotificationPreference(
+                    'push-enabled',
+                    'Notification' in window && Notification.permission === 'granted'
+                );
+                if (hasLegacyPushToken || hasInvalidFcmToken) {
+                    const migrationPromptKey = `dta-fcm-migration-prompt-${convertDotToDash($scope.authUser.email)}`;
+
+                    if ('Notification' in window && Notification.permission === 'granted') {
+                        $scope.setToken();
+                    } else if (!localStorage.getItem(migrationPromptKey)) {
+                        swal({
+                            title: "Actualizar notificaciones",
+                            text: "El registro anterior ya no es compatible. Active las notificaciones para generar un token FCM de Firebase.",
+                            icon: "info",
+                            buttons: {
+                                cancel: "Ahora no",
+                                confirm: {
+                                    text: "Activar notificaciones",
+                                    value: true,
+                                    visible: true,
+                                    closeModal: true
+                                }
+                            },
+                            closeOnClickOutside: false
+                        }).then(confirm => {
+                            if (confirm) {
+                                $scope.setToken();
+                            } else {
+                                localStorage.setItem(migrationPromptKey, 'dismissed');
+                            }
+                        });
+                    }
+                } else if (pushWasEnabled) {
+                    handleTokenRefresh($scope.authUser.email);
+                }
                 loadSystems();
             }
             $scope.showWindow('listado');
@@ -240,7 +306,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         firebase.auth().signOut().then(() => {
             $scope.authUser = null;
             $scope.tipoUsuario = 0;
-            localStorage.clear();
+            clearSessionDataPreservingLocalPermissions();
             // ui.start("#firebaseui-auth-container", uiConfig);
             //logoutAutUser();
             //document.getElementById("logout").style.display = "none";
@@ -448,11 +514,13 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                 let txt = log.voltage == "false" ? "electricidad" : "seguridad";
                 let htmlMsg = '<b>' + name + ': Falla de ' + txt + '!</b>';
                 M.toast({ html: htmlMsg });
-                let alertSound = document.getElementById("alertSound");
-                alertSound.play();
-                setTimeout(function () {
-                    alertSound.pause();
-                }, 5000);
+                if (localStorage.getItem('sonidoHabilitado') === 'true') {
+                    let alertSound = document.getElementById("alertSound");
+                    alertSound.play();
+                    setTimeout(function () {
+                        alertSound.pause();
+                    }, 5000);
+                }
             }
         }
     }
@@ -2443,14 +2511,63 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     // #endregion PLAN DE RIEGO
 
     // #region NOTICIACIÓN
+    const notificationPreferenceKey = (preference) => {
+        const user = $scope.authUser && ($scope.authUser.email || $scope.authUser.uid);
+        return `dta-${preference}-${user ? convertDotToDash(user) : 'anonymous'}`;
+    }
+
+    const readNotificationPreference = (preference, defaultValue) => {
+        const value = localStorage.getItem(notificationPreferenceKey(preference));
+        return value === null ? defaultValue : value === 'true';
+    }
+
+    const saveNotificationPreference = (preference, enabled) => {
+        localStorage.setItem(notificationPreferenceKey(preference), String(enabled));
+    }
+
+    $scope.getPushNotificationsStatus = () => {
+        const permissionGranted = 'Notification' in window && Notification.permission === 'granted';
+        return readNotificationPreference('push-enabled', permissionGranted) && permissionGranted;
+    }
+
     $scope.setToken = () => {
         if ($scope.authUser) {
-            handleTokenRefresh($scope.authUser.email);
+            const refreshToken = typeof regenerateFcmToken === "function"
+                ? regenerateFcmToken($scope.authUser.email)
+                : handleTokenRefresh($scope.authUser.email);
+
+            return Promise.resolve(refreshToken).then(token => {
+                if (token) {
+                    saveNotificationPreference('push-enabled', true);
+                    localStorage.removeItem(`dta-fcm-migration-prompt-${convertDotToDash($scope.authUser.email)}`);
+                }
+                if (!token && typeof swal === 'function') {
+                    swal({
+                        title: "No fue posible activar las notificaciones",
+                        text: "Verifique que el navegador tenga permiso para recibir notificaciones e intente nuevamente.",
+                        icon: "warning"
+                    });
+                }
+                return token;
+            });
         }
+        return Promise.resolve(null);
     }
 
     $scope.deleteToken = () => {
-        unSuscribeToNotifications($scope.authUser.email);
+        if (!$scope.authUser) return Promise.resolve();
+        saveNotificationPreference('push-enabled', false);
+        return unSuscribeToNotifications($scope.authUser.email);
+    }
+
+    $scope.togglePushNotifications = (event) => {
+        const enabled = event.target.checked;
+        saveNotificationPreference('push-enabled', enabled);
+
+        const operation = enabled ? $scope.setToken() : $scope.deleteToken();
+        Promise.resolve(operation).finally(() => {
+            if (!$scope.$$phase) $scope.$applyAsync();
+        });
     }
     // #endregion NOTICIACIÓN
 
@@ -2765,8 +2882,53 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     const getSensorValue = (campo, sensor, idx) => {
         let date = campo.log.date ? campo.log.date.substring(6, 8) + "/" + campo.log.date.substring(4, 6) + " " + campo.log.date.substring(9, 11) + ":" + campo.log.date.substring(11, 15) : "";
         let data = campo.log ? JSON.parse(campo.log.dataRaw) : [];
+        let hmin = sensor.h.minValue !== "NaN" ? parseInt(sensor.h.minValue) : 25;
+        let hmax = sensor.h.maxValue !== "NaN" ? parseInt(sensor.h.maxValue) : 60;
+        let msValue = data[idx * 8] !== "NaN" ? parseInt(data[idx * 8]) : -99;
+        let msColor = sensor.type != 'WM' ? (msValue <= hmin ? "#ff000080" : (msValue >= hmax ? "#0000ff80" : "#00ff0080")) :
+                                            (msValue <= 10 ? "#0000ff80" : (msValue <= 60 ? "#00ff0080" : "#ff000080"));
+        let msStatus = sensor.type != 'WM' ? (msValue <= hmin ? "Seco" : (msValue >= hmax ? "Saturado" : "Adecuado")) : 
+                                            (msValue <= 10 ? "Saturado" : (msValue <= 60 ? "Adecuado" : "Seco"));
         let text = ``;
-        text += `<div style="padding: 0 10px; width: 90px;">`;  // 👈 Ancho definido aquí
+        text += `<div style="padding: 0 10px; width: 130px;">`;  // 👈 Ancho definido aquí
+        text += `    <div class="row" style="margin-bottom: 5px;">`;
+        text += `        <div class="col s12 left-aling contenedor-texto">`;
+        text += `            <b><span style="font-size: .8em;">${ sensor.alias ? sensor.alias : "Sensor: " + (idx + 1) }</span></b>`;
+        text += `        </div>`;
+        text += `    </div>`;
+        if (sensor.type == "Ms" || sensor.type == "SHT4" || sensor.type == "WM") {
+            text += `    <div class="row" style="margin-bottom: 5px; border-radius: 6px; background-color: #f5f5f5;">`;
+            text += `        <div class="col s3" style="padding-top: 7px;"><img src="./assets/images/termometro.png" alt="Termometro" style="width: 15px;"></div>`;
+            text += `        <div class="col s9" style="text-align: center; padding-top: 5px; font-size: 1.2em; color: ` + ($scope.isOutOfRange(data[idx * 8 + 2], sensor.t.minValue, sensor.t.maxValue) ? `red` : `green`) + `;">`;
+            text += `            <b>${data[idx * 8 + 2] !== "NaN" && campo.tempUnit == "C" ? parseFloat(data[idx * 8 + 2]).toFixed(0) + "°C" : data[idx * 8 + 2] !== "NaN" && (campo.tempUnit == "F" || $scope.tempUnit == "F") ? parseFloat(data[idx * 8 + 2] * 9/5 + 32).toFixed(0) + "°F" : ""}</b>`;
+            text += `        </div>`;
+            text += `    </div>`;
+            text += `    <div class="row" style="margin-bottom: 5px; border-radius: 6px; background-color: ${ msColor };">`;
+            text += `        <div class="col s3" style="padding-top: 7px;"><img src="./assets/images/Hr_white.png" alt="Agua" style="width: 15px;"></div>`;
+            text += `        <div class="col s9" style="text-align: right; padding-top: 5px; font-size: 1.2em; color: white; text-shadow: -1px -1px 0 black, 1px -1px 0 black, -1px  1px 0 black, 1px  1px 0 black; margin-left: -15px;">`;
+            text += `           <b>${ msStatus } ${ msValue }${ sensor.type != 'WM' ? '%' : 'cb' }</b>`;
+            text += `        </div>`;
+            text += `    </div>`;
+        }
+        if (sensor.type == "Psi") {
+            text += `    <div class="row" style="margin-bottom: 5px; border-radius: 6px; background-color: #f5f5f5;">`;
+            text += `        <div class="col s3" style="padding-top: 7px;"><img src="./assets/images/pozo.png" alt="Agua" style="width: 15px;"></div>`;
+            text += `        <div class="col s9" style="text-align: right; padding-top: 5px; font-size: 1.2em; color: ` + (data[idx * 8] < 1 ? `red` : `green`) + `;"><b>${data[idx * 8] && !isNaN(data[idx * 8])  && data[idx * 8] !== null ? parseFloat(data[idx * 8]).toFixed(0) : "--"}psi</b></div>`;
+            text += `    </div>`;
+        }
+        text += `</div>`;
+        return text;
+    }
+
+    const getSensorValue_ = (campo, sensor, idx) => {
+        let date = campo.log.date ? campo.log.date.substring(6, 8) + "/" + campo.log.date.substring(4, 6) + " " + campo.log.date.substring(9, 11) + ":" + campo.log.date.substring(11, 15) : "";
+        let data = campo.log ? JSON.parse(campo.log.dataRaw) : [];
+        let msValue = data[idx * 8] !== "NaN" ? parseFloat(data[idx * 8]).toFixed(0) : -99;
+        let msColor = sensor.type != 'WM' ? (msValue <= sensor.h.minValue ? "#ff000080" : (msValue >= sensor.h.maxValue ? "#0000ff80" : "#00ff0080")) :
+                                            (msValue <= 10 ? "#0000ff80" : (msValue <= 60 ? "#00ff0080" : "#ff000080"));
+        let msStatus = sensor.type != 'WM' ? (msValue <= sensor.h.minValue ? "Seco" : (msValue >= sensor.h.maxValue ? "Saturado" : "Adecuado")) : (msValue <= 10 ? "Saturado" : (msValue <= 60 ? "Adecuado" : "Seco"));
+        let text = ``;
+        text += `<div style="padding: 0 10px; width: 130px;">`;  // 👈 Ancho definido aquí
         text += `    <div class="row" style="margin-bottom: 5px;">`;
         text += `        <div class="col s12 left-aling contenedor-texto">`;
         text += `            <b><span style="font-size: .8em;">${ sensor.alias ? sensor.alias : "Sensor: " + (idx + 1) }</span></b>`;
@@ -2775,13 +2937,16 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         text += `    </div>`;
         if (sensor.type == "Ms" || sensor.type == "SHT4" || sensor.type == "WM") {
             text += `    <div class="row" style="margin-bottom: 5px; border-radius: 6px; background-color: #f5f5f5;">`;
-            text += `        <div class="col s3" style="padding-top: 7px;"><img src="./assets/images/Hr.png" alt="Agua" style="width: 15px;"></div>`;
-            text += `        <div class="col s9" style="text-align: right; padding-top: 5px; font-size: 1.2em; color: ` + ($scope.isOutOfRange(data[idx * 8], sensor.h.minValue, sensor.h.maxValue) ? `red` : `green`) + `;"><b>${data[idx * 8] !== "NaN" ? parseFloat(data[idx * 8]).toFixed(0) : ""}${sensor.type != 'WM' ? '%' : 'cb'}</b></div>`;
-            text += `    </div>`;
-            text += `    <div class="row" style="margin-bottom: 5px; border-radius: 6px; background-color: #f5f5f5;">`;
             text += `        <div class="col s3" style="padding-top: 7px;"><img src="./assets/images/termometro.png" alt="Termometro" style="width: 15px;"></div>`;
-            text += `        <div class="col s9" style="text-align: right; padding-top: 5px; font-size: 1.2em; color: ` + ($scope.isOutOfRange(data[idx * 8 + 2], sensor.t.minValue, sensor.t.maxValue) ? `red` : `green`) + `;">`;
-            text += `            <b>${data[idx * 8 + 2] !== "NaN" && campo.tempUnit == "C" ? parseFloat(data[idx * 8 + 2]).toFixed(0) + "°C" : data[idx * 8 + 2] !== "NaN" && (campo.tempUnit == "F" || $scope.tempUnit == "F") ? parseFloat(data[idx * 8 + 2] * 9/5 + 32).toFixed(0) + "°F" : ""}</b></div>`;
+            text += `        <div class="col s9" style="text-align: center; padding-top: 5px; font-size: 1.2em; color: ` + ($scope.isOutOfRange(data[idx * 8 + 2], sensor.t.minValue, sensor.t.maxValue) ? `red` : `green`) + `;">`;
+            text += `            <b>${data[idx * 8 + 2] !== "NaN" && campo.tempUnit == "C" ? parseFloat(data[idx * 8 + 2]).toFixed(0) + "°C" : data[idx * 8 + 2] !== "NaN" && (campo.tempUnit == "F" || $scope.tempUnit == "F") ? parseFloat(data[idx * 8 + 2] * 9/5 + 32).toFixed(0) + "°F" : ""}</b>`;
+            text += `        </div>`;
+            text += `        </div>`;
+            text += `    </div>`;
+            text += `    <div class="row" style="margin-bottom: 5px; border-radius: 6px; background-color: ${ msColor };">`;
+            text += `        <div class="col s3" style="padding-top: 7px;"><img src="./assets/images/Hr.png" alt="Agua" style="width: 15px; filter: brightness(0) invert(1);"></div>`;
+            text += `        <div class="col s9" style="text-align: right; padding-top: 5px; font-size: 1.2em; color: white; margin-left: -15px;">`;
+            text += `           <b>${ msStatus } ${ msValue }${ sensor.type != 'WM' ? '%' : 'cb' }</b>`;
             text += `        </div>`;
             text += `    </div>`;
         }
@@ -3724,7 +3889,18 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     }
         
     $scope.getNotificationsStatus = () => {
-        return localStorage.getItem('sonidoHabilitado') === 'true';
+        const legacySoundPreference = localStorage.getItem('sonidoHabilitado') === 'true';
+        return readNotificationPreference('sound-enabled', legacySoundPreference);
+    }
+
+    $scope.toggleNotificationSound = (event) => {
+        const enabled = event.target.checked;
+        saveNotificationPreference('sound-enabled', enabled);
+        localStorage.setItem('sonidoHabilitado', String(enabled));
+
+        if (enabled) {
+            reproducirSonido('./assets/sounds/Elevator_Bell.mp3');
+        }
     }
 
     checkSound = () => {
@@ -3737,15 +3913,6 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         });
     }
 
-    // Event listener para el checkbox de sonido
-    document.getElementById('activarSonido').addEventListener('click', function() {
-        if (localStorage.getItem('sonidoHabilitado') === 'false') {
-            winActivarAlarma();
-        } else {
-            winDesactivarAlarma();
-        }
-    });
-    
     function winActivarAlarma() {
         swal({
             title: "Alerta sonora desactivada",
@@ -3808,7 +3975,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     }
 
     function reproducirSonido(audioPath) {
-        if (localStorage.getItem('sonidoHabilitado') === 'true') {
+        if ($scope.getNotificationsStatus()) {
             const audio = new Audio(audioPath);
             audio.play().then(() => {
                 console.log("Sonido habilitado");
@@ -4013,6 +4180,10 @@ function instalar() {
     if (beforeInstallPrompt) beforeInstallPrompt.prompt();
 }
 
+const APP_UPDATE_CHECK_INTERVAL = 5 * 60 * 1000;
+const APP_UPDATE_SIGNATURES_KEY = "dta-app-asset-signatures-v1";
+let appUpdatePromptVisible = false;
+
 function serviceWorker() {
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.getRegistrations().then(registrations => {
@@ -4031,7 +4202,8 @@ function serviceWorker() {
     navigator.serviceWorker.register('./firebase-messaging-sw.js', { scope: './' })
       .then(reg => {
         console.log("✅ SW unificado registrado:", reg);
-        enablePushNotifications(); // aquí ya se engancha el push sobre el SW unificado
+        reg.update();
+        setInterval(() => reg.update(), APP_UPDATE_CHECK_INTERVAL);
       })
       .catch(err => console.log("❌ Error registrando SW unificado:", err));
   }
@@ -4077,6 +4249,7 @@ handleTokenRefresh = (email) => {
     if (typeof registerFirebaseMessaging === "function") {
         return registerFirebaseMessaging(email).then(token => {
             if (token) {
+                localStorage.setItem(`dta-push-enabled-${convertDotToDash(email)}`, 'true');
                 console.log("Token FCM activo:", token);
             } else {
                 console.error("No se genero ni guardo token FCM durante el registro automatico.");
@@ -4087,6 +4260,115 @@ handleTokenRefresh = (email) => {
 
     console.error("Firebase Messaging no esta disponible; no se guardaran tokens legacy.");
     return Promise.resolve(null);
+}
+
+function getSameOriginAppAssetUrls() {
+    const urls = new Set([new URL("./index.html", window.location.href).href]);
+
+    document.querySelectorAll('script[src], link[rel="stylesheet"][href]').forEach(element => {
+        const assetUrl = element.src || element.href;
+        if (!assetUrl) return;
+
+        const url = new URL(assetUrl, window.location.href);
+        if (url.origin === window.location.origin) {
+            url.search = "";
+            url.hash = "";
+            urls.add(url.href);
+        }
+    });
+
+    return Array.from(urls).sort();
+}
+
+function hashText(value) {
+    let hash = 0;
+    for (let index = 0; index < value.length; index++) {
+        hash = ((hash << 5) - hash) + value.charCodeAt(index);
+        hash |= 0;
+    }
+    return String(hash);
+}
+
+function readStoredAppSignatures() {
+    try {
+        return JSON.parse(localStorage.getItem(APP_UPDATE_SIGNATURES_KEY) || "{}");
+    } catch (error) {
+        return {};
+    }
+}
+
+function saveAppSignatures(signatures) {
+    localStorage.setItem(APP_UPDATE_SIGNATURES_KEY, JSON.stringify(signatures));
+}
+
+function fetchAssetSignature(url) {
+    return fetch(url, { cache: "no-store" })
+        .then(response => {
+            if (!response.ok) throw new Error("No se pudo revisar " + url);
+            return response.text();
+        })
+        .then(text => hashText(text));
+}
+
+function showAppUpdatePopup(version) {
+    if (appUpdatePromptVisible) return;
+    appUpdatePromptVisible = true;
+
+    const reloadApp = () => window.location.reload();
+
+    if (typeof swal === "function") {
+        swal({
+            title: "Actualización disponible",
+            text: "Hay una nueva versión de la app. Se recargará para aplicar los cambios.",
+            icon: "info",
+            buttons: {
+                confirm: {
+                    text: "Actualizar",
+                    value: true,
+                    visible: true,
+                    closeModal: true
+                }
+            },
+            closeOnClickOutside: false,
+            closeOnEsc: false
+        }).then(reloadApp);
+        return;
+    }
+
+    window.alert("Hay una nueva versión de la app. Se recargará para aplicar los cambios.");
+    reloadApp();
+}
+
+function checkForAppUpdates() {
+    const assetUrls = getSameOriginAppAssetUrls();
+    const storedSignatures = readStoredAppSignatures();
+    const currentSignatures = {};
+
+    Promise.all(assetUrls.map(url => (
+        fetchAssetSignature(url)
+            .then(signature => {
+                currentSignatures[url] = signature;
+            })
+            .catch(error => console.log("No se pudo revisar actualización:", error))
+    ))).then(() => {
+        const hasStoredSignatures = Object.keys(storedSignatures).length > 0;
+        const hasChangedAsset = assetUrls.some(url => (
+            storedSignatures[url] && currentSignatures[url] && storedSignatures[url] !== currentSignatures[url]
+        ));
+
+        if (Object.keys(currentSignatures).length > 0) {
+            saveAppSignatures(currentSignatures);
+        }
+
+        if (hasStoredSignatures && hasChangedAsset) {
+            showAppUpdatePopup("assets");
+        }
+    });
+}
+
+function startAppUpdateChecks() {
+    checkForAppUpdates();
+    setInterval(checkForAppUpdates, APP_UPDATE_CHECK_INTERVAL);
 }
 
 send_push = (subscription) => {
@@ -4147,6 +4429,8 @@ if ('serviceWorker' in navigator) {
 navigator.serviceWorker.addEventListener('message', event => {
   if (event.data && event.data.action === 'playSound') {
     const soundUrl = event.data.file;
+    if (!soundUrl || soundUrl === 'default') return;
+    if (localStorage.getItem('sonidoHabilitado') !== 'true') return;
     console.log('🎵 Reproduciendo sonido en la PWA:', soundUrl);
 
     try {
@@ -4159,7 +4443,17 @@ navigator.serviceWorker.addEventListener('message', event => {
       console.error('❌ Error creando audio en la PWA:', e);
     }
   }
+
+  if (event.data && event.data.action === 'appUpdated') {
+    showAppUpdatePopup(event.data.version);
+  }
 });
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", startAppUpdateChecks);
+} else {
+  startAppUpdateChecks();
+}
 }
 
 // #endregion Progresive Web Application

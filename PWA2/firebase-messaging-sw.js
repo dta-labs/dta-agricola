@@ -5,7 +5,7 @@ importScripts("./assets/js/firebaseConfig.js");
 firebase.initializeApp(config);
 
 const messaging = firebase.messaging();
-const CACHE_NAME = "DTA_Irrigation_Control_v1.4";
+const CACHE_NAME = "DTA_Irrigation_Control_v1.5";
 const CACHE_PREFIX = "DTA_Irrigation_Control_";
 const PWA_LAUNCH_URL = "./index.html";
 const NOTIFICATION_SOUND_FILE = "./assets/sounds/alarma-de-evacuacion.mp3";
@@ -113,6 +113,7 @@ messaging.setBackgroundMessageHandler((payload) => {
   const options = {
     body: notification.body || "Nueva alerta",
     icon: data.icon || notification.icon || "./assets/images/DTA-Agricola.png",
+    image: data.image || notification.image || undefined,
     data: {
       url: notificationData.url || data.click_action || PWA_LAUNCH_URL,
       sound: notificationData.sound || data.sound || NOTIFICATION_SOUND_FILE,

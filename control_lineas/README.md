@@ -22,6 +22,13 @@ PWA en HTML, CSS y JavaScript con API PHP y almacenamiento MySQL.
 
 La API utiliza PDO, consultas preparadas, validación del servidor y respuestas JSON.
 
+## Actualizar una instalación existente
+
+Para agregar los campos `cuenta padre` y `ciclo` a una base que ya contiene
+registros, selecciona la base en phpMyAdmin e importa una sola vez
+`migration_001_add_parent_cycle.sql`. Después publica la API y los archivos de
+la PWA actualizados.
+
 ## Diagnóstico de conexión
 
 Abre `https://tu-dominio/ruta/api/index.php?health=1`. Si la conexión está

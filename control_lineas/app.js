@@ -57,6 +57,8 @@ function render() {
     return `<tr>
       <td><div class="line-number d-flex align-items-center gap-2"><span class="status-dot ${r.status === 'active' ? '' : 'inactive'}"></span>${escapeHtml(r.phone)}</div><div class="subtext mt-1">ICCID ${escapeHtml(r.iccid)}</div></td>
       <td><strong>${escapeHtml(r.client)}</strong><div class="subtext mt-1">${r.status === 'active' ? 'Línea activa' : 'Línea inactiva'}</div></td>
+      <td>${r.parentAccount ? escapeHtml(r.parentAccount) : '<span class="subtext">No asignada</span>'}</td>
+      <td>${r.cycle ? escapeHtml(r.cycle) : '<span class="subtext">Sin ciclo</span>'}</td>
       <td><span class="device-pill d-inline-block px-2 py-1">${escapeHtml(r.device)}</span></td>
       <td><strong>${escapeHtml(r.location)}</strong><div class="mt-1">${map}</div></td>
       <td>${formatDate(r.installedAt)}</td><td>${formatDate(r.updatedAt,true)}</td>
@@ -77,7 +79,7 @@ function openForm(record) {
   form.reset(); $('#recordId').value = record?.id || '';
   $('#dialogTitle').textContent = record ? 'Editar línea' : 'Nueva línea';
   $('#saveBtn').textContent = record ? 'Guardar cambios' : 'Guardar línea';
-  if (record) ['iccid','phone','client','device','location','latitude','longitude','installedAt','status'].forEach(k => $(`#${k}`).value=record[k]??'');
+  if (record) ['iccid','phone','client','parentAccount','cycle','device','location','latitude','longitude','installedAt','status'].forEach(k => $(`#${k}`).value=record[k]??'');
   else { $('#installedAt').value = new Date().toISOString().slice(0,10); $('#status').value='active'; }
   lineModal.show();
   dialog.addEventListener('shown.bs.modal', ()=>$('#iccid').focus(), {once:true});
@@ -87,7 +89,7 @@ form.addEventListener('submit', async e => {
   e.preventDefault();
   if (!form.reportValidity()) return;
   const id=$('#recordId').value;
-  const data={iccid:$('#iccid').value.trim(),phone:$('#phone').value.trim(),client:$('#client').value.trim(),device:$('#device').value,location:$('#location').value.trim(),latitude:$('#latitude').value,longitude:$('#longitude').value,installedAt:$('#installedAt').value,status:$('#status').value};
+  const data={iccid:$('#iccid').value.trim(),phone:$('#phone').value.trim(),client:$('#client').value.trim(),parentAccount:$('#parentAccount').value.trim(),cycle:$('#cycle').value.trim(),device:$('#device').value,location:$('#location').value.trim(),latitude:$('#latitude').value,longitude:$('#longitude').value,installedAt:$('#installedAt').value,status:$('#status').value};
   const save=$('#saveBtn'); save.disabled=true; save.textContent='Guardando…';
   try {
     await api(id ? `?id=${encodeURIComponent(id)}` : '', {method:id?'PUT':'POST', body:JSON.stringify(data)});

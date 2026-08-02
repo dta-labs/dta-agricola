@@ -1,4 +1,4 @@
-const { onValueWritten } = require("firebase-functions/v2/database");
+const { onValueCreated, onValueWritten } = require("firebase-functions/v2/database");
 const admin = require("firebase-admin");
 
 admin.initializeApp();
@@ -26,7 +26,10 @@ function isLikelyFcmToken(token) {
 
 function toNumber(value) {
   if (value === null || value === undefined) return null;
-  if (typeof value === "string" && value.trim().toUpperCase() === "NAN") return null;
+  if (typeof value === "string") {
+    const normalizedValue = value.trim().toUpperCase();
+    if (!normalizedValue || normalizedValue === "NAN") return null;
+  }
 
   const numberValue = Number(value);
   return Number.isFinite(numberValue) ? numberValue : null;
@@ -499,5 +502,210 @@ exports.sendTemperatureNotifications = onValueWritten({
       collectAlerts: collectTemperatureAlerts,
     });
   });
+
+// --- Riesgo de plagas y enfermedades ---
+
+const DISEASE_CONDITION_FIELDS = [
+  { valueKey: "Ms", minKey: "Msmin", maxKey: "Msmax" },
+  { valueKey: "Hr", minKey: "Rhmin", maxKey: "Rhmax" },
+  { valueKey: "Tmed", minKey: "Tmin", maxKey: "Tmax" },
+];
+
+function normalizeSearchText(value) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase();
+}
+
+function getEnabledDiseaseNames(sensor) {
+  if (!sensor || !sensor.alerts || typeof sensor.alerts !== "object") return [];
+
+  return Object.entries(sensor.alerts)
+    .filter(([, enabled]) => enabled === true || enabled === "true")
+    .map(([diseaseName]) => diseaseName);
+}
+
+function findCulture(cultures, cultureName) {
+  const normalizedCultureName = normalizeSearchText(cultureName);
+  if (!normalizedCultureName || !cultures) return null;
+
+  return Object.values(cultures).find((culture) =>
+    culture && normalizeSearchText(culture.culture) === normalizedCultureName
+  ) || null;
+}
+
+function findDisease(culture, diseaseName) {
+  if (!culture || !culture.diseases) return null;
+  const normalizedDiseaseName = normalizeSearchText(diseaseName);
+
+  return Object.values(culture.diseases).find((disease) =>
+    disease && normalizeSearchText(disease.name) === normalizedDiseaseName
+  ) || null;
+}
+
+function matchesDiseaseConditions(values, disease) {
+  let comparedConditions = 0;
+
+  const matches = DISEASE_CONDITION_FIELDS.every(({ valueKey, minKey, maxKey }) => {
+    const min = toNumber(disease && disease[minKey]);
+    const max = toNumber(disease && disease[maxKey]);
+    if (min === null && max === null) return true;
+
+    comparedConditions += 1;
+    const value = toNumber(values && values[valueKey]);
+    if (value === null) return false;
+
+    return (min === null || value >= min) && (max === null || value <= max);
+  });
+
+  return comparedConditions > 0 && matches;
+}
+
+function collectDiseaseRisks(log, sensors, cultures) {
+  const risks = [];
+
+  getSensorReadings(log, sensors).forEach((reading) => {
+    const culture = findCulture(cultures, reading.sensor && reading.sensor.culture);
+    if (!culture) return;
+
+    getEnabledDiseaseNames(reading.sensor).forEach((diseaseName) => {
+      const disease = findDisease(culture, diseaseName);
+      if (!disease || !matchesDiseaseConditions(reading.values, disease)) return;
+
+      risks.push({
+        sensor: reading.sensorName,
+        sensorKey: reading.sensorKey,
+        sensorLabel: reading.sensorLabel,
+        culture: culture.culture,
+        disease: disease.name,
+        photo: disease.photo || "",
+      });
+    });
+  });
+
+  return risks;
+}
+
+function getDiseaseRiskSignature(risk) {
+  return `${risk.sensorKey}:${normalizeSearchText(risk.disease)}`;
+}
+
+function getDiseasePhotoPath(photo) {
+  const fileName = String(photo || "").trim();
+  if (!fileName) return "";
+
+  const withExtension = /\.[a-z0-9]+$/i.test(fileName) ? fileName : `${fileName}.jpg`;
+  return `./assets/images/diseases/${withExtension}`;
+}
+
+function getAbsoluteAssetUrl(relativePath) {
+  if (!relativePath) return NOTIFICATION_ICON_URL;
+  return encodeURI(new URL(relativePath, PWA_URL).href);
+}
+
+async function getPreviousDayLog(systemId, logId) {
+  const snapshot = await admin.database()
+    .ref(`/systems/${systemId}/dayLogs`)
+    .orderByKey()
+    .endAt(logId)
+    .limitToLast(2)
+    .once("value");
+  const logs = [];
+
+  snapshot.forEach((child) => {
+    if (child.key !== logId) logs.push(child.val());
+  });
+
+  return logs.length > 0 ? logs[logs.length - 1] : null;
+}
+
+function buildDiseaseRiskMessage(systemId, logId, systemName, risk) {
+  const photoPath = getDiseasePhotoPath(risk.photo);
+  const imageUrl = getAbsoluteAssetUrl(photoPath);
+
+  return {
+    notification: {
+      title: "DTA-Agricola alerta de plaga!",
+      body: `Condiciones favorables para ${risk.disease} durante 2 o más días en ${systemName} - ${risk.sensorLabel}`,
+      imageUrl,
+    },
+    data: {
+      click_action: PWA_LAUNCH_URL,
+      icon: NOTIFICATION_ICON_URL,
+      image: imageUrl,
+      diseasePhoto: photoPath,
+      sound: NOTIFICATION_SOUND_FILE,
+      systemId,
+      logId,
+      sensorKey: risk.sensorKey,
+      disease: risk.disease,
+      culture: risk.culture,
+      alertType: "disease-risk",
+    },
+    webpush: {
+      headers: {
+        Urgency: "high",
+        TTL: "86400",
+      },
+      notification: {
+        icon: NOTIFICATION_ICON_URL,
+        image: imageUrl,
+        requireInteraction: true,
+        silent: false,
+        data: {
+          url: PWA_LAUNCH_URL,
+          sound: NOTIFICATION_SOUND_FILE,
+        },
+        tag: `dta-disease-${systemId}-${risk.sensorKey}-${normalizeSearchText(risk.disease)}`,
+      },
+      fcmOptions: {
+        link: `${PWA_URL}index.html`,
+      },
+    },
+  };
+}
+
+exports.sendDiseaseRiskNotifications = onValueCreated({
+  ref: "/systems/{systemId}/dayLogs/{logId}",
+  instance: "dta-agricola",
+  region: "us-central1",
+}, async (event) => {
+  const { systemId, logId } = event.params;
+  const [settingsSnapshot, culturesSnapshot, previousLog] = await Promise.all([
+    admin.database().ref(`/systems/${systemId}/settings`).once("value"),
+    admin.database().ref("/cultivos").once("value"),
+    getPreviousDayLog(systemId, logId),
+  ]);
+  const settings = settingsSnapshot.val() || {};
+
+  if (settings.type !== SENSOR_SYSTEM_TYPE || !previousLog) return null;
+
+  const cultures = culturesSnapshot.val() || {};
+  const currentRisks = collectDiseaseRisks(event.data.val(), settings.sensors, cultures);
+  if (currentRisks.length === 0) return null;
+
+  const previousRiskSignatures = new Set(
+    collectDiseaseRisks(previousLog, settings.sensors, cultures).map(getDiseaseRiskSignature)
+  );
+  const sustainedRisks = currentRisks.filter((risk) =>
+    previousRiskSignatures.has(getDiseaseRiskSignature(risk))
+  );
+  if (sustainedRisks.length === 0) return null;
+
+  const tokenRefs = await getTokenRefsForSystem(systemId);
+  for (const risk of sustainedRisks) {
+    const message = buildDiseaseRiskMessage(
+      systemId,
+      logId,
+      settings.name || systemId,
+      risk
+    );
+    await sendMulticastToTokenRefs(systemId, tokenRefs, message);
+  }
+
+  return null;
+});
 
 // #endregion SENSORES

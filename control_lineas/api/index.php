@@ -51,6 +51,8 @@ function validate(array $data): array
         ':iccid' => trim((string)$data['iccid']),
         ':phone' => trim((string)$data['phone']),
         ':client' => trim((string)$data['client']),
+        ':parent_account' => trim((string)($data['parentAccount'] ?? '')) ?: null,
+        ':cycle' => trim((string)($data['cycle'] ?? '')) ?: null,
         ':device' => trim((string)$data['device']),
         ':location' => trim((string)$data['location']),
         ':latitude' => ($data['latitude'] ?? '') === '' ? null : (float)$data['latitude'],
@@ -83,7 +85,7 @@ try {
     }
 
     if ($method === 'GET') {
-        $sql = "SELECT id, iccid, phone, client, device, location, latitude, longitude,
+        $sql = "SELECT id, iccid, phone, client, parent_account AS parentAccount, cycle, device, location, latitude, longitude,
                        DATE_FORMAT(installed_at, '%Y-%m-%d') AS installedAt,
                        status, DATE_FORMAT(updated_at, '%Y-%m-%dT%H:%i:%sZ') AS updatedAt
                 FROM phone_lines ORDER BY updated_at DESC";
@@ -92,7 +94,7 @@ try {
 
     if ($method === 'POST') {
         $values = validate(body());
-        $stmt = $pdo->prepare('INSERT INTO phone_lines (iccid, phone, client, device, location, latitude, longitude, installed_at, status) VALUES (:iccid, :phone, :client, :device, :location, :latitude, :longitude, :installed_at, :status)');
+        $stmt = $pdo->prepare('INSERT INTO phone_lines (iccid, phone, client, parent_account, cycle, device, location, latitude, longitude, installed_at, status) VALUES (:iccid, :phone, :client, :parent_account, :cycle, :device, :location, :latitude, :longitude, :installed_at, :status)');
         $stmt->execute($values);
         respond(['message' => 'Línea creada.', 'id' => (int)$pdo->lastInsertId()], 201);
     }
@@ -101,7 +103,7 @@ try {
         if (!$id) respond(['error' => 'Se requiere un id válido.'], 400);
         $values = validate(body());
         $values[':id'] = $id;
-        $stmt = $pdo->prepare('UPDATE phone_lines SET iccid=:iccid, phone=:phone, client=:client, device=:device, location=:location, latitude=:latitude, longitude=:longitude, installed_at=:installed_at, status=:status WHERE id=:id');
+        $stmt = $pdo->prepare('UPDATE phone_lines SET iccid=:iccid, phone=:phone, client=:client, parent_account=:parent_account, cycle=:cycle, device=:device, location=:location, latitude=:latitude, longitude=:longitude, installed_at=:installed_at, status=:status WHERE id=:id');
         $stmt->execute($values);
         if ($stmt->rowCount() === 0) {
             $exists = $pdo->prepare('SELECT 1 FROM phone_lines WHERE id = ?');
@@ -132,6 +134,7 @@ try {
         1044 => 'El usuario MySQL no tiene permisos sobre la base configurada.',
         1045 => 'MySQL rechazó el usuario o la contraseña configurados.',
         1049 => 'La base de datos configurada no existe. Revisa el nombre y el prefijo del hosting.',
+        1054 => 'Faltan columnas en la tabla. Ejecuta migration_001_add_parent_cycle.sql.',
         1062 => 'El ICCID ya está registrado.',
         1146 => 'La tabla phone_lines no existe en la base configurada. Importa database.sql en esa misma base.',
         2002 => 'No se pudo conectar con el servidor MySQL. Revisa DB_HOST y DB_PORT.',
