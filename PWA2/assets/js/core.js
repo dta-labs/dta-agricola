@@ -58,9 +58,16 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     let sendCommand = {};
     $scope.limitRegisters = 10;
     $scope.logs = {};
+    let logRequestSequence = 0;
+    let historyRequestId = 0;
+    const latestLogRequestBySystem = {};
+    $scope.historyLoadingOption = null;
     // $scope.logDetail = {};
     $scope.users = {};
     $scope.meteo = [];
+    const OPENWEATHER_API_KEY = "db9c92bd1f6d8d5db0aa0bae36ce093f";
+    const OPENWEATHER_ICON_URL = "https://openweathermap.org/img/w";
+    const historicalWeatherCache = new Map();
     $scope.as_config = false;
     $scope.as_adjust = false;
     $scope.as_more = false;
@@ -102,6 +109,18 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     }
     $scope.sensorNetworks = [];
     $scope.sensorsList = [];
+    $scope.showSensorMapView = true;
+
+    $scope.toggleSensorMapView = () => {
+        $scope.showSensorMapView = !$scope.showSensorMapView;
+
+        // Leaflet necesita recalcular el contenedor después de volver a mostrarlo.
+        if ($scope.showSensorMapView) {
+            $timeout(() => {
+                if (map) map.invalidateSize();
+            });
+        }
+    };
 
     // #endregion Variables
 
@@ -170,7 +189,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     showContent = () => {
         // document.getElementById("intro").style.display = "none";
         const contenido = document.getElementById("contenido");
-        if (contenido) contenido .style.display = "block";
+        if (contenido) contenido.style.display = "block";
         // $scope.$apply();
     }
 
@@ -208,6 +227,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                 // });
             } else {
                 console.log("Error de autenticación");
+                removeFirebaseListeners();
                 $scope.$apply(function () {
                     $scope.authUser = null;
                     // Estas preferencias pertenecen al dispositivo, no a la sesion.
@@ -297,6 +317,38 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
 
     // #region DEVICES
 
+    const removeFirebaseListeners = () => {
+        Object.values(listeners).forEach(listener => {
+            if (listener && listener.ref && listener.callback) {
+                listener.ref.off("value", listener.callback);
+            } else if (listener && typeof listener.off === "function") {
+                listener.off();
+            }
+        });
+        listeners = {};
+    };
+
+    const listenLatestSystemLog = (locationKey, logDirectory) => {
+        const listenerKey = `${locationKey}_latestLog`;
+        const logPath = `systems/${locationKey}/${logDirectory}`;
+        if (listeners[listenerKey]?.path === logPath) return;
+
+        if (listeners[listenerKey]) {
+            listeners[listenerKey].ref.off("value", listeners[listenerKey].callback);
+        }
+
+        const ref = firebase.database().ref(logPath).limitToLast(1);
+        const callback = logs => {
+            if (!logs.val() || !$scope.systems[locationKey]) return;
+            processSystemLogSnapshot(locationKey, logs, false);
+        };
+
+        ref.on("value", callback, error => {
+            console.error(`Error al escuchar los datos de ${locationKey}:`, error);
+        });
+        listeners[listenerKey] = { ref, callback, path: logPath };
+    };
+
     loadSystems = () => {
         if ($scope.authUser) {
             let userSystems = $scope.userLocations[convertDotToDash($scope.authUser.email)].systems;
@@ -314,37 +366,16 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                             getMetorologicalData(locationKey);
                             let dir = $scope.systems[locationKey].type === "Sensor" ? "dayLogs" : "logs";  // Determinar ruta de logs según tipo
                             $scope.loadSystemLog(locationKey, 1, `/${dir}`);
-                            if (locationKey === lastLocation) $scope.$apply();
+                            listenLatestSystemLog(locationKey, dir);
                             if ($scope.actualSystem && locationKey === $scope.actualSystem.key) {
                                 $scope.selectSystem($scope.systems[locationKey]);
                             }
-                            // $scope.$apply();
+                            // Firebase se ejecuta fuera de AngularJS: actualizar la
+                            // vista después de asignar todos los datos recibidos.
+                            $scope.$evalAsync();
                         }
                     });
 
-                    if (false) {
-                        if ($scope.systems[locationKey] && $scope.systems[locationKey].type == "Sensor" && false) {
-                            // --- Listener para DAYLOGS ---
-                            listeners[`${locationKey}_dayLogs`] = firebase.database().ref(`systems/${locationKey}/dayLogs`);
-                            // listeners[`${locationKey}_dayLogs`] = firebase.database().ref(`systems/${locationKey}/actualData`);
-                            listeners[`${locationKey}_dayLogs`].on("value", dayLogs => {
-                                if (dayLogs.val()) {
-                                    $scope.loadSystemLog(locationKey, 30, "/logs");
-                                    // $scope.loadSystemLog(locationKey, 300, "/dayLogs");
-                                    $scope.$apply();
-                                }
-                            });
-                        } else {
-                            // --- Listener para LOGS ---
-                            listeners[`${locationKey}_logs`] = firebase.database().ref(`systems/${locationKey}/logs`);
-                            listeners[`${locationKey}_logs`].on("value", logs => {
-                                if (logs.val()) {
-                                    $scope.loadSystemLog(locationKey, 30, `/logs`);
-                                    $scope.$apply();
-                                }
-                            });
-                        }
-                    }
                 }
                 $scope.$apply();
             } else {
@@ -364,37 +395,71 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         });
     }
 
-    $scope.loadSystemLog = (locationKey, registers, set = "/logs") => {
-        firebase.database().ref("systems/" + locationKey + set).limitToLast(registers).on("value", logs => {
+    $scope.loadSystemLog = (locationKey, registers, set = "/logs", requestId = null, updateCurrentLog = true, dateRange = null) => {
+        requestId = requestId === null ? ++logRequestSequence : requestId;
+        latestLogRequestBySystem[locationKey] = requestId;
+        let query = firebase.database().ref("systems/" + locationKey + set);
+        query = dateRange
+            ? query.orderByChild("date").startAt(dateRange.start).endAt(dateRange.end + "\uf8ff")
+            : query.limitToLast(registers);
+        return query.once("value").then(logs => {
+            // Una respuesta de un periodo anterior no debe reemplazar la ultima
+            // seleccion del usuario si hizo clic de nuevo antes de que terminara.
+            if (requestId !== latestLogRequestBySystem[locationKey]) return;
             if (logs.val()) {
                 $scope.logs[locationKey] = logs.val();
                 $scope.logsArray = {};
                 $scope.logsArray = Object.values($scope.logs);
-                let keys = Object.keys($scope.logs[locationKey]);
-                let length = keys.length;
-                let myLogs = $scope.logs[locationKey];
-                let log = myLogs[keys[length - 1]];
-                let position = log.position ? log.position : 0;
-                position = parseInt(position)
-                    - parseInt($scope.systems[locationKey].magneticDesv ? $scope.systems[locationKey].magneticDesv : "0")
-                    - parseInt($scope.systems[locationKey].posManualAdj ? $scope.systems[locationKey].posManualAdj : "0");
-                log.position = position;
-                log["statusTime"] = calcStatusTime(log.date, log.update);
-                $scope.systems[locationKey]["log"] = log;
-                processingSensors(locationKey);
-                findCommErrors();
-                if (document.getElementById('pos_' + locationKey)) {
-                    document.getElementById('pos_' + locationKey).style.transform = 'rotate(' + position + 'deg)';
+                // Las consultas históricas alimentan las gráficas, pero no deben
+                // sustituir el registro en vivo ni reconstruir un popup abierto.
+                if (updateCurrentLog) {
+                    processSystemLogSnapshot(locationKey, logs, true);
                 }
-                updateCompass();
-                hideSpinner(locationKey, log.state);
-                processingAlerts(locationKey);
                 invertLog();
-                setDeviceSpecificData();
-                $scope.$apply();
             }
         });
     }
+
+    const processSystemLogSnapshot = (locationKey, logs, updateHistory) => {
+        const system = $scope.systems[locationKey];
+        const logValues = Object.values(logs.val() || {});
+        if (!system || !logValues.length) return;
+
+        const log = logValues[logValues.length - 1];
+        let position = parseInt(log.position || 0);
+        position -= parseInt(system.magneticDesv || "0");
+        position -= parseInt(system.posManualAdj || "0");
+        log.position = position;
+        log.statusTime = calcStatusTime(log.date, log.update);
+        system.log = log;
+
+        processingSensors(locationKey);
+        if (map && marker[locationKey]) {
+            refreshSensorMapContent(system);
+        }
+        findCommErrors();
+        const positionElement = document.getElementById('pos_' + locationKey);
+        if (positionElement) {
+            positionElement.style.transform = 'rotate(' + position + 'deg)';
+        }
+        updateCompass(system);
+        hideSpinner(locationKey, log.state);
+        processingAlerts(locationKey);
+        updateNeveraDataRaw(locationKey);
+        if (updateHistory) setDeviceSpecificData();
+        $scope.$evalAsync();
+    };
+
+    const updateNeveraDataRaw = locationKey => {
+        const system = $scope.systems[locationKey];
+        if (system?.type !== "Nevera" || $scope.actualSystem?.key !== locationKey || !system.log?.dataRaw) return;
+
+        try {
+            $scope.actualSystemDataRaw = JSON.parse(system.log.dataRaw);
+        } catch (error) {
+            console.error(`dataRaw inválido en la nevera ${locationKey}:`, error);
+        }
+    };
 
     processingAlerts = (locationKey) => {
         let alarm = false;
@@ -534,10 +599,15 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         $scope.loadCultures();
         setActualSystemPlans();
         $scope.actualizarListaCultivos();
-        let dir = "/logs";
-        let items = system.type == "Sensor" ? 30 : $scope.limitRegisters;
-        // let dir = system.type == "Sensor" ? "/dayLogs" : "/logs";
-        // let items = system.type == "Sensor" ? 300 : $scope.limitRegisters;
+        let dir = system.type == "Sensor" ? "/dayLogs" : "/logs";
+        let items = system.type == "Sensor" ? 7 : $scope.limitRegisters;
+        if (system.type == "Nevera") {
+            $scope.setChartType('humidity');
+            $scope.selectedTimeOption = 'DIA';
+            $scope.limitRegisters = 300;
+            $scope.chartItems = 300;
+            items = 300;
+        }
         $scope.loadSystemLog(system.key, items, dir);
         // invertLog();
         // $scope.actualSystem.posicionActual = parseInt($scope.actualSystem.log.position ? $scope.actualSystem.log.position : "0") + parseInt($scope.actualSystem.summerHour ? $scope.actualSystem.summerHour : "0");
@@ -551,19 +621,114 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         $scope.getSensorNetworks();
     }
 
-    $scope.selectedTimeOption = 'MES'; // "DIA", "SEMANA", "MES" (default: "MES"), "CICLO" (último ciclo de riego), "AÑO" (último año)
+    $scope.selectedTimeOption = 'SEMANA'; // "DIA", "SEMANA" (por defecto), "MES", "CICLO" (último ciclo de riego), "AÑO" (último año)
 
-    $scope.reloadSystemLog = (systemKey, option = 'DIA') => {
+    $scope.reloadSystemLog = (systemKey, option = 'DIA', chartId = null, chartLabel = null) => {
         $scope.selectedTimeOption = option;
         $scope.limitRegisters = option == 'DIA' ? 300 : option == 'SEMANA' ? 7 : option == 'MES' ? 30 : option == 'CICLO' ? 180 : 365;
         $scope.chartItems = $scope.limitRegisters;
-        if (option != 'DIA') {
-            $scope.loadSystemLog(systemKey, $scope.limitRegisters);
-        } else {
-            $scope.loadSystemLog(systemKey, $scope.limitRegisters, "/dayLogs");
-            // $scope.loadSystemLog(systemKey, $scope.limitRegisters, "/actualData");
+        const requestId = ++logRequestSequence;
+        historyRequestId = requestId;
+        // Las neveras conservan sus lecturas intradía en /logs; /dayLogs se
+        // utiliza para el detalle diario de las redes de sensores.
+        const source = option !== 'DIA' || $scope.actualSystem?.type === "Nevera"
+            ? "/logs"
+            : "/dayLogs";
+        let dateRange = null;
+        if ($scope.actualSystem?.type === "Nevera") {
+            const now = new Date();
+            const formatDate = date => `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, "0")}${String(date.getDate()).padStart(2, "0")}`;
+            const start = new Date(now);
+            if (option === "DIA") start.setHours(0, 0, 0, 0);
+            if (option === "MES") start.setDate(1);
+            if (option === "CICLO") start.setMonth(start.getMonth() - 6);
+            dateRange = { start: formatDate(start), end: formatDate(now) };
         }
+        $scope.historyLoadingOption = option;
+
+        return $scope.loadSystemLog(systemKey, $scope.limitRegisters, source, requestId, false, dateRange)
+            .then(() => {
+                if (requestId === historyRequestId &&
+                    requestId === latestLogRequestBySystem[systemKey] &&
+                    chartId !== null) {
+                    // Esperar a que Angular refleje los nuevos registros antes de
+                    // reemplazar la instancia visible de Chart.js.
+                    $timeout(() => $scope.setChart(chartId, chartLabel || ('myChartH' + chartId)));
+                }
+            })
+            .catch(error => console.error('Error al cargar el historial:', error))
+            .finally(() => {
+                if (requestId === historyRequestId) {
+                    $scope.$evalAsync(() => {
+                        $scope.historyLoadingOption = null;
+                    });
+                }
+            });
     }
+
+    const renderColdRoomSensorChart = (attempt = 0) => {
+        const canvas = document.getElementById("coldRoomSensorChart");
+        if ((!canvas || canvas.clientWidth === 0 || canvas.clientHeight === 0) && attempt < 10) {
+            $timeout(() => renderColdRoomSensorChart(attempt + 1), 50);
+            return;
+        }
+        if (canvas && $scope.coldRoomChartAvailable) {
+            $scope.setChart($scope.coldRoomChartIndex, "coldRoomSensorChart");
+        }
+    };
+
+    $scope.openColdRoomSensorChart = (sensor, sensorKey) => {
+        if (!sensor) return;
+        const keyMatch = /^S([0-9])$/.exec(String(sensorKey));
+        const numericMatch = /^([0-9])$/.exec(String(sensorKey));
+        let index = keyMatch ? Number(keyMatch[1]) : numericMatch ? Number(numericMatch[1]) : -1;
+        if ($scope.actualSystem?.sensors?.[`S${index}`] !== sensor) {
+            index = Array.from({ length: 10 }, (_, i) => i)
+                .find(i => $scope.actualSystem?.sensors?.[`S${i}`] === sensor);
+        }
+        if (!Number.isInteger(index) || index < 0 || index > 9) return;
+
+        $scope.coldRoomChartSensor = sensor;
+        $scope.coldRoomChartIndex = index;
+        const isSensorNetwork = $scope.actualSystem?.type === "Sensor";
+        $scope.coldRoomChartAvailable = isSensorNetwork
+            ? ["Ms", "SHT4", "WM"].includes(sensor.type)
+            : (!sensor.type || sensor.type === "SHT2");
+        $scope.setChartType(isSensorNetwork ? "moisture" : "temperature");
+
+        const modalElement = document.getElementById("modalColdRoomSensorChart");
+        if (modalElement && window.M && M.Modal) {
+            const modal = M.Modal.getInstance(modalElement) || M.Modal.init(modalElement);
+            modal.open();
+        }
+
+        if ($scope.coldRoomChartAvailable) {
+            $timeout(() => {
+                $scope.reloadSystemLog(
+                    $scope.actualSystem.key,
+                    isSensorNetwork ? "CICLO" : "DIA",
+                    index,
+                    "coldRoomSensorChart"
+                );
+            }, 300);
+        }
+    };
+
+    $scope.setColdRoomChartType = chartType => {
+        if ($scope.coldRoomChartIndex === null || $scope.coldRoomChartIndex === undefined) return;
+        $scope.setChartType(chartType);
+        $timeout(() => $scope.setChart($scope.coldRoomChartIndex, "coldRoomSensorChart"));
+    };
+
+    $scope.reloadColdRoomSensorChart = option => {
+        if ($scope.coldRoomChartIndex === null || $scope.coldRoomChartIndex === undefined) return;
+        return $scope.reloadSystemLog(
+            $scope.actualSystem.key,
+            option,
+            $scope.coldRoomChartIndex,
+            "coldRoomSensorChart"
+        );
+    };
 
     setDeviceData = system => {
         system.caudal = parseInt(system.caudal);
@@ -617,23 +782,28 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         }
     }
 
-    updateCompass = () => {
-        if ($scope.actualSystem.type == "Sensor" || $scope.actualSystem.type == "Pump") return;
-        setTimeout(function () {
-            if ($scope.actualSystem && document.getElementById('as_pos_' + $scope.actualSystem.key)) {
-                document.getElementById('as_pos_' + $scope.actualSystem.key).style.transform = 'rotate(' + $scope.actualSystem.log.position + 'deg)';
-            }
-            $scope.$apply();
-        }, 500);
-    }
+    const updateCompass = (system = $scope.actualSystem) => {
+        if (!system || system.type !== "PC" || !system.log) return;
+
+        const listCompass = document.getElementById('pos_' + system.key);
+        if (listCompass) {
+            listCompass.style.transform = `rotate(${system.log.position || 0}deg)`;
+        }
+
+        // La vista del mapa solo representa el sistema seleccionado. Al recibir
+        // un log nuevo, reconstruir su brazo con las coordenadas más recientes.
+        if (map && $scope.actualSystem?.key === system.key) {
+            showPCPosition(system);
+        }
+    };
 
     getMetorologicalData = (key) => {
         if (!$scope.systems[key].latitude || !$scope.systems[key].longitude) return;
         $scope.meteo[key] = {};
         $.ajax({
-            url: `https://api.openweathermap.org/data/2.5/weather?lat=${$scope.systems[key].latitude}&lon=${$scope.systems[key].longitude}&appid=db9c92bd1f6d8d5db0aa0bae36ce093f`, success: function (result) {
+            url: `https://api.openweathermap.org/data/2.5/weather?lat=${$scope.systems[key].latitude}&lon=${$scope.systems[key].longitude}&appid=${OPENWEATHER_API_KEY}`, success: function (result) {
                 $scope.meteo[key] = result;
-                $scope.meteo[key].weather["iconUrl"] = `https://openweathermap.org/img/w/${$scope.meteo[key].weather["0"].icon}.png`;
+                $scope.meteo[key].weather["iconUrl"] = `${OPENWEATHER_ICON_URL}/${$scope.meteo[key].weather["0"].icon}.png`;
                 $scope.$apply();
             }
         });
@@ -1024,14 +1194,107 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         return d1.getTime() <= d2.getTime();
     }
 
-    $scope.setMachineState = () => {                                       // New *******************
-        $scope.setMachineSettings($scope.actualSystem);
-        sendCommand[$scope.actualSystem.key] = $scope.actualSystem.status ? "ON" : "OFF";
-        if ($scope.actualSystem.type == "Estacionario" && !$scope.actualSystem.autoreverse && $scope.actualSystem.isScheduled) {
-            $scope.actualSystem.status ? showHourglass($scope.actualSystem.key) : hideHourglass($scope.actualSystem.key);
-        } else {
-            showSpinner();
+    $scope.getLogDataRaw = () => {
+        return JSON.parse($scope.actualSystem.log.dataRaw);
+    }
+
+    $scope.voltageToPercent = (V) => {
+        const Vmin = 2.8, Vmax = 3.3;
+        return (Math.max(0, Math.min(100, ((V - Vmin) / (Vmax - Vmin)) * 100))).toFixed(0);
+    }
+
+    let sensorPanelRawSource = null;
+    let sensorPanelRawData = [];
+
+    const getSensorPanelRawData = () => {
+        const source = $scope.actualSystem?.log?.dataRaw;
+        if (source === sensorPanelRawSource) return sensorPanelRawData;
+
+        sensorPanelRawSource = source;
+        try {
+            sensorPanelRawData = source ? JSON.parse(source) : [];
+        } catch (error) {
+            console.error("dataRaw inválido en el panel de sensores:", error);
+            sensorPanelRawData = [];
         }
+        return sensorPanelRawData;
+    };
+
+    const getValidSensorNumber = value => {
+        const number = Number(value);
+        return value !== null && value !== "" &&
+            String(value).toUpperCase() !== "NAN" &&
+            Number.isFinite(number) && number !== -99
+            ? number
+            : null;
+    };
+
+    $scope.getSensorPanelValue = (sensorKey, metric, sensor) => {
+        const match = /^S(\d+)$/.exec(String(sensorKey));
+        if (!match) {
+            if (metric === "batteryIcon") return "battery-unknown";
+            return metric === "tileColor" ? "#0000003d" : "--";
+        }
+
+        const baseIndex = Number(match[1]) * 8;
+        const data = getSensorPanelRawData();
+        const offsets = { soilMoisture: 0, soilStatus: 0, tileColor: 0, humidity: 1, temperature: 4, battery: 7 };
+        const value = getValidSensorNumber(data[baseIndex + offsets[metric]]);
+
+        if (metric === "batteryIcon") {
+            const voltage = getValidSensorNumber(data[baseIndex + offsets.battery]);
+            if (voltage === null) return "battery-unknown";
+            const percent = Number($scope.voltageToPercent(voltage));
+            return percent > 75 ? "battery-full" :
+                percent > 50 ? "battery-three-quarters" :
+                percent > 25 ? "battery-half" : "battery-empty";
+        }
+        if (value === null) return metric === "tileColor" ? "#0000003d" : "--";
+
+        switch (metric) {
+            case "tileColor": {
+                const min = getValidSensorNumber(sensor?.h?.minValue) ?? 25;
+                const max = getValidSensorNumber(sensor?.h?.maxValue) ?? 60;
+                const color = sensor?.type === "WM"
+                    ? (value <= 10 ? "#0000ff" : value <= 60 ? "#00ff00" : "#ff0000")
+                    : (value <= min ? "#ff0000" : value >= max ? "#0000ff" : "#00ff00");
+                return `${color}3d`;
+            }
+            case "soilStatus": {
+                const min = getValidSensorNumber(sensor?.h?.minValue) ?? 25;
+                const max = getValidSensorNumber(sensor?.h?.maxValue) ?? 60;
+                return sensor?.type === "WM"
+                    ? (value <= 10 ? "Saturado" : value <= 60 ? "Adecuado" : "Seco")
+                    : (value <= min ? "Seco" : value >= max ? "Saturado" : "Adecuado");
+            }
+            case "soilMoisture":
+                return `${value.toFixed(0)}${sensor?.type === "WM" ? "cb" : "%"}`;
+            case "humidity":
+                return `${value.toFixed(0)}%Hr`;
+            case "temperature":
+                return $scope.actualSystem?.tempUnit === "C"
+                    ? `${value.toFixed(0)}°C`
+                    : `${(value * 9 / 5 + 32).toFixed(0)}°F`;
+            case "battery":
+                return `${$scope.voltageToPercent(value)}%`;
+            default:
+                return "--";
+        }
+    };
+
+    $scope.signalToPercent = (si) => {
+        const Simin = 6, Simax = 31;
+        return (Math.max(0, Math.min(100, ((si - Simin) / (Simax - Simin)) * 100))).toFixed(0);
+    }
+
+    $scope.setMachineState = () => {                                       // New *******************
+            $scope.setMachineSettings($scope.actualSystem);
+            sendCommand[$scope.actualSystem.key] = $scope.actualSystem.status ? "ON" : "OFF";
+            if ($scope.actualSystem.type == "Estacionario" && !$scope.actualSystem.autoreverse && $scope.actualSystem.isScheduled) {
+                $scope.actualSystem.status ? showHourglass($scope.actualSystem.key) : hideHourglass($scope.actualSystem.key);
+            } else {
+                showSpinner();
+            }
     }
 
     $scope.setMachineConfig = () => {
@@ -1094,37 +1357,33 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     }
 
     $scope.setMachineSettings = (system = $scope.actualSystem) => {
-        let key = system.key;
-        system.status = system.status ? "ON" : "OFF";
-        system.sensorSecurity = system.sensorSecurity ? "ON" : "OFF";
-        system.sensorVoltage = system.sensorVoltage ? "ON" : "OFF";
-        system.sensorPosition = system.sensorPosition ? "ON" : "OFF";
-        system.isScheduled = system.autoreverse ? false : system.isScheduled;
-        system.autoreverse = system.autoreverse ? "ON" : "OFF";
-        system.direction = system.direction ? "FF" : "RR";
-        system.operationMode = system.operationMode ? system.operationMode : "";
-        system.isScheduled = system.isScheduled ? system.isScheduled : "";
-        system.caudal = "" + (system.caudal && !isNaN(system.caudal) ? system.caudal : "");
-        system.delayTime = "" + (system.delayTime && !isNaN(system.delayTime) ? system.delayTime : "");
-        system.length = "" + (system.length && !isNaN(system.length) ? system.length : "");
-        system.latitude = "" + (system.latitude && !isNaN(system.latitude) ? system.latitude : "");
-        system.longitude = "" + (system.longitude && !isNaN(system.longitude) ? system.longitude : "");
-        system.plansLength = "" + (system.plansLength && !isNaN(system.plansLength) ? system.plansLength : "");
-        system.velocity = "" + (system.velocity && !isNaN(system.velocity) ? system.velocity : "");
-        system.maxVelocity = "" + (system.maxVelocity <= 100 ? system.maxVelocity : 100);
-        system.sensorPresion = "" + (system.sensorPresion && !isNaN(system.sensorPresion) ? system.sensorPresion : "");
+        // Serializar una copia para no convertir temporalmente los booleanos que
+        // utiliza la vista en los textos que espera Firebase (ON/OFF y FF/RR).
+        const settings = angular.copy(system);
+        settings.status = settings.status ? "ON" : "OFF";
+        settings.sensorSecurity = settings.sensorSecurity ? "ON" : "OFF";
+        settings.sensorVoltage = settings.sensorVoltage ? "ON" : "OFF";
+        settings.sensorPosition = settings.sensorPosition ? "ON" : "OFF";
+        settings.isScheduled = settings.autoreverse ? false : settings.isScheduled;
+        settings.autoreverse = settings.autoreverse ? "ON" : "OFF";
+        settings.direction = settings.direction ? "FF" : "RR";
+        settings.operationMode = settings.operationMode ? settings.operationMode : "";
+        settings.isScheduled = settings.isScheduled ? settings.isScheduled : "";
+        settings.caudal = "" + (settings.caudal && !isNaN(settings.caudal) ? settings.caudal : "");
+        settings.delayTime = "" + (settings.delayTime && !isNaN(settings.delayTime) ? settings.delayTime : "");
+        settings.length = "" + (settings.length && !isNaN(settings.length) ? settings.length : "");
+        settings.latitude = "" + (settings.latitude && !isNaN(settings.latitude) ? settings.latitude : "");
+        settings.longitude = "" + (settings.longitude && !isNaN(settings.longitude) ? settings.longitude : "");
+        settings.plansLength = "" + (settings.plansLength && !isNaN(settings.plansLength) ? settings.plansLength : "");
+        settings.velocity = "" + (settings.velocity && !isNaN(settings.velocity) ? settings.velocity : "");
+        settings.maxVelocity = "" + (settings.maxVelocity <= 100 ? settings.maxVelocity : 100);
+        settings.sensorPresion = "" + (settings.sensorPresion && !isNaN(settings.sensorPresion) ? settings.sensorPresion : "");
         // system.irrigation = document.querySelector('input[name=groupRiego]:checked').getAttribute("data");
-        if (system.type == "Estacionario") { verifyPlots(system); }
-        setMachineSettings(system);
+        if (settings.type == "Estacionario") { verifyPlots(settings); }
+        const updatePromise = setMachineSettings(settings);
         // updateAudit($scope.authUser, system);
-        system.status = system.status == "ON" || system.status == true ? true : false;
-        system.sensorSecurity = system.sensorSecurity == "ON" || system.sensorSecurity == true ? true : false;
-        system.sensorVoltage = system.sensorVoltage == "ON" || system.sensorVoltage == true ? true : false;
-        system.sensorPosition = system.sensorPosition == "ON" || system.sensorPosition == true ? true : false;
-        system.autoreverse = system.autoreverse == "ON" || system.autoreverse == true ? true : false;
-        system.direction = system.direction == "FF" || system.direction == true ? true : false;
-        system.key = key;
-        $scope.$apply();
+        $scope.$evalAsync();
+        return updatePromise;
         //sendSMS_XMLHttp($scope.campoActual.cell, cmd);
         // sendSMS_XMLHttp("+526251208106", cmd);
     }
@@ -1665,14 +1924,18 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         return op;
     }
 
-    $scope.updateNewDevice = () => {
+    $scope.updateNewDevice = async () => {
         if ($scope.newDevice.key && $scope.newDevice.name && $scope.newDevice.type && $scope.newDevice.zona) {
-            updateNewDevice($scope.newDevice);
-            updateDeviceUsers(convertDotToDash($scope.authUser.email), $scope.newDevice.key, $scope.authUser.displayName, "propietario");
-            location.reload();
-            // getUserData();
-            // $scope.$apply();
-            document.getElementById("modalNuevoEquipo").style.display = "none";
+            try {
+                await updateNewDevice($scope.newDevice);
+                await updateDeviceUsers(convertDotToDash($scope.authUser.email), $scope.newDevice.key, $scope.authUser.displayName, "propietario");
+                location.reload();
+            } catch (error) {
+                console.error("No fue posible actualizar el equipo:", error);
+                swal("No fue posible actualizar el equipo.", {
+                    icon: "error",
+                });
+            }
         }
     }
 
@@ -1684,7 +1947,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
 
     $scope.addNewSensorToNet = () => {
         let s = $scope.newSensor;
-        if (s.id && s.latitude && s.longitude) {
+        if (s.id && ($scope.actualSystem.type == 'Sensor' && s.latitude && s.longitude || $scope.actualSystem.type == 'Nevera')) {
             swal({
                 title: "",
                 text: "Agrear nuevo sensor",
@@ -1756,14 +2019,15 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         })
             .then((confirm) => {
                 if (confirm) {
-                    document.getElementById("modalEditSensor").style.display = "none";
-                    $scope.actualSensor.alias ="";
-                    $scope.actualSensor.id ="0x0";
-                    $scope.actualSensor.culture ="";
-                    $scope.actualSensor.latitude ="";
-                    $scope.actualSensor.longitude ="";
-                    if ($scope.actualSensor.t) delete $scope.actualSensor.t;
-                    if ($scope.actualSensor.h) delete $scope.actualSensor.h;
+                    // document.getElementById("modalEditSensor").style.display = "none";
+                    // $scope.actualSensor.alias ="";
+                    // $scope.actualSensor.id ="0x0";
+                    // $scope.actualSensor.culture ="";
+                    // $scope.actualSensor.latitude ="";
+                    // $scope.actualSensor.longitude ="";
+                    // if ($scope.actualSensor.t) delete $scope.actualSensor.t;
+                    // if ($scope.actualSensor.h) delete $scope.actualSensor.h;
+                    deleteActualSensor();
                     $scope.setMachineSettings($scope.actualSystem);
                     swal("Eliminación completada!", {
                         icon: "success",
@@ -1772,6 +2036,23 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                     swal("Eliminación cancelada!");
                 }
             });
+    }
+
+    function deleteActualSensor() {
+        const sensors = $scope.actualSystem.sensors;
+        const actualSensor = $scope.actualSensor;
+        const newSensors = {};
+        let validCount = 0;
+        for (let i = 0; i < sensors.sensorNumber; i++) {
+            const key = `S${i}`;
+            if (sensors[key].id === actualSensor.id) continue;
+            const newKey = `S${validCount}`;
+            newSensors[newKey] = sensors[key];
+            validCount++;
+        }
+        newSensors.sensorNumber = validCount;
+        if (sensors.operation) newSensors.operation = sensors.operation;
+        $scope.actualSystem.sensors = newSensors;
     }
 
     $scope.editActualSensor = () => {
@@ -2018,7 +2299,10 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             sensorType == 'SHT4' ? 'assets/images/sVWC.png' : 
             sensorType == 'Tr' ? 'assets/images/sTemp.png' : 
             sensorType == 'Psi' ? 'assets/images/sPSI.png' : 
-            sensorType == 'Fl' ? 'assets/images/sCaudal.png' : '';
+            sensorType == 'Fl' ? 'assets/images/sCaudal.png' :
+            sensorType == 'SHT2' ? 'assets/images/sSHT_2.png' :
+            sensorType == 'Irms' ? 'assets/images/sIrms.png' :
+            sensorType == 'Contact' ? 'assets/images/sContacto.jpeg' : '';
     }
 
     $scope.getSensorName = (sensorType) => {
@@ -2341,6 +2625,9 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                 case 'Sensor':
                     color = "#000";
                     break;
+                case 'Nevera':
+                    color = "#fff";
+                    break;
             }
         }
         return color;
@@ -2364,6 +2651,9 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                     break;
                 case 'Sensor':
                     color = "#20b2aab0";
+                    break;
+                case 'Nevera':
+                    color = "#204eb2b0";
                     break;
             }
         }
@@ -2814,6 +3104,13 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         let coord = [campo.latitude, campo.longitude];
         let greenIcon = getMarkerIcon("");
 
+        if (marker[campo.key]) {
+            marker[campo.key].setLatLng(coord);
+            marker[campo.key].setPopupContent(getMarkerText(campo));
+            refreshSensorMapContent(campo);
+            return;
+        }
+
         if (!marker[campo.key]) {
             marker[campo.key] = L.marker(coord, { icon: greenIcon });
             map.addLayer(marker[campo.key]);
@@ -2840,9 +3137,20 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                         // 👉 Texto fijo junto al marcador de cada sensor
                         marker[sensor.id].bindTooltip(getSensorValue(campo, sensor, i), {
                             permanent: true,
+                            interactive: true,
+                            className: "sensor-summary-tooltip",
                             direction: "top",
                             offset: [0, -20]
                         }).openTooltip();
+
+                        // Abrir el mismo popup al tocar la tarjeta permanente del sensor.
+                        marker[sensor.id].getTooltip().on("click", (event) => {
+                            if (event.originalEvent) {
+                                L.DomEvent.stopPropagation(event.originalEvent);
+                                L.DomEvent.preventDefault(event.originalEvent);
+                            }
+                            marker[sensor.id].openPopup();
+                        });
 
                         // Popup adicional (cuando se hace clic)
                         marker[sensor.id].bindPopup(() => {
@@ -2881,6 +3189,43 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         }
         let text = getMarkerText(campo);
         marker[campo.key].bindPopup(text);
+    };
+
+    const refreshSensorMapContent = (campo) => {
+        if (campo.type != "Sensor" || !campo.sensors) return;
+
+        for (let i = 0; i < campo.sensors.sensorNumber; i++) {
+            const sensor = campo.sensors["S" + i];
+            if (!sensor || !marker[sensor.id]) continue;
+
+            const sensorMarker = marker[sensor.id];
+            if (sensor.latitude && sensor.longitude) {
+                sensorMarker.setLatLng([sensor.latitude, sensor.longitude]);
+            }
+
+            const tooltip = sensorMarker.getTooltip();
+            if (tooltip) tooltip.setContent(getSensorValue(campo, sensor, i));
+
+            const popupContent = document.createElement("div");
+            popupContent.style.width = "240px";
+            popupContent.innerHTML = getSensorText(campo, sensor, i);
+
+            const popup = sensorMarker.getPopup();
+            if (popup) {
+                popup.setContent(popupContent);
+                if (sensorMarker.isPopupOpen()) {
+                    popup.update();
+                    setTimeout(() => bindSensorPopupActions(i), 0);
+                }
+            }
+        }
+    };
+
+    const bindSensorPopupActions = (index) => {
+        ["Home", "Ms", "T", "Hr", "Hf", "Indicaciones"].forEach(action => {
+            const button = document.getElementById(`btn${action}${index}`);
+            if (button) button.onclick = () => showPopupChart(action, index);
+        });
     };
 
     const getMarkerIcon = (deviceType) => {
@@ -3144,17 +3489,17 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             case "Ms": 
                 document.getElementById("showPopupGraphics").style.display = "block";
                 $scope.setChartType('moisture'); 
-                $scope.setChart(idx, 'myChart' + idx);
+                $scope.reloadSystemLog($scope.actualSystem.key, 'CICLO', idx, 'myChart' + idx);
                 break;
             case "T": 
                 document.getElementById("showPopupGraphics").style.display = "block";
                 $scope.setChartType('temperature'); 
-                $scope.setChart(idx, 'myChart' + idx);
+                $scope.reloadSystemLog($scope.actualSystem.key, 'CICLO', idx, 'myChart' + idx);
                 break;
             case "Hr": 
                 document.getElementById("showPopupGraphics").style.display = "block";
                 $scope.setChartType('humidity'); 
-                $scope.setChart(idx, 'myChart' + idx);
+                $scope.reloadSystemLog($scope.actualSystem.key, 'CICLO', idx, 'myChart' + idx);
                 break;
             case "Hf": 
                 document.getElementById("showPupupCultivo").style.display = "block";
@@ -3192,8 +3537,8 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             text += `    </div>`;
             text += `    <div class="row" style="margin-bottom: 5px; border-radius: 6px; background-color: ${ msColor };">`;
             text += `        <div class="col s3" style="padding-top: 7px;"><img src="./assets/images/Hr_white.png" alt="Agua" style="width: 15px;"></div>`;
-            text += `        <div class="col s9" style="text-align: right; padding-top: 5px; font-size: 1.2em; color: white; text-shadow: -1px -1px 0 black, 1px -1px 0 black, -1px  1px 0 black, 1px  1px 0 black; margin-left: -15px;">`;
-            text += `           <b>${ msStatus } ${ msValue }${ sensor.type != 'WM' ? '%' : 'cb' }</b>`;
+            text += `        <div class="col s9 soil-moisture-status-text" style="text-align: right; padding-top: 5px; font-size: 1.2em; color: white; margin-left: -15px;">`;
+            text += `           <b style="-webkit-text-stroke: 0.6px #1f1f1f; paint-order: stroke fill; text-shadow: -1px -1px 0 #1f1f1f, 1px -1px 0 #1f1f1f, -1px 1px 0 #1f1f1f, 1px 1px 0 #1f1f1f;">${ msStatus } ${ msValue }${ sensor.type != 'WM' ? '%' : 'cb' }</b>`;
             text += `        </div>`;
             text += `    </div>`;
         }
@@ -3248,21 +3593,57 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         console.log("clinck en shape: ", key);
     }
 
+    const coordinateFromBearing = (latitude, longitude, bearing, distance) => {
+        const earthRadius = 6371000;
+        const angularDistance = distance / earthRadius;
+        const bearingRadians = bearing * Math.PI / 180;
+        const latitudeRadians = latitude * Math.PI / 180;
+        const longitudeRadians = longitude * Math.PI / 180;
+
+        const destinationLatitude = Math.asin(
+            Math.sin(latitudeRadians) * Math.cos(angularDistance) +
+            Math.cos(latitudeRadians) * Math.sin(angularDistance) * Math.cos(bearingRadians)
+        );
+        const destinationLongitude = longitudeRadians + Math.atan2(
+            Math.sin(bearingRadians) * Math.sin(angularDistance) * Math.cos(latitudeRadians),
+            Math.cos(angularDistance) - Math.sin(latitudeRadians) * Math.sin(destinationLatitude)
+        );
+
+        return {
+            lat: destinationLatitude * 180 / Math.PI,
+            lon: destinationLongitude * 180 / Math.PI
+        };
+    };
+
     const showPCPosition = (campo) => {
-        if (campo.log && campo.log.latitude && campo.log.longitude && campo.log.latitude != "0.00000" && campo.log.longitude != "0.00000") {
-            let d = distanciaCoord(campo.latitude, campo.longitude, campo.log.latitude, campo.log.longitude);
-            if (d == campo.length) {
-                polygon = [
-                    [campo.latitude, campo.longitude],
-                    [campo.log.latitude, campo.log.longitude]
-                ];
-            } else {
-                newCoord = alcNewCocord(campo.latitude, campo.longitude, campo.log.latitude, campo.log.longitude, campo.length);
-                polygon = [
-                    [campo.latitude, campo.longitude],
-                    [newCoord.lat, newCoord.lon]
-                ];
-            }
+        if (!campo.log) return;
+
+        const position = Number(campo.log.position);
+        const length = Number(campo.length) || 50;
+        let endCoordinate = null;
+
+        if (Number.isFinite(position)) {
+            endCoordinate = coordinateFromBearing(
+                Number(campo.latitude),
+                Number(campo.longitude),
+                position,
+                length
+            );
+        } else if (campo.log.latitude && campo.log.longitude && campo.log.latitude != "0.00000" && campo.log.longitude != "0.00000") {
+            endCoordinate = alcNewCocord(
+                Number(campo.latitude),
+                Number(campo.longitude),
+                Number(campo.log.latitude),
+                Number(campo.log.longitude),
+                length
+            );
+        }
+
+        if (endCoordinate) {
+            const polygon = [
+                [campo.latitude, campo.longitude],
+                [endCoordinate.lat, endCoordinate.lon]
+            ];
             if (indicator[campo.key]) {
                 map.removeLayer(indicator[campo.key]);
             }
@@ -3386,40 +3767,141 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     // });
 
     $scope.setChart = (chartId, chartLabel = "myChart" + chartId) => {
-        let result = getRegisterValues($scope.logs[$scope.actualSystem.key]);
         let idx = 'S' + chartId;
-        let title = $scope.actualSystem.sensors[idx].alias ? $scope.actualSystem.sensors[idx].alias : $scope.actualSystem.sensors[idx].id;
-        let sensorType = $scope.actualSystem.sensors[idx].type;
-        let threshold = $scope.actualSystem.sensors[idx].t.minValue;;
-        switch (sensorType) {
-            case "Ms":
-                processResultsFromMsSensors(result, title, chartId, threshold, chartLabel, sensorType);
-                break;
-            case "SHT":
-                processResultsFromSHTSensors(result, title, chartId, threshold, chartLabel, sensorType);
-                break;
-            case "SHT4":
-                processResultsFromSHT4Sensors(result, title, chartId, threshold, chartLabel, sensorType);
-                break;
-            case "WM":
-                processResultsFromWMSensors(result, title, chartId, threshold, chartLabel, sensorType);
-                break;
-            case "Psi":
-                threshold = null;
-                processResultsFromPsiSensors(result, title, chartId, threshold, chartLabel, sensorType);
-                break;
+        const system = $scope.actualSystem;
+        const sensor = system && system.sensors ? system.sensors[idx] : null;
+        const systemLogs = system && $scope.logs ? $scope.logs[system.key] : null;
+        if (!sensor || !systemLogs) {
+            console.warn("No hay datos disponibles para dibujar el sensor", idx);
+            return;
         }
+        let result = getRegisterValues(systemLogs);
+        let title = sensor.alias ? sensor.alias : sensor.id;
+        let sensorType = sensor.type || (system.type === "Nevera" ? "SHT2" : "");
+        let threshold = sensor.t ? sensor.t.minValue : null;
+        loadChartWeather(result).then(weatherByDate => {
+            switch (sensorType) {
+                case "Ms":
+                    processResultsFromMsSensors(result, title, chartId, threshold, chartLabel, sensorType, weatherByDate);
+                    break;
+                case "SHT2":
+                    processResultsFromSHT2Sensors(result, title, chartId, threshold, chartLabel, sensorType, weatherByDate);
+                    break;
+                case "SHT4":
+                    processResultsFromSHT4Sensors(result, title, chartId, threshold, chartLabel, sensorType, weatherByDate);
+                    break;
+                case "WM":
+                    processResultsFromWMSensors(result, title, chartId, threshold, chartLabel, sensorType, weatherByDate);
+                    break;
+                case "Psi":
+                    threshold = null;
+                    processResultsFromPsiSensors(result, title, chartId, threshold, chartLabel, sensorType, weatherByDate);
+                    break;
+            }
+        });
     }
+
+    const getLogDateKey = log => log && log.date ? log.date.substring(0, 8) : null;
+
+    const getOpenWeatherIconFromWmo = code => {
+        if (code === 0) return "01d";
+        if (code === 1) return "02d";
+        if (code === 2) return "03d";
+        if (code === 3) return "04d";
+        if (code === 45 || code === 48) return "50d";
+        if (code >= 51 && code <= 57) return "09d";
+        if (code >= 61 && code <= 67) return "10d";
+        if (code >= 71 && code <= 77) return "13d";
+        if (code >= 80 && code <= 82) return "09d";
+        if (code >= 85 && code <= 86) return "13d";
+        if (code >= 95 && code <= 99) return "11d";
+        return "03d";
+    };
+
+    const formatWeatherDate = dateKey =>
+        `${dateKey.substring(0, 4)}-${dateKey.substring(4, 6)}-${dateKey.substring(6, 8)}`;
+
+    const loadChartWeather = logs => {
+        const system = $scope.actualSystem;
+        if (!system || system.type !== "Sensor" || !system.latitude || !system.longitude) {
+            return Promise.resolve({});
+        }
+
+        const dates = [...new Set(logs.map(getLogDateKey).filter(Boolean))].sort();
+        const coordinates = `${system.latitude},${system.longitude}`;
+        const weatherByDate = {};
+        const now = new Date();
+        const todayKey = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}`;
+        const currentCondition = $scope.meteo[system.key]?.weather?.[0];
+        if (dates.includes(todayKey) && currentCondition) {
+            const currentWeather = {
+                icon: currentCondition.icon,
+                description: currentCondition.description,
+                iconUrl: `${OPENWEATHER_ICON_URL}/${currentCondition.icon}.png`
+            };
+            historicalWeatherCache.set(`${coordinates},${todayKey}`, currentWeather);
+            weatherByDate[todayKey] = currentWeather;
+        }
+        const missingDates = dates.filter(dateKey => {
+            const cacheKey = `${coordinates},${dateKey}`;
+            if (!historicalWeatherCache.has(cacheKey)) return true;
+            const cachedWeather = historicalWeatherCache.get(cacheKey);
+            if (cachedWeather) weatherByDate[dateKey] = cachedWeather;
+            return false;
+        });
+        if (!missingDates.length) return Promise.resolve(weatherByDate);
+
+        return new Promise(resolve => {
+            $.ajax({
+                url: `https://archive-api.open-meteo.com/v1/archive?latitude=${system.latitude}&longitude=${system.longitude}&start_date=${formatWeatherDate(missingDates[0])}&end_date=${formatWeatherDate(missingDates[missingDates.length - 1])}&daily=weather_code&timezone=auto`,
+                success: result => {
+                    const resultDates = result && result.daily ? result.daily.time || [] : [];
+                    const resultCodes = result && result.daily ? result.daily.weather_code || [] : [];
+                    resultDates.forEach((date, index) => {
+                        const dateKey = date.replaceAll("-", "");
+                        const icon = getOpenWeatherIconFromWmo(resultCodes[index]);
+                        const weather = {
+                            icon,
+                            description: `Código meteorológico ${resultCodes[index]}`,
+                            iconUrl: `${OPENWEATHER_ICON_URL}/${icon}.png`
+                        };
+                        historicalWeatherCache.set(`${coordinates},${dateKey}`, weather);
+                        if (dates.includes(dateKey)) weatherByDate[dateKey] = weather;
+                    });
+                    missingDates.forEach(dateKey => {
+                        const cacheKey = `${coordinates},${dateKey}`;
+                        if (!historicalWeatherCache.has(cacheKey)) historicalWeatherCache.set(cacheKey, null);
+                    });
+                    resolve(weatherByDate);
+                },
+                error: error => {
+                    console.error("No fue posible cargar el clima histórico de la gráfica:", error);
+                    resolve(weatherByDate);
+                }
+            });
+        });
+    };
 
     getRegisterValues = (items) => {
         let result = [];
         for (let element in items) {
             result.push(items[element]);
         }
+        if ($scope.actualSystem?.type === "Nevera" &&
+            $scope.selectedTimeOption === "DIA" && result.length) {
+            const latestDate = result
+                .map(item => item?.date?.substring(0, 8))
+                .filter(Boolean)
+                .sort()
+                .pop();
+            if (latestDate) {
+                result = result.filter(item => item?.date?.substring(0, 8) === latestDate);
+            }
+        }
         return result;
     }
 
-    const processResultsFromMsSensors = (result, title, i, threshold, chartLabel, sensorType) => {
+    const processResultsFromMsSensors = (result, title, i, threshold, chartLabel, sensorType, weatherByDate) => {
         const items = result[0] ? JSON.parse(result[0].dataRaw).length : 0;
         let labels = [];
         let moisture = [];
@@ -3444,7 +3926,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             labels.push(date + " " + element.date.substr(9, 14));
         });
         // Código original modificado: ahora pasa $scope.chartType como parámetro
-        chart(moisture, temperature, labels, title, i, threshold, chartLabel, $scope.chartType);
+        chart(moisture, [], [], [], temperature, labels, title, i, threshold, chartLabel, $scope.chartType, sensorType, result, weatherByDate);
     }
 
     const getStValues = (idx) => {
@@ -3457,29 +3939,34 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         $scope.actualSystem.log["maxValue"]  = maxVal < 0 ? 0 : maxVal > 100 ? 100 : maxVal;
     }
 
-    const processResultsFromSHTSensors = (result, title, i, threshold, chartLabel, sensorType) => {
+    const processResultsFromSHT2Sensors = (result, title, i, threshold, chartLabel, sensorType, weatherByDate) => {
         const items = result[0] ? parseInt(JSON.parse(result[0].dataRaw).length / 3) : 0;
         let labels = [];
         let moisture = [];
         let humidity = [];
         let temperature = [];
+        let temp_min = [];
+        let temp_max = [];
         lastDate = "";
         result.forEach(element => {
             let data = JSON.parse(element.dataRaw);
-            moisture.push(data[i * 3 + 1]);
-            temperature.push(data[i * 3]);
+            humidity.push(data[i * 3]);
+            temperature.push(data[i * 3 + 1]);
             date = element.date.substr(6, 2) + "/" + element.date.substr(4, 2);
             if (lastDate != date) {
                 lastDate = date;
             } else {
                 date = "";
             }
-            labels.push(date + " " + element.date.substr(9, 14));
+            labels.push($scope.selectedTimeOption === 'DIA'
+                ? element.date.substr(9, 14)
+                : date);
         });
-        chart(moisture, humidity, temperature, labels, title, i, threshold, chartLabel, $scope.chartType);
+        // chart(moisture, humidity, temperature, labels, title, i, threshold, chartLabel, $scope.chartType);
+        chart(moisture, humidity, temp_min, temp_max, temperature, labels, title, i, threshold, chartLabel, $scope.chartType, "SHT2", result, weatherByDate);
     }
 
-    const processResultsFromSHT4Sensors = (result, title, i, threshold, chartLabel, sensorType) => {
+    const processResultsFromSHT4Sensors = (result, title, i, threshold, chartLabel, sensorType, weatherByDate) => {
         const items = result[0] ? parseInt(JSON.parse(result[0].dataRaw).length / 8) : 0;
         let labels = [];
         let moisture = [];
@@ -3503,7 +3990,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             }
             labels.push(($scope.selectedTimeOption != 'DIA' ? date : '') + " " + ($scope.selectedTimeOption == 'DIA' ? element.date.substr(9, 14) : ''));
         });
-        chart(moisture, humidity, temp_min, temp_max, temperature, labels, title, i, threshold, chartLabel, $scope.chartType);
+        chart(moisture, humidity, temp_min, temp_max, temperature, labels, title, i, threshold, chartLabel, $scope.chartType, sensorType, result, weatherByDate);
     }
 
     function mapping(value, inMin, inMax, outMin, outMax) {
@@ -3540,7 +4027,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         return Math.round(percent);
     }
 
-    const processResultsFromWMSensors = (result, title, i, threshold, chartLabel, sensorType) => {
+    const processResultsFromWMSensors = (result, title, i, threshold, chartLabel, sensorType, weatherByDate) => {
         const items = result[0] ? parseInt(JSON.parse(result[0].dataRaw).length / 8) : 0;
         let labels = [];
         let moisture = [];
@@ -3567,10 +4054,10 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             }
             labels.push(($scope.selectedTimeOption != 'DIA' ? date : '') + " " + ($scope.selectedTimeOption == 'DIA' ? element.date.substr(9, 14) : ''));
         });
-        chart(moisture, humidity, temp_min, temp_max, temperature, labels, title, i, threshold, chartLabel, $scope.chartType, sensorType);
+        chart(moisture, humidity, temp_min, temp_max, temperature, labels, title, i, threshold, chartLabel, $scope.chartType, sensorType, result, weatherByDate);
     }
 
-    const processResultsFromPsiSensors = (result, title, i, threshold, chartLabel, sensorType) => {
+    const processResultsFromPsiSensors = (result, title, i, threshold, chartLabel, sensorType, weatherByDate) => {
         const items = result[0] ? parseInt(JSON.parse(result[0].dataRaw).length / 8) : 0;
         let labels = [];
         let moisture = [];
@@ -3586,32 +4073,175 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             }
             labels.push(($scope.selectedTimeOption != 'DIA' ? date : '') + " " + ($scope.selectedTimeOption == 'DIA' ? element.date.substr(9, 14) : ''));
         });
-        chart(moisture, [], [], [], [], labels, title, i, threshold, chartLabel, $scope.chartType, "Psi");
+        chart(moisture, [], [], [], [], labels, title, i, threshold, chartLabel, $scope.chartType, "Psi", result, weatherByDate);
     }
+
+    const weatherIconImages = new Map();
+
+    const getChartWeatherIcons = (logs, weatherByDate) => {
+        const usedDates = new Set();
+        return logs.reduce((icons, log, index) => {
+            const dateKey = getLogDateKey(log);
+            const weather = weatherByDate[dateKey];
+            if (!dateKey || !weather || usedDates.has(dateKey)) return icons;
+
+            usedDates.add(dateKey);
+            icons.push({ index, ...weather });
+            return icons;
+        }, []);
+    };
+
+    const chartWeatherPlugin = {
+        id: "chartWeather",
+        afterDraw(chartInstance, args, options) {
+            const icons = options && options.icons ? options.icons : [];
+            const xScale = chartInstance.scales.x;
+            if (!xScale || !icons.length) return;
+
+            const size = 28;
+            const minimumSpacing = size + 6;
+            const leftLimit = chartInstance.chartArea.left + size / 2;
+            const rightLimit = chartInstance.chartArea.right - size / 2;
+            const visibleIcons = icons
+                .map(weather => ({
+                    ...weather,
+                    centerX: xScale.getPixelForValue(weather.index)
+                }))
+                .filter(weather => weather.centerX >= leftLimit && weather.centerX <= rightLimit)
+                .sort((first, second) => first.centerX - second.centerX);
+
+            const displayedIcons = [];
+            visibleIcons.forEach(weather => {
+                const previous = displayedIcons[displayedIcons.length - 1];
+                if (!previous || weather.centerX - previous.centerX >= minimumSpacing) {
+                    displayedIcons.push(weather);
+                }
+            });
+
+            // Conservar el estado del último día visible cuando haya espacio;
+            // si no, reemplazar el último icono sin provocar solapamiento.
+            const lastVisible = visibleIcons[visibleIcons.length - 1];
+            const lastDisplayed = displayedIcons[displayedIcons.length - 1];
+            if (lastVisible && lastDisplayed !== lastVisible) {
+                const previous = displayedIcons[displayedIcons.length - 2];
+                if (!previous || lastVisible.centerX - previous.centerX >= minimumSpacing) {
+                    displayedIcons[displayedIcons.length - 1] = lastVisible;
+                }
+            }
+
+            displayedIcons.forEach(weather => {
+                let image = weatherIconImages.get(weather.iconUrl);
+                if (!image) {
+                    image = new Image();
+                    image.src = weather.iconUrl;
+                    image.onload = () => chartInstance.draw();
+                    weatherIconImages.set(weather.iconUrl, image);
+                }
+                if (!image.complete || !image.naturalWidth) return;
+
+                const x = weather.centerX - size / 2;
+                const y = chartInstance.chartArea.top - size - 4;
+                chartInstance.ctx.drawImage(image, x, y, size, size);
+            });
+        }
+    };
+
+    const chartThresholdBandsPlugin = {
+        id: "chartThresholdBands",
+        afterDraw(chartInstance, args, options) {
+            drawChartBackground(options.threshold, chartInstance.canvas, chartInstance,
+                options.sensorType, options.chartType, options.sensorIndex);
+        }
+    };
 
     // const chart = (moisture, humidity, temperature, labels, title, i, chartLabel, chartType = 'moisture') => {
     // Código original modificado: ahora acepta chartType para mostrar solo un gráfico
-    const chart = (moisture, humidity, temp_min, temp_max, temperature, labels, title, i, threshold, chartLabel, chartType = 'moisture', sensorType = '') => {
+    const chart = (moisture, humidity, temp_min, temp_max, temperature, labels, title, i, threshold, chartLabel, chartType = 'moisture', sensorType = '', logs = [], weatherByDate = {}) => {
         try {
             let canvas = document.getElementById(chartLabel);
             if (!canvas) return;
-            if (charts[i]) charts[i].destroy();
+            // La gráfica individual de nevera reutiliza el mismo canvas para
+            // S0...S9. Destruir también cualquier instancia anterior asociada
+            // al lienzo, aunque pertenezca a otro índice de sensor.
+            charts.forEach((chartInstance, chartIndex) => {
+                if (chartInstance && chartInstance.canvas === canvas) {
+                    chartInstance.destroy();
+                    charts[chartIndex] = null;
+                }
+            });
+            if (charts[i]) {
+                charts[i].destroy();
+                charts[i] = null;
+            }
             let type = moisture.length < 14 ? 'bar' : 'line';
+            const weatherIcons = getChartWeatherIcons(logs, weatherByDate);
+            const scaleValues = chartType === 'temperatureHumidity'
+                ? { humidity, temperature: [...temperature, ...temp_min, ...temp_max] }
+                : chartType === 'humidity'
+                ? humidity
+                : chartType === 'temperature'
+                    ? [...temperature, ...temp_min, ...temp_max]
+                    : moisture;
+            const options = getOptions(title, chartType, sensorType, weatherIcons, scaleValues);
+            options.plugins.chartThresholdBands = { threshold, sensorType, chartType, sensorIndex: i };
             charts[i] = new Chart(canvas, {
                 type: type,
                 data: getDataArray(moisture, humidity, temp_min, temp_max, temperature, labels, chartType),
-                options: getOptions(title, chartType, sensorType)
+                options,
+                plugins: [chartWeatherPlugin, chartThresholdBandsPlugin]
             });
-            drawChartBackground(threshold, canvas, charts[i], sensorType, chartType);
             if (canvas.parentNode) canvas.parentNode.style.height = '250px';    
         } catch (error) {
             console.error('Error al crear el gráfico:', error);
         }
     }
 
-    const drawChartBackground = (threshold, canvas, charts, sensorType, chartType) => {        
-        // Demora de 1.5 segundos antes de dibujar las franjas
-        setTimeout(() => {
+    const getConfiguredRange = (sensorIndex, chartType) => {
+        const index = Number(sensorIndex);
+        if (!Number.isInteger(index) || index < 0 || index > 9) return null;
+
+        const sensor = $scope.actualSystem?.sensors?.[`S${index}`];
+        const settings = chartType === "humidity" ? sensor?.h : sensor?.t;
+        const hasMin = settings?.minValue !== null && settings?.minValue !== undefined && settings?.minValue !== "";
+        const hasMax = settings?.maxValue !== null && settings?.maxValue !== undefined && settings?.maxValue !== "";
+        const min = Number(settings?.minValue);
+        const max = Number(settings?.maxValue);
+
+        return hasMin && hasMax && Number.isFinite(min) && Number.isFinite(max) && min < max
+            ? { min, max }
+            : null;
+    };
+
+    const drawNeveraBands = (ctx, chartArea, yScale, chartType, sensorIndex) => {
+        const range = getConfiguredRange(sensorIndex, chartType);
+        const graphMin = yScale.min;
+        const graphMax = yScale.max;
+        if (!range) {
+            drawBand(ctx, chartArea, yScale, graphMin, graphMax,
+                'rgba(128, 128, 128, 0.12)', 'Sin límites configurados', 'rgba(80, 80, 80, 0.9)');
+            return;
+        }
+
+        const isHumidity = chartType === "humidity";
+        drawBand(ctx, chartArea, yScale, graphMin, range.min,
+            isHumidity ? 'rgba(255, 193, 7, 0.15)' : 'rgba(0, 123, 255, 0.15)',
+            isHumidity ? 'Baja' : 'Temperatura baja',
+            isHumidity ? 'rgba(183, 138, 2, 0.9)' : 'rgba(0, 123, 255, 0.9)');
+        drawBand(ctx, chartArea, yScale, range.min, range.max,
+            'rgba(40, 167, 69, 0.15)', isHumidity ? 'Adecuada' : 'Temperatura normal',
+            'rgba(40, 167, 69, 0.9)');
+        drawBand(ctx, chartArea, yScale, range.max, graphMax,
+            isHumidity ? 'rgba(0, 123, 255, 0.15)' : 'rgba(255, 123, 0, 0.15)',
+            isHumidity ? 'Alta' : 'Temperatura alta',
+            isHumidity ? 'rgba(0, 123, 255, 0.9)' : 'rgba(255, 13, 0, 0.9)');
+
+        drawThresholdLine(ctx, yScale, "SHT2", chartType, chartArea, range.min,
+            'rgba(54, 162, 235, 0.9)', 'Mín');
+        drawThresholdLine(ctx, yScale, "SHT2", chartType, chartArea, range.max,
+            'rgba(255, 99, 132, 0.9)', 'Máx');
+    };
+
+    const drawChartBackground = (threshold, canvas, charts, sensorType, chartType, sensorIndex) => {
         
             // Agregar franjas de humedad para gráficos de humedad del suelo y humedad ambiental
             // if (chartType === 'moisture' || chartType === 'temperature') {
@@ -3627,7 +4257,9 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                     const chartArea = chart.chartArea;
                     
                     // Dibujar las tres franjas con etiquetas según el tipo de gráfico
-                    if (chartType === 'moisture' && sensorType === 'WM') {
+                    if ($scope.actualSystem.type === "Nevera" && (chartType === "humidity" || chartType === "temperature")) {
+                        drawNeveraBands(ctx, chartArea, yScale, chartType, sensorIndex);
+                    } else if (chartType === 'moisture' && sensorType === 'WM') {
                         // Etiquetas para disponibilidad de agua en el suelo
                         drawBand(ctx, chartArea, yScale, 80, 100, 'rgba(0, 123, 255, 0.15)', 'Saturado - No regar', 'rgba(0, 123, 255, 0.9)');
                         drawBand(ctx, chartArea, yScale, 60, 80, 'rgba(40, 167, 69, 0.15)', 'Adecuado - No regar', 'rgba(40, 167, 69, 0.9)');
@@ -3654,26 +4286,38 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                         drawBand(ctx, chartArea, yScale, 0, 40, 'rgba(255, 193, 7, 0.15)', 'Baja', 'rgba(255, 131, 7, 0.39)');
                     } else if (chartType === 'temperature') {
                         // Etiquetas para temperatura
-                        drawBand(ctx, chartArea, yScale, 25, 50, 'rgba(255, 123, 0, 0.15)', 'Muy caliente', 'rgba(255, 13, 0, 0.9)');
-                        drawBand(ctx, chartArea, yScale, 5, 25, 'rgba(40, 167, 69, 0.15)', 'Temperatura Normal', 'rgba(40, 167, 69, 0.9)');
-                        drawBand(ctx, chartArea, yScale, -10, 5, 'rgba(0, 123, 255, 0.15)', 'Helada', 'rgba(0, 123, 255, 0.9)');
-                        // Dibujar línea de umbral de helada
-                        drawThresholdLine(ctx, yScale, sensorType, chartType, chartArea, threshold, 'rgba(54, 162, 235, 0.8)', 'Umbral Helada');
+                        if (sensorType === 'WM' || sensorType === 'SHT4') {
+                            drawBand(ctx, chartArea, yScale, 25, 50, 'rgba(255, 123, 0, 0.15)', 'Muy caliente', 'rgba(255, 13, 0, 0.9)');
+                            drawBand(ctx, chartArea, yScale, 5, 25, 'rgba(40, 167, 69, 0.15)', 'Temperatura Normal', 'rgba(40, 167, 69, 0.9)');
+                            drawBand(ctx, chartArea, yScale, -10, 5, 'rgba(0, 123, 255, 0.15)', 'Helada', 'rgba(0, 123, 255, 0.9)');
+                            // Dibujar línea de umbral de helada
+                            drawThresholdLine(ctx, yScale, sensorType, chartType, chartArea, threshold, 'rgba(54, 162, 235, 0.8)', 'Umbral Helada');
+                        } else if (sensorType === 'SHT2') {
+                            drawBand(ctx, chartArea, yScale, 3, 10, 'rgba(255, 123, 0, 0.15)', 'Muy caliente', 'rgba(255, 13, 0, 0.9)');
+                            drawBand(ctx, chartArea, yScale, 0, 3, 'rgba(40, 167, 69, 0.15)', 'Normal', 'rgba(40, 167, 69, 0.9)');
+                            drawBand(ctx, chartArea, yScale, -5, 0, 'rgba(0, 123, 255, 0.15)', 'Muy Fria', 'rgba(0, 123, 255, 0.9)');
+                            // Dibujar línea de umbral de helada
+                            drawThresholdLine(ctx, yScale, sensorType, chartType, chartArea, 3, 'rgba(255, 13, 0, 0.8)', 'Tmín');
+                            drawThresholdLine(ctx, yScale, sensorType, chartType, chartArea, 0, 'rgba(54, 162, 235, 0.8)', 'Tmáx');
+                        }
                     }
                 };
                 
-                requestAnimationFrame(drawBands);
+                drawBands();
             // } else {
             //     // console.log('No se dibujan franjas porque chartType no es moisture ni humidity');
             // }
         
-        }, 1500); // Cierre del setTimeout con 1.5 segundos de demora
     }
 
     // Función para dibujar una franja
     const drawBand = (ctx, chartArea, yScale, yMin, yMax, color, label, labelColor) => {
-        const yTop = yScale.getPixelForValue(yMax);
-        const yBottom = yScale.getPixelForValue(yMin);
+        const visibleMin = Math.max(yScale.min, Number(yMin));
+        const visibleMax = Math.min(yScale.max, Number(yMax));
+        if (!Number.isFinite(visibleMin) || !Number.isFinite(visibleMax) || visibleMax <= visibleMin) return;
+
+        const yTop = yScale.getPixelForValue(visibleMax);
+        const yBottom = yScale.getPixelForValue(visibleMin);
         
         // console.log(`Dibujando franja ${label}: yTop=${yTop}, yBottom=${yBottom}`);
         
@@ -3691,6 +4335,8 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                         
     // Función para dibujar una línea horizontal de umbral
     const drawThresholdLine = (ctx, yScale, sensorType, chartType, chartArea, thresholdValue, color, label) => {
+        thresholdValue = Number(thresholdValue);
+        if (!Number.isFinite(thresholdValue) || thresholdValue < yScale.min || thresholdValue > yScale.max) return;
         const yPosition = yScale.getPixelForValue(thresholdValue);
         label = `${label}: ${thresholdValue}${sensorType === 'Psi' ? 'psi' : chartType === 'temperature' ? '°C' : '%'}`;
         
@@ -3803,6 +4449,11 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         // Retornar solo el dataset seleccionado
         let selectedDatasets;
         switch(chartType) {
+            case 'temperatureHumidity':
+                temperature.yAxisID = 'y';
+                humidity.yAxisID = 'yHumidity';
+                selectedDatasets = [temperature, humidity];
+                break;
             case 'humidity':
                 selectedDatasets = [humidity];
                 break;
@@ -3829,29 +4480,61 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
 
     // const getOptions = (_title) => {
     // Código original modificado: ahora oculta leyenda y título y acepta chartType para fondo de humedad
-    const getOptions = (_title, chartType = 'moisture', sensorType) => {
+    const getDynamicScaleBounds = (values, margin, absoluteMin = null, absoluteMax = null) => {
+        const numericValues = values
+            .filter(value => value !== null && value !== "" && Number.isFinite(Number(value)))
+            .map(Number);
+        if (!numericValues.length) return null;
+
+        let min = Math.round(Math.min(...numericValues) - margin);
+        let max = Math.round(Math.max(...numericValues) + margin);
+        if (absoluteMin !== null) min = Math.max(absoluteMin, min);
+        if (absoluteMax !== null) max = Math.min(absoluteMax, max);
+        return { min, max };
+    };
+
+    const getOptions = (_title, chartType = 'moisture', sensorType, weatherIcons = [], scaleValues = []) => {
         // Definir escalas fijas según el tipo de gráfico
         let yScaleConfig;
         switch(chartType) {
-            case 'humidity':
+            case 'temperatureHumidity': {
+                const combinedTemperatureBounds = getDynamicScaleBounds(scaleValues.temperature || [], 5);
                 yScaleConfig = {
-                    beginAtZero: true,
+                    beginAtZero: false,
                     type: 'linear',
-                    min: 0,
-                    max: 100,
+                    position: 'left',
+                    min: combinedTemperatureBounds ? combinedTemperatureBounds.min : -5,
+                    max: combinedTemperatureBounds ? combinedTemperatureBounds.max : 10,
+                    title: { display: true, text: 'Temperatura (°C)' },
+                    ticks: { stepSize: 1 }
+                };
+                break;
+            }
+            case 'humidity':
+                const humidityBounds = $scope.actualSystem.type === "Nevera"
+                    ? getDynamicScaleBounds(scaleValues, 10, 0, 100)
+                    : null;
+                yScaleConfig = {
+                    beginAtZero: !humidityBounds,
+                    type: 'linear',
+                    min: humidityBounds ? humidityBounds.min : 0,
+                    max: humidityBounds ? humidityBounds.max : 100,
                     ticks: {
                         stepSize: 10
                     }
                 };
                 break;
             case 'temperature':
+                const temperatureBounds = $scope.actualSystem.type === "Nevera"
+                    ? getDynamicScaleBounds(scaleValues, 5)
+                    : null;
                 yScaleConfig = {
                     beginAtZero: false,
                     type: 'linear',
-                    min: -10,
-                    max: 50,
+                    min: temperatureBounds ? temperatureBounds.min : ($scope.actualSystem.type === "Nevera" ? -5 : -10),
+                    max: temperatureBounds ? temperatureBounds.max : ($scope.actualSystem.type === "Nevera" ? 10 : 50),
                     ticks: {
-                        stepSize: 5
+                        stepSize: $scope.actualSystem.type == "Nevera" ? 1 : 5
                     }
                 };
                 break;
@@ -3908,14 +4591,32 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         let options = {
             responsive: true,
             maintainAspectRatio: false,
-            scales: {
-                y: yScaleConfig
+            layout: {
+                padding: {
+                    top: weatherIcons.length ? 34 : 0
+                }
             },
+            scales: chartType === 'temperatureHumidity' ? {
+                y: yScaleConfig,
+                yHumidity: {
+                    beginAtZero: true,
+                    type: 'linear',
+                    position: 'right',
+                    min: 0,
+                    max: 100,
+                    title: { display: true, text: 'Humedad (%)' },
+                    grid: { drawOnChartArea: false },
+                    ticks: { stepSize: 10 }
+                }
+            } : { y: yScaleConfig },
             onClick: (e) => {
                 // This prevents the default behavior of the chart click
                 e.stopPropagation();
             },
             plugins: {
+                chartWeather: {
+                    icons: weatherIcons
+                },
                 // Código original comentado que mostraba la leyenda con funcionalidad de clic:
                 // legend: {
                 //     onClick: (e, legendItem, legend) => {
@@ -3932,7 +4633,8 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                 // },
                 // Ocultar leyenda
                 legend: {
-                    display: false
+                    display: chartType === 'temperatureHumidity',
+                    position: 'top'
                 },
                 // Código original comentado que mostraba el título:
                 // title: {
@@ -4418,6 +5120,8 @@ function instalar() {
 const APP_UPDATE_CHECK_INTERVAL = 5 * 60 * 1000;
 const APP_UPDATE_SIGNATURES_KEY = "dta-app-asset-signatures-v1";
 let appUpdatePromptVisible = false;
+let appServiceWorkerRegistration = null;
+let reloadingForServiceWorkerUpdate = false;
 
 serviceWorker();
 
@@ -4437,10 +5141,24 @@ function serviceWorker() {
             });
         });
 
-        navigator.serviceWorker.register('./firebase-messaging-sw.js', { scope: './' })
+        navigator.serviceWorker.register('./firebase-messaging-sw.js', {
+            scope: './',
+            updateViaCache: 'none'
+        })
             .then(reg => {
+                appServiceWorkerRegistration = reg;
                 console.log("✅ SW de OneSignal + caché registrado:", reg);
                 console.log("SW state:", reg.installing ? 'installing' : reg.waiting ? 'waiting' : reg.active ? 'active' : 'unknown');
+                if (reg.waiting) reg.waiting.postMessage({ action: 'skipWaiting' });
+                reg.addEventListener('updatefound', () => {
+                    const newWorker = reg.installing;
+                    if (!newWorker) return;
+                    newWorker.addEventListener('statechange', () => {
+                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                            newWorker.postMessage({ action: 'skipWaiting' });
+                        }
+                    });
+                });
                 reg.update();
                 setInterval(() => reg.update(), APP_UPDATE_CHECK_INTERVAL);
             })
@@ -4503,7 +5221,9 @@ function showAppUpdatePopup(version) {
     appUpdatePromptVisible = true;
 
     const reloadApp = () => {
-        window.location.reload();
+        const url = new URL(window.location.href);
+        url.searchParams.set('appVersion', String(Date.now()));
+        window.location.replace(url.href);
     };
 
     if (typeof swal === "function") {
@@ -4676,6 +5396,14 @@ if ("clearAppBadge" in navigator) {
 
 // Escuchar mensajes del SW
 if ('serviceWorker' in navigator) {
+navigator.serviceWorker.addEventListener('controllerchange', () => {
+  if (reloadingForServiceWorkerUpdate) return;
+  reloadingForServiceWorkerUpdate = true;
+  const url = new URL(window.location.href);
+  url.searchParams.set('appVersion', String(Date.now()));
+  window.location.replace(url.href);
+});
+
 navigator.serviceWorker.addEventListener('message', event => {
   if (event.data && event.data.action === 'playSound') {
     if (localStorage.getItem('sonidoHabilitado') !== 'true') return;
@@ -4704,6 +5432,17 @@ if (document.readyState === "loading") {
 } else {
   startAppUpdateChecks();
 }
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState !== 'visible') return;
+  if (appServiceWorkerRegistration) appServiceWorkerRegistration.update();
+  checkForAppUpdates();
+});
+
+window.addEventListener('online', () => {
+  if (appServiceWorkerRegistration) appServiceWorkerRegistration.update();
+  checkForAppUpdates();
+});
 }
 
 // #endregion Progresive Web Application

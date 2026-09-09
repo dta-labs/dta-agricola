@@ -72,7 +72,7 @@ function setMachineState(system) {
 function setMachineSettings(system) {
     let key = system.key;
     deleteFakeFiels(system);
-    firebase.database().ref("systems/" + key + "/settings/").update(system);
+    return firebase.database().ref("systems/" + key + "/settings/").update(system);
     // system.key = key;
 }
 
@@ -129,15 +129,17 @@ function updateUserInfo(authUserKey, profile) {
 
 function updateNewDevice(newDevice) {
     deleteFakeFiels(newDevice);
-    firebase.database().ref("systems/" + newDevice.key).update({"settings": newDevice});
+    return firebase.database().ref("systems/" + newDevice.key).set({"settings": newDevice});
+    // return firebase.database().ref("systems/" + newDevice.key).update({"settings": newDevice});
 }
 
 function updateDeviceUsers(authUserKey, newDeviceKey, name, role) {
     let dato = JSON.parse(`{"${newDeviceKey}": "${role}"}`);
-    firebase.database().ref("users/" + authUserKey + "/systems").update(dato);
+    const userUpdate = firebase.database().ref("users/" + authUserKey + "/systems").update(dato);
     // dato = JSON.parse(`{"${authUserKey}": "${name}"}`);
     dato = JSON.parse(`{"${authUserKey}": {"alias": "${name}", "role": "${role}"}}`);
-    firebase.database().ref("systems/" + newDeviceKey + "/users").update(dato);    
+    const systemUpdate = firebase.database().ref("systems/" + newDeviceKey + "/users").update(dato);
+    return Promise.all([userUpdate, systemUpdate]);
 }
 
 function deleteUser(deviceKey, userKey) {

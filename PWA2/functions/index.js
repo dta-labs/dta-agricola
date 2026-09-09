@@ -13,6 +13,17 @@ const PWA_URL = "https://dta-agricola.web.app/";
 const PWA_LAUNCH_URL = "./index.html";
 const NOTIFICATION_ICON_URL = `${PWA_URL}assets/images/DTA-Agricola.png`;
 const NOTIFICATION_SOUND_FILE = "./assets/sounds/alarma-de-evacuacion.mp3";
+const NOTIFICATION_TIME_ZONE = "America/Mexico_City";
+const SENSOR_ALERT_ICONS = {
+  temperature: {
+    baja: `${PWA_URL}assets/images/nieve.png`,
+    alta: `${PWA_URL}assets/images/termometro.png`,
+  },
+  soilMoisture: {
+    seco: `${PWA_URL}assets/images/suelos.png`,
+    saturado: `${PWA_URL}assets/images/agua.png`,
+  },
+};
 
 // #region COMUN
 
@@ -33,6 +44,69 @@ function toNumber(value) {
 
   const numberValue = Number(value);
   return Number.isFinite(numberValue) ? numberValue : null;
+}
+
+function parseLogDate(dateValue) {
+  if (!dateValue) return null;
+  const value = String(dateValue).trim();
+
+  // Formato utilizado por los dispositivos: YYYYMMDD HHMMam/pm.
+  const deviceDate = value.match(/^(\d{4})(\d{2})(\d{2})\D*(\d{2})\D*(\d{2})\s*(am|pm)?$/i);
+  if (deviceDate) {
+    let hour = Number(deviceDate[4]);
+    const period = (deviceDate[6] || "").toLowerCase();
+    if (period === "pm" && hour < 12) hour += 12;
+    if (period === "am" && hour === 12) hour = 0;
+
+    const parsed = new Date(
+      Number(deviceDate[1]),
+      Number(deviceDate[2]) - 1,
+      Number(deviceDate[3]),
+      hour,
+      Number(deviceDate[5])
+    );
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
+  }
+
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+function getNotificationDateTime(log, eventTime) {
+  const rawLogDate = log && (log.update || log.date);
+  const deviceDate = rawLogDate && String(rawLogDate).trim()
+    .match(/^(\d{4})(\d{2})(\d{2})\D*(\d{2})\D*(\d{2})\s*(am|pm)?$/i);
+  const date = parseLogDate(rawLogDate) ||
+    parseLogDate(eventTime) ||
+    new Date();
+  // La fecha compacta del dispositivo ya representa hora local; no convertirla
+  // nuevamente desde UTC porque desplazaría la lectura varias horas.
+  const formatted = deviceDate
+    ? `${deviceDate[3]}/${deviceDate[2]}/${deviceDate[1]} ${deviceDate[4]}:${deviceDate[5]} ${(deviceDate[6] || "").toUpperCase()}`.trim()
+    : new Intl.DateTimeFormat("es-MX", {
+        timeZone: NOTIFICATION_TIME_ZONE,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      }).format(date);
+
+  return {
+    formatted,
+    iso: date.toISOString(),
+  };
+}
+
+function appendNotificationDateTime(body, dateTime) {
+  return `${body}\nFecha: ${dateTime.formatted}`;
+}
+
+function getSensorAlertIcon(config, alerts) {
+  const direction = alerts[0] && alerts[0].direction;
+  const icons = config.icons || {};
+  return icons[direction] || NOTIFICATION_ICON_URL;
 }
 
 function collectUserTokens(userKey, user, systemId) {
@@ -147,10 +221,15 @@ exports.sendPivotNotifications = onValueWritten({
       return null;
     }
 
+    const dateTime = getNotificationDateTime(currentLog, event.time);
+
     const message = {
       notification: {
         title: "DTA-Agricola alerta!",
-        body: `Falla de ${alertType} en ${systemNameSnapshot.val() || systemId}`,
+        body: appendNotificationDateTime(
+          `Falla de ${alertType} en ${systemNameSnapshot.val() || systemId}`,
+          dateTime
+        ),
       },
       data: {
         click_action: PWA_LAUNCH_URL,
@@ -158,6 +237,8 @@ exports.sendPivotNotifications = onValueWritten({
         sound: NOTIFICATION_SOUND_FILE,
         systemId,
         alertType,
+        occurredAt: dateTime.iso,
+        occurredAtFormatted: dateTime.formatted,
       },
       webpush: {
         headers: {
@@ -191,6 +272,7 @@ exports.sendPivotNotifications = onValueWritten({
 const SENSOR_SYSTEM_TYPE = "Sensor";
 const SENSOR_DATA_FIELDS = ["Ms", "Hr", "Tmin", "Tmax", "Tmed", "Hf", "ETc", "Vcc"];
 const SENSOR_COUNT = 10;
+const MIN_NOTIFIABLE_DISEASE_PROBABILITY = 40;
 
 function parseSensorDataRaw(dataRaw) {
   if (Array.isArray(dataRaw)) return dataRaw;
@@ -205,21 +287,16 @@ function parseSensorDataRaw(dataRaw) {
   }
 }
 
-function getSensorConfig(sensors, index) {
-  if (!sensors) return null;
-  return sensors[`S${index}`] || sensors[`S${index + 1}`] || null;
-}
-
 function getThresholdAlert(value, minValue, maxValue) {
   const min = toNumber(minValue);
   const max = toNumber(maxValue);
 
   if (min !== null && value < min) {
-    return { direction: "baja", threshold: min };
+    return { direction: "baja", threshold: min, thresholdKind: "lower" };
   }
 
   if (max !== null && value > max) {
-    return { direction: "alta", threshold: max };
+    return { direction: "alta", threshold: max, thresholdKind: "upper" };
   }
 
   return null;
@@ -231,7 +308,10 @@ function getSensorReadings(log, sensors) {
   const sensorNumber = Math.min(toNumber(sensors && sensors.sensorNumber) || SENSOR_COUNT, SENSOR_COUNT);
 
   for (let index = 0; index < sensorNumber; index += 1) {
-    const sensor = getSensorConfig(sensors, index);
+    const zeroBasedKey = `S${index}`;
+    const oneBasedKey = `S${index + 1}`;
+    const sensorKey = sensors && sensors[zeroBasedKey] ? zeroBasedKey : oneBasedKey;
+    const sensor = sensors && sensors[sensorKey];
     if (!sensor) continue;
 
     const sensorLabel = sensor.alias || sensor.id || `S${index + 1}`;
@@ -241,7 +321,7 @@ function getSensorReadings(log, sensors) {
       index,
       sensor,
       sensorName: `S${index + 1}`,
-      sensorKey: sensor.id ? `S${index}` : `S${index + 1}`,
+      sensorKey,
       sensorLabel,
       values: {
         Ms: toNumber(data[offset]),
@@ -259,13 +339,6 @@ function getSensorReadings(log, sensors) {
   return readings;
 }
 
-function getSensorAlertSignature(alerts) {
-  return alerts
-    .map((alert) => `${alert.sensor}:${alert.metricKey}:${alert.direction}`)
-    .sort()
-    .join("|");
-}
-
 function buildSensorAlertBody(systemName, alerts) {
   const firstAlert = alerts[0];
   const suffix = alerts.length > 1 ? ` y ${alerts.length - 1} alerta(s) adicional(es)` : "";
@@ -274,21 +347,24 @@ function buildSensorAlertBody(systemName, alerts) {
   return `${alertText} en ${systemName} - ${firstAlert.sensorLabel}: ${firstAlert.value}${firstAlert.unit}${suffix}`;
 }
 
-function buildSensorThresholdMessage(systemId, logId, systemName, alerts, config) {
+function buildSensorThresholdMessage(systemId, logId, systemName, alerts, config, dateTime) {
+  const alertIcon = getSensorAlertIcon(config, alerts);
   return {
     notification: {
       title: config.title,
-      body: buildSensorAlertBody(systemName, alerts),
+      body: appendNotificationDateTime(buildSensorAlertBody(systemName, alerts), dateTime),
     },
     data: {
       click_action: PWA_LAUNCH_URL,
-      icon: NOTIFICATION_ICON_URL,
+      icon: alertIcon,
       sound: NOTIFICATION_SOUND_FILE,
       systemId,
       logId,
       alertType: config.alertType,
       metricKey: config.metricKey,
       alerts: JSON.stringify(alerts),
+      occurredAt: dateTime.iso,
+      occurredAtFormatted: dateTime.formatted,
     },
     webpush: {
       headers: {
@@ -296,7 +372,7 @@ function buildSensorThresholdMessage(systemId, logId, systemName, alerts, config
         TTL: "86400",
       },
       notification: {
-        icon: NOTIFICATION_ICON_URL,
+        icon: alertIcon,
         requireInteraction: true,
         silent: false,
         data: {
@@ -313,8 +389,8 @@ function buildSensorThresholdMessage(systemId, logId, systemName, alerts, config
 }
 
 async function getSensorNotificationContext(event) {
-  const change = event.data;
-  if (!change.after.exists()) return null;
+  const snapshot = event.data && event.data.after ? event.data.after : event.data;
+  if (!snapshot || !snapshot.exists()) return null;
 
   const { systemId, logId } = event.params;
   const settingsSnapshot = await admin.database()
@@ -330,8 +406,7 @@ async function getSensorNotificationContext(event) {
   return {
     systemId,
     logId,
-    currentLog: change.after.val(),
-    previousLog: change.before.exists() ? change.before.val() : null,
+    currentLog: snapshot.val(),
     settings,
     systemName: settings.name || systemId,
   };
@@ -345,7 +420,6 @@ async function sendSensorMetricNotification(event, config) {
     systemId,
     logId,
     currentLog,
-    previousLog,
     settings,
     systemName,
   } = notificationContext;
@@ -353,21 +427,152 @@ async function sendSensorMetricNotification(event, config) {
   const currentAlerts = config.collectAlerts(currentLog, settings.sensors);
   if (currentAlerts.length === 0) return null;
 
+  const previousLog = await getPreviousDayLog(systemId, logId);
   const previousAlerts = config.collectAlerts(previousLog, settings.sensors);
-  if (getSensorAlertSignature(currentAlerts) === getSensorAlertSignature(previousAlerts)) {
-    return null;
+  const previousAlertSignatures = new Set(previousAlerts.map(getSensorAlertSignature));
+  const dateTime = getNotificationDateTime(currentLog, event.time);
+  const isNight = isNightTime(currentLog, event.time);
+  const notifiableAlerts = [];
+
+  // Entre 19:00 y 07:00 solamente se muestra temperatura baja y se envia con
+  // cada registro que permanezca por debajo del umbral. Todas las demas
+  // alertas quedan suspendidas durante la noche.
+  if (isNight) {
+    if (config.metricKey !== "Tmed") return null;
+    notifiableAlerts.push(...currentAlerts.filter((alert) => alert.thresholdKind === "lower"));
   }
+
+  for (const alert of isNight ? [] : currentAlerts) {
+    const signature = getSensorAlertSignature(alert);
+
+    // El umbral superior se notifica solamente al momento de cruzarlo.
+    if (alert.thresholdKind === "upper") {
+      if (!previousAlertSignatures.has(signature) &&
+          await claimThreeHourNotification(systemId, config.metricKey, alert)) {
+        notifiableAlerts.push(alert);
+      }
+      continue;
+    }
+
+    // El umbral inferior se notifica al cruzarlo, en cada registro nocturno y,
+    // durante el dia, como maximo una vez cada tres horas.
+    const isFirstBelowThreshold = !previousAlertSignatures.has(signature);
+    if (isFirstBelowThreshold || isNightTime(currentLog, event.time)) {
+      notifiableAlerts.push(alert);
+      continue;
+    }
+
+    if (await claimThreeHourNotification(systemId, config.metricKey, alert, dateTime.iso)) {
+      notifiableAlerts.push(alert);
+    }
+  }
+
+  if (notifiableAlerts.length === 0) return null;
+
+  await rememberLowerThresholdNotifications(
+    systemId,
+    config.metricKey,
+    notifiableAlerts,
+    dateTime.iso
+  );
 
   const message = buildSensorThresholdMessage(
     systemId,
     logId,
     systemName,
-    currentAlerts,
-    config
+    notifiableAlerts,
+    config,
+    dateTime
   );
 
   await sendMulticastToSystemUsers(systemId, message);
   return null;
+}
+
+function getSensorAlertSignature(alert) {
+  return `${alert.sensorKey || alert.sensor}:${alert.metricKey}:${alert.thresholdKind}`;
+}
+
+function getLogLocalHour(log, eventTime) {
+  const rawLogDate = log && (log.update || log.date);
+  const deviceDate = rawLogDate && String(rawLogDate).trim()
+    .match(/^(\d{4})(\d{2})(\d{2})\D*(\d{2})\D*(\d{2})\s*(am|pm)?$/i);
+
+  if (deviceDate) {
+    let hour = Number(deviceDate[4]);
+    const period = (deviceDate[6] || "").toLowerCase();
+    if (period === "pm" && hour < 12) hour += 12;
+    if (period === "am" && hour === 12) hour = 0;
+    return hour;
+  }
+
+  const date = parseLogDate(eventTime) || new Date();
+  return Number(new Intl.DateTimeFormat("en-US", {
+    timeZone: NOTIFICATION_TIME_ZONE,
+    hour: "2-digit",
+    hour12: false,
+  }).format(date));
+}
+
+function isNightTime(log, eventTime) {
+  const hour = getLogLocalHour(log, eventTime);
+  return hour >= 19 || hour < 7;
+}
+
+function getLogLocalHour(log, eventTime) {
+  const rawLogDate = log && (log.update || log.date);
+  const deviceDate = rawLogDate && String(rawLogDate).trim()
+    .match(/^(\d{4})(\d{2})(\d{2})\D*(\d{2})\D*(\d{2})\s*(am|pm)?$/i);
+
+  if (deviceDate) {
+    let hour = Number(deviceDate[4]);
+    const period = (deviceDate[6] || "").toLowerCase();
+    if (period === "pm" && hour < 12) hour += 12;
+    if (period === "am" && hour === 12) hour = 0;
+    return hour;
+  }
+
+  const date = parseLogDate(eventTime) || new Date();
+  return Number(new Intl.DateTimeFormat("en-US", {
+    timeZone: NOTIFICATION_TIME_ZONE,
+    hour: "2-digit",
+    hour12: false,
+  }).format(date));
+}
+
+function isNightTime(log, eventTime) {
+  const hour = getLogLocalHour(log, eventTime);
+  return hour >= 19 || hour < 7;
+}
+
+function getThresholdNotificationStateRef(systemId, metricKey, alert) {
+  const sensorKey = String(alert.sensorKey || alert.sensor || "sensor")
+    .replace(/[.#$\[\]/]/g, "_");
+  return admin.database().ref(
+    `/systems/${systemId}/notificationState/sensorThresholds/${metricKey}/${sensorKey}/${alert.thresholdKind}`
+  );
+}
+
+async function claimThreeHourNotification(systemId, metricKey, alert, occurredAt) {
+  const occurredAtMs = Date.parse(occurredAt);
+  if (!Number.isFinite(occurredAtMs)) return false;
+
+  const stateRef = getThresholdNotificationStateRef(systemId, metricKey, alert);
+  const result = await stateRef.transaction((lastNotification) => {
+    const lastNotificationMs = Date.parse(lastNotification);
+    if (Number.isFinite(lastNotificationMs) && occurredAtMs - lastNotificationMs < 3 * 60 * 60 * 1000) {
+      return;
+    }
+    return occurredAt;
+  });
+
+  return result.committed;
+}
+
+async function rememberLowerThresholdNotifications(systemId, metricKey, alerts, occurredAt) {
+  await Promise.all(alerts
+    .filter((alert) => alert.thresholdKind === "lower")
+    .map((alert) => getThresholdNotificationStateRef(systemId, metricKey, alert).set(occurredAt)));
 }
 
 // --- Humedad del suelo ---
@@ -376,19 +581,25 @@ function getSoilMoistureAlert(value, sensor) {
   const sensorType = String(sensor.type || "");
   if (value === null || !sensor.h || !sensor.h.notify || sensor.h.notify === false) return null;
 
+  const min = toNumber(sensor.h.minValue);
+  const max = toNumber(sensor.h.maxValue);
+
   if (sensorType === "WM") {
-    if (value <= 10) {
+    // En Watermark una lectura baja indica saturación y una alta, suelo seco.
+    if (min !== null && value <= min) {
       return {
         direction: "saturado",
-        threshold: 10,
+        threshold: min,
+        thresholdKind: "lower",
         message: "Suelo saturado, No regar",
       };
     }
 
-    if (value >= 100) {
+    if (max !== null && value >= max) {
       return {
         direction: "seco",
-        threshold: 100,
+        threshold: max,
+        thresholdKind: "upper",
         message: "Suelo seco, Regar urgente",
       };
     }
@@ -397,13 +608,11 @@ function getSoilMoistureAlert(value, sensor) {
   }
 
   if (sensorType.includes("SHT")) {
-    const min = toNumber(sensor.h && sensor.h.minValue);
-    const max = toNumber(sensor.h && sensor.h.maxValue);
-
     if (min !== null && value <= min) {
       return {
         direction: "seco",
         threshold: min,
+        thresholdKind: "lower",
         message: "Suelo seco, Regar urgente",
       };
     }
@@ -412,6 +621,7 @@ function getSoilMoistureAlert(value, sensor) {
       return {
         direction: "saturado",
         threshold: max,
+        thresholdKind: "upper",
         message: "Suelo saturado, No regar",
       };
     }
@@ -437,6 +647,7 @@ function buildSoilMoistureAlert(reading) {
     unit: reading.sensor.type === "WM" ? "cb" : "%",
     direction: alert.direction,
     threshold: alert.threshold,
+    thresholdKind: alert.thresholdKind,
     message: alert.message,
   };
 }
@@ -447,7 +658,7 @@ function collectSoilMoistureAlerts(log, sensors) {
     .filter(Boolean);
 }
 
-exports.sendSoilMoistureNotifications = onValueWritten({
+exports.sendSoilMoistureNotifications = onValueCreated({
   ref: "/systems/{systemId}/dayLogs/{logId}",
   instance: "dta-agricola",
   region: "us-central1",
@@ -457,6 +668,7 @@ exports.sendSoilMoistureNotifications = onValueWritten({
       title: "DTA-Agricola humedad de suelo!",
       alertType: "soil-moisture-threshold",
       tag: "dta-soil-moisture-alert",
+      icons: SENSOR_ALERT_ICONS.soilMoisture,
       collectAlerts: collectSoilMoistureAlerts,
     });
   });
@@ -480,6 +692,7 @@ function buildTemperatureAlert(reading) {
     unit: " C",
     direction: alert.direction,
     threshold: alert.threshold,
+    thresholdKind: alert.thresholdKind,
   };
 }
 
@@ -489,7 +702,7 @@ function collectTemperatureAlerts(log, sensors) {
     .filter(Boolean);
 }
 
-exports.sendTemperatureNotifications = onValueWritten({
+exports.sendTemperatureNotifications = onValueCreated({
   ref: "/systems/{systemId}/dayLogs/{logId}",
   instance: "dta-agricola",
   region: "us-central1",
@@ -499,6 +712,7 @@ exports.sendTemperatureNotifications = onValueWritten({
       title: "DTA-Agricola temperatura!",
       alertType: "temperature-threshold",
       tag: "dta-temperature-alert",
+      icons: SENSOR_ALERT_ICONS.temperature,
       collectAlerts: collectTemperatureAlerts,
     });
   });
@@ -523,7 +737,7 @@ function getEnabledDiseaseNames(sensor) {
   if (!sensor || !sensor.alerts || typeof sensor.alerts !== "object") return [];
 
   return Object.entries(sensor.alerts)
-    .filter(([, enabled]) => enabled === true || enabled === "true")
+    .filter(([, enabled]) => enabled === true)
     .map(([diseaseName]) => diseaseName);
 }
 
@@ -563,6 +777,38 @@ function matchesDiseaseConditions(values, disease) {
   return comparedConditions > 0 && matches;
 }
 
+function getDiseaseConditionEvidence(values, disease) {
+  return DISEASE_CONDITION_FIELDS.flatMap(({ valueKey, minKey, maxKey }) => {
+    const min = toNumber(disease && disease[minKey]);
+    const max = toNumber(disease && disease[maxKey]);
+    if (min === null && max === null) return [];
+    const value = toNumber(values && values[valueKey]);
+    return [{
+      valueKey,
+      value,
+      min,
+      max,
+      matches: value !== null && (min === null || value >= min) && (max === null || value <= max),
+    }];
+  });
+}
+
+function getPhenologicalStage(sensor) {
+  return String(sensor && (
+    sensor.phenologicalStage || sensor.phenology || sensor.cropStage || sensor.stage || sensor.phase
+  ) || "").trim();
+}
+
+function getSensorLocation(sensor) {
+  const latitude = toNumber(sensor && sensor.latitude);
+  const longitude = toNumber(sensor && sensor.longitude);
+  return {
+    latitude,
+    longitude,
+    isDefined: latitude !== null && longitude !== null && !(latitude === 0 && longitude === 0),
+  };
+}
+
 function collectDiseaseRisks(log, sensors, cultures) {
   const risks = [];
 
@@ -581,6 +827,9 @@ function collectDiseaseRisks(log, sensors, cultures) {
         culture: culture.culture,
         disease: disease.name,
         photo: disease.photo || "",
+        phenologicalStage: getPhenologicalStage(reading.sensor),
+        location: getSensorLocation(reading.sensor),
+        conditions: getDiseaseConditionEvidence(reading.values, disease),
       });
     });
   });
@@ -590,6 +839,76 @@ function collectDiseaseRisks(log, sensors, cultures) {
 
 function getDiseaseRiskSignature(risk) {
   return `${risk.sensorKey}:${normalizeSearchText(risk.disease)}`;
+}
+
+async function isDiseaseAlertStillEnabled(systemId, risk) {
+  const snapshot = await admin.database()
+    .ref(`/systems/${systemId}/settings/sensors/${risk.sensorKey}/alerts`)
+    .child(risk.disease)
+    .once("value");
+  const enabled = snapshot.val() === true;
+
+  if (!enabled) {
+    console.log(
+      `Alerta de plaga omitida: ${systemId}/${risk.sensorKey}/${risk.disease} no esta habilitada`
+    );
+  }
+
+  return enabled;
+}
+
+async function filterEnabledDiseaseRisks(systemId, risks) {
+  const enabledChecks = await Promise.all(
+    risks.map((risk) => isDiseaseAlertStillEnabled(systemId, risk))
+  );
+  return risks.filter((risk, index) => enabledChecks[index]);
+}
+
+function getLocalDiseaseProbability(risk) {
+  const matchedConditions = risk.conditions.filter((condition) => condition.matches).length;
+  const conditionCoverage = Math.min(matchedConditions, 3) * 5;
+  const phenologyEvidence = risk.phenologicalStage ? 5 : 0;
+  const geographicEvidence = risk.location.isDefined ? 5 : 0;
+  return Math.min(90, 65 + conditionCoverage + phenologyEvidence + geographicEvidence);
+}
+
+function getDiseaseProbabilityLabel(probability) {
+  if (probability >= 85) return "urgente";
+  if (probability >= 65) return "altamente probable";
+  return "probable";
+}
+
+function scoreDiseaseRisks(risks) {
+  return risks.map((risk) => {
+    const probability = getLocalDiseaseProbability(risk);
+    return {
+      ...risk,
+      probability,
+      probabilityLabel: getDiseaseProbabilityLabel(probability),
+    };
+  });
+}
+
+async function claimDiseaseNotification(systemId, risk) {
+  const sensorKey = String(risk.sensorKey || risk.sensor || "sensor")
+    .replace(/[.#$\[\]/]/g, "_");
+  const diseaseKey = normalizeSearchText(risk.disease)
+    .replace(/[.#$\[\]/]/g, "_");
+  const stateRef = admin.database().ref(
+    `/systems/${systemId}/notificationState/diseaseRisks/${sensorKey}/${diseaseKey}`
+  );
+  const nowMs = Date.now();
+  const result = await stateRef.transaction((lastNotification) => {
+    const lastNotificationMs = typeof lastNotification === "number"
+      ? lastNotification
+      : Date.parse(lastNotification);
+    if (Number.isFinite(lastNotificationMs) &&
+        nowMs - lastNotificationMs < SENSOR_NOTIFICATION_COOLDOWN_MS) {
+      return;
+    }
+    return nowMs;
+  });
+  return result.committed;
 }
 
 function getDiseasePhotoPath(photo) {
@@ -621,14 +940,17 @@ async function getPreviousDayLog(systemId, logId) {
   return logs.length > 0 ? logs[logs.length - 1] : null;
 }
 
-function buildDiseaseRiskMessage(systemId, logId, systemName, risk) {
+function buildDiseaseRiskMessage(systemId, logId, systemName, risk, dateTime) {
   const photoPath = getDiseasePhotoPath(risk.photo);
   const imageUrl = getAbsoluteAssetUrl(photoPath);
 
   return {
     notification: {
       title: "DTA-Agricola alerta de plaga!",
-      body: `Condiciones favorables para ${risk.disease} durante 2 o más días en ${systemName} - ${risk.sensorLabel}`,
+      body: appendNotificationDateTime(
+        `${risk.disease}: ${risk.probabilityLabel} (${risk.probability}%) en ${systemName} - ${risk.sensorLabel}`,
+        dateTime
+      ),
       imageUrl,
     },
     data: {
@@ -643,6 +965,11 @@ function buildDiseaseRiskMessage(systemId, logId, systemName, risk) {
       disease: risk.disease,
       culture: risk.culture,
       alertType: "disease-risk",
+      probability: String(risk.probability),
+      probabilityLabel: risk.probabilityLabel,
+      phenologicalStage: risk.phenologicalStage || "",
+      occurredAt: dateTime.iso,
+      occurredAtFormatted: dateTime.formatted,
     },
     webpush: {
       headers: {
@@ -673,6 +1000,8 @@ exports.sendDiseaseRiskNotifications = onValueCreated({
   region: "us-central1",
 }, async (event) => {
   const { systemId, logId } = event.params;
+  if (isNightTime(event.data.val(), event.time)) return null;
+
   const [settingsSnapshot, culturesSnapshot, previousLog] = await Promise.all([
     admin.database().ref(`/systems/${systemId}/settings`).once("value"),
     admin.database().ref("/cultivos").once("value"),
@@ -694,13 +1023,31 @@ exports.sendDiseaseRiskNotifications = onValueCreated({
   );
   if (sustainedRisks.length === 0) return null;
 
+  const enabledRisks = await filterEnabledDiseaseRisks(systemId, sustainedRisks);
+  if (enabledRisks.length === 0) return null;
+
+  const candidateRisks = scoreDiseaseRisks(enabledRisks)
+    .filter((risk) => risk.probability >= MIN_NOTIFIABLE_DISEASE_PROBABILITY);
+  const stillEnabledCandidates = await filterEnabledDiseaseRisks(systemId, candidateRisks);
+  const scoredRisks = [];
+  for (const risk of stillEnabledCandidates) {
+    if (await claimDiseaseNotification(systemId, risk)) scoredRisks.push(risk);
+  }
+  if (scoredRisks.length === 0) return null;
+
   const tokenRefs = await getTokenRefsForSystem(systemId);
-  for (const risk of sustainedRisks) {
+  const dateTime = getNotificationDateTime(event.data.val(), event.time);
+  for (const risk of scoredRisks) {
+    // La configuracion pudo cambiar durante el procesamiento. Esta lectura es
+    // la ultima barrera y ocurre inmediatamente antes de construir y enviar.
+    if (!await isDiseaseAlertStillEnabled(systemId, risk)) continue;
+
     const message = buildDiseaseRiskMessage(
       systemId,
       logId,
       settings.name || systemId,
-      risk
+      risk,
+      dateTime
     );
     await sendMulticastToTokenRefs(systemId, tokenRefs, message);
   }

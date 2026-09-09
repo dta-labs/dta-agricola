@@ -39,7 +39,7 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(DIO0_PIN), onReceiveISR, RISING);
 }
 
-void loop_old() {
+void loop() {
   if (LoRa.parsePacket()) {
     String data = "";
     while (LoRa.available()) data += (char)LoRa.read();
@@ -54,7 +54,7 @@ void loop_old() {
   }
 }
 
-void loop() {
+void loop_old() {
   // El micro puede dormir aquí si tu plataforma lo soporta
   // En Arduino clásico, simplemente espera interrupciones
   if (packetReceived) {

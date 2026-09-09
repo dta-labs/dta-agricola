@@ -17,7 +17,7 @@ void setup() {
   analogReference(DEFAULT);
   Serial.begin(250000);
   while (!Serial) delay(10);               // Pausar Arduino Zero, Leonardo, etc. hasta que se active el puerto serie
-  Serial.println(F("\n\nSonda Ms, Hr y Temp - Irrómetro WM v2.20260608"));
+  Serial.println(F("\n\nSonda Ms, Hr y Temp - Irrómetro WM \n[1ra Generación] \n[v2.20260608]"));
   Serial.println(F("~ Sonda de humedad del suelo"));
   Serial.println(F("~ Humedad y temperatura ambiente"));
   Serial.println(F("  • Protocolo: DTA-WM-0xId,Ms,Hr,T,Vcc,CS"));

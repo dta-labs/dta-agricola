@@ -1,4 +1,4 @@
-const CACHE_NAME = 'DTA_Irrigation_Control_v1.2';
+const CACHE_NAME = 'DTA_Irrigation_Control_v1.6';
 const CACHE_PREFIX = 'DTA_Irrigation_Control_';
 const PWA_LAUNCH_URL = './index.html';
 const NOTIFICATION_SOUND_FILE = './assets/sounds/alarma-de-evacuacion.mp3';

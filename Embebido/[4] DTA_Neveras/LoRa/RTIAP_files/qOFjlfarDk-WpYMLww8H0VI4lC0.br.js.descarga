@@ -1,0 +1,1 @@
+var SBIImgsHelper;!function(i){"u">typeof SbiUtil&&(null==SbiUtil||SbiUtil.oncop(SbiUtil.rt,function(i){var t=i.target||i.srcElement;if(t&&"IMG"===t.tagName&&t.classList.contains("sbiable")&&t.src){var e=t.getAttribute("data-sbiid");e&&sj_evt&&sj_evt.fire&&sj_evt.fire("sbi_searchimgurl",SbiUtil.gimg(t),e,null,SbiUtil.gaps(t))}}))}(SBIImgsHelper||(SBIImgsHelper={}));

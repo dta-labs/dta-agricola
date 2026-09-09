@@ -125,7 +125,12 @@ class SensorSystem {
 
     public function lanzarProcesamientoSegundoPlano(): void {
         $queryString = http_build_query($_GET);
-        $updateUrl = "https://dtaamerica.com/ws/updateDB.php?$queryString";
+        $updateUrl = "";
+        if ($this->settings->type === 'Sensor') {
+            $updateUrl = "https://dtaamerica.com/ws/updateSensorDB.php?$queryString";
+        } else if ($this->settings->type === 'Nevera') {
+            $updateUrl = "https://dtaamerica.com/ws/updateNeveraDB.php?$queryString";
+        } 
         $cmd = "curl -s \"$updateUrl\" > /dev/null 2>&1 &";
         pclose(popen($cmd, 'r'));
     }

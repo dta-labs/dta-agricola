@@ -15,7 +15,7 @@ void setup() {
   analogReference(DEFAULT);
   Serial.begin(250000);
   while (!Serial) delay(10);               // Pausar Arduino Zero, Leonardo, etc. hasta que se active el puerto serie
-  Serial.println(F("\n\nSonda Ms, Hr y Temp - v1.20260808"));
+  Serial.println(F("\n\nSonda Ms, Hr y Temp \n[2da Generación] \n[v1.20260808]"));
   Serial.println(F("~ Irrómetro WM x 1"));
   Serial.println(F("~ Humedad y temperatura ambiente"));
   Serial.println(F("  - Protocolo: DTA-WM1-0xId,Ms,Hr,T,Vcc,CS"));
@@ -30,9 +30,10 @@ void setupSensors() {
   String id = setupDS();
   id = id == noSensor ? setupSHT() : id;
   id.toUpperCase();
-  NODE_ID += id;
-  // NODE_ID += "10B9CDEE";
-  sensorType = DS;
+  if (TEST) {
+    sensorType = DS;
+    NODE_ID += "10B9CDEE";
+  } else NODE_ID += id;
   Serial.println(NODE_ID);
 }
 
@@ -50,7 +51,7 @@ void readSensorsValues() {
     readSHT(t_actual, t_actual);
   } else {
     t_actual = getTemperature(t_actual);
-    // t_actual = 12.5;
+    if (TEST) t_actual = 12.5;
   }
   moisture = getMoisture();
 }

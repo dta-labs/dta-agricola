@@ -526,6 +526,27 @@ input.signinPassword:-webkit-autofill:active {
   background: lightgray;
 }
 
+.bottom-right {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  z-index: 1000;
+  border: 1px solid;
+}
+
+.optionButton {
+    color: black !important;
+    position: fixed;
+    bottom: 150px;
+    right: 10px;
+    font-size: 1.5em;
+    z-index: 1000;
+    background: white;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 4px 4px 4px grey;
+}
+
 .sercices-options i {
   width: 10%;
   text-align: center;
@@ -542,7 +563,8 @@ input.signinPassword:-webkit-autofill:active {
 }
 
 .boton-gradiente-rojo {
-  background: radial-gradient(circle, #eb4646f0 30%, #000 100%);
+  background: radial-gradient(circle, #ece5cff0 60%, #000000f0 100%);
+  /* background: radial-gradient(circle, #eb4646f0 30%, #000 100%); */
   color: white;
   border: none;
   padding: 10px 20px;
@@ -668,6 +690,22 @@ input.signinPassword:-webkit-autofill:active {
 
 /* #endregion spinner */
 
+.history-button-spinner {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    margin-right: 6px;
+    vertical-align: -2px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: history-button-spin 0.7s linear infinite;
+}
+
+@keyframes history-button-spin {
+    to { transform: rotate(360deg); }
+}
+
 td,
 th {
   border-bottom: 1px solid lightgrey;
@@ -772,5 +810,25 @@ h6 {
 @-webkit-keyframes tiembla {
   0%  { -webkit-transform:rotateZ(-5deg); }
   50% { -webkit-transform:rotateZ( 0deg) scale(1.4); }
-  100%{ -webkit-transform:rotateZ( 5deg);
+  100%{ -webkit-transform:rotateZ( 5deg); }
+}
+
+.soil-moisture-status-text {
+    -webkit-text-stroke: 0.6px #1f1f1f;
+    paint-order: stroke fill;
+    text-shadow:
+        -1px -1px 0 #1f1f1f,
+         1px -1px 0 #1f1f1f,
+        -1px  1px 0 #1f1f1f,
+         1px  1px 0 #1f1f1f;
+}
+
+.sensor-summary-tooltip {
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+canvas[id^="myChart"],
+#coldRoomSensorChart {
+    touch-action: none;
 }

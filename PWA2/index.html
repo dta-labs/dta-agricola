@@ -72,19 +72,30 @@
                 <div class="col s3 m1" style="margin-left: -15px; margin-top: 7px;" ng-click="showWindow('listado')" ng-show="selectedWindow != 'listado'">
                     <i class="material-icons" style="font-size: 2.5em; ">keyboard_backspace</i>
                 </div>
-                <div class="col s6 m9 l10 center-align limitar">
+                <div class="col s5 m9 l10 center-align limitar">
                     <p id="control_de_riego" style="font-size: 1.2em; {{ selectedWindow == 'listado' ? 'margin: 10px 0 0 0;' : 'margin: 0;' }}"><b>{{ selectedWindow == 'listado' ? 'CONTROL DE RIEGO' : actualSystem.name }}</b></p>
-                    <p ng-show="selectedWindow == 'sistema'" style="margin: 0; font-size: .9em;">{{ actualSystem.log.update ? (actualSystem.log.update.substring(6, 8) + '/' + actualSystem.log.update.substring(4, 6) + '/' + actualSystem.log.update.substring(0, 4) + ' ' + actualSystem.log.update.substring(9, 11) + ':' + actualSystem.log.update.substring(11)) : 
-                            (actualSystem.log.date.substring(6, 8) + '/' + actualSystem.log.date.substring(4, 6) + '/' + actualSystem.log.date.substring(0, 4) + ' ' + actualSystem.log.date.substring(9, 11) + actualSystem.log.date.substring(11)) }}</p>
+                    <p ng-show="selectedWindow == 'sistema'" style="margin: 0; font-size: .9em;">{{ actualSystem.type != 'Sensor' && actualSystem.log.update ? (actualSystem.log.update.substring(6, 8) + '/' + actualSystem.log.update.substring(4, 6) + '/' + actualSystem.log.update.substring(0, 4) + ' ' + actualSystem.log.update.substring(9, 11) + ':' + actualSystem.log.update.substring(11)) :
+                            (actualSystem.log.date.substring(6, 8) + '/' + actualSystem.log.date.substring(4, 6) + '/' + actualSystem.log.date.substring(0, 4) + ' ' + actualSystem.log.date.substring(9, 11) + ':' + actualSystem.log.date.substring(11)) }}</p>
                     <!-- <p ng-show="selectedWindow == 'sistema' && actualSystem.type == 'Sensor'" style="margin-top: -5px; font-size: .9em;"> «{{ actualSystem.sleepingTime }}min» </p> -->
                 </div>
-                <div class="col s3 m2 l1 right-align" style="margin-left: 10px; padding-top: 5px; text-align: right;">
+                <div class="col s4 m2 l1 right-align" style="margin-left: 10px; padding-top: 5px; text-align: right;">
                     <span ng-if="!authUser">
                         <a href="#!/login" ng-click="login()" aria-label="User" style="color: black; margin-left: 15px;">
                             <i class="fa fa-user" aria-hidden="true" style="margin-top: 5px; font-size: 2em;"></i>
                         </a>
                     </span>
                     <span ng-if="authUser" class="valign-wrapper">
+                        <span ng-if="selectedWindow == 'sistema' && actualSystem.type == 'Sensor'">
+                            <a ng-click="toggleSensorMapView()"
+                                aria-label="{{ showSensorMapView ? 'Ocultar mapa' : 'Mostrar mapa' }}"
+                                style="color: black; cursor: pointer;">
+                                <i class="fa"
+                                    ng-class="showSensorMapView ? 'fa-th-large' : 'fa-map-o'"
+                                    aria-hidden="true"
+                                    style="margin-top: 5px; font-size: 1.5em; margin-right: 15px;"></i>
+                            </a>
+                        </span>
+                        <span ng-if="selectedWindow != 'sistema' || actualSystem.type != 'Sensor'" style="margin-top: 5px; font-size: 1.5em; margin-right: 15px;">&nbsp;</span>
                         <img id="imgAuthMobil" 
                             ng-src="{{ authUser.photoURL }}"
                             style="width: 32px; height: 32px; border-radius: 50%; margin-top: 2px;" 
@@ -120,11 +131,13 @@
                                 ng-click="selectSystem(system)" ng-show="system.name">
                                 <div class="sercices-options waves-effect" style="display: block !important; padding-bottom: 0;
                                                                                     background: {{ getSystemBackgroundColor(system) }}; color: {{ getSystemTextColor(system) }};">
+
                                     <a href="#!/sistema" ng-click="showWindow('sistema')"
                                         style="color: {{ color }} !important;" ng-init="color = getSystemColor(system)">
-                                        <div class="row" style="margin-bottom: 0;">
+
+                                        <div class="row" style="margin-bottom: 0;" ng-show="system.type == 'PC'">
                                             <div class="col s3" style="margin-top: 10px; height: 80px;">
-                                                <div class="pivote" ng-show="system.type == 'PC'">
+                                                <div class="pivote">
                                                     <div class="esfera"
                                                         style="border-color: {{ color }};">
                                                         <div id="pos_{{ system.key }}" class="brazo"
@@ -132,27 +145,8 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div ng-show="system.type == 'PL'">
-                                                    <i class="large material-icons angle_30" style="font-size: 3.5em; margin-left: -55px;
-                                                    margin-top: 10px; color: {{ color }};">flip</i>
-                                                </div>
-                                                <div ng-show="system.type == 'Estacionario'" style="margin-top: -5px; margin-left: -10px;">
-                                                        <img ng-src="{{ color == 'grey' ? './assets/images/parcela-grey.png' : './assets/images/parcela.png' }}"
-                                                            class="parcela_icon" 
-                                                            alt="parcela">
-                                                </div>
-                                                <div ng-show="system.type == 'Pozo'" style="margin-top: -5px; margin-left: -10px; filter: grayscale(100%);">
-                                                    <img src="assets/images/pozo.png" class="parcela_icon" alt="parcela">
-                                                </div>
-                                                <div ng-show="system.type == 'Sensor'" style="margin-top: -5px; margin-left: -10px;">
-                                                    <img src="assets/images/Red-Sensores.png" 
-                                                        class="parcela_icon" 
-                                                        style="height: 50px; opacity: 0.7; filter: grayscale(100%);" 
-                                                        alt="sensor">
-                                                </div>
                                             </div>
-
-                                            <div class="col s7 limitar left-align" ng-show="system.type == 'PC'">
+                                            <div class="col s7 limitar left-align">
                                                 <div style="font-size: 1em;"><b>{{ system.name }}</b> </div>
                                                 <div style="font-size: .8em;">
                                                     <i class="fa fa-undo" ng-show="system.direction == 'RR'"></i>
@@ -200,8 +194,19 @@
                                                             id="errorTime_{{ system.key }}"></span></span>
                                                 </div>
                                             </div>
+                                            <div class="col s2" style="margin: 2px 0 0 -10px; text-align: right;">
+                                                <img ng-src="{{meteo[system.key].weather.iconUrl}}" alt="Weather icon">
+                                            </div>
+                                        </div>
 
-                                            <div class="col s7 limitar left-align" ng-show="system.type == 'PL'">
+                                        <div class="row" style="margin-bottom: 0;" ng-show="system.type == 'PL'">
+                                            <div class="col s3" style="margin-top: 10px; height: 80px;">
+                                                <div>
+                                                    <i class="large material-icons angle_30" style="font-size: 3.5em; margin-left: -55px;
+                                                    margin-top: 10px; color: {{ color }};">flip</i>
+                                                </div>
+                                            </div>
+                                            <div class="col s7 limitar left-align">
                                                 <div style="font-size: 1em;"><b>{{ system.name }}</b> </div>
                                                 <div style="font-size: .8em;">
                                                     <i class="material-icons" style="font-size: 1em;" ng-show="system.direction == 'RR'">arrow_back</i>
@@ -249,8 +254,20 @@
                                                             id="errorTime_{{ system.key }}"></span></span>
                                                 </div>
                                             </div>
+                                            <div class="col s2" style="margin: 2px 0 0 -10px; text-align: right;">
+                                                <img ng-src="{{meteo[system.key].weather.iconUrl}}" alt="Weather icon">
+                                            </div>
+                                        </div>
 
-                                            <div class="col s7 limitar left-align" ng-show="system.type == 'Estacionario'">
+                                        <div class="row" style="margin-bottom: 0;" ng-show="system.type == 'Estacionario'">
+                                            <div class="col s3" style="margin-top: 10px; height: 80px;">
+                                                <div style="margin-top: -5px; margin-left: -10px;">
+                                                        <img ng-src="{{ color == 'grey' ? './assets/images/parcela-grey.png' : './assets/images/parcela.png' }}"
+                                                            class="parcela_icon" 
+                                                            alt="parcela">
+                                                </div>
+                                            </div>
+                                            <div class="col s7 limitar left-align">
                                                 <div style="font-size: 1em;"><b>{{ system.name }}</b></div>
                                                 <div style="font-size: .6em;">
                                                     <span ng-repeat="plot in system.plots" ng-if="$index != 7" style="color: {{ getPlotColor(system, 'p' + $index) }}; font-size: 1.2em;">
@@ -265,8 +282,18 @@
                                                     <!-- <span><strong>{{ system.culture }}</strong></span> -->
                                                 </div>
                                             </div>
+                                            <div class="col s2" style="margin: 2px 0 0 -10px; text-align: right;">
+                                                <img ng-src="{{meteo[system.key].weather.iconUrl}}" alt="Weather icon">
+                                            </div>
+                                        </div>
 
-                                            <div class="col s7 limitar left-align" ng-show="system.type == 'Pozo'">
+                                        <div class="row" style="margin-bottom: 0;" ng-show="system.type == 'Pozo'">
+                                            <div class="col s3" style="margin-top: 10px; height: 80px;">
+                                                <div style="margin-top: -5px; margin-left: -10px; filter: grayscale(100%);">
+                                                    <img src="assets/images/pozo.png" class="parcela_icon" alt="parcela">
+                                                </div>
+                                            </div>
+                                            <div class="col s7 limitar left-align">
                                                 <div style="font-size: 1em;"><b>{{ system.name }}</b></div>
                                                 <div style="font-size: .7em;">
                                                     <span>
@@ -289,8 +316,21 @@
                                                     <!-- <span><strong>{{ system.culture }}</strong></span> -->
                                                 </div>
                                             </div>
+                                            <div class="col s2" style="margin: 2px 0 0 -10px; text-align: right;">
+                                                <img ng-src="{{meteo[system.key].weather.iconUrl}}" alt="Weather icon">
+                                            </div>
+                                        </div>
 
-                                            <div class="col s7 limitar left-align" ng-show="system.type == 'Sensor'">
+                                        <div class="row" style="margin-bottom: 0;" ng-show="system.type == 'Sensor'">
+                                            <div class="col s3" style="margin-top: 10px; height: 80px;">
+                                                <div style="margin-top: -5px; margin-left: -10px;">
+                                                    <img src="assets/images/Red-Sensores.png" 
+                                                        class="parcela_icon" 
+                                                        style="height: 50px; opacity: 0.7; filter: grayscale(100%);" 
+                                                        alt="sensor">
+                                                </div>
+                                            </div>
+                                            <div class="col s7 limitar left-align">
                                                 <div style="font-size: 1em;"><b>{{ system.name }}</b></div>
                                                 <div style="font-size: .8em;">
                                                     <span>
@@ -301,11 +341,36 @@
                                                     <span>{{ system.log.date ? "[" + system.log.date.substring(6,8) + "/" + system.log.date.substring(4,6) + "/" + system.log.date.substring(2,4) + " " + system.log.date.substring(9,11) + ":" + system.log.date.substring(11) + "]" : "" }}</span>
                                                 </div>
                                             </div>
-
                                             <div class="col s2" style="margin: 2px 0 0 -10px; text-align: right;">
                                                 <img ng-src="{{meteo[system.key].weather.iconUrl}}" alt="Weather icon">
                                             </div>
                                         </div>
+
+                                        <div class="row" style="margin-bottom: 0;" ng-show="system.type == 'Nevera'">
+                                            <div class="col s3" style="margin-top: 10px; height: 80px;">
+                                                <div style="margin-top: -5px; margin-left: -10px;">
+                                                    <img src="assets/images/nieve.png" 
+                                                        class="parcela_icon" 
+                                                        style="height: 50px; opacity: 0.7; filter: grayscale(100%);" 
+                                                        alt="nevera">
+                                                </div>
+                                            </div>
+                                            <div class="col s7 limitar left-align">
+                                                <div style="font-size: 1em;"><b>{{ system.name }}</b></div>
+                                                <div style="font-size: .8em;">
+                                                    <span>
+                                                        <i class="fa fa-tint" aria-hidden="true"></i>
+                                                        {{ system.log.dataRaw ? (100 - ((system.log.meanVal - system.sensors.S0.minValue) / (system.sensors.S0.maxValue - system.sensors.S0.minValue) * 100) | number : 0) : "0" }} <b>%</b> 
+                                                        <span ng-show="system.type == 'Nevera'"> «{{ system.sleepingTime }}min» </span>
+                                                    </span><br>
+                                                    <span>{{ system.log.date ? "[" + system.log.date.substring(6,8) + "/" + system.log.date.substring(4,6) + "/" + system.log.date.substring(2,4) + " " + system.log.date.substring(9,11) + ":" + system.log.date.substring(11) + "]" : "" }}</span>
+                                                </div>
+                                            </div>
+                                            <div class="col s2" style="margin: 2px 0 0 -10px; text-align: right;">
+                                                <img ng-src="{{meteo[system.key].weather.iconUrl}}" alt="Weather icon">
+                                            </div>
+                                        </div>
+
                                     </a>
                                 </div>
                             </div>
@@ -322,7 +387,31 @@
                         <br>
                         <br>
                     </div>
-                    <div class="text-center our-services" >
+                    <a class="btn-floating btn-large waves-effect waves-light teal bottom-right" 
+                        ng-init="showOptionsButtons = false" ng-click="showOptionsButtons = !showOptionsButtons">
+                        <i class="material-icons" style="font-size: 3em;">add</i>
+                    </a>
+                    <div ng-show="showOptionsButtons">
+                        <a class="modal-trigger optionButton" href="#modalNuevoEquipo"
+                            style="bottom: 150px;" ng-click="createNewDevice(); showOptionsButtons = false;">
+                            <div class="row" style="margin-bottom: 0;">
+                                <div class="col s12">
+                                    <i class="material-icons" style="font-size: 1.5em; border-radius: 50%; width: 20px; vertical-align: middle; color: teal; margin-top: 3px;">add_circle_outline</i>
+                                    <span style="font-size: 1em; margin: -10px 0 0 0; vertical-align: middle;">&nbsp; Agregar equipo <span class="show-in-pc-only">existente</span></span>
+                                </div>
+                            </div>
+                        </a>
+                        <a class="modal-trigger optionButton" href="https://dtaamerica.com/dta-agricola"
+                            style="bottom: 75px;" ng-click="showOptionsButtons = false;">
+                            <div class="row" style="margin-bottom: 0;">
+                                <div class="col s12">
+                                    <i class="material-icons" style="font-size: 1em; border-radius: 50%; border: 3px solid; width: 27px; vertical-align: middle; color: teal; margin-top: 3px;">shopping_cart</i>
+                                    <span style="font-size: 1em; margin: -10px 0 0 0; vertical-align: middle;">Adquirir equipo <span class="show-in-pc-only">nuevo&nbsp; &nbsp; &nbsp;</span></span>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="text-center our-services" style="display: none;">
                         <div class="row" style="margin: 0; background: #ffffffac; width: 100%; position: fixed; bottom: 0; z-index: 1;">
                             <div class="col s12" ng-show="authUser"><hr></div>
                             <div class="col s6" ng-show="authUser">
@@ -366,7 +455,7 @@
                         <div class="row" style="margin-bottom: 0;">
                             <div class="row">
                                 <div class="col s12" style="font-size: 1.5em; border-bottom: 1px solid;"">
-                                    {{ steep == 0 ? '' : (newDevice.type == 'PC' ? 'Pivote central' : newDevice.type == 'Estacionario' ? 'Estacionario' : newDevice.type == 'Sensor' ? 'Sensor' : 'Pozo') }}
+                                    {{ steep == 0 ? '' : (newDevice.type == 'PC' ? 'Pivote central' : newDevice.type == 'Estacionario' ? 'Estacionario' : newDevice.type == 'Sensor' ? 'Sensor' : newDevice.type == 'Nevera' ? 'Nevera' : 'Pozo') }}
                                 </div>
                             </div>
 
@@ -401,6 +490,17 @@
                                         </div>
                                         <div class="card-content">
                                             <p style="text-align: center; font-size: 1.2em;"><span class="show-in-mobil-only">Sensores</span><span class="show-in-pc-only">Red de sensores</span></p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col s6">
+                                    <div class="card tarjeta-sensores" ng-click="newDevice.type='Nevera'; newDevice.operationMode=5; steep = steep + 1" style="box-shadow: 8px 8px 8px gray !important;">
+                                        <div class="card-image">
+                                            <img src="./assets/images/sensores.png" style="height: 80px; width: 90px; margin: auto;">
+                                        </div>
+                                        <div class="card-content">
+                                            <p style="text-align: center; font-size: 1.2em;"><span class="show-in-mobil-only">Nevera</span><span class="show-in-pc-only">Sistema de nevera</span></p>
                                         </div>
                                     </div>
                                 </div>
@@ -587,7 +687,9 @@
                         <div class="row contentEstacionario" style="margin-bottom: 0; height: calc(100vh - 40px);">
                             
                             <!-- Mapa -->
-                            <div class="main-container map col s12" style="margin-bottom: 10px; padding: 0; height: calc(100vh - 40px);"> 
+                            <div class="main-container map col s12"
+                                style="margin-bottom: 10px; padding: 0; height: calc(100vh - 40px);"
+                                ng-show="actualSystem.type != 'Nevera' && (actualSystem.type != 'Sensor' || showSensorMapView)">
                                 <div id="map" class="map" style="border-radius: 5px; position: relative; height: calc(100vh - 40px);" tabindex="-1"></div>
                             </div>
                             
@@ -782,6 +884,47 @@
                                                 </td> -->
                                             </tr>
                                         </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col s12" ng-show="actualSystem.type == 'Sensor' && !showSensorMapView" style="margin-bottom: 0; margin-top: 0;">
+                                <div style="margin-top: 80px;">
+                                    <div class="row" style="color: white; margin: auto; z-index: 1; text-shadow: 1px 1px 2px #000; height: calc(100vh - 145px); overflow-y: auto; scroll-behavior: smooth;">
+                                        <div class="col s12 m4 l3" style="margin-bottom: 10px;" ng-repeat="(coldRoomKey, coldRoom) in actualSystem.sensors" ng-show="coldRoom.id">
+                                            <div style="margin: auto; border: 1px solid gray; border-radius: 10px; background: {{ getSensorPanelValue(coldRoomKey, 'tileColor', coldRoom) }};">
+                                                <div title="{{ coldRoom.alias ? coldRoom.alias : coldRoom.id }}"
+                                                    style="font-size: 2em; width: 100%; padding: 0 10px; box-sizing: border-box; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                                    <b>{{ coldRoom.alias ? coldRoom.alias : coldRoom.id }}</b>
+                                                </div>
+                                                <div class="center-align" style="font-size: 3em; padding: 0 16.666666% 5px 0;">
+                                                    <b>{{ getSensorPanelValue(coldRoomKey, 'soilStatus', coldRoom) }}</b>
+                                                </div>
+                                                <div class="row" style="font-size: 2em; text-align: right; margin-bottom: 0; width: 100%; margin-left: 0;">
+                                                    <div class="col s3 center-align"><img src="./assets/images/Hr_white.png" alt="Humedad del suelo" style="width: 35px;"></div>
+                                                    <div class="col s8 right-align">{{ getSensorPanelValue(coldRoomKey, 'soilMoisture', coldRoom) }}</div>
+                                                    <div class="col s1"></div>
+                                                </div>
+                                                <div class="row" style="font-size: 2em; text-align: right; margin-bottom: 0; width: 100%; margin-left: 0px;">
+                                                    <div class="col s3 center-align"><i class="fa fa-thermometer-0" aria-hidden="true"></i></div>
+                                                    <div class="col s8 right-align">{{ getSensorPanelValue(coldRoomKey, 'temperature', coldRoom) }}</div>
+                                                    <div class="col s1"></div>
+                                                </div>
+                                                <div class="row" style="font-size: 2em; text-align: right; width: 100%; margin-left: 0px;">
+                                                    <div class="col s3 center-align"><i class="fa fa-tint" aria-hidden="true"></i></div>
+                                                    <div class="col s8 right-align">{{ getSensorPanelValue(coldRoomKey, 'humidity', coldRoom) }}</div>
+                                                    <div class="col s1"></div>
+                                                </div>
+                                                <hr style="border: 1px solid grey; margin: 5px 0;">
+                                                <div class="row center-align" style="font-size: 1.5em; margin-bottom: 5px; width: 100%; margin-left: 0px;" ng-init="signal=signalToPercent(actualSystem.log.signal)">
+                                                    <div class="col s4"><i class="fa fa-{{ getSensorPanelValue(coldRoomKey, 'batteryIcon', coldRoom) }}" aria-hidden="true"></i><span style="margin-left: 5px;">{{ getSensorPanelValue(coldRoomKey, 'battery', coldRoom) }}</span></div>
+                                                    <!-- <div class="col s2"><i class="fa fa-signal" aria-hidden="true"></i><p style="font-size: .7em; margin-top: -8px;">{{ signal }}%</p></div> -->
+                                                    <div class="col s2"></div>
+                                                    <div class="col s3"><i class="fa fa-bar-chart btn grey waves-light" role="button" tabindex="0" ng-click="openColdRoomSensorChart(coldRoom, coldRoomKey)" aria-label="Ver gráfica del sensor" style="font-size: 0.9em; width: 100%; border: 1px solid; box-shadow: 3px 3px grey !important;"></i></div>
+                                                    <div class="col s3"><i class="fa fa-cog btn grey waves-light modal-trigger"  href="#modalEditSensor" ng-click="editSensor(coldRoom)" aria-hidden="true" style="font-size: 0.9em; width: 100%; border: 1px solid; box-shadow: 3px 3px grey !important;"></i></div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -1101,6 +1244,92 @@
                                 </div>
                             </div>
 
+                            <!-- Nevera -->
+                            <div class="col s12" ng-show="actualSystem.type == 'Nevera'">
+                                <div class="row statusBar" style="width: 100%;">
+                                    <div class="col s12" style="margin-left: 12%; position: fixed; top: 65px; width: 73%; z-index: 1; text-shadow: 1px 1px 2px #000;">
+                                        <!-- <table style="background: #ffffff3d;"> -->
+                                        <table style="background: #0000003d;">
+                                            <tr style="border-top: 2px solid lightgrey; color: white;">
+                                                <td class="modal-trigger" href="#modalHistorial" style="text-align: center; cursor: pointer;">
+                                                    <div class="center-align" ng-show="authUser &amp;&amp; selectedWindow == 'sistema'">
+                                                        <i class="material-icons" style="font-size: 2em;">equalizer</i> 
+                                                    </div>
+                                                    <div class="center-align" style="margin-top: -10px;">
+                                                        <b>Historial</b>
+                                                    </div>
+                                                </td>
+                                                <td class="modal-trigger" href="#modalConfig" style="text-align: center; cursor: pointer;">
+                                                    <div class="center-align" ng-show="authUser &amp;&amp; selectedWindow == 'sistema'">
+                                                        <i class="fa fa-list" aria-hidden="true" style="font-size: 1.5em;"></i>
+                                                    </div>                                                    
+                                                    <div class="center-align">
+                                                        <b>Sensores</b>
+                                                    </div>
+                                                </td>
+                                                <td class="modal-trigger" href="#modalUsuarios" style="text-align: center; cursor: pointer;">
+                                                    <div class="center-align" ng-show="authUser &amp;&amp; selectedWindow == 'sistema'">
+                                                        <i class="fa fa-users" aria-hidden="true" style="font-size: 1.5em;"></i> 
+                                                    </div>
+                                                    <div class="center-align">
+                                                        <b>Usuarios</b>
+                                                    </div>
+                                                </td>
+                                                <!-- <td style="text-align: center;">
+                                                    <div class="center-align">
+                                                        <img src="./assets/images/termometro_blanco.png" alt="termómetro" style="width: 25px;">
+                                                    </div>
+                                                    <div class="center-align">
+                                                        <b>{{ meteo[actualSystem.key].main.temp - 273.15 | number : 0}}</b>°C        
+                                                    </div>
+                                                </td>
+                                                <td style="text-align: center;">
+                                                    <div class="center-align">
+                                                        <i class="material-icons">rss_feed</i>
+                                                    </div>
+                                                    <div class="center-align">
+                                                        <b>{{ actualSystem.log.signal ? (actualSystem.log.signal * 100 / 30 | number : 0) : 0 }}</b>%
+                                                    </div>
+                                                </td> -->
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col s12" ng-show="actualSystem.type == 'Nevera'">
+                                <div style="margin-top: 80px;">
+                                    <div class="row" style="color: white; margin: auto; z-index: 1; text-shadow: 1px 1px 2px #000; height: calc(100vh - 145px); overflow-y: auto; scroll-behavior: smooth;">
+                                        <div class="col s12 m4 l3" style="margin-bottom: 10px;" ng-repeat="(coldRoomKey, coldRoom) in actualSystem.sensors" ng-show="coldRoom.id">
+                                            <div style="margin: auto; border: 1px solid gray; border-radius: 10px; background: #0000003d;">
+                                                <div title="{{ coldRoom.alias ? coldRoom.alias : coldRoom.id }}"
+                                                    style="font-size: 2em; width: 100%; padding: 0 10px; box-sizing: border-box; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                                    <b>{{ coldRoom.alias ? coldRoom.alias : coldRoom.id }}</b>
+                                                </div>
+                                                <div class="row" style="font-size: 4em; text-align: right; margin-bottom: 0; width: 100%; margin-left: 0px;">
+                                                    <div class="col s3 center-align"><i class="fa fa-thermometer-0" aria-hidden="true"></i></div>
+                                                    <div class="col s8 right-align">{{ actualSystemDataRaw[$index * 3 + 1] }}°C</div>
+                                                    <div class="col s1"></div>
+                                                </div>
+                                                <div class="row" style="font-size: 2em; text-align: right; width: 100%; margin-left: 0px;">
+                                                    <div class="col s3 center-align"><i class="fa fa-tint" aria-hidden="true"></i></div>
+                                                    <div class="col s8 right-align">{{ actualSystemDataRaw[$index * 3] }}%Hr</div>
+                                                    <div class="col s1"></div>
+                                                </div>
+                                                <hr style="border: 1px solid grey; margin: 5px 0;">
+                                                <div class="row center-align" style="font-size: 1.5em; margin-bottom: 5px; width: 100%; margin-left: 0px;" ng-init="signal=signalToPercent(actualSystem.log.signal)">
+                                                    <div class="col s4"><i class="fa fa-battery-{{ voltageToPercent(actualSystemDataRaw[$index * 3 + 2]) > 75 ? 'full' : voltageToPercent(actualSystemDataRaw[$index * 3 + 2]) > 50 ? 'three-quarters' : voltageToPercent(actualSystemDataRaw[$index * 3 + 2]) > 25 ? 'half' : 'empty'}}" aria-hidden="true"></i><span style="margin-left: 5px;">{{ voltageToPercent(actualSystemDataRaw[$index * 3 + 2]) ? voltageToPercent(actualSystemDataRaw[$index * 3 + 2]) : "" }}%</span></div>
+                                                    <!-- <div class="col s2"><i class="fa fa-signal" aria-hidden="true"></i><p style="font-size: .7em; margin-top: -8px;">{{ signal }}%</p></div> -->
+                                                    <div class="col s2"></div>
+                                                    <div class="col s3"><i class="fa fa-bar-chart btn grey waves-light" role="button" tabindex="0" ng-click="openColdRoomSensorChart(coldRoom, coldRoomKey)" aria-label="Ver gráfica del sensor" style="font-size: 0.9em; width: 100%; border: 1px solid; box-shadow: 3px 3px grey !important;"></i></div>
+                                                    <div class="col s3"><i class="fa fa-cog btn grey waves-light modal-trigger"  href="#modalEditSensor" ng-click="editSensor(coldRoom)" aria-hidden="true" style="font-size: 0.9em; width: 100%; border: 1px solid; box-shadow: 3px 3px grey !important;"></i></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
 
@@ -1357,11 +1586,11 @@
                                         const js = d.createElement(s);
                                         js.id = id;
                                         js.src = "https://www.tomorrow.io/v1/widget/sdk/sdk.bundle.min.js";
-                            
+
                                         fjs.parentNode.insertBefore(js, fjs);
                                     })(document, 'script', 'tomorrow-sdk');
                                     </script>
-                            
+
                                     <div class="tomorrow"
                                         data-location-id=""
                                         data-language="ES"
@@ -1499,7 +1728,7 @@
                 </div>
 
                 <div id="modalConfig" class="modal" style="min-height: 70% !important;" ng-init="as_config = true"> <!-- Modal Configurar Sistema -->
-                    <div class="swal-title">{{ actualSystem.type != 'Sensor' ? "Plan de riego" : "Sensores" }}</div>
+                    <div class="swal-title">{{ actualSystem.type != 'Sensor' && actualSystem.type != 'Nevera' ? "Plan de riego" : "Sensores" }}</div>
 
                     <div class="modal-content" ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'"> <!-- Pivotes -->
                         <table class="striped highlight">
@@ -1644,7 +1873,7 @@
                         </div>
                     </div>
 
-                    <div ng-show="actualSystem.type == 'Sensor'"> <!-- Sensores -->
+                    <div ng-show="actualSystem.type == 'Sensor' || actualSystem.type == 'Nevera'"> <!-- Sensores -->
                         <div class="modal-content">
                             <!-- <ul class="collapsible">
                                 <li class="active"> Sensores  -->
@@ -1657,6 +1886,7 @@
                                         <div style="padding: 5px; border: 1px solid grey; border-radius: 5px; margin: 5px;">
                                             <!-- <div id="sensores">-->
                                                 <div class="row" style="margin: 5px 5px 0 5px;">
+                                                    <div class="col s12" style="padding: 0; margin-bottom: 0;" ng-show="!actualSystem.sensors || actualSystem.sensors.length === 0">"No hay sensores registrados"</div>
                                                     <div class="col s12" style="padding: 0; margin-bottom: 0;">
                                                         <ul>
                                                             <li class="waves-effect modal-trigger"
@@ -1988,6 +2218,41 @@
                     </div>
                 </div>
 
+                <div id="modalColdRoomSensorChart" class="modal">
+                    <div class="swal-title">{{ coldRoomChartSensor.alias || coldRoomChartSensor.id || 'Sensor' }}</div>
+                    <div class="modal-content" style="padding: 10px 15px;">
+                        <div class="row" style="margin-bottom: 8px; text-align: center;" ng-show="coldRoomChartAvailable && actualSystem.type == 'Sensor'">
+                            <div class="col s12" style="padding: 10px; color: blue; border-bottom: 3px solid blue;">
+                                <img src="./assets/images/Hr.png" alt="Humedad del suelo" style="width: 20px;"><br>
+                                {{ coldRoomChartSensor.type == 'WM' ? 'Agua disponible' : 'Humedad del suelo' }} · Ciclo completo
+                            </div>
+                        </div>
+                        <div class="row" style="margin-bottom: 8px; text-align: center;" ng-show="coldRoomChartAvailable && actualSystem.type == 'Nevera'">
+                            <div class="col s4" ng-click="setColdRoomChartType('temperature')" style="padding: 10px 2px; cursor: pointer; color: {{ chartType == 'temperature' ? 'red' : 'gray' }}; border-bottom: 3px solid {{ chartType == 'temperature' ? 'red' : 'gray' }};">
+                                <img src="./assets/images/termometro.png" alt="Temperatura" style="width: 20px;"><br>Temperatura
+                            </div>
+                            <div class="col s4" ng-click="setColdRoomChartType('humidity')" style="padding: 10px 2px; cursor: pointer; color: {{ chartType == 'humidity' ? 'green' : 'gray' }}; border-bottom: 3px solid {{ chartType == 'humidity' ? 'green' : 'gray' }};">
+                                <img src="./assets/images/agua.png" alt="Humedad" style="width: 20px;"><br>Humedad
+                            </div>
+                            <div class="col s4" ng-click="setColdRoomChartType('temperatureHumidity')" style="padding: 10px 2px; cursor: pointer; color: {{ chartType == 'temperatureHumidity' ? 'teal' : 'gray' }}; border-bottom: 3px solid {{ chartType == 'temperatureHumidity' ? 'teal' : 'gray' }};">
+                                <i class="material-icons" style="font-size: 20px;">multiline_chart</i><br>Temperatura + humedad
+                            </div>
+                        </div>
+                        <div class="row" ng-show="coldRoomChartAvailable">
+                            <div class="col s12" style="height: 280px;"><canvas id="coldRoomSensorChart"></canvas></div>
+                        </div>
+                        <div class="center-align" ng-show="!coldRoomChartAvailable" style="padding: 30px 10px; color: gray;">
+                            Este tipo de sensor no tiene una serie histórica configurable.
+                        </div>
+                        <div class="row center-align" style="margin-bottom: 0;" ng-show="coldRoomChartAvailable && actualSystem.type == 'Nevera'">
+                            <button class="btn-small" ng-class="selectedTimeOption == 'DIA' ? 'teal' : 'grey lighten-2'" ng-click="reloadColdRoomSensorChart('DIA')">Día</button>
+                            <button class="btn-small" ng-class="selectedTimeOption == 'MES' ? 'teal' : 'grey lighten-2'" ng-click="reloadColdRoomSensorChart('MES')">Mes</button>
+                            <button class="btn-small" ng-class="selectedTimeOption == 'CICLO' ? 'teal' : 'grey lighten-2'" ng-click="reloadColdRoomSensorChart('CICLO')">Ciclo</button>
+                        </div>
+                    </div>
+                    <div class="modal-footer"><a href="" class="modal-close waves-effect waves-green btn-flat">Cerrar</a></div>
+                </div>
+
                 <div id="modalHistorial" class="modal"> <!-- Modal Historial del Sistema -->
                     <div class="swal-title">Historial</div>
 
@@ -2141,16 +2406,17 @@
                                     </li>
                                 </ul>
                             </div>
-                            <div ng-show="actualSystem.type == 'Sensor'">
+                            <div ng-show="actualSystem.type == 'Sensor' || actualSystem.type == 'Nevera'">
                                 <ul class="collapsible">
                                     <li ng-repeat="sensor in actualSystem.sensors" ng-if="sensor.id" ng-init="idx=$index" ng-click="setChart(idx, 'myChartH' + idx)">
                                         <div class="collapsible-header"><i class="material-icons">place</i>{{ idx + 1 }}.- {{ sensor.alias || sensor.id }}</div>
                                         <div class="collapsible-body" style="padding: 5px 10px;">
                                             <!-- Botones de selección de tipo de gráfico -->
-                                            <div class="row" style="margin-bottom: 10px;" ng-if="sensor.type != 'Psi'"">
+                                            <div class="row" style="margin-bottom: 10px;" ng-if="sensor.type != 'Psi'">
                                                 <div class="col s12" style="text-align: center;">
                                                     <div class="row" style="display: inline-flex; justify-content: center; width: auto;">
-                                                        <div class="col" ng-click="setChartType('moisture'); setChart(idx, 'myChartH' + idx);" style="margin-right: 5px; text-align: center; padding: 10px; cursor: pointer; color: {{ chartType == 'moisture' ? 'blue' : 'gray' }}; border-bottom: 3px solid {{ chartType == 'moisture' ? 'blue' : 'gray' }};">
+                                                        <div class="col" ng-click="setChartType('moisture')" ng-show="sensor.type == 'SHT4' || sensor.type == 'WM'"
+                                                        setChart(idx, 'myChartH' + idx);" style="margin-right: 5px; text-align: center; padding: 10px; cursor: pointer; color: {{ chartType == 'moisture' ? 'blue' : 'gray' }}; border-bottom: 3px solid {{ chartType == 'moisture' ? 'blue' : 'gray' }};">
                                                             <div style="margin-bottom: 5px;">
                                                                 <img src="./assets/images/Hr.png" alt="Ms" style="width: 20px;">
                                                             </div>
@@ -2187,8 +2453,10 @@
                                                 <div class="col s12" style="text-align: right;">
                                                     <!-- <button class="btn-small" ng-class="selectedTimeOption == 'DIA' ? 'teal' : 'grey lighten-2'" ng-click="reloadSystemLog(actualSystem.key, 'DIA');" style="margin-right: 5px; padding: 0 15px; height: 28px; line-height: 28px; font-size: 0.8em; color: {{ selectedTimeOption == 'DIA' ? 'white' : '#616161' }};">Día</button>
                                                     <button class="btn-small" ng-class="selectedTimeOption == 'SEMANA' ? 'teal' : 'grey lighten-2'" ng-click="reloadSystemLog(actualSystem.key, 'SEMANA');" style="margin-right: 5px; padding: 0 15px; height: 28px; line-height: 28px; font-size: 0.8em; color: {{ selectedTimeOption == 'SEMANA' ? 'white' : '#616161' }};">Semana</button> -->
-                                                    <button class="btn-small" ng-class="selectedTimeOption == 'MES' ? 'teal' : 'grey lighten-2'" ng-click="reloadSystemLog(actualSystem.key, 'MES');" style="padding: 0 15px; height: 28px; line-height: 28px; font-size: 0.8em; color: {{ selectedTimeOption == 'MES' ? 'white' : '#616161' }};">Mes</button>
-                                                    <button class="btn-small" ng-class="selectedTimeOption == 'CICLO' ? 'teal' : 'grey lighten-2'" ng-click="reloadSystemLog(actualSystem.key, 'CICLO');" style="padding: 0 15px; height: 28px; line-height: 28px; font-size: 0.8em; color: {{ selectedTimeOption == 'CICLO' ? 'white' : '#616161' }};">Ciclo</button>
+                                                    <button class="btn-small" ng-if="actualSystem.type == 'Nevera'" ng-class="selectedTimeOption == 'DIA' ? 'teal' : 'grey lighten-2'" ng-click="$event.stopPropagation(); reloadSystemLog(actualSystem.key, 'DIA', idx);" style="padding: 0 15px; height: 28px; line-height: 28px; font-size: 0.8em; color: {{ selectedTimeOption == 'DIA' ? 'white' : '#616161' }};"><span class="history-button-spinner" ng-if="historyLoadingOption == 'DIA'"></span>Día</button>
+                                                    <button class="btn-small" ng-if="actualSystem.type != 'Nevera'" ng-class="selectedTimeOption == 'SEMANA' ? 'teal' : 'grey lighten-2'" ng-click="$event.stopPropagation(); reloadSystemLog(actualSystem.key, 'SEMANA', idx);" style="padding: 0 15px; height: 28px; line-height: 28px; font-size: 0.8em; color: {{ selectedTimeOption == 'SEMANA' ? 'white' : '#616161' }};"><span class="history-button-spinner" ng-if="historyLoadingOption == 'SEMANA'"></span>Semana</button>
+                                                    <button class="btn-small" ng-class="selectedTimeOption == 'MES' ? 'teal' : 'grey lighten-2'" ng-click="$event.stopPropagation(); reloadSystemLog(actualSystem.key, 'MES', idx);" style="padding: 0 15px; height: 28px; line-height: 28px; font-size: 0.8em; color: {{ selectedTimeOption == 'MES' ? 'white' : '#616161' }};"><span class="history-button-spinner" ng-if="historyLoadingOption == 'MES'"></span>Mes</button>
+                                                    <button class="btn-small" ng-class="selectedTimeOption == 'CICLO' ? 'teal' : 'grey lighten-2'" ng-click="$event.stopPropagation(); reloadSystemLog(actualSystem.key, 'CICLO', idx);" style="padding: 0 15px; height: 28px; line-height: 28px; font-size: 0.8em; color: {{ selectedTimeOption == 'CICLO' ? 'white' : '#616161' }};"><span class="history-button-spinner" ng-if="historyLoadingOption == 'CICLO'"></span>Ciclo</button>
                                                     <!-- <button class="btn-small" ng-class="selectedTimeOption == 'AÑO' ? 'teal' : 'grey lighten-2'" ng-click="reloadSystemLog(actualSystem.key, 'AÑO');" style="padding: 0 15px; height: 28px; line-height: 28px; font-size: 0.8em; color: {{ selectedTimeOption == 'AÑO' ? 'white' : '#616161' }};">Año</button> -->
                                                 </div>
                                             </div>
@@ -3062,95 +3330,136 @@
 
                             <div class="input-field col s12 row" ng-show="steepSensor == 0">   <!-- Seleccionar sensor -->
                                 
-                                <div class="col s6">
-                                    <div class="card tarjeta-sensores" ng-click="newSensor.type='NPKML'; steepSensor = steepSensor + 1" style="box-shadow: 8px 8px 8px gray !important;">
-                                        <div class="card-image">
-                                            <img src="./assets/images/sNPKML.png" style="height: 80px; width: 80px; margin: auto;">
-                                        </div>
-                                        <div class="card-content">
-                                            <p style="text-align: center; font-size: 1.2em;">Perfil</p>
+                                <section ng-show="actualSystem.type == 'Sensor'">
+                                    <div class="col s6">
+                                        <div class="card tarjeta-sensores" ng-click="newSensor.type='NPKML'; steepSensor = steepSensor + 1" style="box-shadow: 8px 8px 8px gray !important;">
+                                            <div class="card-image">
+                                                <img src="./assets/images/sNPKML.png" style="height: 80px; width: 80px; margin: auto;">
+                                            </div>
+                                            <div class="card-content">
+                                                <p style="text-align: center; font-size: 1.2em;">Perfil</p>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+    
+                                    <div class="col s6">
+                                        <div class="card tarjeta-sensores" ng-click="newSensor.type='NPK'; steepSensor = steepSensor + 1" style="box-shadow: 8px 8px 8px gray !important;">
+                                            <div class="card-image">
+                                                <img src="./assets/images/sNPK.png" style="height: 80px; width: 80px; margin: auto;">
+                                            </div>
+                                            <div class="card-content">
+                                                <p style="text-align: center; font-size: 1.2em; margin-left: -10px;">Nutrientes</p>
+                                            </div>
+                                        </div>
+                                    </div>
+    
+                                    <div class="col s6">
+                                        <div class="card tarjeta-sensores" ng-click="newSensor.type='WM'; steepSensor = steepSensor + 1" style="box-shadow: 8px 8px 8px gray !important;">
+                                            <div class="card-image">
+                                                <img src="./assets/images/sWM.jpg" style="height: 80px; width: 80px; margin: auto;">
+                                            </div>
+                                            <div class="card-content">
+                                                <p style="text-align: center; font-size: 1.2em;">Tensión</p>
+                                            </div>
+                                        </div>
+                                    </div>
+    
+                                    <div class="col s6">
+                                        <div class="card tarjeta-sensores" ng-click="newSensor.type='SHT4'; steepSensor = steepSensor + 1" style="box-shadow: 8px 8px 8px gray !important;">
+                                            <div class="card-image">
+                                                <img src="./assets/images/sVWC.png" style="height: 80px; width: 80px; margin: auto;">
+                                            </div>
+                                            <div class="card-content">
+                                                <p style="text-align: center; font-size: 1.2em;">Volumen</p>
+                                            </div>
+                                        </div>
+                                    </div>
+    
+                                    <div class="col s6">
+                                        <div class="card tarjeta-sensores" ng-click="newSensor.type='Tr'; steepSensor = steepSensor + 1" style="box-shadow: 8px 8px 8px gray !important;">
+                                            <div class="card-image">
+                                                <img src="./assets/images/sTemp.png" style="height: 80px; width: 80px; margin: auto;">
+                                            </div>
+                                            <div class="card-content">
+                                                <p style="text-align: center; font-size: 1.2em;">Presión</p>
+                                            </div>
+                                        </div>
+                                    </div>
+    
+                                    <div class="col s6">
+                                        <div class="card tarjeta-sensores" ng-click="newSensor.type='Psi'; steepSensor = steepSensor + 1" style="box-shadow: 8px 8px 8px gray !important;">
+                                            <div class="card-image">
+                                                <img src="./assets/images/sPSI.png" style="height: 80px; width: 80px; margin: auto;">
+                                            </div>
+                                            <div class="card-content">
+                                                <p style="text-align: center; font-size: 1.2em;">Presión</p>
+                                            </div>
+                                        </div>
+                                    </div>
 
-                                <div class="col s6">
-                                    <div class="card tarjeta-sensores" ng-click="newSensor.type='NPK'; steepSensor = steepSensor + 1" style="box-shadow: 8px 8px 8px gray !important;">
-                                        <div class="card-image">
-                                            <img src="./assets/images/sNPK.png" style="height: 80px; width: 80px; margin: auto;">
-                                        </div>
-                                        <div class="card-content">
-                                            <p style="text-align: center; font-size: 1.2em;">Nutrientes</p>
+                                    <div class="col s6">
+                                        <div class="card tarjeta-sensores" ng-click="newSensor.type='Fl'; steepSensor = steepSensor + 1" style="box-shadow: 8px 8px 8px gray !important;">
+                                            <div class="card-image">
+                                                <img src="./assets/images/sCaudal.png" style="height: 80px; width: 80px; margin: auto;">
+                                            </div>
+                                            <div class="card-content">
+                                                <p style="text-align: center; font-size: 1.2em;">Caudal</p>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                </section>
 
-                                <div class="col s6">
-                                    <div class="card tarjeta-sensores" ng-click="newSensor.type='WM'; steepSensor = steepSensor + 1" style="box-shadow: 8px 8px 8px gray !important;">
-                                        <div class="card-image">
-                                            <img src="./assets/images/sWM.jpg" style="height: 80px; width: 80px; margin: auto;">
-                                        </div>
-                                        <div class="card-content">
-                                            <p style="text-align: center; font-size: 1.2em;">Tensiómetro</p>
+                                <section ng-show="actualSystem.type == 'Nevera'">
+                                    <div class="col s6">
+                                        <div class="card tarjeta-sensores" ng-click="newSensor.type='SHT2'; steepSensor = steepSensor + 1" style="box-shadow: 8px 8px 8px gray !important;">
+                                            <div class="card-image">
+                                                <img src="./assets/images/sSHT_2.png" style="height: 80px; width: 80px; margin: auto;">
+                                            </div>
+                                            <div class="card-content">
+                                                <p style="text-align: center; font-size: 1.2em;">T y Hr</p>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+    
+                                    <div class="col s6">
+                                        <div class="card tarjeta-sensores" ng-click="newSensor.type='Irms'; steepSensor = steepSensor + 1" style="box-shadow: 8px 8px 8px gray !important;">
+                                            <div class="card-image">
+                                                <img src="./assets/images/sIrms.png" style="height: 80px; width: 80px; margin: auto;">
+                                            </div>
+                                            <div class="card-content">
+                                                <p style="text-align: center; font-size: 1.2em;">Corriente</p>
+                                            </div>
+                                        </div>
+                                    </div>
 
-                                <div class="col s6">
-                                    <div class="card tarjeta-sensores" ng-click="newSensor.type='SHT4'; steepSensor = steepSensor + 1" style="box-shadow: 8px 8px 8px gray !important;">
-                                        <div class="card-image">
-                                            <img src="./assets/images/sVWC.png" style="height: 80px; width: 80px; margin: auto;">
-                                        </div>
-                                        <div class="card-content">
-                                            <p style="text-align: center; font-size: 1.2em;">Volmétrico</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="col s6">
-                                    <div class="card tarjeta-sensores" ng-click="newSensor.type='Tr'; steepSensor = steepSensor + 1" style="box-shadow: 8px 8px 8px gray !important;">
-                                        <div class="card-image">
-                                            <img src="./assets/images/sTemp.png" style="height: 80px; width: 80px; margin: auto;">
-                                        </div>
-                                        <div class="card-content">
-                                            <p style="text-align: center; font-size: 1.2em;">Presión</p>
+                                    <div class="col s6">
+                                        <div class="card tarjeta-sensores" ng-click="newSensor.type='Contact'; steepSensor = steepSensor + 1" style="box-shadow: 8px 8px 8px gray !important;">
+                                            <div class="card-image">
+                                                <img src="./assets/images/sContacto.jpeg" style="height: 80px; width: 80px; margin: auto;">
+                                            </div>
+                                            <div class="card-content">
+                                                <p style="text-align: center; font-size: 1.2em;">Contacto</p>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-
-                                <div class="col s6">
-                                    <div class="card tarjeta-sensores" ng-click="newSensor.type='Psi'; steepSensor = steepSensor + 1" style="box-shadow: 8px 8px 8px gray !important;">
-                                        <div class="card-image">
-                                            <img src="./assets/images/sPSI.png" style="height: 80px; width: 80px; margin: auto;">
-                                        </div>
-                                        <div class="card-content">
-                                            <p style="text-align: center; font-size: 1.2em;">Presión</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="col s6">
-                                    <div class="card tarjeta-sensores" ng-click="newSensor.type='Fl'; steepSensor = steepSensor + 1" style="box-shadow: 8px 8px 8px gray !important;">
-                                        <div class="card-image">
-                                            <img src="./assets/images/sCaudal.png" style="height: 80px; width: 80px; margin: auto;">
-                                        </div>
-                                        <div class="card-content">
-                                            <p style="text-align: center; font-size: 1.2em;">Caudal</p>
-                                        </div>
-                                    </div>
-                                </div>
+                                </section>
 
                                 <div class="input-field col s12 m6" style="display: none;">   <!-- Tipo de sensor -->
-                                    <select id="editSensorType" class="browser-default" ng-model="newSensor.type">
-                                        <option value="NPKML" selected="{{ newSensor.type == 'NPKML' ? 'selected' : '' }}"><b>Perfil</b> del suelo</option>
-                                        <option value="NPK" selected="{{ newSensor.type == 'NPK' ? 'selected' : '' }}"><b>Nutrientes</b></option>
-                                        <option value="WM" selected="{{ newSensor.type == 'WM' ? 'selected' : '' }}"><b>Tensiómetro</b></option>
-                                        <option value="SHT4" selected="{{ newSensor.type == 'SHT4' ? 'selected' : '' }}"><b>Humedad</b> del suelo</option>                                
-                                        <option value="Tr" selected="{{ newSensor.type == 'Tr' ? 'selected' : '' }}">Sensor de <b>temperatura</b></option>
-                                        <option value="Psi" selected="{{ newSensor.type == 'Psi' ? 'selected' : '' }}">Sensor de <b>presión</b></option>
-                                        <option value="Fl" selected="{{ newSensor.type == 'Fl' ? 'selected' : '' }}">Sensor de <b>caudal</b></option>
+                                    <select id="editSensorType1" class="browser-default" ng-model="newSensor.type">
+                                        <option value="NPKML" selected="{{ newSensor.type == 'NPKML' ? 'selected' : '' }}" ng-show="actualSystem.type == 'Sensor'"><b>Perfil</b> del suelo</option>
+                                        <option value="NPK" selected="{{ newSensor.type == 'NPK' ? 'selected' : '' }}" ng-show="actualSystem.type == 'Sensor'"><b>Nutrientes</b></option>
+                                        <option value="WM" selected="{{ newSensor.type == 'WM' ? 'selected' : '' }}" ng-show="actualSystem.type == 'Sensor'"><b>Tensiómetro</b></option>
+                                        <option value="SHT4" selected="{{ newSensor.type == 'SHT4' ? 'selected' : '' }}" ng-show="actualSystem.type == 'Sensor'"><b>Humedad</b> del suelo</option>                                
+                                        <option value="Tr" selected="{{ newSensor.type == 'Tr' ? 'selected' : '' }}" ng-show="actualSystem.type == 'Sensor'">Sensor de <b>temperatura</b></option>
+                                        <option value="Psi" selected="{{ newSensor.type == 'Psi' ? 'selected' : '' }}" ng-show="actualSystem.type == 'Sensor'">Sensor de <b>presión</b></option>
+                                        <option value="Fl" selected="{{ newSensor.type == 'Fl' ? 'selected' : '' }}" ng-show="actualSystem.type == 'Sensor'">Sensor de <b>caudal</b></option>
+                                        <option value="SHT2" selected="{{ newSensor.type == 'SHT2' ? 'selected' : '' }}" ng-show="actualSystem.type == 'Nevera'">Sensor de <b>Temp y Hr</b></option>
+                                        <option value="Irms" selected="{{ newSensor.type == 'Irms' ? 'selected' : '' }}" ng-show="actualSystem.type == 'Nevera'">Sensor de <b>corriente</b></option>
+                                        <option value="Contact" selected="{{ newSensor.type == 'Contact' ? 'selected' : '' }}" ng-show="actualSystem.type == 'Nevera'">Sensor de <b>contacto</b></option>
                                     </select>
                                     <label style="top: -28px; font-size: .8em;">Tipo de sensor</label>
                                 </div>
+                                
                             </div>
 
                             <div class="input-field col s12 row" ng-show="steepSensor == 1">   <!-- Seleccionar cultivos -->
@@ -3162,6 +3471,12 @@
                                         <option value="">Seleccionar cultivo</option>
                                     </select>
                                     <label style="top: -28px; font-size: .8em;">Cultivo</label>
+                                </div>
+                                <div class="input-field col s12 m6" ng-show="newSensor.culture">
+                                    <input id="newSensorPhenologicalStage" type="text"
+                                        ng-model="newSensor.phenologicalStage"
+                                        placeholder="Ej. floración, cuajado, maduración">
+                                    <label for="newSensorPhenologicalStage" class="active">Fase fenológica</label>
                                 </div>
                                 <!-- Alertas -->
                                 <div class="col s12"
@@ -3234,7 +3549,13 @@
                                                         <a href="" class="waves-effect waves-green btn-flat" ng-click="isShowDiseaseDetails = false">Cerrar</a>
                                                     </div>
                                                 </div>
-                                                <div ng-show="newSensor.type == 'NPKML' || newSensor.type == 'NPK' || newSensor.type == 'SHT4' || newSensor.type == 'WM' || newSensor.type == 'Ms'"> <!-- Humbral de Humedad -->
+                                                <div ng-show="newSensor.type == 'NPKML' || 
+                                                              newSensor.type == 'NPK' || 
+                                                              newSensor.type == 'WM' || 
+                                                              newSensor.type == 'SHT4' || 
+                                                              newSensor.type == 'Ms' ||
+                                                              newSensor.type == 'Tr' || 
+                                                              newSensor.type == 'SHT2'"> <!-- Humbral de Humedad -->
                                                     <p style="margin-top: -5px; margin-bottom: 0;">
                                                         <label class="left-align">
                                                             <input id="newSensorHNotify" type="checkbox" ng-model="newSensor.h.notify" />
@@ -3247,7 +3568,13 @@
                                                         </label>
                                                     </p>
                                                 </div>
-                                                <div ng-show="newSensor.type == 'Tr' || newSensor.type == 'SHT4' || newSensor.type == 'WM'"> <!-- Humbral de temperatura -->
+                                                <div ng-show="newSensor.type == 'NPKML' || 
+                                                              newSensor.type == 'NPK' || 
+                                                              newSensor.type == 'WM' || 
+                                                              newSensor.type == 'SHT4' || 
+                                                              newSensor.type == 'Ms' ||
+                                                              newSensor.type == 'Tr' || 
+                                                              newSensor.type == 'SHT2'"> <!-- Humbral de temperatura -->
                                                     <p style="margin-top: -5px; margin-bottom: 0;">
                                                         <label class="left-align">
                                                             <input id="newSensorTNotify" type="checkbox" ng-model="newSensor.t.notify" />
@@ -3370,7 +3697,7 @@
                         <div class="swal-title">Editar: {{ actualSensor.alias ? actualSensor.alias : actualSensor.id }}</div>
                         <div class="row" style="text-align: center;">
                             <div class="input-field col s12">
-                                <img src="{{ getSensorImage (actualSensor.type) }}" style="width: 100px;" alt="WM">
+                                <img src="{{ getSensorImage(actualSensor.type) }}" style="width: 100px;" alt="{{ actualSensor.type }}">
                             </div>
                             <div class="input-field col s12">
                                 <input id="editSensorAlias" type="text" ng-model="actualSensor.alias">
@@ -3407,7 +3734,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col s12"
+                            <div class="col s12" ng-show="actualSystem.type == 'Sensor'"
                                 style="background: whitesmoke; box-shadow: 0 0 3px lightgrey; margin-bottom: 20px;">
                                 <label>Geolocalización</label>
                                 <div class="row" style="margin-bottom: 0;">
@@ -3432,13 +3759,16 @@
                             <br>
                             <div class="input-field col s12 m6">
                                 <select id="editSensorType" class="browser-default" ng-model="actualSensor.type">
-                                    <option value="NPKML" selected="{{ actualSensor.type == 'NPKML' ? 'selected' : '' }}"><b>Perfil</b> del suelo</option>
-                                    <option value="NPK" selected="{{ actualSensor.type == 'NPK' ? 'selected' : '' }}"><b>Nutrientes</b></option>
-                                    <option value="WM" selected="{{ actualSensor.type == 'WM' ? 'selected' : '' }}"><b>Tensiómetro</b></option>
-                                    <option value="SHT4" selected="{{ actualSensor.type == 'SHT4' ? 'selected' : '' }}"><b>Humedad</b> del suelo</option>                                
-                                    <option value="Tr" selected="{{ actualSensor.type == 'Tr' ? 'selected' : '' }}">Sensor de <b>temperatura</b></option>
-                                    <option value="Psi" selected="{{ actualSensor.type == 'Psi' ? 'selected' : '' }}">Sensor de <b>presión</b></option>
-                                    <option value="Fl" selected="{{ actualSensor.type == 'Fl' ? 'selected' : '' }}">Sensor de <b>caudal</b></option>
+                                    <option value="NPKML" selected="{{ actualSensor.type == 'NPKML' ? 'selected' : '' }}" ng-show="actualSystem.type == 'Sensor'"><b>Perfil</b> del suelo</option>
+                                    <option value="NPK" selected="{{ actualSensor.type == 'NPK' ? 'selected' : '' }}" ng-show="actualSystem.type == 'Sensor'"><b>Nutrientes</b></option>
+                                    <option value="WM" selected="{{ actualSensor.type == 'WM' ? 'selected' : '' }}" ng-show="actualSystem.type == 'Sensor'"><b>Tensiómetro</b></option>
+                                    <option value="SHT4" selected="{{ actualSensor.type == 'SHT4' ? 'selected' : '' }}" ng-show="actualSystem.type == 'Sensor'"><b>Humedad</b> del suelo</option>                                
+                                    <option value="Tr" selected="{{ actualSensor.type == 'Tr' ? 'selected' : '' }}" ng-show="actualSystem.type == 'Sensor'">Sensor de <b>temperatura</b></option>
+                                    <option value="Psi" selected="{{ actualSensor.type == 'Psi' ? 'selected' : '' }}" ng-show="actualSystem.type == 'Sensor'">Sensor de <b>presión</b></option>
+                                    <option value="Fl" selected="{{ actualSensor.type == 'Fl' ? 'selected' : '' }}" ng-show="actualSystem.type == 'Sensor'">Sensor de <b>caudal</b></option>
+                                    <option value="SHT2" selected="{{ actualSensor.type == 'SHT2' ? 'selected' : '' }}" ng-show="actualSystem.type == 'Nevera'">Sensor de <b>Temp y Hr</b></option>
+                                    <option value="Irms" selected="{{ actualSensor.type == 'Irms' ? 'selected' : '' }}" ng-show="actualSystem.type == 'Nevera'">Sensor de <b>corriente</b></option>
+                                    <option value="Contact" selected="{{ actualSensor.type == 'Contact' ? 'selected' : '' }}" ng-show="actualSystem.type == 'Nevera'">Sensor de <b>contacto</b></option>
                                 </select>
                                 <label style="top: -28px; font-size: .8em;">Tipo de sensor</label>
                             </div>
@@ -3449,6 +3779,12 @@
                                     <option value="">Seleccionar cultivo</option>
                                 </select>
                                 <label style="top: -28px; font-size: .8em;">Cultivo</label>
+                            </div>
+                            <div class="input-field col s12 m6" ng-show="actualSensor.culture">
+                                <input id="editSensorPhenologicalStage" type="text"
+                                    ng-model="actualSensor.phenologicalStage"
+                                    placeholder="Ej. floración, cuajado, maduración">
+                                <label for="editSensorPhenologicalStage" class="active">Fase fenológica</label>
                             </div>
                             <div class="col s12"
                                 style="background: whitesmoke; box-shadow: 0 0 3px lightgrey; margin-bottom: 20px; 
@@ -3518,7 +3854,7 @@
                                                     <a href="" class="waves-effect waves-green btn-flat" ng-click="isShowDiseaseDetails = false">Cerrar</a>
                                                 </div>
                                             </div>
-                                            <div ng-show="actualSensor.type == 'SHT4' || actualSensor.type == 'WM' || actualSensor.type == 'Ms'"> <!-- Humbral de Humedad -->
+                                            <div ng-show="actualSensor.type == 'SHT2' || actualSensor.type == 'SHT4' || actualSensor.type == 'WM' || actualSensor.type == 'Ms'"> <!-- Humbral de Humedad -->
                                                 <p style="margin-top: -5px; margin-bottom: 0;">
                                                     <label class="left-align">
                                                         <input id="editSensorHNotify" type="checkbox" ng-model="actualSensor.h.notify" />
@@ -3531,7 +3867,7 @@
                                                     </label>
                                                 </p>
                                             </div>
-                                            <div ng-show="actualSensor.type == 'Tr' || actualSensor.type == 'SHT4' || actualSensor.type == 'WM'"> <!-- Humbral de temperatura -->
+                                            <div ng-show="actualSensor.type == 'Tr' || actualSensor.type == 'SHT2' || actualSensor.type == 'SHT4' || actualSensor.type == 'WM'"> <!-- Humbral de temperatura -->
                                                 <p style="margin-top: -5px; margin-bottom: 0;">
                                                     <label class="left-align">
                                                         <input id="editSensorTNotify" type="checkbox" ng-model="actualSensor.t.notify" />
@@ -3580,10 +3916,10 @@
                         <a href="" class="modal-close waves-effect grey waves-grey btn-flat white-text" ng-click="stopSensorQrScanner()">
                             <i class="material-icons">&nbsp;&nbsp;reply&nbsp;&nbsp;</i></a>
                         <a href="" class="modal-close waves-effect red waves-grey btn-flat white-text" 
-                            ng-click="stopSensorQrScanner(); deleteActualSensor()" ng-show="isSystemOfRole('propietario') || isSystemOfRole('administrador')">
+                            ng-click="stopSensorQrScanner(); deleteActualSensor()" ng-show="isSystemOfRole('propietario') || isSystemOfRole('administrador') || isSystemOfRole('desarrollador')">
                             <i class="material-icons">&nbsp;&nbsp;delete&nbsp;&nbsp;</i></a>
                         <a href="" class="modal-close waves-effect teal waves-green btn-flat white-text"
-                            ng-click="stopSensorQrScanner(); editActualSensor()" ng-show="isSystemOfRole('propietario') || isSystemOfRole('administrador')"><i
+                            ng-click="stopSensorQrScanner(); editActualSensor()" ng-show="isSystemOfRole('propietario') || isSystemOfRole('administrador') || isSystemOfRole('desarrollador')"><i
                                 class="material-icons">&nbsp;&nbsp;check&nbsp;&nbsp;</i></a>
                     </div>
                 </div>
@@ -4507,11 +4843,12 @@
     
     <!-- #region: CSS Y SCRIPTS -->
 
-    <link rel="stylesheet" href="./assets/modules/font-awesome/css/font-awesome.min.css">
+    <!-- <link rel="stylesheet" href="./assets/modules/font-awesome/css/font-awesome.min.css"> -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="./assets/modules/materialize/css/materialize.min.css">
     <link rel="stylesheet" href="./assets/modules/leaflet/leaflet.css">
-    <link rel="stylesheet" href="./assets/css/style.css">
+    <link rel="stylesheet" href="./assets/css/style.css?v=26.09.06.002">
     <link rel="stylesheet" href="./assets/css/responsive.css">
     <!-- <link rel="stylesheet" href="./assets/css/meteocons-font/FONT/Font-face/stylesheet.css"> -->
 
@@ -4536,14 +4873,15 @@
     <script src="./assets/modules/leaflet/leaflet.js"></script>
     <script src="./assets/modules/leaflet-semicircle/semicircle.js"></script>
     <script src="./assets/modules/chart.js/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
+    <script src="./assets/modules/chart.js/chartjs-plugin-zoom.js"></script>
     <script src="./assets/modules/html5-qrcode/html5-qrcode.min.js"></script>
     <script src="./assets/js/commons.js"></script>
     <!-- OneSignal queda fuera del arranque principal para usar Firebase Cloud Messaging. -->
     <!-- <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script> -->
     <!-- <script src="./assets/modules/push-notification/push.js" defer></script> -->
     <!-- <script src="./assets/cultures/listOfCultures.js"></script> -->
-    <script src="./assets/js/core.js?v=26.07.22.002"></script>
+    <script src="./assets/js/core.js?v=26.09.07.002"></script>
     <!-- <script src="monitor/js/chartjs/chart.min.js"></script> -->
     <script type="text/javascript" src="./assets/modules/datepicker/daterangepicker.js"></script>
 

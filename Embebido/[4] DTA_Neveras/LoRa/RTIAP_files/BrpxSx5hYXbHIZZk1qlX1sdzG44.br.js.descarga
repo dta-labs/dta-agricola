@@ -1,0 +1,1 @@
+function RewardsReportActivity(t){window.sj_rra&&sj_rra(t)}RewardsReportActivity(document.URL),sj_evt&&sj_evt.bind("acclink:updated",function(){RewardsReportActivity(document.URL)},1);

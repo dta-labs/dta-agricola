@@ -1,0 +1,1 @@
+var ReportResult;!function(e){e.send=function(e,t){var n=sj_gx();t.partner="BingStructuredFeedback",t.feedbackType="MarkasAdult";var r=JSON.stringify(t);n.open("POST",e,!0),n.setRequestHeader("Content-type","application/json; charset=utf-8"),n.send(r)}}(ReportResult||(ReportResult={}));

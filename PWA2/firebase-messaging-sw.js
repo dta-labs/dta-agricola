@@ -5,7 +5,7 @@ importScripts("./assets/js/firebaseConfig.js");
 firebase.initializeApp(config);
 
 const messaging = firebase.messaging();
-const CACHE_NAME = "DTA_Irrigation_Control_v1.5";
+const CACHE_NAME = "DTA_Irrigation_Control_v1.13";
 const CACHE_PREFIX = "DTA_Irrigation_Control_";
 const PWA_LAUNCH_URL = "./index.html";
 const NOTIFICATION_SOUND_FILE = "./assets/sounds/alarma-de-evacuacion.mp3";
@@ -30,6 +30,12 @@ self.addEventListener("install", (event) => {
       .then((cache) => cache.addAll(urlsToCache))
       .then(() => self.skipWaiting())
   );
+});
+
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.action === "skipWaiting") {
+    self.skipWaiting();
+  }
 });
 
 self.addEventListener("activate", (event) => {
@@ -71,7 +77,7 @@ self.addEventListener("fetch", (event) => {
 
   if (isNavigation || isScript || isStyle || url.pathname.endsWith(".html")) {
     event.respondWith(
-      fetch(event.request)
+      fetch(event.request, { cache: "no-store" })
         .then((response) => {
           const copy = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
@@ -82,10 +88,20 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  event.respondWith(
-    caches.match(event.request)
-      .then((response) => response || fetch(event.request))
-  );
+  if (url.origin === self.location.origin) {
+    event.respondWith(
+      fetch(event.request, { cache: "no-store" })
+        .then((response) => {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+          return response;
+        })
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
+  event.respondWith(fetch(event.request).catch(() => caches.match(event.request)));
 });
 
 function getScopedUrl(url) {

@@ -2,6 +2,16 @@
   "rules": {
     ".read": true,
     ".write": "auth != null",
+    "systems": {
+      "$systemId": {
+        "logs": {
+          ".indexOn": ["date"]
+        },
+        "dayLogs": {
+          ".indexOn": ["date"]
+        }
+      }
+    },
     "users": {
       "$userKey": {
         "fcmTokens": {

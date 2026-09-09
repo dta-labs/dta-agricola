@@ -11,6 +11,7 @@ String NODE_ID = NODE_ID_BASE;
 #define sensorPin A0                    // Pin del sensor de humedad
 #define activeHeater false
 #define NUM_MUESTRAS 20
+#define TEST false
 int TIMER = 5;                          // Tiempo de espera en minutos
 String sensorType;                      // Tipo de sensor SHT | DS
 bool calentado = false;

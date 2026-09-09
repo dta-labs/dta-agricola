@@ -280,7 +280,10 @@ function registerMessagingServiceWorker() {
   }
 
   return navigator.serviceWorker
-    .register("./firebase-messaging-sw.js", { scope: "./" })
+    .register("./firebase-messaging-sw.js", {
+      scope: "./",
+      updateViaCache: "none",
+    })
     .then((registration) => {
       traceFcm("registerMessagingServiceWorker", `Registrado: ${registration.scope}`);
       return registration;

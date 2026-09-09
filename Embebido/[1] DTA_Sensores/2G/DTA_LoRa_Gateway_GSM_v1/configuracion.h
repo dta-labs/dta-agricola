@@ -22,7 +22,7 @@ SoftwareSerial gprs(4, 3);
 #define httpServer1 F("AT+HTTPPARA=\"URL\",\"http://")
 #define httpServer2 F("/ws/sensor_v6.php?id=")
 #define httpServer F("AT+HTTPPARA=\"URL\",\"http://dtaamerica.com/ws/sensor_v6.php?id=")
-#define testSystem true
+#define testSystem false
 #define testComm false
 #define responseTime 15
 String dir = "";
