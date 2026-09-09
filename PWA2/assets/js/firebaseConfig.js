@@ -11,5 +11,7 @@ var config = {
     measurementId: "G-51FCCVQT6B"
 };
 
+const OPENWEATHER_API_KEY = "db9c92bd1f6d8d5db0aa0bae36ce093f";
+
 // export const firebase = initializeApp(config);
 

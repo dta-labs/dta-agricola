@@ -65,7 +65,6 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     // $scope.logDetail = {};
     $scope.users = {};
     $scope.meteo = [];
-    const OPENWEATHER_API_KEY = "db9c92bd1f6d8d5db0aa0bae36ce093f";
     const OPENWEATHER_ICON_URL = "https://openweathermap.org/img/w";
     const historicalWeatherCache = new Map();
     $scope.as_config = false;
