@@ -1,0 +1,151 @@
+{
+  "name": "Pipeline de Ventas Inteligente DTA-Agrícola",
+  "nodes": [
+    {
+      "id": "1",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.cron",
+      "position": [200, 300],
+      "parameters": {
+        "triggerTimes": [
+          {
+            "mode": "everyDay",
+            "hour": 7,
+            "minute": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "2",
+      "name": "Google Drive - Buscar Archivo",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [400, 300],
+      "parameters": {
+        "operation": "fileList",
+        "query": "name contains 'prospectos.xlsx'"
+      }
+    },
+    {
+      "id": "3",
+      "name": "Google Drive - Descargar Excel",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [600, 300],
+      "parameters": {
+        "operation": "download",
+        "fileId": "={{$json[\"id\"]}}"
+      }
+    },
+    {
+      "id": "4",
+      "name": "Leer Prospectos Excel",
+      "type": "n8n-nodes-base.spreadsheetFile",
+      "position": [800, 300],
+      "parameters": {
+        "operation": "read",
+        "options": {
+          "range": "Hoja1!A:Z"
+        }
+      }
+    },
+    {
+      "id": "5",
+      "name": "Calificación IA",
+      "type": "n8n-nodes-base.openAi",
+      "position": [1000, 300],
+      "parameters": {
+        "operation": "chat",
+        "model": "gpt-4-turbo",
+        "prompt": "Clasifica prospectos según ICP (sector, tamaño, ubicación, historial) y devuelve lista priorizada."
+      }
+    },
+    {
+      "id": "6",
+      "name": "Velocity Pipeline",
+      "type": "n8n-nodes-base.function",
+      "position": [1200, 300],
+      "parameters": {
+        "functionCode": "return items.map(item => ({ json: { etapa: item.json.etapa, tiempo: Date.now() - item.json.fechaContacto } }));"
+      }
+    },
+    {
+      "id": "7",
+      "name": "Mensaje Personalizado",
+      "type": "n8n-nodes-base.openAi",
+      "position": [1400, 300],
+      "parameters": {
+        "operation": "chat",
+        "model": "gpt-4-turbo",
+        "prompt": "Genera mensaje comercial personalizado para cada prospecto según su rol e industria."
+      }
+    },
+    {
+      "id": "8",
+      "name": "Enviar WhatsApp",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [1600, 300],
+      "parameters": {
+        "url": "http://localhost:3000/api/sendMessage",
+        "method": "POST",
+        "jsonParameters": true,
+        "bodyParametersJson": "={ \"chatId\": $json.phone, \"message\": $json.message }"
+      }
+    },
+    {
+      "id": "9",
+      "name": "Forecast Predictivo",
+      "type": "n8n-nodes-base.function",
+      "position": [1800, 300],
+      "parameters": {
+        "functionCode": "return [{ json: { ingresosEsperados: items.length * 0.25 * 10000 } }];"
+      }
+    },
+    {
+      "id": "10",
+      "name": "Mapeo Estratégico",
+      "type": "n8n-nodes-base.openAi",
+      "position": [2000, 300],
+      "parameters": {
+        "operation": "chat",
+        "model": "gpt-4-turbo",
+        "prompt": "Agrupa cuentas por afinidad, presupuesto y potencial de compra."
+      }
+    },
+    {
+      "id": "11",
+      "name": "Inteligencia Competitiva",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [2200, 300],
+      "parameters": {
+        "url": "https://api.rss2json.com/v1/api.json?rss_url=https://competencia.com/feed",
+        "method": "GET"
+      }
+    },
+    {
+      "id": "12",
+      "name": "Compensación Alineada",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [2400, 300],
+      "parameters": {
+        "operation": "append",
+        "sheetName": "Bonificaciones",
+        "documentId": "TU_ID_DE_DOCUMENTO",
+        "range": "A:C",
+        "data": "={{ [{ 'Vendedor': $json.vendedor, 'Cumplimiento': $json.cumplimiento, 'Bonificación': $json.bono }] }}"
+      }
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": { "main": [[{ "node": "Google Drive - Buscar Archivo", "type": "main", "index": 0 }]] },
+    "Google Drive - Buscar Archivo": { "main": [[{ "node": "Google Drive - Descargar Excel", "type": "main", "index": 0 }]] },
+    "Google Drive - Descargar Excel": { "main": [[{ "node": "Leer Prospectos Excel", "type": "main", "index": 0 }]] },
+    "Leer Prospectos Excel": { "main": [[{ "node": "Calificación IA", "type": "main", "index": 0 }]] },
+    "Calificación IA": { "main": [[{ "node": "Velocity Pipeline", "type": "main", "index": 0 }]] },
+    "Velocity Pipeline": { "main": [[{ "node": "Mensaje Personalizado", "type": "main", "index": 0 }]] },
+    "Mensaje Personalizado": { "main": [[{ "node": "Enviar WhatsApp", "type": "main", "index": 0 }]] },
+    "Enviar WhatsApp": { "main": [[{ "node": "Forecast Predictivo", "type": "main", "index": 0 }]] },
+    "Forecast Predictivo": { "main": [[{ "node": "Mapeo Estratégico", "type": "main", "index": 0 }]] },
+    "Mapeo Estratégico": { "main": [[{ "node": "Inteligencia Competitiva", "type": "main", "index": 0 }]] },
+    "Inteligencia Competitiva": { "main": [[{ "node": "Compensación Alineada", "type": "main", "index": 0 }]] }
+  }
+}

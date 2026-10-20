@@ -1,0 +1,130 @@
+## ICP (Ideal Customer Profile) para DTA‑Agrícola
+
+- **Industria / Sector**:  
+  Productores agrícolas, asociaciones de productores, ganaderos, instaladores de sistemas de riego y de automatización agrícola, asesores y técnicos agrícolas.
+
+- **Tamaño de empresa**:  
+  - Medianas y grandes, con capacidad para mercado local/regional o explotaciones.
+  - Facturación anual > 5M MXN o con más de 20 hectáreas productivas.
+  - Presupuesto disponible > 100,000 MXN para tecnificación.
+
+- **Ubicación geográfica**:  
+  - Chihuahua y Regiones estratégicas de México, con potencial de expansión nacional e internacional.
+
+- **Dolores específicos**:  
+  - Altos costos de operación.
+  - Escasez de mano de obra especializada.
+  - Ineficiencia en monitoreo de cultivos.  
+  - Falta de datos para decisiones técnicas.  
+  - Necesidad de reducir costos de agua, fertilizantes y energía.  
+  - Escasa digitalización de procesos.
+  - Desconocimiento del impacto real de los recursos asignados.
+  - Pérdidas por riego ineficiente o plagas no detectadas a tiempo.
+
+- **Proceso de compra**:  
+  - Decisión tomada por dueños, presidentes de asociaciones, administradores financieros o consultores técnicos externos con influencia.
+
+- **Presupuesto disponible**:  
+  - Presupuesto disponible > 100,000 MXN para tecnificación.
+  - Empresas con acceso a créditos agrícolas o programas de innovación (ej. FIRA, SADER).
+
+- **Nivel de adopción tecnológica**:
+  - Tradicionales: requieren educación y demostraciones.
+  - Intermedios: ya usan sensores básicos o software.
+  - Avanzados: buscan optimización con IA y automatización completa.
+
+
+---
+
+## Buyer Persona (individuo dentro del ICP)
+
+- **Arquetipo 1**: *"Ingeniero Agrónomo / Consultor Técnico"*  
+  - **Rol**: Asesor de productores, responsable de recomendar soluciones técnicas.  
+  - **Objetivos**:  
+    - Mejorar rendimiento de cultivos con datos precisos.  
+    - Reducir pérdidas por riego ineficiente o plagas.  
+    - Mostrar resultados tangibles a la asociación.  
+	- Justificar inversiones tecnológicas.
+  - **Dolores**:  
+    - Falta de tiempo para monitorear manualmente.  
+    - Dificultad para convencer a productores tradicionales.  
+    - Presión por justificar resultados de las inversiones tecnológicas.  
+  - **Motivaciones**:  
+    - Innovación y prestigio dentro de la asociación.  
+    - Resultados medibles que respalden su asesoría.  
+    - Reconocimiento profesional.  
+  - **Canales preferidos**:  
+    - WhatsApp
+	- Correo electrónico
+	- Presentaciones en reuniones de asociaciones y eventos.
+
+- **Arquetipo 2**: *"Administrador Financiero / Dueño de Explotación"*
+  - **Rol**: valida presupuestos y toma decisiones de inversión.
+  - **Objetivos**: 
+    - Reducir costos operativos.
+	- Asegurar retorno de inversión.
+	- Cumplir con certificaciones de calidad.
+  - **Dolores**: 
+    - Altos costos de insumos.
+	- Falta de trazabilidad.
+	- Riesgo de pérdidas económicas.
+  - **Motivaciones**: 
+    - Estabilidad financiera.
+    - Eficiencia en recursos.
+    - Acceso a exportaciones.
+  - **Canales preferidos**: 
+    - Correo institucional.
+	- LinkedIn.
+	- Reuniones presenciales.
+	- Eventos.
+
+
+---
+
+## Cómo se aplican en el pipeline
+1. **Calificación IA**: filtra prospectos según sector, tamaño, nivel de adopción tecnológica y dolores cuantificables.  
+2. **Velocity Pipeline**: mide tiempos solo en cuentas ICP.  
+3. **Mensajes Personalizados**: adapta el tono al Buyer Persona (ej. ingeniero técnico vs. productor).  
+4. **Forecast Predictivo**: calcula ingresos basados en cuentas ICP priorizadas.  
+5. **Mapeo Estratégico**: agrupa asociaciones y productores clave.  
+6. **Compensación Alineada**: premia vendedores que cierran cuentas ICP.
+
+---
+
+Prompt:
+
+Eres un clasificador de prospectos para DTA‑Agrícola.  
+Recibirás información de un prospecto (empresa, sector, tamaño, ubicación, dolores, presupuesto, nivel de adopción tecnológica).  
+
+Tu tarea es:
+
+1. Determinar si el prospecto cumple con el ICP de DTA‑Agrícola:  
+   - Industria/Sector: productores agrícolas, asociaciones, ganaderos, instaladores de riego/automatización, asesores/técnicos.  
+   - Tamaño: medianas o grandes, facturación > 5M MXN o > 20 hectáreas productivas.  
+   - Presupuesto: >100,000 MXN para tecnificación o acceso a créditos agrícolas (FIRA, SADER).  
+   - Ubicación: Chihuahua y regiones estratégicas de México.  
+   - Dolores: altos costos, falta de datos, ineficiencia en monitoreo, escasa digitalización, pérdidas por riego/plagas.  
+
+2. Clasificar el prospecto según su **nivel de adopción tecnológica**:  
+   - **ICP‑Tradicional**: requiere educación y demostraciones, poca digitalización.  
+   - **ICP‑Intermedio**: ya usa sensores básicos o software.  
+   - **ICP‑Avanzado**: busca optimización con IA y automatización completa.  
+
+3. Asignar el **Buyer Persona** más probable:  
+   - **Ingeniero Agrónomo / Consultor Técnico**: asesora productores, busca datos precisos, motivado por innovación y prestigio.  
+   - **Administrador Financiero / Dueño de Explotación**: valida presupuestos, busca ROI, motivado por eficiencia y estabilidad financiera.  
+
+4. Devuelve la salida en formato JSON con esta estructura:  
+
+{
+  "clasificacionICP": "ICP-Tradicional | ICP-Intermedio | ICP-Avanzado",
+  "buyerPersona": "Ingeniero Agrónomo / Consultor Técnico | Administrador Financiero / Dueño de Explotación",
+  "justificacion": "Explica brevemente por qué se asignó esta clasificación"
+}
+
+Ejemplo de salida:  
+{
+  "clasificacionICP": "ICP-Intermedio",
+  "buyerPersona": "Ingeniero Agrónomo / Consultor Técnico",
+  "justificacion": "Es productor agrícola con 30 hectáreas, usa sensores básicos y busca reducir costos de agua."
+}

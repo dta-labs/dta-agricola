@@ -1,0 +1,68 @@
+{
+  "prospectos": [
+    {
+      "id": "P001",
+      "nombre": "Juan Pérez",
+      "empresa": "AgroFrut Chihuahua",
+      "email": "juan.perez@agrofrut.com",
+      "telefono": "+52-614-123-4567",
+      "metadatos": {
+        "giro_comercial": "Producción agrícola",
+        "pais": "México",
+        "estado": "Chihuahua",
+        "municipio": "Cuauhtémoc",
+        "region": "Noroeste",
+        "cargo": "Director Técnico"
+      },
+      "sector": "Productor agrícola",
+      "tamano": {
+        "hectareas": 30,
+        "facturacion_anual": 6000000
+      },
+      "presupuesto": 150000,
+      "dolores": [
+        "Altos costos de agua",
+        "Escasa digitalización"
+      ],
+      "clasificacionICP": "ICP-Intermedio",
+      "buyerPersona": "Ingeniero Agrónomo / Consultor Técnico",
+      "nivelTecnologico": "Intermedio",
+      "etapa_pipeline": "Prospecto calificado",
+      "probabilidad_cierre": 0.65,
+      "valor_estimado": 120000,
+      "fecha_estimado_cierre": "2026-11-15",
+      "contactos": [
+        {
+          "fecha": "2026-09-25",
+          "canal": "WhatsApp",
+          "mensaje_enviado": "Hola Juan, fue un gusto conocerte en el evento...",
+          "mensaje_recibido": null,
+          "estado": "contactado",
+          "usuario_responsable": "Cosme",
+          "resultado": "Pendiente de respuesta"
+        },
+        {
+          "fecha": "2026-09-26",
+          "canal": "WhatsApp",
+          "mensaje_enviado": null,
+          "mensaje_recibido": "Sí, te recuerdo, mándame la información...",
+          "estado": "respondió",
+          "usuario_responsable": "Cosme",
+          "resultado": "Solicitó demo"
+        }
+      ],
+      "historial": [
+        {
+          "fecha": "2026-09-25",
+          "accion": "Registro inicial",
+          "detalle": "Prospecto importado desde Excel del evento agrícola"
+        },
+        {
+          "fecha": "2026-09-26",
+          "accion": "Clasificación IA",
+          "detalle": "Asignado como ICP-Intermedio, Buyer Persona Ingeniero Agrónomo"
+        }
+      ]
+    }
+  ]
+}
