@@ -4864,14 +4864,12 @@
     
     <!-- #region: CSS Y SCRIPTS -->
 
-    <!-- <link rel="stylesheet" href="./assets/modules/font-awesome/css/font-awesome.min.css"> -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="./assets/modules/materialize/css/materialize.min.css">
     <link rel="stylesheet" href="./assets/modules/leaflet/leaflet.css">
     <link rel="stylesheet" href="./assets/css/style.css?v=26.09.06.002">
     <link rel="stylesheet" href="./assets/css/responsive.css">
-    <!-- <link rel="stylesheet" href="./assets/css/meteocons-font/FONT/Font-face/stylesheet.css"> -->
 
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/4.0.0/firebaseui.css" />
@@ -4885,8 +4883,6 @@
     <script src="./assets/js/firebaseComm.js"></script>
     <script src="./assets/js/firebaseMessaging.js?v=26.07.22.002"></script>
     <script src="./assets/js/autentication.js" type="module"></script>
-    <!-- <script src="./assets/js/notifications.js"></script> -->
-    <!-- <script src="./assets/modules/angularjs/angular.min.js"></script> -->
     <script src="./assets/js/jquery.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular-route.js"></script>
@@ -4898,12 +4894,13 @@
     <script src="./assets/modules/chart.js/chartjs-plugin-zoom.js"></script>
     <script src="./assets/modules/html5-qrcode/html5-qrcode.min.js"></script>
     <script src="./assets/js/commons.js"></script>
-    <!-- OneSignal queda fuera del arranque principal para usar Firebase Cloud Messaging. -->
-    <!-- <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script> -->
-    <!-- <script src="./assets/modules/push-notification/push.js" defer></script> -->
-    <!-- <script src="./assets/cultures/listOfCultures.js"></script> -->
+        <!-- Logica pura extraida de core.js (REQ-001..003). Debe ir ANTES de core.js. -->
+    <script src="./assets/js/logic/formulas.js"></script>
+    <script src="./assets/js/logic/fechas.js"></script>
+    <script src="./assets/js/logic/secuencias.js"></script>
+    <script src="./assets/js/logic/estado.js"></script>
+    <script src="./assets/js/logic/ids.js"></script>
     <script src="./assets/js/core.js?v=26.09.07.002"></script>
-    <!-- <script src="monitor/js/chartjs/chart.min.js"></script> -->
     <script type="text/javascript" src="./assets/modules/datepicker/daterangepicker.js"></script>
 
     <!-- #endregion: CSS Y SCRIPTS -->

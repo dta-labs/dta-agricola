@@ -4,7 +4,9 @@
   "description": "DTA Agricola PWA con HTTPS local",
   "scripts": {
     "start": "node server-https.js",
-    "generate-cert": "openssl req -x509 -newkey rsa:4096 -keyout server.key -out server.cert -days 365 -nodes -subj '/CN=localhost'"
+    "generate-cert": "openssl req -x509 -newkey rsa:4096 -keyout server.key -out server.cert -days 365 -nodes -subj '/CN=localhost'",
+    "test": "node --test test/unit/formulas.test.js test/unit/fechas.test.js test/unit/secuencias.test.js test/unit/estado.test.js test/unit/ids.test.js",
+    "test:watch": "node --test --watch test/unit/formulas.test.js test/unit/fechas.test.js test/unit/secuencias.test.js test/unit/estado.test.js test/unit/ids.test.js"
   },
   "dependencies": {
     "express": "^4.18.2",

@@ -23,3 +23,8 @@ monitor.zip
 *.md
 !PROMOTE.md
 *.txt
+
+# === Configuracion con claves: se crea en local a partir del ejemplo ===
+firebaseConfig.js
+!test/README.md
+!docs/spec/**

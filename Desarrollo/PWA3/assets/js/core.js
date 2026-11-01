@@ -13,6 +13,19 @@ var milongitud;
 var miaccuracy;
 var charts = [];
 
+/**
+ * Puente hacia los modulos de logica (assets/js/logic/*).
+ * Esos scripts deben cargarse ANTES de core.js en index.html. Si faltan, falla de forma
+ * explicita en la primera llamada: nunca en silencio.
+ */
+function __modulo(nombre) {
+    if (typeof DTALogic === "undefined" || !DTALogic[nombre]) {
+        throw new Error("Modulo de logica no cargado: " + nombre +
+            ". Revisa el orden de los <script> en index.html.");
+    }
+    return DTALogic[nombre];
+}
+
 // #region Controlador Angular
 
 var app = angular.module("Administracion", ["ngRoute"]);
@@ -554,25 +567,13 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     }
 
     calcStatusTime = (date, update) => {
-        // let dif = getTimeDiference(date, update);
-        let dif = getTimeDiference(date, null);
-        let result = "-1";
-        if (dif.day >= 1 || dif.hour >= 1 || dif.min >= 10) {
-            result = dif.day >= 1 ? ("+" + dif.day + "d") : dif.hour >= 1 ? ("+" + dif.hour + "h") : ("" + dif.min + "m");
-        }
-        return result;
+        // Extraido a assets/js/logic/estado.js (REQ-004). Delegacion 1:1.
+        return __modulo("estado").calcStatusTime(date, update);
     }
 
     getTimeDiference = (date, update = null) => {
-        if (!date || !update) return 0;
-        let dDate = new Date(parseInt(date.substring(0, 4)), parseInt(date.substring(4, 6)) - 1, parseInt(date.substring(6, 8)), (date.substring(13, 15) == "pm" ? parseInt(date.substring(9, 11)) + 12 : parseInt(date.substring(9, 11)) == 12 ? 0 : parseInt(date.substring(9, 11))), parseInt(date.substring(11, 13)), 0, 0).getTime();
-        let dUpdate = update ? (new Date(parseInt(update.substring(0, 4)), parseInt(update.substring(4, 6)) - 1, parseInt(update.substring(6, 8)), (update.substring(13, 15) == "pm" ? parseInt(update.substring(9, 11)) + 12 : parseInt(update.substring(9, 11)) == 12 ? 0 : parseInt(update.substring(9, 11))), parseInt(update.substring(11, 13)), 0, 0).getTime()) : (new Date()).getTime();
-        let dif = dUpdate - dDate;
-        return {
-            day: parseInt(dif / (1000 * 60 * 60 * 24)),
-            hour: parseInt(dif / (1000 * 60 * 60)),
-            min: parseInt(dif / (1000 * 60))
-        };
+        // Extraido a assets/js/logic/estado.js (REQ-004). Delegacion 1:1.
+        return __modulo("estado").getTimeDiference(date, update);
     }
 
     sendAlertSMS = (celular, name, cmd) => {
@@ -1129,68 +1130,28 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     }
 
     generarIdUnico = () => {
-        return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+        // Extraido a assets/js/logic/ids.js (REQ-004). Delegacion 1:1.
+        return __modulo("ids").generarIdUnico();
     }
 
     function generarSecuenciaParcelas(fecha_inicio, hora_inicio, tiempos) {
-        const resultados = [];
-        let inicio = parseFechaHora(fecha_inicio, hora_inicio);
-        // inicio = new Date(inicio.getTime() + inicio.getTimezoneOffset() * 60000 + $scope.actualSystem.zona * 60 * 60000);
-        tiempos.forEach((minutos) => {
-            if (minutos > 0) {
-                // const inicioStr = inicio.toISOString().slice(0,16).replace('T',' ');    // Guardar inicio de la parcela actual
-                let year = inicio.getFullYear();
-                let month = String(inicio.getMonth() + 1).padStart(2, "0");
-                let day = String(inicio.getDate()).padStart(2, "0");
-                let hour = String(inicio.getHours()).padStart(2, "0"); 
-                let min = String(inicio.getMinutes()).padStart(2, "0");
-                // let ampm = hour > 11 ? "PM" : "AM";
-                // hour = hour > 12 ? hour - 12 : hour;
-                // hour = hour < 10 ? "0" + hour : hour;
-                // min = min < 10 ? "0" + min : min;
-                // const inicioStr = year + "-" + month + "-" + day + " " + hour + ":" + min + " " + ampm;    // Guardar inicio de la parcela actual
-                const inicioStr = year + "-" + month + "-" + day + " " + hour + ":" + min;    // Guardar inicio de la parcela actual
-                resultados.push(inicioStr);
-                inicio = new Date(inicio.getTime() + minutos * 60000);                  // Calcular nuevo inicio sumando minutos
-            }
-        });
-        resultados.push(inicio.toISOString().slice(0,16).replace('T',' '));
-        return resultados;
+        // Extraido a assets/js/logic/secuencias.js (REQ-001..003). Delegacion 1:1.
+        return __modulo("secuencias").generarSecuenciaParcelas(fecha_inicio, hora_inicio, tiempos);
     }
 
     function parseFechaHora2(fechaStr) {
-        const [mesStr, diaStr, anioStr] = fechaStr.split(' ');    // Caso "Apr 25, 2026"
-        year = parseInt(anioStr, 10);
-        day = parseInt(diaStr.replace(',', ''), 10);
-        const meses = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-        month = meses.indexOf(mesStr) + 1;
-        return { year, month, day };
+        // Extraido a assets/js/logic/fechas.js (REQ-001..003). Delegacion 1:1.
+        return __modulo("fechas").parseFechaHora2(fechaStr);
     }
 
     function parseFechaHora(fechaStr, horaStr) {
-        let year, month, day;
-        if (/^\d{4}-\d{2}-\d{2}$/.test(fechaStr)) {    // Detectar si la fecha viene en formato ISO (YYYY-MM-DD)
-            [year, month, day] = fechaStr.split('-').map(Number);
-            month = month - 1; // JS usa meses 0-11
-        } else {
-            let objDate = parseFechaHora2(fechaStr);
-            year = objDate.year;    // Caso "Apr 25, 2026"
-            month = objDate.month - 1;
-            day = objDate.day;
-        }
-        let [h, m] = horaStr.split(/[: ]/);    // Parsear hora (ej: "02:46 AM")
-        let hour = parseInt(h, 10);
-        let minute = parseInt(m, 10);
-        const ampm = horaStr.slice(-2);
-        if (ampm === "PM" && hour < 12) hour += 12;
-        if (ampm === "AM" && hour === 12) hour = 0;
-        return new Date(year, month, day, hour, minute);    // Crear objeto Date en hora local
+        // Extraido a assets/js/logic/fechas.js (REQ-001..003). Delegacion 1:1.
+        return __modulo("fechas").parseFechaHora(fechaStr, horaStr);
     }
 
     function menorIgual(f1, f2) {
-        const d1 = parseFechaHora(f1, "0:0am");
-        const d2 = parseFechaHora(f2, "0:0am");
-        return d1.getTime() <= d2.getTime();
+        // Extraido a assets/js/logic/fechas.js (REQ-001..003). Delegacion 1:1.
+        return __modulo("fechas").menorIgual(f1, f2);
     }
 
     $scope.getLogDataRaw = () => {
@@ -3993,24 +3954,19 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     }
 
     function mapping(value, inMin, inMax, outMin, outMax) {
-        return (value - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
+        // Extraido a assets/js/logic/formulas.js (REQ-001..003). Delegacion 1:1.
+        return __modulo("formulas").mapping(value, inMin, inMax, outMin, outMax);
     }
 
     function constraining(value, min, max) {
-        return Math.min(Math.max(value, min), max);
+        // Extraido a assets/js/logic/formulas.js (REQ-001..003). Delegacion 1:1.
+        return __modulo("formulas").constraining(value, min, max);
     }
 
     // Conversión de cb a % humedad
     function cbToPercent(cbValue) {
-        if (cbValue === null || isNaN(cbValue) || cbValue >= 240) return null;
-        let percent = 0;
-        if (cbValue <= 10) percent =  mapping(cbValue, 0, 10, 100, 80);
-        else if (cbValue <= 30) percent =  mapping(cbValue, 10, 30, 80, 60);
-        else if (cbValue <= 60) percent =  mapping(cbValue, 30, 60, 60, 40);
-        else if (cbValue <= 100) percent =  mapping(cbValue, 60, 100, 40, 30);
-        else if (cbValue <= 150) percent =  mapping(cbValue, 100, 150, 30, 20);
-        else percent =  mapping(cbValue, 150, 240, 20, 0);
-        return Math.round(constraining(percent, 0, 100));
+        // Extraido a assets/js/logic/formulas.js (REQ-001..003). Delegacion 1:1.
+        return __modulo("formulas").cbToPercent(cbValue);
     }
 
     function cbToPercent_old(cbValue) {
@@ -5131,8 +5087,7 @@ function serviceWorker() {
             registrations.forEach(registration => {
                 const scriptUrl = registration.active ? new URL(registration.active.scriptURL) : null;
                 if (registration.active && (
-                    scriptUrl.pathname.endsWith('/sw.js') ||
-                    scriptUrl.pathname.endsWith('/OneSignalSDKWorker.js')
+                    scriptUrl.pathname.endsWith('/sw.js')
                 )) {
                     registration.unregister();
                     console.log("🗑️ SW anterior (sw.js) eliminado");
@@ -5146,7 +5101,7 @@ function serviceWorker() {
         })
             .then(reg => {
                 appServiceWorkerRegistration = reg;
-                console.log("✅ SW de OneSignal + caché registrado:", reg);
+                console.log("✅ SW registrado:", reg);
                 console.log("SW state:", reg.installing ? 'installing' : reg.waiting ? 'waiting' : reg.active ? 'active' : 'unknown');
                 if (reg.waiting) reg.waiting.postMessage({ action: 'skipWaiting' });
                 reg.addEventListener('updatefound', () => {
@@ -5161,7 +5116,7 @@ function serviceWorker() {
                 reg.update();
                 setInterval(() => reg.update(), APP_UPDATE_CHECK_INTERVAL);
             })
-            .catch(err => console.log("❌ Error registrando SW de OneSignal:", err));
+            .catch(err => console.log("❌ Error registrando el SW:", err));
     } else {
         console.log("❌ Service Worker no soportado");
     }

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>smoke - logica en navegador</title>
+</head>
+<body>
+<!-- Prueba de humo de los modulos de logica EN UN NAVEGADOR REAL, sin dependencias.
+     Ejecutar:  chrome --headless=new --dump-dom http://127.0.0.1:8090/test/smoke.html
+     La pagina imprime PASS/FAIL en #salida, asi que se puede comprobar con una busqueda. -->
+<div id="salida">sin ejecutar</div>
+
+<script src="../assets/js/logic/formulas.js"></script>
+<script src="../assets/js/logic/fechas.js"></script>
+<script src="../assets/js/logic/secuencias.js"></script>
+<script src="../assets/js/logic/estado.js"></script>
+<script src="../assets/js/logic/ids.js"></script>
+
+<script>
+  var resultados = [];
+  function ok(nombre, condicion) {
+    resultados.push((condicion ? "PASS " : "FAIL ") + nombre);
+  }
+
+  ok("DTALogic expuesto por los <script>", typeof DTALogic === "object" && DTALogic !== null);
+  ok("5 modulos cargados", ["formulas", "fechas", "secuencias", "estado", "ids"].every(function (k) {
+    return DTALogic && DTALogic[k];
+  }));
+  ok("formulas.cbToPercent(45) === 50", DTALogic.formulas.cbToPercent(45) === 50);
+  ok("formulas.mapping(5,0,10,100,80) === 90", DTALogic.formulas.mapping(5, 0, 10, 100, 80) === 90);
+  ok("fechas.parseFechaHora ISO 02:46 AM -> 2 h",
+    DTALogic.fechas.parseFechaHora("2026-04-25", "02:46 AM").getHours() === 2);
+  ok("fechas.menorIgual dia anterior", DTALogic.fechas.menorIgual("2026-04-25", "2026-04-26") === true);
+  ok("secuencias: 3 elementos", DTALogic.secuencias
+    .generarSecuenciaParcelas("2026-04-25", "02:46 AM", [30, 45]).length === 3);
+  ok("estado.calcStatusTime === '-1' (defecto D-07/D-10 conocido)",
+    DTALogic.estado.calcStatusTime("20260425 0246am", null) === "-1");
+  ok("estado.getTimeDiference sin update === 0 (defecto D-07 conocido)",
+    DTALogic.estado.getTimeDiference("20260425 0246am", null) === 0);
+  ok("ids.generarIdUnico devuelve cadena",
+    typeof DTALogic.ids.generarIdUnico() === "string");
+
+  document.getElementById("salida").textContent = resultados.join(" | ");
+  document.title = resultados.every(function (r) { return r.indexOf("PASS") === 0; }) ? "SMOKE OK" : "SMOKE FAIL";
+</script>
+</body>
+</html>
