@@ -1,0 +1,117 @@
+{
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**",
+      "**/*adminsdk*.json",
+      "**/firebase-adminsdk.json",
+      "server.key",
+      "server.cert",
+      "functions/**",
+      "src/**",
+      "dataconnect/**",
+      "models/**",
+      "server-https.js",
+      "deploy*.bat",
+      "PROMOTE.md",
+      "public_old/**",
+      "monitor.zip",
+      "**/*.py",
+      "**/*.zip",
+      "**/*.rar",
+      "**/*.txt",
+      "**/*.md",
+      "**/*.psd",
+      "**/*.xcf",
+      "**/*.pdn",
+      "index2.html",
+      "test.html",
+      "ws.html",
+      "comm.html",
+      "weader.html",
+      "sms.html",
+      "firebase-messaging-sw_js",
+      "newo_firebase.json",
+      "bacío.json"
+    ],
+    "headers": [
+      {
+        "source": "/index.html",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, no-store, must-revalidate"
+          }
+        ]
+      },
+      {
+        "source": "/",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, no-store, must-revalidate"
+          }
+        ]
+      },
+      {
+        "source": "/sw.js",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, no-store, must-revalidate"
+          }
+        ]
+      },
+      {
+        "source": "/firebase-messaging-sw.js",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, no-store, must-revalidate"
+          }
+        ]
+      },
+      {
+        "source": "/assets/js/**",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache"
+          }
+        ]
+      }
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  },
+  "database": {
+    "rules": "database.rules.json"
+  },
+  "functions": [
+    {
+      "codebase": "default",
+      "source": "functions",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ]
+    }
+  ],
+  "emulators": {
+    "dataconnect": {
+      "dataDir": "dataconnect/.dataconnect/pgliteData"
+    }
+  },
+  "dataconnect": {
+    "source": "dataconnect"
+  }
+}

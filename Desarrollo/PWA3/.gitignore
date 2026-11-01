@@ -1,0 +1,25 @@
+# === Secretos (NUNCA versionar ni desplegar) ===
+*adminsdk*.json
+*service-account*.json
+server.key
+server.cert
+
+# === Dependencias y caches ===
+node_modules/
+.firebase/
+
+# === Copias legacy y basura (no son la app) ===
+public_old/
+monitor.zip
+*.zip
+*.rar
+*.psd
+*.xcf
+*.pdn
+*.pdnSave
+.agents/
+
+# === Documentacion interna no publicada ===
+*.md
+!PROMOTE.md
+*.txt
