@@ -1,12 +1,15 @@
 /**
- * REQ-004 - Caracterizacion del estado/tiempos del equipo.
- * Fija el comportamiento ACTUAL (incluidos los defectos D-07, D-08, D-10, D-11).
+ * REQ-004 (caracterizacion) + REQ-005 (correccion).
+ *
+ * Las pruebas marcadas REQ-005 describen el comportamiento DESEADO: antes de la correccion fallan
+ * (rojo) y despues pasan (verde). Las de REQ-004 sin marca siguen fijando lo que no cambia.
  */
 const { test } = require("node:test");
 const assert = require("node:assert/strict");
 const { instanteDeFechaDispositivo, getTimeDiference, calcStatusTime } =
     require("../../assets/js/logic/estado.js");
 
+// ---------------------------- REQ-004: lo que NO cambia ----------------------------
 test("REQ-004.1 interpreta la marca del dispositivo 'YYYYMMDD HHMMam|pm'", () => {
     const d = new Date(instanteDeFechaDispositivo("20260425 0246am"));
     assert.equal(d.getFullYear(), 2026);
@@ -18,37 +21,64 @@ test("REQ-004.1 interpreta la marca del dispositivo 'YYYYMMDD HHMMam|pm'", () =>
     assert.equal(new Date(instanteDeFechaDispositivo("20260425 1245am")).getHours(), 0);
 });
 
-test("REQ-004.2 '12pm' se interpreta como hora 24 (DEFECTO D-08 conservado)", () => {
-    const d = new Date(instanteDeFechaDispositivo("20260425 1200pm"));
-    // La hora 24 de JS es el dia siguiente a las 00:00
-    assert.equal(d.getDate(), 26);
-    assert.equal(d.getHours(), 0);
-});
-
 test("REQ-004.3 diferencia entre dos marcas validas", () => {
-    const dif = getTimeDiference("20260425 0246am", "20260425 0346am");
-    assert.deepEqual(dif, { day: 0, hour: 1, min: 60 });
-
+    assert.deepEqual(getTimeDiference("20260425 0246am", "20260425 0346am"), { day: 0, hour: 1, min: 60 });
     const largo = getTimeDiference("20260424 0246am", "20260425 0846am");
     assert.equal(largo.day, 1);
     assert.equal(largo.hour, 30);
     assert.equal(largo.min, 1800);
 });
 
-test("REQ-004.4 sin marca de actualizacion devuelve el NUMERO 0 (DEFECTO D-07 conservado)", () => {
-    assert.equal(getTimeDiference("20260425 0246am", null), 0);
-    assert.equal(getTimeDiference("20260425 0246am"), 0);
-    assert.equal(getTimeDiference(null, "20260425 0246am"), 0);
+// ---------------------------- REQ-005: correccion de D-07 ----------------------------
+test("REQ-005.1 sin marca del equipo devuelve null, no un numero", () => {
+    assert.equal(getTimeDiference(null, "20260425 0246am"), null);
+    assert.equal(getTimeDiference("", "20260425 0246am"), null);
+    assert.equal(getTimeDiference(undefined, "20260425 0246am"), null);
 });
 
-test("REQ-004.5 D-08 contamina la diferencia cuando hay '12pm'", () => {
-    // 12:00pm (leido como 24:00 del dia 25 = 00:00 del 26) contra 01:00pm del 25
-    const dif = getTimeDiference("20260425 1200pm", "20260425 0100pm");
-    assert.equal(dif.hour, -11, "la hora negativa delata el defecto");
+test("REQ-005.2 sin marca de actualizacion compara contra AHORA (reloj inyectado)", () => {
+    const ahora = () => new Date(2026, 3, 25, 4, 46).getTime();   // 02:46 + 2 h
+    const dif = getTimeDiference("20260425 0246am", null, ahora);
+    assert.deepEqual(dif, { day: 0, hour: 2, min: 120 });
 });
 
-test("REQ-004.6 calcStatusTime ignora su parametro y siempre devuelve '-1' (DEFECTOS D-07/D-10)", () => {
-    assert.equal(calcStatusTime("20260425 0246am", "20260426 0246am"), "-1");
-    assert.equal(calcStatusTime("20260425 0246am", null), "-1");
-    assert.equal(calcStatusTime(null, null), "-1");
+test("REQ-005.3 siempre devuelve {day,hour,min}, nunca un numero", () => {
+    const dif = getTimeDiference("20260425 0246am", "20260425 0246am");
+    assert.equal(typeof dif, "object");
+    assert.deepEqual(Object.keys(dif).sort(), ["day", "hour", "min"]);
+});
+
+// ---------------------------- REQ-005: correccion de D-08 ----------------------------
+test("REQ-005.4 '12pm' es 12:00 y '12am' es 00:00", () => {
+    const mediodia = new Date(instanteDeFechaDispositivo("20260425 1200pm"));
+    assert.equal(mediodia.getDate(), 25, "12pm debe seguir siendo el mismo dia");
+    assert.equal(mediodia.getHours(), 12);
+
+    const medianoche = new Date(instanteDeFechaDispositivo("20260425 1200am"));
+    assert.equal(medianoche.getDate(), 25);
+    assert.equal(medianoche.getHours(), 0);
+});
+
+test("REQ-005.5 las 12:30 pm no se corren de dia", () => {
+    const d = new Date(instanteDeFechaDispositivo("20260425 1230pm"));
+    assert.equal(d.getDate(), 25);
+    assert.equal(d.getHours(), 12);
+    assert.equal(d.getMinutes(), 30);
+    assert.deepEqual(getTimeDiference("20260425 1230pm", "20260425 0130pm"), { day: 0, hour: 1, min: 60 });
+});
+
+// ---------------------------- REQ-005: correccion de D-10 ----------------------------
+test("REQ-005.6 calcStatusTime USA su parametro update", () => {
+    assert.equal(calcStatusTime("20260425 0246am", "20260425 0346am"), "+1h");
+    assert.equal(calcStatusTime("20260425 0246am", "20260426 0246am"), "+1d");
+    assert.equal(calcStatusTime("20260425 0246am", "20260425 0300am"), "14m");
+});
+
+test("REQ-005.7 retrasos por debajo del umbral siguen siendo '-1'", () => {
+    assert.equal(calcStatusTime("20260425 0246am", "20260425 0250am"), "-1", "4 min no es relevante");
+});
+
+test("REQ-005.8 sin fecha no hay etiqueta", () => {
+    assert.equal(calcStatusTime(null, "20260425 0246am"), "-1");
+    assert.equal(calcStatusTime(undefined, null), "-1");
 });

@@ -33,10 +33,12 @@
   ok("fechas.menorIgual dia anterior", DTALogic.fechas.menorIgual("2026-04-25", "2026-04-26") === true);
   ok("secuencias: 3 elementos", DTALogic.secuencias
     .generarSecuenciaParcelas("2026-04-25", "02:46 AM", [30, 45]).length === 3);
-  ok("estado.calcStatusTime === '-1' (defecto D-07/D-10 conocido)",
-    DTALogic.estado.calcStatusTime("20260425 0246am", null) === "-1");
-  ok("estado.getTimeDiference sin update === 0 (defecto D-07 conocido)",
-    DTALogic.estado.getTimeDiference("20260425 0246am", null) === 0);
+  ok("estado.calcStatusTime usa su update ('+1h')",
+    DTALogic.estado.calcStatusTime("20260425 0246am", "20260425 0346am") === "+1h");
+  ok("estado.getTimeDiference sin fecha === null (REQ-005.1)",
+    DTALogic.estado.getTimeDiference(null, "20260425 0246am") === null);
+  ok("estado '12pm' es mediodia (REQ-005.4)",
+    new Date(DTALogic.estado.instanteDeFechaDispositivo("20260425 1200pm")).getHours() === 12);
   ok("ids.generarIdUnico devuelve cadena",
     typeof DTALogic.ids.generarIdUnico() === "string");
 
