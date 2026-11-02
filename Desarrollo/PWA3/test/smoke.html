@@ -17,6 +17,7 @@
 <script src="../assets/js/logic/ids.js"></script>
 <script src="../assets/js/logic/riego.js"></script>
 <script src="../assets/js/services/repositorio.js"></script>
+<script src="../assets/js/services/autenticacion.js"></script>
 
 <script>
   var resultados = [];
@@ -79,6 +80,19 @@
     llamadasRepo[llamadasRepo.length - 1] === "users#ana-perez@x-com");
   repo.escribirEstadoSistema("k", "ON");
   ok("repositorio: escritura de estado", llamadasRepo[llamadasRepo.length - 1] === "upd:systems/k/settings");
+
+  // REQ-012: servicio de autenticacion con adaptador falso
+  var sesiones = [];
+  var auth = DTALogic.autenticacion.crear({
+    observar: function (cb) { authEmisor = cb; },
+    cerrarSesion: function () { return Promise.resolve(); }
+  });
+  var authEmisor = null;
+  auth.observar(function (s) { sesiones.push(s); });
+  authEmisor({ email: "qa@x.com" });
+  authEmisor(null);
+  ok("autenticacion: sesion autenticada", sesiones[0].autenticado === true);
+  ok("autenticacion: sesion cerrada", sesiones[1].autenticado === false);
 
   document.getElementById("salida").textContent = resultados.join(" | ");
   document.title = resultados.every(function (r) { return r.indexOf("PASS") === 0; }) ? "SMOKE OK" : "SMOKE FAIL";

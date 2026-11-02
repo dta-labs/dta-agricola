@@ -11,6 +11,14 @@ try {
     console.error("No se pudo crear el repositorio de datos:", error);
 }
 
+// REQ-012: servicio de autenticacion sobre su adaptador.
+var authDTA = null;
+try {
+    authDTA = DTALogic.autenticacion.crear(DTALogic.adaptadorFirebaseAuth.crear(firebase.auth()));
+} catch (error) {
+    console.error("No se pudo crear el servicio de autenticacion:", error);
+}
+
 function loadUserLocations(email) {
     return new Promise((resolve) => {
         repoDTA.escucharUsuarioPorClave(email, users => resolve(addNewFields(users)));

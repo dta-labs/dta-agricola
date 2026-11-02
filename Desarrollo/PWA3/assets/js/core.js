@@ -35,6 +35,14 @@ function __repo() {
     return repoDTA;
 }
 
+/** Acceso al servicio de autenticacion creado en firebaseComm.js. */
+function __auth() {
+    if (typeof authDTA === "undefined" || !authDTA) {
+        throw new Error("Servicio de autenticacion no inicializado: revisa el orden de los <script>.");
+    }
+    return authDTA;
+}
+
 // #region Controlador Angular
 
 var app = angular.module("Administracion", ["ngRoute"]);
@@ -237,11 +245,11 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     }
 
     listenUserStatus = () => {
-        firebase.auth().onAuthStateChanged(user => {
-            if (user) {
+        __auth().observar(sesion => {
+            if (sesion.autenticado) {
                 // `$scope.$apply(function () {
                 console.log("Intento de autenticación");
-                $scope.authUser = user.email ? user : user.user;
+                $scope.authUser = sesion.usuario;
                 authUser = $scope.authUser;
                 getUserData();
                 $scope.showWindow('listado');
@@ -293,7 +301,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
 
     $scope.logout = () => {
 
-        firebase.auth().signOut().then(() => {
+        __auth().cerrarSesion().then(() => {
             $scope.authUser = null;
             $scope.tipoUsuario = 0;
             localStorage.clear();
