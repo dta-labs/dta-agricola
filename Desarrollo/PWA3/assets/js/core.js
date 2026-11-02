@@ -2601,11 +2601,11 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
 
     $scope.getPlotColor = (system, index) => {
         let color = $scope.selectedWindow == "listado" ? "gray" : "lightgray";
-        if (index && system["plots"]) {
+        if (index && system && system.plots) {
             let plot = system.plots[index];
             if (plot && plot.forcedStart && system.log) {
                 let idx = parseInt(index.slice(-1)) * 2 + 1;
-                if (plot.forcedStart == 1 && system.log.activeSectors[idx] == 1) {
+                if (plot.forcedStart == 1 && system.log.activeSectors && system.log.activeSectors[idx] == 1) {
                     color = $scope.selectedWindow == "listado" ? "white" : "springgreen";
                 }
                 if (system.log.activeSectors && plot.forcedStart != system.log.activeSectors[idx] && (plot.forcedStart == 1 || system.log.activeSectors[idx] == 1)) {
@@ -2618,7 +2618,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
 
     $scope.isPlotActive = (system, index) => {
         let active = false;
-        if (index && system["plots"]) {
+        if (index && system && system.plots) {
             // let dateTime = getDateAndTime();
             let plot = system.plots[index];
             if (plot) {
