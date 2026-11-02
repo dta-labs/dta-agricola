@@ -984,9 +984,16 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                 if (confirm) {
                     stopStationaryProgram();
                     $scope.setMachineSettings($scope.actualSystem);
-                    swal("Programa de riego iniciado correctamente!", {
-                        icon: "success",
-                    });
+                    // REQ-009: si el plan venia incompleto, el aviso se muestra al usuario.
+                    if (programa.aviso) {
+                        swal("Programa iniciado con avisos", programa.aviso + ". Revisa las parcelas sin tiempo.", {
+                            icon: "warning",
+                        });
+                    } else {
+                        swal("Programa de riego iniciado correctamente!", {
+                            icon: "success",
+                        });
+                    }
                 } else {
                     swal("No se detuvo el programa!");
                 }
@@ -1028,8 +1035,8 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                 if (confirm) {
                     stopStationaryProgram();
                     $scope.setMachineSettings($scope.actualSystem);
-                    let id = createStationaryProgram(p);
-                    if (!p.id) p.id = id;
+                    const programa = createStationaryProgram(p);
+                    if (!p.id) p.id = programa.id;
                     $scope.saveIrrigationPlan(p);
                     $scope.setMachineSettings($scope.actualSystem);
                     swal("Programa de riego iniciado correctamente!", {
@@ -1072,7 +1079,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     createStationaryProgram = (p) => {
         // Logica extraida a assets/js/logic/riego.js (REQ-006). Aqui solo se aplica a $scope.
         const resultado = __modulo("riego").programar(p, { generarId: generarIdUnico });
-    if (resultado.aviso) console.warn("[riego] " + resultado.aviso);
+        if (resultado.aviso) console.warn("[riego] " + resultado.aviso);
         resultado.entradas.forEach((entrada) => {
             const parcela = $scope.actualSystem.plots["p" + entrada.parcela];
             if (!parcela.schedule) parcela.schedule = [];
@@ -1083,7 +1090,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             parcela.forcedStart = 1;
             parcela.irrigationPlan = 1;
         });
-        return resultado.id;
+        return { id: resultado.id, aviso: resultado.aviso };
     }
 
     generarIdUnico = () => {
@@ -3924,19 +3931,6 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     function cbToPercent(cbValue) {
         // Extraido a assets/js/logic/formulas.js (REQ-001..003). Delegacion 1:1.
         return __modulo("formulas").cbToPercent(cbValue);
-    }
-
-    function cbToPercent_old(cbValue) {
-        if (cbValue === null || isNaN(cbValue) || cbValue >= 240) return null;
-        // Definir puntos de referencia físicos (ajústalos según tu suelo)
-        const SATURATION_CB = 10;   // suelo saturado ~5–10 cb
-        const FIELD_CAPACITY_CB = 30; // capacidad de campo ~10–30 cb
-        const WILTING_POINT_CB = 200; // marchitez permanente ~150–200 cb
-        // Limitar el valor dentro del rango útil
-        let cb = Math.min(Math.max(cbValue, SATURATION_CB), WILTING_POINT_CB);
-        // Escalar linealmente entre saturación (100%) y marchitez (0%)
-        let percent = 100 * (1 - (cb - SATURATION_CB) / (WILTING_POINT_CB - SATURATION_CB));
-        return Math.round(percent);
     }
 
     const processResultsFromWMSensors = (result, title, i, threshold, chartLabel, sensorType, weatherByDate) => {

@@ -7,9 +7,19 @@
 | REQ-005 | Correccion de estado (D-07, D-08, D-10) | Implementado | 8 |
 | REQ-006 | Dominio riego: programacion de parcelas | Implementado | 8 |
 | REQ-007 | Correccion de la logica pura (D-01..D-04, D-06, D-13) | Implementado | 9 |
-| REQ-008 | Codigo muerto (D-05, D-11) | Pendiente | - |
+| REQ-008 | Codigo muerto (D-05) y cierre de D-11 | Implementado | - |
+| REQ-009 | Los avisos de riego llegan al usuario | Implementado | - |
+| REQ-009b | Mensaje de resultado como funcion pura (deuda declarada) | Pendiente | - |
+| REQ-010 | Servicios para `DEVICES` y `PLAN DE RIEGO` (desbloquea nativo) | Pendiente | - |
 
 **Total: 38 pruebas en Node + 14 en navegador, todas en verde.**
+
+## Defectos
+
+| Estado | IDs |
+|---|---|
+| Corregidos | D-01, D-02, D-03, D-04, D-05, D-06, D-07, D-08, D-10, D-11, D-12, D-13 |
+| Pendientes | — (ninguno en la logica pura) |
 
 ## Modulos de logica
 
@@ -21,20 +31,6 @@ assets/js/logic/estado.js       instanteDeFechaDispositivo, getTimeDiference, ca
 assets/js/logic/ids.js          generarIdUnico
 assets/js/logic/riego.js        programar
 ```
-
-## Defectos
-
-| Estado | IDs |
-|---|---|
-| Corregidos | D-01, D-02, D-03, D-04, D-06, D-07, D-08, D-10, D-12, D-13 |
-| Pendientes | D-05 (`cbToPercent_old`), D-11 (rama muerta) |
-
-## Como se trabaja aqui (TDD + SDD)
-
-1. La reclamacion se escribe en `docs/spec/REQ-xxx-*.md` con criterios medibles.
-2. **Pruebas primero**, comprobando que fallan (rojo).
-3. Implementacion minima (verde).
-4. Fila de trazabilidad y estado actualizado.
 
 ## Comandos
 
