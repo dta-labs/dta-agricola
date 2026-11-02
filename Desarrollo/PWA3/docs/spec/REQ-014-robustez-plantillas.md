@@ -31,6 +31,28 @@ if (plot.forcedStart == 1 && system.log.activeSectors && system.log.activeSector
 
 Tambien en `isPlotActive`. Con esto desaparecen el `$interpolate:interr` y los `TypeError` de esa ruta.
 
+## 2-bis. Evidencia recogida del mensaje #2
+
+Se instrumento una copia temporal de la pagina interceptando `console.error` para capturar el stack:
+
+```
+TypeError: Cannot read properties of undefined (reading 'undefined')
+    at n.writeValue (angular.min.js:310:508)
+    at e.$render    (angular.min.js:331:46)
+```
+
+Es **`ngModel.$render` de AngularJS**, no codigo de la aplicacion. Dos hipotesis probadas y descartadas:
+
+1. `<select ng-options>` con coleccion vacia: se inicializo `listOfCultures = {}` y se anadio `catch`
+   a la lectura. **La correccion se queda** (evita un `null` y una promesa rechazada), pero el error
+   persiste.
+2. `<select>` con `ng-model` sobre un objeto inexistente (`actualSystem`, `newSensor`, `actualSensor`):
+   se probo `ng-if` en los tres. **No cambio nada y se revirtio**: no mantengo cambios que no cumplen
+   lo que prometen.
+
+Localizarlo requiere DevTools con sesion (breakpoint en `writeValue`): es la prueba manual pendiente.
+No bloquea: Angular registra el error y continua el `$digest`.
+
 ## 3. Lo que falta y por que
 
 El mensaje **#2** no trae stack (Angular lo registra en `angular.min.js:124`, su logger). Localizarlo

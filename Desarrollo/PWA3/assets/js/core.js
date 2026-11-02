@@ -103,7 +103,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     $scope.as_hist = false;
     $scope.as_users = false;
     $scope.isPlanning = false;
-    $scope.listOfCultures;
+    $scope.listOfCultures = {};   // nunca undefined: los <select ng-options> revientan con undefined
     $scope.selectedPlaneRiego;
     $scope.tiposSuelos = [
         {"id": "1", "type": "Arcilloso limoso"},
@@ -2766,10 +2766,16 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
 
     getCultures = () => {
         __repo().leerCultivos().then(cultivos => {
-            $scope.listOfCultures = cultivos.val();
+            // Nunca null/undefined: si no hay datos, objeto vacio (evita el TypeError del <select>).
+            $scope.listOfCultures = (cultivos && typeof cultivos.val === 'function' && cultivos.val()) || {};
             M.FormSelect.init(document.querySelectorAll('.select'));
             M.AutoInit();
             $scope.$apply();
+        }).catch(error => {
+            // Las reglas desplegadas pueden denegar /cultivos; no debe romper la vista.
+            console.warn("[cultivos] no se pudieron leer:", (error && error.message) || error);
+            $scope.listOfCultures = {};
+            try { $scope.$apply(); } catch (ignorado) { /* ya en digest */ }
         });
     }
 
