@@ -97,5 +97,23 @@
         return { id: id, entradas: entradas, aviso: aviso };
     }
 
-    return { programar: programar };
+    /**
+     * REQ-009b - Mensaje para la UI a partir del resultado de `programar`.
+     * Es puro: la vista solo lo pinta, asi que se puede probar sin DOM.
+     */
+    function mensajeDeResultado(resultado) {
+        if (!resultado) {
+            return { icono: "warning", titulo: "No se pudo programar el riego", detalle: "" };
+        }
+        if (resultado.aviso) {
+            return {
+                icono: "warning",
+                titulo: "Programa iniciado con avisos",
+                detalle: resultado.aviso + ". Revisa las parcelas sin tiempo."
+            };
+        }
+        return { icono: "success", titulo: "Programa de riego iniciado correctamente!", detalle: "" };
+    }
+
+    return { programar: programar, mensajeDeResultado: mensajeDeResultado };
 }));

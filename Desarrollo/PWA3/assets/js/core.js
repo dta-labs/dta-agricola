@@ -990,15 +990,12 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                 if (confirm) {
                     stopStationaryProgram();
                     $scope.setMachineSettings($scope.actualSystem);
-                    // REQ-009: si el plan venia incompleto, el aviso se muestra al usuario.
-                    if (programa.aviso) {
-                        swal("Programa iniciado con avisos", programa.aviso + ". Revisa las parcelas sin tiempo.", {
-                            icon: "warning",
-                        });
+                    // REQ-009b: el mensaje se calcula en la logica de riego, la vista solo lo pinta.
+                    const mensaje = __modulo("riego").mensajeDeResultado(programa);
+                    if (mensaje.detalle) {
+                        swal(mensaje.titulo, mensaje.detalle, { icon: mensaje.icono });
                     } else {
-                        swal("Programa de riego iniciado correctamente!", {
-                            icon: "success",
-                        });
+                        swal(mensaje.titulo, { icon: mensaje.icono });
                     }
                 } else {
                     swal("No se detuvo el programa!");

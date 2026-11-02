@@ -54,6 +54,33 @@
             /** Lee una vez un rango por hijo. Devuelve el snapshot. */
             leerRango: function (ruta, campo, desde, hasta) {
                 return ref(ruta).orderByChild(campo).startAt(desde).endAt(hasta).once("value");
+            },
+
+            /** Escucha el nodo cuya clave coincide (orderByKey().equalTo). */
+            escucharPorClave: function (ruta, clave, alCambiar, alError) {
+                var consulta = ref(ruta).orderByKey().equalTo(clave);
+                consulta.on("value", alCambiar, alError);
+                return function () { consulta.off("value", alCambiar); };
+            },
+
+            /** Reemplaza el valor de una ruta. */
+            escribir: function (ruta, valor) {
+                return ref(ruta).set(valor);
+            },
+
+            /** Actualiza solo las claves indicadas (no borra el resto). */
+            actualizar: function (ruta, valor) {
+                return ref(ruta).update(valor);
+            },
+
+            /** Anade una entrada con clave autogenerada. */
+            empujar: function (ruta, valor) {
+                return ref(ruta).push(valor);
+            },
+
+            /** Borra una ruta. */
+            borrar: function (ruta) {
+                return ref(ruta).remove();
             }
         };
     }

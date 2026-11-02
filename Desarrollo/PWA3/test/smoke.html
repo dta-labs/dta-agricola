@@ -58,10 +58,15 @@
   var llamadasRepo = [];
   var repo = DTALogic.repositorio.crear({
     escuchar: function (r) { llamadasRepo.push(r); return function () {}; },
+    escucharPorClave: function (r, c) { llamadasRepo.push(r + "#" + c); return function () {}; },
     escucharUltimos: function (r, n) { llamadasRepo.push(r + "|" + n); return function () {}; },
     leer: function (r) { llamadasRepo.push(r); return Promise.resolve(); },
     leerUltimos: function (r, n) { llamadasRepo.push(r + "|" + n); return Promise.resolve(); },
-    leerRango: function (r, c, d, h) { llamadasRepo.push(r + "|" + h); return Promise.resolve(); }
+    leerRango: function (r, c, d, h) { llamadasRepo.push(r + "|" + h); return Promise.resolve(); },
+    escribir: function (r) { llamadasRepo.push("set:" + r); return Promise.resolve(); },
+    actualizar: function (r) { llamadasRepo.push("upd:" + r); return Promise.resolve(); },
+    empujar: function (r) { llamadasRepo.push("push:" + r); return Promise.resolve(); },
+    borrar: function (r) { llamadasRepo.push("del:" + r); return Promise.resolve(); }
   });
   ok("repositorio: ruta de settings", repo.escucharSistema("k", function () {}).ruta === "systems/k/settings");
   repo.escucharUltimoLog("k", "logs", function () {});
@@ -69,6 +74,11 @@
   repo.leerLogsPorRango("k", "/logs", "2026-01-01", "2026-01-31");
   ok("repositorio: rango cerrado con \uf8ff",
     llamadasRepo[llamadasRepo.length - 1] === "systems/k/logs|2026-01-31\uf8ff");
+  repo.escucharUsuarioPorClave("ana.perez@x.com", function () {});
+  ok("repositorio: usuario por clave con puntos convertidos",
+    llamadasRepo[llamadasRepo.length - 1] === "users#ana-perez@x-com");
+  repo.escribirEstadoSistema("k", "ON");
+  ok("repositorio: escritura de estado", llamadasRepo[llamadasRepo.length - 1] === "upd:systems/k/settings");
 
   document.getElementById("salida").textContent = resultados.join(" | ");
   document.title = resultados.every(function (r) { return r.indexOf("PASS") === 0; }) ? "SMOKE OK" : "SMOKE FAIL";

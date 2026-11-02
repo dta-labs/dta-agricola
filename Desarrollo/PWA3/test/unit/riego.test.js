@@ -7,7 +7,7 @@
  */
 const { test } = require("node:test");
 const assert = require("node:assert/strict");
-const { programar } = require("../../assets/js/logic/riego.js");
+const { programar, mensajeDeResultado } = require("../../assets/js/logic/riego.js");
 
 const T7 = [10, 20, 30, 40, 50, 60, 70];          // 7 parcelas con tiempo > 0
 const base = {
@@ -90,4 +90,25 @@ test("REQ-007.6 sin lista de tiempos no lanza: programa 0 parcelas y avisa (D-06
     const r = programar(sinT, { generarId });
     assert.deepEqual(r.entradas, []);
     assert.ok(r.aviso && r.aviso.indexOf("faltan tiempos") >= 0);
+});
+
+// ---------------------------- REQ-009b: mensaje para la UI ----------------------------
+test("REQ-009b.1 plan completo devuelve mensaje de exito", () => {
+    const mensaje = mensajeDeResultado(programar({ ...base, cada: 1 }, { generarId }));
+    assert.equal(mensaje.icono, "success");
+    assert.match(mensaje.titulo, /correctamente/);
+    assert.equal(mensaje.detalle, "");
+});
+
+test("REQ-009b.2 plan con aviso devuelve warning con el detalle", () => {
+    const mensaje = mensajeDeResultado(programar({ ...base, t: [10, 20] }, { generarId }));
+    assert.equal(mensaje.icono, "warning");
+    assert.match(mensaje.titulo, /avisos/);
+    assert.match(mensaje.detalle, /faltan tiempos/);
+});
+
+test("REQ-009b.3 sin resultado devuelve warning generico", () => {
+    const mensaje = mensajeDeResultado(null);
+    assert.equal(mensaje.icono, "warning");
+    assert.equal(mensaje.detalle, "");
 });
