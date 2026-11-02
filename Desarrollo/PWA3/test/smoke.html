@@ -15,6 +15,7 @@
 <script src="../assets/js/logic/secuencias.js"></script>
 <script src="../assets/js/logic/estado.js"></script>
 <script src="../assets/js/logic/ids.js"></script>
+<script src="../assets/js/logic/riego.js"></script>
 
 <script>
   var resultados = [];
@@ -41,6 +42,16 @@
     new Date(DTALogic.estado.instanteDeFechaDispositivo("20260425 1200pm")).getHours() === 12);
   ok("ids.generarIdUnico devuelve cadena",
     typeof DTALogic.ids.generarIdUnico() === "string");
+
+  var plan = {
+    nombre: "QA", periodo: "0", cada: 1, fecha_inicio: "2026-04-25",
+    hora_inicio: "02:46 AM", fecha_fin: "2026-04-25",
+    t: [10, 20, 30, 40, 50, 60, 70]
+  };
+  var programado = DTALogic.riego.programar(plan, { generarId: function () { return "fijo"; } });
+  ok("riego.programar: 7 entradas", programado.entradas.length === 7);
+  ok("riego.programar: primera parcela a las 02:46", programado.entradas[0].time === "02:46");
+  ok("riego.programar: id inyectado", programado.id === "fijo");
 
   document.getElementById("salida").textContent = resultados.join(" | ");
   document.title = resultados.every(function (r) { return r.indexOf("PASS") === 0; }) ? "SMOKE OK" : "SMOKE FAIL";

@@ -5,11 +5,22 @@
 | REQ-001 | Logica pura: formulas, fechas, secuencias | Implementado | 17 |
 | REQ-004 | Dominio devices: estado y tiempos | Implementado | 8 |
 | REQ-005 | Correccion de estado (D-07, D-08, D-10) | Implementado | 8 (+3 navegador) |
-| REQ-006 | Dominio riego: programacion de parcelas | **En curso** | - |
-| REQ-007 | Correccion de D-01..D-04, D-11 | Pendiente | - |
+| REQ-006 | Dominio riego: programacion de parcelas | Implementado | 8 (+3 navegador) |
+| REQ-007 | Correccion de D-01..D-04, D-11, D-13 | Pendiente | - |
 | REQ-008 | Codigo muerto (D-05, D-06) | Pendiente | - |
 
-**Total actual: 29 pruebas en Node + 11 en navegador, todas en verde.**
+**Total: 37 pruebas en Node + 14 en navegador, todas en verde.**
+
+## Modulos de logica
+
+```
+assets/js/logic/formulas.js     mapping, constraining, cbToPercent
+assets/js/logic/fechas.js       parseFechaHora2, parseFechaHora, menorIgual
+assets/js/logic/secuencias.js   generarSecuenciaParcelas
+assets/js/logic/estado.js       instanteDeFechaDispositivo, getTimeDiference, calcStatusTime
+assets/js/logic/ids.js          generarIdUnico
+assets/js/logic/riego.js        programar
+```
 
 ## Como se trabaja aqui (TDD + SDD)
 
@@ -21,9 +32,8 @@
 ## Comandos
 
 ```powershell
-npm test                              # 29 pruebas de logica pura
+npm test                              # 37 pruebas de logica pura
 npm run test:watch                    # modo continuo
-# smoke en navegador real:
-node test/servir-local.js             # en otra terminal
-chrome --headless=new --dump-dom http://127.0.0.1:8090/test/smoke.html
+node test/servir-local.js             # servidor en 8090
+chrome --headless=new --dump-dom http://127.0.0.1:8090/test/smoke.html   # 14 en navegador
 ```

@@ -1070,65 +1070,19 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     }
 
     createStationaryProgram = (p) => {
-        let id = generarIdUnico();
-        switch (p.periodo + "") {
-            case ("0"):   // veces
-                let fecha_inicio = p.fecha_inicio;
-                let hora_inicio = p.hora_inicio;
-                let counter = p.cada;
-                for (let i = 0; i < counter; i++) {
-                    nueva_fecha_hora = excecuteProgram(id, p, fecha_inicio, hora_inicio);
-                    fecha_inicio = nueva_fecha_hora.slice(0,10);
-                    hora_inicio = nueva_fecha_hora.slice(11,16);
-                }
-                break;
-            case ("1"):   // días
-                runLoop(id, p, 1440);
-                break;
-            case ("2"):   // semanas
-                runLoop(id, p, 10080);
-                break;
-            case ("3"):   // meses de 30 días
-                runLoop(id, p, 43200);
-                break;
-        }
-        return id;
-    }
-
-    runLoop = (id, p, periodo) => {
-        let inicio = parseFechaHora(p.fecha_inicio, p.hora_inicio);
-        // let z_inicio = new Date(inicio.getTime() + inicio.getTimezoneOffset() * 60000 + $scope.actualSystem.zona * 60 * 60000);
-        // let fecha_inicio = z_inicio.toISOString().slice(0,10);
-        let fecha_inicio = p.fecha_inicio;
-        while (menorIgual(fecha_inicio, p.fecha_fin)) {
-            let nueva_fecha_hora = excecuteProgram(id, p, fecha_inicio, p.hora_inicio);
-            fecha_inicio = fecha_inicio.includes("-") ? fecha_inicio + " " + p.hora_inicio : parseFechaHora2(fecha_inicio).year + "-" + parseFechaHora2(fecha_inicio).month + "-" + parseFechaHora2(fecha_inicio).day + " " + p.hora_inicio;
-            inicio = new Date(fecha_inicio); 
-            inicio = new Date(inicio.getTime() + p.cada * periodo * 60000); 
-            let d = String(inicio.getDate()).padStart(2, "0"); 
-            let m = String(inicio.getMonth() + 1).padStart(2, "0"); 
-            fecha_inicio = inicio.getFullYear() + "-" + m + "-" + d;
-        }
-    }
-
-    excecuteProgram = (id, p, fecha_inicio, hora_inicio) => {
-        let fechas_parcelas = generarSecuenciaParcelas(fecha_inicio, hora_inicio, p.t);
-        for (let i = 0; i < 7; i++) {
-            if (!$scope.actualSystem.plots[`p${i}`].schedule) {
-                $scope.actualSystem.plots[`p${i}`].schedule = [];
-            }
-            $scope.actualSystem.plots[`p${i}`].schedule.push({
-                id: id,
-                nombre: p.nombre,
-                date: fechas_parcelas[i].slice(0,10),
-                t: "",
-                time: fechas_parcelas[i].slice(11,16),
-                value: p.t[i] * 60 * 1000,
-            }); 
-            $scope.actualSystem.plots[`p${i}`].forcedStart = 1;
-            $scope.actualSystem.plots[`p${i}`].irrigationPlan = 1;
-        }
-        return fechas_parcelas[fechas_parcelas.length - 1];
+        // Logica extraida a assets/js/logic/riego.js (REQ-006). Aqui solo se aplica a $scope.
+        const resultado = __modulo("riego").programar(p, { generarId: generarIdUnico });
+        resultado.entradas.forEach((entrada) => {
+            const parcela = $scope.actualSystem.plots["p" + entrada.parcela];
+            if (!parcela.schedule) parcela.schedule = [];
+            parcela.schedule.push({
+                id: entrada.id, nombre: entrada.nombre, date: entrada.date,
+                t: entrada.t, time: entrada.time, value: entrada.value
+            });
+            parcela.forcedStart = 1;
+            parcela.irrigationPlan = 1;
+        });
+        return resultado.id;
     }
 
     generarIdUnico = () => {
