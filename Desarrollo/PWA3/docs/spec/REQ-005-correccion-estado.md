@@ -61,9 +61,25 @@ defecto visible en produccion, no una cuestion de estilo, y el arreglo es pequen
 | Columna de estado: siempre `-1` | `+1d`, `+2h`, `35m` segun el retraso real |
 | Indicador de retraso de comunicacion: nunca | se muestra cuando el equipo lleva `>=10 min` sin reportar |
 
-> **Riesgo asumido**: si algun consumidor esperaba `"-1"` como valor valido (por ejemplo, un filtro de
-> la UI que descarte filas), ahora recibira etiquetas reales. Revisar la vista del listado en la
-> proxima prueba manual. En el codigo no hay ningun `=== "-1"` (verificado por busqueda).
+### Comparaciones con `"-1"` en la vista (verificadas)
+
+La vista **si** compara, pero con `commDelay`, no con `statusTime`:
+
+```
+index.html L173,234,751,989,1089   system.log.commDelay == '-1' / != '-1'   -> icono y color
+core.js    L2580,2605              system.log.commDelay != '-1'             -> color de la tarjeta
+```
+
+Eso es **exactamente el diseno**: `"-1"` significa "sin retraso relevante" y cualquier otro valor es
+"falla de comunicacion". Antes de REQ-005, `commDelay` quedaba siempre en `"-1"` porque
+`getTimeDiference` devolvia el numero `0`; ahora toma su valor real y la vista **por fin** muestra el
+estado correcto. `statusTime` solo se imprime (L187, L248), sin comparaciones.
+
+### Regresion evitada
+
+`findCommErrors` (core.js L558) hacia `dif.day` sin comprobar el resultado. Con el nuevo `null`
+habria lanzado `TypeError` y roto el listado. Se anadio el guard `if (dif && ...)` en la misma
+reclamacion, y se documenta aqui porque es parte del contrato nuevo.
 
 ## 6. Defectos que siguen abiertos
 

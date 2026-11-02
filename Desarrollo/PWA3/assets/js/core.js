@@ -557,7 +557,9 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                 if (log) {
                     let dif = getTimeDiference(log.update, null);
                     let commDelay = "-1";
-                    if ((dif.day >= 1 || dif.hour >= 1 || dif.min >= 10) && log.safety == "true" && log.voltage == "true") {
+                    // getTimeDiference devuelve null si el equipo no trae marca de actualizacion
+                    // (REQ-005.1). Sin este guard, `dif.day` lanzaria TypeError y se caeria el listado.
+                    if (dif && (dif.day >= 1 || dif.hour >= 1 || dif.min >= 10) && log.safety == "true" && log.voltage == "true") {
                         commDelay = dif.day >= 1 ? ("+" + dif.day + "d") : dif.hour >= 1 ? ("+" + dif.hour + "h") : ("" + dif.min + "m");
                     }
                     $scope.systems[systemId].log["commDelay"] = commDelay;
