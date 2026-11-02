@@ -1072,6 +1072,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     createStationaryProgram = (p) => {
         // Logica extraida a assets/js/logic/riego.js (REQ-006). Aqui solo se aplica a $scope.
         const resultado = __modulo("riego").programar(p, { generarId: generarIdUnico });
+    if (resultado.aviso) console.warn("[riego] " + resultado.aviso);
         resultado.entradas.forEach((entrada) => {
             const parcela = $scope.actualSystem.plots["p" + entrada.parcela];
             if (!parcela.schedule) parcela.schedule = [];

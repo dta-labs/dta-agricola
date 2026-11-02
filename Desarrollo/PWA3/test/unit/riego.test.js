@@ -45,14 +45,12 @@ test("REQ-006.3 las parcelas se encadenan sumando sus minutos", () => {
         ["02:46", "02:56", "03:16", "03:46", "04:26", "05:16", "06:16"]);
 });
 
-test("REQ-006.4 periodo 'veces' con cada=2 repite el bloque y ENCADENA EN UTC (DEFECTO D-03 conservado)", () => {
+test("REQ-006.4 periodo 'veces' con cada=2 repite el bloque encadenando en LOCAL (D-03, corregido en REQ-007)", () => {
     const r = programar({ ...base, cada: 2 }, { generarId });
     assert.equal(r.entradas.length, 14, "dos bloques de 7");
-    // El cierre del primer bloque se formatea en UTC; el segundo bloque empieza con esa hora.
-    const finLocal = new Date(2026, 3, 25, 7, 26);                  // 02:46 + (10+20+30+40+50+60+70) = 07:26
-    const horaUtc = finLocal.toISOString().slice(11, 16);
-    assert.equal(r.entradas[7].time, horaUtc,
-        "el segundo bloque arranca con la hora UTC del cierre anterior (D-03)");
+    // El segundo bloque arranca cuando termina el primero, en hora local: 07:26.
+    assert.equal(r.entradas[7].time, "07:26");
+    assert.equal(r.entradas[7].date, "2026-04-25");
 });
 
 test("REQ-006.5 periodo 'dias' itera hasta fecha_fin", () => {
@@ -78,6 +76,18 @@ test("REQ-006.7 periodo desconocido no genera entradas", () => {
     assert.equal(r.id, "id-fijo");
 });
 
-test("REQ-006.8 menos de 7 tiempos lanza excepcion (DEFECTO D-13 conservado)", () => {
-    assert.throws(() => programar({ ...base, t: [10, 20] }, { generarId }), TypeError);
+test("REQ-006.8 tiempos incompletos: programa lo calculable y avisa, sin lanzar (D-13, corregido en REQ-007)", () => {
+    const r = programar({ ...base, t: [10, 20] }, { generarId });
+    assert.equal(r.entradas.length, 2, "solo las parcelas con tiempo");
+    assert.deepEqual(r.entradas.map((e) => e.parcela), [0, 1]);
+    assert.ok(r.aviso && r.aviso.indexOf("tiempo") >= 0, "se devuelve un aviso explicativo");
+    assert.equal(r.entradas[0].value, 10 * 60 * 1000);
+});
+
+test("REQ-007.6 sin lista de tiempos no lanza: programa 0 parcelas y avisa (D-06)", () => {
+    const sinT = { ...base };
+    delete sinT.t;
+    const r = programar(sinT, { generarId });
+    assert.deepEqual(r.entradas, []);
+    assert.ok(r.aviso && r.aviso.indexOf("faltan tiempos") >= 0);
 });

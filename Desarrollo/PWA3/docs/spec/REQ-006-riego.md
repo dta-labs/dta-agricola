@@ -65,6 +65,9 @@ ahora:  riego.programar(plan)  ->  { id, entradas: [...] }                (solo 
   implicita `nueva_fecha_hora` (**D-12 resuelto por construccion**).
 - El controller quedo reducido a aplicar el resultado: 8 lineas frente a 61.
 
+> **Actualizado por REQ-007**: D-03 y D-13 quedaron **corregidos**; las pruebas REQ-006.4 y
+> REQ-006.8 se actualizaron ahi. La seccion siguiente documenta el estado original.
+
 ## 5. Defectos conservados (para REQ-007)
 
 | ID | Defecto | Impacto |

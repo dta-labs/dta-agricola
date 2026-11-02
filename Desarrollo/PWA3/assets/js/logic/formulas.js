@@ -16,8 +16,13 @@
 }(typeof self !== "undefined" ? self : this, function () {
     "use strict";
 
-    /** Escala lineal de un valor entre [inMin,inMax] a [outMin,outMax]. */
+    /**
+     * Escala lineal de un valor entre [inMin,inMax] a [outMin,outMax].
+     * Con rango de entrada degenerado (inMin === inMax) no hay escala posible: se devuelve `outMin`
+     * en lugar de Infinity/NaN (D-01, corregido en REQ-007).
+     */
     function mapping(value, inMin, inMax, outMin, outMax) {
+        if (inMax === inMin) return outMin;
         return (value - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
     }
 

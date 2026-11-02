@@ -17,12 +17,10 @@ test("REQ-003.1 encadena el inicio de cada parcela sumando sus minutos", () => {
     assert.equal(r[1], "2026-04-25 03:16", "2:46 + 30 min");
 });
 
-test("REQ-003.2 el ultimo elemento es el fin, en UTC (DEFECTO conservado)", () => {
+test("REQ-003.2 el ultimo elemento es el fin, en HORA LOCAL (D-03, corregido en REQ-007)", () => {
     const r = generarSecuenciaParcelas(inicio, hora, [30, 45]);
-    const finLocal = new Date(2026, 3, 25, 4, 1);          // 2:46 + 30 + 45 = 4:01 local
-    const finLeidoComoUtc = new Date(r[2].replace(" ", "T") + "Z");
-    assert.equal(finLeidoComoUtc.getTime(), finLocal.getTime(),
-        "el ultimo se formatea con toISOString(), es decir en UTC, no en hora local");
+    // 2:46 + 30 + 45 = 4:01 local, y ahora se escribe en local (antes iba en UTC).
+    assert.equal(r[2], "2026-04-25 04:01");
 });
 
 test("REQ-003.3 ignora tiempos cero o negativos", () => {
@@ -34,8 +32,7 @@ test("REQ-003.3 ignora tiempos cero o negativos", () => {
 test("REQ-003.4 con lista vacia devuelve solo el cierre", () => {
     const r = generarSecuenciaParcelas(inicio, hora, []);
     assert.equal(r.length, 1);
-    const fin = new Date(r[0].replace(" ", "T") + "Z");
-    assert.equal(fin.getTime(), new Date(2026, 3, 25, 2, 46).getTime());
+    assert.equal(r[0], "2026-04-25 02:46", "el cierre coincide con el inicio, en local");
 });
 
 test("REQ-003.5 formato de las salidas", () => {

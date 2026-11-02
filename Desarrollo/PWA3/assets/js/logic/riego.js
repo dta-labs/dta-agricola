@@ -44,9 +44,19 @@
         var id = generarId();
         var entradas = [];
 
+        var aviso = null;
+
         function anadirBloque(fechaInicio, horaInicio) {
-            var fechasParcelas = secuencias.generarSecuenciaParcelas(fechaInicio, horaInicio, plan.t);
-            for (var i = 0; i < PARCELAS; i += 1) {
+            // D-06 (REQ-007): `t` puede no ser un array; se normaliza para no lanzar en .forEach.
+            var tiempos = Array.isArray(plan.t) ? plan.t : [];
+            var fechasParcelas = secuencias.generarSecuenciaParcelas(fechaInicio, horaInicio, tiempos);
+            // D-13 (REQ-007): antes, con menos de 7 tiempos, fechasParcelas[i] era undefined y
+            // `.slice` lanzaba TypeError. Ahora se programa lo que se puede y se devuelve un aviso.
+            var limite = Math.min(PARCELAS, fechasParcelas.length, tiempos.length);
+            if (limite < PARCELAS) {
+                aviso = "faltan tiempos por parcela: se programaron " + limite + " de " + PARCELAS;
+            }
+            for (var i = 0; i < limite; i += 1) {
                 entradas.push({
                     parcela: i,
                     id: id,
@@ -84,7 +94,7 @@
             }
         }
 
-        return { id: id, entradas: entradas };
+        return { id: id, entradas: entradas, aviso: aviso };
     }
 
     return { programar: programar };

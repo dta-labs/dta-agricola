@@ -12,8 +12,10 @@ test("REQ-002.1 parseFechaHora2 lee 'Apr 25, 2026'", () => {
     assert.deepEqual(parseFechaHora2("Jan 31, 2027"), { year: 2027, month: 1, day: 31 });
 });
 
-test("REQ-002.2 parseFechaHora2 con mes desconocido devuelve month=0 (DEFECTO conservado)", () => {
-    assert.equal(parseFechaHora2("Foo 1, 2026").month, 0);
+test("REQ-002.2 parseFechaHora2 con mes desconocido lanza RangeError (D-04, corregido en REQ-007)", () => {
+    // Antes devolvia month=0, es decir diciembre del ano anterior: corrompia la fecha en silencio.
+    assert.throws(() => parseFechaHora2("Foo 1, 2026"), RangeError);
+    assert.throws(() => parseFechaHora("Foo 1, 2026", "02:46 AM"), RangeError);
 });
 
 test("REQ-002.3 parseFechaHora con fecha ISO y AM/PM", () => {
@@ -38,10 +40,15 @@ test("REQ-002.4 parseFechaHora con fecha 'Apr 25, 2026'", () => {
     assert.equal(d.getMinutes(), 5);
 });
 
-test("REQ-002.5 parseFechaHora solo entiende AM/PM en mayusculas (DEFECTO conservado)", () => {
-    // Es el motivo por el que menorIgual() pasa "0:0am" en minusculas: asi no se ajusta la hora.
-    assert.equal(parseFechaHora("2026-04-25", "02:46 pm").getHours(), 2, "pm minuscula no suma 12");
-    assert.equal(parseFechaHora("2026-04-25", "02:46 PM").getHours(), 14, "PM mayuscula si suma 12");
+test("REQ-002.5 parseFechaHora entiende AM/PM sin importar mayusculas (D-02, corregido en REQ-007)", () => {
+    assert.equal(parseFechaHora("2026-04-25", "02:46 pm").getHours(), 14, "pm minuscula suma 12");
+    assert.equal(parseFechaHora("2026-04-25", "02:46 PM").getHours(), 14);
+    assert.equal(parseFechaHora("2026-04-25", "12:00 am").getHours(), 0);
+    assert.equal(parseFechaHora("2026-04-25", "12:30 pm").getHours(), 12);
+    // formato 24 h sin sufijo: no se toca
+    assert.equal(parseFechaHora("2026-04-25", "18:05").getHours(), 18);
+    // menorIgual sigue funcionando con su "0:0am"
+    assert.equal(menorIgual("2026-04-25", "2026-04-25"), true);
 });
 
 test("REQ-002.6 menorIgual compara por dia", () => {

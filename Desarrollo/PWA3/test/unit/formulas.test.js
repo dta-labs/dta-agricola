@@ -18,12 +18,14 @@ test("REQ-001.1 mapping escala linealmente entre rangos", () => {
     assert.equal(mapping(0.5, 0, 1, 0, 255), 127.5);
 });
 
-test("REQ-001.2 mapping con rango de entrada vacio devuelve infinito (DEFECTO conservado)", () => {
-    // Comportamiento real de core.js: dividir por cero da +-Infinity (y NaN en el punto medio).
-    // Se documenta tal cual; se corrige en una reclamacion aparte porque cambia el contrato.
-    assert.equal(mapping(5, 10, 10, 0, 100), -Infinity);
-    assert.equal(mapping(20, 10, 10, 0, 100), Infinity);
-    assert.ok(Number.isNaN(mapping(10, 10, 10, 0, 100)), "0/0 en el punto medio");
+test("REQ-001.2 mapping con rango de entrada vacio (D-01, corregido en REQ-007)", () => {
+    // Antes devolvia +-Infinity o NaN. Con el rango degenerado no hay escala posible:
+    // se devuelve el extremo inferior de salida, que es un valor finito y predecible.
+    assert.equal(mapping(5, 10, 10, 0, 100), 0);
+    assert.equal(mapping(20, 10, 10, 0, 100), 0);
+    assert.equal(mapping(10, 10, 10, 0, 100), 0);
+    assert.equal(mapping(10, 10, 10, 7, 100), 7, "respeta outMin");
+    assert.ok(Number.isFinite(mapping(5, 10, 10, 0, 100)), "nunca Infinity/NaN");
 });
 
 test("REQ-001.3 constraining limita al rango", () => {

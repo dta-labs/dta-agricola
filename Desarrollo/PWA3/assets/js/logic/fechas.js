@@ -23,13 +23,22 @@
      * Aqui se declaran con const: mismo resultado, sin contaminar el ambito.
      */
     function parseFechaHora2(fechaStr) {
-        var partes = String(fechaStr).split(" ");
+        var partes = String(fechaStr).trim().split(/\s+/);
+        if (partes.length !== 3) {
+            throw new RangeError("Fecha no reconocida: \"" + fechaStr + "\"");
+        }
         var mesStr = partes[0];
-        var diaStr = partes[1];
-        var anioStr = partes[2];
-        var year = parseInt(anioStr, 10);
-        var day = parseInt(String(diaStr).replace(",", ""), 10);
+        var year = parseInt(partes[2], 10);
+        var day = parseInt(String(partes[1]).replace(",", ""), 10);
         var month = MESES.indexOf(mesStr) + 1;
+        // D-04 (REQ-007): antes un mes desconocido daba month = 0, es decir diciembre del ano
+        // anterior, corrompiendo la fecha en silencio. Ahora falla de forma explicita.
+        if (month === 0) {
+            throw new RangeError("Mes no reconocido en \"" + fechaStr + "\"");
+        }
+        if (!Number.isFinite(year) || !Number.isFinite(day)) {
+            throw new RangeError("Dia o ano no numericos en \"" + fechaStr + "\"");
+        }
         return { year: year, month: month, day: day };
     }
 
@@ -52,9 +61,10 @@
         var horaPartes = String(horaStr).split(/[: ]/);
         var hour = parseInt(horaPartes[0], 10);
         var minute = parseInt(horaPartes[1], 10);
-        var ampm = String(horaStr).slice(-2);
-        if (ampm === "PM" && hour < 12) hour += 12;
-        if (ampm === "AM" && hour === 12) hour = 0;
+        // D-02 (REQ-007): AM/PM sin importar mayusculas. Si no hay sufijo ("18:05"), no se toca.
+        var ampm = String(horaStr).trim().slice(-2).toLowerCase();
+        if (ampm === "pm" && hour < 12) hour += 12;
+        if (ampm === "am" && hour === 12) hour = 0;
         return new Date(year, month, day, hour, minute);
     }
 

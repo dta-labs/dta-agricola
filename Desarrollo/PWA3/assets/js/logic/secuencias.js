@@ -36,7 +36,15 @@
                 inicio = new Date(inicio.getTime() + minutos * 60000);
             }
         });
-        resultados.push(inicio.toISOString().slice(0, 16).replace("T", " "));
+        // D-03 (REQ-007): el cierre se escribe en hora LOCAL, igual que los inicios. Antes se usaba
+        // toISOString() (UTC), lo que desplazaba 6 h la programacion en Mexico.
+        resultados.push(
+            inicio.getFullYear() + "-" +
+            dosDigitos(inicio.getMonth() + 1) + "-" +
+            dosDigitos(inicio.getDate()) + " " +
+            dosDigitos(inicio.getHours()) + ":" +
+            dosDigitos(inicio.getMinutes())
+        );
         return resultados;
     }
 
