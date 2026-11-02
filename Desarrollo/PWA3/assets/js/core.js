@@ -43,6 +43,14 @@ function __auth() {
     return authDTA;
 }
 
+/** Acceso al servicio de dominio de equipos creado en firebaseComm.js. */
+function __equipos() {
+    if (typeof equiposDTA === "undefined" || !equiposDTA) {
+        throw new Error("Servicio de equipos no inicializado: revisa el orden de los <script>.");
+    }
+    return equiposDTA;
+}
+
 // #region Controlador Angular
 
 var app = angular.module("Administracion", ["ngRoute"]);
@@ -80,7 +88,6 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     // #region Variables
     
     $scope.selectedWindow = 'intro';
-    let listeners = {};
     $scope.systems = {};
     // $scope.systemsFails = {};
     $scope.showMore = false;
@@ -347,77 +354,51 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     // #region DEVICES
 
     const removeFirebaseListeners = () => {
-        Object.values(listeners).forEach(listener => {
-            if (listener && listener.ref && listener.callback) {
-                listener.ref.off("value", listener.callback);
-            } else if (listener && typeof listener.off === "function") {
-                listener.off();
-            }
-        });
-        listeners = {};
+        // REQ-013: las suscripciones de equipos las posee el servicio; aqui solo se delega.
+        __equipos().detenerTodo();
     };
 
     const listenLatestSystemLog = (locationKey, logDirectory) => {
-        const listenerKey = `${locationKey}_latestLog`;
-        const logPath = `systems/${locationKey}/${logDirectory}`;
-        if (listeners[listenerKey]?.path === logPath) return;
-
-        if (listeners[listenerKey]) {
-            listeners[listenerKey].off();
-        }
-
-        const suscripcion = __repo().escucharUltimoLog(locationKey, logDirectory, logs => {
+        // REQ-013: el servicio no re-suscribe si la ruta no cambio.
+        __equipos().escucharUltimoLog(locationKey, logDirectory, logs => {
             if (!logs.val() || !$scope.systems[locationKey]) return;
             processSystemLogSnapshot(locationKey, logs, false);
         }, error => {
             console.error(`Error al escuchar los datos de ${locationKey}:`, error);
         });
-        listeners[listenerKey] = { off: suscripcion.off, path: suscripcion.ruta };
     };
 
     loadSystems = () => {
-        if ($scope.authUser) {
-            let userSystems = $scope.userLocations[convertDotToDash($scope.authUser.email)].systems;
-            if (userSystems) {
-                let lastLocation = Object.keys(userSystems)[Object.keys(userSystems).length - 1];
-                for (let locationKey in userSystems) {
-                    
-                    // --- Listener para SETTINGS ---
-                    listeners[locationKey] = __repo().escucharSistema(locationKey, system => {
-                        if (system.val()) {
-                            $scope.systems[locationKey] = system.val();
-                            $scope.systems[locationKey].key = locationKey;
-                            loadSystemUsers(locationKey);
-                            getMetorologicalData(locationKey);
-                            let dir = $scope.systems[locationKey].type === "Sensor" ? "dayLogs" : "logs";  // Determinar ruta de logs según tipo
-                            $scope.loadSystemLog(locationKey, 1, `/${dir}`);
-                            listenLatestSystemLog(locationKey, dir);
-                            if ($scope.actualSystem && locationKey === $scope.actualSystem.key) {
-                                $scope.selectSystem($scope.systems[locationKey]);
-                            }
-                            // Firebase se ejecuta fuera de AngularJS: actualizar la
-                            // vista después de asignar todos los datos recibidos.
-                            $scope.$evalAsync();
-                        }
-                    });
+        if (!$scope.authUser) return;
+        const usuario = $scope.userLocations[convertDotToDash($scope.authUser.email)];
+        const userSystems = usuario && usuario.systems;
+        if (!userSystems) { $scope.systems = []; return; }
 
+        // REQ-013: el servicio sostiene las suscripciones; aqui se hace el trabajo de vista.
+        __equipos().cargar(Object.keys(userSystems), {
+            alCambiarSistema: (sistema, locationKey) => {
+                $scope.systems[locationKey] = sistema;
+                loadSystemUsers(locationKey);
+                getMetorologicalData(locationKey);
+                const dir = __modulo("equipos").carpetaDeLogs(sistema.type);
+                $scope.loadSystemLog(locationKey, 1, `/${dir}`);
+                listenLatestSystemLog(locationKey, dir);
+                if ($scope.actualSystem && locationKey === $scope.actualSystem.key) {
+                    $scope.selectSystem(sistema);
                 }
-                $scope.$apply();
-            } else {
-                $scope.systems = [];
-            }
-        }
+                $scope.$evalAsync();
+            },
+            alError: (locationKey, error) => {
+                console.error(`Error al escuchar los datos de ${locationKey}:`, error);
+            },
+        });
+        $scope.$apply();
     }
 
     loadSystemUsers = (locationKey) => {
-        const claveUsuarios = locationKey + "_users";
-        if (listeners[claveUsuarios]) listeners[claveUsuarios].off();
-        listeners[claveUsuarios] = __repo().escucharUsuariosSistema(locationKey, users => {
+        __equipos().escucharUsuarios(locationKey, users => {
             if (users.val()) {
                 $scope.users[locationKey] = users.val();
-                let a = 0;
-                let b = 0;
-                // $scope.$apply();
             }
         });
     }
@@ -488,39 +469,17 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     };
 
     processingAlerts = (locationKey) => {
-        let alarm = false;
-        switch ($scope.systems[locationKey].type) {
-            case "PC":
-            case "PL":
-                break;
-            case "Sensor":
-                // let logArr = Object.values($scope.logs[locationKey]);
-                // let dataRaw = logArr.at(-1).dataRaw;
-                let dataRaw = $scope.systems[locationKey].log.dataRaw;
-                let lastAlarmDate = $scope.systems[locationKey].log.date;
-                $scope.systems[locationKey]["lastAlarmDate"] = !$scope.systems[locationKey].lastAlarmDate || $scope.systems[locationKey].lastAlarmDate < lastAlarmDate ? lastAlarmDate : $scope.systems[locationKey]["lastAlarmDate"];
-                let dataArray = JSON.parse(dataRaw);
-                // console.log(locationKey);
-                // console.log(dataRaw);
-                // console.log(dataArray);
-                let name = $scope.systems[locationKey].name;
-                let sensors = $scope.systems[locationKey].sensors;
-                for (let i = 0; i < sensors.sensorNumber; i++) {
-                    let sensor = "S" + i;
-                    let temp = Number(dataArray[i * 8 + 2]);
-                    if ($scope.systems[locationKey].lastAlarmDate && $scope.systems[locationKey].lastAlarmDate == lastAlarmDate && sensors[sensor].t && sensors[sensor].t.notify && !Number.isNaN(temp) && temp <= sensors[sensor].t.minValue) {
-                        alarm = true; 
-                        let alias = sensors[sensor].alias ?? sensors[sensor].id;
-                        let msg = `Alerta ${temp}°C/${(temp * 9/5 + 32).toFixed(1)}°F en ${name} - ${alias} `;
-                        M.toast({ html: msg });
-                        console.log(msg);
-                    }
-                }
-                break;
-            case "Bomba":
-                break;
-        }
-        if (alarm) activarAlarma();
+        const sistema = $scope.systems[locationKey];
+        if (!sistema || !sistema.log) return;
+
+        // REQ-013: el servicio decide y deduplica; aqui solo se muestran los efectos.
+        const evaluacion = __equipos().evaluarAlertas(sistema, sistema.log.date);
+        evaluacion.alarmas.forEach(alarma => {
+            const mensaje = __modulo("equipos").mensajeDeAlarma(alarma, sistema.name);
+            M.toast({ html: mensaje });
+            console.log(mensaje);
+        });
+        if (evaluacion.sonar) activarAlarma();
     }
 
     processingSensors = (locationKey) => {
@@ -565,21 +524,11 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     }
 
     findCommErrors = () => {
-        for (let systemId in $scope.systems) {
-            if ($scope.systems[systemId].type != "Sensor") {
-                let log = $scope.systems[systemId].log;
-                if (log) {
-                    let dif = getTimeDiference(log.update, null);
-                    let commDelay = "-1";
-                    // getTimeDiference devuelve null si el equipo no trae marca de actualizacion
-                    // (REQ-005.1). Sin este guard, `dif.day` lanzaria TypeError y se caeria el listado.
-                    if (dif && (dif.day >= 1 || dif.hour >= 1 || dif.min >= 10) && log.safety == "true" && log.voltage == "true") {
-                        commDelay = dif.day >= 1 ? ("+" + dif.day + "d") : dif.hour >= 1 ? ("+" + dif.hour + "h") : ("" + dif.min + "m");
-                    }
-                    $scope.systems[systemId].log["commDelay"] = commDelay;
-                }
-            }
-        }
+        // REQ-013: la regla vive en logic/equipos.js; aqui solo se aplica a la vista.
+        __equipos().marcarRetrasos(undefined, $scope.systems).forEach(resultado => {
+            const sistema = $scope.systems[resultado.clave];
+            if (sistema && sistema.log) sistema.log.commDelay = resultado.etiqueta;
+        });
     }
 
     calcStatusTime = (date, update) => {
@@ -615,8 +564,8 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         $scope.loadCultures();
         setActualSystemPlans();
         $scope.actualizarListaCultivos();
-        let dir = system.type == "Sensor" ? "/dayLogs" : "/logs";
-        let items = system.type == "Sensor" ? 7 : $scope.limitRegisters;
+        let dir = "/" + __modulo("equipos").carpetaDeLogs(system.type);
+        let items = __modulo("equipos").registrosIniciales(system.type, $scope.limitRegisters);
         if (system.type == "Nevera") {
             $scope.setChartType('humidity');
             $scope.selectedTimeOption = 'DIA';
@@ -647,9 +596,8 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         historyRequestId = requestId;
         // Las neveras conservan sus lecturas intradía en /logs; /dayLogs se
         // utiliza para el detalle diario de las redes de sensores.
-        const source = option !== 'DIA' || $scope.actualSystem?.type === "Nevera"
-            ? "/logs"
-            : "/dayLogs";
+        // REQ-013: la regla del historico vive en logic/equipos.js.
+        const source = "/" + __modulo("equipos").carpetaDeHistorico($scope.actualSystem?.type, option);
         let dateRange = null;
         if ($scope.actualSystem?.type === "Nevera") {
             const now = new Date();

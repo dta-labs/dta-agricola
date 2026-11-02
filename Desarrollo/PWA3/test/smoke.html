@@ -16,8 +16,10 @@
 <script src="../assets/js/logic/estado.js"></script>
 <script src="../assets/js/logic/ids.js"></script>
 <script src="../assets/js/logic/riego.js"></script>
+<script src="../assets/js/logic/equipos.js"></script>
 <script src="../assets/js/services/repositorio.js"></script>
 <script src="../assets/js/services/autenticacion.js"></script>
+<script src="../assets/js/services/equipos.js"></script>
 
 <script>
   var resultados = [];
@@ -93,6 +95,29 @@
   authEmisor(null);
   ok("autenticacion: sesion autenticada", sesiones[0].autenticado === true);
   ok("autenticacion: sesion cerrada", sesiones[1].autenticado === false);
+
+  // REQ-013: reglas y servicio de equipos
+  ok("equipos.carpetaDeLogs('Sensor') === 'dayLogs'",
+    DTALogic.equipos.carpetaDeLogs("Sensor") === "dayLogs");
+  ok("equipos.etiquetaDeRetraso '+2h'",
+    DTALogic.equipos.etiquetaDeRetraso(
+      { update: "20260425 0246am", safety: "true", voltage: "true" },
+      function () { return new Date(2026, 3, 25, 4, 46).getTime(); }) === "+2h");
+
+  var emisorEquipos = null;
+  var sistemaRecibido = null;
+  var servicioEquipos = DTALogic.equiposServicio.crear({
+    escucharSistema: function (clave, alCambiar) {
+      emisorEquipos = alCambiar;
+      return { ruta: "systems/" + clave + "/settings", off: function () {} };
+    },
+    escucharUsuariosSistema: function () { return { ruta: "u", off: function () {} }; },
+    escucharUltimoLog: function (clave, dir) { return { ruta: "systems/" + clave + "/" + dir, off: function () {} }; }
+  });
+  servicioEquipos.cargar(["k"], { alCambiarSistema: function (sistema) { sistemaRecibido = sistema; } });
+  emisorEquipos({ val: function () { return { name: "Equipo QA", type: "Sensor" }; } });
+  ok("equiposServicio normaliza el sistema",
+    sistemaRecibido && sistemaRecibido.key === "k" && sistemaRecibido.name === "Equipo QA");
 
   document.getElementById("salida").textContent = resultados.join(" | ");
   document.title = resultados.every(function (r) { return r.indexOf("PASS") === 0; }) ? "SMOKE OK" : "SMOKE FAIL";

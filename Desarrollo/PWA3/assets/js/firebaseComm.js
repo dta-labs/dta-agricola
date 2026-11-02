@@ -11,6 +11,14 @@ try {
     console.error("No se pudo crear el repositorio de datos:", error);
 }
 
+// REQ-013: servicio de dominio de equipos (estado y suscripciones) sobre el repositorio.
+var equiposDTA = null;
+try {
+    equiposDTA = DTALogic.equiposServicio.crear(repoDTA);
+} catch (error) {
+    console.error("No se pudo crear el servicio de equipos:", error);
+}
+
 // REQ-012: servicio de autenticacion sobre su adaptador.
 var authDTA = null;
 try {

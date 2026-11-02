@@ -13,26 +13,26 @@
 | REQ-010 | Repositorio de datos + adaptador Firebase | Implementado | 8 |
 | REQ-011 | Escrituras a traves del repositorio | Implementado | 10 |
 | REQ-012 | Servicio de autenticacion | Implementado | 5 |
+| REQ-013 | Servicios de dominio: equipos | Implementado | 19 |
 | REQ-014 | Robustez de plantillas y auditoria de consola | Parcial | - |
-| REQ-013 | Servicios de dominio (devices, riego) | Pendiente | - |
 
-**Total: 64 pruebas en Node + 21 en navegador, todas en verde.**
+**Total: 83 pruebas en Node + 24 en navegador, todas en verde.**
 
 ## Arquitectura
 
 ```
-logic/     formulas · fechas · secuencias · estado · ids · riego      puro, sin DOM ni red
-services/  repositorio · autenticacion                    (esquema y casos de uso)
-           adaptadorFirebase · adaptadorFirebaseAuth      (infraestructura)
-firebaseComm.js   fachada + punto de composicion (repoDTA, authDTA)
-core.js           controlador Angular: orquesta y escribe en $scope (0 llamadas a firebase)
+logic/     formulas · fechas · secuencias · estado · ids · riego · equipos     reglas puras
+services/  repositorio · autenticacion · equipos        (esquema, casos de uso, estado)
+           adaptadorFirebase · adaptadorFirebaseAuth    (infraestructura)
+firebaseComm.js   fachada + punto de composicion (repoDTA, authDTA, equiposDTA)
+core.js           controlador Angular: vista y digest (5.318 lineas, 0 llamadas a firebase)
 ```
 
 ## Comandos
 
 ```powershell
-npm test                              # 64 pruebas
+npm test                              # 83 pruebas
 npm run test:watch
 node test/servir-local.js             # servidor en 8090
-chrome --headless=new --dump-dom http://127.0.0.1:8090/test/smoke.html   # 21 en navegador
+chrome --headless=new --dump-dom http://127.0.0.1:8090/test/smoke.html   # 24 en navegador
 ```
