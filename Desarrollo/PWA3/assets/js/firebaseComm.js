@@ -2,6 +2,15 @@ var ui;
 
 firebase.initializeApp(config);
 
+// REQ-010: repositorio de datos (esquema) sobre el adaptador de Firebase.
+// El controlador solo usa `repoDTA`; nadie mas construye rutas a mano.
+var repoDTA = null;
+try {
+    repoDTA = DTALogic.repositorio.crear(DTALogic.adaptadorFirebase.crear(firebase.database()));
+} catch (error) {
+    console.error("No se pudo crear el repositorio de datos:", error);
+}
+
 function loadCamposFromFB() {           // Old ***********************
     return new Promise((resolve, reject) => {
         firebase.database().ref("campos").on("value", campos => {

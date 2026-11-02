@@ -16,6 +16,7 @@
 <script src="../assets/js/logic/estado.js"></script>
 <script src="../assets/js/logic/ids.js"></script>
 <script src="../assets/js/logic/riego.js"></script>
+<script src="../assets/js/services/repositorio.js"></script>
 
 <script>
   var resultados = [];
@@ -52,6 +53,22 @@
   ok("riego.programar: 7 entradas", programado.entradas.length === 7);
   ok("riego.programar: primera parcela a las 02:46", programado.entradas[0].time === "02:46");
   ok("riego.programar: id inyectado", programado.id === "fijo");
+
+  // REQ-010: el repositorio construye rutas correctas, con un adaptador falso (sin red)
+  var llamadasRepo = [];
+  var repo = DTALogic.repositorio.crear({
+    escuchar: function (r) { llamadasRepo.push(r); return function () {}; },
+    escucharUltimos: function (r, n) { llamadasRepo.push(r + "|" + n); return function () {}; },
+    leer: function (r) { llamadasRepo.push(r); return Promise.resolve(); },
+    leerUltimos: function (r, n) { llamadasRepo.push(r + "|" + n); return Promise.resolve(); },
+    leerRango: function (r, c, d, h) { llamadasRepo.push(r + "|" + h); return Promise.resolve(); }
+  });
+  ok("repositorio: ruta de settings", repo.escucharSistema("k", function () {}).ruta === "systems/k/settings");
+  repo.escucharUltimoLog("k", "logs", function () {});
+  ok("repositorio: ultimo log con limitToLast(1)", llamadasRepo.indexOf("systems/k/logs|1") >= 0);
+  repo.leerLogsPorRango("k", "/logs", "2026-01-01", "2026-01-31");
+  ok("repositorio: rango cerrado con \uf8ff",
+    llamadasRepo[llamadasRepo.length - 1] === "systems/k/logs|2026-01-31\uf8ff");
 
   document.getElementById("salida").textContent = resultados.join(" | ");
   document.title = resultados.every(function (r) { return r.indexOf("PASS") === 0; }) ? "SMOKE OK" : "SMOKE FAIL";

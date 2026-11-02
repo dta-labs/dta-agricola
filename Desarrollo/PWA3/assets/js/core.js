@@ -26,6 +26,15 @@ function __modulo(nombre) {
     return DTALogic[nombre];
 }
 
+/** Acceso al repositorio de datos creado en firebaseComm.js. Falla claro si falta. */
+function __repo() {
+    if (typeof repoDTA === "undefined" || !repoDTA) {
+        throw new Error("Repositorio no inicializado: revisa el orden de los <script> "
+            + "(services/repositorio.js y services/adaptadorFirebase.js antes de firebaseComm.js).");
+    }
+    return repoDTA;
+}
+
 // #region Controlador Angular
 
 var app = angular.module("Administracion", ["ngRoute"]);
@@ -346,19 +355,16 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         if (listeners[listenerKey]?.path === logPath) return;
 
         if (listeners[listenerKey]) {
-            listeners[listenerKey].ref.off("value", listeners[listenerKey].callback);
+            listeners[listenerKey].off();
         }
 
-        const ref = firebase.database().ref(logPath).limitToLast(1);
-        const callback = logs => {
+        const suscripcion = __repo().escucharUltimoLog(locationKey, logDirectory, logs => {
             if (!logs.val() || !$scope.systems[locationKey]) return;
             processSystemLogSnapshot(locationKey, logs, false);
-        };
-
-        ref.on("value", callback, error => {
+        }, error => {
             console.error(`Error al escuchar los datos de ${locationKey}:`, error);
         });
-        listeners[listenerKey] = { ref, callback, path: logPath };
+        listeners[listenerKey] = { off: suscripcion.off, path: suscripcion.ruta };
     };
 
     loadSystems = () => {
@@ -369,8 +375,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                 for (let locationKey in userSystems) {
                     
                     // --- Listener para SETTINGS ---
-                    listeners[locationKey] = firebase.database().ref(`systems/${locationKey}/settings`);
-                    listeners[locationKey].on("value", system => {
+                    listeners[locationKey] = __repo().escucharSistema(locationKey, system => {
                         if (system.val()) {
                             $scope.systems[locationKey] = system.val();
                             $scope.systems[locationKey].key = locationKey;
@@ -397,7 +402,9 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     }
 
     loadSystemUsers = (locationKey) => {
-        firebase.database().ref("systems/" + locationKey + "/users").on("value", users => {
+        const claveUsuarios = locationKey + "_users";
+        if (listeners[claveUsuarios]) listeners[claveUsuarios].off();
+        listeners[claveUsuarios] = __repo().escucharUsuariosSistema(locationKey, users => {
             if (users.val()) {
                 $scope.users[locationKey] = users.val();
                 let a = 0;
@@ -410,11 +417,10 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     $scope.loadSystemLog = (locationKey, registers, set = "/logs", requestId = null, updateCurrentLog = true, dateRange = null) => {
         requestId = requestId === null ? ++logRequestSequence : requestId;
         latestLogRequestBySystem[locationKey] = requestId;
-        let query = firebase.database().ref("systems/" + locationKey + set);
-        query = dateRange
-            ? query.orderByChild("date").startAt(dateRange.start).endAt(dateRange.end + "\uf8ff")
-            : query.limitToLast(registers);
-        return query.once("value").then(logs => {
+        const consulta = dateRange
+            ? __repo().leerLogsPorRango(locationKey, set, dateRange.start, dateRange.end)
+            : __repo().leerLogs(locationKey, set, registers);
+        return consulta.then(logs => {
             // Una respuesta de un periodo anterior no debe reemplazar la ultima
             // seleccion del usuario si hizo clic de nuevo antes de que terminara.
             if (requestId !== latestLogRequestBySystem[locationKey]) return;
@@ -1413,7 +1419,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                 break;
         }
         $scope.systemConfig = {};
-        firebase.database().ref("configurations/" + type).once("value", config => {
+        __repo().leerConfiguracion(type).then(config => {
             $scope.systemConfig = config.val();
             $scope.systemConfigType = type;
             $scope.$apply();
@@ -2754,7 +2760,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     }
 
     getCultures = () => {
-        firebase.database().ref("cultivos").once("value", cultivos => {
+        __repo().leerCultivos().then(cultivos => {
             $scope.listOfCultures = cultivos.val();
             M.FormSelect.init(document.querySelectorAll('.select'));
             M.AutoInit();
