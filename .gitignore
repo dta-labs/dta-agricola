@@ -8,3 +8,10 @@ PWA/dta-agricola-firebase-adminsdk-winnb-d684d702a9.json
 PWA_old/assets/js/firebaseConfig.js
 PWA/login/firebaseConfig.js
 PWA_old/login/firebaseConfig.js
+
+# Claves de servicio: NUNCA deben versionarse (REQ-021).
+# Las que ya estaban rastreadas siguen en el historial: hay que rotarlas.
+*adminsdk*.json
+*firebase-adminsdk*.json
+Desarrollo/PWA2/dta-agricola-firebase-adminsdk-*.json
+Desarrollo/PWA2/public_old/firebase-adminsdk.json

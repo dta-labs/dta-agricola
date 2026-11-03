@@ -51,3 +51,21 @@ valor** en `index.html`, o el navegador puede seguir ejecutando la copia anterio
 
 DevTools -> Application -> Service Workers -> Unregister; Storage -> Clear site data; `Ctrl+Shift+R`.
 Las trazas `[app] core.js <version>` confirman que se esta ejecutando el fichero correcto.
+
+## Versionado y push
+
+- El repositorio es el **padre** (`dta-agricola`): PWA3 no tiene `.git` propio y se versiona ahi.
+- `Desarrollo/PWA2` **si** tiene su propio `.git`, pero ademas esta versionado en el padre: es una
+  situacion hibrida y explica que en GitHub Desktop aparezcan dos proyectos distintos.
+- `main` puede rechazar un push por **secret scanning** si el rango toca ficheros con credenciales.
+  Herramienta correcta: **rotar la clave**, no desbloquear el aviso. `git rm --cached` solo evita que
+  se siga versionando: el historial conserva el secreto.
+- El arbol limpio en GitHub Desktop **no** significa que no haya commits: los commits estan en
+  **History** de la rama `main`, y lo que aparece en "Changes" son ficheros sin commitear
+  (por ejemplo, el trabajo de `Desarrollo/Embebido`).
+
+```powershell
+git -C C:\Users\admin\Documents\GitHub\dta-agricola status -sb      # main...origin/main
+git -C C:\Users\admin\Documents\GitHub\dta-agricola log --oneline -5
+git -C C:\Users\admin\Documents\GitHub\dta-agricola push origin main
+```
