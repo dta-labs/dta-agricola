@@ -53,6 +53,13 @@ Es **`ngModel.$render` de AngularJS**, no codigo de la aplicacion. Dos hipotesis
 Localizarlo requiere DevTools con sesion (breakpoint en `writeValue`): es la prueba manual pendiente.
 No bloquea: Angular registra el error y continua el `$digest`.
 
+## 2-ter. Intento descartado (REQ-024)
+
+Se probo a convertir los tres `<select ng-options>` de cultivo a `<option ng-repeat>` pensando que
+eran el origen del `writeValue`. **Empeoro** el recuento (6 -> 8 ocurrencias) y se revirtio. La
+comparacion justa contra el commit anterior dio **6 ocurrencias / 1 mensaje unico en ambos**: el
+error es preexistente y constante.
+
 ## 3. Lo que falta y por que
 
 El mensaje **#2** no trae stack (Angular lo registra en `angular.min.js:124`, su logger). Localizarlo

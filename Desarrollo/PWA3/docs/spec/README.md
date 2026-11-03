@@ -24,6 +24,7 @@
 | REQ-021 | Claves de servicio fuera del indice | Implementado (rotar: usuario) | - |
 | REQ-022 | Reglas de BD cerradas, CSP y tooling | Implementado (desplegar: usuario) | 5 |
 | REQ-023 | Gestion de usuarios: menu, perfil y planes | Implementado (probar con sesion) | 10 |
+| REQ-024 | Arreglos del log: imagenes, interpolaciones y CSP | Implementado | - (navegador) |
 
 **Total: 106 pruebas en Node + 26 en navegador, todas en verde.**
 

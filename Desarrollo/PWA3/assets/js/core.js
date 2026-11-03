@@ -52,7 +52,7 @@ function __equipos() {
 }
 
 // Marca de version: si no ves esto en consola, el navegador sirve un core.js viejo.
-console.log("[app] core.js 26.11.02.002");
+console.log("[app] core.js 26.11.02.004");
 
 // #region Controlador Angular
 
@@ -4600,7 +4600,9 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     $scope.opcionesEntrevista = reglasPerfil().OPCIONES.entrevista;
     $scope.opcionesRol = reglasPerfil().OPCIONES.rol;
     $scope.planes = reglasPerfil().PLANES;
-    $scope.perfil = {};
+    // Valores definidos desde el arranque: un ng-model undefined en un <select> hace que
+    // la directiva select reviente en writeValue (REQ-014) durante el $digest inicial.
+    $scope.perfil = reglasPerfil().perfilDesdeUsuario(null, null);
     $scope.problemasSeleccionados = {};
     $scope.planActual = reglasPerfil().planPorId(null);
 

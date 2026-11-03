@@ -7,7 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <!-- REQ-022: CSP. AngularJS 1.6 usa new Function en $parse, de ahi unsafe-eval;
          hay un script inline (widget del tiempo) y 900+ style=, de ahi unsafe-inline. -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://ajax.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com https://www.gstatic.com https://cdn.firebase.com https://apis.google.com https://accounts.google.com https://www.google.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://cdn.firebase.com; img-src 'self' data: blob: https:; font-src 'self' data: https:; connect-src 'self' https://*.firebaseio.com wss://*.firebaseio.com https://*.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.google-analytics.com https://*.analytics.google.com https://api.openweathermap.org https://www.tomorrow.io https://weather.tomorrow.io; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com https://www.youtube.com https://*.facebook.com; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://ajax.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com https://www.gstatic.com https://cdn.firebase.com https://apis.google.com https://accounts.google.com https://www.google.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://cdn.firebase.com; img-src 'self' data: blob: https:; font-src 'self' data: https:; connect-src 'self' https://cdn.jsdelivr.net https://*.firebaseio.com wss://*.firebaseio.com https://*.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.google-analytics.com https://*.analytics.google.com https://api.openweathermap.org https://www.tomorrow.io https://weather.tomorrow.io; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com https://www.youtube.com https://*.facebook.com; object-src 'none'; base-uri 'self'; form-action 'self'">
     <meta name="description"
         content='"DTA - Monitoring & Control\" es la aplicacón de DTA-Agricola para el monitoreo y control inteligente y en tiempo real de sistemas de riego y bombeo.'>
     <meta name="author" content="DTA-Agrícola (Sustentabilidad y Eficiencia Agrícola) https://dtaamerica.com/dta-agricola/">
@@ -1687,7 +1687,7 @@
                                     <td style="text-align: left;">
                                         <div class="row" style="margin-bottom: 0;">
                                             <div class="col s12 m4">
-                                                <p style="margin: 0;"><img src="{{ meteo[actualSystem.key].weather.iconUrl }}" alt="Weather icon"></p>
+                                                <p style="margin: 0;"><img ng-src="{{ meteo[actualSystem.key].weather.iconUrl }}" alt="Weather icon"></p>
                                                 <p style="text-align: left; margin: -25px 0 0 0;">
                                                     <span style="font-size: large;">{{ meteo[actualSystem.key].main.temp - 273.15 | number : 0 }}°C</span>
                                                     <span>{{ (meteo[actualSystem.key].main.temp - 273.15) * 9/5 + 32 | number : 0 }}°F</span>
@@ -1952,7 +1952,7 @@
                                                                 <table>
                                                                     <tr>
                                                                         <td width="20%" style="text-align: center;">
-                                                                            <img src="{{ getSensorImage(sensor.type) }}" style="width: 40px;" alt="{{ sensor.type }}">
+                                                                            <img ng-src="{{ getSensorImage(sensor.type) }}" style="width: 40px;" alt="{{ sensor.type }}">
                                                                         </td>
                                                                         <td width="60%" style="text-align: left;">
                                                                             <div style="text-align: left; color: rgb(55, 54, 54); font-size: 1.3em;"><b>{{ sensor.alias ? sensor.alias : "Sin nombre"}}</b> </div>
@@ -3548,7 +3548,7 @@
                                                         <label class="left-align">
                                                             <input id="disease_{{ disease.name }}" type="checkbox" ng-model="newSensor.alerts[disease.name]" />
                                                             <span class="chip">
-                                                                <img ng-src="assets/images/diseases/{{ disease.photo || bug-vector-icon.jpg }}" 
+                                                                <img ng-src="assets/images/diseases/{{ disease.photo || 'bug-vector-icon.jpg' }}" 
                                                                     alt="{{ disease.name }}" 
                                                                     style="margin-top: -5px;">
                                                                     {{ disease.name }}
@@ -3561,7 +3561,7 @@
                                                 <div id="diseaseDetails_{{ actualCulture.culture }}" class="card" ng-show="isShowDiseaseDetails">
                                                     <div class="card-content">
                                                         <span class="card-title">{{ disease.name }}</span>
-                                                        <p><img ng-src="assets/images/diseases/{{ disease.photo || bug-vector-icon.jpg }}" alt="{{ disease.name }}" style="margin-top: -5px;"></p>
+                                                        <p><img ng-src="assets/images/diseases/{{ disease.photo || 'bug-vector-icon.jpg' }}" alt="{{ disease.name }}" style="margin-top: -5px;"></p>
                                                         <table>
                                                             <tr>
                                                                 <td class="left-align">Nombre</td>
@@ -3753,7 +3753,7 @@
                         <div class="swal-title">Editar: {{ actualSensor.alias ? actualSensor.alias : actualSensor.id }}</div>
                         <div class="row" style="text-align: center;">
                             <div class="input-field col s12">
-                                <img src="{{ getSensorImage(actualSensor.type) }}" style="width: 100px;" alt="{{ actualSensor.type }}">
+                                <img ng-src="{{ getSensorImage(actualSensor.type) }}" style="width: 100px;" alt="{{ actualSensor.type }}">
                             </div>
                             <div class="input-field col s12">
                                 <input id="editSensorAlias" type="text" ng-model="actualSensor.alias">
@@ -3855,7 +3855,7 @@
                                                     <label class="left-align">
                                                         <input id="disease_{{ disease.name }}" type="checkbox" ng-model="actualSensor.alerts[disease.name]" />
                                                         <span class="chip">
-                                                            <img ng-src="assets/images/diseases/{{ disease.photo || bug-vector-icon.jpg }}" alt="{{ disease.name }}" style="margin-top: -5px;" ng-show="disease.photo">
+                                                            <img ng-src="assets/images/diseases/{{ disease.photo || 'bug-vector-icon.jpg' }}" alt="{{ disease.name }}" style="margin-top: -5px;" ng-show="disease.photo">
                                                             {{ disease.name }}
                                                         </span>
                                                     </label>
@@ -3866,7 +3866,7 @@
                                             <div id="diseaseDetails_{{ actualCulture.culture }}" class="card" ng-show="isShowDiseaseDetails">
                                                 <div class="card-content">
                                                     <span class="card-title">{{ disease.name }}</span>
-                                                    <p><img ng-src="assets/images/diseases/{{ disease.photo || bug-vector-icon.jpg }}" alt="{{ disease.name }}" style="margin-top: -5px;"></p>
+                                                    <p><img ng-src="assets/images/diseases/{{ disease.photo || 'bug-vector-icon.jpg' }}" alt="{{ disease.name }}" style="margin-top: -5px;"></p>
                                                     <table>
                                                         <tr>
                                                             <td class="left-align">Nombre</td>
@@ -5053,7 +5053,7 @@
     <script src="./assets/modules/chart.js/chartjs-plugin-zoom.js"></script>
     <script src="./assets/modules/html5-qrcode/html5-qrcode.min.js"></script>
     <script src="./assets/js/commons.js"></script>
-    <script src="./assets/js/core.js?v=26.11.02.003"></script>
+    <script src="./assets/js/core.js?v=26.11.02.004"></script>
     <script type="text/javascript" src="./assets/modules/datepicker/daterangepicker.js"></script>
 
     <!-- #endregion: CSS Y SCRIPTS -->
