@@ -1,19 +1,14 @@
 {
   "rules": {
-    ".read": true,
-    ".write": "auth != null",
-    "systems": {
-      "$systemId": {
-        "logs": {
-          ".indexOn": ["date"]
-        },
-        "dayLogs": {
-          ".indexOn": ["date"]
-        }
-      }
-    },
+    ".read": false,
+    ".write": false,
     "users": {
+      ".read": "auth != null",
       "$userKey": {
+        ".write": "auth != null",
+        "profile": {
+          ".write": "auth != null"
+        },
         "fcmTokens": {
           ".read": "auth != null",
           ".write": "auth != null"
@@ -21,7 +16,48 @@
         "fcmStatus": {
           ".read": "auth != null",
           ".write": "auth != null"
+        },
+        "systems": {
+          "$systemId": {
+            ".write": "auth != null"
+          }
         }
+      }
+    },
+    "systems": {
+      "$systemId": {
+        ".read": "auth != null",
+        ".write": "auth != null",
+        "logs": {
+          ".indexOn": [
+            "date"
+          ],
+          ".read": "auth != null",
+          ".write": "auth != null"
+        },
+        "dayLogs": {
+          ".indexOn": [
+            "date"
+          ],
+          ".read": "auth != null",
+          ".write": "auth != null"
+        }
+      }
+    },
+    "cultivos": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "configurations": {
+      "$tipo": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      }
+    },
+    "access": {
+      "$uid": {
+        ".read": "auth != null",
+        ".write": "auth != null"
       }
     }
   }

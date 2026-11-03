@@ -21,8 +21,10 @@
 | REQ-018 | Cache-busting y trazas de arranque | Implementado | - (navegador) |
 | REQ-019 | La sesion no se revierte; Google por redireccion | Confirmado | 6 |
 | REQ-020 | Google ofrece elegir cuenta | Confirmado | 1 |
+| REQ-021 | Claves de servicio fuera del indice | Implementado (rotar: usuario) | - |
+| REQ-022 | Reglas de BD cerradas, CSP y tooling | Implementado (desplegar: usuario) | 5 |
 
-**Total: 91 pruebas en Node + 26 en navegador, todas en verde.**
+**Total: 96 pruebas en Node + 26 en navegador, todas en verde.**
 
 ## Bloque de autenticacion (cerrado y confirmado por el usuario)
 

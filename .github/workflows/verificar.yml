@@ -1,0 +1,40 @@
+name: verificar PWA3
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "Desarrollo/PWA3/**"
+      - ".github/workflows/verificar.yml"
+  pull_request:
+    paths:
+      - "Desarrollo/PWA3/**"
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Desarrollo/PWA3
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      # El linter y las pruebas no tienen dependencias: no hace falta npm install.
+      - name: Lint estatico
+        run: node test/lint.js
+
+      - name: Pruebas unitarias
+        run: npm test
+
+      - name: Smoke en Chrome headless
+        run: |
+          node test/servir-local.js &
+          sleep 2
+          google-chrome --headless=new --no-sandbox --disable-gpu             --virtual-time-budget=8000 --dump-dom             http://127.0.0.1:8090/test/smoke.html > smoke.html
+          grep -q "SMOKE OK" smoke.html
+          echo "smoke OK"
