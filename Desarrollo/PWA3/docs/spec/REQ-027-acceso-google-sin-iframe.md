@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Estado | **Implementado** (pendiente de probar con una cuenta real) |
+| Estado | **Revertido** por REQ-028 (ver el motivo al final) |
 | Alcance | `logic/googleIdentidad.js` (nuevo), `autentication.js`, `index.html` (GIS + CSP) |
 | Pruebas | 127/127 en Node (9 nuevas) |
 | Riesgo | Medio: se a;ade un segundo camino de acceso, el anterior queda como respaldo |
@@ -112,3 +112,20 @@ clasico de Google y **no** necesita FedCM.
 
 Verificado en headless: `[auth] GIS: boton oficial de Google montado`, contenedor presente en el
 DOM, **0** avisos de FedCM, 0 violaciones de CSP, 0 `Uncaught`.
+
+## 7. Por que se revertyo
+
+Al probarlo con una cuenta real, Google respondio:
+
+```
+Acceso bloqueado: error de autorizacion
+Error 400: origin_mismatch
+```
+
+Causa: GIS se inicializa con un `client_id` OAuth **manual**, que exige registrar cada origen
+(`http://localhost:5502`) en Google Cloud Console. El flujo de Firebase **no necesita** `client_id`:
+usa el cliente OAuth del proyecto y solo pide que el dominio este en *Authorized domains*.
+
+Es decir, esta implementacion anadio un requisito de configuracion nuevo (y una pantalla de error)
+para resolver un problema que se resuelve con el flujo estandar. Se elimino por completo:
+modulo, script de Google, estilos y las dos entradas de CSP. Ver REQ-028.

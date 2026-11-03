@@ -7,7 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <!-- REQ-022: CSP. AngularJS 1.6 usa new Function en $parse, de ahi unsafe-eval;
          hay un script inline (widget del tiempo) y 900+ style=, de ahi unsafe-inline. -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://ajax.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com https://www.gstatic.com https://cdn.firebase.com https://apis.google.com https://accounts.google.com https://www.google.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://accounts.google.com https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://cdn.firebase.com; img-src 'self' data: blob: https:; font-src 'self' data: https:; connect-src 'self' https://accounts.google.com https://cdn.jsdelivr.net https://*.firebaseio.com wss://*.firebaseio.com https://*.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.google-analytics.com https://*.analytics.google.com https://api.openweathermap.org https://www.tomorrow.io https://weather.tomorrow.io; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com https://www.youtube.com https://*.facebook.com; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://ajax.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com https://www.gstatic.com https://cdn.firebase.com https://apis.google.com https://accounts.google.com https://www.google.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://cdn.firebase.com; img-src 'self' data: blob: https:; font-src 'self' data: https:; connect-src 'self' https://cdn.jsdelivr.net https://*.firebaseio.com wss://*.firebaseio.com https://*.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.google-analytics.com https://*.analytics.google.com https://api.openweathermap.org https://www.tomorrow.io https://weather.tomorrow.io; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com https://www.youtube.com https://*.facebook.com; object-src 'none'; base-uri 'self'; form-action 'self'">
     <meta name="description"
         content='"DTA - Monitoring & Control\" es la aplicacón de DTA-Agricola para el monitoreo y control inteligente y en tiempo real de sistemas de riego y bombeo.'>
     <meta name="author" content="DTA-Agrícola (Sustentabilidad y Eficiencia Agrícola) https://dtaamerica.com/dta-agricola/">
@@ -5041,7 +5041,7 @@
     <script src="./assets/js/firebaseConfig.js?v=26.11.02.001"></script>
     <script src="./assets/js/firebaseComm.js?v=26.11.02.001"></script>
     <script src="./assets/js/firebaseMessaging.js?v=26.11.02.001"></script>
-    <script src="./assets/js/autentication.js?v=26.11.02.007" type="module"></script>
+    <script src="./assets/js/autentication.js?v=26.11.02.008" type="module"></script>
     <script src="./assets/js/jquery.min.js?v=26.11.02.001"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular-route.js"></script>
@@ -5053,9 +5053,6 @@
     <script src="./assets/modules/chart.js/chartjs-plugin-zoom.js"></script>
     <script src="./assets/modules/html5-qrcode/html5-qrcode.min.js"></script>
     <script src="./assets/js/commons.js?v=26.11.02.001"></script>
-    <!-- REQ-027: Google Identity Services (acceso sin el iframe de Firebase). -->
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <script src="./assets/js/logic/googleIdentidad.js?v=26.11.02.002"></script>
 <script src="./assets/js/logic/aviso.js?v=26.11.02.001"></script>
 <script src="./assets/js/core.js?v=26.11.02.005"></script>
     <script type="text/javascript" src="./assets/modules/datepicker/daterangepicker.js"></script>
