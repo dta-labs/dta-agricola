@@ -89,6 +89,11 @@
                     avisar("No se pudo abrir el acceso de Google. Revisa que no haya bloqueo de ventanas.");
                     return;
                 }
+                // REQ-025: un fallo que no viene de Firebase no es un fallo de acceso. Puede ser
+                // que la navegacion a Google ya este en curso; avisar seria enganoso.
+                if (reglas && typeof reglas.esErrorDeFirebase === "function" && !reglas.esErrorDeFirebase(error)) {
+                    return;
+                }
                 avisar(mensajeDeError(error));
             }
         });

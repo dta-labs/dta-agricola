@@ -46,3 +46,20 @@ test("REQ-020.1 el proveedor de Google fuerza el selector de cuentas", () => {
     const opciones = login.opcionesDelProveedor();
     assert.equal(opciones.prompt, "select_account");
 });
+
+test("esErrorDeFirebase reconoce los errores del SDK", () => {
+  assert.equal(login.esErrorDeFirebase({ code: "auth/popup-blocked" }), true);
+  assert.equal(login.esErrorDeFirebase({ code: "auth/network-request-failed" }), true);
+});
+
+test("esErrorDeFirebase descarta un fallo de JavaScript (REQ-025)", () => {
+  assert.equal(login.esErrorDeFirebase(new TypeError("Cannot set properties of null")), false);
+  assert.equal(login.esErrorDeFirebase(new Error("boom")), false);
+});
+
+test("esErrorDeFirebase tolera null, undefined y cadenas", () => {
+  assert.equal(login.esErrorDeFirebase(null), false);
+  assert.equal(login.esErrorDeFirebase(undefined), false);
+  assert.equal(login.esErrorDeFirebase("auth/popup-blocked"), true);
+  assert.equal(login.esErrorDeFirebase("algo"), false);
+});

@@ -61,7 +61,20 @@
         return "No se pudo completar el acceso (" + (codigo || "error desconocido") + ").";
     }
 
+
+    /**
+     * REQ-025: distingue un error real de Firebase de un fallo de JavaScript.
+     * El `beforeunload` roto lanzaba un TypeError dentro de `signInWithRedirect`, el `catch`
+     * lo tomaba por un fallo de acceso y avisaba al usuario aunque el redirect siguiera en curso.
+     */
+    function esErrorDeFirebase(error) {
+        if (!error) return false;
+        var codigo = typeof error === "string" ? error : error.code;
+        return normalizar(codigo).indexOf("auth/") === 0;
+    }
+
     return {
+        esErrorDeFirebase: esErrorDeFirebase,
         opcionesDelProveedor: opcionesDelProveedor,
         debeReintentarConRedirect: debeReintentarConRedirect,
         mensajeDeError: mensajeDeError

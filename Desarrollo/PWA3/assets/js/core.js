@@ -52,7 +52,7 @@ function __equipos() {
 }
 
 // Marca de version: si no ves esto en consola, el navegador sirve un core.js viejo.
-console.log("[app] core.js 26.11.02.004");
+console.log("[app] core.js 26.11.02.005");
 
 // #region Controlador Angular
 
@@ -5384,11 +5384,33 @@ function showOffLine() {
     console.log(window.navigator.onLine);
 }
 
-window.addEventListener("beforeunload", function (e) {
-    document.getElementById("mensaje").innerHTML = "Si se va no se guardarán los datos";
-    (e || window.event).returnValue = null;
-    return null;
-}, true);
+// #region AVISO DE SALIDA (REQ-025)
+// El aviso NO puede romper la navegacion: si el elemento no existe se ignora, y solo se
+// interrumpe la salida cuando de verdad hay cambios sin guardar. Un beforeunload que
+// siempre interrumpe estorbaba al redirect de Google (el login volvia y no se entraba).
+(function instalarAvisoDeSalidaSeguro() {
+    const aviso = window.DTALogic && window.DTALogic.aviso;
+
+    if (aviso && typeof aviso.instalarAvisoDeSalida === "function") {
+        aviso.instalarAvisoDeSalida(window, document, {
+            id: "mensaje",
+            hayCambios: function () {
+                if (!window.angular || !document.body) return false;
+
+                const alcance = window.angular.element(document.body).scope();
+                return !!(alcance && alcance.hayCambiosSinGuardar === true);
+            },
+        });
+        return;
+    }
+
+    // Respaldo minimo si el modulo no se cargo: nunca lanza (REQ-025).
+    window.addEventListener("beforeunload", function () {
+        const mensaje = document.getElementById("mensaje");
+        if (mensaje) mensaje.innerHTML = "Si se va no se guardarán los datos";
+    });
+})();
+// #endregion
 
 // Set the badge
 const unreadCount = 24;
