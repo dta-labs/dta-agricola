@@ -19,7 +19,8 @@
         "auth/popup-blocked",
         "auth/operation-not-supported-in-this-environment",
         "auth/unauthorized-domain",
-        "auth/web-storage-unsupported"
+        "auth/web-storage-unsupported",
+        "auth/expired-popup-request"
     ];
 
     // v8 devuelve los codigos con guiones y v9 tambien, pero hay quien usa guion bajo.

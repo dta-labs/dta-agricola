@@ -37,3 +37,7 @@ test("REQ-015.4 los codigos de v8 y v9 en guiones se tratan igual", () => {
 test("REQ-015.5 sin error no hay mensaje", () => {
     assert.equal(login.mensajeDeError(null), "");
 });
+
+test("REQ-019.2 un popup expirado tambien exige redireccion", () => {
+    assert.equal(login.debeReintentarConRedirect("auth/expired-popup-request"), true);
+});

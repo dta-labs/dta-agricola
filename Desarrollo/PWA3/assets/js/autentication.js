@@ -75,19 +75,15 @@
     if (signinGoogle) {
         signinGoogle.addEventListener("click", async (e) => {
             e.preventDefault();
+            // REQ-019: redireccion directa. El popup depende de window.opener y el navegador
+            // lo bloquea por COOP: la ventana no se puede cerrar y los intentos se acumulan
+            // (auth/expired-popup-request). Con redireccion no hay ventana que cerrar.
             try {
-                await auth.signInWithPopup(proveedorGoogle);
+                await auth.signInWithRedirect(proveedorGoogle);
             } catch (error) {
-                // El aviso de COOP aparece al cerrar el popup; si el navegador lo bloqueo,
-                // se reintenta con redireccion, que no depende de window.opener.
                 if (reglas && reglas.debeReintentarConRedirect(error && error.code)) {
-                    try {
-                        await auth.signInWithRedirect(proveedorGoogle);
-                        return;
-                    } catch (errorRedirect) {
-                        avisar(mensajeDeError(errorRedirect));
-                        return;
-                    }
+                    avisar("No se pudo abrir el acceso de Google. Revisa que no haya bloqueo de ventanas.");
+                    return;
                 }
                 avisar(mensajeDeError(error));
             }

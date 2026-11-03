@@ -52,7 +52,7 @@ function __equipos() {
 }
 
 // Marca de version: si no ves esto en consola, el navegador sirve un core.js viejo.
-console.log("[app] core.js 26.11.02.001");
+console.log("[app] core.js 26.11.02.002");
 
 // #region Controlador Angular
 
@@ -254,37 +254,38 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
 
     }
 
+    // REQ-019: un solo observador y sin revertir una sesion ya establecida.
+    let observandoSesion = false;
+    let huboSesionEnEstaCarga = false;
+
     listenUserStatus = () => {
+        if (observandoSesion) return;
+        observandoSesion = true;
         console.log("[auth] registrando observador de sesion");
         __auth().observar(sesion => {
             if (sesion.autenticado) {
-                // `$scope.$apply(function () {
-                console.log("Intento de autenticación");
+                huboSesionEnEstaCarga = true;
                 console.log("[sesion] autenticado:", sesion.usuario && sesion.usuario.email);
                 $scope.authUser = sesion.usuario;
                 authUser = $scope.authUser;
                 getUserData();
                 $scope.showWindow('listado');
-                // });
-            } else {
-                console.log("Error de autenticación");
-                removeFirebaseListeners();
-                $scope.$apply(function () {
-                    $scope.authUser = null;
-                    // Estas preferencias pertenecen al dispositivo, no a la sesion.
-                    const notificationsPreference = localStorage.getItem('notificacionesHabilitadas');
-                    const soundPreference = localStorage.getItem('sonidoHabilitado');
-                    localStorage.clear();
-                    if (notificationsPreference !== null) {
-                        localStorage.setItem('notificacionesHabilitadas', notificationsPreference);
-                    }
-                    if (soundPreference !== null) {
-                        localStorage.setItem('sonidoHabilitado', soundPreference);
-                    }
-                });
-                $scope.showWindow('login');
-                //location.href = "./landing/index.html"
+                return;
             }
+
+            // Un evento nulo despues de una sesion valida es transitorio (el popup se esta
+            // cerrando o expiro una peticion anterior): NO debe devolver al login ni borrar nada.
+            if (huboSesionEnEstaCarga) {
+                console.warn("[auth] evento nulo ignorado: la sesion ya estaba establecida");
+                return;
+            }
+
+            console.log("[auth] sin sesion: se muestra el login");
+            removeFirebaseListeners();
+            $scope.$apply(function () {
+                $scope.authUser = null;
+            });
+            $scope.showWindow('login');
         });
     };
 
@@ -329,7 +330,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         __auth().cerrarSesion().then(() => {
             $scope.authUser = null;
             $scope.tipoUsuario = 0;
-            localStorage.clear();
+            limpiarSesionLocal();
             // ui.start("#firebaseui-auth-container", uiConfig);
             //logoutAutUser();
             //document.getElementById("logout").style.display = "none";
@@ -368,6 +369,21 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     }
 
     // #endregion USER
+
+    /**
+     * REQ-019: limpia solo lo de la sesion, conservando las preferencias del dispositivo.
+     * Antes se hacia localStorage.clear(), que borraba tambien notificaciones y sonido.
+     */
+    const limpiarSesionLocal = () => {
+        const preferencias = {};
+        ["notificacionesHabilitadas", "sonidoHabilitado"].forEach(clave => {
+            preferencias[clave] = localStorage.getItem(clave);
+        });
+        localStorage.clear();
+        Object.keys(preferencias).forEach(clave => {
+            if (preferencias[clave] !== null) localStorage.setItem(clave, preferencias[clave]);
+        });
+    };
 
     // #region DEVICES
 

@@ -15,15 +15,20 @@
 | REQ-012 | Servicio de autenticacion | Implementado | 5 |
 | REQ-013 | Servicios de dominio: equipos | Implementado | 19 |
 | REQ-014 | Robustez de plantillas y auditoria de consola | Parcial | - |
-| REQ-015 | Login con un solo SDK (Google no entraba) | Implementado (pendiente prueba manual) | 5 |
+| REQ-015 | Login con un solo SDK (Google no entraba) | Implementado | 5 |
 | REQ-016 | Widget del tiempo de terceros bajo demanda | Implementado | - (navegador) |
 | REQ-017 | El login no se queda colgado si falla /users | Implementado | 1 |
 | REQ-018 | Cache-busting y trazas de arranque | Implementado | - (navegador) |
+| REQ-019 | La sesion no se revierte; Google por redireccion | Implementado (pendiente confirmar) | 6 |
 
-**Total: 89 pruebas en Node + 26 en navegador, todas en verde.**
+**Total: 90 pruebas en Node + 26 en navegador, todas en verde.**
 
 ## Version de los assets
 
-`core.js`, `firebaseMessaging.js` y `style.css` se cargan con `?v=26.11.02.001`. Al modificar
-cualquiera de ellos hay que **subir ese valor** en `index.html`, o el navegador puede seguir
-ejecutando la copia anterior (el service worker cachea por URL).
+`core.js` se carga con `?v=26.11.02.002`. Al modificarlo hay que **subir ese valor** en `index.html`,
+o el navegador puede seguir ejecutando la copia anterior (el service worker cachea por URL).
+
+## Recarga limpia (si algo no cuadra)
+
+DevTools -> Application -> Service Workers -> Unregister; Storage -> Clear site data; `Ctrl+Shift+R`.
+Las trazas `[app] core.js <version>` confirman que se esta ejecutando el fichero correcto.
