@@ -205,3 +205,14 @@ test("REQ-011.10 escucharUsuarioPorClave consulta users por clave y convierte lo
     assert.deepEqual(f.llamadas[0], { metodo: "escucharPorClave", ruta: "users", clave: "ana-perez@x-com" });
     assert.equal(sub.ruta, "users/ana-perez@x-com");
 });
+
+test("REQ-017.1 escucharUsuarioPorClave propaga el error al manejador", () => {
+    const f = adaptadorFalso();
+    let recibido = null;
+    f.adaptador.escucharPorClave = (ruta, clave, alCambiar, alError) => {
+        alError("permission_denied at /users");
+        return () => {};
+    };
+    crearRepo(f.adaptador).escucharUsuarioPorClave("ana@x.com", () => {}, (error) => { recibido = error; });
+    assert.equal(recibido, "permission_denied at /users");
+});

@@ -256,6 +256,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             if (sesion.autenticado) {
                 // `$scope.$apply(function () {
                 console.log("Intento de autenticación");
+                console.log("[sesion] autenticado:", sesion.usuario && sesion.usuario.email);
                 $scope.authUser = sesion.usuario;
                 authUser = $scope.authUser;
                 getUserData();
@@ -296,6 +297,19 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             }
             $scope.showWindow('listado');
             $scope.$apply();
+        }).catch(error => {
+            // REQ-017: sin esto, un fallo de permisos dejaba la app colgada en el login.
+            console.error("[login] no se pudieron leer los datos del usuario:", error);
+            $scope.userLocations = {};
+            $scope.showWindow('listado');
+            try { $scope.$apply(); } catch (ignorado) { /* ya en digest */ }
+            if (typeof swal === "function") {
+                swal({
+                    title: "No se pudieron cargar tus datos",
+                    text: (error && error.message) || String(error),
+                    icon: "warning"
+                });
+            }
         });
     }
 

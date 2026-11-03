@@ -17,8 +17,9 @@
 | REQ-014 | Robustez de plantillas y auditoria de consola | Parcial | - |
 | REQ-015 | Login con un solo SDK (Google no entraba) | Implementado (pendiente prueba manual) | 5 |
 | REQ-016 | Widget del tiempo de terceros bajo demanda | Implementado | - (navegador) |
+| REQ-017 | El login no se queda colgado si falla /users | Implementado | 1 |
 
-**Total: 88 pruebas en Node + 26 en navegador, todas en verde.**
+**Total: 89 pruebas en Node + 26 en navegador, todas en verde.**
 
 ## Arquitectura
 
@@ -27,14 +28,14 @@ logic/     formulas · fechas · secuencias · estado · ids · riego · equipos
 services/  repositorio · autenticacion · equipos          (esquema, casos de uso, estado)
            adaptadorFirebase · adaptadorFirebaseAuth      (infraestructura)
 firebaseComm.js   fachada + punto de composicion (repoDTA, authDTA, equiposDTA)
-core.js           controlador Angular: vista y digest (5.318 lineas, 0 llamadas a firebase)
+core.js           controlador Angular: vista y digest (0 llamadas a firebase)
 autentication.js  login sobre el MISMO SDK v8 (sin segundas apps)
 ```
 
 ## Comandos
 
 ```powershell
-npm test                              # 88 pruebas
+npm test                              # 89 pruebas
 npm run test:watch
 node test/servir-local.js             # servidor en 8090
 chrome --headless=new --dump-dom http://127.0.0.1:8090/test/smoke.html   # 26 en navegador

@@ -27,15 +27,17 @@ try {
     console.error("No se pudo crear el servicio de autenticacion:", error);
 }
 
+// REQ-017: si la lectura de /users falla (reglas, red), la promesa DEBE rechazar.
+// Antes no habia handler de error y la app se quedaba colgada en el login.
 function loadUserLocations(email) {
-    return new Promise((resolve) => {
-        repoDTA.escucharUsuarioPorClave(email, users => resolve(addNewFields(users)));
+    return new Promise((resolve, reject) => {
+        repoDTA.escucharUsuarioPorClave(email, users => resolve(addNewFields(users)), reject);
     });
 }
 
 function loadUserData(email) {
-    return new Promise((resolve) => {
-        repoDTA.escucharUsuarioPorClave(email, users => resolve(addNewFields(users)));
+    return new Promise((resolve, reject) => {
+        repoDTA.escucharUsuarioPorClave(email, users => resolve(addNewFields(users)), reject);
     });
 }
 
