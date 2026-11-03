@@ -4589,6 +4589,110 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
 
     // #endregion Chart.js
 
+    // #region PERFIL (REQ-023: menu de usuario, perfil y planes)
+
+    const reglasPerfil = () => __modulo("perfil");
+
+    $scope.menuUsuario = false;
+    $scope.opcionesProblemas = reglasPerfil().OPCIONES.problemas;
+    $scope.opcionesInversion = reglasPerfil().OPCIONES.inversion;
+    $scope.opcionesDecision = reglasPerfil().OPCIONES.decision;
+    $scope.opcionesEntrevista = reglasPerfil().OPCIONES.entrevista;
+    $scope.opcionesRol = reglasPerfil().OPCIONES.rol;
+    $scope.planes = reglasPerfil().PLANES;
+    $scope.perfil = {};
+    $scope.problemasSeleccionados = {};
+    $scope.planActual = reglasPerfil().planPorId(null);
+
+    const abrirModal = (id) => {
+        const elemento = document.getElementById(id);
+        if (!elemento) return;
+        const modal = M.Modal.getInstance(elemento) || M.Modal.init(elemento);
+        modal.open();
+    };
+
+    const cerrarModal = (id) => {
+        const elemento = document.getElementById(id);
+        if (!elemento) return;
+        const modal = M.Modal.getInstance(elemento);
+        if (modal) modal.close();
+    };
+
+    $scope.abrirMenuUsuario = () => { $scope.menuUsuario = true; };
+
+    $scope.esCuentaGoogle = () => reglasPerfil().esDeGoogle($scope.authUser);
+
+    $scope.abrirPerfil = () => {
+        $scope.menuUsuario = false;
+        $scope.perfil = reglasPerfil().perfilDesdeUsuario($scope.authUser, $scope.userProfile);
+        $scope.problemasSeleccionados = {};
+        $scope.perfil.problemas.forEach(nombre => {
+            if (nombre.indexOf("Otros:") === 0) {
+                $scope.problemasSeleccionados["Otros"] = true;
+                $scope.perfil.otrosProblemas = nombre.slice(6).trim();
+            } else {
+                $scope.problemasSeleccionados[nombre] = true;
+            }
+        });
+        abrirModal("modalMiPerfil");
+    };
+
+    $scope.guardarPerfil = () => {
+        const seleccion = Object.keys($scope.problemasSeleccionados)
+            .filter(nombre => $scope.problemasSeleccionados[nombre]);
+        const perfil = Object.assign({}, $scope.perfil, {
+            problemas: reglasPerfil().combinarProblemas(seleccion, $scope.perfil.otrosProblemas)
+        });
+
+        const errores = reglasPerfil().validarPerfil(perfil);
+        if (errores.length) {
+            swal({ title: "Revisa tu perfil", text: errores.join(" "), icon: "warning" });
+            return;
+        }
+
+        updateUserInfo(convertDotToDash($scope.authUser.email), perfil);
+        $scope.userProfile = perfil;
+        cerrarModal("modalMiPerfil");
+        swal({ title: "Perfil actualizado", text: "Tus datos se han guardado.", icon: "success" });
+    };
+
+    $scope.abrirPlanes = () => {
+        $scope.menuUsuario = false;
+        $scope.planActual = reglasPerfil().planPorId($scope.userProfile && $scope.userProfile.plan);
+        abrirModal("modalPlanes");
+    };
+
+    $scope.elegirPlan = (id) => {
+        const plan = reglasPerfil().planPorId(id);
+        $scope.planActual = plan;
+        $scope.userProfile = Object.assign({}, $scope.userProfile, { plan: plan.id });
+        updateUserInfo(convertDotToDash($scope.authUser.email), { plan: plan.id });
+        swal({ title: "Plan seleccionado", text: "Ahora estas en el plan " + plan.nombre + ".", icon: "success" });
+    };
+
+    $scope.cambiarDeUsuario = () => {
+        $scope.menuUsuario = false;
+        __auth().cerrarSesion().then(() => {
+            if (typeof window.reiniciarSesionGoogle === "function") {
+                window.reiniciarSesionGoogle();
+            } else {
+                location.reload();
+            }
+        }).catch(error => console.error("[perfil] no se pudo cerrar sesion:", error));
+    };
+
+    $scope.salirDesdeMenu = () => {
+        $scope.menuUsuario = false;
+        $scope.logout();
+    };
+
+    // Cierra el menu al hacer clic fuera (el propio menu detiene la propagacion).
+    document.addEventListener("click", () => {
+        if ($scope.menuUsuario) $scope.$evalAsync(() => { $scope.menuUsuario = false; });
+    });
+
+    // #endregion PERFIL
+
     // #region SCRIPTS GENERALES
 
     $scope.strToInt = (data) => {

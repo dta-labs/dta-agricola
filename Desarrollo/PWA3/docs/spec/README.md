@@ -23,8 +23,9 @@
 | REQ-020 | Google ofrece elegir cuenta | Confirmado | 1 |
 | REQ-021 | Claves de servicio fuera del indice | Implementado (rotar: usuario) | - |
 | REQ-022 | Reglas de BD cerradas, CSP y tooling | Implementado (desplegar: usuario) | 5 |
+| REQ-023 | Gestion de usuarios: menu, perfil y planes | Implementado (probar con sesion) | 10 |
 
-**Total: 96 pruebas en Node + 26 en navegador, todas en verde.**
+**Total: 106 pruebas en Node + 26 en navegador, todas en verde.**
 
 ## Bloque de autenticacion (cerrado y confirmado por el usuario)
 

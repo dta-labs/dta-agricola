@@ -98,18 +98,36 @@
                             </a>
                         </span>
                         <span ng-if="selectedWindow != 'sistema' || actualSystem.type != 'Sensor'" style="margin-top: 5px; font-size: 1.5em; margin-right: 15px;">&nbsp;</span>
-                        <img id="imgAuthMobil" 
-                            ng-src="{{ authUser.photoURL }}"
-                            style="width: 32px; height: 32px; border-radius: 50%; margin-top: 2px;" 
-                            ng-show="authUser.photoURL" 
-                            alt="usuario">
-
-                        <!-- <img id="imgAuthMobil" src="{{ authUser.photoURL }}" class="img-auth" 
-                            style="width: 32px; height: 32px; border-radius: 50%; margin-top: 2px;" ng-show="authUser.photoURL" alt="usuario"> -->
-                        <i class="fa fa-user" aria-hidden="true" style="margin-top: 5px; margin-bottom: 4px;" ng-show="!authUser.photoURL"></i>
-                        <p style="margin-top: 3px;color: black;border-radius: 50%;border: 2px solid;width: 30px;height: 30px;text-align: center;margin-left: 10px;font-variant-caps: small-caps;font-size: 1.2em;" ng-show="!authUser.photoURL">
-                            {{ authUser.displayName ? authUser.displayName[0] : authUser.email[0] }}
-                        </p>
+                        <!-- REQ-023: el avatar abre el menu de usuario -->
+                        <span style="position: relative; display: inline-flex; align-items: center;">
+                            <a href="" ng-click="$event.stopPropagation(); abrirMenuUsuario()"
+                                aria-label="Menu de usuario" style="display: inline-flex; align-items: center; text-decoration: none;">
+                                <img id="imgAuthMobil"
+                                    ng-src="{{ authUser.photoURL }}"
+                                    style="width: 32px; height: 32px; border-radius: 50%; margin-top: 2px;"
+                                    ng-show="authUser.photoURL"
+                                    alt="usuario">
+                                <i class="fa fa-user" aria-hidden="true" style="margin-top: 5px; margin-bottom: 4px;" ng-show="!authUser.photoURL"></i>
+                                <p style="margin-top: 3px;color: black;border-radius: 50%;border: 2px solid;width: 30px;height: 30px;text-align: center;margin-left: 10px;font-variant-caps: small-caps;font-size: 1.2em;" ng-show="!authUser.photoURL">
+                                    {{ authUser.displayName ? authUser.displayName[0] : authUser.email[0] }}
+                                </p>
+                            </a>
+                            <div class="card" ng-show="menuUsuario" ng-click="$event.stopPropagation()"
+                                style="position: absolute; right: 0; top: 44px; margin: 0; min-width: 240px; z-index: 1200;">
+                                <a href="" ng-click="abrirPerfil()" style="display: block; padding: 12px 16px; color: #000;">
+                                    <i class="material-icons" style="vertical-align: middle; margin-right: 8px;">person</i> Perfil
+                                </a>
+                                <a href="" ng-click="abrirPlanes()" style="display: block; padding: 12px 16px; color: #000;">
+                                    <i class="material-icons" style="vertical-align: middle; margin-right: 8px;">workspace_premium</i> Plan
+                                </a>
+                                <a href="" ng-if="esCuentaGoogle()" ng-click="cambiarDeUsuario()" style="display: block; padding: 12px 16px; color: #000;">
+                                    <i class="material-icons" style="vertical-align: middle; margin-right: 8px;">switch_account</i> Cambiar de usuario
+                                </a>
+                                <a href="" ng-click="salirDesdeMenu()" style="display: block; padding: 12px 16px; color: #000;">
+                                    <i class="material-icons" style="vertical-align: middle; margin-right: 8px;">logout</i> Salir
+                                </a>
+                            </div>
+                        </span>
                         <a href="#" data-target="slide-out" class="sidenav-trigger" style="color: black;">
                             <i class="material-icons" style="margin-top: 7px;margin-left: 10px;">more_vert</i>
                         </a>
@@ -4890,6 +4908,115 @@
 
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/4.0.0/firebaseui.css" />
+    <!-- #region REQ-023: modales de Perfil y Planes -->
+
+    <div id="modalMiPerfil" class="modal" style="max-height: 88%; width: 92%;">
+        <div class="modal-content">
+            <div class="swal-title">Mi perfil</div>
+
+            <h6><b>Datos generales</b></h6>
+            <div class="row" style="margin: 10px;">
+                <div class="input-field col s12 m6">
+                    <input id="perfilNombres" type="text" ng-model="perfil.nombres">
+                    <label for="perfilNombres" class="active">Nombres</label>
+                </div>
+                <div class="input-field col s12 m6">
+                    <input id="perfilApellidos" type="text" ng-model="perfil.apellidos">
+                    <label for="perfilApellidos" class="active">Apellidos</label>
+                </div>
+                <div class="input-field col s12 m6">
+                    <input id="perfilFechaNacimiento" type="date" ng-model="perfil.fechaNacimiento">
+                    <label for="perfilFechaNacimiento" class="active">Fecha de nacimiento</label>
+                </div>
+                <div class="input-field col s12 m6">
+                    <input id="perfilTelefono" type="tel" ng-model="perfil.telefono">
+                    <label for="perfilTelefono" class="active">Teléfono</label>
+                </div>
+                <div class="input-field col s12">
+                    <input id="perfilCorreo" type="email" ng-model="perfil.email" readonly>
+                    <label for="perfilCorreo" class="active">Correo electrónico</label>
+                </div>
+            </div>
+
+            <h6><b>Tu negocio y necesidades</b></h6>
+
+            <p><b>¿Qué problema quiere resolver?</b> <small class="grey-text">(puede elegir varias)</small></p>
+            <div class="row" style="margin: 6px 10px;">
+                <label ng-repeat="opcion in opcionesProblemas" class="col s12 m6" style="display: block; margin-bottom: 6px;">
+                    <input type="checkbox" ng-model="problemasSeleccionados[opcion]">
+                    <span>{{ opcion }}</span>
+                </label>
+            </div>
+            <div class="input-field col s12" ng-show="problemasSeleccionados['Otros']">
+                <input id="perfilOtros" type="text" ng-model="perfil.otrosProblemas">
+                <label for="perfilOtros" class="active">Describe el problema</label>
+            </div>
+
+            <div class="row" style="margin: 10px;">
+                <div class="input-field col s12 m6">
+                    <select class="browser-default" ng-model="perfil.inversion">
+                        <option value="">Elige una opción</option>
+                        <option ng-repeat="opcion in opcionesInversion" value="{{ opcion }}">{{ opcion }}</option>
+                    </select>
+                    <label class="active">¿Cuánto está dispuesto a invertir en eficiencia agrícola?</label>
+                </div>
+                <div class="input-field col s12 m6">
+                    <select class="browser-default" ng-model="perfil.decision">
+                        <option value="">Elige una opción</option>
+                        <option ng-repeat="opcion in opcionesDecision" value="{{ opcion }}">{{ opcion }}</option>
+                    </select>
+                    <label class="active">¿Quién toma las decisiones en sus parcelas?</label>
+                </div>
+                <div class="input-field col s12 m6">
+                    <select class="browser-default" ng-model="perfil.entrevista">
+                        <option value="">Elige una opción</option>
+                        <option ng-repeat="opcion in opcionesEntrevista" value="{{ opcion }}">{{ opcion }}</option>
+                    </select>
+                    <label class="active">¿Cuándo le gustaría una entrevista con nuestros especialistas?</label>
+                </div>
+                <div class="input-field col s12 m6">
+                    <select class="browser-default" ng-model="perfil.rol">
+                        <option value="">Elige una opción</option>
+                        <option ng-repeat="opcion in opcionesRol" value="{{ opcion }}">{{ opcion }}</option>
+                    </select>
+                    <label class="active">Rol</label>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <a href="" class="modal-close waves-effect btn-flat">Cancelar</a>
+            <a href="" class="waves-effect waves-light btn" ng-click="guardarPerfil()">Guardar</a>
+        </div>
+    </div>
+
+    <div id="modalPlanes" class="modal" style="max-height: 88%; width: 94%;">
+        <div class="modal-content">
+            <div class="swal-title">Planes</div>
+            <div class="row">
+                <div class="col s12 m4" ng-repeat="plan in planes">
+                    <div class="card" ng-class="{ 'blue lighten-5': planActual.id === plan.id }">
+                        <div class="card-content">
+                            <span class="card-title"><b>{{ plan.nombre }}</b></span>
+                            <p style="min-height: 44px;"><b>{{ plan.precio }}</b></p>
+                            <ul style="padding-left: 18px; list-style: disc;">
+                                <li ng-repeat="caracteristica in plan.caracteristicas" style="margin-bottom: 4px;">{{ caracteristica }}</li>
+                            </ul>
+                        </div>
+                        <div class="card-action center-align">
+                            <span ng-if="planActual.id === plan.id" class="btn-flat disabled">Plan actual</span>
+                            <a href="" ng-if="planActual.id !== plan.id" class="btn waves-effect" ng-click="elegirPlan(plan.id)">Elegir</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <a href="" class="modal-close waves-effect btn-flat">Cerrar</a>
+        </div>
+    </div>
+
+    <!-- #endregion REQ-023: modales -->
+
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -4904,6 +5031,7 @@
     <script src="./assets/js/logic/ids.js"></script>
     <script src="./assets/js/logic/equipos.js"></script>
     <script src="./assets/js/logic/login.js"></script>
+    <script src="./assets/js/logic/perfil.js"></script>
     <script src="./assets/js/logic/riego.js"></script>
     <script src="./assets/js/services/repositorio.js"></script>
     <script src="./assets/js/services/adaptadorFirebase.js"></script>
@@ -4913,7 +5041,7 @@
     <script src="./assets/js/firebaseConfig.js"></script>
     <script src="./assets/js/firebaseComm.js"></script>
     <script src="./assets/js/firebaseMessaging.js?v=26.11.02.001"></script>
-    <script src="./assets/js/autentication.js?v=26.11.02.003" type="module"></script>
+    <script src="./assets/js/autentication.js?v=26.11.02.004" type="module"></script>
     <script src="./assets/js/jquery.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular-route.js"></script>
@@ -4925,7 +5053,7 @@
     <script src="./assets/modules/chart.js/chartjs-plugin-zoom.js"></script>
     <script src="./assets/modules/html5-qrcode/html5-qrcode.min.js"></script>
     <script src="./assets/js/commons.js"></script>
-    <script src="./assets/js/core.js?v=26.11.02.002"></script>
+    <script src="./assets/js/core.js?v=26.11.02.003"></script>
     <script type="text/javascript" src="./assets/modules/datepicker/daterangepicker.js"></script>
 
     <!-- #endregion: CSS Y SCRIPTS -->

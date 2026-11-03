@@ -5,8 +5,8 @@
   "scripts": {
     "start": "node server-https.js",
     "generate-cert": "openssl req -x509 -newkey rsa:4096 -keyout server.key -out server.cert -days 365 -nodes -subj '/CN=localhost'",
-    "test": "node --test test/unit/formulas.test.js test/unit/fechas.test.js test/unit/secuencias.test.js test/unit/estado.test.js test/unit/ids.test.js test/unit/riego.test.js test/unit/repositorio.test.js test/unit/autenticacion.test.js test/unit/equipos-logica.test.js test/unit/equipos-servicio.test.js test/unit/login.test.js test/unit/reglas.test.js",
-    "test:watch": "node --test --watch node --test test/unit/formulas.test.js test/unit/fechas.test.js test/unit/secuencias.test.js test/unit/estado.test.js test/unit/ids.test.js test/unit/riego.test.js test/unit/repositorio.test.js test/unit/autenticacion.test.js test/unit/equipos-logica.test.js test/unit/equipos-servicio.test.js test/unit/login.test.js test/unit/reglas.test.js",
+    "test": "node --test test/unit/formulas.test.js test/unit/fechas.test.js test/unit/secuencias.test.js test/unit/estado.test.js test/unit/ids.test.js test/unit/riego.test.js test/unit/repositorio.test.js test/unit/autenticacion.test.js test/unit/equipos-logica.test.js test/unit/equipos-servicio.test.js test/unit/login.test.js test/unit/reglas.test.js test/unit/perfil.test.js",
+    "test:watch": "node --test --watch node --test test/unit/formulas.test.js test/unit/fechas.test.js test/unit/secuencias.test.js test/unit/estado.test.js test/unit/ids.test.js test/unit/riego.test.js test/unit/repositorio.test.js test/unit/autenticacion.test.js test/unit/equipos-logica.test.js test/unit/equipos-servicio.test.js test/unit/login.test.js test/unit/reglas.test.js test/unit/perfil.test.js",
     "lint": "node test/lint.js",
     "lint:estricto": "node test/lint.js --estricto",
     "verificar": "node test/lint.js && npm test && node test/servir-local.js --smoke"

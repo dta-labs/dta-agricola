@@ -107,4 +107,9 @@
     });
 
     // #endregion
+
+    // REQ-023: "Cambiar de usuario" vuelve a lanzar el selector de cuentas de Google.
+    window.reiniciarSesionGoogle = function () {
+        return auth.signInWithRedirect(proveedorGoogle);
+    };
 })();
