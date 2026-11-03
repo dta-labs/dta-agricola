@@ -49,14 +49,14 @@ Tres tarjetas con lo solicitado:
 | Plan | Precio |
 |---|---|
 | Gratis | sin costo: 1 usuario, 1 parcela, hasta 5 sensores, monitoreo satelital de humedad y vigor, alertas de humedad y heladas, estado climatologico, garantia de 3 meses |
-| Basico | **MXN 700.00 al mes · MXN 7,000.00 al ano** |
-| Avanzado | **MXN 500.00 al mes · MXN 5,000.00 al ano** |
+| Basico | **MXN 500.00 al mes · MXN 5,000.00 al ano** |
+| Avanzado | **MXN 700.00 al mes · MXN 7,000.00 al ano** |
 
 El plan elegido se guarda en `profile.plan` y el modal marca cual es el actual.
 
-> **Observacion para el negocio**: tal como se pidieron los precios, el plan **Avanzado (500/5,000)
-> sale mas barato que el Basico (700/7,000)** siendo superior. Se implemento literalmente; parece
-> una errata y conviene confirmarla antes de publicar.
+> **Precios confirmados por el usuario**: en la primera version se registraron invertidos (Basico
+> 700/7,000 y Avanzado 500/5,000), lo que hacia que el Avanzado saliera mas barato. Corregido:
+> **Basico 500/5,000** y **Avanzado 700/7,000**.
 
 ## 4. Requisitos y trazabilidad
 
