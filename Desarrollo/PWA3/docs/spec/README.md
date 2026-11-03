@@ -19,10 +19,28 @@
 | REQ-016 | Widget del tiempo de terceros bajo demanda | Implementado | - (navegador) |
 | REQ-017 | El login no se queda colgado si falla /users | Implementado | 1 |
 | REQ-018 | Cache-busting y trazas de arranque | Implementado | - (navegador) |
-| REQ-019 | La sesion no se revierte; Google por redireccion | Implementado | 6 |
-| REQ-020 | Google ofrece elegir cuenta | Implementado | 1 |
+| REQ-019 | La sesion no se revierte; Google por redireccion | Confirmado | 6 |
+| REQ-020 | Google ofrece elegir cuenta | Confirmado | 1 |
 
 **Total: 91 pruebas en Node + 26 en navegador, todas en verde.**
+
+## Bloque de autenticacion (cerrado y confirmado por el usuario)
+
+| Reclamacion | Que resolvio |
+|---|---|
+| REQ-015 | dos SDK con dos sesiones -> un solo SDK (v8) |
+| REQ-017 | el login se quedaba colgado si fallaba `/users` |
+| REQ-018 | `core.js` cacheado + trazas de arranque |
+| REQ-019 | el observador revertia la sesion (el "entro una vez y ya no") |
+| REQ-020 | Google ofrece elegir cuenta (`prompt=select_account`) |
+
+## Pendiente
+
+| Item | Nota |
+|---|---|
+| REQ-014 | `TypeError` de `ngModel.$render` (solo aparece con sesion; requiere DevTools) |
+| Prueba manual del resto | listado de equipos, retraso de comunicacion, alarma de nevera, plan de riego |
+| Empaquetado nativo | Capacitor (Android/iOS), objetivo final de la refactorizacion |
 
 ## Version de los assets
 

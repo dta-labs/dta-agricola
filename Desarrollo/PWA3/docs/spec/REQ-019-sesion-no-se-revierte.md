@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Estado | **Implementado** (pendiente de confirmacion del usuario) |
+| Estado | **Confirmado por el usuario** (entra, elige cuenta y repite) |
 | Alcance | `core.js` (observador de sesion, logout), `autentication.js` (Google), `logic/login.js` |
 | Pruebas | 6 en `test/unit/login.test.js` (90 en total) |
 | Riesgo | Medio: cambia el cierre de sesion y el metodo de Google; se documenta y se prueba a mano |
@@ -65,7 +65,12 @@ orden con la version `26.11.02.002`.
 4. Si tras entrar aparece un evento nulo, veras `[auth] evento nulo ignorado` y **la app no te saca**.
 5. Cierra sesion y vuelve a entrar: debe funcionar tantas veces como quieras (eso era el fallo).
 
-## 7. Nota
+## 7. Confirmacion
+
+El usuario confirmo: **el login ya funciona** y se puede entrar repetidamente (era el fallo de
+"entro una vez y ya no"). Con esto se cierra el bloque de autenticacion (REQ-015 a REQ-020).
+
+## 8. Nota
 
 Se mantiene `getRedirectResult()` en el arranque: es lo que recoge la sesion al volver de Google con
 redireccion.

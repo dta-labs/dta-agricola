@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Estado | **Implementado** (pendiente de confirmacion) |
+| Estado | **Confirmado por el usuario** |
 | Alcance | `assets/js/autentication.js`, `assets/js/logic/login.js`, `index.html` |
 | Pruebas | 1 en `test/unit/login.test.js` (91 en total) |
 | Riesgo | Bajo: solo anade un parametro al proveedor |
@@ -50,7 +50,12 @@ app arranca (376.970 B).
 2. Pulsa Google: debe aparecer el **selector de cuentas** de Google.
 3. Elige una cuenta y vuelve a la app ya autenticado.
 
-## 8. Nota
+## 8. Confirmacion
+
+El usuario confirmo que ahora Google muestra el selector y el acceso funciona. Se cierra junto con
+REQ-019.
+
+## 9. Nota
 
 Esto no cierra la sesion de Google en el navegador (no hace falta): solo evita que se salte la eleccion
 de cuenta. Si algun dia se quiere preseleccionar una cuenta, existe `login_hint`.
