@@ -56,7 +56,7 @@
         <div class="container valign-wrapper center-align"
             style="width: 95% !important; height: calc(100vh - 200px) !important;">
             <span>
-                <img src="./assets/images/offline3.png" alt="offline" style="width: 70%">
+                <img src="./assets/images/offline3.png" alt="offline" style="width: 70%" loading="lazy">
             </span>
         </div>
     </section>
@@ -106,7 +106,7 @@
                                     ng-src="{{ authUser.photoURL }}"
                                     style="width: 32px; height: 32px; border-radius: 50%; margin-top: 2px;"
                                     ng-show="authUser.photoURL"
-                                    alt="usuario">
+                                    alt="usuario" loading="lazy">
                                 <i class="fa fa-user" aria-hidden="true" style="margin-top: 5px; margin-bottom: 4px;" ng-show="!authUser.photoURL"></i>
                                 <p style="margin-top: 3px;color: black;border-radius: 50%;border: 2px solid;width: 30px;height: 30px;text-align: center;margin-left: 10px;font-variant-caps: small-caps;font-size: 1.2em;" ng-show="!authUser.photoURL">
                                     {{ authUser.displayName ? authUser.displayName[0] : authUser.email[0] }}
@@ -217,7 +217,7 @@
                                                 </div>
                                             </div>
                                             <div class="col s2" style="margin: 2px 0 0 -10px; text-align: right;">
-                                                <img ng-src="{{meteo[system.key].weather.iconUrl}}" alt="Weather icon">
+                                                <img ng-src="{{meteo[system.key].weather.iconUrl}}" alt="Weather icon" loading="lazy">
                                             </div>
                                         </div>
 
@@ -278,7 +278,7 @@
                                                 </div>
                                             </div>
                                             <div class="col s2" style="margin: 2px 0 0 -10px; text-align: right;">
-                                                <img ng-src="{{meteo[system.key].weather.iconUrl}}" alt="Weather icon">
+                                                <img ng-src="{{meteo[system.key].weather.iconUrl}}" alt="Weather icon" loading="lazy">
                                             </div>
                                         </div>
 
@@ -287,7 +287,7 @@
                                                 <div style="margin-top: -5px;">
                                                         <img ng-src="{{ color == 'grey' ? './assets/images/parcela-grey.png' : './assets/images/parcela.png' }}"
                                                             class="parcela_icon" 
-                                                            alt="parcela">
+                                                            alt="parcela" loading="lazy">
                                                 </div>
                                             </div>
                                             <div class="col s7 limitar left-align" style="margin-top: -5px;">
@@ -313,14 +313,14 @@
                                                 </div>
                                             </div>
                                             <div class="col s2" style="margin: 2px 0 0 -10px; text-align: right;">
-                                                <img ng-src="{{meteo[system.key].weather.iconUrl}}" alt="Weather icon">
+                                                <img ng-src="{{meteo[system.key].weather.iconUrl}}" alt="Weather icon" loading="lazy">
                                             </div>
                                         </div>
 
                                         <div class="row" style="margin-bottom: 0;" ng-show="system.type == 'Pozo'">
                                             <div class="col s3" style="margin-bottom: 10px; height: 80px;">
                                                 <div style="margin-top: -5px; filter: grayscale(100%);">
-                                                    <img src="assets/images/pozo.png" class="parcela_icon" alt="parcela">
+                                                    <img src="assets/images/pozo.png" class="parcela_icon" alt="parcela" loading="lazy">
                                                 </div>
                                             </div>
                                             <div class="col s7 limitar left-align" style="margin-top: -5px;">
@@ -347,7 +347,7 @@
                                                 </div>
                                             </div>
                                             <div class="col s2" style="margin: 2px 0 0 -10px; text-align: right;">
-                                                <img ng-src="{{meteo[system.key].weather.iconUrl}}" alt="Weather icon">
+                                                <img ng-src="{{meteo[system.key].weather.iconUrl}}" alt="Weather icon" loading="lazy">
                                             </div>
                                         </div>
 
@@ -357,7 +357,7 @@
                                                     <img src="assets/images/Red-Sensores.png" 
                                                         class="parcela_icon" 
                                                         style="height: 50px; opacity: 0.7; filter: grayscale(100%);" 
-                                                        alt="sensor">
+                                                        alt="sensor" loading="lazy">
                                                 </div>
                                             </div>
                                             <div class="col s7 limitar left-align" style="margin-top: -5px;">
@@ -372,7 +372,7 @@
                                                 </div>
                                             </div>
                                             <div class="col s2" style="margin: 2px 0 0 -10px; text-align: right;">
-                                                <img ng-src="{{meteo[system.key].weather.iconUrl}}" alt="Weather icon">
+                                                <img ng-src="{{meteo[system.key].weather.iconUrl}}" alt="Weather icon" loading="lazy">
                                             </div>
                                         </div>
 
@@ -382,7 +382,7 @@
                                                     <img src="assets/images/nieve.png" 
                                                         class="parcela_icon" 
                                                         style="opacity: 0.7; filter: grayscale(100%);" 
-                                                        alt="nevera">
+                                                        alt="nevera" loading="lazy">
                                                 </div>
                                             </div>
                                             <div class="col s7 limitar left-align" style="margin-top: -5px;">
@@ -397,7 +397,7 @@
                                                 </div>
                                             </div>
                                             <div class="col s2" style="margin: 2px 0 0 -10px; text-align: right;">
-                                                <img ng-src="{{meteo[system.key].weather.iconUrl}}" alt="Weather icon">
+                                                <img ng-src="{{meteo[system.key].weather.iconUrl}}" alt="Weather icon" loading="lazy">
                                             </div>
                                         </div>
 
@@ -494,7 +494,7 @@
                                 <div class="col s6">
                                     <div class="card tarjeta-sensores" ng-click="newDevice.type='PC'; steep = steep + 1" style="box-shadow: 8px 8px 8px gray !important;">
                                         <div class="card-image">
-                                            <img src="./assets/images/Pv66.png" style="height: 80px; width: 80px; margin: auto;">
+                                            <img src="./assets/images/Pv66.png" style="height: 80px; width: 80px; margin: auto;" loading="lazy">
                                         </div>
                                         <div class="card-content">
                                             <p style="text-align: center; font-size: 1.2em;"><span class="show-in-mobil-only">Pivote</span><span class="show-in-pc-only">Pivote central</span></p>
@@ -505,7 +505,7 @@
                                 <div class="col s6">
                                     <div class="card tarjeta-sensores" ng-click="newDevice.type='Estacionario'; steep = steep + 1" style="box-shadow: 8px 8px 8px gray !important;">
                                         <div class="card-image">
-                                            <img src="./assets/images/AG7-Xtreme.png" style="height: 80px; width: 100px; margin: auto;">
+                                            <img src="./assets/images/AG7-Xtreme.png" style="height: 80px; width: 100px; margin: auto;" loading="lazy">
                                         </div>
                                         <div class="card-content">
                                             <p style="text-align: center; font-size: 1.2em;"><span class="show-in-mobil-only">Sectorial</span><span class="show-in-pc-only">Riego sectorial</span></p>
@@ -516,7 +516,7 @@
                                 <div class="col s6">
                                     <div class="card tarjeta-sensores" ng-click="newDevice.type='Sensor'; steep = steep + 1" style="box-shadow: 8px 8px 8px gray !important;">
                                         <div class="card-image">
-                                            <img src="./assets/images/Gateway.png" style="height: 80px; width: 80px; margin: auto;">
+                                            <img src="./assets/images/Gateway.png" style="height: 80px; width: 80px; margin: auto;" loading="lazy">
                                         </div>
                                         <div class="card-content">
                                             <p style="text-align: center; font-size: 1.2em;"><span class="show-in-mobil-only">Sensores</span><span class="show-in-pc-only">Red de sensores</span></p>
@@ -527,7 +527,7 @@
                                 <div class="col s6">
                                     <div class="card tarjeta-sensores" ng-click="newDevice.type='Nevera'; newDevice.operationMode=5; steep = steep + 1" style="box-shadow: 8px 8px 8px gray !important;">
                                         <div class="card-image">
-                                            <img src="./assets/images/sensores.png" style="height: 80px; width: 90px; margin: auto;">
+                                            <img src="./assets/images/sensores.png" style="height: 80px; width: 90px; margin: auto;" loading="lazy">
                                         </div>
                                         <div class="card-content">
                                             <p style="text-align: center; font-size: 1.2em;"><span class="show-in-mobil-only">Nevera</span><span class="show-in-pc-only">Sistema de nevera</span></p>
@@ -538,7 +538,7 @@
                                 <div class="col s6">
                                     <div class="card tarjeta-sensores" ng-click="newDevice.type='Pozo'; steep = steep + 1" style="box-shadow: 8px 8px 8px gray !important;">
                                         <div class="card-image">
-                                            <img src="./assets/images/Eq1.png" style="height: 80px; width: 120px; margin: auto;">
+                                            <img src="./assets/images/Eq1.png" style="height: 80px; width: 120px; margin: auto;" loading="lazy">
                                         </div>
                                         <div class="card-content">
                                             <p style="text-align: center; font-size: 1.2em;"><span class="show-in-mobil-only">Bombeo</span><span class="show-in-pc-only">Sistema de bombeo</span></p>
@@ -857,7 +857,7 @@
 
                                                         <img src="assets/images/pozo.png" alt="pozo" 
                                                             style="width: 40px; border: 5px solid {{ getPlotColor(actualSystem, 'p7') }}; border-radius: 5px; background: {{ getPlotColor(actualSystem, 'p7') }};"
-                                                            ng-click="setEditPlanEstacionario('p7'); isPlotActive(actualSystem, 'p7') ? stopPlotIrrigation() : startPlotIrrigation()">
+                                                            ng-click="setEditPlanEstacionario('p7'); isPlotActive(actualSystem, 'p7') ? stopPlotIrrigation() : startPlotIrrigation()" loading="lazy">
                                                     </div>
                                                     
                                                     <div style="display: inline;" style="color: {{ getPlotColor(actualSystem, 'p7') }};"
@@ -907,7 +907,7 @@
                                                 </td>
                                                 <!-- <td style="text-align: center;">
                                                     <div class="center-align">
-                                                        <img src="./assets/images/termometro_blanco.png" alt="termómetro" style="width: 25px;">
+                                                        <img src="./assets/images/termometro_blanco.png" alt="termómetro" style="width: 25px;" loading="lazy">
                                                     </div>
                                                     <div class="center-align">
                                                         <b>{{ meteo[actualSystem.key].main.temp - 273.15 | number : 0}}</b>°C        
@@ -940,7 +940,7 @@
                                                     <b>{{ getSensorPanelValue(coldRoomKey, 'soilStatus', coldRoom) }}</b>
                                                 </div>
                                                 <div class="row" style="font-size: 2em; text-align: right; margin-bottom: 0; width: 100%; margin-left: 0;">
-                                                    <div class="col s3 center-align"><img src="./assets/images/Hr_white.png" alt="Humedad del suelo" style="width: 35px;"></div>
+                                                    <div class="col s3 center-align"><img src="./assets/images/Hr_white.png" alt="Humedad del suelo" style="width: 35px;" loading="lazy"></div>
                                                     <div class="col s8 right-align">{{ getSensorPanelValue(coldRoomKey, 'soilMoisture', coldRoom) }}</div>
                                                     <div class="col s1"></div>
                                                 </div>
@@ -1153,7 +1153,7 @@
                                                     <img ng-src="{{ meteo[actualSystem.key].weather.iconUrl }}" 
                                                         alt="Weather icon"
                                                         *ng-if="meteo[actualSystem.key].weather.iconUrl" 
-                                                        style="margin-top: -10px;">
+                                                        style="margin-top: -10px;" loading="lazy">
                                                     <!-- <p style="font-size: x-small; margin-top: -20px;">{{ meteo[actualSystem.key].clouds.all | number : 0}}%</p> -->
                                                 </td>
                                             </tr>
@@ -1277,7 +1277,7 @@
                                             <tr>
                                                 <td class="valign-wrapper center">
                                                     <img id="hourglass_{{actualSystem.key}}" src="assets/images/hourglass.gif" alt="hourglass"
-                                                        style="width: 50%;" ng-show="!actualSystem.autoreverse && actualSystem.isScheduled && actualSystem.status">
+                                                        style="width: 50%;" ng-show="!actualSystem.autoreverse && actualSystem.isScheduled && actualSystem.status" loading="lazy">
                                                 </td>
                                             </tr>
                                         </table>
@@ -1318,7 +1318,7 @@
                                                 </td>
                                                 <!-- <td style="text-align: center;">
                                                     <div class="center-align">
-                                                        <img src="./assets/images/termometro_blanco.png" alt="termómetro" style="width: 25px;">
+                                                        <img src="./assets/images/termometro_blanco.png" alt="termómetro" style="width: 25px;" loading="lazy">
                                                     </div>
                                                     <div class="center-align">
                                                         <b>{{ meteo[actualSystem.key].main.temp - 273.15 | number : 0}}</b>°C        
@@ -1383,20 +1383,20 @@
                     <div class="modal-content row">
                         <div class="col s12 m4">
                             <item ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'">
-                                <img class="show-in-mobil-only" src="assets/images/Pv66.png" alt="imgPlanta" style="width: 150px; margin-left: -20px;">
-                                <img class="show-in-pc-only" src="assets/images/Pv66.png" alt="imgPlanta" style="width: 180px; margin: 20px 0 0 20px;">
+                                <img class="show-in-mobil-only" src="assets/images/Pv66.png" alt="imgPlanta" style="width: 150px; margin-left: -20px;" loading="lazy">
+                                <img class="show-in-pc-only" src="assets/images/Pv66.png" alt="imgPlanta" style="width: 180px; margin: 20px 0 0 20px;" loading="lazy">
                             </item>
                             <item ng-show="actualSystem.type == 'Estacionario'">
-                                <img class="show-in-mobil-only" src="assets/images/Ag07.png" alt="imgPlanta" style="width: 150px; margin-left: -20px;">
-                                <img class="show-in-pc-only" src="assets/images/Ag07.png" alt="imgPlanta" style="width: 180px; margin: 20px 0 0 20px;">
+                                <img class="show-in-mobil-only" src="assets/images/Ag07.png" alt="imgPlanta" style="width: 150px; margin-left: -20px;" loading="lazy">
+                                <img class="show-in-pc-only" src="assets/images/Ag07.png" alt="imgPlanta" style="width: 180px; margin: 20px 0 0 20px;" loading="lazy">
                             </item>
                             <item ng-show="actualSystem.type == 'Pozo'">
-                                <img class="show-in-mobil-only" src="assets/images/pozo.png" alt="imgPlanta" style="width: 150px; margin-left: -20px; filter: grayscale(100%);">
-                                <img class="show-in-pc-only" src="assets/images/pozo.png" alt="imgPlanta" style="width: 145px; margin-top: 20px; filter: grayscale(100%);">
+                                <img class="show-in-mobil-only" src="assets/images/pozo.png" alt="imgPlanta" style="width: 150px; margin-left: -20px; filter: grayscale(100%);" loading="lazy">
+                                <img class="show-in-pc-only" src="assets/images/pozo.png" alt="imgPlanta" style="width: 145px; margin-top: 20px; filter: grayscale(100%);" loading="lazy">
                             </item>
                             <item ng-show="actualSystem.type == 'Sensor'">
-                                <img class="show-in-mobil-only" src="assets/images/Red-Sensores.png" alt="imgPlanta" style="width: 100px; margin-left: -20px;">
-                                <img class="show-in-pc-only" src="assets/images/Red-Sensores.png" alt="imgPlanta" style="width: 120px; margin: 20px 0 0 20px;">
+                                <img class="show-in-mobil-only" src="assets/images/Red-Sensores.png" alt="imgPlanta" style="width: 100px; margin-left: -20px;" loading="lazy">
+                                <img class="show-in-pc-only" src="assets/images/Red-Sensores.png" alt="imgPlanta" style="width: 120px; margin: 20px 0 0 20px;" loading="lazy">
                             </item>
                         </div>
                         <div class="col s12 m8">
@@ -1666,15 +1666,15 @@
                                             src="https://weather-website-client.tomorrow.io/img/powered-by.svg"
                                             width="250"
                                             height="18"
-                                        />
+                                        / loading="lazy">
                                     </a>
                                     </div>
                             </div>
                         </div>
                         <!-- <div class="col s12 center-align show-in-pc-only"><br></div>
                         <div class="col s12 m4 centerImage">
-                            <img class="show-in-mobil-only" src="assets/images/planta.png" alt="imgPlanta" style="width: 80px; margin-top: 10px;">
-                            <img class="show-in-pc-only" src="assets/images/planta.png" alt="imgPlanta" style="width: 130px; margin: 20px 0 0 20px;">
+                            <img class="show-in-mobil-only" src="assets/images/planta.png" alt="imgPlanta" style="width: 80px; margin-top: 10px;" loading="lazy">
+                            <img class="show-in-pc-only" src="assets/images/planta.png" alt="imgPlanta" style="width: 130px; margin: 20px 0 0 20px;" loading="lazy">
                         </div>
                         <div class="col s12 m8">
                             <table class="striped highlight">
@@ -1687,7 +1687,7 @@
                                     <td style="text-align: left;">
                                         <div class="row" style="margin-bottom: 0;">
                                             <div class="col s12 m4">
-                                                <p style="margin: 0;"><img ng-src="{{ meteo[actualSystem.key].weather.iconUrl }}" alt="Weather icon"></p>
+                                                <p style="margin: 0;"><img ng-src="{{ meteo[actualSystem.key].weather.iconUrl }}" alt="Weather icon" loading="lazy"></p>
                                                 <p style="text-align: left; margin: -25px 0 0 0;">
                                                     <span style="font-size: large;">{{ meteo[actualSystem.key].main.temp - 273.15 | number : 0 }}°C</span>
                                                     <span>{{ (meteo[actualSystem.key].main.temp - 273.15) * 9/5 + 32 | number : 0 }}°F</span>
@@ -1723,7 +1723,7 @@
                                     <td style="text-align: left;">
                                         <div class="row" style="margin-bottom: 0;">
                                             <div class="col s12 m4">
-                                                <p style="margin: 0;"><img src="assets/images/f1.png" alt="Weather icon" style="width: 50px;"></p>
+                                                <p style="margin: 0;"><img src="assets/images/f1.png" alt="Weather icon" style="width: 50px;" loading="lazy"></p>
                                                 <p class="show-in-pc-only" style="text-align: left; margin: -25px 0 0 0;">
                                                     <span style="font-size: large;">{{ actualSystem.culture }}</span>
                                                 </p>
@@ -1851,7 +1851,7 @@
                                             <div class="col s12">
                                                 <div class="card card-panel hoverable" style="padding: 5px; border-radius: 5px; box-shadow: 2px 2px 10px gray !important;">
                                                     <div class="card-image">
-                                                        <img src="assets/images/image-icon.png">
+                                                        <img src="assets/images/image-icon.png" loading="lazy">
                                                         <!-- <a class="btn-floating halfway-fab waves-effect waves-light red"><i class="material-icons">add_a_photo</i></a> -->
                                                     </div>
                                                     <div class="card-content" style="padding: 5px;">
@@ -1867,7 +1867,7 @@
                                             <div class="col s12" ng-click="setEditPlanEstacionario('p7'); isPlotActive(actualSystem, 'p7') ? stopPlotIrrigation() : startPlotIrrigation()">
                                                 <div class="card card-panel hoverable" style="padding: 5px; border-radius: 5px; box-shadow: 2px 2px 10px gray !important; ">
                                                     <div class="card-image">
-                                                        <img src="assets/images/pozo.png" style="filter: grayscale(100%);">
+                                                        <img src="assets/images/pozo.png" style="filter: grayscale(100%);" loading="lazy">
                                                         <!-- <a class="btn-floating halfway-fab waves-effect waves-light red"><i class="material-icons">add_a_photo</i></a> -->
                                                     </div>
                                                     <div class="card-content" style="padding: 5px;">
@@ -1935,7 +1935,7 @@
                                 <li class="active"> Sensores  -->
                                     <!-- <div class="collapsible-header"> -->
                                         <!-- <i class="material-icons">spa</i>Sensores: &nbsp;&nbsp;<b style="font-size: 1.2em;">{{ actualSystem.plots[editedPlan].culture }}</b> -->
-                                        <!-- <img src="./assets/images/Red-Sensores.png" class="parcela_icon" style="height: 25px; width: 30px !important; margin: -10px 0 10px 0;" alt="sensor">
+                                        <!-- <img src="./assets/images/Red-Sensores.png" class="parcela_icon" style="height: 25px; width: 30px !important; margin: -10px 0 10px 0;" alt="sensor" loading="lazy">
                                         &nbsp;&nbsp;&nbsp;Sensores
                                     </div> -->
                                     <!-- <div class="collapsible-body">-->
@@ -1952,7 +1952,7 @@
                                                                 <table>
                                                                     <tr>
                                                                         <td width="20%" style="text-align: center;">
-                                                                            <img ng-src="{{ getSensorImage(sensor.type) }}" style="width: 40px;" alt="{{ sensor.type }}">
+                                                                            <img ng-src="{{ getSensorImage(sensor.type) }}" style="width: 40px;" alt="{{ sensor.type }}" loading="lazy">
                                                                         </td>
                                                                         <td width="60%" style="text-align: left;">
                                                                             <div style="text-align: left; color: rgb(55, 54, 54); font-size: 1.3em;"><b>{{ sensor.alias ? sensor.alias : "Sin nombre"}}</b> </div>
@@ -2137,7 +2137,7 @@
                                                             </div> -->
                                                             <!-- Programa no seleccionado -->
                                                             <!-- <div style="text-align: center;" ng-show="!actualSystem.sensingMode || actualSystem.sensingMode < 1">
-                                                                <img src="assets/images/options.png" alt="options" style="width: 80%;">
+                                                                <img src="assets/images/options.png" alt="options" style="width: 80%;" loading="lazy">
                                                             </div>
                                                         </div>
                                                     </div>
@@ -2279,16 +2279,16 @@
                     <div class="modal-content" style="padding: 10px 15px;">
                         <div class="row" style="margin-bottom: 8px; text-align: center;" ng-show="coldRoomChartAvailable && actualSystem.type == 'Sensor'">
                             <div class="col s12" style="padding: 10px; color: blue; border-bottom: 3px solid blue;">
-                                <img src="./assets/images/Hr.png" alt="Humedad del suelo" style="width: 20px;"><br>
+                                <img src="./assets/images/Hr.png" alt="Humedad del suelo" style="width: 20px;" loading="lazy"><br>
                                 {{ coldRoomChartSensor.type == 'WM' ? 'Agua disponible' : 'Humedad del suelo' }} · Ciclo completo
                             </div>
                         </div>
                         <div class="row" style="margin-bottom: 8px; text-align: center;" ng-show="coldRoomChartAvailable && actualSystem.type == 'Nevera'">
                             <div class="col s4" ng-click="setColdRoomChartType('temperature')" style="padding: 10px 2px; cursor: pointer; color: {{ chartType == 'temperature' ? 'red' : 'gray' }}; border-bottom: 3px solid {{ chartType == 'temperature' ? 'red' : 'gray' }};">
-                                <img src="./assets/images/termometro.png" alt="Temperatura" style="width: 20px;"><br>Temperatura
+                                <img src="./assets/images/termometro.png" alt="Temperatura" style="width: 20px;" loading="lazy"><br>Temperatura
                             </div>
                             <div class="col s4" ng-click="setColdRoomChartType('humidity')" style="padding: 10px 2px; cursor: pointer; color: {{ chartType == 'humidity' ? 'green' : 'gray' }}; border-bottom: 3px solid {{ chartType == 'humidity' ? 'green' : 'gray' }};">
-                                <img src="./assets/images/agua.png" alt="Humedad" style="width: 20px;"><br>Humedad
+                                <img src="./assets/images/agua.png" alt="Humedad" style="width: 20px;" loading="lazy"><br>Humedad
                             </div>
                             <div class="col s4" ng-click="setColdRoomChartType('temperatureHumidity')" style="padding: 10px 2px; cursor: pointer; color: {{ chartType == 'temperatureHumidity' ? 'teal' : 'gray' }}; border-bottom: 3px solid {{ chartType == 'temperatureHumidity' ? 'teal' : 'gray' }};">
                                 <i class="material-icons" style="font-size: 20px;">multiline_chart</i><br>Temperatura + humedad
@@ -2315,8 +2315,8 @@
                     <div class="modal-content row">
 
                         <div class="col s12 m4 centerImage">
-                            <img class="show-in-mobil-only" src="assets/images/logs.png" alt="imgPlanta" style="width: 80px; margin-left: -20px;">
-                            <img class="show-in-pc-only" src="assets/images/logs.png" alt="imgPlanta" style="width: 130px; margin: 20px 0 0 20px;">
+                            <img class="show-in-mobil-only" src="assets/images/logs.png" alt="imgPlanta" style="width: 80px; margin-left: -20px;" loading="lazy">
+                            <img class="show-in-pc-only" src="assets/images/logs.png" alt="imgPlanta" style="width: 130px; margin: 20px 0 0 20px;" loading="lazy">
                         </div>
                         <div class="col s12 m8">
                             <br>
@@ -2474,7 +2474,7 @@
                                                         <div class="col" ng-click="setChartType('moisture')" ng-show="sensor.type == 'SHT4' || sensor.type == 'WM'"
                                                         setChart(idx, 'myChartH' + idx);" style="margin-right: 5px; text-align: center; padding: 10px; cursor: pointer; color: {{ chartType == 'moisture' ? 'blue' : 'gray' }}; border-bottom: 3px solid {{ chartType == 'moisture' ? 'blue' : 'gray' }};">
                                                             <div style="margin-bottom: 5px;">
-                                                                <img src="./assets/images/Hr.png" alt="Ms" style="width: 20px;">
+                                                                <img src="./assets/images/Hr.png" alt="Ms" style="width: 20px;" loading="lazy">
                                                             </div>
                                                             <div style="font-size: 0.8em; line-height: 1.2;">
                                                                 <span ng-show="sensor.type == 'SHT4' || sensor.type == 'SHT'">Humedad<br>Suelo</span>
@@ -2483,7 +2483,7 @@
                                                         </div>
                                                         <div class="col" ng-click="setChartType('humidity'); setChart(idx, 'myChartH' + idx);" style="margin-right: 5px; text-align: center; padding: 10px; cursor: pointer; color: {{ chartType == 'humidity' ? 'green' : 'gray' }}; border-bottom: 3px solid {{ chartType == 'humidity' ? 'green' : 'gray' }};">
                                                             <div style="margin-bottom: 5px;">
-                                                                <img src="./assets/images/agua.png" alt="Hr" style="width: 20px;">
+                                                                <img src="./assets/images/agua.png" alt="Hr" style="width: 20px;" loading="lazy">
                                                             </div>
                                                             <div style="font-size: 0.8em; line-height: 1.2;">
                                                                 Humedad<br>Ambiente
@@ -2491,7 +2491,7 @@
                                                         </div>
                                                         <div class="col" ng-click="setChartType('temperature'); setChart(idx, 'myChartH' + idx);" style="margin-right: 5px; text-align: center; padding: 10px; cursor: pointer; color: {{ chartType == 'temperature' ? 'red' : 'gray' }}; border-bottom: 3px solid {{ chartType == 'temperature' ? 'red' : 'gray' }};">
                                                             <div style="margin-bottom: 5px;">
-                                                                <img src="./assets/images/termometro.png" alt="Temp" style="width: 20px;">
+                                                                <img src="./assets/images/termometro.png" alt="Temp" style="width: 20px;" loading="lazy">
                                                             </div>
                                                             <div style="font-size: 0.8em; line-height: 1.2;">
                                                                 Temperatura<br>Ambiente
@@ -2520,12 +2520,12 @@
                                                 <thead>
                                                     <tr>
                                                         <th><i class="fa fa-calendar" aria-hidden="true" style="font-size: 1.2em;"></i><br> Fecha</th>
-                                                        <th><img src="./assets/images/Hr.png" alt="Ms" style="width: 20px;"><br> {{ sensor.type == 'WM' ? 'Tensión' : 'H.Suelo' }}</th>
-                                                        <th><img src="./assets/images/agua.png" alt="Hr" style="width: 20px;"><br> H.Relativa</th>
-                                                        <th><img src="./assets/images/termometro.png" alt="Temp" style="width: 20px;"><br> Temp.</th>
-                                                        <th><img src="./assets/images/ETo.png" alt="Temp" style="width: 20px;"><br> ETo</th>
+                                                        <th><img src="./assets/images/Hr.png" alt="Ms" style="width: 20px;" loading="lazy"><br> {{ sensor.type == 'WM' ? 'Tensión' : 'H.Suelo' }}</th>
+                                                        <th><img src="./assets/images/agua.png" alt="Hr" style="width: 20px;" loading="lazy"><br> H.Relativa</th>
+                                                        <th><img src="./assets/images/termometro.png" alt="Temp" style="width: 20px;" loading="lazy"><br> Temp.</th>
+                                                        <th><img src="./assets/images/ETo.png" alt="Temp" style="width: 20px;" loading="lazy"><br> ETo</th>
                                                         <th ng-if="selectedTimeOption == 'DIA'"><i class="material-icons">battery_charging_full</i><br>Bat.</th>
-                                                        <th ng-if="selectedTimeOption != 'DIA'"><img src="./assets/images/nieve.png" alt="Temp" style="width: 20px;"><br> H.Frío</th>
+                                                        <th ng-if="selectedTimeOption != 'DIA'"><img src="./assets/images/nieve.png" alt="Temp" style="width: 20px;" loading="lazy"><br> H.Frío</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -2552,7 +2552,7 @@
                                                 <thead>
                                                     <tr>
                                                         <th><i class="fa fa-calendar" aria-hidden="true" style="font-size: 1.2em;"></i><br> Fecha</th>
-                                                        <th><img src="./assets/images/pozo.png" alt="Ms" style="width: 20px;"><br> {{ sensor.type == 'WM' ? 'Tensión' : 'H.Suelo' }}</th>
+                                                        <th><img src="./assets/images/pozo.png" alt="Ms" style="width: 20px;" loading="lazy"><br> {{ sensor.type == 'WM' ? 'Tensión' : 'H.Suelo' }}</th>
                                                         <th ng-if="selectedTimeOption == 'DIA'"><i class="material-icons">battery_charging_full</i><br>Bat.</th>
                                                         <th ng-if="selectedTimeOption != 'DIA'"><i class="material-icons">access_time</i><br>T.Encendido</th>
                                                     </tr>
@@ -2595,8 +2595,8 @@
                     <div class="modal-content row" style="padding: 24px 5px 0 5px;">
 
                         <div class="col s12 m4 centerImage">
-                            <img class="show-in-mobil-only" src="assets/images/shared.png" alt="imgPlanta" style="width: 100px; margin-left: -20px;">
-                            <img class="show-in-pc-only" src="assets/images/shared.png" alt="imgPlanta" style="width: 180px; margin: 20px 0 0 20px;">
+                            <img class="show-in-mobil-only" src="assets/images/shared.png" alt="imgPlanta" style="width: 100px; margin-left: -20px;" loading="lazy">
+                            <img class="show-in-pc-only" src="assets/images/shared.png" alt="imgPlanta" style="width: 180px; margin: 20px 0 0 20px;" loading="lazy">
                         </div>
                         <div class="col s12 m8">
                             <div ng-repeat="reg in users[actualSystem.key]"
@@ -2983,7 +2983,7 @@
                                                     </div>
                                                     <div class="col s12 red-text"><b>Nota: </b><i>"Los cambios en el tiempo de riego se hacen efectivos al hacer clic en el botón iniciar"</i></div>
                                                 </div>
-                                                <img src="assets/images/options.png" alt="options" style="width: 80%;">
+                                                <img src="assets/images/options.png" alt="options" style="width: 80%;" loading="lazy">
                                             </div>
 
                                             <!-- Plan de riego -->
@@ -3390,7 +3390,7 @@
                                     <div class="col s6">
                                         <div class="card tarjeta-sensores" ng-click="newSensor.type='NPKML'; steepSensor = steepSensor + 1" style="box-shadow: 8px 8px 8px gray !important;">
                                             <div class="card-image">
-                                                <img src="./assets/images/sNPKML.png" style="height: 80px; width: 80px; margin: auto;">
+                                                <img src="./assets/images/sNPKML.png" style="height: 80px; width: 80px; margin: auto;" loading="lazy">
                                             </div>
                                             <div class="card-content">
                                                 <p style="text-align: center; font-size: 1.2em;">Perfil</p>
@@ -3401,7 +3401,7 @@
                                     <div class="col s6">
                                         <div class="card tarjeta-sensores" ng-click="newSensor.type='NPK'; steepSensor = steepSensor + 1" style="box-shadow: 8px 8px 8px gray !important;">
                                             <div class="card-image">
-                                                <img src="./assets/images/sNPK.png" style="height: 80px; width: 80px; margin: auto;">
+                                                <img src="./assets/images/sNPK.png" style="height: 80px; width: 80px; margin: auto;" loading="lazy">
                                             </div>
                                             <div class="card-content">
                                                 <p style="text-align: center; font-size: 1.2em; margin-left: -10px;">Nutrientes</p>
@@ -3412,7 +3412,7 @@
                                     <div class="col s6">
                                         <div class="card tarjeta-sensores" ng-click="newSensor.type='WM'; steepSensor = steepSensor + 1" style="box-shadow: 8px 8px 8px gray !important;">
                                             <div class="card-image">
-                                                <img src="./assets/images/sWM.jpg" style="height: 80px; width: 80px; margin: auto;">
+                                                <img src="./assets/images/sWM.jpg" style="height: 80px; width: 80px; margin: auto;" loading="lazy">
                                             </div>
                                             <div class="card-content">
                                                 <p style="text-align: center; font-size: 1.2em;">Tensión</p>
@@ -3423,7 +3423,7 @@
                                     <div class="col s6">
                                         <div class="card tarjeta-sensores" ng-click="newSensor.type='SHT4'; steepSensor = steepSensor + 1" style="box-shadow: 8px 8px 8px gray !important;">
                                             <div class="card-image">
-                                                <img src="./assets/images/sVWC.png" style="height: 80px; width: 80px; margin: auto;">
+                                                <img src="./assets/images/sVWC.png" style="height: 80px; width: 80px; margin: auto;" loading="lazy">
                                             </div>
                                             <div class="card-content">
                                                 <p style="text-align: center; font-size: 1.2em;">Volumen</p>
@@ -3434,7 +3434,7 @@
                                     <div class="col s6">
                                         <div class="card tarjeta-sensores" ng-click="newSensor.type='Tr'; steepSensor = steepSensor + 1" style="box-shadow: 8px 8px 8px gray !important;">
                                             <div class="card-image">
-                                                <img src="./assets/images/sTemp.png" style="height: 80px; width: 80px; margin: auto;">
+                                                <img src="./assets/images/sTemp.png" style="height: 80px; width: 80px; margin: auto;" loading="lazy">
                                             </div>
                                             <div class="card-content">
                                                 <p style="text-align: center; font-size: 1.2em;">Presión</p>
@@ -3445,7 +3445,7 @@
                                     <div class="col s6">
                                         <div class="card tarjeta-sensores" ng-click="newSensor.type='Psi'; steepSensor = steepSensor + 1" style="box-shadow: 8px 8px 8px gray !important;">
                                             <div class="card-image">
-                                                <img src="./assets/images/sPSI.png" style="height: 80px; width: 80px; margin: auto;">
+                                                <img src="./assets/images/sPSI.png" style="height: 80px; width: 80px; margin: auto;" loading="lazy">
                                             </div>
                                             <div class="card-content">
                                                 <p style="text-align: center; font-size: 1.2em;">Presión</p>
@@ -3456,7 +3456,7 @@
                                     <div class="col s6">
                                         <div class="card tarjeta-sensores" ng-click="newSensor.type='Fl'; steepSensor = steepSensor + 1" style="box-shadow: 8px 8px 8px gray !important;">
                                             <div class="card-image">
-                                                <img src="./assets/images/sCaudal.png" style="height: 80px; width: 80px; margin: auto;">
+                                                <img src="./assets/images/sCaudal.png" style="height: 80px; width: 80px; margin: auto;" loading="lazy">
                                             </div>
                                             <div class="card-content">
                                                 <p style="text-align: center; font-size: 1.2em;">Caudal</p>
@@ -3469,7 +3469,7 @@
                                     <div class="col s6">
                                         <div class="card tarjeta-sensores" ng-click="newSensor.type='SHT2'; steepSensor = steepSensor + 1" style="box-shadow: 8px 8px 8px gray !important;">
                                             <div class="card-image">
-                                                <img src="./assets/images/sSHT_2.png" style="height: 80px; width: 80px; margin: auto;">
+                                                <img src="./assets/images/sSHT_2.png" style="height: 80px; width: 80px; margin: auto;" loading="lazy">
                                             </div>
                                             <div class="card-content">
                                                 <p style="text-align: center; font-size: 1.2em;">T y Hr</p>
@@ -3480,7 +3480,7 @@
                                     <div class="col s6">
                                         <div class="card tarjeta-sensores" ng-click="newSensor.type='Irms'; steepSensor = steepSensor + 1" style="box-shadow: 8px 8px 8px gray !important;">
                                             <div class="card-image">
-                                                <img src="./assets/images/sIrms.png" style="height: 80px; width: 80px; margin: auto;">
+                                                <img src="./assets/images/sIrms.png" style="height: 80px; width: 80px; margin: auto;" loading="lazy">
                                             </div>
                                             <div class="card-content">
                                                 <p style="text-align: center; font-size: 1.2em;">Corriente</p>
@@ -3491,7 +3491,7 @@
                                     <div class="col s6">
                                         <div class="card tarjeta-sensores" ng-click="newSensor.type='Contact'; steepSensor = steepSensor + 1" style="box-shadow: 8px 8px 8px gray !important;">
                                             <div class="card-image">
-                                                <img src="./assets/images/sContacto.jpeg" style="height: 80px; width: 80px; margin: auto;">
+                                                <img src="./assets/images/sContacto.jpeg" style="height: 80px; width: 80px; margin: auto;" loading="lazy">
                                             </div>
                                             <div class="card-content">
                                                 <p style="text-align: center; font-size: 1.2em;">Contacto</p>
@@ -3550,7 +3550,7 @@
                                                             <span class="chip">
                                                                 <img ng-src="assets/images/diseases/{{ disease.photo || 'bug-vector-icon.jpg' }}" 
                                                                     alt="{{ disease.name }}" 
-                                                                    style="margin-top: -5px;">
+                                                                    style="margin-top: -5px;" loading="lazy">
                                                                     {{ disease.name }}
                                                             </span>
                                                         </label>
@@ -3561,7 +3561,7 @@
                                                 <div id="diseaseDetails_{{ actualCulture.culture }}" class="card" ng-show="isShowDiseaseDetails">
                                                     <div class="card-content">
                                                         <span class="card-title">{{ disease.name }}</span>
-                                                        <p><img ng-src="assets/images/diseases/{{ disease.photo || 'bug-vector-icon.jpg' }}" alt="{{ disease.name }}" style="margin-top: -5px;"></p>
+                                                        <p><img ng-src="assets/images/diseases/{{ disease.photo || 'bug-vector-icon.jpg' }}" alt="{{ disease.name }}" style="margin-top: -5px;" loading="lazy"></p>
                                                         <table>
                                                             <tr>
                                                                 <td class="left-align">Nombre</td>
@@ -3616,7 +3616,7 @@
                                                         <label class="left-align">
                                                             <input id="newSensorHNotify" type="checkbox" ng-model="newSensor.h.notify" />
                                                             <span class="chip">
-                                                                <img src="assets/images/gota.jpg" alt="Gota" style="margin-top: -5px;">
+                                                                <img src="assets/images/gota.jpg" alt="Gota" style="margin-top: -5px;" loading="lazy">
                                                                 Humedad
                                                             </span>
                                                             <input id="newSensorHMinValue" type="number" val="0" min="0" max="100" ng-model="newSensor.h.minValue" style="width: 50px;" placeholder="Min"> - 
@@ -3635,7 +3635,7 @@
                                                         <label class="left-align">
                                                             <input id="newSensorTNotify" type="checkbox" ng-model="newSensor.t.notify" />
                                                             <span class="chip">
-                                                                <img src="assets/images/termometro.png" alt="Termómetro" style="margin-top: -5px;">
+                                                                <img src="assets/images/termometro.png" alt="Termómetro" style="margin-top: -5px;" loading="lazy">
                                                                 Temperatura
                                                             </span>
                                                             <input id="newSensorTMinValue" type="number" val="0" min="0" max="100" ng-model="newSensor.t.minValue" style="width: 50px;" placeholder="Min"> - 
@@ -3648,7 +3648,7 @@
                                                         <label class="left-align">
                                                             <input id="newSensorPsiNotify" type="checkbox" ng-model="newSensor.psi.notify" />
                                                             <span class="chip">
-                                                                <img src="assets/images/presion.jpg" alt="Presión" style="margin-top: -5px;">
+                                                                <img src="assets/images/presion.jpg" alt="Presión" style="margin-top: -5px;" loading="lazy">
                                                                 Alerta de presión
                                                             </span>
                                                             <input id="newSensorPsiMinValue" type="number" val="0" min="0" max="100" ng-model="newSensor.psi.minValue" style="width: 50px;" placeholder="Min">
@@ -3661,7 +3661,7 @@
                                                         <label class="left-align">
                                                             <input id="newSensorFlNotify" type="checkbox" ng-model="newSensor.fl.notify" />
                                                             <span class="chip">
-                                                                <img src="assets/images/caudal.png" alt="Caudal" style="margin-top: -5px;">
+                                                                <img src="assets/images/caudal.png" alt="Caudal" style="margin-top: -5px;" loading="lazy">
                                                                 Alerta de caudal
                                                             </span>
                                                             Min: <input id="newSensorFlMaxValue" type="number" val="0" min="0" max="100" ng-model="newSensor.fl.maxValue" style="width: 50px;">
@@ -3753,7 +3753,7 @@
                         <div class="swal-title">Editar: {{ actualSensor.alias ? actualSensor.alias : actualSensor.id }}</div>
                         <div class="row" style="text-align: center;">
                             <div class="input-field col s12">
-                                <img ng-src="{{ getSensorImage(actualSensor.type) }}" style="width: 100px;" alt="{{ actualSensor.type }}">
+                                <img ng-src="{{ getSensorImage(actualSensor.type) }}" style="width: 100px;" alt="{{ actualSensor.type }}" loading="lazy">
                             </div>
                             <div class="input-field col s12">
                                 <input id="editSensorAlias" type="text" ng-model="actualSensor.alias">
@@ -3855,7 +3855,7 @@
                                                     <label class="left-align">
                                                         <input id="disease_{{ disease.name }}" type="checkbox" ng-model="actualSensor.alerts[disease.name]" />
                                                         <span class="chip">
-                                                            <img ng-src="assets/images/diseases/{{ disease.photo || 'bug-vector-icon.jpg' }}" alt="{{ disease.name }}" style="margin-top: -5px;" ng-show="disease.photo">
+                                                            <img ng-src="assets/images/diseases/{{ disease.photo || 'bug-vector-icon.jpg' }}" alt="{{ disease.name }}" style="margin-top: -5px;" ng-show="disease.photo" loading="lazy">
                                                             {{ disease.name }}
                                                         </span>
                                                     </label>
@@ -3866,7 +3866,7 @@
                                             <div id="diseaseDetails_{{ actualCulture.culture }}" class="card" ng-show="isShowDiseaseDetails">
                                                 <div class="card-content">
                                                     <span class="card-title">{{ disease.name }}</span>
-                                                    <p><img ng-src="assets/images/diseases/{{ disease.photo || 'bug-vector-icon.jpg' }}" alt="{{ disease.name }}" style="margin-top: -5px;"></p>
+                                                    <p><img ng-src="assets/images/diseases/{{ disease.photo || 'bug-vector-icon.jpg' }}" alt="{{ disease.name }}" style="margin-top: -5px;" loading="lazy"></p>
                                                     <table>
                                                         <tr>
                                                             <td class="left-align">Nombre</td>
@@ -3915,7 +3915,7 @@
                                                     <label class="left-align">
                                                         <input id="editSensorHNotify" type="checkbox" ng-model="actualSensor.h.notify" />
                                                         <span class="chip">
-                                                            <img src="assets/images/gota.jpg" alt="Gota" style="margin-top: -5px;">
+                                                            <img src="assets/images/gota.jpg" alt="Gota" style="margin-top: -5px;" loading="lazy">
                                                             Humedad
                                                         </span>
                                                         <input id="editSensorHMinValue" type="number" min="0" max="100" ng-model="actualSensor.h.minValue" style="width: 50px;" placeholder="Min"> - 
@@ -3928,7 +3928,7 @@
                                                     <label class="left-align">
                                                         <input id="editSensorTNotify" type="checkbox" ng-model="actualSensor.t.notify" />
                                                         <span class="chip">
-                                                            <img src="assets/images/termometro.png" alt="Termómetro" style="margin-top: -5px;">
+                                                            <img src="assets/images/termometro.png" alt="Termómetro" style="margin-top: -5px;" loading="lazy">
                                                             Temperatura
                                                         </span>
                                                         <input id="editSensorTMinValue" type="number" min="0" max="100" ng-model="actualSensor.t.minValue" style="width: 50px;" placeholder="Min"> - 
@@ -3941,7 +3941,7 @@
                                                     <label class="left-align">
                                                         <input id="editSensorPsiNotify" type="checkbox" ng-model="actualSensor.psi.notify" />
                                                         <span class="chip">
-                                                            <img src="assets/images/presion.jpg" alt="Presión" style="margin-top: -5px;">
+                                                            <img src="assets/images/presion.jpg" alt="Presión" style="margin-top: -5px;" loading="lazy">
                                                             Alerta de presión
                                                         </span>
                                                         <input id="editSensorPsiMinValue" type="number" min="0" max="100" ng-model="actualSensor.psi.minValue" style="width: 50px;" placeholder="Min">
@@ -3954,7 +3954,7 @@
                                                     <label class="left-align">
                                                         <input id="editSensorFlNotify" type="checkbox" ng-model="actualSensor.fl.notify" />
                                                         <span class="chip">
-                                                            <img src="assets/images/caudal.png" alt="Caudal" style="margin-top: -5px;">
+                                                            <img src="assets/images/caudal.png" alt="Caudal" style="margin-top: -5px;" loading="lazy">
                                                             Alerta de caudal
                                                         </span>
                                                         Min: <input id="editSensorFlMaxValue" type="number" min="0" max="100" ng-model="actualSensor.fl.maxValue" style="width: 50px;">
@@ -3985,7 +3985,7 @@
                         <div class="swal-title">Buscar sensor</div>
                         <div class="row" style="margin-top: 35px; border-radius: 10px; background: black;">
                             <div class="col s12">
-                                <img src="assets/images/radar.gif" alt="">
+                                <img src="assets/images/radar.gif" alt="" loading="lazy">
                             </div>
                         </div>
                         <div class="row">
@@ -4330,28 +4330,28 @@
                                                 <div class="row"> <!-- Listado de equipos -->
                                                     <div class="col s12"><strong>Listado de equipos</strong></div>
                                                     <div class="col s12 m6">
-                                                        <img src="assets/images/help/controles_listado.png" alt="Controles" style="width: 100%;">
+                                                        <img src="assets/images/help/controles_listado.png" alt="Controles" style="width: 100%;" loading="lazy">
                                                     </div>
                                                     <div class="col s12 m6">
-                                                        <img src="assets/images/help/controles_listado_descripcion.png" alt="Controles" style="width: 70%;">
+                                                        <img src="assets/images/help/controles_listado_descripcion.png" alt="Controles" style="width: 70%;" loading="lazy">
                                                     </div>
                                                 </div>
                                                 <div class="row"> <!-- Estacionarios -->
                                                     <div class="col s12"><strong>Estacionarios</strong></div>
                                                     <div class="col s12 m6">
-                                                        <img src="assets/images/help/controles_estacionario.png" alt="Controles" style="width: 85%;">
+                                                        <img src="assets/images/help/controles_estacionario.png" alt="Controles" style="width: 85%;" loading="lazy">
                                                     </div>
                                                     <div class="col s12 m6">
-                                                        <img src="assets/images/help/controles_estacionario_descripcion.png" alt="Controles" style="width: 70%;">
+                                                        <img src="assets/images/help/controles_estacionario_descripcion.png" alt="Controles" style="width: 70%;" loading="lazy">
                                                     </div>
                                                 </div>
                                                 <div class="row"> <!-- Continuos -->
                                                     <div class="col s12"><strong>Continuos</strong></div>
                                                     <div class="col s12 m6">
-                                                        <img src="assets/images/help/controles_continuo.png" alt="Controles" style="width: 85%;">
+                                                        <img src="assets/images/help/controles_continuo.png" alt="Controles" style="width: 85%;" loading="lazy">
                                                     </div>
                                                     <div class="col s12 m6">
-                                                        <img src="assets/images/help/controles_continuo_descripcion.png" alt="Controles" style="width: 70%;">
+                                                        <img src="assets/images/help/controles_continuo_descripcion.png" alt="Controles" style="width: 70%;" loading="lazy">
                                                     </div>
                                                 </div>
                                             </div>
@@ -4361,10 +4361,10 @@
                                             <div class="collapsible-body" style="text-align: justify; margin: 10px; font-size: .8em;">
                                                 <div class="row">
                                                     <div class="col s12 m6">
-                                                        <img src="assets/images/help/nuevo.png" alt="Controles" style="width: 100%;">
+                                                        <img src="assets/images/help/nuevo.png" alt="Controles" style="width: 100%;" loading="lazy">
                                                     </div>
                                                     <div class="col s12 m6">
-                                                        <img src="assets/images/help/nuevo_descripcion.png" alt="Controles" style="width: 70%;">
+                                                        <img src="assets/images/help/nuevo_descripcion.png" alt="Controles" style="width: 70%;" loading="lazy">
                                                     </div>
                                                 </div>
                                             </div>
@@ -4375,21 +4375,21 @@
                                                 <div class="row">   <!-- Estacionarios -->
                                                     <div class="col s12"><strong>Estacionarios</strong></div>
                                                     <div class="col s12 m6">
-                                                        <img src="assets/images/help/planes_estacionario1.png" alt="Planes" style="width: 100%;">
+                                                        <img src="assets/images/help/planes_estacionario1.png" alt="Planes" style="width: 100%;" loading="lazy">
                                                         <br>
-                                                        <img src="assets/images/help/planes_estacionario2.png" alt="Planes" style="width: 100%;">
+                                                        <img src="assets/images/help/planes_estacionario2.png" alt="Planes" style="width: 100%;" loading="lazy">
                                                     </div>
                                                     <div class="col s12 m6">
-                                                        <img src="assets/images/help/planes_estacionario_descripcion.png" alt="Planes" style="width: 70%;">
+                                                        <img src="assets/images/help/planes_estacionario_descripcion.png" alt="Planes" style="width: 70%;" loading="lazy">
                                                     </div>
                                                 </div>
                                                 <div class="row">   <!-- Continuos -->
                                                     <div class="col s12"><strong>Muvimiento Continuo</strong></div>
                                                     <div class="col s12 m6">
-                                                        <img src="assets/images/help/planes_continuo.png" alt="Planes" style="width: 100%;">
+                                                        <img src="assets/images/help/planes_continuo.png" alt="Planes" style="width: 100%;" loading="lazy">
                                                     </div>
                                                     <div class="col s12 m6">
-                                                        <img src="assets/images/help/planes_continuo_descripcion.png" alt="Planes" style="width: 70%;">
+                                                        <img src="assets/images/help/planes_continuo_descripcion.png" alt="Planes" style="width: 70%;" loading="lazy">
                                                     </div>
                                                 </div>
                                             </div>
@@ -4399,12 +4399,12 @@
                                             <div class="collapsible-body" style="text-align: justify; margin: 10px; font-size: .8em;">
                                                 <div class="row">
                                                     <div class="col s12 m6">
-                                                        <img src="assets/images/help/ficha1.png" alt="Fichas técnicas" style="width: 100%;">
+                                                        <img src="assets/images/help/ficha1.png" alt="Fichas técnicas" style="width: 100%;" loading="lazy">
                                                         <br>
-                                                        <img src="assets/images/help/ficha2.png" alt="Fichas técnicas" style="width: 100%;">
+                                                        <img src="assets/images/help/ficha2.png" alt="Fichas técnicas" style="width: 100%;" loading="lazy">
                                                     </div>
                                                     <div class="col s12 m6">
-                                                        <img src="assets/images/help/ficha_descripcion.png" alt="Fichas técnicas" style="width: 100%;">
+                                                        <img src="assets/images/help/ficha_descripcion.png" alt="Fichas técnicas" style="width: 100%;" loading="lazy">
                                                     </div>
                                                 </div>
                                             </div>
@@ -4414,7 +4414,7 @@
                                             <div class="collapsible-body" style="text-align: justify; margin: 10px; font-size: .8em;">
                                                 <div class="row">
                                                     <div class="col s12 m6">
-                                                        <img src="assets/images/help/instalar.png" alt="Instalar" style="width: 100%;">
+                                                        <img src="assets/images/help/instalar.png" alt="Instalar" style="width: 100%;" loading="lazy">
                                                     </div>
                                                 </div>
                                             </div>
@@ -4424,7 +4424,7 @@
                                             <div class="collapsible-body" style="text-align: justify; margin: 10px; font-size: .8em;">
                                                 <div class="row">
                                                     <div class="col s12 m6">
-                                                        <img src="assets/images/help/actualizar.png" alt="Actualizar" style="width: 100%;">
+                                                        <img src="assets/images/help/actualizar.png" alt="Actualizar" style="width: 100%;" loading="lazy">
                                                     </div>
                                                 </div>
                                             </div>
@@ -4642,16 +4642,16 @@
                                 <div class="collapsible-body" ng-init="mostrarQR = false">
                                     <div style="padding: 20px 0;">
                                         <button ng-click="compartirWhatsApp()" style="width: 100px;border: 0;background: transparent;">
-                                            <img src="./assets/images/whatsapp_black.png" style="width: 60px; border: solid 5px white;" alt="Aplicación DTA-Agrícola"></i><br>
+                                            <img src="./assets/images/whatsapp_black.png" style="width: 60px; border: solid 5px white;" alt="Aplicación DTA-Agrícola" loading="lazy"></i><br>
                                             WhatsApp
                                         </button>
                                         <button ng-click="mostrarQR = !mostrarQR" style="width: 100px;border: 0;background: transparent;">
-                                            <img src="./assets/images/qr.png" style="width: 60px; border: solid 5px white;" alt="Aplicación DTA-Agrícola"></i><br>
+                                            <img src="./assets/images/qr.png" style="width: 60px; border: solid 5px white;" alt="Aplicación DTA-Agrícola" loading="lazy"></i><br>
                                             QR
                                         </button>
                                     </div>
                                     <div ng-show="mostrarQR" style="padding: 50px;">
-                                        <img src="./assets/images/qr-app.png" alt="Aplicación DTA-Agrícola">
+                                        <img src="./assets/images/qr-app.png" alt="Aplicación DTA-Agrícola" loading="lazy">
                                     </div>
                                 </div>
                             </li>
@@ -4670,12 +4670,12 @@
                     <div class="sidebar-footer hidden-small" style="display: none;">
                         <a href="https://dtaamerica.com/dta-agricola" target="_blank" title="DTA-Agrícola"
                             style="color: white;">
-                            <img src="./assets/images/DTA-white.png" style="width: 55px;" alt="DTA-Agrícola">
+                            <img src="./assets/images/DTA-white.png" style="width: 55px;" alt="DTA-Agrícola" loading="lazy">
                         </a>
                         <a href="https://wa.me/526251523176?text=DTA-Agr%C3%ADcola%20decide%20d%C3%B3nde,%20cu%C3%A1ndo%20y%20cu%C3%A1nto%20regar%20con%20un%20solo%20click.%20Especialmente%20dise%C3%B1ado%20para%20productores%20peque%C3%B1os,%20medianos%20y%20grandes%20que%20deseen%20producir%20m%C3%A1s%20con%20menor%20consumo%20de%20recursos"
                             target="_blank" title="WhatsApp" style="display: none;">
                             <img src="./assets/images/whatsapp.png" altstyle="width: 55px;"
-                                style="width: 25px; border-radius: 4px;" alt="WhatsApp">
+                                style="width: 25px; border-radius: 4px;" alt="WhatsApp" loading="lazy">
                         </a>
                         <a href="https://www.facebook.com/dtaagricola" target="_blank" title="Facebook"
                             style="color: white;">
@@ -4724,11 +4724,11 @@
 
             <section id="usuarios">
 
-                <img src="./assets/images/fondo-web.png" class="show-in-pc-only" style="position: fixed; top: 0; width: 100%; height: 100%; z-index: -1;" alt="Login" ng-show="selectedWindow == 'login'">
-                <img src="./assets/images/fondo-cel.png" class="show-in-mobil-only" style="position: fixed; top: 0; width: 100%; height: 100%; z-index: -1;" alt="Login" ng-show="selectedWindow == 'login'">
+                <img src="./assets/images/fondo-web.png" class="show-in-pc-only" style="position: fixed; top: 0; width: 100%; height: 100%; z-index: -1;" alt="Login" ng-show="selectedWindow == 'login'" loading="lazy">
+                <img src="./assets/images/fondo-cel.png" class="show-in-mobil-only" style="position: fixed; top: 0; width: 100%; height: 100%; z-index: -1;" alt="Login" ng-show="selectedWindow == 'login'" loading="lazy">
                 <div class="shadow-login" ng-show="selectedWindow == 'login'"></div>
                 <div class="container" style="width: 95%; min-height: 530px; margin-top: calc(100vh - 520px); max-width: 400px; text-align: center; position: relative;" ng-show="selectedWindow == 'login'">
-                    <img src="./assets/images/DTA2.png" style="width: 60%;" alt="Login">
+                    <img src="./assets/images/DTA2.png" style="width: 60%;" alt="Login" loading="lazy">
                     <div class="swal-title" style="font-size: 1.5em !important; margin-bottom: 30px !important; color: darkslategray;">Todos tus sistemas en <br>un solo lugar</div>
                     <!-- <div class="swal-title" style="font-size: 1em !important; ">Únete a los productores que como tú confían en DTA-Agrícola como su herramienta de gestión integral.</div> -->
 
@@ -4737,7 +4737,7 @@
                             <a id="signinGoogle" class="waves-effect waves-light btn valign-wrapper white btn-login">
                                 <div class="row valign-wrapper" style="width: fit-content; margin: auto;">
                                     <div class="col s12 valign-wrapper" style="margin-top: 5px;">
-                                        <div style="margin: 5px 20px 0 0;"><img src="./assets/images/google-icon-1.png" alt="Google" style="width: 24px;"></div>
+                                        <div style="margin: 5px 20px 0 0;"><img src="./assets/images/google-icon-1.png" alt="Google" style="width: 24px;" loading="lazy"></div>
                                         <div style="margin-top: -5px; color: black;"><b>Continuar con Google</b></div>
                                     </div>
                                 </div>

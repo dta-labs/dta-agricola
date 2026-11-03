@@ -5,11 +5,13 @@ importScripts("./assets/js/firebaseConfig.js");
 firebase.initializeApp(config);
 
 const messaging = firebase.messaging();
-const CACHE_NAME = "DTA_Irrigation_Control_v1.14";   // v1.14: limpia caches anteriores
+const CACHE_NAME = "DTA_Irrigation_Control_v1.15";   // v1.15: precache ligero (REQ-033)
 const CACHE_PREFIX = "DTA_Irrigation_Control_";
 const PWA_LAUNCH_URL = "./index.html";
 const NOTIFICATION_SOUND_FILE = "./assets/sounds/alarma-de-evacuacion.mp3";
 const urlsToCache = [
+  // REQ-033: solo lo imprescindible para arrancar. Las imagenes decorativas se cachean al
+  // usarse (estrategia network-first); precargarlas costaba 2,4 MB en el evento install.
   "./assets/css/responsive.css",
   "./assets/css/style.css",
   "./assets/images/icons/res/mipmap-mdpi/DTA_Agricola.png",
@@ -18,10 +20,6 @@ const urlsToCache = [
   "./assets/images/icons/res/mipmap-xxhdpi/DTA_Agricola.png",
   "./assets/images/icons/res/mipmap-xxxhdpi/DTA_Agricola.png",
   "./assets/images/DTA-Agricola lineal.png",
-  "./assets/images/DTA-Agricola.png",
-  "./assets/images/fondo-cel.png",
-  "./assets/images/fondo-web.png",
-  "./assets/images/intro.webp",
 ];
 
 self.addEventListener("install", (event) => {
