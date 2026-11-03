@@ -27,6 +27,7 @@
 | REQ-024 | Arreglos del log: imagenes, interpolaciones y CSP | Implementado | - (navegador) |
 | REQ-025 | El aviso de salida no puede romper el inicio de sesion | Implementado (probar con Google) | 12 |
 | REQ-026 | Diagnostico de sesion (herramienta `diagnostico.html`) | Implementado | - (headless) |
+| REQ-027 | Acceso con Google sin el iframe de Firebase (GIS) | Implementado (probar con Google) | 9 |
 
 **Total: 106 pruebas en Node + 26 en navegador, todas en verde.**
 

@@ -75,41 +75,115 @@
 
     // #region Acceso con Google
 
+    const identidad = (typeof DTALogic !== "undefined" && DTALogic.googleIdentidad)
+        ? DTALogic.googleIdentidad
+        : null;
     const signinGoogle = buscar("signinGoogle");
-    if (signinGoogle) {
-        signinGoogle.addEventListener("click", async (e) => {
-            e.preventDefault();
-            // REQ-019: redireccion directa. El popup depende de window.opener y el navegador
-            // lo bloquea por COOP: la ventana no se puede cerrar y los intentos se acumulan
-            // (auth/expired-popup-request). Con redireccion no hay ventana que cerrar.
-            try {
-                await auth.signInWithRedirect(proveedorGoogle);
-            } catch (error) {
-                if (reglas && reglas.debeReintentarConRedirect(error && error.code)) {
-                    avisar("No se pudo abrir el acceso de Google. Revisa que no haya bloqueo de ventanas.");
-                    return;
-                }
-                // REQ-025: un fallo que no viene de Firebase no es un fallo de acceso. Puede ser
-                // que la navegacion a Google ya este en curso; avisar seria enganoso.
-                if (reglas && typeof reglas.esErrorDeFirebase === "function" && !reglas.esErrorDeFirebase(error)) {
-                    return;
-                }
-                avisar(mensajeDeError(error));
-            }
-        });
-    }
 
-    // Al volver de una redireccion hay que recoger el resultado; si no, la sesion
-    // queda creada pero la aplicacion no se entera de inmediato.
-    auth.getRedirectResult().then((resultado) => {
-        if (resultado && resultado.user) {
-            console.log("Sesion iniciada por redireccion:", resultado.user.email);
-        }
-    }).catch((error) => {
-        if (error && error.code && error.code !== "auth/credential-already-in-use") {
+    /**
+     * REQ-019: redireccion. Se conserva como respaldo porque es el flujo clasico de Firebase.
+     */
+    async function iniciarSesionConRedireccion() {
+        try {
+            await auth.signInWithRedirect(proveedorGoogle);
+        } catch (error) {
+            if (reglas && reglas.debeReintentarConRedirect(error && error.code)) {
+                avisar("No se pudo abrir el acceso de Google. Revisa que no haya bloqueo de ventanas.");
+                return;
+            }
+            // REQ-025: un fallo que no viene de Firebase no es un fallo de acceso.
+            if (reglas && typeof reglas.esErrorDeFirebase === "function" && !reglas.esErrorDeFirebase(error)) {
+                return;
+            }
             avisar(mensajeDeError(error));
         }
-    });
+    }
+
+    /**
+     * REQ-027: pide el token a Google Identity Services y lo canjea con signInWithCredential.
+     *
+     * Motivo: `signInWithRedirect` depende de `__/auth/iframe`, que carga
+     * `apis.google.com/js/api.js`. Si el navegador bloquea ese script de terceros (Edge con
+     * prevencion de seguimiento, bloqueadores, antivirus) el iframe falla con "Network Error" y
+     * la sesion no se completa nunca. GIS entrega el id_token sin iframe.
+     *
+     * @returns {boolean} true si GIS quedo activado.
+     */
+    function activarGoogleIdentidad() {
+        if (!identidad || !identidad.hayGIS(window)) return false;
+
+        // GIS exige un callback global con nombre.
+        window[identidad.CALLBACK_GLOBAL] = function (respuesta) {
+            const idToken = identidad.idTokenDesdeRespuesta(respuesta);
+            if (!idToken) return; // el usuario cerro el dialogo
+
+            const credencial = firebase.auth.GoogleAuthProvider.credential(idToken);
+            auth.signInWithCredential(credencial).catch((error) => {
+                avisar(mensajeDeError(error));
+            });
+        };
+
+        const configuracion = (typeof config !== "undefined") ? config : null;
+        window.google.accounts.id.initialize(
+            identidad.opcionesDeInicializacion(identidad.clientIdDesdeConfig(configuracion))
+        );
+
+        if (!signinGoogle) return true;
+
+        signinGoogle.addEventListener("click", function (evento) {
+            evento.preventDefault();
+
+            let resuelto = false;
+
+            window.google.accounts.id.prompt(function (notificacion) {
+                if (resuelto) return;
+
+                const noSeMostro = notificacion
+                    && typeof notificacion.isNotDisplayed === "function"
+                    && notificacion.isNotDisplayed();
+
+                if (!noSeMostro) return;
+
+                // One Tap bloqueado por el navegador: se cae al flujo clasico.
+                resuelto = true;
+                iniciarSesionConRedireccion();
+            });
+        });
+
+        return true;
+    }
+
+    (function arrancarAccesoConGoogle() {
+        if (activarGoogleIdentidad()) {
+            console.log("[auth] Google Identity Services activo (sin iframe)");
+            return;
+        }
+
+        // El script de GIS carga con async: se le da margen antes de rendirse.
+        let intentos = 0;
+        const esperar = function () {
+            if (activarGoogleIdentidad()) {
+                console.log("[auth] Google Identity Services activo (sin iframe)");
+                return;
+            }
+
+            intentos += 1;
+            if (intentos < 12) {
+                setTimeout(esperar, 250);
+                return;
+            }
+
+            console.warn("[auth] GIS no disponible: se usa la redireccion clasica");
+            if (signinGoogle) {
+                signinGoogle.addEventListener("click", function (evento) {
+                    evento.preventDefault();
+                    iniciarSesionConRedireccion();
+                });
+            }
+        };
+
+        esperar();
+    })();
 
     // #endregion
 
