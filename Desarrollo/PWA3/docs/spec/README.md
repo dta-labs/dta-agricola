@@ -16,6 +16,7 @@
 | REQ-013 | Servicios de dominio: equipos | Implementado | 19 |
 | REQ-014 | Robustez de plantillas y auditoria de consola | Parcial | - |
 | REQ-015 | Login con un solo SDK (Google no entraba) | Implementado (pendiente prueba manual) | 5 |
+| REQ-016 | Widget del tiempo de terceros bajo demanda | Implementado | - (navegador) |
 
 **Total: 88 pruebas en Node + 26 en navegador, todas en verde.**
 

@@ -1595,22 +1595,37 @@
                     <div class="modal-content row" style="padding-top: 0 !important; margin: auto;">
                         <div>
                             <div>
+                                <!-- REQ-016: el SDK de Tomorrow.io solo se carga si hay ubicacion configurada.
+                                     Sin data-location-id el widget falla (widget_link_error) e inyecta el Google
+                                     Analytics del propio widget. Para activarlo: poner el id de ubicacion en el
+                                     div .tomorrow de abajo; la carga es bajo demanda. -->
                                 <script>
-                                    (function(d, s, id) {
-                                        if (d.getElementById(id)) {
-                                            if (window.__TOMORROW__) {
-                                                window.__TOMORROW__.renderWidget();
-                                            }
+                                    window.cargarWidgetTiempo = function () {
+                                        var contenedor = document.querySelector('.tomorrow[data-widget-type="upcoming"]');
+                                        if (!contenedor) return;
+                                        var ubicacion = (contenedor.getAttribute('data-location-id') || '').trim();
+                                        if (!ubicacion) {
+                                            // Sin ubicacion no hay widget: se oculta para no mostrar un bloque vacio.
+                                            contenedor.style.display = 'none';
                                             return;
                                         }
-                                        const fjs = d.getElementsByTagName(s)[0];
-                                        const js = d.createElement(s);
-                                        js.id = id;
-                                        js.src = "https://www.tomorrow.io/v1/widget/sdk/sdk.bundle.min.js";
-
-                                        fjs.parentNode.insertBefore(js, fjs);
-                                    })(document, 'script', 'tomorrow-sdk');
-                                    </script>
+                                        if (document.getElementById('tomorrow-sdk')) {
+                                            if (window.__TOMORROW__) window.__TOMORROW__.renderWidget();
+                                            return;
+                                        }
+                                        var primero = document.getElementsByTagName('script')[0];
+                                        var script = document.createElement('script');
+                                        script.id = 'tomorrow-sdk';
+                                        script.src = 'https://www.tomorrow.io/v1/widget/sdk/sdk.bundle.min.js';
+                                        primero.parentNode.insertBefore(script, primero);
+                                    };
+                                    // Al abrir el modal de condiciones agroclimaticas (y al cargar, por si ya esta abierto).
+                                    document.addEventListener('click', function (evento) {
+                                        var disparador = evento.target.closest ? evento.target.closest('[href="#modalSuelo"]') : null;
+                                        if (disparador) window.cargarWidgetTiempo();
+                                    });
+                                    document.addEventListener('DOMContentLoaded', function () { window.cargarWidgetTiempo(); });
+                                </script>
 
                                     <div class="tomorrow"
                                         data-location-id=""
