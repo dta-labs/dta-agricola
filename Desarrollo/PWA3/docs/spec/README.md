@@ -26,6 +26,7 @@
 | REQ-023 | Gestion de usuarios: menu, perfil y planes | Implementado (probar con sesion) | 10 |
 | REQ-024 | Arreglos del log: imagenes, interpolaciones y CSP | Implementado | - (navegador) |
 | REQ-025 | El aviso de salida no puede romper el inicio de sesion | Implementado (probar con Google) | 12 |
+| REQ-026 | Diagnostico de sesion (herramienta `diagnostico.html`) | Implementado | - (headless) |
 
 **Total: 106 pruebas en Node + 26 en navegador, todas en verde.**
 

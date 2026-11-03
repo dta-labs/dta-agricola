@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnóstico de sesión - DTA Agrícola</title>
+    <style>
+        :root { color-scheme: light dark; }
+
+        body {
+            font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+            margin: 0;
+            padding: 24px;
+            line-height: 1.5;
+        }
+
+        h1 { font-size: 1.3rem; margin: 0 0 4px; }
+        p.ayuda { margin: 0 0 16px; opacity: 0.75; font-size: 0.9rem; }
+
+        button {
+            font: inherit;
+            padding: 8px 14px;
+            margin: 0 8px 12px 0;
+            cursor: pointer;
+            border-radius: 6px;
+            border: 1px solid #8884;
+            background: #4caf50;
+            color: #fff;
+        }
+
+        button.secundario { background: #607d8b; }
+
+        pre {
+            background: #0001;
+            border: 1px solid #8884;
+            border-radius: 8px;
+            padding: 14px;
+            overflow: auto;
+            max-height: 70vh;
+            white-space: pre-wrap;
+            word-break: break-word;
+            font-size: 0.85rem;
+        }
+
+        .estado { font-weight: 600; }
+        .ok { color: #2e7d32; }
+        .mal { color: #c62828; }
+        .aviso { color: #ef6c00; }
+    </style>
+</head>
+
+<body>
+    <h1>Diagnóstico de sesión</h1>
+    <p class="ayuda">
+        Esta página no usa Angular ni el service worker de la aplicación: sólo pregunta a Firebase
+        cuál es el estado real de la sesión después de volver de Google.
+    </p>
+
+    <button id="copiar" type="button">Copiar informe</button>
+    <button id="recargar" type="button" class="secundario">Volver a medir</button>
+
+    <pre id="salida">Midiendo…</pre>
+
+    <script src="./assets/js/firebaseConfig.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script>
+        (function () {
+            "use strict";
+
+            var TIEMPO_MAXIMO = 8000;
+            var salida = document.getElementById("salida");
+
+            function conTiempoMaximo(promesa, milisegundos) {
+                return Promise.race([
+                    promesa,
+                    new Promise(function (resolver) {
+                        setTimeout(function () { resolver({ __sinRespuesta: true }); }, milisegundos);
+                    })
+                ]);
+            }
+
+            function describirUsuario(usuario) {
+                if (!usuario) return null;
+
+                var proveedor = null;
+                if (usuario.providerData && usuario.providerData.length) {
+                    proveedor = usuario.providerData[0].providerId;
+                }
+
+                return {
+                    email: usuario.email || null,
+                    uid: usuario.uid || null,
+                    proveedor: proveedor,
+                    emailVerificado: usuario.emailVerified === true,
+                    esAnonimo: usuario.isAnonymous === true
+                };
+            }
+
+            function clavesDeFirebase() {
+                var claves = [];
+
+                try {
+                    for (var i = 0; i < window.localStorage.length; i += 1) {
+                        var clave = window.localStorage.key(i);
+                        if (clave && clave.indexOf("firebase") >= 0) claves.push(clave);
+                    }
+                } catch (error) {
+                    claves.push("(localStorage no accesible: " + error.message + ")");
+                }
+
+                return claves;
+            }
+
+            function basesDeDatos() {
+                if (!window.indexedDB || typeof window.indexedDB.databases !== "function") {
+                    return ["(indexedDB.databases no disponible)"];
+                }
+
+                return window.indexedDB.databases()
+                    .then(function (bases) {
+                        return (bases || [])
+                            .map(function (base) { return base.name; })
+                            .filter(function (nombre) { return nombre && nombre.indexOf("firebase") >= 0; });
+                    })
+                    .catch(function (error) { return ["(error: " + error.message + ")"]; });
+            }
+
+            function cachesActivas() {
+                if (!window.caches) return Promise.resolve(["(sin CacheStorage)"]);
+
+                return window.caches.keys().catch(function () { return []; });
+            }
+
+            function medir() {
+                var informe = {
+                    herramienta: "REQ-026 diagnostico de sesion",
+                    fecha: new Date().toISOString(),
+                    url: window.location.href,
+                    apps: null,
+                    usuarioActual: null,
+                    redirect: null,
+                    clavesFirebase: [],
+                    basesIndexedDB: [],
+                    serviceWorker: null,
+                    caches: []
+                };
+
+                if (typeof firebase === "undefined") {
+                    informe.error = "El SDK de Firebase no se cargó.";
+                    return Promise.resolve(informe);
+                }
+
+                informe.apps = firebase.apps.length;
+
+                if (!firebase.apps.length) {
+                    try {
+                        firebase.initializeApp(config);
+                    } catch (error) {
+                        informe.error = "No se pudo inicializar Firebase: " + error.message;
+                        return Promise.resolve(informe);
+                    }
+                }
+
+                var auth = firebase.auth();
+                informe.usuarioActual = describirUsuario(auth.currentUser);
+
+                var resultadoRedirect = conTiempoMaximo(auth.getRedirectResult(), TIEMPO_MAXIMO)
+                    .then(function (resultado) {
+                        if (resultado && resultado.__sinRespuesta) {
+                            return { estado: "sin respuesta en " + TIEMPO_MAXIMO + " ms" };
+                        }
+
+                        if (resultado && resultado.user) {
+                            return { estado: "usuario devuelto", usuario: describirUsuario(resultado.user) };
+                        }
+
+                        return { estado: "sin usuario (no veníamos de un redirect o ya se consumió)" };
+                    })
+                    .catch(function (error) {
+                        return {
+                            estado: "error",
+                            codigo: (error && error.code) || null,
+                            mensaje: (error && error.message) || String(error)
+                        };
+                    });
+
+                informe.clavesFirebase = clavesDeFirebase();
+
+                // Esta es la medicion que importa: la aplicacion se entera de la sesion por aqui.
+                var primerEventoDeSesion = conTiempoMaximo(new Promise(function (resolver) {
+                    var cancelar = auth.onAuthStateChanged(function (usuario) {
+                        if (typeof cancelar === "function") cancelar();
+                        resolver({ disparado: true, usuario: describirUsuario(usuario) });
+                    }, function (error) {
+                        resolver({
+                            disparado: false,
+                            error: (error && error.code) || String(error && error.message || error)
+                        });
+                    });
+                }), TIEMPO_MAXIMO).then(function (resultado) {
+                    if (resultado && resultado.__sinRespuesta) {
+                        return { disparado: false, estado: "sin respuesta en " + TIEMPO_MAXIMO + " ms" };
+                    }
+
+                    return resultado;
+                });
+
+                return Promise.all([resultadoRedirect, primerEventoDeSesion, basesDeDatos(), cachesActivas()])
+                    .then(function (partes) {
+                        informe.redirect = partes[0];
+                        informe.onAuthStateChanged = partes[1];
+                        informe.basesIndexedDB = partes[2];
+                        informe.caches = partes[3];
+
+                        var controlador = navigator.serviceWorker && navigator.serviceWorker.controller;
+                        informe.serviceWorker = controlador ? controlador.scriptURL : null;
+
+                        return informe;
+                    });
+            }
+
+            function pintar(informe) {
+                var evento = informe.onAuthStateChanged || {};
+                var hayUsuario = !!(
+                    informe.usuarioActual
+                    || (informe.redirect && informe.redirect.usuario)
+                    || evento.usuario
+                );
+                var clases = hayUsuario ? "ok" : "mal";
+                var titulo = hayUsuario ? "SESIÓN ACTIVA" : "SIN SESIÓN";
+
+                var detalle = evento.disparado === undefined
+                    ? ""
+                    : "\nonAuthStateChanged: " + (evento.disparado
+                        ? (evento.usuario ? "disparado con " + evento.usuario.email : "disparado sin usuario")
+                        : "NO se disparó (" + (evento.estado || evento.error || "motivo desconocido") + ")");
+
+                salida.innerHTML = "";
+                var resumen = document.createElement("span");
+                resumen.className = "estado " + clases;
+                resumen.textContent = titulo + detalle + "\n\n";
+                salida.appendChild(resumen);
+                salida.appendChild(document.createTextNode(JSON.stringify(informe, null, 2)));
+
+                document.title = titulo + " - Diagnóstico DTA";
+            }
+
+            document.getElementById("copiar").addEventListener("click", function () {
+                var texto = salida.textContent;
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(texto).then(function () {
+                        document.getElementById("copiar").textContent = "¡Copiado!";
+                    });
+                }
+            });
+
+            document.getElementById("recargar").addEventListener("click", function () {
+                window.location.reload();
+            });
+
+            // Red de seguridad: si algo se queda colgado, se informa en vez de dejar "Midiendo…".
+            var pintado = false;
+            var original = pintar;
+            pintar = function (informe) {
+                pintado = true;
+                original(informe);
+            };
+
+            setTimeout(function () {
+                if (pintado) return;
+
+                pintar({
+                    herramienta: "REQ-026 diagnostico de sesion",
+                    error: "La medicion no termino en 10 s (revisa la red o el SDK de Firebase).",
+                    url: window.location.href
+                });
+            }, 10000);
+
+            var medicion;
+            try {
+                medicion = medir();
+            } catch (error) {
+                medicion = Promise.reject(error);
+            }
+
+            medicion.then(pintar).catch(function (error) {
+                pintar({
+                    herramienta: "REQ-026 diagnostico de sesion",
+                    error: "Fallo al medir: " + ((error && error.message) || String(error)),
+                    url: window.location.href
+                });
+            });
+        })();
+    </script>
+</body>
+
+</html>
