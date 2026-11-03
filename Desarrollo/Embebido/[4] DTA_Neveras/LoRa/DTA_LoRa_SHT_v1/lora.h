@@ -44,7 +44,7 @@ int getTxFrequency(String data) {
 
 bool receivedConfirmation() {
   unsigned long startTime = millis();
-  while (millis() - startTime < 30000) {              // Timeout 15 segundos
+  while (millis() - startTime < 30000) {              // Timeout 30 segundos
     int packetSize = LoRa.parsePacket();
     if (packetSize) {
       String data = "";
@@ -52,7 +52,7 @@ bool receivedConfirmation() {
         data += (char)LoRa.read();
         wdt_reset();
       }
-      String header = NODE_ID; header += comma; header += F("a"); header += comma;
+      String header = NODE_ID; header += F(",a,");
       // Serial.print("   :: Header: "); Serial.print(header); Serial.print(" | data: "); Serial.println(data);
       if (data.startsWith(header) && checkDataIntegrity(data)) {
         // TIMER = getTxFrequency(data);

@@ -15,7 +15,7 @@ void setup() {
   analogReference(DEFAULT);
   Serial.begin(250000);
   while (!Serial) delay(10);               // Pausar Arduino Zero, Leonardo, etc. hasta que se active el puerto serie
-  Serial.println(F("\n\nSonda Ms, Hr y Temp \n[2da Generación] \n[v1.20260808]"));
+  Serial.println(F("\n\nSonda Ms, Hr y Temp \n[2da Generación] \n[v1.20261102]"));
   Serial.println(F("~ Irrómetro WM x 1"));
   Serial.println(F("~ Humedad y temperatura ambiente"));
   Serial.println(F("  - Protocolo: DTA-WM1-0xId,Ms,Hr,T,Vcc,CS"));
@@ -23,18 +23,6 @@ void setup() {
   initLoRa();
   Serial.println();
   wdt_enable(WDTO_8S);
-}
-
-void setupSensors() {
-  setupWM();
-  String id = setupDS();
-  id = id == noSensor ? setupSHT() : id;
-  id.toUpperCase();
-  if (TEST) {
-    sensorType = DS;
-    NODE_ID += "10B9CDEE";
-  } else NODE_ID += id;
-  Serial.println(NODE_ID);
 }
 
 void loop() {
@@ -45,10 +33,23 @@ void loop() {
   lowPower();
 }
 
+void setupSensors() {
+  setupWM();
+  String id = setupDS();
+  id = id == noSensor ? setupSHT() : id;
+  id.toUpperCase();
+  NODE_ID += id;
+  if (TEST) {
+    sensorType = DS;
+    NODE_ID = NODE_ID_TEST;
+  } 
+  Serial.println(NODE_ID);
+}
+
 void readSensorsValues() {
   wdt_reset();
   if (sensorType == SHT) {
-    readSHT(t_actual, t_actual);
+    readSHT(t_actual, h_actual);
   } else {
     t_actual = getTemperature(t_actual);
     if (TEST) t_actual = 12.5;
@@ -56,10 +57,11 @@ void readSensorsValues() {
   moisture = getMoisture();
 }
 
-bool sendData() {
+void sendData() {
+  String txDataStr = createDataStr();
   for (int iter = 0; iter < 3; iter++) {
     wdt_reset();
-    txData(createDataStr());
+    txData(txDataStr);
     if (receivedConfirmation()) return;
   }
 }
@@ -71,7 +73,7 @@ String createDataStr() {
   dataStr += comma; dataStr += String(moisture);
   dataStr += comma; dataStr += String(h_actual, 0);
   dataStr += comma; dataStr += String(t_actual, 1);
-  dataStr += comma; dataStr += String(getVcc(), 1);
+  dataStr += comma; dataStr += TEST ? "4.2" : String(getVcc(), 1);
   dataStr += comma; dataStr += String(calculateSum(dataStr));
   return dataStr;
 }
@@ -79,6 +81,7 @@ String createDataStr() {
 void lowPower() {
   wdt_reset();
   Serial.flush();                                     // Espera a que se envíe todo
+  LoRa.sleep();
   int JITTER = TIMER > 5 ? random(-1, 2) : 0;         // Agregar aleatoriedad 
   int cycles = (TIMER + JITTER) * 7.5;                // número de ciclos de 8s
   for (int i = 0; i < cycles; i++) {
