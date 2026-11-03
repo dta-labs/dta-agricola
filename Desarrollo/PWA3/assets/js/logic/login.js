@@ -41,6 +41,15 @@
         "auth/cancelled-popup-request": "Se canceló la ventana de acceso..."
     };
 
+    /**
+     * Parametros del proveedor de Google.
+     * `select_account` obliga a Google a mostrar el selector de cuentas: sin el, si el navegador
+     * ya tiene sesion de Google y la app esta autorizada, vuelve directo con la misma cuenta.
+     */
+    function opcionesDelProveedor() {
+        return { prompt: "select_account" };
+    }
+
     function debeReintentarConRedirect(codigo) {
         return CON_REDIRECT.indexOf(normalizar(codigo)) >= 0;
     }
@@ -53,6 +62,7 @@
     }
 
     return {
+        opcionesDelProveedor: opcionesDelProveedor,
         debeReintentarConRedirect: debeReintentarConRedirect,
         mensajeDeError: mensajeDeError
     };

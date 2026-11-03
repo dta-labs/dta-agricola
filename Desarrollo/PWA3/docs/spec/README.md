@@ -19,14 +19,15 @@
 | REQ-016 | Widget del tiempo de terceros bajo demanda | Implementado | - (navegador) |
 | REQ-017 | El login no se queda colgado si falla /users | Implementado | 1 |
 | REQ-018 | Cache-busting y trazas de arranque | Implementado | - (navegador) |
-| REQ-019 | La sesion no se revierte; Google por redireccion | Implementado (pendiente confirmar) | 6 |
+| REQ-019 | La sesion no se revierte; Google por redireccion | Implementado | 6 |
+| REQ-020 | Google ofrece elegir cuenta | Implementado | 1 |
 
-**Total: 90 pruebas en Node + 26 en navegador, todas en verde.**
+**Total: 91 pruebas en Node + 26 en navegador, todas en verde.**
 
 ## Version de los assets
 
-`core.js` se carga con `?v=26.11.02.002`. Al modificarlo hay que **subir ese valor** en `index.html`,
-o el navegador puede seguir ejecutando la copia anterior (el service worker cachea por URL).
+`core.js?v=26.11.02.002` · `autentication.js?v=26.11.02.003`. Al modificarlos hay que **subir ese
+valor** en `index.html`, o el navegador puede seguir ejecutando la copia anterior.
 
 ## Recarga limpia (si algo no cuadra)
 

@@ -10,9 +10,13 @@
 (function () {
     "use strict";
 
+    const reglas = (typeof DTALogic !== "undefined" && DTALogic.login) ? DTALogic.login : null;
     const auth = firebase.auth();
     const proveedorGoogle = new firebase.auth.GoogleAuthProvider();
-    const reglas = (typeof DTALogic !== "undefined" && DTALogic.login) ? DTALogic.login : null;
+    // REQ-020: sin esto, Google devuelve la cuenta ya autorizada sin preguntar.
+    if (reglas && typeof reglas.opcionesDelProveedor === "function") {
+        proveedorGoogle.setCustomParameters(reglas.opcionesDelProveedor());
+    }
 
     function avisar(mensaje, tipo) {
         if (!mensaje) return;

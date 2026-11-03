@@ -41,3 +41,8 @@ test("REQ-015.5 sin error no hay mensaje", () => {
 test("REQ-019.2 un popup expirado tambien exige redireccion", () => {
     assert.equal(login.debeReintentarConRedirect("auth/expired-popup-request"), true);
 });
+
+test("REQ-020.1 el proveedor de Google fuerza el selector de cuentas", () => {
+    const opciones = login.opcionesDelProveedor();
+    assert.equal(opciones.prompt, "select_account");
+});
