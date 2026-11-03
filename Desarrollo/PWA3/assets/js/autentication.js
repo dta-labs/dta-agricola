@@ -73,68 +73,29 @@
 
     // #endregion
 
-    // #region Acceso con Google (REQ-028: flujo oficial de Firebase)
+    // #region Acceso con Google
 
+    // Lo simple de Firebase: redirigir y recoger el resultado. Nada mas.
     const signinGoogle = buscar("signinGoogle");
 
     if (signinGoogle) {
         signinGoogle.addEventListener("click", function (evento) {
             evento.preventDefault();
-            iniciarSesionConGoogle();
+            auth.signInWithRedirect(proveedorGoogle).catch(function (error) {
+                avisar(mensajeDeError(error));
+            });
         });
-    }
-
-    /**
-     * Firebase ofrece dos caminos. Se usa la REDIRECCION porque el popup lo bloquea COOP:
-     * la ventana de Google vive en otro origen con `Cross-Origin-Opener-Policy: same-origin`,
-     * el navegador impide `window.close()` desde la aplicacion y los intentos se acumulan
-     * (`auth/expired-popup-request`). Con redireccion no hay ventana que cerrar.
-     */
-    async function iniciarSesionConGoogle() {
-        try {
-            await auth.signInWithRedirect(proveedorGoogle);
-        } catch (error) {
-            // Hay entornos (algunos WebView) donde la redireccion no esta soportada: ahi si
-            // tiene sentido el popup.
-            if (error && error.code === "auth/operation-not-supported-in-this-environment") {
-                await iniciarSesionConPopup();
-                return;
-            }
-
-            // Un fallo que no viene de Firebase no es un fallo de acceso.
-            if (reglas && typeof reglas.esErrorDeFirebase === "function" && !reglas.esErrorDeFirebase(error)) {
-                return;
-            }
-
-            avisar(mensajeDeError(error));
-        }
-    }
-
-    /** Respaldo para entornos sin soporte de redireccion. */
-    async function iniciarSesionConPopup() {
-        try {
-            await auth.signInWithPopup(proveedorGoogle);
-        } catch (error) {
-            if (reglas && typeof reglas.esErrorDeFirebase === "function" && !reglas.esErrorDeFirebase(error)) {
-                return;
-            }
-            avisar(mensajeDeError(error));
-        }
     }
 
     // #endregion
 
-    // Al volver de una redireccion hay que recoger el resultado (documentacion de Firebase).
-    // Si no, la sesion queda creada pero la aplicacion no se entera de inmediato.
-    auth.getRedirectResult().then((resultado) => {
+    // Recoge el resultado al volver de Google.
+    auth.getRedirectResult().then(function (resultado) {
         if (resultado && resultado.user) {
             console.log("[auth] sesion por redireccion:", resultado.user.email);
         }
-    }).catch((error) => {
-        if (reglas && typeof reglas.esErrorDeFirebase === "function" && !reglas.esErrorDeFirebase(error)) {
-            return;
-        }
-        avisar(mensajeDeError(error));
+    }).catch(function () {
+        // Si no veniamos de Google, no hay nada que recoger.
     });
 
     // REQ-023: "Cambiar de usuario" vuelve a lanzar el selector de cuentas de Google.
