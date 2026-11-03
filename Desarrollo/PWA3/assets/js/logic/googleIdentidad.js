@@ -26,6 +26,9 @@
   const CLIENT_ID_POR_DEFECTO =
     "157203634312-c2v11taeeh82eq3dendmhbaofu2uqdlq.apps.googleusercontent.com";
 
+  // Ancho minimo del boton oficial: por debajo, Google lo recorta.
+  const ANCHO_MINIMO = 200;
+
   // GIS exige un nombre de funcion global (no acepta una funcion anonima como callback).
   const CALLBACK_GLOBAL = "onCredencialDeGoogle";
 
@@ -98,12 +101,41 @@
     };
   }
 
+
+  /**
+   * Opciones de `google.accounts.id.renderButton`.
+   *
+   * Se usa el boton oficial en lugar de `prompt()` porque One Tap depende de FedCM, y con FedCM
+   * desactivado (Edge, ajustes del sitio) `prompt()` no muestra nada. El boton con
+   * `ux_mode: "popup"` abre el dialogo clasico de Google y no necesita FedCM.
+   *
+   * @param {number|string} [ancho] ancho disponible en px.
+   * @returns {object}
+   */
+  function opcionesDelBoton(ancho) {
+    const numero = parseInt(ancho, 10);
+    const anchoFinal = (isNaN(numero) || numero < ANCHO_MINIMO) ? ANCHO_MINIMO : numero;
+
+    return {
+      type: "standard",
+      theme: "outline",
+      size: "large",
+      text: "signin_with",
+      shape: "pill",
+      logo_alignment: "left",
+      width: anchoFinal,
+      ux_mode: "popup",
+    };
+  }
+
   return {
+    ANCHO_MINIMO: ANCHO_MINIMO,
     CLIENT_ID_POR_DEFECTO: CLIENT_ID_POR_DEFECTO,
     CALLBACK_GLOBAL: CALLBACK_GLOBAL,
     hayGIS: hayGIS,
     idTokenDesdeRespuesta: idTokenDesdeRespuesta,
     clientIdDesdeConfig: clientIdDesdeConfig,
     opcionesDeInicializacion: opcionesDeInicializacion,
+    opcionesDelBoton: opcionesDelBoton,
   };
 });

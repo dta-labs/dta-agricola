@@ -88,3 +88,27 @@ Uncaught                    0
 - Confirmar con una cuenta real que `signInWithCredential` completa la sesion.
 - Si algun dia se quiere el flujo clasico de vuelta, basta con desactivar GIS (el codigo lo
   detecta y usa la redireccion).
+
+## 6. Segunda iteracion: FedCM
+
+La primera version usaba `google.accounts.id.prompt()` (One Tap). En el navegador del usuario
+aparecio:
+
+```
+FedCM was disabled either temporarily based on previous user action or permanently via site
+settings.
+```
+
+One Tap **depende de FedCM**, y con FedCM desactivado en el navegador (Edge, ajustes del sitio) no
+muestra nada: se pulsa el boton y no ocurre nada visible.
+
+Cambio: se usa `google.accounts.id.renderButton` con `ux_mode: "popup"`, que abre el dialogo
+clasico de Google y **no** necesita FedCM.
+
+- El boton oficial sustituye al propio (`#signinGoogle` se oculta y se monta `#googleSignInGis`).
+- Si `renderButton` lanza, se elimina el contenedor y **se restaura el boton propio** con el flujo
+  clasico: el usuario nunca se queda sin forma de entrar.
+- Ya no se llama a `prompt()`, asi que desaparecen los avisos de FedCM.
+
+Verificado en headless: `[auth] GIS: boton oficial de Google montado`, contenedor presente en el
+DOM, **0** avisos de FedCM, 0 violaciones de CSP, 0 `Uncaught`.

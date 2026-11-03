@@ -77,3 +77,25 @@ test("clientIdDesdeConfig cae al valor por defecto si no hay configuracion", () 
   assert.equal(gis.clientIdDesdeConfig({}), gis.CLIENT_ID_POR_DEFECTO);
   assert.equal(gis.clientIdDesdeConfig({ googleClientId: "" }), gis.CLIENT_ID_POR_DEFECTO);
 });
+
+test("opcionesDelBoton abre el popup clasico (no depende de FedCM)", () => {
+  const opciones = gis.opcionesDelBoton(280);
+
+  assert.equal(opciones.ux_mode, "popup");
+  assert.equal(opciones.type, "standard");
+  assert.equal(opciones.size, "large");
+  assert.equal(opciones.width, 280);
+});
+
+test("opcionesDelBoton garantiza un ancho minimo usable", () => {
+  assert.equal(gis.opcionesDelBoton().width, gis.ANCHO_MINIMO);
+  assert.equal(gis.opcionesDelBoton(10).width, gis.ANCHO_MINIMO);
+  assert.equal(gis.opcionesDelBoton("300").width, 300);
+});
+
+test("opcionesDelBoton pide el texto de inicio de sesion", () => {
+  const opciones = gis.opcionesDelBoton(240);
+
+  assert.equal(opciones.text, "signin_with");
+  assert.equal(opciones.theme, "outline");
+});

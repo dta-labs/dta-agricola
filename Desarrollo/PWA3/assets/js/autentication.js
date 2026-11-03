@@ -109,6 +109,8 @@
      *
      * @returns {boolean} true si GIS quedo activado.
      */
+    let botonMontado = false;
+
     function activarGoogleIdentidad() {
         if (!identidad || !identidad.hayGIS(window)) return false;
 
@@ -118,7 +120,9 @@
             if (!idToken) return; // el usuario cerro el dialogo
 
             const credencial = firebase.auth.GoogleAuthProvider.credential(idToken);
-            auth.signInWithCredential(credencial).catch((error) => {
+            auth.signInWithCredential(credencial).then(() => {
+                console.log("[auth] credencial de Google canjeada");
+            }).catch((error) => {
                 avisar(mensajeDeError(error));
             });
         };
@@ -130,25 +134,38 @@
 
         if (!signinGoogle) return true;
 
-        signinGoogle.addEventListener("click", function (evento) {
-            evento.preventDefault();
+        // REQ-027: el boton oficial de GIS sustituye al nuestro.
+        // `prompt()` (One Tap) depende de FedCM; con FedCM desactivado en el navegador no muestra
+        // nada ("FedCM was disabled"). El boton con ux_mode "popup" abre el dialogo clasico de
+        // Google y no necesita FedCM.
+        if (botonMontado) return true;
 
-            let resuelto = false;
+        let contenedor = document.getElementById("googleSignInGis");
 
-            window.google.accounts.id.prompt(function (notificacion) {
-                if (resuelto) return;
+        if (!contenedor) {
+            contenedor = document.createElement("div");
+            contenedor.id = "googleSignInGis";
+            contenedor.className = "google-signin-gis";
+            signinGoogle.parentNode.insertBefore(contenedor, signinGoogle.nextSibling);
+            signinGoogle.style.display = "none";
+        }
 
-                const noSeMostro = notificacion
-                    && typeof notificacion.isNotDisplayed === "function"
-                    && notificacion.isNotDisplayed();
+        try {
+            window.google.accounts.id.renderButton(
+                contenedor,
+                identidad.opcionesDelBoton(signinGoogle.offsetWidth || 240)
+            );
+        } catch (error) {
+            // Si el boton oficial no se puede dibujar, se devuelve el boton propio: el usuario
+            // no puede quedarse sin ninguna forma de entrar.
+            console.error("[auth] no se pudo montar el boton de Google:", error);
+            contenedor.remove();
+            signinGoogle.style.display = "";
+            return false;
+        }
 
-                if (!noSeMostro) return;
-
-                // One Tap bloqueado por el navegador: se cae al flujo clasico.
-                resuelto = true;
-                iniciarSesionConRedireccion();
-            });
-        });
+        botonMontado = true;
+        console.log("[auth] GIS: boton oficial de Google montado");
 
         return true;
     }
