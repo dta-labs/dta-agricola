@@ -85,16 +85,19 @@
     }
 
     /**
-     * Lo que documenta Firebase: signInWithPopup. No requiere client_id propio ni iframes
-     * adicionales; Firebase usa el cliente OAuth del proyecto.
+     * Firebase ofrece dos caminos. Se usa la REDIRECCION porque el popup lo bloquea COOP:
+     * la ventana de Google vive en otro origen con `Cross-Origin-Opener-Policy: same-origin`,
+     * el navegador impide `window.close()` desde la aplicacion y los intentos se acumulan
+     * (`auth/expired-popup-request`). Con redireccion no hay ventana que cerrar.
      */
     async function iniciarSesionConGoogle() {
         try {
-            await auth.signInWithPopup(proveedorGoogle);
+            await auth.signInWithRedirect(proveedorGoogle);
         } catch (error) {
-            // auth/popup-blocked: la otra via oficial es la redireccion.
-            if (error && error.code === "auth/popup-blocked") {
-                await iniciarSesionConRedireccion();
+            // Hay entornos (algunos WebView) donde la redireccion no esta soportada: ahi si
+            // tiene sentido el popup.
+            if (error && error.code === "auth/operation-not-supported-in-this-environment") {
+                await iniciarSesionConPopup();
                 return;
             }
 
@@ -107,10 +110,10 @@
         }
     }
 
-    /** Redireccion, tal cual la documenta Firebase (para cuando el popup se bloquea). */
-    async function iniciarSesionConRedireccion() {
+    /** Respaldo para entornos sin soporte de redireccion. */
+    async function iniciarSesionConPopup() {
         try {
-            await auth.signInWithRedirect(proveedorGoogle);
+            await auth.signInWithPopup(proveedorGoogle);
         } catch (error) {
             if (reglas && typeof reglas.esErrorDeFirebase === "function" && !reglas.esErrorDeFirebase(error)) {
                 return;
