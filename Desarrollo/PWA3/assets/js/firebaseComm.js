@@ -29,6 +29,8 @@ try {
 
 // REQ-017: si la lectura de /users falla (reglas, red), la promesa DEBE rechazar.
 // Antes no habia handler de error y la app se quedaba colgada en el login.
+console.log("[firebase] apps:", firebase.apps.length, "| repoDTA:", !!repoDTA, "| authDTA:", !!authDTA);
+
 function loadUserLocations(email) {
     return new Promise((resolve, reject) => {
         repoDTA.escucharUsuarioPorClave(email, users => resolve(addNewFields(users)), reject);

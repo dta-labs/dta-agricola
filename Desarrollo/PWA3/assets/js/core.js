@@ -51,6 +51,9 @@ function __equipos() {
     return equiposDTA;
 }
 
+// Marca de version: si no ves esto en consola, el navegador sirve un core.js viejo.
+console.log("[app] core.js 26.11.02.001");
+
 // #region Controlador Angular
 
 var app = angular.module("Administracion", ["ngRoute"]);
@@ -252,6 +255,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     }
 
     listenUserStatus = () => {
+        console.log("[auth] registrando observador de sesion");
         __auth().observar(sesion => {
             if (sesion.autenticado) {
                 // `$scope.$apply(function () {
@@ -4830,6 +4834,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     $scope.refresh = () => { $scope.$apply(); };
 
     $scope.inicializacion = () => {
+        console.log("[app] inicializacion()");
         console.log(window.navigator.userAgent);
         document.getElementById('contenido').style.display = 'none';
         requestWakeLock();

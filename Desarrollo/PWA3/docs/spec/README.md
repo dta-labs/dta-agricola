@@ -18,25 +18,12 @@
 | REQ-015 | Login con un solo SDK (Google no entraba) | Implementado (pendiente prueba manual) | 5 |
 | REQ-016 | Widget del tiempo de terceros bajo demanda | Implementado | - (navegador) |
 | REQ-017 | El login no se queda colgado si falla /users | Implementado | 1 |
+| REQ-018 | Cache-busting y trazas de arranque | Implementado | - (navegador) |
 
 **Total: 89 pruebas en Node + 26 en navegador, todas en verde.**
 
-## Arquitectura
+## Version de los assets
 
-```
-logic/     formulas · fechas · secuencias · estado · ids · riego · equipos · login    reglas puras
-services/  repositorio · autenticacion · equipos          (esquema, casos de uso, estado)
-           adaptadorFirebase · adaptadorFirebaseAuth      (infraestructura)
-firebaseComm.js   fachada + punto de composicion (repoDTA, authDTA, equiposDTA)
-core.js           controlador Angular: vista y digest (0 llamadas a firebase)
-autentication.js  login sobre el MISMO SDK v8 (sin segundas apps)
-```
-
-## Comandos
-
-```powershell
-npm test                              # 89 pruebas
-npm run test:watch
-node test/servir-local.js             # servidor en 8090
-chrome --headless=new --dump-dom http://127.0.0.1:8090/test/smoke.html   # 26 en navegador
-```
+`core.js`, `firebaseMessaging.js` y `style.css` se cargan con `?v=26.11.02.001`. Al modificar
+cualquiera de ellos hay que **subir ese valor** en `index.html`, o el navegador puede seguir
+ejecutando la copia anterior (el service worker cachea por URL).
