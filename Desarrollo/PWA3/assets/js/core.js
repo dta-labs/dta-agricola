@@ -52,7 +52,7 @@ function __equipos() {
 }
 
 // Marca de version: si no ves esto en consola, el navegador sirve un core.js viejo.
-console.log("[app] core.js 26.11.02.005");
+console.log("[app] core.js 26.11.02.006");
 
 // #region Controlador Angular
 
@@ -4681,11 +4681,6 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                 location.reload();
             }
         }).catch(error => console.error("[perfil] no se pudo cerrar sesion:", error));
-    };
-
-    $scope.salirDesdeMenu = () => {
-        $scope.menuUsuario = false;
-        $scope.logout();
     };
 
     // Cierra el menu al hacer clic fuera (el propio menu detiene la propagacion).
