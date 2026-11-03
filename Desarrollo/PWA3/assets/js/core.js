@@ -52,7 +52,7 @@ function __equipos() {
 }
 
 // Marca de version: si no ves esto en consola, el navegador sirve un core.js viejo.
-console.log("[app] core.js 26.11.02.006");
+console.log("[app] core.js 26.11.02.007");
 
 // #region Controlador Angular
 
@@ -795,17 +795,44 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         }
     };
 
+    // REQ-032: cache por ubicacion. Varios sistemas de la misma finca comparten coordenadas,
+    // asi que pedir el tiempo por sistema repetia peticiones identicas a OpenWeather.
+    const cacheMeteo = (typeof DTALogic !== "undefined" && DTALogic.meteo)
+        ? DTALogic.meteo.crearCache()
+        : null;
+
     getMetorologicalData = (key) => {
-        if (!$scope.systems[key].latitude || !$scope.systems[key].longitude) return;
-        $scope.meteo[key] = {};
-        $.ajax({
-            url: `https://api.openweathermap.org/data/2.5/weather?lat=${$scope.systems[key].latitude}&lon=${$scope.systems[key].longitude}&appid=${OPENWEATHER_API_KEY}`, success: function (result) {
-                $scope.meteo[key] = result;
-                $scope.meteo[key].weather["iconUrl"] = `${OPENWEATHER_ICON_URL}/${$scope.meteo[key].weather["0"].icon}.png`;
-                $scope.$apply();
-            }
+        const sistema = $scope.systems[key];
+        if (!sistema || !sistema.latitude || !sistema.longitude) return;
+
+        $scope.meteo[key] = $scope.meteo[key] || {};
+
+        const pedir = () => new Promise((resolver, rechazar) => {
+            $.ajax({
+                url: `https://api.openweathermap.org/data/2.5/weather?lat=${sistema.latitude}&lon=${sistema.longitude}&appid=${OPENWEATHER_API_KEY}`,
+                success: resolver,
+                error: (xhr, estado, error) => rechazar(new Error(error || estado || "sin respuesta")),
+            });
         });
-    }
+
+        const clave = cacheMeteo
+            ? DTALogic.meteo.claveDeCache(sistema.latitude, sistema.longitude)
+            : null;
+
+        const consulta = (cacheMeteo && clave) ? cacheMeteo.obtener(clave, pedir) : pedir();
+
+        consulta.then((resultado) => {
+            $scope.meteo[key] = resultado;
+
+            if (resultado && resultado.weather && resultado.weather["0"]) {
+                resultado.weather.iconUrl = `${OPENWEATHER_ICON_URL}/${resultado.weather["0"].icon}.png`;
+            }
+
+            $scope.$applyAsync();
+        }).catch((error) => {
+            console.warn(`[meteo] no se pudo cargar el tiempo de ${key}:`, error && error.message);
+        });
+    };
 
     $scope.stopSystem = () => {
         if ($scope.actualSystem.status) {
