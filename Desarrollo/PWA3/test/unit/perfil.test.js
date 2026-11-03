@@ -55,13 +55,13 @@ test("REQ-023.7 validarPerfil exige nombres, correo valido y describir Otros", (
 test("REQ-023.8 hay tres planes con sus precios y el gratis es el de defecto", () => {
     assert.equal(perfil.PLANES.length, 3);
     assert.deepEqual(perfil.PLANES.map((p) => p.id), ["gratis", "basico", "avanzado"]);
-    // Precios confirmados por el usuario: Basico 500/5,000 y Avanzado 700/7,000.
+    // Precio compacto en una linea: "500/mes ~ 5,000/año MXN".
     const basico = perfil.planPorId("basico");
-    assert.match(basico.precio, /500\.00 al mes/);
-    assert.match(basico.precio, /5,000\.00 al año/);
+    assert.equal(basico.precio, "500/mes ~ 5,000/año MXN");
     const avanzado = perfil.planPorId("avanzado");
-    assert.match(avanzado.precio, /700\.00 al mes/);
-    assert.match(avanzado.precio, /7,000\.00 al año/);
+    assert.equal(avanzado.precio, "700/mes ~ 7,000/año MXN");
+    assert.ok(basico.precio.length <= 26, "el precio no debe ocupar dos lineas");
+    assert.ok(avanzado.precio.length <= 26, "el precio no debe ocupar dos lineas");
     assert.equal(perfil.planPorId("inexistente").id, "gratis");
     assert.equal(perfil.planPorId(null).id, "gratis");
 });

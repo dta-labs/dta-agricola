@@ -49,7 +49,7 @@
         {
             id: "basico",
             nombre: "Básico",
-            precio: "MXN 500.00 al mes · MXN 5,000.00 al año",
+            precio: "500/mes ~ 5,000/año MXN",
             periodo: "mensual o anual",
             caracteristicas: [
                 "Todo lo del plan Gratis",
@@ -64,7 +64,7 @@
         {
             id: "avanzado",
             nombre: "Avanzado",
-            precio: "MXN 700.00 al mes · MXN 7,000.00 al año",
+            precio: "700/mes ~ 7,000/año MXN",
             periodo: "mensual o anual",
             caracteristicas: [
                 "Todo lo del plan Básico",
