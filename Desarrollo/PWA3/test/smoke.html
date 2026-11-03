@@ -17,6 +17,7 @@
 <script src="../assets/js/logic/ids.js"></script>
 <script src="../assets/js/logic/riego.js"></script>
 <script src="../assets/js/logic/equipos.js"></script>
+<script src="../assets/js/logic/login.js"></script>
 <script src="../assets/js/services/repositorio.js"></script>
 <script src="../assets/js/services/autenticacion.js"></script>
 <script src="../assets/js/services/equipos.js"></script>
@@ -118,6 +119,14 @@
   emisorEquipos({ val: function () { return { name: "Equipo QA", type: "Sensor" }; } });
   ok("equiposServicio normaliza el sistema",
     sistemaRecibido && sistemaRecibido.key === "k" && sistemaRecibido.name === "Equipo QA");
+
+  // REQ-015: decisiones del login
+  ok("login.mensajeDeError traduce v8 y v9",
+    /incorrecta/i.test(DTALogic.login.mensajeDeError("auth/wrong-password")) &&
+    /incorrecta/i.test(DTALogic.login.mensajeDeError("auth/wrong_password")));
+  ok("login.debeReintentarConRedirect con popup bloqueado",
+    DTALogic.login.debeReintentarConRedirect("auth/popup-blocked") === true &&
+    DTALogic.login.debeReintentarConRedirect("auth/popup-closed-by-user") === false);
 
   document.getElementById("salida").textContent = resultados.join(" | ");
   document.title = resultados.every(function (r) { return r.indexOf("PASS") === 0; }) ? "SMOKE OK" : "SMOKE FAIL";

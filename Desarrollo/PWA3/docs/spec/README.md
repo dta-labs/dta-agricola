@@ -15,24 +15,26 @@
 | REQ-012 | Servicio de autenticacion | Implementado | 5 |
 | REQ-013 | Servicios de dominio: equipos | Implementado | 19 |
 | REQ-014 | Robustez de plantillas y auditoria de consola | Parcial | - |
+| REQ-015 | Login con un solo SDK (Google no entraba) | Implementado (pendiente prueba manual) | 5 |
 
-**Total: 83 pruebas en Node + 24 en navegador, todas en verde.**
+**Total: 88 pruebas en Node + 26 en navegador, todas en verde.**
 
 ## Arquitectura
 
 ```
-logic/     formulas · fechas · secuencias · estado · ids · riego · equipos     reglas puras
-services/  repositorio · autenticacion · equipos        (esquema, casos de uso, estado)
-           adaptadorFirebase · adaptadorFirebaseAuth    (infraestructura)
+logic/     formulas · fechas · secuencias · estado · ids · riego · equipos · login    reglas puras
+services/  repositorio · autenticacion · equipos          (esquema, casos de uso, estado)
+           adaptadorFirebase · adaptadorFirebaseAuth      (infraestructura)
 firebaseComm.js   fachada + punto de composicion (repoDTA, authDTA, equiposDTA)
 core.js           controlador Angular: vista y digest (5.318 lineas, 0 llamadas a firebase)
+autentication.js  login sobre el MISMO SDK v8 (sin segundas apps)
 ```
 
 ## Comandos
 
 ```powershell
-npm test                              # 83 pruebas
+npm test                              # 88 pruebas
 npm run test:watch
 node test/servir-local.js             # servidor en 8090
-chrome --headless=new --dump-dom http://127.0.0.1:8090/test/smoke.html   # 24 en navegador
+chrome --headless=new --dump-dom http://127.0.0.1:8090/test/smoke.html   # 26 en navegador
 ```
