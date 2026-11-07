@@ -1,0 +1,59 @@
+/*
+ * REQ-049 - Convivencia Bootstrap / Materialize: modales.
+ *
+ * Bootstrap y Materialize usan los mismos nombres (.modal, .modal-content, .modal-header, .modal-footer)
+ * con significados distintos: en Materialize `.modal` es la caja blanca; en Bootstrap es la capa a
+ * pantalla completa que contiene `.modal-dialog`. Las reglas globales de Materialize y de style.css
+ * (fondo blanco, ancho 55-80 %, max-height 80% !important, transform, padding 24px, pie de 56 px, contenido
+ * en fila...) desfiguraban los modales de Bootstrap (REQ-048: fichas tecnicas).
+ *
+ * Aqui se devuelven a los valores de Bootstrap SOLO dentro de .bs. Especificidad (0,2,0): gana a
+ * Materialize/style.css por orden de carga, y pierde ante el CSS de cada componente (que va despues),
+ * para que los componentes sigan pudiendo dar su estilo. Los !important solo donde el original los usa.
+ */
+
+/* Capa a pantalla completa */
+.bs .modal {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: auto !important;
+    bottom: auto !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background-color: transparent !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    transform: none !important;
+    will-change: auto !important;
+    z-index: 1055 !important;
+}
+
+/* Caja del modal. Bootstrap ya gana en lo que define (padding de cabecera y pie, bordes, esquinas);
+   aqui solo se anulan las propiedades que Materialize/style.css ponen y Bootstrap no toca. */
+.bs .modal-content {
+    flex-direction: column;     /* Materialize la pone en fila en algunas pantallas */
+    padding: 0;                 /* Materialize: .modal .modal-content { padding: 24px } */
+}
+
+.bs .modal-header {             /* style.css: .modal-header gris, 1.5em, negrita, ancho 100% y position: fixed */
+    position: static;           /* con fixed salia del flujo: angosta y con el cuerpo encima (REQ-049) */
+    width: auto;
+    background-color: transparent;
+    font-size: inherit;
+    font-style: normal;
+    font-weight: inherit;
+    text-align: inherit;
+}
+
+.bs .modal-footer {             /* Materialize: alto fijo de 56 px, ancho 100%, texto a la derecha */
+    width: auto;
+    height: auto;
+    background-color: transparent;
+    text-align: inherit;
+}

@@ -1,0 +1,75 @@
+<!-- REQ-057: panel de la red de sensores (barra y tarjetas) (antes index.html, seccion "sistema"). Mismo aspecto; estilos en paneles.css. -->
+<div class="col s12">
+    <div class="row statusBar panel-s-e11">
+        <div class="col s12 panel-s-e40">
+            <table class="panel-s-e8">
+                <tr class="panel-s-e42">
+                    <td class="panel-s-e30" ng-click="vm.alAbrir({ $modal: 'modalHistorial' })" role="button" >
+                        <div class="center-align">
+                            <i class="material-icons panel-s-e31">equalizer</i> 
+                        </div>
+                        <div class="center-align panel-s-e24">
+                            <b>Historial</b>
+                        </div>
+                    </td>
+                    <td class="panel-s-e30" ng-click="vm.alAbrir({ $modal: 'modalConfig' })" role="button" >
+                        <div class="center-align">
+                            <i class="fa fa-list panel-s-e32" aria-hidden="true"></i>
+                        </div>                                                    
+                        <div class="center-align">
+                            <b>Sensores</b>
+                        </div>
+                    </td>
+                    <td class="panel-s-e30" ng-click="vm.alAbrir({ $modal: 'modalUsuarios' })" role="button" >
+                        <div class="center-align">
+                            <i class="fa fa-users panel-s-e32" aria-hidden="true"></i> 
+                        </div>
+                        <div class="center-align">
+                            <b>Usuarios</b>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="col s12 panel-s-e1" ng-show="vm.mostrarLista">
+    <div class="panel-s-e44">
+        <div class="row panel-s-e45">
+            <div class="col s12 m4 l3 panel-s-e46" ng-repeat="(coldRoomKey, coldRoom) in vm.sistema.sensors" ng-show="coldRoom.id">
+                <div class="panel-s-e47" ng-style="{ 'background': (vm.valorSensor({ $clave: coldRoomKey, $campo: 'tileColor', $sensor: coldRoom })) }">
+                    <div class="panel-s-e48" title="{{ coldRoom.alias ? coldRoom.alias : coldRoom.id }}"
+                       >
+                        <b>{{ coldRoom.alias ? coldRoom.alias : coldRoom.id }}</b>
+                    </div>
+                    <div class="center-align panel-s-e49">
+                        <b>{{ vm.valorSensor({ $clave: coldRoomKey, $campo: 'soilStatus', $sensor: coldRoom }) }}</b>
+                    </div>
+                    <div class="row panel-s-e50">
+                        <div class="col s3 center-align"><img class="panel-s-e51" src="./assets/images/Hr_white.png" alt="Humedad del suelo" loading="lazy"></div>
+                        <div class="col s8 right-align">{{ vm.valorSensor({ $clave: coldRoomKey, $campo: 'soilMoisture', $sensor: coldRoom }) }}</div>
+                        <div class="col s1"></div>
+                    </div>
+                    <div class="row panel-s-e52">
+                        <div class="col s3 center-align"><i class="fa fa-thermometer-0" aria-hidden="true"></i></div>
+                        <div class="col s8 right-align">{{ vm.valorSensor({ $clave: coldRoomKey, $campo: 'temperature', $sensor: coldRoom }) }}</div>
+                        <div class="col s1"></div>
+                    </div>
+                    <div class="row panel-s-e53">
+                        <div class="col s3 center-align"><i class="fa fa-tint" aria-hidden="true"></i></div>
+                        <div class="col s8 right-align">{{ vm.valorSensor({ $clave: coldRoomKey, $campo: 'humidity', $sensor: coldRoom }) }}</div>
+                        <div class="col s1"></div>
+                    </div>
+                    <hr class="panel-s-e54">
+                    <div class="row center-align panel-s-e55">
+                        <div class="col s4"><i class="fa fa-{{ vm.valorSensor({ $clave: coldRoomKey, $campo: 'batteryIcon', $sensor: coldRoom }) }}" aria-hidden="true"></i><span class="panel-s-e56">{{ vm.valorSensor({ $clave: coldRoomKey, $campo: 'battery', $sensor: coldRoom }) }}</span></div>
+                        <div class="col s2"></div>
+                        <div class="col s3"><i class="fa fa-bar-chart btn grey waves-light panel-s-e58" role="button" tabindex="0" ng-click="vm.alGrafica({ $sensor: coldRoom, $clave: coldRoomKey })" aria-label="Ver gráfica del sensor"></i></div>
+                        <div class="col s3"><i class="fa fa-cog btn grey waves-light panel-s-e58"  ng-click="vm.alEditarSensor({ $sensor: coldRoom })" aria-hidden="true"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

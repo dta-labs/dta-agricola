@@ -832,3 +832,291 @@ canvas[id^="myChart"],
 #coldRoomSensorChart {
     touch-action: none;
 }
+
+/* REQ-035: enlace de recuperacion de contrasena en el login */
+.login-recuperar {
+    display: inline-block;
+    margin-top: 8px;
+    color: #fff;
+    font-size: 0.9rem;
+    text-decoration: underline;
+}
+
+/* REQ-036: avatar de la barra superior */
+.avatar-usuario {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 6px;
+    text-decoration: none;
+}
+.avatar-usuario-img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+.avatar-usuario-inicial {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #2e7d32;
+    color: #fff;
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+/* REQ-036: cabecera del usuario en el menu lateral */
+.sidenav .usuario-cabecera {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    background: #f1f8e9;
+    line-height: 1.3;
+}
+.usuario-cabecera-foto {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+.usuario-cabecera-inicial {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #2e7d32;
+    color: #fff;
+    font-size: 1.6em;
+    font-weight: bold;
+}
+.usuario-cabecera-datos {
+    min-width: 0;
+}
+.usuario-cabecera-nombre {
+    font-weight: bold;
+    font-size: 1.05em;
+    color: #000;
+}
+.usuario-cabecera-correo {
+    font-size: 0.85em;
+    color: #555;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.usuario-cabecera-plan {
+    display: inline-block;
+    margin-top: 4px;
+    padding: 1px 10px;
+    border-radius: 12px;
+    background: #2e7d32;
+    color: #fff;
+    font-size: 0.8em;
+}
+.sidenav .opciones-menu-movil .material-icons {
+    vertical-align: middle;
+    margin-right: 6px;
+}
+.sidenav .usuario-separador {
+    height: 8px;
+    border-bottom: 2px solid #c5e1a5;
+    margin: 0 10px 4px 10px;
+}
+
+/* REQ-036: el plan actual se distingue claramente */
+.plan-resumen {
+    text-align: center;
+    margin: 4px 0 12px 0;
+}
+.plan-tarjeta {
+    /* REQ-055: borde verde claro en todos los planes (en el movil las tarjetas se apilan y no se distinguian) */
+    border: 2px solid #c8e6c9;
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+}
+.plan-tarjeta-actual {
+    border-color: #2e7d32;
+    background: #f1f8e9;
+}
+.plan-distintivo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 4px 0;
+    background: #2e7d32;
+    color: #fff;
+    font-weight: bold;
+    font-size: 0.9em;
+}
+.plan-distintivo .material-icons,
+.plan-actual-etiqueta .material-icons {
+    font-size: 1.1em;
+}
+.plan-actual-etiqueta {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: #2e7d32;
+    font-weight: bold;
+}
+
+/* REQ-044: la cabecera del usuario en el menu lateral abre "Mi perfil" */
+.sidenav .usuario-cabecera {
+    cursor: pointer;
+}
+.sidenav .usuario-cabecera:hover,
+.sidenav .usuario-cabecera:focus-visible {
+    background: #dcedc8;
+    outline: none;
+}
+.usuario-cabecera-ir {
+    margin-left: auto;
+    color: #689f38;
+}
+
+/* REQ-051: bloques de ubicacion / poligono con mapa (en formularios de Materialize) */
+.geo-bloque {
+    margin: 4px 0 18px 0;
+    padding: 12px !important;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    background: #fafafa;
+}
+.geo-titulo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #2e7d32;
+}
+.geo-titulo .material-icons {
+    font-size: 1.2rem;
+}
+.geo-titulo-siguiente {
+    margin-top: 18px;
+}
+.geo-requerido {
+    color: #c62828;
+}
+.geo-opcional {
+    color: #757575;
+    font-weight: 400;
+}
+.geo-nota {
+    margin: -4px 0 8px 0;
+    color: #616161;
+    font-size: 0.9rem;
+}
+
+/* REQ-052: leyenda de humedad y tooltips de parcelas en el mapa del sistema */
+.mapa-leyenda-humedad {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+    font-size: 12px;
+    line-height: 1.3;
+}
+.mapa-leyenda-humedad span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.mapa-leyenda-humedad i {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+}
+.leaflet-tooltip.parcela-tooltip {
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    line-height: 1.35;
+}
+
+/* REQ-055: boton de ayuda (?) dentro del campo, a la derecha */
+.input-field.campo-con-ayuda {
+    position: relative;
+}
+.input-field.campo-con-ayuda > input {
+    padding-right: 42px !important;
+}
+.input-field.campo-con-ayuda > .campo-ayuda {
+    position: absolute;
+    right: calc(0.75rem + 4px);
+    bottom: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    color: #2e7d32;
+}
+.input-field.campo-con-ayuda > .campo-ayuda:hover,
+.input-field.campo-con-ayuda > .campo-ayuda:focus-visible {
+    background: #e8f5e9;
+    outline: none;
+}
+@media (max-width: 600px) {
+    #modalPlanes .plan-tarjeta {
+        margin-bottom: 14px;
+    }
+}
+
+/* REQ-058: version al fondo del menu lateral.
+   El menu tiene margin-top: 50px y Materialize le da height: calc(100% + 60px): su parte baja quedaba
+   fuera de la pantalla. Se ajusta la altura a lo visible y el menu pasa a columna para empujar la
+   version al fondo (margin-top: auto). Si las opciones no caben, el menu sigue desplazandose. */
+#slide-out.sidenav {
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - 50px) !important;
+    padding-bottom: env(safe-area-inset-bottom);
+}
+#slide-out.sidenav > li {
+    flex-shrink: 0;
+}
+#slide-out.sidenav > li.menu-version {
+    margin-top: auto;
+    border-top: 1px solid #eeeeee;
+    line-height: normal;
+}
+
+/* REQ-060: aviso de sectores del pivote solapados (lista de planes) */
+.aviso-solape {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 10px 0 0 0;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: #fff8e1;
+    border: 1px solid #ffe082;
+    color: #6d4c00;
+    font-size: 0.9rem;
+    text-align: left;
+}
+.aviso-solape .material-icons {
+    color: #f9a825;
+    font-size: 1.2rem;
+}
+
+/* REQ-062: velocidad 0 % = zona de paro del pivote */
+.zona-paro {
+    color: #c62828;
+    font-weight: 600;
+    font-size: 0.85em;
+}

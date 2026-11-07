@@ -1,0 +1,61 @@
+<!-- REQ-057: panel del estacionario (riego por sectores) (antes index.html, seccion "sistema"). Mismo aspecto; estilos en paneles.css. -->
+<div class="col s12">
+    <div class="row statusBar panel-s-e11">
+        <div class="col s12 panel-s-e28">
+            <table class="panel-s-e8">
+                <tr class="panel-s-e29">
+                    <td class="panel-s-e30" ng-click="vm.alAbrir({ $modal: 'modalHistorial' })" role="button" >
+                        <div class="center-align">
+                            <i class="material-icons panel-s-e31">equalizer</i> 
+                        </div>
+                        <div class="center-align panel-s-e24">
+                            <b>Historial</b>
+                        </div>
+                    </td>
+                    <td class="panel-s-e30" ng-click="vm.alAbrir({ $modal: 'modalConfig' })" role="button" >
+                        <div class="center-align">
+                            <i class="fa fa-list panel-s-e32" aria-hidden="true"></i>
+                        </div>                                                    
+                        <div class="center-align">
+                            <b>Planes</b>
+                        </div>
+                    </td>
+                    <td class="panel-s-e30" ng-click="vm.alAbrir({ $modal: 'modalUsuarios' })" role="button" >
+                        <div class="center-align">
+                            <i class="fa fa-users panel-s-e32" aria-hidden="true"></i> 
+                        </div>
+                        <div class="center-align">
+                            <b>Usuarios</b>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="col s12 panel-s-e33">
+            <table class="panel-s-e8">
+                <tr class="panel-s-e29">
+                    <td class="panel-s-e9">
+                        <div class="center-align panel-s-e34"> 
+                            <i ng-style="{ 'color': (vm.colorParcela({ $parcela: 'p' + $index })) }" class="material-icons panel-s-e35" 
+                                
+                                ng-click="vm.alAlternarParcela({ $parcela: 'p' + $index })"
+                                ng-repeat="plot in vm.sistema.plots" ng-if="$index != 7">filter_{{ $index + 1 }}</i>
+
+                            <img class="panel-s-e36" ng-style="{ 'border': '5px solid ' + (vm.colorParcela({ $parcela: 'p7' })), 'background': (vm.colorParcela({ $parcela: 'p7' })) }" src="assets/images/pozo.png" alt="pozo" 
+                               
+                                ng-click="vm.alAlternarParcela({ $parcela: 'p7' })" loading="lazy">
+                        </div>
+                        
+                        <div class="panel-s-e37"
+                            ng-click="vm.alAlternarParcela({ $parcela: 'p7' })">
+                            <div class="panel-s-e38">
+                                <i class="material-icons panel-s-e35">filter_none</i>
+                                <span class="panel-s-e39">M</span>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>

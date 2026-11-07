@@ -1,0 +1,105 @@
+// REQ-043 fase B - Bootstrap 5 AISLADO dentro de `.bs`, para convivir con Materialize.
+//
+// Materialize y Bootstrap usan los mismos nombres (.row, .btn, .modal, .card...). Mientras convivan,
+// Bootstrap solo actua dentro de un contenedor `.bs` (cada componente migrado se envuelve en el).
+// Se compila con `npm run vendor:bootstrap` -> assets/vendor/bootstrap/bootstrap-dta.css
+// En la fase D (sin Materialize) se compila sin el envoltorio.
+
+@import "bootstrap/scss/functions";
+@import "tema-dta";
+@import "bootstrap/scss/variables";
+@import "bootstrap/scss/variables-dark";
+@import "bootstrap/scss/maps";
+@import "bootstrap/scss/mixins";
+@import "bootstrap/scss/utilities";
+
+// Variables CSS (--bs-*): no chocan con nada, van en :root.
+@import "bootstrap/scss/root";
+
+.bs {
+    @import "bootstrap/scss/reboot";
+    @import "bootstrap/scss/type";
+    @import "bootstrap/scss/images";
+    @import "bootstrap/scss/containers";
+    @import "bootstrap/scss/grid";
+    @import "bootstrap/scss/tables";
+    @import "bootstrap/scss/forms";
+    @import "bootstrap/scss/buttons";
+    @import "bootstrap/scss/transitions";
+    @import "bootstrap/scss/dropdown";
+    @import "bootstrap/scss/button-group";
+    @import "bootstrap/scss/nav";
+    @import "bootstrap/scss/navbar";
+    @import "bootstrap/scss/card";
+    @import "bootstrap/scss/accordion";
+    @import "bootstrap/scss/badge";
+    @import "bootstrap/scss/alert";
+    @import "bootstrap/scss/progress";
+    @import "bootstrap/scss/list-group";
+    @import "bootstrap/scss/close";
+    @import "bootstrap/scss/toasts";
+    @import "bootstrap/scss/modal";
+    @import "bootstrap/scss/tooltip";
+    @import "bootstrap/scss/spinners";
+    @import "bootstrap/scss/offcanvas";
+    @import "bootstrap/scss/placeholders";
+    @import "bootstrap/scss/helpers";
+    @import "bootstrap/scss/utilities/api";
+
+    // Materialize pinta todos los input con borde inferior y sin caja: dentro de .bs manda Bootstrap.
+    input.form-control,
+    textarea.form-control {
+        height: auto;
+        margin: 0;
+        padding: $input-padding-y $input-padding-x;
+        border: $input-border-width solid $input-border-color;
+        border-radius: $input-border-radius;
+        box-shadow: none;
+        box-sizing: border-box;
+    }
+    input.form-control:focus,
+    textarea.form-control:focus {
+        border-color: $input-focus-border-color;
+        box-shadow: $input-focus-box-shadow;
+    }
+    select.form-select {
+        display: block;
+        height: auto;
+    }
+    [type="checkbox"].form-check-input,
+    [type="radio"].form-check-input {
+        position: static;
+        opacity: 1;
+        pointer-events: auto;
+    }
+    .btn {
+        text-transform: none;
+        letter-spacing: normal;
+        height: auto;
+        line-height: $btn-line-height;
+    }
+}
+
+// Bootstrap anade estas capas directamente al <body> (fuera de .bs): sin envolver.
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: $zindex-modal-backdrop;
+    width: 100vw;
+    height: 100vh;
+    background-color: $modal-backdrop-bg;
+    &.fade { opacity: 0; }
+    &.show { opacity: $modal-backdrop-opacity; }
+}
+.offcanvas-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: $zindex-offcanvas-backdrop;
+    width: 100vw;
+    height: 100vh;
+    background-color: $offcanvas-backdrop-bg;
+    &.fade { opacity: 0; }
+    &.show { opacity: $offcanvas-backdrop-opacity; }
+}

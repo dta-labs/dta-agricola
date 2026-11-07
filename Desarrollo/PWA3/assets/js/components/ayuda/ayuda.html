@@ -1,0 +1,269 @@
+<!-- REQ-050: Ayuda en un modal de Bootstrap con el estilo comun de ventanas (como Fichas, REQ-048).
+     REQ-040/043: contenido de index.html <section id="ayuda">, acordeon de Bootstrap. -->
+<div class="bs">
+    <div class="modal fade ayuda-modal" tabindex="-1" aria-labelledby="ayudaTitulo" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg modal-fullscreen-sm-down">
+            <div class="modal-content ventana-caja">
+                <div class="modal-header ventana-cabecera">
+                    <span class="ventana-icono" aria-hidden="true"><i class="material-icons">help</i></span>
+                    <div class="ventana-titulos">
+                        <h2 class="modal-title ventana-titulo" id="ayudaTitulo">Ayuda</h2>
+                        <div class="ventana-subtitulo">Cómo usar DTA-Agrícola</div>
+                    </div>
+                    <button type="button" class="btn-close" ng-click="vm.cerrar()" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body ventana-cuerpo ayuda-contenido">
+<div class="accordion" id="ayuda-acordeon-1"><div class="accordion-item"><h3 class="accordion-header"><button aria-controls="ayuda-seccion-1" aria-expanded="true" class="accordion-button" data-bs-target="#ayuda-seccion-1" data-bs-toggle="collapse" type="button">Empezar a utilizar la aplicación</button></h3><div class="accordion-collapse collapse show" data-bs-parent="#ayuda-acordeon-1" id="ayuda-seccion-1"><div class="accordion-body">
+<div class="accordion ayuda-sublista" id="ayuda-acordeon-2"><div class="accordion-item"><h3 class="accordion-header"><button aria-controls="ayuda-seccion-5" aria-expanded="false" class="accordion-button collapsed" data-bs-target="#ayuda-seccion-5" data-bs-toggle="collapse" type="button">Controles</button></h3><div class="accordion-collapse collapse" data-bs-parent="#ayuda-acordeon-2" id="ayuda-seccion-5"><div class="accordion-body ayuda-sublista">
+<div class="row"> <!-- Listado de equipos -->
+<div class="col-12"><strong>Listado de equipos</strong></div>
+<div class="col-12 col-md-6">
+<img alt="Controles" class="ayuda-img-completa" loading="lazy" src="assets/images/help/controles_listado.png"/>
+</div>
+<div class="col-12 col-md-6">
+<img alt="Controles" class="ayuda-img-70" loading="lazy" src="assets/images/help/controles_listado_descripcion.png"/>
+</div>
+</div>
+<div class="row"> <!-- Estacionarios -->
+<div class="col-12"><strong>Estacionarios</strong></div>
+<div class="col-12 col-md-6">
+<img alt="Controles" class="ayuda-img-85" loading="lazy" src="assets/images/help/controles_estacionario.png"/>
+</div>
+<div class="col-12 col-md-6">
+<img alt="Controles" class="ayuda-img-70" loading="lazy" src="assets/images/help/controles_estacionario_descripcion.png"/>
+</div>
+</div>
+<div class="row"> <!-- Continuos -->
+<div class="col-12"><strong>Continuos</strong></div>
+<div class="col-12 col-md-6">
+<img alt="Controles" class="ayuda-img-85" loading="lazy" src="assets/images/help/controles_continuo.png"/>
+</div>
+<div class="col-12 col-md-6">
+<img alt="Controles" class="ayuda-img-70" loading="lazy" src="assets/images/help/controles_continuo_descripcion.png"/>
+</div>
+</div>
+</div></div></div><div class="accordion-item"><h3 class="accordion-header"><button aria-controls="ayuda-seccion-6" aria-expanded="false" class="accordion-button collapsed" data-bs-target="#ayuda-seccion-6" data-bs-toggle="collapse" type="button">Agregar sistemas de riego</button></h3><div class="accordion-collapse collapse" data-bs-parent="#ayuda-acordeon-2" id="ayuda-seccion-6"><div class="accordion-body ayuda-sublista">
+<div class="row">
+<div class="col-12 col-md-6">
+<img alt="Controles" class="ayuda-img-completa" loading="lazy" src="assets/images/help/nuevo.png"/>
+</div>
+<div class="col-12 col-md-6">
+<img alt="Controles" class="ayuda-img-70" loading="lazy" src="assets/images/help/nuevo_descripcion.png"/>
+</div>
+</div>
+</div></div></div><div class="accordion-item"><h3 class="accordion-header"><button aria-controls="ayuda-seccion-7" aria-expanded="false" class="accordion-button collapsed" data-bs-target="#ayuda-seccion-7" data-bs-toggle="collapse" type="button">Programar el riego</button></h3><div class="accordion-collapse collapse" data-bs-parent="#ayuda-acordeon-2" id="ayuda-seccion-7"><div class="accordion-body ayuda-sublista">
+<div class="row"> <!-- Estacionarios -->
+<div class="col-12"><strong>Estacionarios</strong></div>
+<div class="col-12 col-md-6">
+<img alt="Planes" class="ayuda-img-completa" loading="lazy" src="assets/images/help/planes_estacionario1.png"/>
+<br/>
+<img alt="Planes" class="ayuda-img-completa" loading="lazy" src="assets/images/help/planes_estacionario2.png"/>
+</div>
+<div class="col-12 col-md-6">
+<img alt="Planes" class="ayuda-img-70" loading="lazy" src="assets/images/help/planes_estacionario_descripcion.png"/>
+</div>
+</div>
+<div class="row"> <!-- Continuos -->
+<div class="col-12"><strong>Muvimiento Continuo</strong></div>
+<div class="col-12 col-md-6">
+<img alt="Planes" class="ayuda-img-completa" loading="lazy" src="assets/images/help/planes_continuo.png"/>
+</div>
+<div class="col-12 col-md-6">
+<img alt="Planes" class="ayuda-img-70" loading="lazy" src="assets/images/help/planes_continuo_descripcion.png"/>
+</div>
+</div>
+</div></div></div><div class="accordion-item"><h3 class="accordion-header"><button aria-controls="ayuda-seccion-8" aria-expanded="false" class="accordion-button collapsed" data-bs-target="#ayuda-seccion-8" data-bs-toggle="collapse" type="button">Fichas técnicas</button></h3><div class="accordion-collapse collapse" data-bs-parent="#ayuda-acordeon-2" id="ayuda-seccion-8"><div class="accordion-body ayuda-sublista">
+<div class="row">
+<div class="col-12 col-md-6">
+<img alt="Fichas técnicas" class="ayuda-img-completa" loading="lazy" src="assets/images/help/ficha1.png"/>
+<br/>
+<img alt="Fichas técnicas" class="ayuda-img-completa" loading="lazy" src="assets/images/help/ficha2.png"/>
+</div>
+<div class="col-12 col-md-6">
+<img alt="Fichas técnicas" class="ayuda-img-completa" loading="lazy" src="assets/images/help/ficha_descripcion.png"/>
+</div>
+</div>
+</div></div></div><div class="accordion-item"><h3 class="accordion-header"><button aria-controls="ayuda-seccion-9" aria-expanded="false" class="accordion-button collapsed" data-bs-target="#ayuda-seccion-9" data-bs-toggle="collapse" type="button">Instalar la aplicación</button></h3><div class="accordion-collapse collapse" data-bs-parent="#ayuda-acordeon-2" id="ayuda-seccion-9"><div class="accordion-body ayuda-sublista">
+<div class="row">
+<div class="col-12 col-md-6">
+<img alt="Instalar" class="ayuda-img-completa" loading="lazy" src="assets/images/help/instalar.png"/>
+</div>
+</div>
+</div></div></div><div class="accordion-item"><h3 class="accordion-header"><button aria-controls="ayuda-seccion-10" aria-expanded="false" class="accordion-button collapsed" data-bs-target="#ayuda-seccion-10" data-bs-toggle="collapse" type="button">Actualizar la aplicación</button></h3><div class="accordion-collapse collapse" data-bs-parent="#ayuda-acordeon-2" id="ayuda-seccion-10"><div class="accordion-body ayuda-sublista">
+<div class="row">
+<div class="col-12 col-md-6">
+<img alt="Actualizar" class="ayuda-img-completa" loading="lazy" src="assets/images/help/actualizar.png"/>
+</div>
+</div>
+</div></div></div></div>
+</div></div></div><div class="accordion-item"><h3 class="accordion-header"><button aria-controls="ayuda-seccion-2" aria-expanded="false" class="accordion-button collapsed" data-bs-target="#ayuda-seccion-2" data-bs-toggle="collapse" type="button">Instalación de dispositivos</button></h3><div class="accordion-collapse collapse" data-bs-parent="#ayuda-acordeon-1" id="ayuda-seccion-2"><div class="accordion-body">
+<div class="accordion ayuda-sublista" id="ayuda-acordeon-3"><div class="accordion-item"><h3 class="accordion-header"><button aria-controls="ayuda-seccion-11" aria-expanded="false" class="accordion-button collapsed" data-bs-target="#ayuda-seccion-11" data-bs-toggle="collapse" type="button">Estacionarios</button></h3><div class="accordion-collapse collapse" data-bs-parent="#ayuda-acordeon-3" id="ayuda-seccion-11"><div class="accordion-body ayuda-justificado">
+<p>
+<strong>DripControl</strong>: ¿Cuenta con sistemas de riego por aspersión, por difusión, por goteo,
+                                    subterráneo o cintas de exudación? ¿Cuenta con un único pozo para
+                                    irrigar múltiples parcelas o cultivos? DripControl le permitirá
+                                    monitorear y controlar en tiempo real un pozo y hasta 3, 7 ó 15
+                                    electroválvulas en dependencia de la versión de que disponga. Así como
+                                    implementar tu propio plan de riego.
+                                </p>
+<div class="row">
+<div class="col-6 col-md-3"><strong>Instalación:</strong></div>
+<div class="col-6 col-md-9">
+<a href="./assets/documents/Cableado - Estacionario 1.webp">
+<i class="material-icons">photo_library</i></a>  
+                                        <a href="./assets/documents/Cableado - Estacionario 2.webp">
+<i class="material-icons">photo_library</i></a>  
+                                        <a href="./assets/documents/Cableado - Estacionarios.pdf">
+<i class="material-icons">picture_as_pdf</i></a>
+</div>
+</div>
+</div></div></div><div class="accordion-item"><h3 class="accordion-header"><button aria-controls="ayuda-seccion-12" aria-expanded="false" class="accordion-button collapsed" data-bs-target="#ayuda-seccion-12" data-bs-toggle="collapse" type="button">Movimiento continuo</button></h3><div class="accordion-collapse collapse" data-bs-parent="#ayuda-acordeon-3" id="ayuda-seccion-12"><div class="accordion-body ayuda-justificado">
+<p>
+<strong>PivotControl</strong>: ¿Desea reducir el tiempo que consume revisando sus pivotes, el
+                                    combustible invertido y el mantenimiento de sus sistemas de riego debido
+                                    a fallas de funcionamiento? ¿Los sistemas de monitoreo y control de
+                                    pivotes en el mercado no le ofrecen todas las características que está
+                                    buscando o resultan demasiado complejos y costosos? PivotControl es un
+                                    sistema de monitoreo y control en tiempo real, basado en tecnología GPS,
+                                    avanzado y sencillo de usar desde su teléfono celular o computadora.
+                                </p>
+<div>
+<u><strong>Instalación:</strong></u>
+<div class="row">
+<div class="col-6 col-md-3"><strong>Panel:</strong></div>
+<div class="col-6 col-md-9">
+<a href="./assets/documents/Cableado - Panel.webp"><i class="material-icons">photo_library</i></a>  
+                                             
+                                            <a href="./assets/documents/Cableado.pdf"><i class="material-icons">picture_as_pdf</i></a>
+</div>
+<div class="col-6 col-md-3"><strong>Valley:</strong></div>
+<div class="col-6 col-md-9">
+<a href="./assets/documents/Cableado - Valley.webp"><i class="material-icons">photo_library</i></a>  
+                                             
+                                            <a href="./assets/documents/Cableado - Valley.pdf"><i class="material-icons">picture_as_pdf</i></a>
+</div>
+<div class="col-6 col-md-3"><strong>ZIMMATIC:</strong></div>
+<div class="col-6 col-md-9">
+<a href="./assets/documents/Cableado - ZIMMATIC.webp"><i class="material-icons">photo_library</i></a>  
+                                             
+                                            <a href="./assets/documents/Cableado - ZIMMATIC.pdf"><i class="material-icons">picture_as_pdf</i></a> <br/>
+</div>
+<div class="col-6 col-md-3"><strong>REINTIC:</strong></div>
+<div class="col-6 col-md-9">
+<a href="./assets/documents/Cableado - REINTIC.webp"><i class="material-icons">photo_library</i></a>  
+                                             
+                                            <a href="./assets/documents/Cableado - REINTIC.pdf"><i class="material-icons">picture_as_pdf</i></a>
+</div>
+</div>
+<u><strong>Código de colores</strong></u>
+<div>
+<div class="row ayuda-separado">
+<div class="col-2">
+<i class="material-icons ayuda-color-verde">brightness_1</i>
+</div>
+<div class="col-10">
+                                                Sistema encendido
+                                            </div>
+</div>
+<div class="row ayuda-separado">
+<div class="col-2">
+<i class="material-icons ayuda-color-gris-claro">brightness_1</i>
+</div>
+<div class="col-10">
+                                                Sistema apagado
+                                            </div>
+</div>
+<div class="row ayuda-separado">
+<div class="col-2">
+<i class="material-icons ayuda-color-gris">brightness_1</i>
+</div>
+<div class="col-10">
+                                                Comunicación inestable
+                                            </div>
+</div>
+<div class="row ayuda-separado">
+<div class="col-2">
+<i class="material-icons ayuda-color-rosa">brightness_1</i>
+</div>
+<div class="col-10">
+                                                ¡Alarma: falla de seguridad!
+                                            </div>
+</div>
+<div class="row ayuda-separado">
+<div class="col-2">
+<i class="material-icons ayuda-color-rojo">brightness_1</i>
+</div>
+<div class="col-10">
+                                                Falla eléctrica
+                                            </div>
+</div>
+</div>
+</div>
+</div></div></div><div class="accordion-item"><h3 class="accordion-header"><button aria-controls="ayuda-seccion-13" aria-expanded="false" class="accordion-button collapsed" data-bs-target="#ayuda-seccion-13" data-bs-toggle="collapse" type="button">Bombeo</button></h3><div class="accordion-collapse collapse" data-bs-parent="#ayuda-acordeon-3" id="ayuda-seccion-13"><div class="accordion-body ayuda-justificado">
+<p>
+<strong>PumpControl</strong>: ¿Desea reducir el riesgo de fallas, averías y hasta roturas irreversibles
+                                    de sus sitemas de bombeo? ¿Emplea una misma bomba para más de un sistema
+                                    de riego? PumpControl es un sistema de monitoreo y control en tiempo
+                                    real avanzado y a la vez sencillo de usar desde su teléfono celular o
+                                    computadora que le permite enlazarlo con los sistemas de riego que desee
+                                    y le previene de futuros desastres ante mal funcionamiento de sus
+                                    equipo.
+                                </p>
+</div></div></div></div>
+</div></div></div><div class="accordion-item"><h3 class="accordion-header"><button aria-controls="ayuda-seccion-3" aria-expanded="false" class="accordion-button collapsed" data-bs-target="#ayuda-seccion-3" data-bs-toggle="collapse" type="button">Temas generales</button></h3><div class="accordion-collapse collapse" data-bs-parent="#ayuda-acordeon-1" id="ayuda-seccion-3"><div class="accordion-body">
+<div class="accordion ayuda-sublista" id="ayuda-acordeon-4"><div class="accordion-item"><h3 class="accordion-header"><button aria-controls="ayuda-seccion-14" aria-expanded="false" class="accordion-button collapsed" data-bs-target="#ayuda-seccion-14" data-bs-toggle="collapse" type="button">Monitorea</button></h3><div class="accordion-collapse collapse" data-bs-parent="#ayuda-acordeon-4" id="ayuda-seccion-14"><div class="accordion-body">
+<p class="ayuda-parrafo">
+                                    Mapea la información de tus sistemas de riego y bombeo. Conoce las condiciones
+                                    climáticas de tus parcelas.
+                                    <a href="https://dtaamerica.com/dta-agricola/DTA-Control.html">
+<i class="material-icons ayuda-texto-chico">open_in_new</i>Ver más...
+                                    </a>
+</p>
+</div></div></div><div class="accordion-item"><h3 class="accordion-header"><button aria-controls="ayuda-seccion-15" aria-expanded="false" class="accordion-button collapsed" data-bs-target="#ayuda-seccion-15" data-bs-toggle="collapse" type="button">Controla</button></h3><div class="accordion-collapse collapse" data-bs-parent="#ayuda-acordeon-4" id="ayuda-seccion-15"><div class="accordion-body">
+<p class="ayuda-parrafo">
+                                    Automatización agrícola. Ajusta las prácticas de cultivo a las necesidades del
+                                    suelo y las plantas con la ayuda de IA.
+                                    <a href="https://dtaamerica.com/dta-agricola/DTA-Planning.html">
+<i class="material-icons ayuda-texto-chico">open_in_new</i>Ver más...
+                                    </a>
+</p>
+</div></div></div><div class="accordion-item"><h3 class="accordion-header"><button aria-controls="ayuda-seccion-16" aria-expanded="false" class="accordion-button collapsed" data-bs-target="#ayuda-seccion-16" data-bs-toggle="collapse" type="button">Procesa</button></h3><div class="accordion-collapse collapse" data-bs-parent="#ayuda-acordeon-4" id="ayuda-seccion-16"><div class="accordion-body">
+<p class="ayuda-parrafo">
+                                    Inteligencia Artificial colectiva. Asistencia inteligente para la toma de
+                                    decisiones que el agricultor debe anticipar.
+                                    <a aria-label="Ver más" href="https://dtaamerica.com/dta-agricola/index.html#content6-n" rel="noopener" target="_blank">
+<i class="material-icons ayuda-texto-chico">open_in_new</i>Ver más...
+                                    </a>
+</p>
+</div></div></div><div class="accordion-item"><h3 class="accordion-header"><button aria-controls="ayuda-seccion-17" aria-expanded="false" class="accordion-button collapsed" data-bs-target="#ayuda-seccion-17" data-bs-toggle="collapse" type="button">Mejora</button></h3><div class="accordion-collapse collapse" data-bs-parent="#ayuda-acordeon-4" id="ayuda-seccion-17"><div class="accordion-body">
+<p class="ayuda-parrafo">
+                                    Incrementa la productividad con la aplicación de buenas prácticas de manejo de
+                                    cultivos.
+                                    <a href="https://dtaamerica.com/dta-agricola/index.html#content6-m">
+<i class="material-icons ayuda-texto-chico">open_in_new</i>Ver más...
+                                    </a>
+</p>
+</div></div></div></div>
+</div></div></div><div class="accordion-item"><h3 class="accordion-header"><button aria-controls="ayuda-seccion-4" aria-expanded="false" class="accordion-button collapsed" data-bs-target="#ayuda-seccion-4" data-bs-toggle="collapse" type="button">Compartir la aplicación</button></h3><div class="accordion-collapse collapse" data-bs-parent="#ayuda-acordeon-1" id="ayuda-seccion-4"><div class="accordion-body">
+<div class="ayuda-compartir">
+<button class="ayuda-boton-compartir" ng-click="vm.compartir()" type="button">
+<img alt="Aplicación DTA-Agrícola" class="ayuda-icono-compartir" loading="lazy" src="./assets/images/whatsapp_black.png"/><br/>
+                            WhatsApp
+                        </button>
+<button class="ayuda-boton-compartir" ng-click="vm.mostrarQR = !vm.mostrarQR" type="button">
+<img alt="Aplicación DTA-Agrícola" class="ayuda-icono-compartir" loading="lazy" src="./assets/images/qr.png"/><br/>
+                            QR
+                        </button>
+</div>
+<div class="ayuda-qr" ng-show="vm.mostrarQR">
+<img alt="Aplicación DTA-Agrícola" loading="lazy" src="./assets/images/qr-app.png"/>
+</div>
+</div></div></div></div>
+                </div>
+                <div class="modal-footer ventana-pie">
+                    <button type="button" class="btn btn-success" ng-click="vm.cerrar()">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

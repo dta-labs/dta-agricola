@@ -114,7 +114,7 @@ if (core) {
 }
 
 // ---------- 4. deuda en modulos nuevos (BLOQUEANTE con --estricto) ----------
-const NUEVOS = ["assets/js/logic", "assets/js/services"];
+const NUEVOS = ["assets/js/logic", "assets/js/services", "assets/js/app", "assets/js/ui", "assets/js/components"];
 let nuevoMal = 0;
 for (const fichero of jsVersionados) {
     if (!NUEVOS.some((prefijo) => fichero.startsWith(prefijo))) continue;

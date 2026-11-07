@@ -1,0 +1,110 @@
+<!-- REQ-059: plan de riego del pivote (nuevo y editar). Modal de Materialize con el estilo comun de ventanas. -->
+<div id="modalPlanPivote" class="modal ventana-modal">
+    <div class="bs ventana">
+        <header class="ventana-cabecera">
+            <span class="ventana-icono" aria-hidden="true"><i class="material-icons">rotate_right</i></span>
+            <div class="ventana-titulos">
+                <h2 class="ventana-titulo">{{ vm.esNuevo() ? 'Nuevo plan de riego' : 'Editar plan de riego' }}</h2>
+                <div class="ventana-subtitulo">Sector del pivote por ángulos</div>
+            </div>
+            <button type="button" class="btn-close" ng-click="vm.cerrar()" aria-label="Cerrar"></button>
+        </header>
+
+        <form class="ventana-cuerpo" id="formularioPlanPivote" name="vm.formulario" ng-submit="vm.guardar()" novalidate>
+            <div class="alert alert-danger py-2 mt-3" ng-if="vm.hayErrores()" role="alert">Revisa los campos marcados.</div>
+
+            <section class="ventana-seccion">
+                <h3 class="ventana-seccion-titulo"><i class="material-icons" aria-hidden="true">architecture</i> Sector</h3>
+                <div class="row g-3">
+                    <div class="col-6">
+                        <label for="planPivoteInicio" class="form-label">Ángulo inicial</label>
+                        <div class="input-group">
+                            <input id="planPivoteInicio" type="number" min="0" max="360" step="1" class="form-control"
+                                ng-model="vm.plan.inicio" ng-class="{ 'is-invalid': vm.errores.inicio }">
+                            <span class="input-group-text">°</span>
+                        </div>
+                        <div class="invalid-feedback" ng-if="vm.errores.inicio">{{ vm.errores.inicio }}</div>
+                    </div>
+                    <div class="col-6">
+                        <label for="planPivoteFin" class="form-label">Ángulo final</label>
+                        <div class="input-group">
+                            <input id="planPivoteFin" type="number" min="0" max="360" step="1" class="form-control"
+                                ng-model="vm.plan.fin" ng-class="{ 'is-invalid': vm.errores.fin }">
+                            <span class="input-group-text">°</span>
+                        </div>
+                        <div class="invalid-feedback" ng-if="vm.errores.fin">{{ vm.errores.fin }}</div>
+                    </div>
+                </div>
+                <!-- REQ-060: los sectores no pueden solaparse -->
+                <div class="alert alert-warning py-2 mt-3 mb-0" ng-if="vm.errores.sector" role="alert">
+                    <i class="material-icons align-middle me-1" aria-hidden="true">warning</i>{{ vm.errores.sector }}
+                </div>
+                <div class="form-text">Los sectores pueden tocarse (uno termina donde empieza otro), pero no solaparse.</div>
+            </section>
+
+            <section class="ventana-seccion">
+                <h3 class="ventana-seccion-titulo"><i class="material-icons" aria-hidden="true">speed</i> Riego</h3>
+                <label for="planPivoteVelocidad" class="form-label">Velocidad / lámina (temporizador)</label>
+                <div class="input-group">
+                    <input id="planPivoteVelocidad" type="number" min="0" max="{{ vm.maximo() }}" step="1" class="form-control"
+                        ng-model="vm.plan.velocidad" ng-class="{ 'is-invalid': vm.errores.velocidad }">
+                    <span class="input-group-text">%</span>
+                    <button type="button" class="btn btn-outline-success" ng-click="vm.verVelocidades()" aria-label="Ver la tabla de velocidades del pivote">
+                        <i class="material-icons align-middle">help_outline</i>
+                    </button>
+                </div>
+                <div class="invalid-feedback" ng-if="vm.errores.velocidad">{{ vm.errores.velocidad }}</div>
+                <div class="form-text">Máximo de este equipo: {{ vm.maximo() }}%. El botón (?) muestra la lámina y las horas por vuelta.</div>
+                <!-- REQ-062: 0 % define una zona por la que el pivote no pasa -->
+                <div class="alert alert-warning py-2 mt-2 mb-0" ng-if="vm.plan.velocidad === 0 || vm.plan.velocidad === '0'" role="status">
+                    <i class="material-icons align-middle me-1" aria-hidden="true">block</i>
+                    <b>Zona de paro:</b> con 0 % el pivote se detiene al llegar a este sector y no lo atraviesa.
+                </div>
+
+                <button type="button" class="ventana-opcion mt-3" ng-click="vm.alternarPistola()"
+                    role="switch" aria-checked="{{ vm.plan.pistola ? 'true' : 'false' }}">
+                    <span class="ventana-opcion-icono" aria-hidden="true"><i class="material-icons">water</i></span>
+                    <span class="ventana-opcion-texto">
+                        <span class="ventana-opcion-titulo">Pistola final</span>
+                        <span class="ventana-opcion-ayuda">Riega también la esquina más allá del último tramo.</span>
+                    </span>
+                    <span class="ventana-interruptor" ng-class="{ activo: vm.plan.pistola }" aria-hidden="true"></span>
+                </button>
+            </section>
+
+            <section class="ventana-seccion">
+                <h3 class="ventana-seccion-titulo"><i class="material-icons" aria-hidden="true">eco</i> Cultivo, suelo y sensor</h3>
+                <div class="row g-3">
+                    <div class="col-12 col-md-6">
+                        <label for="planPivoteCultivo" class="form-label">Cultivo</label>
+                        <select id="planPivoteCultivo" class="browser-default form-select" ng-model="vm.plan.cultivo"
+                            ng-options="c.culture as c.culture for c in vm.cultivos">
+                            <option value="">Sin cultivo</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label for="planPivoteSuelo" class="form-label">Tipo de suelo</label>
+                        <select id="planPivoteSuelo" class="browser-default form-select" ng-model="vm.plan.suelo"
+                            ng-options="s.valor as s.nombre for s in vm.suelos">
+                            <option value="">Sin especificar</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label for="planPivoteSensor" class="form-label">Sensor</label>
+                        <select id="planPivoteSensor" class="browser-default form-select" ng-model="vm.plan.sensor"
+                            ng-options="r.name as r.name for r in vm.redesSensores">
+                            <option value="">Sin sensor</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+        </form>
+
+        <footer class="ventana-pie">
+            <button type="button" class="btn btn-outline-secondary" ng-click="vm.cerrar()">Cancelar</button>
+            <button type="submit" form="formularioPlanPivote" class="btn btn-success">
+                <i class="material-icons align-middle me-1" aria-hidden="true">check</i>{{ vm.esNuevo() ? 'Agregar plan' : 'Guardar cambios' }}
+            </button>
+        </footer>
+    </div>
+</div>

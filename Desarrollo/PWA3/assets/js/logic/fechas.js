@@ -75,5 +75,76 @@
         return d1.getTime() <= d2.getTime();
     }
 
-    return { parseFechaHora2: parseFechaHora2, parseFechaHora: parseFechaHora, menorIgual: menorIgual };
+    // REQ-043 - Campos nativos de fecha y hora sin cambiar el formato guardado.
+    // El selector de Materialize guardaba "Nov 06, 2026" y "8:30 AM"; los campos nativos trabajan con
+    // "2026-11-06" y "08:30". Lo guardado (que tambien lee el resto del sistema) no cambia de formato.
+
+    function dosDigitos(n) {
+        return (n < 10 ? "0" : "") + n;
+    }
+
+    /** "Nov 06, 2026" o "2026-11-06" -> "2026-11-06". Vacio o no reconocido -> "". */
+    function isoDesdeFechaGuardada(texto) {
+        if (texto === undefined || texto === null) return "";
+        var limpio = String(texto).trim();
+        if (!limpio) return "";
+        if (/^\d{4}-\d{2}-\d{2}$/.test(limpio)) return limpio;
+        // REQ-045: fechas que Firebase guardo como Date serializado ("2020-01-31T06:00:00.000Z").
+        if (/^\d{4}-\d{2}-\d{2}T/.test(limpio)) return limpio.slice(0, 10);
+        try {
+            var f = parseFechaHora2(limpio);
+            return f.year + "-" + dosDigitos(f.month) + "-" + dosDigitos(f.day);
+        } catch (error) {
+            return "";
+        }
+    }
+
+    /** "2026-11-06" -> "Nov 06, 2026" (formato de siempre). No reconocido -> "". */
+    function fechaGuardadaDesdeIso(iso) {
+        var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso == null ? "" : iso).trim());
+        if (!m) return "";
+        var mes = parseInt(m[2], 10);
+        if (mes < 1 || mes > 12) return "";
+        return MESES[mes - 1] + " " + m[3] + ", " + m[1];
+    }
+
+    /** "8:30 AM", "12:05 am", "18:05" -> "08:30", "00:05", "18:05". No reconocido -> "". */
+    function hora24DesdeHoraGuardada(texto) {
+        var m = /^\s*(\d{1,2}):(\d{2})\s*([ap]\.?\s*m\.?)?\s*$/i.exec(String(texto == null ? "" : texto));
+        if (!m) return "";
+        var hora = parseInt(m[1], 10);
+        var minuto = parseInt(m[2], 10);
+        if (minuto > 59) return "";
+        if (m[3]) {
+            if (hora < 1 || hora > 12) return "";
+            var pm = /^p/i.test(m[3]);
+            if (hora === 12) hora = pm ? 12 : 0;
+            else if (pm) hora += 12;
+        } else if (hora > 23) {
+            return "";
+        }
+        return dosDigitos(hora) + ":" + dosDigitos(minuto);
+    }
+
+    /** "18:05" -> "6:05 PM"; "00:30" -> "12:30 AM" (como el selector de Materialize). */
+    function horaGuardadaDesde24(texto) {
+        var m = /^(\d{2}):(\d{2})(:\d{2})?$/.exec(String(texto == null ? "" : texto).trim());
+        if (!m) return "";
+        var hora = parseInt(m[1], 10);
+        var minuto = parseInt(m[2], 10);
+        if (hora > 23 || minuto > 59) return "";
+        var sufijo = hora >= 12 ? "PM" : "AM";
+        var hora12 = hora % 12 === 0 ? 12 : hora % 12;
+        return hora12 + ":" + dosDigitos(minuto) + " " + sufijo;
+    }
+
+    return {
+        parseFechaHora2: parseFechaHora2,
+        parseFechaHora: parseFechaHora,
+        menorIgual: menorIgual,
+        isoDesdeFechaGuardada: isoDesdeFechaGuardada,
+        fechaGuardadaDesdeIso: fechaGuardadaDesdeIso,
+        hora24DesdeHoraGuardada: hora24DesdeHoraGuardada,
+        horaGuardadaDesde24: horaGuardadaDesde24
+    };
 }));

@@ -1,0 +1,154 @@
+/* REQ-039: estilos de <dta-login> (antes ~30 atributos style="" en index.html). */
+
+dta-login {
+    display: block;
+}
+
+.login-fondo {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+
+.login-contenedor {
+    width: 95%;
+    min-height: 530px;
+    margin-top: calc(100vh - 520px);
+    max-width: 400px;
+    text-align: center;
+    position: relative;
+}
+
+.login-logo {
+    width: 60%;
+}
+
+.login-titulo {
+    font-size: 1.5em !important;
+    margin-bottom: 30px !important;
+    color: darkslategray;
+}
+
+.login-cuerpo {
+    padding: 0 20px;
+}
+
+.login-google-fila {
+    width: fit-content;
+    margin: auto;
+}
+
+.login-google-icono {
+    width: 24px;
+    margin-right: 20px;
+}
+
+.login-google-texto {
+    color: black;
+}
+
+.login-fila {
+    margin-bottom: 0;
+}
+
+.login-campo {
+    margin-bottom: 0;
+    background: #1312247a;
+    color: white;
+}
+
+.login-campo {
+    position: relative;
+}
+
+.login-campo input.login-input {
+    color: white !important;
+    border-bottom: 0 !important;
+    /* espacio para los botones de la derecha */
+    padding-right: 90px !important;
+    box-sizing: border-box !important;
+}
+
+/* Botones dentro del campo, pegados a la derecha y centrados en vertical. */
+.login-acciones {
+    position: absolute;
+    top: 50%;
+    right: 6px;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.login-icono {
+    display: block;
+    width: 34px;
+    height: 34px;
+    line-height: 32px;
+    border: 1px solid;
+    border-radius: 50%;
+    font-size: 26px;
+    text-align: center;
+}
+
+.login-icono-img {
+    object-fit: cover;
+}
+
+/* REQ-039: los mensajes del login van debajo del formulario, no en una ventana aparte. */
+.login-mensaje {
+    margin: 10px 0 0 0;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-weight: bold;
+    text-align: center;
+    line-height: 1.3;
+}
+
+.login-mensaje-error {
+    background: #ffebee;
+    color: #b71c1c;
+}
+
+.login-mensaje-exito {
+    background: #e8f5e9;
+    color: #1b5e20;
+}
+
+/* Los iconos eran <i>/<img> con clic; ahora son botones para que funcionen Enter y el teclado. */
+.login-boton-icono {
+    background: none;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    color: inherit;
+    cursor: pointer;
+    font: inherit;
+}
+
+.login-boton-icono:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+}
+
+.login-crear {
+    text-align: right;
+    margin: 15px 0 5px 0;
+    width: 100%;
+}
+
+.login-crear a {
+    color: white;
+    font-weight: bold;
+    position: relative;
+    z-index: 2;
+}
+
+.tyc a {
+    color: white;
+    font-weight: bold;
+}
+

@@ -1,0 +1,13 @@
+// REQ-043 fase B - Tema de DTA para Bootstrap (antes de las variables de Bootstrap).
+// Colores tomados de la interfaz actual para que lo migrado y lo pendiente parezcan el mismo producto.
+$primary:   #26a69a;   // "teal" de Materialize, el color de accion de la app
+$success:   #2e7d32;   // verde de marcha / plan actual
+$danger:    #c62828;
+$warning:   #f9a825;
+$info:      #0277bd;
+$secondary: #757575;   // botones grises de "volver"
+
+$border-radius:    .5rem;
+$border-radius-lg: .75rem;
+$font-family-sans-serif: Roboto, system-ui, -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+$enable-shadows: false;

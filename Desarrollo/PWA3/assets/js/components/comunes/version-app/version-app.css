@@ -1,0 +1,10 @@
+/* <dta-version-app>: version y compilacion en dos lineas seguidas (REQ-058) */
+.version-app {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 10px 20px 14px 20px;
+    font-size: 0.78em;
+    line-height: 1.35;
+    color: #888;
+}

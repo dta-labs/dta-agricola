@@ -1,0 +1,210 @@
+/* REQ-051: <dta-mapa-selector> */
+dta-mapa-selector {
+    display: block;
+}
+
+.bs.mapa-selector {
+    color: #212529;
+}
+
+/* Ayuda visual */
+.bs .mapa-ayuda {
+    margin-bottom: 10px;
+    border: 1px solid #fff59d;
+    border-radius: 12px;
+    background: #fffde7;
+    overflow: hidden;
+}
+
+.bs .mapa-ayuda-boton {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    padding: 10px 12px;
+    border: 0;
+    background: transparent;
+    color: #5d4037;
+    font: inherit;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+}
+
+.bs .mapa-ayuda-boton .material-icons {
+    font-size: 1.2rem;
+    color: #f9a825;
+}
+
+.bs .mapa-ayuda-contenido {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 0 12px 12px 12px;
+}
+
+.bs .mapa-ayuda-dibujo {
+    width: 140px;
+    flex-shrink: 0;
+    border-radius: 10px;
+}
+
+.bs .mapa-ayuda-pasos {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 0.88rem;
+    line-height: 1.35;
+    color: #424242;
+}
+
+.bs .mapa-ayuda-pasos li + li {
+    margin-top: 4px;
+}
+
+/* Mapa */
+.bs .mapa-marco {
+    position: relative;
+}
+
+.bs .mapa-lienzo {
+    height: 260px;
+    border-radius: 12px;
+    border: 1px solid #ced4da;
+    overflow: hidden;
+    z-index: 0;
+}
+
+.bs .mapa-indicacion {
+    position: absolute;
+    left: 50%;
+    bottom: 10px;
+    z-index: 500;
+    transform: translateX(-50%);
+    max-width: calc(100% - 20px);
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.72);
+    color: #fff;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    pointer-events: none;
+}
+
+.bs .mapa-indicacion .material-icons {
+    font-size: 1rem;
+    vertical-align: -3px;
+}
+
+/* Marcadores (divIcon) */
+.mapa-icono {
+    background: transparent;
+    border: 0;
+}
+
+.mapa-icono.mapa-pin span,
+.mapa-icono.mapa-vertice span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 2px solid #333;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+    font: 700 12px/1 Roboto, sans-serif;
+    cursor: grab;
+}
+
+.mapa-icono.mapa-pin span {
+    background: #e53935;
+    border-color: #fff;
+}
+
+.mapa-icono.mapa-vertice span {
+    background: #ffeb3b;
+    color: #333;
+}
+
+/* Leaflet dentro de .bs: el reboot de Bootstrap subraya y colorea los enlaces del mapa */
+.bs.mapa-selector .leaflet-bar a,
+.bs.mapa-selector .leaflet-bar a:hover {
+    color: #333;
+    text-decoration: none;
+}
+
+.bs.mapa-selector .leaflet-control-attribution a {
+    text-decoration: none;
+}
+
+/* Herramientas */
+.bs .mapa-herramientas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.bs .mapa-herramientas .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    box-shadow: none;
+}
+
+.bs .mapa-herramientas .material-icons {
+    font-size: 1.05rem;
+}
+
+/* Coordenadas: Bootstrap gana a los estilos globales de Materialize sobre <input> */
+.bs .mapa-coordenadas {
+    margin-top: 6px;
+}
+
+.bs.mapa-selector input.form-control,
+.bs.mapa-selector input.form-control:focus,
+.bs.mapa-selector input.form-control:focus:not([readonly]) {
+    height: auto;
+    margin: 0;
+    padding: 0.4rem 0.6rem;
+    border: 1px solid #ced4da;
+    border-radius: 0.5rem;
+    box-shadow: none;
+    box-sizing: border-box;
+    font-size: 0.95rem;
+}
+
+.bs.mapa-selector input.form-control:focus:not([readonly]) {
+    border-color: #26a69a;
+    box-shadow: 0 0 0 0.2rem rgba(38, 166, 154, 0.25);
+}
+
+.bs.mapa-selector .form-label {
+    margin-bottom: 2px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #424242;
+}
+
+.bs .mapa-mensaje {
+    margin: 8px 0 0 0;
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: #fff8e1;
+    color: #6d4c00;
+    font-size: 0.85rem;
+}
+
+@media (max-width: 575.98px) {
+    .bs .mapa-lienzo {
+        height: 230px;
+    }
+    .bs .mapa-ayuda-contenido {
+        flex-direction: column;
+    }
+    .bs .mapa-ayuda-dibujo {
+        width: 100%;
+        max-width: 220px;
+    }
+}

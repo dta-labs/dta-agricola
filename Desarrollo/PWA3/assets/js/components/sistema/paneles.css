@@ -1,0 +1,122 @@
+/*
+ * REQ-057 - Paneles de "Sistema" (pivote central, pozo...).
+ * Son los estilos que estaban en linea en index.html, sin cambios de aspecto: el rediseno va aparte.
+ */
+dta-panel-pivote-central,
+dta-panel-pozo,
+dta-panel-pivote-lineal,
+dta-panel-estacionario,
+dta-panel-sensores,
+dta-panel-nevera {
+    display: block;
+}
+
+.panel-sin-margen { margin-bottom: 0; margin-top: 0; }
+.panel-sin-margen-inferior { margin-bottom: 0 !important; }
+.panel-ancho { width: 100%; }
+.panel-fondo { background: #0000003d; }
+.panel-centro { text-align: center; }
+.panel-izquierda { text-align: left; }
+.panel-texto-blanco { color: white; }
+.panel-texto-rojo { color: red; }
+.panel-borde-superior { border-top: 1px solid lightgrey; }
+.panel-borde-superior-gris { border-top: 2px solid lightgrey; }
+.panel-icono-grande { font-size: 1.5em; }
+.panel-icono-estado { margin-top: 3px; }
+
+/* Pivote central: barra de control fija arriba, estado fijo abajo */
+/* !important: Materialize da a .row .col.s12 width 100% y margin-left auto con mas especificidad
+   (antes eran estilos en linea, que ganaban siempre). */
+.panel-pc-control {
+    margin-left: 12% !important;
+    width: 73% !important;
+    position: fixed;
+    top: 65px;
+}
+.panel-pc-botones {
+    border-bottom: 1px solid white;
+    border-top: 1px solid white;
+    font-size: 2.5em;
+}
+.panel-pc-estado {
+    padding: 0 !important;
+    width: 100% !important;
+    position: fixed;
+    top: calc(100vh - 65px);
+}
+
+/* Pozo */
+.panel-pozo-botones { font-size: 2em !important; }
+.panel-pozo-boton { border: 2px solid grey; background: transparent; }
+.panel-pozo-boton i { color: grey; }
+.panel-pozo-boton-izq { margin: 0 2px !important; border-radius: 5px 0 0 5px; }
+.panel-pozo-boton-der { border-radius: 0 5px 5px 0; }
+.panel-pozo-detenido { background: red; }
+.panel-pozo-detenido i { color: white; }
+.panel-pozo-encendido { background: #04d604; }
+.panel-pozo-encendido i { color: white; }
+.panel-pozo-estado-movil { margin-top: -70px; }
+.panel-pozo-detalle { margin-top: 30px; width: 95%; }
+.panel-gota { font-size: 1.7em; margin: 2px 0 3px 0; }
+.panel-gota-izq { margin-left: 5px; }
+.panel-modo { font-size: 1.3em; margin-left: 5px; }
+.panel-modo-icono { font-size: 1em; }
+.panel-reloj { width: 50%; }
+
+/* REQ-057 S1 - Pivote lineal, estacionario, sensores y nevera: los estilos que estaban en linea, generados
+   uno a uno (con !important para conservar la prioridad que tenian en linea). Se sustituyen en S2. */
+.panel-s-e1 { margin-bottom: 0 !important; margin-top: 0 !important; }
+.panel-s-e2 { margin-bottom: 0px !important; font-size: 2em !important; }
+.panel-s-e4 { border: 2px solid grey !important; border-radius: 5px 0 0 5px !important; }
+.panel-s-e5 { border: 2px solid grey !important; margin: 0 2px !important; }
+.panel-s-e6 { border: 2px solid grey !important; border-radius: 0 5px 5px 0 !important; }
+.panel-s-e7 { margin-left: 12% !important; position: fixed !important; top: 310px !important; }
+.panel-s-e8 { background: #0000003d !important; }
+.panel-s-e9 { text-align: center !important; }
+.panel-s-e10 { margin-top: 3px !important; }
+.panel-s-e11 { width: 100% !important; }
+.panel-s-e12 { border-top: 1px solid lightgrey !important; }
+.panel-s-e13 { font-size: 1.7em !important; margin: 2px 0 3px 0 !important; }
+.panel-s-e14 { margin-top: 10px !important; margin-bottom: 0 !important; height: calc(100vh - 280px) !important; overflow: auto !important; }
+.panel-s-e15 { color: grey !important; }
+.panel-s-e16 { font-size: x-large !important; }
+.panel-s-e17 { font-size: xx-large !important; }
+.panel-s-e18 { text-align: center !important; width: 50% !important; }
+.panel-s-e19 { font-size: 1.2em !important; margin-bottom: 10px !important; }
+.panel-s-e20 { margin-bottom: 0 !important; color: grey !important; }
+.panel-s-e21 { overflow: auto !important; }
+.panel-s-e22 { color: black !important; cursor: pointer !important; }
+.panel-s-e23 { font-size: small !important; }
+.panel-s-e24 { margin-top: -10px !important; }
+.panel-s-e25 { font-size: xx-small !important; }
+.panel-s-e26 { font-size: small !important; margin-top: 10px !important; }
+.panel-s-e28 { margin-left: 12% !important; width: 73% !important; position: fixed !important; top: 65px !important; }
+.panel-s-e29 { border-top: 2px solid lightgrey !important; }
+.panel-s-e30 { text-align: center !important; cursor: pointer !important; }
+.panel-s-e31 { font-size: 2em !important; }
+.panel-s-e32 { font-size: 1.5em !important; }
+.panel-s-e33 { padding: 0 !important; width: 100% !important; position: fixed !important; top: calc(100vh - 65px) !important; }
+.panel-s-e34 { margin-left: -20px !important; display: inline !important; }
+.panel-s-e35 { font-size: 3em !important; }
+.panel-s-e36 { width: 40px !important; border-radius: 5px !important; }
+.panel-s-e37 { display: inline !important; }
+.panel-s-e38 { position: relative !important; display: inline-block !important; }
+.panel-s-e39 { position: absolute !important; top: 17px !important; left: 27px !important; transform: translate(-50%, -50%) !important; font-size: 1.6em !important; font-weight: bold !important; }
+.panel-s-e40 { margin-left: 12% !important; position: fixed !important; top: 65px !important; width: 73% !important; z-index: 1 !important; text-shadow: 1px 1px 2px #000 !important; }
+.panel-s-e42 { border-top: 2px solid lightgrey !important; color: white !important; }
+.panel-s-e44 { margin-top: 80px !important; }
+.panel-s-e45 { color: white !important; margin: auto !important; z-index: 1 !important; text-shadow: 1px 1px 2px #000 !important; height: calc(100vh - 145px) !important; overflow-y: auto !important; scroll-behavior: smooth !important; }
+.panel-s-e46 { margin-bottom: 10px !important; }
+.panel-s-e47 { margin: auto !important; border: 1px solid gray !important; border-radius: 10px !important; }
+.panel-s-e48 { font-size: 2em !important; width: 100% !important; padding: 0 10px !important; box-sizing: border-box !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
+.panel-s-e49 { font-size: 3em !important; padding: 0 16.666666% 5px 0 !important; }
+.panel-s-e50 { font-size: 2em !important; text-align: right !important; margin-bottom: 0 !important; width: 100% !important; margin-left: 0 !important; }
+.panel-s-e51 { width: 35px !important; }
+.panel-s-e52 { font-size: 2em !important; text-align: right !important; margin-bottom: 0 !important; width: 100% !important; margin-left: 0px !important; }
+.panel-s-e53 { font-size: 2em !important; text-align: right !important; width: 100% !important; margin-left: 0px !important; }
+.panel-s-e54 { border: 1px solid grey !important; margin: 5px 0 !important; }
+.panel-s-e55 { font-size: 1.5em !important; margin-bottom: 5px !important; width: 100% !important; margin-left: 0px !important; }
+.panel-s-e56 { margin-left: 5px !important; }
+.panel-s-e58 { font-size: 0.9em !important; width: 100% !important; border: 1px solid !important; box-shadow: 3px 3px grey !important; }
+.panel-s-e59 { margin: auto !important; border: 1px solid gray !important; border-radius: 10px !important; background: #0000003d !important; }
+.panel-s-e60 { font-size: 4em !important; text-align: right !important; margin-bottom: 0 !important; width: 100% !important; margin-left: 0px !important; }

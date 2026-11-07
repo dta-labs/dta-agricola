@@ -99,7 +99,8 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  event.respondWith(fetch(event.request).catch(() => caches.match(event.request)));
+  // REQ-036: lo que no es de este origen (foto de Google, APIs) lo resuelve el navegador.
+  // Re-pedirlo desde aqui convertia cualquier fallo en una respuesta vacia (foto rota).
 });
 
 function getScopedUrl(url) {

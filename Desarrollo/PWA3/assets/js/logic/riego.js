@@ -115,5 +115,73 @@
         return { icono: "success", titulo: "Programa de riego iniciado correctamente!", detalle: "" };
     }
 
-    return { programar: programar, mensajeDeResultado: mensajeDeResultado };
+    // REQ-050 - Formulario del programa de riego (estacionario).
+
+    /** Opciones de "Repetir cada": el valor es texto porque programar() compara con String(periodo). */
+    var PERIODOS = [
+        { valor: "0", nombre: "veces" },
+        { valor: "1", nombre: "días" },
+        { valor: "2", nombre: "semanas" },
+        { valor: "3", nombre: "meses" }
+    ];
+
+    var PARCELAS = 7;
+
+    function numeroPositivo(valor) {
+        var n = Number(valor);
+        return isFinite(n) && n > 0 ? n : 0;
+    }
+
+    /**
+     * Errores del formulario, por campo, para mostrarlos junto a cada uno.
+     * fechas: logic/fechas.js (para comparar inicio y fin, aceptando "Nov 06, 2026" o "2026-11-06").
+     * Devuelve {} si no hay errores.
+     */
+    function erroresDelPrograma(programa, fechas) {
+        var p = programa || {};
+        var errores = {};
+        if (!String(p.nombre || "").trim()) errores.nombre = "Ponle un nombre al programa.";
+        if (!p.fecha_inicio) errores.fecha_inicio = "Elige la fecha de inicio.";
+        if (!p.hora_inicio) errores.hora_inicio = "Elige la hora de inicio.";
+        if (!p.fecha_fin) errores.fecha_fin = "Elige la fecha de fin.";
+        if (!(Number(p.cada) >= 1)) errores.cada = "Debe ser 1 o más.";
+        var tiempos = Array.isArray(p.t) ? p.t : [];
+        if (!tiempos.some(function (minutos) { return numeroPositivo(minutos) > 0; })) {
+            errores.t = "Indica los minutos de riego de al menos una parcela.";
+        }
+        if (!errores.fecha_inicio && !errores.fecha_fin && fechas && typeof fechas.isoDesdeFechaGuardada === "function") {
+            var inicio = fechas.isoDesdeFechaGuardada(p.fecha_inicio);
+            var fin = fechas.isoDesdeFechaGuardada(p.fecha_fin);
+            if (inicio && fin && fin < inicio) errores.fecha_fin = "La fecha de fin no puede ser anterior a la de inicio.";
+        }
+        return errores;
+    }
+
+    /** Minutos de riego de un ciclo completo (suma de las parcelas). */
+    function minutosPorCiclo(programa) {
+        var tiempos = programa && Array.isArray(programa.t) ? programa.t : [];
+        return tiempos.reduce(function (total, minutos) { return total + numeroPositivo(minutos); }, 0);
+    }
+
+    /** Deja el programa listo para el formulario: periodo como texto y 7 temporizadores. */
+    function normalizarPrograma(programa) {
+        var p = programa || {};
+        p.periodo = (p.periodo === undefined || p.periodo === null || p.periodo === "") ? "0" : String(p.periodo);
+        if (!Array.isArray(p.t)) p.t = [];
+        for (var i = 0; i < PARCELAS; i += 1) {
+            if (p.t[i] === undefined || p.t[i] === null || p.t[i] === "") p.t[i] = 0;
+        }
+        if (p.cada === undefined || p.cada === null || p.cada === "") p.cada = 1;
+        return p;
+    }
+
+    return {
+        programar: programar,
+        mensajeDeResultado: mensajeDeResultado,
+        PERIODOS: PERIODOS,
+        PARCELAS: PARCELAS,
+        erroresDelPrograma: erroresDelPrograma,
+        minutosPorCiclo: minutosPorCiclo,
+        normalizarPrograma: normalizarPrograma
+    };
 }));

@@ -1,0 +1,62 @@
+/* REQ-052: <dta-lector-codigo> */
+dta-lector-codigo {
+    display: block;
+}
+
+.bs .lector-botones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.bs .lector-botones .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    box-shadow: none;
+}
+
+.bs .lector-botones .material-icons {
+    font-size: 1.1rem;
+}
+
+.bs .lector-visor {
+    width: 100%;
+    max-width: 420px;
+    margin: 10px auto 0 auto;
+}
+
+.bs .lector-camara {
+    width: 100%;
+    min-height: 220px;
+    overflow: hidden;
+    border-radius: 10px;
+    background: #111;
+}
+
+.bs .lector-nfc {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+    color: #2e7d32;
+}
+
+.bs .lector-nfc .material-icons {
+    font-size: 48px;
+    animation: lector-pulso 1.4s ease-in-out infinite;
+}
+
+@keyframes lector-pulso {
+    0%, 100% { opacity: 0.35; transform: scale(0.92); }
+    50% { opacity: 1; transform: scale(1.05); }
+}
+
+.bs .lector-mensaje {
+    margin: 8px 0 0 0;
+    font-size: 0.85rem;
+    color: #00796b;
+}
+
+.bs .lector-mensaje-error {
+    color: #c62828;
+}

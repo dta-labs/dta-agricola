@@ -1,0 +1,86 @@
+<!-- REQ-057: panel del sistema de bombeo (antes index.html, seccion "sistema"). Mismo aspecto. -->
+<div class="col s12 panel-sin-margen-inferior">
+    <!-- Control (pantallas medianas y grandes) -->
+    <div class="row hide-on-small-only panel-sin-margen-inferior">
+        <div class="row panel-sin-margen-inferior">
+            <div class="col m12 row panel-pozo-botones">
+                <div class="col s6 center-align panel-pozo-boton panel-pozo-boton-izq" ng-click="vm.alDetener()" role="button" aria-label="Detener"
+                    ng-class="{ 'panel-pozo-detenido': vm.botones().detener }">
+                    <i class="fa fa-stop" aria-hidden="true"></i>
+                </div>
+                <div class="col s5 center-align panel-pozo-boton panel-pozo-boton-der" ng-click="vm.alEncender()" role="button" aria-label="Encender"
+                    ng-class="{ 'panel-pozo-encendido': vm.botones().avance }">
+                    <i class="fa fa-play" aria-hidden="true"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Estado general (movil) -->
+    <div class="row statusBar hide-on-med-and-up panel-ancho panel-pozo-estado-movil">
+        <div class="col s12">
+            <table>
+                <tr class="panel-borde-superior-gris">
+                    <td colspan="2" class="panel-centro">
+                        <div class="center-align"><i class="fa fa-tint panel-gota" aria-hidden="true"></i></div>
+                        <div class="center-align"><b>{{ vm.log().presion ? (vm.log().presion | number : 1) : 0 }}</b> m<sup>3</sup>/s</div>
+                    </td>
+                    <td class="panel-centro">
+                        <div class="center-align"><i class="fa fa-tint panel-gota" aria-hidden="true"></i></div>
+                        <div class="center-align"><b>{{ vm.log().presion ? (vm.log().presion | number : 1) : 0 }}</b>psi</div>
+                    </td>
+                    <td class="panel-centro">
+                        <div class="center-align"><i class="material-icons">rss_feed</i></div>
+                        <div class="center-align"><b>{{ vm.senal() }}</b>%</div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <!-- Estado y programa (pantallas medianas y grandes) -->
+    <div class="row hide-on-small-only panel-pozo-detalle">
+        <div class="col s12">
+            <table>
+                <tr>
+                    <td class="valign-wrapper panel-izquierda">
+                        <i class="material-icons">map</i>&nbsp;
+                        <b>[{{ vm.numeroParcela() }}] <span>{{ vm.parcela().name }}</span></b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="valign-wrapper panel-izquierda">
+                        <span class="panel-modo" ng-show="!vm.sistema.autoreverse && !vm.sistema.isScheduled"><i class="material-icons panel-modo-icono">keyboard_tab</i></span>
+                        <span class="panel-modo" ng-show="vm.sistema.autoreverse && !vm.sistema.isScheduled"><i class="fa fa-refresh" aria-hidden="true"></i></span>
+                        <span class="panel-modo" ng-show="!vm.sistema.autoreverse && vm.sistema.isScheduled"><i class="fa fa-calendar" aria-hidden="true"></i></span>
+                        &nbsp;
+                        <b>{{ vm.duracion() }}</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="valign-wrapper panel-izquierda">
+                        <i class="fa fa-tint panel-gota panel-gota-izq" aria-hidden="true"></i>
+                        &nbsp;&nbsp;
+                        <b>{{ vm.log().presion ? (vm.log().presion | number : 1) : 0 }}</b>psi
+                    </td>
+                </tr>
+                <tr>
+                    <td class="valign-wrapper panel-izquierda">
+                        <i class="material-icons">rss_feed</i>&nbsp;
+                        <b>{{ vm.senal() }}</b>%
+                    </td>
+                </tr>
+            </table>
+            <br>
+            <table>
+                <tr>
+                    <td class="valign-wrapper left truncate"><b>{{ vm.sistema.culture }}</b></td>
+                </tr>
+                <tr>
+                    <td class="valign-wrapper center">
+                        <img id="hourglass_{{ vm.sistema.key }}" src="assets/images/hourglass.gif" alt="En programa" class="panel-reloj"
+                            ng-show="!vm.sistema.autoreverse && vm.sistema.isScheduled && vm.sistema.status" loading="lazy">
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>

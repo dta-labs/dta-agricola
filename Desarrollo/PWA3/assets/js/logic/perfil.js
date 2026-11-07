@@ -161,6 +161,20 @@
         return errores;
     }
 
+    /**
+     * REQ-036: segunda URL para la foto de Google si la primera no carga.
+     * Las fotos de googleusercontent terminan en "=s96-c": otro tamano es otra URL (otra peticion,
+     * sin la respuesta fallida en cache). Devuelve null si no hay nada distinto que probar.
+     */
+    function fotoAlternativa(url) {
+        var texto = String(url == null ? "" : url).trim();
+        if (!/^https:\/\//.test(texto)) return null;
+        if (!/googleusercontent\.com\//.test(texto)) return null;
+        if (/=s\d+(-c)?$/.test(texto)) return texto.replace(/=s\d+(-c)?$/, "=s128-c");
+        if (texto.indexOf("=") >= 0) return null;
+        return texto + "=s128-c";
+    }
+
     function planPorId(id) {
         for (var i = 0; i < PLANES.length; i += 1) {
             if (PLANES[i].id === id) return PLANES[i];
@@ -175,6 +189,7 @@
         perfilDesdeUsuario: perfilDesdeUsuario,
         combinarProblemas: combinarProblemas,
         validarPerfil: validarPerfil,
-        planPorId: planPorId
+        planPorId: planPorId,
+        fotoAlternativa: fotoAlternativa
     };
 }));

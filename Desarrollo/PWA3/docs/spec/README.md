@@ -28,8 +28,42 @@
 | REQ-025 | El aviso de salida no puede romper el inicio de sesion | Implementado (probar con Google) | 12 |
 | REQ-026 | Diagnostico de sesion (herramienta `diagnostico.html`) | Implementado | - (headless) |
 | REQ-027 | Acceso con Google sin el iframe de Firebase (GIS) | **Revertido** (REQ-028) | 9 |
+| REQ-028 | Acceso con Google: flujo oficial de Firebase | Implementado | - |
+| REQ-029 | Un solo boton de salida | Implementado | 5 |
+| REQ-030 | Popup bloqueado por COOP: via principal redireccion | Implementado | 4 |
+| REQ-031 | Acceso con Google simple (solo redireccion) | Implementado (no fiable, ver REQ-035) | 4 |
+| REQ-032 | Cache de meteorologia | Implementado | 9 |
+| REQ-033 | Precache ligero del service worker | Implementado | 4 |
+| REQ-034 | **Refactorizacion total: especificacion base** | Propuesto | - |
+| REQ-035 | **Login fiable: Google, correo y salida** | Confirmado (Google) | 13 |
+| REQ-036 | Foto del usuario, perfil en el menu lateral y plan actual | Implementado (probar: usuario) | 7 |
+| REQ-037 | No aparecian los equipos: CSP bloqueaba la base de datos | Implementado (probar: usuario) | 2 |
+| REQ-038 | **Arquitectura por componentes** (capas, contrato, procedimiento) | Base implementada | 8 |
+| REQ-039 | Componente `dta-login` (piloto) | Implementado (probar: usuario) | 28 |
+| REQ-040 | Componentes `dta-ayuda` y `dta-fichas-tecnicas` | Implementado (probar: usuario) | 20 |
+| REQ-041 | Componentes `dta-perfil`, `dta-planes` y `dta-notificaciones` | Propuesto | - |
+| REQ-042 | Selector de cultivos del pivote (select nativo) | Implementado (probar: usuario) | 3 |
+| REQ-043 | **Salida de Materialize hacia Bootstrap 5** | Fases A-B; C: Ayuda, Fichas | 13 |
+| REQ-044 | Perfil desde la cabecera del menu y Plan dentro del perfil | Implementado (probar: usuario) | 3 |
+| REQ-045 | "Mi perfil" moderno (Bootstrap dentro del modal; fecha de nacimiento; guardar real) | Aprobado por el usuario (con ajustes REQ-046) | 9 |
+| REQ-047 | **Tema comun**: botones, modales, campos y ventanas con el estilo del perfil | Implementado (probar: usuario) | 5 |
+| REQ-048 | Fichas tecnicas en un modal (lista con buscador, ficha como linea de tiempo) | Implementado (probar: usuario) | 2 |
+| REQ-049 | Convivencia de modales Bootstrap / Materialize (capa blanca, contenido encimado, cabecera fija) | Implementado (probar: usuario) | 5 |
+| REQ-050 | Notificaciones, Ayuda, Invitar y Programa de riego con el estilo comun (`ventana.css`) | Implementado (probar: usuario) | 9 |
+| REQ-051 | **Geolocalizacion con mapa**: posiciones de sensores/equipos y poligonos de parcela, con ayuda visual | Implementado (probar: usuario) | 18 |
+| REQ-052 | Parcelas sombreadas por humedad y clicables, parcela del sensor, lector QR/barras/NFC, modales de sensor | Implementado (probar: usuario) | 23 |
+| REQ-053 | Modales de sensor: margenes, pasos y botones solo con icono en el movil (ver REQ-052 §8) | Implementado (probar: usuario) | - |
+| REQ-054 | Alertas del sensor con umbrales separados ("Regar/No regar" segun tipo, "Helada/Exceso de calor"); iconos centrados | Implementado (probar: usuario) | 2 |
+| REQ-055 | Planes con borde verde claro; ayuda (?) del pivote dentro del campo Velocidad/Volumen | Implementado (probar: usuario) | 2 |
+| REQ-056 | Ventana de velocidades del pivote: estilo comun, mm, fila actual, estados; (?) de "Nuevo plan" cargaba nada | Implementado (probar: usuario) | 3 |
+| REQ-057 | **"Sistema" por componentes** (paneles por tipo + modales; fases S1-S4) | S1 completa: 6 paneles (probar: usuario) | 12 |
+| REQ-058 | Version y compilacion al fondo del menu lateral, en dos lineas seguidas | Implementado (probar: usuario) | 1 |
+| REQ-059 | Plan de riego del pivote: un solo componente (nuevo/editar); velocidad guardada al maximo por comparar textos; suelo no guardado | Implementado (probar: usuario) | 8 |
+| REQ-060 | Pivote: los sectores del plan no pueden solaparse (formulario y aviso en la lista) | Implementado (probar: usuario) | 3 |
+| REQ-061 | Parcela del estacionario: E1 errores de datos (borraba la duracion del 1er riego; ceros cambiados; defaults que no llegaban) | E1 implementada (probar: usuario) | 7 |
+| REQ-062 | Pivote: 0 % = zona de paro (valido; se explica en el formulario y se marca en la lista) | Implementado (probar: usuario) | 1 |
 
-**Total: 106 pruebas en Node + 26 en navegador, todas en verde.**
+**Total: 353 pruebas en Node (2026-11-06), todas en verde.** `npm test` funciona en Node 20 y 22.
 
 ## Bloque de autenticacion (cerrado y confirmado por el usuario)
 
@@ -51,7 +85,7 @@
 
 ## Version de los assets
 
-`core.js?v=26.11.02.002` · `autentication.js?v=26.11.02.003`. Al modificarlos hay que **subir ese
+`core.js?v=26.11.07.001`, `logic/login.js?v=26.11.06.002`; componentes y factories con su propio `?v=` (la prueba de estructura exige que plantilla y script coincidan). Al modificarlos hay que **subir ese
 valor** en `index.html`, o el navegador puede seguir ejecutando la copia anterior.
 
 ## Recarga limpia (si algo no cuadra)

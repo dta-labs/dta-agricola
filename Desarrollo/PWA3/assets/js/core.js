@@ -52,7 +52,7 @@ function __equipos() {
 }
 
 // Marca de version: si no ves esto en consola, el navegador sirve un core.js viejo.
-console.log("[app] core.js 26.11.02.007");
+console.log("[app] core.js 26.11.07.007");
 
 // #region Controlador Angular
 
@@ -114,7 +114,6 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     $scope.as_users = false;
     $scope.isPlanning = false;
     $scope.listOfCultures = {};   // nunca undefined: los <select ng-options> revientan con undefined
-    $scope.selectedPlaneRiego;
     $scope.tiposSuelos = [
         {"id": "1", "type": "Arcilloso limoso"},
         {"id": "2", "type": "Arcilloso arenoso"},
@@ -186,7 +185,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     }
 
     $scope.showAyuda = () => {
-        $scope.showWindow('ayuda');
+        $scope.abrirAyuda();   // REQ-050: la ruta #!/ayuda abre el modal
     }
 
     $scope.showLogin = () => {
@@ -255,8 +254,12 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     }
 
     // REQ-019: un solo observador y sin revertir una sesion ya establecida.
+    // REQ-035: pero si el usuario PIDE salir, el evento nulo se respeta.
     let observandoSesion = false;
     let huboSesionEnEstaCarga = false;
+    let cierreDeSesionPedido = false;
+
+    const reglasLogin = () => (typeof DTALogic !== "undefined" && DTALogic.login) ? DTALogic.login : null;
 
     listenUserStatus = () => {
         if (observandoSesion) return;
@@ -265,27 +268,40 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         __auth().observar(sesion => {
             if (sesion.autenticado) {
                 huboSesionEnEstaCarga = true;
+                cierreDeSesionPedido = false;
                 console.log("[sesion] autenticado:", sesion.usuario && sesion.usuario.email);
-                $scope.authUser = sesion.usuario;
-                authUser = $scope.authUser;
-                getUserData();
-                $scope.showWindow('listado');
+                // REQ-035 C-5: el callback de Firebase esta fuera del ciclo de Angular.
+                $scope.$evalAsync(() => {
+                    $scope.fotoUsuarioFallo = false;
+                    $scope.authUser = sesion.usuario;
+                    authUser = $scope.authUser;
+                    getUserData();
+                    $scope.showWindow('listado');
+                });
                 return;
             }
 
             // Un evento nulo despues de una sesion valida es transitorio (el popup se esta
             // cerrando o expiro una peticion anterior): NO debe devolver al login ni borrar nada.
-            if (huboSesionEnEstaCarga) {
+            // REQ-035 C-4: salvo que el usuario haya pedido salir.
+            const ignorar = reglasLogin()
+                ? reglasLogin().debeIgnorarSesionNula({ huboSesion: huboSesionEnEstaCarga, cierrePedido: cierreDeSesionPedido })
+                : (huboSesionEnEstaCarga && !cierreDeSesionPedido);
+            if (ignorar) {
                 console.warn("[auth] evento nulo ignorado: la sesion ya estaba establecida");
                 return;
             }
 
             console.log("[auth] sin sesion: se muestra el login");
+            huboSesionEnEstaCarga = false;
+            cierreDeSesionPedido = false;
             removeFirebaseListeners();
-            $scope.$apply(function () {
+            $scope.$evalAsync(() => {
                 $scope.authUser = null;
+                authUser = null;
+                $scope.tipoUsuario = 0;
+                $scope.showWindow('login');
             });
-            $scope.showWindow('login');
         });
     };
 
@@ -325,33 +341,34 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         $scope.showWindow("login");
     }
 
-    $scope.logout = () => {
-
-        __auth().cerrarSesion().then(() => {
-            $scope.authUser = null;
-            $scope.tipoUsuario = 0;
-            limpiarSesionLocal();
-            // ui.start("#firebaseui-auth-container", uiConfig);
-            //logoutAutUser();
-            //document.getElementById("logout").style.display = "none";
-        }).catch((error) => {
-            // An error happened.
+    /**
+     * REQ-035: UNA sola salida. Cierra la sesion de Firebase, cancela los listeners de RTDB,
+     * limpia la sesion local (conserva preferencias del dispositivo) y muestra el login.
+     * Todos los botones "Salir" llaman a esta funcion.
+     */
+    $scope.salir = () => {
+        cierreDeSesionPedido = true;
+        console.log("[auth] cierre de sesion pedido por el usuario");
+        try { removeFirebaseListeners(); } catch (error) { console.warn("[auth] listeners:", error); }
+        limpiarSesionLocal();
+        return __auth().cerrarSesion().then(() => {
+            $scope.$evalAsync(() => {
+                $scope.authUser = null;
+                authUser = null;
+                $scope.tipoUsuario = 0;
+                $scope.showWindow('login');
+            });
+        }).catch(error => {
+            cierreDeSesionPedido = false;
+            console.error("[auth] no se pudo cerrar la sesion:", error);
+            if (typeof swal === "function") {
+                swal({ title: "No se pudo cerrar la sesión", text: (error && error.message) || String(error), icon: "warning" });
+            }
         });
+    };
 
-        // firebase.auth().signOut().then(function () {
-        //     let provider = new firebase.auth.GoogleAuthProvider();
-        //     provider.setCustomParameters({
-        //         prompt: 'select_account'
-        //     });
-        //     //ui = null;
-        //     $scope.authUser = null;
-        //     $scope.tipoUsuario = 0;
-        //     // ui.start("#firebaseui-auth-container", uiConfig);
-        //     //logoutAutUser();
-        //     //document.getElementById("logout").style.display = "none";
-        // });
-        // $scope.login();
-    }
+    // Compatibilidad: el nombre antiguo apunta a la salida unica.
+    $scope.logout = () => $scope.salir();
 
     $scope.isSystemOfRole = (role) => {
         let userRole = "";
@@ -360,12 +377,6 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         }
         let result = (userRole == role) ? true : false;
         return result;
-    }
-
-    $scope.loginEmailVerify = () => {
-        const mail = document.getElementById("signinMail").value;
-        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return regex.test(mail);
     }
 
     // #endregion USER
@@ -595,7 +606,6 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         document.getElementById("top-navbar").style.backgroundColor = $scope.getSystemBackgroundColor(system);
         document.getElementById("top-navbar").style.color = $scope.getSystemTextColor(system);
         setDeviceData(system);
-        $scope.loadCultures();
         setActualSystemPlans();
         $scope.actualizarListaCultivos();
         let dir = "/" + __modulo("equipos").carpetaDeLogs(system.type);
@@ -1032,7 +1042,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     $scope.startStationaryProgram = (p) => {
         // let p = $scope.programaEstacionario;
         if ($scope.actualSystem.type != "Estacionario" || !p.nombre || !p.fecha_inicio || !p.hora_inicio || !p.fecha_fin  || (!p.t[0] && !p.t[1] && !p.t[2] && !p.t[3] && !p.t[4] && !p.t[5] && !p.t[6])) {
-            swal("Por complete los datos marcados con *");
+            swal("Por favor, completa los datos marcados con *");
             return;
         }
         swal({
@@ -1075,13 +1085,17 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             fecha_fin: '',
             hora_inicio: '',
             cada: 1,
-            periodo: 0,
+            periodo: "0",   // REQ-050: texto, como las opciones (con 0 numerico el selector salia vacio)
             t: [0, 0, 0, 0, 0, 0, 0]
         };
+        $scope.erroresPrograma = {};
+        $scope.confirmarBorradoPrograma = false;
     }
 
     $scope.editStationaryProgram = (programa) => {
-        $scope.programaEstacionario = programa;
+        $scope.programaEstacionario = __modulo("riego").normalizarPrograma(programa);
+        $scope.erroresPrograma = {};
+        $scope.confirmarBorradoPrograma = false;
     }
 
     $scope.saveIrrigationPlan = (p) => {
@@ -1362,49 +1376,6 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         window.scrollTo(0, 1000);
     }
 
-    $scope.setNewPoligonNode = () => {
-        getLocation();
-        let iter = 0;
-        while ((!milatitud || !milongitud) && iter < 5) {
-            getLocation();
-            iter++;
-        }
-        if (milatitud && milongitud) {
-            document.getElementById("editPoligon").innerHTML += `,${milatitud},${milongitud}`;
-            $scope.$apply();
-        }
-    }
-
-    $scope.setDevicePosition = () => {
-        getLocation();
-        document.getElementById("newDeviceLatitude").value = `${milatitud}`;
-        document.getElementById("newDeviceLongitude").value = `${milongitud}`;
-        $scope.newDevice.latitude = milatitud;
-        $scope.newDevice.longitude = milongitud;
-    }
-
-    $scope.setSensorPosition = () => {
-        let iter = 0;
-        function ciclo() {
-            getLocation(); // tu función que actualiza milatitud y milongitud
-            if (milatitud && milongitud) {
-                document.getElementById("newSensorLatitude").value = milatitud;
-                document.getElementById("newSensorLongitude").value = milongitud;
-                $scope.newSensor.latitude = milatitud;
-                $scope.newSensor.longitude = milongitud;
-                $scope.actualSensor.latitude = milatitud;
-                $scope.actualSensor.longitude = milongitud;
-            } else {
-                iter++;
-                if (iter < 5) {
-                    setTimeout(ciclo, 2000);
-                }
-            }
-        }
-
-        ciclo();
-    }
-
     $scope.convertStrToJSON = (str) => {
         // return str ? JSON.parse(str.replace(/""/g, '"","",""')) : null;
         if (!str.startsWith('["') && !str.endsWith('"]')) {
@@ -1417,26 +1388,31 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
 
     // #region CONFIGURACIONES
 
-    $scope.showSystemTable = (type) => {
-        switch (type.toLowerCase()) {
-            case "valley":
-            case "valley cams":
-                type = "valley";
-                break;
-            case "zimmatic":
-            case "rintec hydrus (zimmatic)":
-            case "growsmart":
-                type = "growsmart";
-                break;
-            case "lindsay":
-                type = "lindsay";
-                break;
-        }
+    // REQ-056: tabla de velocidades del pivote. Antes fallaba sin marca (type.toLowerCase sobre undefined)
+    // y no avisaba si la lectura fallaba; "Nuevo plan" ni siquiera la cargaba.
+    $scope.pivoteTabla = { estado: "vacia", marca: "", filas: [], valorActual: null };
+    $scope.showSystemTable = (type, valorActual) => {
+        const pivote = __modulo("pivote");
+        const marca = pivote.marcaDeConfiguracion(type);
+        $scope.pivoteTabla = {
+            estado: marca ? "cargando" : "sin-marca",
+            marca: marca ? marca.nombre : "",
+            filas: [],
+            valorActual: valorActual === undefined || valorActual === null || valorActual === "" ? null : Number(valorActual)
+        };
+        if (!marca) return;
         $scope.systemConfig = {};
-        __repo().leerConfiguracion(type).then(config => {
-            $scope.systemConfig = config.val();
-            $scope.systemConfigType = type;
-            $scope.$apply();
+        __repo().leerConfiguracion(marca.clave).then(config => {
+            const datos = config && typeof config.val === "function" ? config.val() : null;
+            $scope.$evalAsync(() => {
+                $scope.systemConfig = datos;          // lo usa showSystemVelocity
+                $scope.systemConfigType = marca.clave;
+                $scope.pivoteTabla.filas = pivote.filasDeConfiguracion(datos);
+                $scope.pivoteTabla.estado = $scope.pivoteTabla.filas.length ? "lista" : "vacia";
+            });
+        }).catch(error => {
+            console.warn("[pivote] no se pudo leer la tabla de velocidades:", error);
+            $scope.$evalAsync(() => { $scope.pivoteTabla.estado = "error"; });
         });
     }
 
@@ -1452,7 +1428,6 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     }
 
     $scope.createNewDevice = () => {
-        $scope.stopNewDeviceQrScanner();
         getLocation();
         $scope.newDevice = {
             "active": true,
@@ -1472,191 +1447,8 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         $scope.showWindow('listado');
     }
 
-    let newDeviceQrScanner = null;
-
-    const setNewDeviceQrStatus = (message, isError) => {
-        $scope.newDeviceQrMessage = message;
-        $scope.newDeviceQrError = Boolean(isError);
-        if (!$scope.$$phase) {
-            $scope.$apply();
-        }
-    };
-
-    $scope.stopNewDeviceQrScanner = () => {
-        const scanner = newDeviceQrScanner;
-        newDeviceQrScanner = null;
-        if (scanner) {
-            scanner.stop()
-                .catch(error => console.warn("No fue posible detener el lector QR.", error))
-                .finally(() => {
-                    try {
-                        scanner.clear();
-                    } catch (error) {
-                        console.warn("No fue posible limpiar el lector QR.", error);
-                    }
-                });
-        }
-
-        $scope.newDeviceQrScanning = false;
-    };
-
-    $scope.toggleNewDeviceQrScanner = async () => {
-        if ($scope.newDeviceQrScanning) {
-            $scope.stopNewDeviceQrScanner();
-            $scope.newDeviceQrMessage = "";
-            return;
-        }
-
-        if (typeof Html5Qrcode === "undefined") {
-            setNewDeviceQrStatus("No fue posible cargar el lector de códigos QR.", true);
-            return;
-        }
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            setNewDeviceQrStatus("La cámara requiere abrir la aplicación mediante HTTPS.", true);
-            return;
-        }
-
-        try {
-            newDeviceQrScanner = new Html5Qrcode("newDeviceQrReader", {
-                formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
-                verbose: false
-            });
-            $scope.newDeviceQrScanning = true;
-            setNewDeviceQrStatus("Apunta la cámara al código QR del equipo.", false);
-
-            await $timeout(() => {});
-            await newDeviceQrScanner.start(
-                { facingMode: "environment" },
-                {
-                    fps: 10,
-                    qrbox: (viewfinderWidth, viewfinderHeight) => {
-                        const size = Math.floor(Math.min(viewfinderWidth, viewfinderHeight) * 0.7);
-                        return { width: size, height: size };
-                    }
-                },
-                decodedText => {
-                    if (!decodedText || !newDeviceQrScanner) {
-                        return;
-                    }
-                    $scope.newDevice.key = decodedText.trim();
-                    $scope.stopNewDeviceQrScanner();
-                    setNewDeviceQrStatus("Código QR leído correctamente.", false);
-                }
-            );
-        } catch (error) {
-            $scope.stopNewDeviceQrScanner();
-            const permissionDenied = error && (error.name === "NotAllowedError" || error.name === "PermissionDeniedError");
-            setNewDeviceQrStatus(
-                permissionDenied
-                    ? "Permite el acceso a la cámara para leer el código QR."
-                    : "No fue posible iniciar la cámara. Verifica que no esté siendo utilizada por otra aplicación.",
-                true
-            );
-        }
-    };
-
-    let sensorQrScanner = null;
-    let sensorQrMode = null;
-
-    const setSensorQrStatus = (mode, message, isError) => {
-        const prefix = mode === "edit" ? "editSensorQr" : "newSensorQr";
-        $scope[prefix + "Message"] = message;
-        $scope[prefix + "Error"] = Boolean(isError);
-        if (!$scope.$$phase) {
-            $scope.$apply();
-        }
-    };
-
-    $scope.stopSensorQrScanner = () => {
-        const scanner = sensorQrScanner;
-        const mode = sensorQrMode;
-        sensorQrScanner = null;
-        sensorQrMode = null;
-
-        if (scanner) {
-            scanner.stop()
-                .catch(error => console.warn("No fue posible detener el lector QR del sensor.", error))
-                .finally(() => {
-                    try {
-                        scanner.clear();
-                    } catch (error) {
-                        console.warn("No fue posible limpiar el lector QR del sensor.", error);
-                    }
-                });
-        }
-
-        if (mode === "edit") {
-            $scope.editSensorQrScanning = false;
-        } else {
-            $scope.newSensorQrScanning = false;
-        }
-    };
-
-    $scope.toggleSensorQrScanner = async mode => {
-        const scanningProperty = mode === "edit" ? "editSensorQrScanning" : "newSensorQrScanning";
-        if ($scope[scanningProperty]) {
-            $scope.stopSensorQrScanner();
-            setSensorQrStatus(mode, "", false);
-            return;
-        }
-
-        $scope.stopSensorQrScanner();
-
-        if (typeof Html5Qrcode === "undefined") {
-            setSensorQrStatus(mode, "No fue posible cargar el lector de códigos QR.", true);
-            return;
-        }
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            setSensorQrStatus(mode, "La cámara requiere abrir la aplicación mediante HTTPS.", true);
-            return;
-        }
-
-        try {
-            const readerId = mode === "edit" ? "editSensorQrReader" : "newSensorQrReader";
-            sensorQrMode = mode;
-            sensorQrScanner = new Html5Qrcode(readerId, {
-                formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
-                verbose: false
-            });
-            $scope[scanningProperty] = true;
-            setSensorQrStatus(mode, "Apunta la cámara al código QR del sensor.", false);
-
-            await $timeout(() => {});
-            await sensorQrScanner.start(
-                { facingMode: "environment" },
-                {
-                    fps: 10,
-                    qrbox: (viewfinderWidth, viewfinderHeight) => {
-                        const size = Math.floor(Math.min(viewfinderWidth, viewfinderHeight) * 0.7);
-                        return { width: size, height: size };
-                    }
-                },
-                decodedText => {
-                    if (!decodedText || !sensorQrScanner || sensorQrMode !== mode) {
-                        return;
-                    }
-
-                    if (mode === "edit") {
-                        $scope.actualSensor.id = decodedText.trim();
-                    } else {
-                        $scope.newSensor.id = decodedText.trim();
-                    }
-                    $scope.stopSensorQrScanner();
-                    setSensorQrStatus(mode, "Código QR leído correctamente.", false);
-                }
-            );
-        } catch (error) {
-            $scope.stopSensorQrScanner();
-            const permissionDenied = error && (error.name === "NotAllowedError" || error.name === "PermissionDeniedError");
-            setSensorQrStatus(
-                mode,
-                permissionDenied
-                    ? "Permite el acceso a la cámara para leer el código QR."
-                    : "No fue posible iniciar la cámara. Verifica que no esté siendo utilizada por otra aplicación.",
-                true
-            );
-        }
-    };
+    // REQ-052: los lectores de QR de equipo y sensor pasaron al componente <dta-lector-codigo>
+    // (QR, codigos de barras y NFC).
 
     $scope.setNewDeviceParams = () => {
         switch ($scope.newDevice.type) {
@@ -1885,8 +1677,6 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
 
     $scope.addNewUserToDevice = () => {
         updateDeviceUsers(convertDotToDash($scope.newUserEmail), $scope.actualSystem.key, $scope.newUserName, $scope.newUserRole);
-        //location.reload();
-        document.getElementById("modalAddUser").style.display = "none";
     }
 
     $scope.addNewSensorToNet = () => {
@@ -2051,33 +1841,16 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
 
     // #region PLAN DE RIEGO
 
-    $scope.resetNewPlan = () => {
-        let length = $scope.actualSystem.plans ? Object.keys($scope.actualSystem.plans).length : 0;
-        let index = `p${length > 0 ? length - 1 : length}`;
-        document.getElementById("planAnguloIni").value = length > 0 ? $scope.actualSystem.plans[index].endAngle : 0;
-        length > 0 ? document.getElementById("planAnguloIni").setAttribute("min", $scope.actualSystem.plans[index].endAngle) : null;
-        document.getElementById("planAnduloFin").value = 360;
-        document.getElementById("planValue").value = 0;
-        $scope.actualizarListaCultivos();
-        M.FormSelect.init(document.querySelectorAll('.select'));
-        M.AutoInit();
-        // document.getElementById("planType").value = "velocity";
-    }
-
     $scope.setNewPlan = (starAngle, endAngle, value, endGun, culture, sensor) => {
         if (!$scope.actualSystem.plans) {
             $scope.actualSystem["plans"] = {};
         }
-        if (starAngle == -1 || endAngle == -1) {
-            starAngle = document.getElementById('planAnguloIni').value,
-                endAngle = document.getElementById('planAnduloFin').value,
-                value = document.getElementById('planValue').value,
-                endGun = document.getElementById('planEndGun').value
-        }
+        // REQ-059: ya no lee el DOM (el formulario es <dta-plan-pivote>); solo lo usa deletePlan para el
+        // plan por defecto. Comparacion NUMERICA: antes "50" <= "100" (texto) era falso y guardaba la maxima.
         if (starAngle != endAngle) {
             let length = Object.keys($scope.actualSystem.plans).length;
             let index = `p${length}`;
-            let finalValue = (value <= $scope.actualSystem.maxVelocity) ? value : $scope.actualSystem.maxVelocity;
+            let finalValue = (Number(value) <= Number($scope.actualSystem.maxVelocity)) ? value : $scope.actualSystem.maxVelocity;
             let newPlan = {
                 starAngle: "" + starAngle,
                 endAngle: "" + endAngle,
@@ -2119,18 +1892,6 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         }
     }
 
-    $scope.setEditPlan = (index) => {
-        $scope.editedPlan = ('' + index).includes('p') ? index : `p${index}`;
-        $scope.editSelectedPlan = {};
-        $scope.editSelectedPlan["starAngle"] = parseInt($scope.actualSystem.plans[$scope.editedPlan].starAngle);
-        $scope.editSelectedPlan["endAngle"] = parseInt($scope.actualSystem.plans[$scope.editedPlan].endAngle);
-        $scope.editSelectedPlan["value"] = parseFloat($scope.actualSystem.plans[$scope.editedPlan].value);
-        $scope.editSelectedPlan["endGun"] = $scope.actualSystem.plans[$scope.editedPlan].endGun == "true" ? true : false;
-        $scope.editSelectedPlan["culture"] = $scope.actualSystem.plans[$scope.editedPlan].culture ? $scope.actualSystem.plans[$scope.editedPlan].culture : "";
-        $scope.editSelectedPlan["sensor"] = $scope.actualSystem.plans[$scope.editedPlan].sensor ? $scope.actualSystem.plans[$scope.editedPlan].sensor : "";
-        // $scope.sensorsList = $scope.getSensors();
-    }
-
     $scope.selectProgram = (programId) => {
         selectProgram(programId);
     }
@@ -2142,45 +1903,74 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         // $scope.$apply();
     }
 
+    // REQ-059: la fila elegida en la tabla de velocidades pasa al plan que se esta editando.
     $scope.setTimer = (value) => {
-        $scope.editSelectedPlan.value = value;
-        document.getElementById("planValue").value = value;
+        if ($scope.planPivote && $scope.planPivote.plan) $scope.planPivote.plan.velocidad = Number(value);
+        if ($scope.pivoteTabla) $scope.pivoteTabla.valorActual = Number(value);
     }
 
-    $scope.editPlan = () => {
+    // REQ-059: "Nuevo plan" y "Planificacion" del pivote son ahora un solo componente <dta-plan-pivote>.
+    $scope.planPivote = null;
+    $scope.redesDeSensores = [];
+    $scope.abrirPlanPivote = (indice) => {
+        const pivote = __modulo("pivote");
+        const planes = $scope.actualSystem.plans;
+        const clave = (indice === null || indice === undefined || indice === "") ? null
+            : (("" + indice).indexOf("p") === 0 ? "" + indice : "p" + indice);
+        $scope.actualizarListaCultivos();
+        $scope.redesDeSensores = Object.keys($scope.systems || {})
+            .map(k => $scope.systems[k]).filter(s => s && s.type == "Sensor");
+        $scope.planPivote = {
+            indice: clave,
+            plan: clave && planes && planes[clave] ? pivote.planDesdeGuardado(planes[clave]) : pivote.planNuevo(planes)
+        };
+        abrirModal("modalPlanPivote");
+    };
+
+    // REQ-060: sectores ya guardados que se solapan (para avisar en la lista de planes).
+    // Se usa en un ng-repeat: debe devolver la MISMA lista mientras los planes no cambien. Si devuelve
+    // una lista nueva en cada digest, Angular entra en bucle ($rootScope:infdig) y la pantalla deja de
+    // responder (paso en la compilacion 26.11.07.005).
+    let solapesEnCache = { clave: null, lista: [] };
+    $scope.solapamientosPivote = () => {
+        const planes = $scope.actualSystem ? $scope.actualSystem.plans : null;
+        const clave = JSON.stringify(planes || null);
+        if (clave !== solapesEnCache.clave) {
+            solapesEnCache = { clave: clave, lista: planes ? __modulo("pivote").solapamientos(planes) : [] };
+        }
+        return solapesEnCache.lista;
+    };
+
+    $scope.verVelocidadesPivote = (velocidad) => {
+        $scope.showSystemTable($scope.actualSystem.brand, velocidad);
+        abrirModal("systemConfigModal");
+    };
+
+    // Guardar (con la confirmacion de siempre). El plan ya viene validado por el componente.
+    $scope.guardarPlanPivote = (plan, indice) => {
         swal({
             title: "Plan de riego",
             text: "¿Desea confirmar los cambios realizados?",
             icon: "warning",
-            // buttons: true,
             buttons: {
                 cancel: "Cancelar",
-                confirm: {
-                  text: "Confirmar",
-                  value: true,
-                  visible: true,
-                  className: "btn-confirmar",
-                  closeModal: true
-                }
+                confirm: { text: "Confirmar", value: true, visible: true, className: "btn-confirmar", closeModal: true }
             },
             dangerMode: true,
-        })
-            .then((confirm) => {
-                if (confirm) {
-                    let ep = $scope.editSelectedPlan;
-                    $scope.actualSystem.plans[$scope.editedPlan] = ep;
-                    $scope.actualSystem.plans[$scope.editedPlan].endGun = ep.endGun ? "true" : "false";
-                    $scope.actualSystem.plans[$scope.editedPlan].value = ep.value <= $scope.actualSystem.maxVelocity ? ep.value : $scope.actualSystem.maxVelocity;
-                    $scope.setMachineSettings($scope.actualSystem);
-                    $scope.setEditPlan($scope.editedPlan);
-                    swal("Plan de riego actualizado correctamente!", {
-                        icon: "success",
-                    });
-                } else {
-                    swal("No se realizó la actualización!");
-                }
-            });
-    }
+        }).then((confirm) => {
+            if (!confirm) {
+                swal("No se realizó la actualización!");
+                return;
+            }
+            const sistema = $scope.actualSystem;
+            if (!sistema.plans || typeof sistema.plans !== "object") sistema.plans = {};
+            const clave = indice || __modulo("pivote").claveNueva(sistema.plans);
+            sistema.plans[clave] = plan;
+            sistema.plansLength = Object.keys(sistema.plans).length;
+            $scope.setMachineSettings(sistema);
+            swal("Plan de riego actualizado correctamente!", { icon: "success" });
+        });
+    };
 
     $scope.setEditPlanEstacionario = (index) => {
         $scope.editedPlan = index;
@@ -2192,6 +1982,9 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         }
         let asEpPlot = $scope.actualSystem.plots[index];
         asEpPlot["startDate"] = asEpPlot["startDate"] ? asEpPlot["startDate"] : " ";
+        // REQ-061 E1: los valores por defecto del riego a demanda los ponian unos ng-init que solo se
+        // ejecutaban al cargar la pagina (sobre un objeto vacio): nunca llegaban a una parcela real.
+        asEpPlot.irrigationConfig = __modulo("parcela").normalizarConfiguracion(asEpPlot.irrigationConfig);
         $scope.actualizarListaCultivos();
         // $scope.sensorsList = $scope.getSensors();
         $scope.editedCulture = $scope.actualSystem.plots[index].culture ? $scope.actualSystem.plots[index].culture : "";
@@ -2200,14 +1993,14 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         document.getElementById("editName").value = $scope.actualSystem.plots[index].name ? $scope.actualSystem.plots[index].name : "";
         document.getElementById("startDate").value = $scope.actualSystem.plots[index].startDate ? dateTimeToString($scope.actualSystem.plots[index].startDate.substr(0,16)) : "";
         document.getElementById("editPlotCaudal").value = $scope.actualSystem.plots[index].caudal ? $scope.actualSystem.plots[index].caudal : "0";
-        document.getElementById("editPoligon").innerHTML = $scope.actualSystem.plots[index].poligon ? $scope.actualSystem.plots[index].poligon : "";
+        // REQ-051: el poligono se edita en el mapa (<dta-mapa-selector>), no en un <textarea>.
+        $scope.edicionParcela = { poligono: __modulo("geo").normalizarPoligono($scope.actualSystem.plots[index].poligon) };
         document.getElementById("editEqSensor").selectedIndex = $scope.actualSystem.plots[index].sensor ? $scope.actualSystem.plots[index].sensor : "";
         document.getElementById("editSoil").selectedIndex = $scope.actualSystem.plots[index].soil ? $scope.actualSystem.plots[index].soil : "";
         // document.getElementById("editDay").value = $scope.getDayFromMs($scope.actualSystem.plots[index].value);
         // document.getElementById("editHour").value = $scope.getHourFromMs($scope.actualSystem.plots[index].value);
         // document.getElementById("editMinutes").value = $scope.getMinutesFromMs($scope.actualSystem.plots[index].value);
         document.getElementById("editType").value = $scope.actualSystem.plots[index].valve ? $scope.actualSystem.plots[index].valve : "F";
-        M.FormSelect.init(document.querySelectorAll('.select'));
     }
 
     $scope.getSensorNetworks = () => {
@@ -2398,67 +2191,45 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         let a = 0;
     }
 
+    // REQ-061 E1: "Aceptar" en Configurar parcela guardaba tambien los campos del modal "Editar fecha"
+    // (vacios) y dejaba en 0 la duracion del PRIMER riego programado (schedule[0].value = 0).
+    // Ahora guardar la parcela no toca los riegos; la fecha editada se guarda con guardarFechaRiego().
     $scope.dataEditionPlanEstacionario = () => {
         updatePoligon();
         validateIrrigationconfig();
-        let day = document.getElementById("editDay").value != '' ? parseInt(document.getElementById("editDay").value) * (1000 * 60 * 60 * 24) : 0;
-        let hour = document.getElementById("editHour").value != '' ? parseInt(document.getElementById("editHour").value) * (1000 * 60 * 60) : 0;
-        let minutes = document.getElementById("editMinutes").value != '' ? parseInt(document.getElementById("editMinutes").value) * (1000 * 60) : 0;
-        let millis = day + hour + minutes;
-        let index = document.getElementById("editScheduleIndex").value != '' ? parseInt(document.getElementById("editScheduleIndex").value) : 0;
-        if ($scope.actualSystem.plots[$scope.editedPlan].schedule) {
-            $scope.actualSystem.plots[$scope.editedPlan].schedule[index].value = millis;
-            let aux = document.getElementById("scheduleDate").value.split("T");
-            let date = aux[0];
-            let time = aux[1];
-            $scope.actualSystem.plots[$scope.editedPlan].schedule[index].date = date ? date : $scope.actualSystem.plots[$scope.editedPlan].schedule[index].date;
-            $scope.actualSystem.plots[$scope.editedPlan].schedule[index].time = time ? time : $scope.actualSystem.plots[$scope.editedPlan].schedule[index].time;
-        }            
         $scope.actualSystem.plots[$scope.editedPlan].caudal = document.getElementById("editPlotCaudal").value;
-        // $scope.actualSystem.plots[$scope.editedPlan]["sensor"] = document.getElementById("editEqSensor").value.split(":")[1];
         $scope.actualSystem.plots[$scope.editedPlan].valve = document.getElementById("editType").value;
-        // $scope.actualSystem.plots[$scope.editedPlan].soil = document.getElementById("editSoil").value;
         $scope.setMachineSettings($scope.actualSystem);
-        // let cultureList = document.getElementById("selectPlotCulture");
-        // $scope.actualSystem.plots[$scope.editedPlan].culture = cultureList.options[cultureList.selectedIndex].text;
-        // asignCulture($scope.actualSystem.plots[$scope.editedPlan].culture);
-    }
-    
-    updatePoligon = () => {
-        let arr1 = [];
-        let arr2 = document.getElementById("editPoligon").value.split(",");
-        if (arr2.length >= 2) {
-            for (let i = 0; i < arr2.length; i += 2) {
-                let arr3 = [];
-                arr3.push(parseFloat(arr2[i]));
-                arr3.push(parseFloat(arr2[i + 1]));
-                arr1.push(arr3);
-            }
-            $scope.actualSystem.plots[$scope.editedPlan].poligon = arr1;
-        } else {
-            $scope.actualSystem.plots[$scope.editedPlan].poligon = "";
-        }
     }
 
+    // Guardar el riego programado que se edito en "Editar fecha de riego".
+    $scope.guardarFechaRiego = () => {
+        const plot = $scope.actualSystem.plots[$scope.editedPlan];
+        const indice = document.getElementById("editScheduleIndex").value;
+        if (!plot || !plot.schedule || indice === "" || !plot.schedule[parseInt(indice)]) return;
+        const riego = plot.schedule[parseInt(indice)];
+        riego.value = __modulo("parcela").msDesdeDuracion({
+            dias: document.getElementById("editDay").value,
+            horas: document.getElementById("editHour").value,
+            minutos: document.getElementById("editMinutes").value
+        });
+        const aux = document.getElementById("scheduleDate").value.split("T");
+        riego.date = aux[0] ? aux[0] : riego.date;
+        riego.time = aux[1] ? aux[1] : riego.time;
+        $scope.setMachineSettings($scope.actualSystem);
+    }
+
+    updatePoligon = () => {
+        const geo = __modulo("geo");
+        const poligono = geo.normalizarPoligono($scope.edicionParcela && $scope.edicionParcela.poligono);
+        $scope.actualSystem.plots[$scope.editedPlan].poligon = geo.esPoligonoValido(poligono) ? poligono : "";
+    }
+
+    // REQ-061 E1: mismos valores por defecto y limites, pero un 0 escrito se respeta
+    // (antes `!valor ? defecto`: 0 °C de paro -> 20 °C, 0 % de reduccion -> -30 %, 0 mm -> 3 mm...).
     validateIrrigationconfig = () => {
-        $scope.actualSystem.plots[$scope.editedPlan].irrigationConfig = $scope.actualSystem.plots[$scope.editedPlan].irrigationConfig ? $scope.actualSystem.plots[$scope.editedPlan].irrigationConfig : {};
-        let irrConfig = $scope.actualSystem.plots[$scope.editedPlan].irrigationConfig;
-        irrConfig.isAdjustReduction = !irrConfig.isAdjustReduction ? false : true;
-        irrConfig.isAdjustFrecuency = !irrConfig.isAdjustFrecuency ? false : true;
-        irrConfig.isAdjustIncrement = !irrConfig.isAdjustIncrement ? false : true;
-        irrConfig.isStopByRainDay = !irrConfig.isStopByRainDay ? false : true;
-        irrConfig.isStopByRainWeek = !irrConfig.isStopByRainWeek ? false : true;
-        irrConfig.isStopByTemp = !irrConfig.isStopByTemp ? false : true;
-        irrConfig.isStopByWind = !irrConfig.isStopByWind ? false : true;
-        irrConfig.isStopByRainProbability = !irrConfig.isStopByRainProbability ? false : true;
-        irrConfig.reductionPercent = !irrConfig.reductionPercent ? -30 : irrConfig.reductionPercent < -100 ? -100 : irrConfig.reductionPercent > 0 ? 0 : irrConfig.reductionPercent;
-        irrConfig.reductionTemp = !irrConfig.reductionTemp ? 25 : irrConfig.reductionTemp < -10 ? -10 : irrConfig.reductionTemp > 70 ? 70 : irrConfig.reductionTemp;
-        irrConfig.incrementPercent = !irrConfig.incrementPercent ? 50 : irrConfig.incrementPercent < 0 ? 0 : irrConfig.incrementPercent > 100 ? 100 : irrConfig.incrementPercent;
-        irrConfig.stopByTemp = !irrConfig.stopByTemp ? 20 : irrConfig.stopByTemp < -10 ? -10 : irrConfig.stopByTemp > 70 ? 70 : irrConfig.stopByTemp;
-        irrConfig.stopByRainProbability = !irrConfig.stopByRainProbability ? 80 : irrConfig.stopByRainProbability < 0 ? 0 : irrConfig.stopByRainProbability > 100 ? 100 : irrConfig.stopByRainProbability;
-        irrConfig.stopByWind = !irrConfig.stopByWind ? 100 : irrConfig.stopByWind < 0 ? 0 : irrConfig.stopByWind;
-        irrConfig.stopByRainDay = !irrConfig.stopByRainDay ? 3 : irrConfig.stopByRainDay < 0 ? 0 : irrConfig.stopByRainDay;
-        irrConfig.stopByRainWeek = !irrConfig.stopByRainWeek ? 30 : irrConfig.stopByRainWeek < 0 ? 0 : irrConfig.stopByRainWeek;
+        const plot = $scope.actualSystem.plots[$scope.editedPlan];
+        plot.irrigationConfig = __modulo("parcela").normalizarConfiguracion(plot.irrigationConfig);
     }
     
     $scope.startPlotIrrigation = () => {
@@ -2730,36 +2501,17 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         });
     }
 
-    $scope.loadCultures = () => {
-        if (!$scope.listOfCultures) { getCultures(); };
-        $scope.showWindow('fichasTecnicas');
-    }
-
-    $scope.showFichaTecnicaModal = (plan) => {
-        if (plan.price == "0.00") {
-            $scope.selectedPlaneRiego = plan;
-            $scope.selectedPlaneRiego.plan.forEach((plan) => {
-                plan["range"] = plan.day;
-                // let values = plan.day.split("~")
-                // let value = parseInt(values[0]) < parseInt(values[1]) ? parseInt(values[0]) : parseInt(values[1]);
-                // plan.day = plan.day && (typeof plan.day) != "number" ? value : 0;
-                plan.day = plan.day && (typeof plan.day) != "number" ? parseInt(plan.day.split("~")[0]) : 0;
-            });
-            $scope.selectedPlaneRiego.plan.sort((a, b) => a.day - b.day);
-            M.Modal.getInstance($('#fichaTecnica')).open();
-        } else {
-            swal({
-                title: "Ficha técnica de " + plan.culture + " " + plan.detail,
-                text: "Este es un recurso de pago",
-                icon: "warning",
-                button: true,
-                dangerMode: true,
-            });
-        }
-    }
+    // REQ-040 F-5: listOfCultures arranca en {} (nunca falsy), asi que "if (!$scope.listOfCultures)"
+    // no cargaba nunca los cultivos. Ahora se cargan una vez, la primera vez que se necesitan.
+    let cultivosCargados = false;
+    let leyendoCultivos = false;
+    const cargarCultivosSiFaltan = () => {
+        if (cultivosCargados || leyendoCultivos) return;
+        getCultures();
+    };
 
     $scope.actualizarListaCultivos = () => {
-        if (!$scope.listOfCultures) { getCultures(); };
+        cargarCultivosSiFaltan();
     }
 
     $scope.showDiseaseDetails = (disease) => {
@@ -2774,13 +2526,17 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     }
 
     getCultures = () => {
+        leyendoCultivos = true;
         __repo().leerCultivos().then(cultivos => {
+            leyendoCultivos = false;
+            cultivosCargados = true;
             // Nunca null/undefined: si no hay datos, objeto vacio (evita el TypeError del <select>).
             $scope.listOfCultures = (cultivos && typeof cultivos.val === 'function' && cultivos.val()) || {};
-            M.FormSelect.init(document.querySelectorAll('.select'));
-            M.AutoInit();
+            // REQ-042/043: los select son nativos (browser-default): basta con el digest.
             $scope.$apply();
+            M.AutoInit();
         }).catch(error => {
+            leyendoCultivos = false;
             // Las reglas desplegadas pueden denegar /cultivos; no debe romper la vista.
             console.warn("[cultivos] no se pudieron leer:", (error && error.message) || error);
             $scope.listOfCultures = {};
@@ -2789,8 +2545,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     }
 
     $scope.getCultureList = () => {
-        if (!$scope.listOfCultures) { getCultures(); };
-        M.FormSelect.init(document.querySelectorAll('.select'));
+        cargarCultivosSiFaltan();
         M.AutoInit();
     }
 
@@ -2907,7 +2662,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
 
     $scope.editFechaRiego = (schedule, index) => {
         let data = schedule.value ? schedule.value : 0;
-        document.getElementById("editDay").value = $scope.getDayFromMs();
+        document.getElementById("editDay").value = $scope.getDayFromMs(data);
         document.getElementById("editHour").value = $scope.getHourFromMs(data);
         document.getElementById("editMinutes").value = $scope.getMinutesFromMs(data);
         document.getElementById("editScheduleIndex").value = index;
@@ -2981,8 +2736,75 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             map = L.map('map', {keyboard: false});   // evita que el mapa se enfoque y mueva la página
             addLayers();
             rosanautica();
+            leyendaHumedad();
         }
     }
+
+    // REQ-052: leyenda de colores de humedad de las parcelas sombreadas.
+    const leyendaHumedad = () => {
+        const control = L.control({ position: "bottomleft" });
+        control.onAdd = () => {
+            const div = L.DomUtil.create("div", "mapa-leyenda-humedad");
+            div.innerHTML = '<b>Humedad del suelo</b>' + __modulo("humedad").leyenda()
+                .map(e => `<span><i style="background:${e.color}"></i>${e.texto}</span>`).join("");
+            L.DomEvent.disableClickPropagation(div);
+            return div;
+        };
+        control.addTo(map);
+    };
+
+    // REQ-052: texto seguro para tooltips del mapa (nombres escritos por el usuario).
+    const escaparHtml = (texto) => String(texto == null ? "" : texto)
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+    // REQ-052: estilo de una parcela segun la humedad (relleno) y si se esta regando (borde).
+    const estiloParcela = (estado, activa) => ({
+        color: activa ? "#00e676" : "#ffffff",
+        weight: activa ? 4 : 2,
+        fillColor: estado.color,
+        fillOpacity: 0.45
+    });
+
+    const textoHumedad = (estado) => estado.valor === null
+        ? "Humedad: sin dato"
+        : `Humedad: <b>${estado.texto}</b> (${estado.valor}${estado.unidad})`;
+
+    // REQ-052: tocar una parcela abre "Editar parcela".
+    const abrirEdicionDeParcela = (idx) => {
+        $scope.$evalAsync(() => {
+            $scope.setEditPlanEstacionario(idx);
+            abrirModal("modalEditRiegoEstacionario");
+        });
+    };
+
+    // REQ-052: tocar el area de un sensor abre "Editar sensor".
+    const abrirEdicionDeSensor = (sensor) => {
+        $scope.$evalAsync(() => {
+            $scope.editSensor(sensor);
+            abrirModal("modalEditSensor");
+        });
+    };
+
+    // REQ-052: areas (poligonos) de los sensores de una red, sombreadas por su humedad.
+    const dibujarAreasDeSensores = (campo) => {
+        if (!map || campo.type != "Sensor" || !campo.sensors) return;
+        const geo = __modulo("geo");
+        const humedad = __modulo("humedad");
+        humedad.sensoresDeRed(campo).forEach(({ indice, clave, sensor }) => {
+            const capa = campo.key + clave;
+            if (poligons[capa]) { map.removeLayer(poligons[capa]); delete poligons[capa]; }
+            const area = geo.normalizarPoligono(sensor.poligon);
+            if (!geo.esPoligonoValido(area)) return;
+            const estado = humedad.estadoEnRed(campo, indice);
+            poligons[capa] = L.polygon(area, estiloParcela(estado, false));
+            poligons[capa].bindTooltip(
+                `<b>${escaparHtml(sensor.alias || "Sensor " + (indice + 1))}</b><br>${textoHumedad(estado)}<br><small>Toca para editar</small>`,
+                { sticky: true, direction: "top", className: "parcela-tooltip" });
+            poligons[capa].on("click", () => abrirEdicionDeSensor(sensor));
+            map.addLayer(poligons[capa]);
+            poligons[capa].bringToBack();
+        });
+    };
 
     rosanautica = () => {
         let north = L.control({ position: "topright" });
@@ -3058,6 +2880,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             marker[campo.key].setLatLng(coord);
             marker[campo.key].setPopupContent(getMarkerText(campo));
             refreshSensorMapContent(campo);
+            dibujarAreasDeSensores(campo);
             return;
         }
 
@@ -3139,6 +2962,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         }
         let text = getMarkerText(campo);
         marker[campo.key].bindPopup(text);
+        dibujarAreasDeSensores(campo);
     };
 
     const refreshSensorMapContent = (campo) => {
@@ -3464,13 +3288,12 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     const getSensorValue = (campo, sensor, idx) => {
         let date = campo.log.date ? campo.log.date.substring(6, 8) + "/" + campo.log.date.substring(4, 6) + " " + campo.log.date.substring(9, 11) + ":" + campo.log.date.substring(11, 15) : "";
         let data = campo.log ? JSON.parse(campo.log.dataRaw) : [];
-        let hmin = sensor.h.minValue !== "NaN" ? parseInt(sensor.h.minValue) : 25;
-        let hmax = sensor.h.maxValue !== "NaN" ? parseInt(sensor.h.maxValue) : 60;
-        let msValue = data[idx * 8] !== "NaN" ? parseInt(data[idx * 8]) : -99;
-        let msColor = sensor.type != 'WM' ? (msValue <= hmin ? "#ff000080" : (msValue >= hmax ? "#0000ff80" : "#00ff0080")) :
-                                            (msValue <= 10 ? "#0000ff80" : (msValue <= 60 ? "#00ff0080" : "#ff000080"));
-        let msStatus = sensor.type != 'WM' ? (msValue <= hmin ? "Seco" : (msValue >= hmax ? "Saturado" : "Adecuado")) : 
-                                            (msValue <= 10 ? "Saturado" : (msValue <= 60 ? "Adecuado" : "Seco"));
+        // REQ-052: la regla de humedad vive en logic/humedad.js (tambien la usa el mapa).
+        // Sin lectura ya no se muestra "Seco -99%", sino "Sin dato".
+        const estadoMs = __modulo("humedad").estadoHumedad(sensor, data[idx * 8]);
+        let msValue = estadoMs.valor === null ? "" : estadoMs.valor;
+        let msColor = estadoMs.fondo;
+        let msStatus = estadoMs.texto;
         let text = ``;
         text += `<div style="padding: 0 10px; width: 130px;">`;  // 👈 Ancho definido aquí
         text += `    <div class="row" style="margin-bottom: 5px;">`;
@@ -3488,7 +3311,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             text += `    <div class="row" style="margin-bottom: 5px; border-radius: 6px; background-color: ${ msColor };">`;
             text += `        <div class="col s3" style="padding-top: 7px;"><img src="./assets/images/Hr_white.png" alt="Agua" style="width: 15px;"></div>`;
             text += `        <div class="col s9 soil-moisture-status-text" style="text-align: right; padding-top: 5px; font-size: 1.2em; color: white; margin-left: -15px;">`;
-            text += `           <b style="-webkit-text-stroke: 0.6px #1f1f1f; paint-order: stroke fill; text-shadow: -1px -1px 0 #1f1f1f, 1px -1px 0 #1f1f1f, -1px 1px 0 #1f1f1f, 1px 1px 0 #1f1f1f;">${ msStatus } ${ msValue }${ sensor.type != 'WM' ? '%' : 'cb' }</b>`;
+            text += `           <b style="-webkit-text-stroke: 0.6px #1f1f1f; paint-order: stroke fill; text-shadow: -1px -1px 0 #1f1f1f, 1px -1px 0 #1f1f1f, -1px 1px 0 #1f1f1f, 1px 1px 0 #1f1f1f;">${ msStatus } ${ msValue }${ msValue === "" ? "" : (sensor.type != 'WM' ? '%' : 'cb') }</b>`;
             text += `        </div>`;
             text += `    </div>`;
         }
@@ -3650,26 +3473,19 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                     if (poligons[campo.key + idx]) {
                         map.removeLayer(poligons[campo.key + idx]);
                     }
-                    let color = $scope.isPlotActive(campo, "p" + i) ? "lightgreen" : "blue";
-                    // let color = campo.position == i ? "lightgreen" : "blue";
-                    poligons[campo.key + idx] = L.polygon(newPoligon, { color: color });
-                    // poligons[campo.key + idx].bindPopup("<a class='modal-trigger' href='#modalConfig' style='color: black;'>" + campo.plots[idx].name + "</a>");
-                    // poligons[campo.key + idx].bindPopup(`<a class="modal-trigger" href="#modalEditRiegoEstacionario" style="color: black;" ng-click="setEditPlanEstacionario('${idx}')">${campo.plots[idx].name}</a>`);
-                    let msg = ``;
-                    msg += `<table class="striped highlight">`;
-                    msg += `    <tr>`;
-                    msg += `        <td style="text-align: left;">Nombre:</td>`;
-                    msg += `        <td style="text-align: left;"><b>${campo.plots[idx].name}</b></td>`;
-                    msg += `    </tr>`;
-                    msg += `    <tr>`;
-                    msg += `        <td style="text-align: left;">Cultivo:</td>`;
-                    msg += `        <td style="text-align: left;"><b>${campo.plots[idx].culture}</b></td>`;
-                    msg += `    </tr>`;
-                    msg += `    <tr>`;
-                    msg += `        <td style="text-align: left;">Caudal:</td>`;
-                    msg += `        <td style="text-align: left;"><b>${campo.plots[idx].caudal}</b></td>`;
-                    msg += `    </tr>`;
-                    poligons[campo.key + idx].bindPopup(msg);
+                    // REQ-052: relleno por humedad del suelo (sensor asociado), borde verde si se esta regando;
+                    // tocar la parcela abre "Editar parcela".
+                    const estado = __modulo("humedad").estadoDeParcela(campo.plots[idx], $scope.systems);
+                    const activa = $scope.isPlotActive(campo, "p" + i);
+                    const parcela = campo.plots[idx];
+                    poligons[campo.key + idx] = L.polygon(newPoligon, estiloParcela(estado, activa));
+                    poligons[campo.key + idx].bindTooltip(
+                        `<b>${escaparHtml(parcela.name || "Parcela " + (i + 1))}</b>` +
+                        (parcela.culture ? `<br>Cultivo: ${escaparHtml(parcela.culture)}` : "") +
+                        `<br>${textoHumedad(estado)}` + (activa ? "<br><b>Regando</b>" : "") +
+                        `<br><small>Toca para editar</small>`,
+                        { sticky: true, direction: "top", className: "parcela-tooltip" });
+                    poligons[campo.key + idx].on("click", () => abrirEdicionDeParcela(idx));
                     map.addLayer(poligons[campo.key + idx]);
                 }
             }
@@ -4620,7 +4436,6 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
 
     const reglasPerfil = () => __modulo("perfil");
 
-    $scope.menuUsuario = false;
     $scope.opcionesProblemas = reglasPerfil().OPCIONES.problemas;
     $scope.opcionesInversion = reglasPerfil().OPCIONES.inversion;
     $scope.opcionesDecision = reglasPerfil().OPCIONES.decision;
@@ -4647,12 +4462,34 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         if (modal) modal.close();
     };
 
-    $scope.abrirMenuUsuario = () => { $scope.menuUsuario = true; };
+    // REQ-036: el menu de usuario vive en el menu lateral; el avatar solo lo abre.
 
-    $scope.esCuentaGoogle = () => reglasPerfil().esDeGoogle($scope.authUser);
+    // Foto de Google: siempre que se pueda, la foto. Si no carga, se reintenta con otra URL de
+    // la misma foto; la inicial solo aparece si tambien falla el reintento (y se deja traza).
+    $scope.fotoUsuarioFallo = false;
+    $scope.marcarFotoFallida = (img) => {
+        const original = $scope.authUser && $scope.authUser.photoURL;
+        console.warn("[perfil] no cargo la foto:", img && img.src);
+        const alternativa = reglasPerfil().fotoAlternativa(original);
+        if (img && alternativa && img.dataset.reintento !== "1") {
+            img.dataset.reintento = "1";
+            img.src = alternativa;
+            return;
+        }
+        $scope.$evalAsync(() => { $scope.fotoUsuarioFallo = true; });
+    };
+
+    $scope.inicialDelUsuario = () => {
+        const usuario = $scope.authUser || {};
+        const texto = String(usuario.displayName || usuario.email || "?").trim();
+        return texto ? texto.charAt(0).toUpperCase() : "?";
+    };
+
+    // Plan guardado en el perfil, o el gratuito si nunca eligio uno.
+    $scope.planDelUsuario = () => reglasPerfil().planPorId($scope.userProfile && $scope.userProfile.plan);
+
 
     $scope.abrirPerfil = () => {
-        $scope.menuUsuario = false;
         $scope.perfil = reglasPerfil().perfilDesdeUsuario($scope.authUser, $scope.userProfile);
         $scope.problemasSeleccionados = {};
         $scope.perfil.problemas.forEach(nombre => {
@@ -4663,7 +4500,75 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                 $scope.problemasSeleccionados[nombre] = true;
             }
         });
+        $scope.perfilError = null;
+        $scope.perfilGuardando = false;
         abrirModal("modalMiPerfil");
+    };
+
+    // REQ-052: fases fenologicas del selector (conserva lo escrito antes como texto libre).
+    $scope.fasesConActual = (actual) => __modulo("cultivos").fasesConActual(actual);
+
+    // REQ-057: los paneles de "Sistema" (componentes) piden abrir un modal por su id: dentro de un
+    // componente no funciona `modal-trigger` (su plantilla llega despues de M.AutoInit).
+    $scope.abrirVentana = (id) => abrirModal(id);
+
+    // REQ-050: Notificaciones como modal (antes una pantalla completa).
+    $scope.abrirNotificaciones = () => abrirModal("modalNotificaciones");
+
+    // REQ-050: Ayuda como modal (componente montado con ng-if, como las fichas). La ruta #!/ayuda
+    // (showAyuda) tambien lo abre.
+    $scope.ayudaAbierta = false;
+    $scope.abrirAyuda = () => { $scope.ayudaAbierta = true; };
+    $scope.cerrarAyuda = () => { $scope.ayudaAbierta = false; };
+
+    // REQ-050: "Invitar a alguien": valida en el formulario y solo cierra si todo esta bien.
+    $scope.newUserRole = $scope.newUserRole || "trabajador";
+    $scope.invitacionError = null;
+    $scope.invitarUsuario = () => {
+        const correo = String($scope.newUserEmail || "").trim();
+        if (!__modulo("login").esCorreoValido(correo)) {
+            $scope.invitacionError = "Escribe un correo electrónico válido.";
+            return false;
+        }
+        if (!String($scope.newUserName || "").trim()) {
+            $scope.invitacionError = "Escribe el nombre de la persona.";
+            return false;
+        }
+        $scope.invitacionError = null;
+        $scope.newUserEmail = correo;
+        $scope.addNewUserToDevice();
+        cerrarModal("modalAddUser");
+        $scope.newUserEmail = "";
+        $scope.newUserName = "";
+        $scope.newUserRole = "trabajador";
+        return true;
+    };
+
+    // REQ-050: "Programa de riego": errores junto a cada campo; no se cierra hasta que esta completo.
+    $scope.periodosPrograma = __modulo("riego").PERIODOS;
+    $scope.erroresPrograma = {};
+    $scope.confirmarBorradoPrograma = false;
+    $scope.hayErroresPrograma = () => Object.keys($scope.erroresPrograma || {}).length > 0;
+    $scope.minutosProgramaPorCiclo = () => __modulo("riego").minutosPorCiclo($scope.programaEstacionario);
+    $scope.iniciarProgramaDesdeFormulario = () => {
+        const errores = __modulo("riego").erroresDelPrograma($scope.programaEstacionario, __modulo("fechas"));
+        $scope.erroresPrograma = errores;
+        if (Object.keys(errores).length) return false;
+        cerrarModal("modalStationaryProgram");
+        $scope.startStationaryProgram($scope.programaEstacionario);
+        return true;
+    };
+
+    // REQ-048: fichas tecnicas en un modal (componente montado con ng-if). Funciones y no asignaciones en
+    // la plantilla: asi el valor vive en este scope aunque la etiqueta quede en un scope hijo.
+    $scope.fichasAbiertas = false;
+    $scope.abrirFichas = () => { $scope.fichasAbiertas = true; };
+    $scope.cerrarFichas = () => { $scope.fichasAbiertas = false; };
+
+    // REQ-046: chips de "¿Que problema quieres resolver?" (seleccion multiple).
+    $scope.alternarProblema = (opcion) => {
+        $scope.problemasSeleccionados = $scope.problemasSeleccionados || {};
+        $scope.problemasSeleccionados[opcion] = !$scope.problemasSeleccionados[opcion];
     };
 
     $scope.guardarPerfil = () => {
@@ -4673,21 +4578,37 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             problemas: reglasPerfil().combinarProblemas(seleccion, $scope.perfil.otrosProblemas)
         });
 
+        // REQ-045: los errores se muestran dentro del perfil, junto a los campos.
         const errores = reglasPerfil().validarPerfil(perfil);
         if (errores.length) {
-            swal({ title: "Revisa tu perfil", text: errores.join(" "), icon: "warning" });
-            return;
+            $scope.perfilError = errores.join(" ");
+            return Promise.resolve(false);
         }
+        if ($scope.perfilGuardando) return Promise.resolve(false);
 
-        updateUserInfo(convertDotToDash($scope.authUser.email), perfil);
-        $scope.userProfile = perfil;
-        cerrarModal("modalMiPerfil");
-        swal({ title: "Perfil actualizado", text: "Tus datos se han guardado.", icon: "success" });
+        // REQ-041 P-1/P-2: solo se confirma (y se cambia el estado local) cuando Firebase lo guarda.
+        $scope.perfilError = null;
+        $scope.perfilGuardando = true;
+        return Promise.resolve(updateUserInfo(convertDotToDash($scope.authUser.email), perfil)).then(() => {
+            $scope.$evalAsync(() => {
+                $scope.userProfile = perfil;
+                $scope.perfilGuardando = false;
+                cerrarModal("modalMiPerfil");
+            });
+            if (typeof M !== "undefined" && M.toast) M.toast({ html: "Perfil guardado", classes: "green darken-2 rounded" });
+            return true;
+        }).catch(error => {
+            console.error("[perfil] no se pudo guardar:", error);
+            $scope.$evalAsync(() => {
+                $scope.perfilGuardando = false;
+                $scope.perfilError = "No se pudo guardar tu perfil. Revisa tu conexión e inténtalo de nuevo.";
+            });
+            return false;
+        });
     };
 
     $scope.abrirPlanes = () => {
-        $scope.menuUsuario = false;
-        $scope.planActual = reglasPerfil().planPorId($scope.userProfile && $scope.userProfile.plan);
+        $scope.planActual = $scope.planDelUsuario();
         abrirModal("modalPlanes");
     };
 
@@ -4698,22 +4619,6 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         updateUserInfo(convertDotToDash($scope.authUser.email), { plan: plan.id });
         swal({ title: "Plan seleccionado", text: "Ahora estas en el plan " + plan.nombre + ".", icon: "success" });
     };
-
-    $scope.cambiarDeUsuario = () => {
-        $scope.menuUsuario = false;
-        __auth().cerrarSesion().then(() => {
-            if (typeof window.reiniciarSesionGoogle === "function") {
-                window.reiniciarSesionGoogle();
-            } else {
-                location.reload();
-            }
-        }).catch(error => console.error("[perfil] no se pudo cerrar sesion:", error));
-    };
-
-    // Cierra el menu al hacer clic fuera (el propio menu detiene la propagacion).
-    document.addEventListener("click", () => {
-        if ($scope.menuUsuario) $scope.$evalAsync(() => { $scope.menuUsuario = false; });
-    });
 
     // #endregion PERFIL
 
@@ -4852,12 +4757,6 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         return str.split(char).join(replacement);
     }
 
-    $scope.compartirWhatsApp = () => {
-        const url = "https://dta-agricola.web.app";  
-        const mensaje = "DTA - Monitoring & Control: " + url;
-        const enlace = "https://wa.me/?text=" + encodeURIComponent(mensaje);
-        window.open(enlace, "_blank");
-    }
     
     activarAlarma = () => {
         reproducirSonido('./assets/sounds/alarma-de-evacuacion.mp3');

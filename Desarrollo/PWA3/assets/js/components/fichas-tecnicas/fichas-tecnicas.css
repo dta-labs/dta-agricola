@@ -1,0 +1,276 @@
+/* REQ-048: <dta-fichas-tecnicas> como modal de Bootstrap con el estilo de "Mi perfil" (REQ-045). */
+
+.bs .fichas-ventana {
+    border: 0;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+/* Cabecera con degradado, como la del perfil */
+.bs .fichas-cabecera {
+    gap: 12px;
+    padding: 18px 20px;
+    background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%);
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.fichas-cabecera-icono {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: #2e7d32;
+    color: #fff;
+}
+
+.bs .fichas-atras {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: #fff;
+    color: #2e7d32;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.fichas-titulos {
+    flex-grow: 1;
+    min-width: 0;
+}
+
+.bs .fichas-titulo {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.fichas-subtitulo {
+    color: #616161;
+    font-size: 0.9rem;
+}
+
+.bs .fichas-cabecera .btn-close {
+    align-self: flex-start;
+    margin: 0;
+}
+
+/* Cuerpo */
+.bs .fichas-cuerpo {
+    padding: 16px 20px 28px 20px;
+}
+
+.fichas-estado {
+    padding: 24px 0;
+    text-align: center;
+    color: #757575;
+}
+
+/* Buscador */
+.fichas-buscar {
+    position: relative;
+    margin-bottom: 12px;
+}
+
+.fichas-buscar .material-icons {
+    position: absolute;
+    top: 50%;
+    left: 12px;
+    transform: translateY(-50%);
+    color: #9e9e9e;
+    pointer-events: none;
+}
+
+.bs .fichas-buscar input.form-control,
+.bs .fichas-buscar input.form-control:focus,
+.bs .fichas-buscar input.form-control:focus:not([readonly]) {
+    height: auto;
+    margin: 0;
+    padding: 0.55rem 0.75rem 0.55rem 2.6rem;
+    border: 1px solid #ced4da;
+    border-radius: 0.75rem;
+    box-shadow: none;
+    box-sizing: border-box;
+    font-size: 1rem;
+}
+
+.bs .fichas-buscar input.form-control:focus:not([readonly]) {
+    border-color: #26a69a;
+    box-shadow: 0 0 0 0.2rem rgba(38, 166, 154, 0.25);
+}
+
+/* Lista */
+.bs .fichas-lista {
+    border-radius: 12px;
+}
+
+.bs .fichas-fila {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+}
+
+.fichas-fila-icono {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    border-radius: 50%;
+}
+
+.fichas-gratis {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.fichas-pago {
+    background: #f5f5f5;
+    color: #9e9e9e;
+}
+
+.fichas-fila-texto {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    min-width: 0;
+}
+
+.fichas-nombre {
+    font-weight: 600;
+}
+
+.fichas-detalle {
+    color: #757575;
+    font-size: 0.9rem;
+}
+
+.fichas-ir {
+    color: #bdbdbd;
+}
+
+.bs .fichas-aviso {
+    border-radius: 10px;
+}
+
+/* Ficha: linea de tiempo de etapas */
+.fichas-etapas {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.fichas-etapa {
+    position: relative;
+    display: flex;
+    gap: 14px;
+    padding-bottom: 18px;
+}
+
+/* Linea que une las etapas */
+.fichas-etapa:not(:last-child)::before {
+    content: "";
+    position: absolute;
+    top: 56px;
+    bottom: 0;
+    left: 27px;
+    width: 2px;
+    background: #c8e6c9;
+}
+
+.fichas-dia {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: #2e7d32;
+    color: #fff;
+    line-height: 1;
+}
+
+.fichas-dia-vacio {
+    background: #e0e0e0;
+}
+
+.fichas-dia-numero {
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.fichas-dia-texto {
+    margin-top: 2px;
+    font-size: 0.7rem;
+}
+
+.fichas-etapa-texto {
+    flex-grow: 1;
+    min-width: 0;
+    padding: 6px 14px 12px 14px;
+    border-radius: 12px;
+    background: #fafafa;
+    border: 1px solid #eeeeee;
+}
+
+.fichas-accion {
+    font-weight: 600;
+    font-size: 1.05rem;
+}
+
+.fichas-margen {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 2px;
+    color: #2e7d32;
+    font-size: 0.85rem;
+}
+
+.fichas-margen .material-icons {
+    font-size: 1rem;
+}
+
+.fichas-etapa-detalle {
+    margin-top: 4px;
+    color: #616161;
+    font-size: 0.9rem;
+}
+
+/* Pie como el del perfil */
+.bs .fichas-pie {
+    gap: 8px;
+    padding: 14px 20px 18px 20px;
+    background: #fafafa;
+    border-top: 1px solid #e0e0e0;
+}
+
+.bs .fichas-pie .btn {
+    box-shadow: none;
+}
+
+.bs .fichas-pie > * {
+    margin: 0;
+}
+
+@media (max-width: 575.98px) {
+    .bs .fichas-ventana {
+        border-radius: 0;
+    }
+    .bs .fichas-pie {
+        padding-bottom: calc(18px + env(safe-area-inset-bottom));
+    }
+}

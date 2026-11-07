@@ -1,0 +1,680 @@
+/*
+ * REQ-050 - Estilo comun de ventanas (el de "Mi perfil", REQ-045, con nombres genericos).
+ *
+ * Dos formas de usarlo, siempre con el contenido dentro de .bs:
+ *   a) Modal de Materialize (abrir/cerrar como hasta ahora):
+ *        <div id="..." class="modal ventana-modal"> <div class="bs ventana"> cabecera / cuerpo / pie </div> </div>
+ *   b) Modal de Bootstrap (componentes): <div class="modal-content ventana-caja"> con .modal-header.ventana-cabecera...
+ *
+ * Selectores `.bs .ventana-*` (0,2,0): cargado despues de Bootstrap y de bootstrap-convivencia.css,
+ * gana por orden a las reglas de Bootstrap de igual especificidad (.bs .modal-header...).
+ */
+
+/* ---------- a) Caja de Materialize ---------- */
+.modal.ventana-modal {
+    width: min(640px, 94vw);
+    /* style.css limita TODOS los modales a max-height 80% con !important (ver REQ-046) */
+    max-height: 85vh !important;
+    top: 5vh !important;
+    padding: 0;
+    overflow: hidden;
+    border-radius: 16px;
+}
+
+.modal.ventana-modal.ventana-ancha {
+    width: min(820px, 94vw);
+}
+
+.bs.ventana {
+    display: flex;
+    flex-direction: column;
+    max-height: inherit;
+    background: #fff;
+    color: #212529;
+}
+
+/* ---------- b) Caja de Bootstrap ---------- */
+.bs .ventana-caja {
+    border: 0;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+/* ---------- Cabecera ---------- */
+.bs .ventana-cabecera {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 22px;
+    background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%);
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.bs .ventana-icono {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: #2e7d32;
+    color: #fff;
+}
+
+.bs .ventana-titulos {
+    flex-grow: 1;
+    min-width: 0;
+}
+
+.bs .ventana-titulo {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.bs .ventana-subtitulo {
+    color: #616161;
+    font-size: 0.9rem;
+}
+
+.bs .ventana-cabecera .btn-close {
+    align-self: flex-start;
+    margin: 0;
+}
+
+/* ---------- Cuerpo ---------- */
+.bs .ventana-cuerpo {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: 8px 22px 28px 22px;
+}
+
+.bs .ventana-seccion {
+    padding: 16px 0;
+    border-bottom: 1px solid #eeeeee;
+}
+
+.bs .ventana-seccion:last-child {
+    border-bottom: 0;
+}
+
+.bs .ventana-seccion-titulo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 12px 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #2e7d32;
+}
+
+.bs .ventana-seccion-titulo .material-icons {
+    font-size: 1.25rem;
+}
+
+.bs .ventana-nota {
+    color: #616161;
+    font-size: 0.9rem;
+}
+
+/* ---------- Pie ---------- */
+.bs .ventana-pie {
+    display: flex;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 22px 18px 22px;
+    border-top: 1px solid #e0e0e0;
+    background: #fafafa;
+}
+
+.bs .ventana-pie > * {
+    margin: 0;
+}
+
+.bs .ventana-pie .ventana-pie-izquierda {
+    margin-right: auto;
+}
+
+.bs .ventana-pie .btn,
+.bs.ventana .btn {
+    box-shadow: none;
+}
+
+/* ---------- Opcion con interruptor (sin checkbox: Materialize interfiere con todos) ---------- */
+.bs .ventana-opcion {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    margin: 0 0 10px 0;
+    padding: 14px 16px;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    background: #fff;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.bs .ventana-opcion:hover {
+    background: #fafafa;
+}
+
+.bs .ventana-opcion:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(46, 125, 50, 0.3);
+}
+
+.bs .ventana-opcion-icono {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.bs .ventana-opcion-texto {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    min-width: 0;
+}
+
+.bs .ventana-opcion-titulo {
+    font-weight: 600;
+}
+
+.bs .ventana-opcion-ayuda {
+    color: #757575;
+    font-size: 0.85rem;
+}
+
+.bs .ventana-interruptor {
+    position: relative;
+    width: 46px;
+    height: 26px;
+    flex-shrink: 0;
+    border-radius: 13px;
+    background: #bdbdbd;
+    transition: background-color 0.15s ease;
+}
+
+.bs .ventana-interruptor::after {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    transition: transform 0.15s ease;
+}
+
+.bs .ventana-interruptor.activo {
+    background: #2e7d32;
+}
+
+.bs .ventana-interruptor.activo::after {
+    transform: translateX(20px);
+}
+
+/* ---------- Campos: Bootstrap gana a los estilos globales de Materialize sobre <input> ---------- */
+.bs.ventana input.form-control,
+.bs.ventana-bloque input.form-control,
+.bs.ventana-bloque input.form-control:focus,
+.bs.ventana-bloque input.form-control:focus:not([readonly]),
+.bs.ventana-bloque input.form-control[readonly],
+.bs.ventana input.form-control:focus,
+.bs.ventana input.form-control:focus:not([readonly]),
+.bs.ventana input.form-control[readonly] {
+    height: auto;
+    margin: 0;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #ced4da;
+    border-radius: 0.5rem;
+    box-shadow: none;
+    box-sizing: border-box;
+    font-size: 1rem;
+}
+
+.bs.ventana input.form-control:focus:not([readonly]),
+.bs.ventana-bloque input.form-control:focus:not([readonly]) {
+    border-color: #26a69a;
+    box-shadow: 0 0 0 0.2rem rgba(38, 166, 154, 0.25);
+}
+
+.bs.ventana input.form-control.is-invalid {
+    border-color: #c62828;
+}
+
+.bs.ventana select.form-select,
+.bs.ventana-bloque select.form-select {
+    height: auto;
+    padding: 0.5rem 2.25rem 0.5rem 0.75rem;
+    border: 1px solid #ced4da;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+}
+
+.bs.ventana .input-group > .form-control,
+.bs.ventana-bloque .input-group > .form-control {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.bs.ventana .input-group-text {
+    border-radius: 0 0.5rem 0.5rem 0;
+}
+
+.bs.ventana .form-label,
+.bs.ventana-bloque .form-label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #424242;
+}
+
+.bs.ventana .invalid-feedback {
+    display: block;
+}
+
+@media (max-width: 575.98px) {
+    .modal.ventana-modal,
+    .modal.ventana-modal.ventana-ancha {
+        width: 100vw;
+        max-height: 92vh !important;
+        max-height: 92dvh !important;
+        top: 0 !important;
+        border-radius: 0 0 16px 16px;
+    }
+    .bs .ventana-cabecera,
+    .bs .ventana-cuerpo,
+    .bs .ventana-pie {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+    .bs .ventana-pie {
+        padding-bottom: calc(18px + env(safe-area-inset-bottom));
+    }
+}
+
+/* REQ-052: bloque con estilo comun dentro de un formulario de Materialize */
+.bs.ventana-bloque {
+    margin: 4px 0 16px 0;
+    padding: 14px;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    background: #fafafa;
+    color: #212529;
+}
+
+.bs .ventana-bloque-titulo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: #2e7d32;
+}
+
+.bs .ventana-bloque-titulo .material-icons {
+    font-size: 1.2rem;
+}
+
+.bs.ventana-bloque .input-group .btn {
+    box-shadow: none;
+}
+
+/* REQ-052: indicador de pasos de un asistente (Agregar sensor) */
+.bs .pasos-asistente {
+    display: flex;
+    gap: 6px;
+    margin: 4px 0 14px 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.85rem;
+}
+
+.bs .pasos-asistente li {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 6px 8px;
+    border-radius: 999px;
+    background: #f1f1f1;
+    color: #757575;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.bs .pasos-asistente li span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: #bdbdbd;
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.bs .pasos-asistente li.actual {
+    background: #e8f5e9;
+    color: #1b5e20;
+    font-weight: 600;
+}
+
+.bs .pasos-asistente li.actual span,
+.bs .pasos-asistente li.hecho span {
+    background: #2e7d32;
+}
+
+@media (max-width: 575.98px) {
+    .bs .pasos-asistente li {
+        font-size: 0.75rem;
+    }
+}
+
+.bs .pasos-asistente .paso-texto {
+    font-style: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ===================== REQ-053: modales de sensor (Agregar / Editar) ===================== */
+
+/* Sin margenes dobles: cada paso era .input-field.col.s12.row con otra .col.s12 dentro (dos rellenos). */
+/* !important: tema.css (REQ-047) da a todos los modales 20px 24px con un selector de mayor especificidad */
+.modal.modal-asistente > .modal-content {
+    padding: 16px 18px 20px 18px !important;
+}
+
+.modal.modal-asistente .modal-content > .row {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.modal.modal-asistente .input-field.col.s12.row {
+    margin: 0;
+    padding: 0;
+}
+
+.modal.modal-asistente .col.s12 {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.modal.modal-asistente .bs.ventana-bloque {
+    margin: 0 0 14px 0;
+}
+
+.modal.modal-asistente .geo-bloque {
+    margin: 0 0 14px 0;
+}
+
+/* Alertas: casilla + nombre + Min - Max en una fila que se acomoda (antes se cortaba en el movil) */
+.modal.modal-asistente #newSensorAlerts,
+.modal.modal-asistente #actualSensorAlerts {
+    margin: 0;
+}
+
+.modal.modal-asistente #newSensorAlerts p,
+.modal.modal-asistente #actualSensorAlerts p {
+    margin: 0 0 8px 0 !important;
+}
+
+.modal.modal-asistente #newSensorAlerts label.left-align,
+.modal.modal-asistente #actualSensorAlerts label.left-align {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    color: #424242;
+    font-size: 0.9rem;
+}
+
+.modal.modal-asistente #newSensorAlerts label.left-align input[type="number"],
+.modal.modal-asistente #actualSensorAlerts label.left-align input[type="number"] {
+    width: 64px !important;
+    height: 34px;
+    margin: 0;
+    padding: 0 8px;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: none;
+    box-sizing: border-box;
+    text-align: right;
+}
+
+.modal.modal-asistente #newSensorAlerts label.left-align input[type="number"]:focus,
+.modal.modal-asistente #actualSensorAlerts label.left-align input[type="number"]:focus {
+    border-color: #26a69a;
+    box-shadow: 0 0 0 0.2rem rgba(38, 166, 154, 0.25);
+}
+
+/* Pie: botones en una sola fila */
+.modal.modal-asistente > .modal-footer {
+    flex-wrap: nowrap !important;
+}
+
+@media (max-width: 600px) {
+    .modal.modal-asistente > .modal-content {
+        padding: 12px 12px 16px 12px !important;
+    }
+
+    /* Pasos: en el movil solo el numero, salvo el paso actual */
+    .bs .pasos-asistente li:not(.actual) {
+        flex: 0 0 auto;
+    }
+    .bs .pasos-asistente li:not(.actual) .paso-texto {
+        display: none;
+    }
+
+    /* Atras / Siguiente / Agregar sensor: solo el icono */
+    .modal.modal-asistente .boton-icono-movil .boton-texto {
+        display: none;
+    }
+    /* REQ-054: icono centrado (flex: ignora los espacios del HTML y el float de Materialize) */
+    .modal.modal-asistente .boton-icono-movil {
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+        width: 46px;
+        padding: 0 !important;
+    }
+    .modal.modal-asistente .boton-icono-movil .material-icons {
+        float: none !important;
+        margin: 0 !important;
+        line-height: 1;
+    }
+    .modal.modal-asistente > .modal-footer {
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+    }
+}
+
+/* ===================== REQ-054: alertas con umbrales separados ===================== */
+.modal.modal-asistente .alerta-bloque {
+    margin: 0 0 12px 0;
+    padding: 10px 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    background: #fff;
+}
+
+.modal.modal-asistente .alerta-cabecera {
+    display: inline-flex !important;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.modal.modal-asistente .alerta-icono {
+    margin-top: -5px;
+}
+
+.modal.modal-asistente .alerta-umbrales {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.modal.modal-asistente .alerta-umbral {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+
+.modal.modal-asistente .alerta-etiqueta {
+    position: static !important;
+    transform: none !important;
+    font-size: 0.85rem !important;
+    font-weight: 600;
+    color: #2e7d32;
+}
+
+.modal.modal-asistente .alerta-campo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.modal.modal-asistente .alerta-campo input[type="number"] {
+    width: 100% !important;
+    min-width: 0;
+    height: 38px;
+    margin: 0;
+    padding: 0 10px;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: none;
+    box-sizing: border-box;
+    text-align: right;
+}
+
+.modal.modal-asistente .alerta-campo input[type="number"]:focus {
+    border-color: #26a69a;
+    box-shadow: 0 0 0 0.2rem rgba(38, 166, 154, 0.25);
+}
+
+.modal.modal-asistente .alerta-campo span {
+    flex-shrink: 0;
+    color: #616161;
+    font-size: 0.9rem;
+}
+
+.modal.modal-asistente .alerta-ayuda {
+    color: #757575;
+    font-size: 0.75rem;
+    line-height: 1.2;
+}
+
+/* ===================== REQ-056: tabla de velocidades del pivote ===================== */
+.bs .pivote-estado {
+    padding: 28px 8px;
+    text-align: center;
+    color: #757575;
+}
+
+.bs .pivote-explicacion {
+    margin: 14px 0 8px 0;
+}
+
+.bs .pivote-tabla {
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+.bs .pivote-tabla thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: #fff;
+    color: #616161;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.bs .pivote-tabla tbody tr {
+    cursor: pointer;
+}
+
+.bs .pivote-tabla tbody tr:focus-visible {
+    outline: 2px solid #26a69a;
+    outline-offset: -2px;
+}
+
+.bs .pivote-tabla tbody tr.pivote-fila-actual > * {
+    background-color: #e8f5e9;
+    box-shadow: inset 4px 0 0 #2e7d32;
+}
+
+.bs .pivote-tabla tbody tr.pivote-fila-actual > *:not(:first-child) {
+    box-shadow: none;
+}
+
+.bs .pivote-timer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.bs .pivote-timer b {
+    min-width: 42px;
+}
+
+.bs .pivote-barra {
+    display: block;
+    flex: 1 1 auto;
+    max-width: 90px;
+    height: 6px;
+    border-radius: 3px;
+    background: #e0e0e0;
+    overflow: hidden;
+}
+
+.bs .pivote-barra i {
+    display: block;
+    height: 100%;
+    background: #43a047;
+}
+
+@media (max-width: 575.98px) {
+    .bs .pivote-tabla {
+        font-size: 0.9rem;
+    }
+    .bs .pivote-barra {
+        display: none;
+    }
+}
+
+/* REQ-059: icono de cabecera para acciones peligrosas */
+.bs .ventana-icono.ventana-icono-peligro {
+    background: #c62828;
+}

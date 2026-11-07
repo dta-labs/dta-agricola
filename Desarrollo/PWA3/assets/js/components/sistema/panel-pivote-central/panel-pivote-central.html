@@ -1,0 +1,60 @@
+<!-- REQ-057: panel del pivote central (antes index.html, seccion "sistema"). Mismo aspecto. -->
+<div class="col s12 panel-sin-margen">
+    <div class="row statusBar panel-ancho">
+        <!-- Control: retroceder / detener / avanzar -->
+        <div class="col s12 panel-pc-control">
+            <table class="panel-fondo">
+                <tr class="panel-pc-botones">
+                    <td colspan="4" class="panel-centro" ng-click="vm.alRetroceder()" role="button" aria-label="Retroceder">
+                        <i class="fa fa-reply" aria-hidden="true" ng-style="vm.colorBoton('retroceso')"></i>
+                    </td>
+                    <td colspan="3" class="panel-centro" ng-click="vm.alDetener()" role="button" aria-label="Detener">
+                        <i class="fa fa-stop" aria-hidden="true" ng-style="vm.colorBoton('detener')"></i>
+                    </td>
+                    <td colspan="3" class="panel-centro" ng-click="vm.alAvanzar()" role="button" aria-label="Avanzar">
+                        <i class="fa fa-share" aria-hidden="true" ng-style="vm.colorBoton('avance')"></i>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <!-- Estado: velocidad, posicion, senal, GPS, seguridad -->
+        <div class="col s12 panel-pc-estado">
+            <table class="panel-fondo">
+                <tr class="panel-borde-superior">
+                    <td class="panel-centro">
+                        <div class="col s12 m12 center-align panel-icono-grande">
+                            <i class="fa fa-tachometer" aria-hidden="true"></i>
+                        </div>
+                        <b>{{ vm.log().speed ? vm.log().speed : 0 }}</b>%
+                    </td>
+                    <td class="panel-centro">
+                        <div class="col s12 m12 center-align">
+                            <i class="material-icons">near_me</i>
+                        </div>
+                        <b>{{ vm.log().position ? vm.log().position : 0 }}</b>°
+                    </td>
+                    <td class="panel-centro" ng-class="vm.comunicacionOk() ? 'panel-texto-blanco' : 'panel-texto-rojo'">
+                        <div class="col s12 m12 center-align">
+                            <i class="material-icons">rss_feed</i>
+                        </div>
+                        <b>{{ vm.senal() }}</b>%
+                    </td>
+                    <td class="panel-centro">
+                        <div class="col s12 m12 center-align">
+                            <i class="material-icons panel-icono-estado" ng-class="vm.gpsOk() ? 'panel-texto-blanco' : 'panel-texto-rojo'">
+                                {{ vm.gpsOk() ? 'satellite' : 'do_not_disturb_alt' }}
+                            </i>
+                        </div>
+                        <b>GPS</b>
+                    </td>
+                    <td class="panel-centro">
+                        <i class="material-icons panel-icono-estado" ng-class="vm.seguridadOk() ? 'panel-texto-blanco' : 'panel-texto-rojo'">
+                            {{ vm.seguridadOk() ? 'verified_user' : 'do_not_disturb_alt' }}
+                        </i><br>
+                        <b>Seguridad</b>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>

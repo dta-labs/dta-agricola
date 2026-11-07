@@ -1,0 +1,91 @@
+<!-- REQ-039: vista de acceso. Antes: index.html, <section id="usuarios">, y autentication.js.
+     REQ-043: la migracion a Bootstrap del login se revirtio (2026-11-06) y queda pendiente con revision visual. -->
+<img src="./assets/images/fondo-web.png" class="login-fondo show-in-pc-only" alt="" loading="lazy">
+<img src="./assets/images/fondo-cel.png" class="login-fondo show-in-mobil-only" alt="" loading="lazy">
+<div class="shadow-login"></div>
+
+<div class="container login-contenedor">
+    <img src="./assets/images/DTA2.png" class="login-logo" alt="DTA-Agrícola" loading="lazy">
+    <div class="swal-title login-titulo">Todos tus sistemas en <br>un solo lugar</div>
+
+    <div class="login-cuerpo">
+        <div class="modal-content">
+            <button type="button" class="waves-effect waves-light btn valign-wrapper white btn-login login-google"
+                ng-click="vm.google()" ng-disabled="vm.ocupado">
+                <span class="login-google-fila valign-wrapper">
+                    <img src="./assets/images/google-icon-1.png" class="login-google-icono" alt="" loading="lazy">
+                    <b class="login-google-texto">Continuar con Google</b>
+                </span>
+            </button>
+            <br><br>
+            <hr>
+
+            <form class="row login-fila" name="vm.formulario" ng-submit="vm.enviar()" novalidate>
+                <div class="input-field col s12 input-login login-campo" ng-show="vm.paso == 'correo'">
+                    <input id="signinMail" type="email" class="validatem signinMail login-input"
+                        ng-model="vm.correo" ng-change="vm.limpiarMensaje()" placeholder="Correo electrónico"
+                        autocomplete="username" aria-label="Correo electrónico">
+                    <span class="login-acciones">
+                        <button type="submit" class="login-boton-icono" aria-label="Siguiente">
+                            <i class="material-icons login-icono">arrow_forward</i>
+                        </button>
+                    </span>
+                </div>
+                <div class="input-field col s12 input-login login-campo" ng-show="vm.paso == 'contrasena'">
+                    <input id="signinPassword" type="password" class="validatem signinPassword login-input"
+                        ng-model="vm.clave" ng-change="vm.limpiarMensaje()" placeholder="Contraseña"
+                        autocomplete="current-password" aria-label="Contraseña">
+                    <span class="login-acciones">
+                        <button type="button" class="login-boton-icono" ng-click="vm.atras()" aria-label="Volver al correo">
+                            <i class="material-icons login-icono">arrow_back</i>
+                        </button>
+                        <button type="submit" class="login-boton-icono" ng-disabled="vm.ocupado" aria-label="Entrar">
+                            <img class="login-icono login-icono-img" src="./assets/images/DTA-Agricola.png" alt="">
+                        </button>
+                    </span>
+                </div>
+                <div class="col s12 right-align" ng-show="vm.paso == 'contrasena'">
+                    <a href="" class="login-recuperar" ng-click="vm.recuperar()">¿Olvidaste tu contraseña?</a>
+                </div>
+                <div class="col s12">
+                    <p class="login-mensaje" ng-if="vm.mensaje" ng-class="'login-mensaje-' + vm.mensaje.tipo"
+                        role="alert" aria-live="assertive">{{ vm.mensaje.texto }}</p>
+                </div>
+            </form>
+        </div>
+
+        <div class="login-crear">
+            <a href="" ng-click="vm.abrirAlta()">Crear cuenta nueva</a>
+        </div>
+        <div class="tyc">
+            Al continuar, aceptas los términos y condiciones de uso de DTA-Agrícola
+            <a href="https://dtaamerica.com/privacidad-es.html" target="_blank" rel="noopener">Español</a> /
+            <a href="https://dtaamerica.com/privacidad-en.html" target="_blank" rel="noopener">Inglés</a>
+        </div>
+    </div>
+
+    <div class="modal login-modal-alta">
+        <form name="vm.formularioAlta" ng-submit="vm.crearCuenta()" novalidate>
+            <div class="modal-content">
+                <div class="swal-title">Registrarse</div>
+                <p class="login-mensaje login-mensaje-error" ng-if="vm.mensajeAlta" role="alert">{{ vm.mensajeAlta }}</p>
+                <div class="row">
+                    <div class="input-field col s12">
+                        <input id="loginAltaCorreo" type="email" class="validate" ng-model="vm.alta.correo"
+                            autocomplete="email">
+                        <label for="loginAltaCorreo" ng-class="{ active: vm.alta.correo }">Correo</label>
+                    </div>
+                    <div class="input-field col s12">
+                        <input id="loginAltaClave" type="password" class="validate" ng-model="vm.alta.clave"
+                            autocomplete="new-password">
+                        <label for="loginAltaClave" ng-class="{ active: vm.alta.clave }">Contraseña</label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="waves-effect btn-flat" ng-click="vm.cerrarAlta()">Cancelar</button>
+                <button type="submit" class="waves-effect waves-green btn" ng-disabled="vm.ocupado">Aceptar</button>
+            </div>
+        </form>
+    </div>
+</div>

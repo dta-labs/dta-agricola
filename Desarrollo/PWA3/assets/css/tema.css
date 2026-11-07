@@ -1,0 +1,246 @@
+/*
+ * REQ-047 - Tema comun: botones, modales y ventanas con el estilo del perfil (REQ-045).
+ *
+ * Capa SOLO de CSS sobre el marcado de Materialize que aun no se ha migrado a Bootstrap, para que toda
+ * la app se vea igual sin reescribir 24 modales y ~140 botones. Se revierte quitando su <link>.
+ *
+ * Quedan fuera:
+ *   - lo que ya es Bootstrap (dentro de .bs): tiene sus propios estilos. Ojo: en Bootstrap, `.modal`
+ *     es la capa que cubre toda la pantalla; si estas reglas la alcanzaran, la taparian de blanco;
+ *   - el login (<dta-login>), aprobado con su diseno propio.
+ * Los !important son necesarios: las clases de color de Materialize (.teal, .grey, .white-text...)
+ * los usan, y style.css tambien en algunos modales.
+ *
+ * Tres tipos de boton, como en el perfil:
+ *   principal  verde relleno       (teal, green, blue o sin color)
+ *   secundario borde gris          (grey, btn-flat sin color)
+ *   peligro    borde rojo          (red)
+ */
+
+:root {
+    --dta-verde: #2e7d32;
+    --dta-verde-oscuro: #1b5e20;
+    --dta-verde-claro: #f1f8e9;
+    --dta-teal: #26a69a;
+    --dta-gris-borde: #ced4da;
+    --dta-gris-texto: #424242;
+    --dta-rojo: #c62828;
+    --dta-radio: 0.5rem;
+    --dta-radio-ventana: 16px;
+}
+
+/* ===================== Botones ===================== */
+
+/* Forma comun */
+.btn:not(.btn-floating):not(.bs *):not(dta-login *),
+.btn-small:not(.bs *):not(dta-login *),
+.btn-flat:not(.bs *):not(dta-login *) {
+    height: 38px;
+    line-height: 36px;
+    padding: 0 16px;
+    border: 1px solid transparent;
+    border-radius: var(--dta-radio);
+    box-shadow: none;
+    text-transform: none;
+    letter-spacing: normal;
+    font-weight: 500;
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-small:not(.bs *):not(dta-login *) {
+    height: 32px;
+    line-height: 30px;
+    padding: 0 12px;
+    font-size: 0.9rem;
+}
+
+.btn:not(.btn-floating):not(.bs *):not(dta-login *):focus-visible,
+.btn-small:not(.bs *):not(dta-login *):focus-visible,
+.btn-flat:not(.bs *):not(dta-login *):focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(46, 125, 50, 0.3);
+}
+
+/* Principal: verde relleno */
+.btn:not(.btn-floating):not(.grey):not(.red):not(.white):not(.bs *):not(dta-login *),
+.btn-small:not(.grey):not(.red):not(.bs *):not(dta-login *),
+.btn-flat.teal:not(.bs *):not(dta-login *),
+.btn-flat.green:not(.bs *):not(dta-login *),
+.btn-flat.blue:not(.bs *):not(dta-login *) {
+    background-color: var(--dta-verde) !important;
+    border-color: var(--dta-verde) !important;
+    color: #fff !important;
+}
+
+.btn:not(.btn-floating):not(.grey):not(.red):not(.white):not(.bs *):not(dta-login *):hover,
+.btn-small:not(.grey):not(.red):not(.bs *):not(dta-login *):hover,
+.btn-flat.teal:not(.bs *):not(dta-login *):hover,
+.btn-flat.green:not(.bs *):not(dta-login *):hover,
+.btn-flat.blue:not(.bs *):not(dta-login *):hover {
+    background-color: var(--dta-verde-oscuro) !important;
+    border-color: var(--dta-verde-oscuro) !important;
+}
+
+/* Secundario: borde gris */
+.btn.grey:not(.btn-floating):not(.bs *):not(dta-login *),
+.btn.white:not(.btn-floating):not(.bs *):not(dta-login *),
+.btn-small.grey:not(.bs *):not(dta-login *),
+.btn-flat.grey:not(.bs *):not(dta-login *),
+.btn-flat:not(.teal):not(.green):not(.blue):not(.red):not(.grey):not(.bs *):not(dta-login *) {
+    background-color: #fff !important;
+    border-color: var(--dta-gris-borde) !important;
+    color: var(--dta-gris-texto) !important;
+}
+
+.btn.grey:not(.btn-floating):not(.bs *):not(dta-login *):hover,
+.btn.white:not(.btn-floating):not(.bs *):not(dta-login *):hover,
+.btn-small.grey:not(.bs *):not(dta-login *):hover,
+.btn-flat.grey:not(.bs *):not(dta-login *):hover,
+.btn-flat:not(.teal):not(.green):not(.blue):not(.red):not(.grey):not(.bs *):not(dta-login *):hover {
+    background-color: #f5f5f5 !important;
+    border-color: #9e9e9e !important;
+}
+
+/* Peligro: borde rojo; se rellena al pasar el cursor */
+.btn.red:not(.btn-floating):not(.bs *):not(dta-login *),
+.btn-small.red:not(.bs *):not(dta-login *),
+.btn-flat.red:not(.bs *):not(dta-login *) {
+    background-color: #fff !important;
+    border-color: var(--dta-rojo) !important;
+    color: var(--dta-rojo) !important;
+}
+
+.btn.red:not(.btn-floating):not(.bs *):not(dta-login *):hover,
+.btn-small.red:not(.bs *):not(dta-login *):hover,
+.btn-flat.red:not(.bs *):not(dta-login *):hover {
+    background-color: var(--dta-rojo) !important;
+    color: #fff !important;
+}
+
+/* Botones redondos (accion flotante): mismo verde, sombra suave */
+.btn-floating:not(.bs *):not(dta-login *) {
+    background-color: var(--dta-verde) !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.btn-floating.red:not(.bs *):not(dta-login *) {
+    background-color: var(--dta-rojo) !important;
+}
+
+/* Desactivados */
+.btn:disabled:not(.bs *):not(dta-login *),
+.btn.disabled:not(.bs *):not(dta-login *),
+.btn-flat:disabled:not(.bs *):not(dta-login *),
+.btn-small:disabled:not(.bs *):not(dta-login *) {
+    opacity: 0.55;
+}
+
+/* ===================== Modales ===================== */
+
+.modal:not(.perfil-modal):not(.ventana-modal):not(.bs *):not(.bs):not(dta-login *) {
+    border-radius: var(--dta-radio-ventana);
+    background-color: #fff;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.22);
+}
+
+.modal:not(.perfil-modal):not(.ventana-modal):not(.bs *):not(.bs):not(dta-login *) > .modal-content {
+    padding: 20px 24px 24px 24px;
+}
+
+/* Titulo del modal como cabecera (igual que la del perfil) */
+.modal:not(.perfil-modal):not(.ventana-modal):not(.bs *):not(.bs):not(dta-login *) > .modal-content > .swal-title:first-child {
+    margin: -20px -24px 16px -24px !important;
+    padding: 18px 24px !important;
+    background: linear-gradient(135deg, #e8f5e9 0%, var(--dta-verde-claro) 100%);
+    border-bottom: 1px solid #e0e0e0;
+    border-radius: var(--dta-radio-ventana) var(--dta-radio-ventana) 0 0;
+    color: var(--dta-verde);
+    font-size: 1.25rem !important;
+    font-weight: 600;
+    text-align: left;
+}
+
+/* Pie fijo: los botones siempre visibles aunque el contenido sea largo */
+.modal:not(.perfil-modal):not(.ventana-modal):not(.bs *):not(.bs):not(dta-login *) > .modal-footer {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+    height: auto;
+    min-height: 56px;
+    padding: 12px 24px 14px 24px;
+    border-top: 1px solid #e0e0e0;
+    background-color: #fafafa;
+    border-radius: 0 0 var(--dta-radio-ventana) var(--dta-radio-ventana);
+}
+
+.modal:not(.perfil-modal):not(.ventana-modal):not(.bs *):not(.bs):not(dta-login *) > .modal-footer .btn,
+.modal:not(.perfil-modal):not(.ventana-modal):not(.bs *):not(.bs):not(dta-login *) > .modal-footer .btn-flat {
+    float: none;
+    margin: 0;
+}
+
+.modal-overlay {
+    background: #1b2a1c;
+}
+
+/* ===================== Campos (como form-control) ===================== */
+
+.input-field:not(.inline):not(.login-campo):not(.bs *) > input:not(.browser-default):not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+.input-field:not(.inline):not(.login-campo):not(.bs *) > textarea.materialize-textarea {
+    height: auto;
+    min-height: 2.75rem;
+    /* Solo arriba/abajo: el margen izquierdo lo pone Materialize cuando hay icono (.prefix). */
+    margin-top: 0;
+    margin-bottom: 4px;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--dta-gris-borde);
+    border-radius: var(--dta-radio);
+    background-color: #fff;
+    box-shadow: none;
+    box-sizing: border-box;
+}
+
+.input-field:not(.inline):not(.login-campo):not(.bs *) > input:not(.browser-default):not([type="checkbox"]):not([type="radio"]):not([type="range"]):focus:not([readonly]),
+.input-field:not(.inline):not(.login-campo):not(.bs *) > textarea.materialize-textarea:focus:not([readonly]) {
+    border: 1px solid var(--dta-teal);
+    box-shadow: 0 0 0 0.2rem rgba(38, 166, 154, 0.25);
+}
+
+.input-field:not(.inline):not(.login-campo):not(.bs *) > input[readonly]:not(.browser-default) {
+    background-color: #f5f5f5;
+    color: #616161;
+}
+
+select.browser-default:not(.bs *) {
+    border-radius: var(--dta-radio);
+    border-color: var(--dta-gris-borde);
+}
+
+/* ===================== Ventanas ===================== */
+
+/* Titulos de pantalla */
+.ventanaServicios > .swal-title:first-child,
+section > .container > .swal-title:first-child {
+    color: var(--dta-verde);
+    font-weight: 600;
+}
+
+/* Tarjetas */
+.card:not(.bs *) {
+    border-radius: 12px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+}
+
+.card:not(.bs *) .card-image img {
+    border-radius: 12px 12px 0 0;
+}
+
+/* Avisos breves */
+.toast {
+    border-radius: 10px;
+}

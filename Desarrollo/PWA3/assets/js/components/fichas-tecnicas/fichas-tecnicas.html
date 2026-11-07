@@ -1,0 +1,87 @@
+<!-- REQ-048: fichas tecnicas en un modal de Bootstrap (estilo de "Mi perfil"): lista -> ficha -> volver. -->
+<div class="bs">
+    <div class="modal fade fichas-modal" tabindex="-1" aria-labelledby="fichasTitulo" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg modal-fullscreen-sm-down">
+            <div class="modal-content fichas-ventana">
+
+                <div class="modal-header fichas-cabecera">
+                    <button type="button" class="btn fichas-atras" ng-if="vm.ficha" ng-click="vm.volverALista()" aria-label="Volver a la lista">
+                        <i class="material-icons">arrow_back</i>
+                    </button>
+                    <span class="fichas-cabecera-icono" ng-if="!vm.ficha" aria-hidden="true">
+                        <i class="material-icons">eco</i>
+                    </span>
+                    <div class="fichas-titulos">
+                        <h2 class="modal-title fichas-titulo" id="fichasTitulo">{{ vm.ficha ? vm.ficha.cultivo : 'Fichas técnicas' }}</h2>
+                        <div class="fichas-subtitulo">{{ vm.ficha ? (vm.ficha.detalle || 'Plan de riego por etapas') : 'Plan de riego por cultivo' }}</div>
+                    </div>
+                    <button type="button" class="btn-close" ng-click="vm.cerrar()" aria-label="Cerrar"></button>
+                </div>
+
+                <div class="modal-body fichas-cuerpo">
+                    <!-- Lista -->
+                    <div ng-if="!vm.ficha">
+                        <div class="fichas-estado" ng-if="vm.estado == 'cargando'">
+                            <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Cargando fichas…
+                        </div>
+                        <div class="fichas-estado" ng-if="vm.estado == 'vacia'">
+                            <i class="material-icons d-block mb-2">inventory_2</i>No hay fichas técnicas disponibles.
+                        </div>
+
+                        <div ng-if="vm.estado == 'lista'">
+                            <div class="fichas-buscar">
+                                <i class="material-icons" aria-hidden="true">search</i>
+                                <input type="search" class="form-control" ng-model="vm.filtro" placeholder="Buscar cultivo" aria-label="Buscar cultivo">
+                            </div>
+                            <div class="alert alert-warning py-2 fichas-aviso" ng-if="vm.aviso" role="status">
+                                <i class="material-icons align-middle me-1" aria-hidden="true">lock</i>{{ vm.aviso }}
+                            </div>
+                            <div class="list-group fichas-lista">
+                                <button type="button" class="list-group-item list-group-item-action fichas-fila"
+                                    ng-repeat="cultivo in vm.cultivos | filter:{ culture: vm.filtro }" ng-click="vm.abrir(cultivo)">
+                                    <span class="fichas-fila-icono" ng-class="vm.esGratuito(cultivo) ? 'fichas-gratis' : 'fichas-pago'" aria-hidden="true">
+                                        <i class="material-icons">{{ vm.esGratuito(cultivo) ? "grass" : "lock" }}</i>
+                                    </span>
+                                    <span class="fichas-fila-texto">
+                                        <span class="fichas-nombre">{{ cultivo.culture }}</span>
+                                        <span class="fichas-detalle" ng-if="cultivo.detail">{{ cultivo.detail }}</span>
+                                    </span>
+                                    <span class="badge rounded-pill" ng-class="vm.esGratuito(cultivo) ? 'text-bg-success' : 'text-bg-light border'">
+                                        {{ vm.esGratuito(cultivo) ? 'Gratis' : 'De pago' }}
+                                    </span>
+                                    <i class="material-icons fichas-ir" aria-hidden="true">chevron_right</i>
+                                </button>
+                            </div>
+                            <div class="fichas-estado" ng-if="!(vm.cultivos | filter:{ culture: vm.filtro }).length">
+                                Ningún cultivo coincide con "{{ vm.filtro }}".
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ficha del cultivo -->
+                    <ol class="fichas-etapas" ng-if="vm.ficha">
+                        <li class="fichas-etapa" ng-repeat="etapa in vm.ficha.etapas">
+                            <div class="fichas-dia" ng-class="{ 'fichas-dia-vacio': !etapa.mostrarDia }">
+                                <span ng-if="etapa.mostrarDia" class="fichas-dia-numero">{{ etapa.dia }}</span>
+                                <span ng-if="etapa.mostrarDia" class="fichas-dia-texto">días</span>
+                            </div>
+                            <div class="fichas-etapa-texto">
+                                <div class="fichas-accion">{{ etapa.accion }}</div>
+                                <div class="fichas-margen" ng-if="etapa.rango">
+                                    <i class="material-icons" aria-hidden="true">schedule</i> Margen de aplicación: {{ etapa.rango }} días
+                                </div>
+                                <div class="fichas-etapa-detalle" ng-if="etapa.detalle">{{ etapa.detalle }}</div>
+                            </div>
+                        </li>
+                        <li class="fichas-estado" ng-if="!vm.ficha.etapas.length">Esta ficha aún no tiene etapas.</li>
+                    </ol>
+                </div>
+
+                <div class="modal-footer fichas-pie">
+                    <button type="button" class="btn btn-outline-secondary" ng-if="vm.ficha" ng-click="vm.volverALista()">Volver a la lista</button>
+                    <button type="button" class="btn btn-success" ng-click="vm.cerrar()">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

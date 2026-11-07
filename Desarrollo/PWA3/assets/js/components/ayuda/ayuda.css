@@ -1,0 +1,85 @@
+/* REQ-040 / REQ-050: <dta-ayuda> en un modal; cabecera, cuerpo y pie vienen de ventana.css */
+
+.bs .ayuda-contenido {
+    font-size: 1.05rem;
+}
+dta-ayuda {
+    display: block;
+}
+
+.ayuda-sublista {
+    text-align: justify;
+    margin: 10px;
+    font-size: .8em;
+}
+
+.ayuda-justificado {
+    text-align: justify;
+    margin: 10px;
+}
+
+.ayuda-parrafo {
+    text-align: justify;
+    padding: 0 10px;
+    font-size: .8em;
+}
+
+.ayuda-separado {
+    border-bottom: 1px solid antiquewhite;
+    margin-bottom: 0;
+}
+
+.ayuda-centro {
+    text-align: center;
+}
+
+.ayuda-texto-chico {
+    font-size: .85em;
+}
+
+.ayuda-img-completa {
+    width: 100%;
+}
+
+.ayuda-img-85 {
+    width: 85%;
+}
+
+.ayuda-img-70 {
+    width: 70%;
+}
+
+.ayuda-color-rojo,
+.ayuda-color-rosa,
+.ayuda-color-verde,
+.ayuda-color-gris-claro,
+.ayuda-color-gris {
+    margin-top: 4px;
+}
+
+.ayuda-color-rojo { color: red; }
+.ayuda-color-rosa { color: palevioletred; }
+.ayuda-color-verde { color: lightseagreen; }
+.ayuda-color-gris-claro { color: lightgrey; }
+.ayuda-color-gris { color: grey; }
+
+.ayuda-compartir {
+    padding: 20px 0;
+}
+
+.ayuda-boton-compartir {
+    width: 100px;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+}
+
+.ayuda-icono-compartir {
+    width: 60px;
+    border: solid 5px white;
+}
+
+.ayuda-qr {
+    padding: 50px;
+}
+

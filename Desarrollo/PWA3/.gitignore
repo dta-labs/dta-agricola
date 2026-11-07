@@ -22,9 +22,13 @@ monitor.zip
 # === Documentacion interna no publicada ===
 *.md
 !PROMOTE.md
+!CHANGELOG.md
 *.txt
 
 # === Configuracion con claves: se crea en local a partir del ejemplo ===
 firebaseConfig.js
 !test/README.md
 !docs/spec/**
+
+# === Archivo local: lo retirado del proyecto (su version anterior sigue en el historial de git) ===
+_archivo/

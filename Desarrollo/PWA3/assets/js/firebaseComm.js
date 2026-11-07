@@ -1,4 +1,19 @@
-var ui;
+// REQ-035: authDomain = el dominio que sirve la app cuando es Firebase Hosting.
+// Con "firebaseapp.com" sirviendo la app desde "web.app", los navegadores que bloquean el
+// almacenamiento de terceros devuelven de Google SIN sesion y sin error.
+(function ajustarDominioDeAutenticacion() {
+    try {
+        var reglasLogin = (typeof DTALogic !== "undefined" && DTALogic.login) ? DTALogic.login : null;
+        if (!reglasLogin || typeof location === "undefined") return;
+        var dominio = reglasLogin.authDomainPara(location.host, config.authDomain);
+        if (dominio !== config.authDomain) {
+            console.log("[auth] authDomain:", config.authDomain, "->", dominio);
+            config.authDomain = dominio;
+        }
+    } catch (error) {
+        console.error("[auth] no se pudo ajustar authDomain:", error);
+    }
+})();
 
 firebase.initializeApp(config);
 

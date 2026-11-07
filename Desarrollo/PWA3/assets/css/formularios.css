@@ -1,0 +1,65 @@
+/*
+ * REQ-043 - Formularios legibles (fase A de la salida de Materialize).
+ *
+ * Materialize pone la etiqueta ENCIMA del campo (position: absolute) y la "sube" con una animacion
+ * cuando el campo tiene valor; si su JavaScript no se entera del valor (Angular, valores cargados
+ * despues), la etiqueta se queda tapando el dato. Aqui la etiqueta va siempre arriba, fija, como en
+ * Bootstrap (form-label): nunca se solapa con la informacion.
+ * El login (.login-campo) tiene su propio diseno y queda fuera.
+ */
+
+.input-field:not(.inline):not(.login-campo) {
+    display: flex;
+    flex-direction: column;
+}
+
+.input-field:not(.inline):not(.login-campo) > label {
+    position: static !important;
+    order: -1;
+    transform: none !important;
+    top: auto !important;
+    left: auto !important;
+    font-size: 0.85rem !important;
+    line-height: 1.3;
+    color: #616161;
+    margin: 0 0 4px 0;
+    cursor: default;
+    pointer-events: auto;
+}
+
+/* Los campos ya no necesitan el hueco superior que dejaba la etiqueta flotante. */
+.input-field:not(.inline):not(.login-campo) > input,
+.input-field:not(.inline):not(.login-campo) > textarea {
+    margin-top: 0;
+}
+
+/* Con icono a la izquierda (.prefix), la etiqueta se alinea con el campo. */
+.input-field:not(.inline):not(.login-campo) > .prefix ~ label {
+    margin-left: 3rem;
+}
+
+/* Selects nativos: mismo alto y aspecto que los campos de texto. */
+select.browser-default {
+    display: block;
+    width: 100%;
+    height: 2.75rem;
+    padding: 0 8px;
+    border: 1px solid #bdbdbd;
+    border-radius: 6px;
+    background-color: #fff;
+    color: #212121;
+    font-size: 1rem;
+}
+
+select.browser-default:focus {
+    outline: none;
+    border-color: #26a69a;
+    box-shadow: 0 0 0 2px rgba(38, 166, 154, 0.25);
+}
+
+/* Fecha y hora nativas (selector del sistema en el movil). */
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"] {
+    min-height: 2.75rem;
+}

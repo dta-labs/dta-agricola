@@ -1,0 +1,21 @@
+<!-- REQ-052: leer el identificador con la camara (QR o codigo de barras) o por NFC. -->
+<div class="bs lector-codigo">
+    <div class="lector-botones">
+        <button type="button" class="btn btn-sm" ng-class="vm.camaraActiva ? 'btn-danger' : 'btn-outline-success'" ng-click="vm.alternarCamara()">
+            <i class="material-icons" aria-hidden="true">{{ vm.camaraActiva ? 'close' : 'qr_code_scanner' }}</i>
+            {{ vm.camaraActiva ? 'Cerrar cámara' : 'Escanear QR o código de barras' }}
+        </button>
+        <button type="button" class="btn btn-sm" ng-if="vm.nfcDisponible"
+            ng-class="vm.nfcActivo ? 'btn-danger' : 'btn-outline-success'" ng-click="vm.alternarNfc()">
+            <i class="material-icons" aria-hidden="true">{{ vm.nfcActivo ? 'close' : 'nfc' }}</i>
+            {{ vm.nfcActivo ? 'Cancelar NFC' : 'Leer NFC' }}
+        </button>
+    </div>
+    <div class="lector-visor" ng-show="vm.camaraActiva">
+        <div id="{{ vm.idVisor }}" class="lector-camara"></div>
+    </div>
+    <div class="lector-nfc" ng-if="vm.nfcActivo" aria-hidden="true">
+        <i class="material-icons">contactless</i>
+    </div>
+    <p class="lector-mensaje" ng-if="vm.mensaje" ng-class="{ 'lector-mensaje-error': vm.error }" role="status">{{ vm.mensaje }}</p>
+</div>

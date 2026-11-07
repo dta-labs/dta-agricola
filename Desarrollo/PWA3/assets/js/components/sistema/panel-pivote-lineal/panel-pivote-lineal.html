@@ -1,0 +1,189 @@
+<!-- REQ-057: panel del pivote lineal (antes index.html, seccion "sistema"). Mismo aspecto; estilos en paneles.css. -->
+<div class="col s12 panel-s-e1" 
+>
+     <!-- Controles -->
+     <div class="row hide-on-small-only panel-s-e2">
+         <div ng-style="{ 'background': (vm.sistema.status && !vm.sistema.direction ? '#04d604' : 'transparent') }" class="col s3 center-align panel-s-e4" ng-click="vm.alRetroceder()"
+             ng-show="vm.sistema.type == 'PC' || vm.sistema.type == 'PL'"
+            >
+             <i ng-style="{ 'color': (vm.sistema.status && !vm.sistema.direction ? 'white' : 'grey') }" class="fa fa-reply" aria-hidden="true"
+                ></i>
+         </div>
+         <div ng-style="{ 'background': (vm.sistema.status ? 'transparent' : 'red') }" class="col s5 center-align panel-s-e5" ng-click="vm.alDetener()"
+            >
+             <i ng-style="{ 'color': (vm.sistema.status ? 'grey' : 'white') }" class="fa fa-stop" aria-hidden="true"
+                ></i>
+         </div>
+         <div ng-style="{ 'background': (vm.sistema.status && vm.sistema.direction ? '#04d604' : 'transparent') }" class="col s3 center-align panel-s-e6" ng-click="vm.alAvanzar()"
+            >
+             <i ng-style="{ 'color': (vm.sistema.status && vm.sistema.direction ? 'white' : 'grey') }" class="fa fa-share" aria-hidden="true"
+                ></i>
+         </div>
+     </div>
+     <!-- Status General -->
+     <!-- Status Movimiento continuo -->
+     <div class="row statusBar hide-on-med-and-up panel-s-e7">
+         <div class="col s12">
+             <table class="panel-s-e8">
+                 <tr>
+                     <td class="panel-s-e9" colspan="4">
+                         <i ng-style="{ 'color': ((vm.sistema.log.safety == 'true') ? 'white' : 'red') }" class="material-icons panel-s-e10"
+                            >
+                             {{ (vm.sistema.log.safety == "true") ? 'verified_user' : 'do_not_disturb_alt' }}
+                         </i><br>
+                         <b>Seguridad</b>
+                     </td>
+                     <td class="panel-s-e9" colspan="3">
+                         <i ng-style="{ 'color': ((vm.sistema.log.reception == 'Ok' && vm.sistema.log.commDelay == '-1') ? 'white' : 'red') }" class="material-icons panel-s-e10"
+                            >
+                             {{ (vm.sistema.log.reception == 'Ok' &&
+                             vm.sistema.log.commDelay == '-1') ? 'phonelink_ring' : 'do_not_disturb_alt' }}
+                         </i><br>
+                         <b>Conexión</b>
+                     </td>
+                     <td class="panel-s-e9" colspan="3">
+                         <i ng-style="{ 'color': ((vm.sistema.log.latitude != '0.00000' && vm.sistema.log.longitude != '0.00000') ? 'white' : 'red') }" class="material-icons panel-s-e10"
+                            >
+                             {{ (vm.sistema.log.latitude != '0.00000' &&
+                             vm.sistema.log.longitude != '0.00000') ? 'satellite' : 'do_not_disturb_alt' }}
+                         </i><br>
+                         <b>GPS</b>
+                     </td>
+                 </tr>
+             </table>
+         </div>
+     </div>
+     <div class="row statusBar hide-on-med-and-up panel-s-e11">
+         <div class="col s12">
+             <table class="panel-s-e8">
+                 <tr class="panel-s-e12">
+                     <td class="panel-s-e9" colspan="2">
+                         <div class="col s12 m12 center-align">
+                              <i class="fa fa-tachometer" aria-hidden="true"></i>
+                         </div>
+                         <b>{{ vm.sistema.log.speed ? vm.sistema.log.speed : 0 }}</b>%
+                     </td>
+                     <td class="panel-s-e9" colspan="2">
+                         <div class="col s12 m12 center-align"><i
+                             class="material-icons">near_me</i></div>
+                         <b>{{ vm.sistema.log.position ? vm.sistema.log.position : 0 }}</b>°
+                     </td>
+                     <td class="panel-s-e9" colspan="2">
+                         <div class="col s12 m12 center-align"><i
+                             class="material-icons">search</i></div>
+                         <b>{{ vm.sistema.log.error ? vm.sistema.log.error : 0 }}</b>cm        
+                     </td>
+                     <td class="panel-s-e9" colspan="2">
+                         <div class="col s12 m12 center-align"><i class="fa fa-tint panel-s-e13"
+                             aria-hidden="true"
+                            ></i></div>
+                         <b>{{ vm.sistema.log.presion ? (vm.sistema.log.presion | number : 1) : 0 }}</b>psi        
+                     </td>
+                     <td class="panel-s-e9" colspan="2">
+                         <div class="col s12 m12 center-align"><i
+                             class="material-icons">rss_feed</i>
+                         </div>
+                         <b>{{ vm.sistema.log.signal ? ((vm.sistema.log.signal * 100 / 30) > 100 ? 100 : (vm.sistema.log.signal * 100 / 30) | number : 0) : 0 | number : 0 }}</b>%      
+                     </td>
+                 </tr>
+             </table>
+         </div>
+     </div>
+     <div class="row hide-on-small-only panel-s-e14">
+         <div class="col s12 systemStatusBar">
+             <table class="panel-s-e15">
+                 <tr>
+                     <td class="panel-s-e9" colspan="2">
+                         <i class="fa fa-tachometer" aria-hidden="true"></i>
+                         <span class="panel-s-e17"><b>{{ vm.sistema.log.speed ? vm.sistema.log.speed : 0 }}</b>%</span>
+                     </td>
+                 </tr>
+                 <tr>
+                     <td class="panel-s-e18">
+                         <i class="material-icons">near_me</i>
+                         <span class="panel-s-e16">{{ vm.sistema.log.position ? vm.sistema.log.position : 0 }}°</span>
+                     </td>
+                     <td class="panel-s-e18">
+                         <i class="material-icons">search</i>
+                         <span class="panel-s-e16">{{ vm.sistema.log.error ? vm.sistema.log.error : 0 }}</span>cm
+                     </td>
+                 </tr>
+                 <tr>
+                     <td class="panel-s-e18">
+                         <i class="fa fa-tint panel-s-e13"
+                             aria-hidden="true"
+                            ></i>
+                         <span class="panel-s-e16">{{ vm.sistema.log.presion ? (vm.sistema.log.presion | number : 1) : 0 }}</span>psi
+                     </td>
+                     <td class="panel-s-e18">
+                         <i class="material-icons">rss_feed</i>
+                         <span class="panel-s-e16">{{ vm.sistema.log.signal ? (vm.sistema.log.signal * 100 / 30 | number : 0) : 0 }}</span>%
+                     </td>
+                 </tr>
+             </table>
+         </div>
+         <div class="col s12 center-align panel-s-e19"><b>Alertas</b></div>
+         <div class="col s12 row systemStatusBar panel-s-e20">
+             <div class="col s4">
+                 <i ng-style="{ 'color': ((vm.sistema.log.safety == 'true') ? 'green' : 'red') }" class="material-icons panel-s-e10"
+                    >
+                     {{ (vm.sistema.log.safety == "true") ? 'verified_user' : 'do_not_disturb_alt' }}
+                 </i><br>
+                 Seguridad
+             </div>
+             <div class="col s4">
+                 <i ng-style="{ 'color': ((vm.sistema.log.reception == 'Ok' && vm.sistema.log.commDelay == '-1') ? 'green' : 'red') }" class="material-icons panel-s-e10"
+                    >
+                     {{ (vm.sistema.log.reception == 'Ok' &&
+                     vm.sistema.log.commDelay == '-1') ? 'phonelink_ring' : 'do_not_disturb_alt' }}
+                 </i><br>
+                 Conexión
+             </div>
+             <div class="col s4">
+                 <i ng-style="{ 'color': ((vm.sistema.log.latitude != '0.00000' && vm.sistema.log.longitude != '0.00000') ? 'green' : 'red') }" class="material-icons panel-s-e10"
+                    >
+                     {{ (vm.sistema.log.latitude != '0.00000' &&
+                     vm.sistema.log.longitude != '0.00000') ? 'satellite' : 'do_not_disturb_alt' }}
+                 </i><br>
+                 GPS
+             </div>
+         </div>
+         <div class="col s12 center-align panel-s-e19"><b>Clima</b></div>
+         <div class="col s12 systemStatusBar panel-s-e21">
+             <table class="panel-s-e22" ng-click="vm.alAbrir({ $modal: 'modalSuelo' })" role="button" >
+                 <tr class="panel-s-e15">
+                     <td>
+                         <div class="panel-s-e23">Humedad</div>
+                         <div class="panel-s-e16">{{ vm.clima.main.humidity }}%</div>
+                     </td>
+                     <td>
+                         <div class="panel-s-e23">Viento</div>
+                         <table class="panel-s-e24">
+                             <tr>
+                                 <td>
+                                     <div class="panel-s-e23">{{ vm.clima.wind.speed | number : 0}}km/h</div>
+                                     <div class="panel-s-e25">Velocidad</div>
+                                 </td>
+                                 <td>
+                                     <div class="panel-s-e23">{{ vm.clima.wind.deg | number : 0}}°</div>
+                                     <div class="panel-s-e25">Dirección</div>
+                                 </td>
+                                 <td>
+                                     <div class="panel-s-e23">{{ vm.clima.wind.gust | number : 0}}km/h</div>
+                                     <div class="panel-s-e25">Ráfagas</div>
+                                 </td>
+                             </tr>
+                         </table>
+                     </td>
+                     <td>
+                         <div class="panel-s-e26">Cielo</div>
+                         <img class="panel-s-e24" ng-src="{{ vm.clima.weather.iconUrl }}" 
+                             alt="Weather icon"
+                             *ng-if="vm.clima.weather.iconUrl" 
+                             loading="lazy">
+                     </td>
+                 </tr>
+             </table>
+         </div>
+     </div>
+ </div>
