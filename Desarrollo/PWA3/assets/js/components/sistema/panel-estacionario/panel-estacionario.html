@@ -41,14 +41,13 @@
                                 ng-click="vm.alAlternarParcela({ $parcela: 'p' + $index })"
                                 ng-repeat="plot in vm.sistema.plots" ng-if="$index != 7">filter_{{ $index + 1 }}</i>
 
-                            <img class="panel-s-e36" ng-style="{ 'border': '5px solid ' + (vm.colorParcela({ $parcela: 'p7' })), 'background': (vm.colorParcela({ $parcela: 'p7' })) }" src="assets/images/pozo.png" alt="pozo" 
-                               
-                                ng-click="vm.alAlternarParcela({ $parcela: 'p7' })" loading="lazy">
                         </div>
                         
-                        <div class="panel-s-e37"
+                        <!-- REQ-063: la "M" representa el motor (antes tambien habia una imagen de motor);
+                             toma el color de su estado, que antes solo mostraba la imagen -->
+                        <div class="panel-s-e37" role="button" aria-label="Motor"
                             ng-click="vm.alAlternarParcela({ $parcela: 'p7' })">
-                            <div class="panel-s-e38">
+                            <div class="panel-s-e38" ng-style="{ 'color': (vm.colorParcela({ $parcela: 'p7' })) }">
                                 <i class="material-icons panel-s-e35">filter_none</i>
                                 <span class="panel-s-e39">M</span>
                             </div>

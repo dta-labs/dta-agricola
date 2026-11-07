@@ -44,6 +44,8 @@ Cada version publicada lleva una etiqueta de git `pwa3-vX.Y.Z` sobre el commit d
 - Lector de identificadores con camara (QR y codigos de barras) y NFC en Agregar equipo y en los sensores. (REQ-052)
 - Plan de riego del pivote: "Nuevo plan" y "Planificacion" en un solo formulario con validacion en linea y el
   estilo comun; "Eliminar plan" rediseñado. (REQ-059)
+- Estacionario: los botones inferiores son las parcelas 1-7 y la M (motor), que toma el color de su estado; sale la
+  imagen del motor. (REQ-063)
 - "Sistema": los 6 paneles por tipo de equipo (pivote central y lineal, estacionario, sensores, nevera, pozo) son
   componentes, sin cambio visual; `index.html` -612 lineas. (REQ-057 S1)
 - Ventana de velocidades del pivote rediseñada (lamina en pulgadas y mm, fila actual resaltada); en "Nuevo plan"

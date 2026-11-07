@@ -116,7 +116,8 @@ test("REQ-057 las plantillas no dependen de core.js: solo vm.* y variables de su
 test("REQ-057 los modales se abren con al-abrir y los comandos llegan por salidas", () => {
   assert.match(plantilla("panel-estacionario"), /ng-click="vm\.alAbrir\(\{ \$modal: 'modalHistorial' \}\)"/);
   assert.match(plantilla("panel-estacionario"), /vm\.alAlternarParcela\(\{ \$parcela: 'p' \+ \$index \}\)/);
-  assert.match(plantilla("panel-estacionario"), /ng-style="\{ 'border': '5px solid ' \+ \(vm\.colorParcela\(\{ \$parcela: 'p7' \}\)\)/);
+  // REQ-063: la imagen del motor se quito; su color pasa a la "M".
+  assert.match(plantilla("panel-estacionario"), /ng-style="\{ 'color': \(vm\.colorParcela\(\{ \$parcela: 'p7' \}\)\) \}"/);
   assert.match(plantilla("panel-pivote-lineal"), /ng-click="vm\.alAbrir\(\{ \$modal: 'modalSuelo' \}\)"/);
   assert.match(plantilla("panel-pivote-lineal"), /vm\.clima\.main\.humidity/);
   assert.match(plantilla("panel-sensores"), /ng-show="vm\.mostrarLista"/);
@@ -152,4 +153,12 @@ test("REQ-057 cada clase generada de paneles.css se usa y lleva !important (igua
     assert.match(todas, new RegExp("\\b" + clase + "\\b"), clase + " sin usar");
     cuerpo.split(";").filter(x => x.trim()).forEach(decl => assert.match(decl, /!important\s*$/, clase + ": " + decl));
   });
+});
+
+test("REQ-063 estacionario: sin la imagen del motor; parcelas 1-7 y la M (motor) con el color de su estado", () => {
+  const t = plantilla("panel-estacionario");
+  assert.doesNotMatch(t, /pozo\.png/);
+  assert.match(t, /ng-repeat="plot in vm\.sistema\.plots" ng-if="\$index != 7">filter_\{\{ \$index \+ 1 \}\}<\/i>/);
+  assert.match(t, /aria-label="Motor"\s+ng-click="vm\.alAlternarParcela\(\{ \$parcela: 'p7' \}\)"/);
+  assert.match(t, /ng-style="\{ 'color': \(vm\.colorParcela\(\{ \$parcela: 'p7' \}\)\) \}">\s*<i class="material-icons panel-s-e35">filter_none<\/i>\s*<span class="panel-s-e39">M<\/span>/);
 });

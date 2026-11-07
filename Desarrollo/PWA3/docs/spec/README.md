@@ -62,8 +62,9 @@
 | REQ-060 | Pivote: los sectores del plan no pueden solaparse (formulario y aviso en la lista) | Implementado (probar: usuario) | 3 |
 | REQ-061 | Parcela del estacionario: E1 errores de datos (borraba la duracion del 1er riego; ceros cambiados; defaults que no llegaban) | E1 implementada (probar: usuario) | 7 |
 | REQ-062 | Pivote: 0 % = zona de paro (valido; se explica en el formulario y se marca en la lista) | Implementado (probar: usuario) | 1 |
+| REQ-063 | Estacionario: sin la imagen del motor; parcelas 1-7 y la M (motor) con el color de su estado | Implementado (probar: usuario) | 1 |
 
-**Total: 353 pruebas en Node (2026-11-06), todas en verde.** `npm test` funciona en Node 20 y 22.
+**Total: 354 pruebas en Node (2026-11-06), todas en verde.** `npm test` funciona en Node 20 y 22.
 
 ## Bloque de autenticacion (cerrado y confirmado por el usuario)
 
