@@ -22,9 +22,14 @@ Igual para las parcelas 1-7 y para el motor (M, `p7`).
 | Lugar | Antes | Ahora |
 |---|---|---|
 | Panel del estacionario (1-7 y M) | Un sector encendido por el equipo sin orden de la app (p. ej. un programa) salia **gris**; una orden sin ningun dato del equipo salia **gris** | Verde y amarillo respectivamente |
-| Listado | Blanco = encendido | Verde (misma paleta; gris oscuro para apagado por el fondo de la tarjeta) |
+| Listado | Blanco = encendido | **Blanco** = encendido (REQ-065: por contraste con el fondo de la tarjeta), amarillo sin confirmar, gris apagado |
 | Mapa (borde de la parcela; el relleno sigue siendo la humedad, REQ-052) | Verde **en cuanto se daba la orden** (sin esperar confirmacion), blanco apagado; sin amarillo | Gris / amarillo discontinuo / verde, y la etiqueta dice "Regando" o "Esperando confirmacion del equipo" |
 
 Donde la funcion anterior ya acertaba (ordenes 1 y -1 con dato del equipo), el resultado es el mismo
 (prueba de equivalencia). `isPlotActive` (que decide si tocar el sector lo enciende o lo apaga) no cambia:
 sigue mirando la orden.
+
+## 3. Ajuste REQ-065 (2026-11-07)
+
+El usuario indica que en el **listado** el encendido es **blanco**, no verde, para que haya contraste con el
+fondo de la tarjeta. Panel y mapa siguen en verde. Compilacion `26.11.07.011`.

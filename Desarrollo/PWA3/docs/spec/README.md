@@ -63,7 +63,7 @@
 | REQ-061 | Parcela del estacionario: E1 errores de datos (borraba la duracion del 1er riego; ceros cambiados; defaults que no llegaban) | E1 implementada (probar: usuario) | 7 |
 | REQ-062 | Pivote: 0 % = zona de paro (valido; se explica en el formulario y se marca en la lista) | Implementado (probar: usuario) | 1 |
 | REQ-063 | Estacionario: sin la imagen del motor; parcelas 1-7 y la M (motor) con el color de su estado | Implementado (probar: usuario) | 1 |
-| REQ-064 | Estacionario: gris apagado / amarillo sin confirmar / verde encendido, en panel, listado y mapa | Implementado (probar: usuario) | 3 |
+| REQ-064 | Estacionario: gris apagado / amarillo sin confirmar / verde encendido (blanco en el listado, REQ-065), en panel, listado y mapa | Implementado (probar: usuario) | 3 |
 
 **Total: 357 pruebas en Node (2026-11-06), todas en verde.** `npm test` funciona en Node 20 y 22.
 

@@ -208,6 +208,8 @@ test("REQ-064 panel, listado y mapa usan el mismo estado", () => {
   const CORE = fs.readFileSync(path.join(RAIZ, "assets", "js", "core.js"), "utf8");
   assert.match(CORE, /return paleta\[__modulo\("panel"\)\.estadoParcela\(system, index\)\];/);
   assert.match(CORE, /COLORES_PARCELA = \{ apagado: "lightgray", pendiente: "yellow", encendido: "springgreen" \}/);
+  // REQ-065: en el listado el encendido es blanco (contraste con la tarjeta).
+  assert.match(CORE, /COLORES_PARCELA_LISTADO = \{ apagado: "gray", pendiente: "yellow", encendido: "white" \}/);
   assert.match(CORE, /const riego = __modulo\("panel"\)\.estadoParcela\(campo, idx\);/);
   assert.match(CORE, /BORDES_PARCELA = \{ apagado: "#bdbdbd", pendiente: "#ffd600", encendido: "#00e676" \}/);
 });

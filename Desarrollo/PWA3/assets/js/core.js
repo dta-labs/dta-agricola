@@ -52,7 +52,7 @@ function __equipos() {
 }
 
 // Marca de version: si no ves esto en consola, el navegador sirve un core.js viejo.
-console.log("[app] core.js 26.11.07.010");
+console.log("[app] core.js 26.11.07.011");
 
 // #region Controlador Angular
 
@@ -2383,7 +2383,8 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     //   gris = apagado confirmado, amarillo = orden de encender/apagar sin confirmar en los logs,
     //   verde = encendido confirmado. Mismo estado en el panel, el listado y el borde de la parcela en el mapa.
     const COLORES_PARCELA = { apagado: "lightgray", pendiente: "yellow", encendido: "springgreen" };
-    const COLORES_PARCELA_LISTADO = { apagado: "gray", pendiente: "yellow", encendido: "springgreen" };
+    // En el listado el encendido es blanco: contrasta con el fondo de la tarjeta (decision del usuario).
+    const COLORES_PARCELA_LISTADO = { apagado: "gray", pendiente: "yellow", encendido: "white" };
 
     $scope.getPlotColor = (system, index) => {
         const paleta = $scope.selectedWindow == "listado" ? COLORES_PARCELA_LISTADO : COLORES_PARCELA;
