@@ -162,3 +162,52 @@ test("REQ-063 estacionario: sin la imagen del motor; parcelas 1-7 y la M (motor)
   assert.match(t, /aria-label="Motor"\s+ng-click="vm\.alAlternarParcela\(\{ \$parcela: 'p7' \}\)"/);
   assert.match(t, /ng-style="\{ 'color': \(vm\.colorParcela\(\{ \$parcela: 'p7' \}\)\) \}">\s*<i class="material-icons panel-s-e35">filter_none<\/i>\s*<span class="panel-s-e39">M<\/span>/);
 });
+
+// ---------- REQ-064: codigo de colores del estacionario ----------
+
+const sistemaCon = (orden, sectores) => ({ plots: { p2: { forcedStart: orden }, p7: { forcedStart: orden } }, log: sectores === undefined ? {} : { activeSectors: sectores } });
+const SECT = n => "[" + [0, 1, 2, 3, 4, 5, 6, 7].map(i => (i === n ? 1 : 0)).join(",") + "]";
+
+test("REQ-064 gris = apagado confirmado, amarillo = orden sin confirmar, verde = encendido confirmado", () => {
+  const casos = [
+    [1, SECT(2), "encendido"], [1, SECT(-1), "pendiente"], [1, undefined, "pendiente"],
+    [-1, SECT(2), "pendiente"], [-1, SECT(-1), "apagado"],
+    [undefined, SECT(2), "encendido"], [undefined, SECT(-1), "apagado"], [0, undefined, "apagado"]
+  ];
+  for (const [orden, sectores, esperado] of casos) {
+    assert.equal(panel.estadoParcela(sistemaCon(orden, sectores), "p2"), esperado, `${orden} ${sectores}`);
+  }
+  assert.equal(panel.estadoParcela(sistemaCon(1, SECT(7)), "p7"), "encendido", "el motor (p7) sigue la misma regla");
+  assert.equal(panel.estadoParcela(sistemaCon(1, [0, 0, 1]), "p2"), "encendido", "activeSectors como arreglo");
+  assert.equal(panel.estadoParcela({}, "p2"), "apagado");
+});
+
+test("REQ-064 donde la funcion anterior ya acertaba, el resultado es el mismo", () => {
+  // getPlotColor anterior (ventana del sistema), copiada tal cual.
+  const anterior = (system, index) => {
+    let color = "lightgray";
+    let plot = system.plots[index];
+    if (plot && plot.forcedStart && system.log) {
+      let idx = parseInt(index.slice(-1)) * 2 + 1;
+      if (plot.forcedStart == 1 && system.log.activeSectors && system.log.activeSectors[idx] == 1) color = "springgreen";
+      if (system.log.activeSectors && plot.forcedStart != system.log.activeSectors[idx] && (plot.forcedStart == 1 || system.log.activeSectors[idx] == 1)) color = "yellow";
+    }
+    return color;
+  };
+  const COLOR = { apagado: "lightgray", pendiente: "yellow", encendido: "springgreen" };
+  for (const [orden, sectores] of [[1, SECT(2)], [1, SECT(-1)], [-1, SECT(2)], [-1, SECT(-1)]]) {
+    const s = sistemaCon(orden, sectores);
+    assert.equal(COLOR[panel.estadoParcela(s, "p2")], anterior(s, "p2"), `${orden} ${sectores}`);
+  }
+  // Los dos casos que corrige REQ-064:
+  assert.equal(anterior(sistemaCon(undefined, SECT(2)), "p2"), "lightgray", "antes: encendido por el equipo salia gris");
+  assert.equal(anterior(sistemaCon(1, undefined), "p2"), "lightgray", "antes: orden sin ningun dato salia gris");
+});
+
+test("REQ-064 panel, listado y mapa usan el mismo estado", () => {
+  const CORE = fs.readFileSync(path.join(RAIZ, "assets", "js", "core.js"), "utf8");
+  assert.match(CORE, /return paleta\[__modulo\("panel"\)\.estadoParcela\(system, index\)\];/);
+  assert.match(CORE, /COLORES_PARCELA = \{ apagado: "lightgray", pendiente: "yellow", encendido: "springgreen" \}/);
+  assert.match(CORE, /const riego = __modulo\("panel"\)\.estadoParcela\(campo, idx\);/);
+  assert.match(CORE, /BORDES_PARCELA = \{ apagado: "#bdbdbd", pendiente: "#ffd600", encendido: "#00e676" \}/);
+});

@@ -81,8 +81,46 @@
         return (Math.max(0, Math.min(100, ((voltaje - minimo) / (maximo - minimo)) * 100))).toFixed(0);
     }
 
+    // ---------- REQ-064: estado de una parcela (o del motor, p7) del estacionario ----------
+    //
+    //   orden    = plots[pN].forcedStart: 1 encender, -1 apagar (sin orden: vacio/0)
+    //   equipo   = log.activeSectors (lo que confirma el equipo): "[0,1,0,...]" o arreglo; 1 = encendido
+    //
+    //   "encendido"  verde    el equipo confirma encendido y no hay una orden pendiente de apagar
+    //   "pendiente"  amarillo hay una orden (encender o apagar) que el equipo aun no confirma
+    //   "apagado"    gris     el equipo confirma apagado y no hay una orden pendiente de encender
+
+    function sectoresActivos(log) {
+        var valor = log && log.activeSectors;
+        if (Array.isArray(valor)) return valor;
+        if (typeof valor === "string" && valor.trim()) {
+            try {
+                var lista = JSON.parse(valor);
+                if (Array.isArray(lista)) return lista;
+            } catch (e) { /* formato antiguo: se lee caracter a caracter */ }
+            var digitos = valor.replace(/[^01]/g, "");
+            return digitos.split("").map(Number);
+        }
+        return null;
+    }
+
+    function estadoParcela(sistema, clave) {
+        var s = sistema || {};
+        var parcela = s.plots && s.plots[clave];
+        var numero = parseInt(String(clave || "").replace(/\D/g, ""), 10);
+        if (!parcela || !isFinite(numero)) return "apagado";
+        var orden = Number(parcela.forcedStart);
+        var sectores = sectoresActivos(s.log);
+        var confirmado = sectores ? Number(sectores[numero]) === 1 : null;
+        if (orden === 1) return confirmado === true ? "encendido" : "pendiente";
+        if (orden === -1) return confirmado === true ? "pendiente" : "apagado";
+        return confirmado === true ? "encendido" : "apagado";
+    }
+
     return {
         porcentajeSenal: porcentajeSenal,
+        estadoParcela: estadoParcela,
+        sectoresActivos: sectoresActivos,
         porcentajeBateria: porcentajeBateria,
         comunicacionOk: comunicacionOk,
         gpsOk: gpsOk,

@@ -52,7 +52,7 @@ function __equipos() {
 }
 
 // Marca de version: si no ves esto en consola, el navegador sirve un core.js viejo.
-console.log("[app] core.js 26.11.07.007");
+console.log("[app] core.js 26.11.07.010");
 
 // #region Controlador Angular
 
@@ -2379,21 +2379,15 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         return $scope.getSystemBackgroundColor(system) == "#d3d3d3e0" ? 'grey' : 'white';
     }
 
+    // REQ-064: codigo de colores de parcelas y motor del estacionario (logic/panel.js -> estadoParcela):
+    //   gris = apagado confirmado, amarillo = orden de encender/apagar sin confirmar en los logs,
+    //   verde = encendido confirmado. Mismo estado en el panel, el listado y el borde de la parcela en el mapa.
+    const COLORES_PARCELA = { apagado: "lightgray", pendiente: "yellow", encendido: "springgreen" };
+    const COLORES_PARCELA_LISTADO = { apagado: "gray", pendiente: "yellow", encendido: "springgreen" };
+
     $scope.getPlotColor = (system, index) => {
-        let color = $scope.selectedWindow == "listado" ? "gray" : "lightgray";
-        if (index && system && system.plots) {
-            let plot = system.plots[index];
-            if (plot && plot.forcedStart && system.log) {
-                let idx = parseInt(index.slice(-1)) * 2 + 1;
-                if (plot.forcedStart == 1 && system.log.activeSectors && system.log.activeSectors[idx] == 1) {
-                    color = $scope.selectedWindow == "listado" ? "white" : "springgreen";
-                }
-                if (system.log.activeSectors && plot.forcedStart != system.log.activeSectors[idx] && (plot.forcedStart == 1 || system.log.activeSectors[idx] == 1)) {
-                    color = "yellow";
-                }
-            }
-        }
-        return color;
+        const paleta = $scope.selectedWindow == "listado" ? COLORES_PARCELA_LISTADO : COLORES_PARCELA;
+        return paleta[__modulo("panel").estadoParcela(system, index)];
     }
 
     $scope.isPlotActive = (system, index) => {
@@ -2757,13 +2751,19 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     const escaparHtml = (texto) => String(texto == null ? "" : texto)
         .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
-    // REQ-052: estilo de una parcela segun la humedad (relleno) y si se esta regando (borde).
-    const estiloParcela = (estado, activa) => ({
-        color: activa ? "#00e676" : "#ffffff",
-        weight: activa ? 4 : 2,
-        fillColor: estado.color,
-        fillOpacity: 0.45
-    });
+    // REQ-052/064: relleno = humedad del suelo; borde = estado del riego (gris apagado, amarillo sin
+    // confirmar, verde encendido confirmado). `riego` es el estado de logic/panel.js o true/false.
+    const BORDES_PARCELA = { apagado: "#bdbdbd", pendiente: "#ffd600", encendido: "#00e676" };
+    const estiloParcela = (estado, riego) => {
+        const clave = riego === true ? "encendido" : (riego === false || !riego ? "apagado" : riego);
+        return {
+            color: BORDES_PARCELA[clave] || BORDES_PARCELA.apagado,
+            weight: clave === "apagado" ? 2 : 4,
+            dashArray: clave === "pendiente" ? "8 6" : null,
+            fillColor: estado.color,
+            fillOpacity: 0.45
+        };
+    };
 
     const textoHumedad = (estado) => estado.valor === null
         ? "Humedad: sin dato"
@@ -3476,13 +3476,14 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                     // REQ-052: relleno por humedad del suelo (sensor asociado), borde verde si se esta regando;
                     // tocar la parcela abre "Editar parcela".
                     const estado = __modulo("humedad").estadoDeParcela(campo.plots[idx], $scope.systems);
-                    const activa = $scope.isPlotActive(campo, "p" + i);
+                    const riego = __modulo("panel").estadoParcela(campo, idx);
                     const parcela = campo.plots[idx];
-                    poligons[campo.key + idx] = L.polygon(newPoligon, estiloParcela(estado, activa));
+                    poligons[campo.key + idx] = L.polygon(newPoligon, estiloParcela(estado, riego));
                     poligons[campo.key + idx].bindTooltip(
                         `<b>${escaparHtml(parcela.name || "Parcela " + (i + 1))}</b>` +
                         (parcela.culture ? `<br>Cultivo: ${escaparHtml(parcela.culture)}` : "") +
-                        `<br>${textoHumedad(estado)}` + (activa ? "<br><b>Regando</b>" : "") +
+                        `<br>${textoHumedad(estado)}` +
+                        (riego === "encendido" ? "<br><b>Regando</b>" : riego === "pendiente" ? "<br><b>Esperando confirmación del equipo</b>" : "") +
                         `<br><small>Toca para editar</small>`,
                         { sticky: true, direction: "top", className: "parcela-tooltip" });
                     poligons[campo.key + idx].on("click", () => abrirEdicionDeParcela(idx));
