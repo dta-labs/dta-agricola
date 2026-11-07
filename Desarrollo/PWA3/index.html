@@ -2875,16 +2875,18 @@
                                                             <div class="alerta-umbral">
                                                                 <label for="newSensorTMinValue" class="alerta-etiqueta">Helada</label>
                                                                 <div class="alerta-campo">
-                                                                    <input id="newSensorTMinValue" type="number" min="-30" max="60" step="1" ng-model="newSensor.t.minValue">
-                                                                    <span>°C</span>
+                                                                    <input id="newSensorTMinValue" type="number" step="0.5" min="{{ actualSystem.tempUnit == 'C' ? -30 : -22 }}" max="{{ actualSystem.tempUnit == 'C' ? 60 : 140 }}"
+                                                                        dta-temperatura="newSensor.t.minValue" dta-unidad="actualSystem.tempUnit">
+                                                                    <span>{{ actualSystem.tempUnit == 'C' ? '°C' : '°F' }}</span>
                                                                 </div>
                                                                 <small class="alerta-ayuda">Por debajo: riesgo de helada</small>
                                                             </div>
                                                             <div class="alerta-umbral">
                                                                 <label for="newSensorTMaxValue" class="alerta-etiqueta">Exceso de calor</label>
                                                                 <div class="alerta-campo">
-                                                                    <input id="newSensorTMaxValue" type="number" min="-30" max="60" step="1" ng-model="newSensor.t.maxValue">
-                                                                    <span>°C</span>
+                                                                    <input id="newSensorTMaxValue" type="number" step="0.5" min="{{ actualSystem.tempUnit == 'C' ? -30 : -22 }}" max="{{ actualSystem.tempUnit == 'C' ? 60 : 140 }}"
+                                                                        dta-temperatura="newSensor.t.maxValue" dta-unidad="actualSystem.tempUnit">
+                                                                    <span>{{ actualSystem.tempUnit == 'C' ? '°C' : '°F' }}</span>
                                                                 </div>
                                                                 <small class="alerta-ayuda">Por encima: estrés por calor</small>
                                                             </div>
@@ -3162,16 +3164,18 @@
                                                             <div class="alerta-umbral">
                                                                 <label for="editSensorTMinValue" class="alerta-etiqueta">Helada</label>
                                                                 <div class="alerta-campo">
-                                                                    <input id="editSensorTMinValue" type="number" min="-30" max="60" step="1" ng-model="actualSensor.t.minValue">
-                                                                    <span>°C</span>
+                                                                    <input id="editSensorTMinValue" type="number" step="0.5" min="{{ actualSystem.tempUnit == 'C' ? -30 : -22 }}" max="{{ actualSystem.tempUnit == 'C' ? 60 : 140 }}"
+                                                                        dta-temperatura="actualSensor.t.minValue" dta-unidad="actualSystem.tempUnit">
+                                                                    <span>{{ actualSystem.tempUnit == 'C' ? '°C' : '°F' }}</span>
                                                                 </div>
                                                                 <small class="alerta-ayuda">Por debajo: riesgo de helada</small>
                                                             </div>
                                                             <div class="alerta-umbral">
                                                                 <label for="editSensorTMaxValue" class="alerta-etiqueta">Exceso de calor</label>
                                                                 <div class="alerta-campo">
-                                                                    <input id="editSensorTMaxValue" type="number" min="-30" max="60" step="1" ng-model="actualSensor.t.maxValue">
-                                                                    <span>°C</span>
+                                                                    <input id="editSensorTMaxValue" type="number" step="0.5" min="{{ actualSystem.tempUnit == 'C' ? -30 : -22 }}" max="{{ actualSystem.tempUnit == 'C' ? 60 : 140 }}"
+                                                                        dta-temperatura="actualSensor.t.maxValue" dta-unidad="actualSystem.tempUnit">
+                                                                    <span>{{ actualSystem.tempUnit == 'C' ? '°C' : '°F' }}</span>
                                                                 </div>
                                                                 <small class="alerta-ayuda">Por encima: estrés por calor</small>
                                                             </div>
@@ -3669,7 +3673,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="./assets/modules/materialize/css/materialize.min.css">
     <link rel="stylesheet" href="./assets/modules/leaflet/leaflet.css">
-    <link rel="stylesheet" href="./assets/css/style.css?v=26.11.07.008">
+    <link rel="stylesheet" href="./assets/css/style.css?v=26.11.07.012">
     <link rel="stylesheet" href="./assets/css/responsive.css">
     <link rel="stylesheet" href="./assets/css/formularios.css?v=26.11.06.002">
     <!-- REQ-043: Bootstrap 5 aislado en .bs (convive con Materialize mientras se migra) -->
@@ -3683,7 +3687,7 @@
     <link rel="stylesheet" href="./assets/js/components/comunes/version-app/version-app.css?v=26.11.07.003">
     <link rel="stylesheet" href="./assets/js/components/comunes/mapa-selector/mapa-selector.css?v=26.11.06.001">
     <link rel="stylesheet" href="./assets/js/components/comunes/lector-codigo/lector-codigo.css?v=26.11.06.001">
-    <link rel="stylesheet" href="./assets/js/components/sistema/paneles.css?v=26.11.07.009">
+    <link rel="stylesheet" href="./assets/js/components/sistema/paneles.css?v=26.11.07.012">
     <link rel="stylesheet" href="./assets/js/components/ayuda/ayuda.css?v=26.11.06.003">
     <link rel="stylesheet" href="./assets/js/components/fichas-tecnicas/fichas-tecnicas.css?v=26.11.06.003">
 
@@ -3901,6 +3905,7 @@
     <script src="./assets/js/logic/humedad.js?v=26.11.06.001"></script>
     <script src="./assets/js/logic/pivote.js?v=26.11.07.005"></script>
     <script src="./assets/js/logic/panel.js?v=26.11.07.010"></script>
+    <script src="./assets/js/logic/unidades.js?v=26.11.07.012"></script>
     <script src="./assets/js/logic/parcela.js?v=26.11.07.007"></script>
     <script src="./assets/js/services/repositorio.js?v=26.11.02.001"></script>
     <script src="./assets/js/services/adaptadorFirebase.js?v=26.11.02.001"></script>
@@ -3924,15 +3929,16 @@
 <script src="./assets/js/logic/meteo.js?v=26.11.02.001"></script>
     <script src="./assets/js/logic/aviso.js?v=26.11.02.001"></script>
 <script src="./assets/vendor/bootstrap/bootstrap.bundle.min.js?v=5.3.8"></script>
-    <script src="./assets/js/core.js?v=26.11.07.011"></script>
+    <script src="./assets/js/core.js?v=26.11.07.012"></script>
     <!-- REQ-038: factories, ayudas de interfaz y componentes (despues de core.js, que crea el modulo) -->
-    <script src="./assets/js/app/version.js?v=26.11.07.011"></script>
+    <script src="./assets/js/app/version.js?v=26.11.07.012"></script>
     <script src="./assets/js/app/reglas.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/auth.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/repo.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/ui/ui.factory.js?v=26.11.06.004"></script>
     <script src="./assets/js/ui/campos-fecha.directive.js?v=26.11.06.002"></script>
     <script src="./assets/js/ui/mapa.factory.js?v=26.11.06.001"></script>
+    <script src="./assets/js/ui/campos-unidad.directive.js?v=26.11.07.012"></script>
     <script src="./assets/js/ui/lector.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/components/login/login.component.js?v=26.11.06.004"></script>
     <script src="./assets/js/components/comunes/version-app/version-app.component.js?v=26.11.07.003"></script>
@@ -3942,7 +3948,7 @@
     <script src="./assets/js/components/sistema/panel-pozo/panel-pozo.component.js?v=26.11.06.001"></script>
     <script src="./assets/js/components/sistema/panel-pivote-lineal/panel-pivote-lineal.component.js?v=26.11.07.001"></script>
     <script src="./assets/js/components/sistema/panel-estacionario/panel-estacionario.component.js?v=26.11.07.009"></script>
-    <script src="./assets/js/components/sistema/panel-sensores/panel-sensores.component.js?v=26.11.07.001"></script>
+    <script src="./assets/js/components/sistema/panel-sensores/panel-sensores.component.js?v=26.11.07.012"></script>
     <script src="./assets/js/components/sistema/panel-nevera/panel-nevera.component.js?v=26.11.07.001"></script>
     <script src="./assets/js/components/sistema/plan-pivote/plan-pivote.component.js?v=26.11.07.008"></script>
     <script src="./assets/js/components/ayuda/ayuda.component.js?v=26.11.06.003"></script>

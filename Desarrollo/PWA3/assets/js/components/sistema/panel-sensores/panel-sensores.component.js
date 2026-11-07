@@ -8,11 +8,17 @@
 (function (raiz) {
     "use strict";
 
-    var VERSION = "26.11.07.001";
+    var VERSION = "26.11.07.012";
 
     function Controlador(dtaReglas) {
         var vm = this;
         var panel = dtaReglas.panel;
+
+        /** REQ-066: estado de la humedad del suelo para el color de la tarjeta (seco/adecuado/saturado/sin-dato). */
+        var ESTADOS = { "Seco": "seco", "Adecuado": "adecuado", "Saturado": "saturado" };
+        vm.estado = function (clave, sensor) {
+            return ESTADOS[vm.valorSensor({ $clave: clave, $campo: "soilStatus", $sensor: sensor })] || "sin-dato";
+        };
 
         /** Senal del modem en % (logic/panel.js). */
         vm.senal = function () {

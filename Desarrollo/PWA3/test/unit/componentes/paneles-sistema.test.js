@@ -147,7 +147,8 @@ test("REQ-057 porcentajeBateria = voltageToPercent", () => {
 test("REQ-057 cada clase generada de paneles.css se usa y lleva !important (igual prioridad que el estilo en linea)", () => {
   const css = fs.readFileSync(path.join(RAIZ, "assets", "js", "components", "sistema", "paneles.css"), "utf8");
   const generadas = [...css.matchAll(/^\.(panel-s-e\d+) \{ ([^}]*) \}$/gm)];
-  assert.ok(generadas.length >= 50);
+  // Bajan a medida que los paneles se redisenan (S2): REQ-066 rehizo las tarjetas de sensores.
+  assert.ok(generadas.length >= 30);
   const todas = PANELES.map(plantilla).join("\n");
   generadas.forEach(([, clase, cuerpo]) => {
     assert.match(todas, new RegExp("\\b" + clase + "\\b"), clase + " sin usar");
@@ -212,4 +213,30 @@ test("REQ-064 panel, listado y mapa usan el mismo estado", () => {
   assert.match(CORE, /COLORES_PARCELA_LISTADO = \{ apagado: "gray", pendiente: "yellow", encendido: "white" \}/);
   assert.match(CORE, /const riego = __modulo\("panel"\)\.estadoParcela\(campo, idx\);/);
   assert.match(CORE, /BORDES_PARCELA = \{ apagado: "#bdbdbd", pendiente: "#ffd600", encendido: "#00e676" \}/);
+});
+
+// ---------- REQ-066: tarjetas de sensores ----------
+
+test("REQ-066 tarjetas de sensores compactas en Bootstrap, con el estado por color", () => {
+  const t = plantilla("panel-sensores");
+  const lista = t.slice(t.indexOf('ng-show="vm.mostrarLista"'));
+  assert.match(lista, /<div class="bs sensores-tarjetas">/);
+  assert.match(lista, /<article class="sensor-tarjeta" ng-repeat="\(coldRoomKey, coldRoom\) in vm\.sistema\.sensors" ng-if="coldRoom\.id"/);
+  assert.match(lista, /ng-class="'sensor-' \+ vm\.estado\(coldRoomKey, coldRoom\)"/);
+  ["soilMoisture", "soilStatus", "temperature", "humidity", "battery", "batteryIcon"].forEach(c => assert.match(lista, new RegExp("\\$campo: '" + c + "'"), c));
+  assert.match(lista, /<button type="button" class="btn btn-sm sensor-boton" ng-click="vm\.alGrafica/);
+  assert.match(lista, /<button type="button" class="btn btn-sm sensor-boton" ng-click="vm\.alEditarSensor/);
+  assert.doesNotMatch(lista, /class="[^"]*\b(col s\d|waves-|panel-s-e)/, "sin Materialize ni clases generadas en las tarjetas");
+  const sensores = require("../../../assets/js/components/sistema/panel-sensores/panel-sensores.component.js");
+  const vm = new sensores.Controlador({ panel });
+  const valores = { S0: "Seco", S1: "Adecuado", S2: "Saturado", S3: "--" };
+  vm.valorSensor = l => valores[l.$clave];
+  assert.deepEqual(["S0", "S1", "S2", "S3"].map(k => vm.estado(k, {})), ["seco", "adecuado", "saturado", "sin-dato"]);
+});
+
+test("REQ-066 sin tarjetas fijas (tooltips permanentes) sobre los sensores del mapa", () => {
+  const CORE = fs.readFileSync(path.join(RAIZ, "assets", "js", "core.js"), "utf8");
+  assert.doesNotMatch(CORE, /permanent: true/);
+  assert.doesNotMatch(CORE, /getSensorValue/);
+  assert.match(CORE, /marker\[sensor\.id\]\.bindPopup\(/, "la ficha sigue abriendose al tocar el sensor");
 });

@@ -106,12 +106,7 @@ dta-panel-nevera {
 .panel-s-e44 { margin-top: 80px !important; }
 .panel-s-e45 { color: white !important; margin: auto !important; z-index: 1 !important; text-shadow: 1px 1px 2px #000 !important; height: calc(100vh - 145px) !important; overflow-y: auto !important; scroll-behavior: smooth !important; }
 .panel-s-e46 { margin-bottom: 10px !important; }
-.panel-s-e47 { margin: auto !important; border: 1px solid gray !important; border-radius: 10px !important; }
 .panel-s-e48 { font-size: 2em !important; width: 100% !important; padding: 0 10px !important; box-sizing: border-box !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
-.panel-s-e49 { font-size: 3em !important; padding: 0 16.666666% 5px 0 !important; }
-.panel-s-e50 { font-size: 2em !important; text-align: right !important; margin-bottom: 0 !important; width: 100% !important; margin-left: 0 !important; }
-.panel-s-e51 { width: 35px !important; }
-.panel-s-e52 { font-size: 2em !important; text-align: right !important; margin-bottom: 0 !important; width: 100% !important; margin-left: 0px !important; }
 .panel-s-e53 { font-size: 2em !important; text-align: right !important; width: 100% !important; margin-left: 0px !important; }
 .panel-s-e54 { border: 1px solid grey !important; margin: 5px 0 !important; }
 .panel-s-e55 { font-size: 1.5em !important; margin-bottom: 5px !important; width: 100% !important; margin-left: 0px !important; }
@@ -119,3 +114,133 @@ dta-panel-nevera {
 .panel-s-e58 { font-size: 0.9em !important; width: 100% !important; border: 1px solid !important; box-shadow: 3px 3px grey !important; }
 .panel-s-e59 { margin: auto !important; border: 1px solid gray !important; border-radius: 10px !important; background: #0000003d !important; }
 .panel-s-e60 { font-size: 4em !important; text-align: right !important; margin-bottom: 0 !important; width: 100% !important; margin-left: 0px !important; }
+
+/* ===================== REQ-066: tarjetas de sensores ===================== */
+.bs.sensores-tarjetas {
+    margin-top: 76px;
+    height: calc(100vh - 140px);
+    overflow-y: auto;
+    padding: 0 8px 16px 8px;
+    scroll-behavior: smooth;
+}
+
+.bs .sensores-rejilla {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
+    gap: 10px;
+}
+
+.bs .sensor-tarjeta {
+    --estado: #9e9e9e;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px 12px 10px 14px;
+    border-radius: 12px;
+    border-left: 5px solid var(--estado);
+    background: rgba(18, 24, 18, 0.72);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(4px);
+}
+
+.bs .sensor-seco { --estado: #e53935; }
+.bs .sensor-adecuado { --estado: #43a047; }
+.bs .sensor-saturado { --estado: #1e88e5; }
+
+.bs .sensor-cabecera {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.bs .sensor-nombre {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.bs .sensor-bateria {
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    opacity: 0.85;
+    white-space: nowrap;
+}
+
+.bs .sensor-principal {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 6px;
+}
+
+.bs .sensor-valor {
+    font-size: 1.7rem;
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+.bs .sensor-estado {
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--estado);
+    font-size: 0.72rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.bs .sensor-datos {
+    display: flex;
+    justify-content: space-between;
+    gap: 6px;
+    font-size: 0.85rem;
+    opacity: 0.9;
+}
+
+.bs .sensor-datos .fa {
+    width: 1em;
+    text-align: center;
+}
+
+.bs .sensor-acciones {
+    display: flex;
+    gap: 6px;
+    margin-top: 2px;
+}
+
+.bs .sensor-boton {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 10px;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    box-shadow: none;
+}
+
+.bs .sensor-boton:first-child {
+    flex: 1 1 auto;
+    justify-content: center;
+}
+
+.bs .sensor-boton:hover,
+.bs .sensor-boton:focus-visible {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+@media (max-width: 400px) {
+    .bs .sensores-rejilla {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+    .bs .sensor-valor {
+        font-size: 1.45rem;
+    }
+}

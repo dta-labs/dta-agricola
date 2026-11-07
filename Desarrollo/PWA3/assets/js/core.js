@@ -52,7 +52,7 @@ function __equipos() {
 }
 
 // Marca de version: si no ves esto en consola, el navegador sirve un core.js viejo.
-console.log("[app] core.js 26.11.07.011");
+console.log("[app] core.js 26.11.07.012");
 
 // #region Controlador Angular
 
@@ -2889,14 +2889,6 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             marker[campo.key] = L.marker(coord, { icon: greenIcon });
             map.addLayer(marker[campo.key]);
 
-            // 👉 Texto fijo junto al marcador principal
-            // let text = getMarkerText(campo);
-            // marker[campo.key].bindTooltip(text, {
-            //     permanent: true,   // siempre visible
-            //     direction: "right", // posición respecto al marcador
-            //     offset: [10, 0]     // ajuste de distancia
-            // }).openTooltip();
-
             if (campo.type == "Sensor") { 
                 greenIcon = getMarkerIcon(campo.type);
                 for (let i = 0; i < campo.sensors.sensorNumber; i++) {
@@ -2908,24 +2900,8 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                         marker[sensor.id] = L.marker(sensorCoord, { icon: greenIcon });
                         map.addLayer(marker[sensor.id]);
 
-                        // 👉 Texto fijo junto al marcador de cada sensor
-                        marker[sensor.id].bindTooltip(getSensorValue(campo, sensor, i), {
-                            permanent: true,
-                            interactive: true,
-                            className: "sensor-summary-tooltip",
-                            direction: "top",
-                            offset: [0, -20]
-                        }).openTooltip();
-
-                        // Abrir el mismo popup al tocar la tarjeta permanente del sensor.
-                        marker[sensor.id].getTooltip().on("click", (event) => {
-                            if (event.originalEvent) {
-                                L.DomEvent.stopPropagation(event.originalEvent);
-                                L.DomEvent.preventDefault(event.originalEvent);
-                            }
-                            marker[sensor.id].openPopup();
-                        });
-
+                        // REQ-066: sin tarjeta fija sobre cada sensor (tapaba el mapa); al tocar el marcador
+                        // se abre su ficha, como antes. Los valores estan tambien en la vista de tarjetas.
                         // Popup adicional (cuando se hace clic)
                         marker[sensor.id].bindPopup(() => {
                             const popupContent = document.createElement('div');
@@ -2978,8 +2954,6 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                 sensorMarker.setLatLng([sensor.latitude, sensor.longitude]);
             }
 
-            const tooltip = sensorMarker.getTooltip();
-            if (tooltip) tooltip.setContent(getSensorValue(campo, sensor, i));
 
             const popupContent = document.createElement("div");
             popupContent.style.width = "240px";
@@ -3284,46 +3258,6 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                 const drivingUrl = `https://www.google.com/maps/dir/?api=1&origin=Current+Location&destination=${sensor.latitude},${sensor.longitude}&travelmode=driving`;
                 break;
         }
-    }
-
-    const getSensorValue = (campo, sensor, idx) => {
-        let date = campo.log.date ? campo.log.date.substring(6, 8) + "/" + campo.log.date.substring(4, 6) + " " + campo.log.date.substring(9, 11) + ":" + campo.log.date.substring(11, 15) : "";
-        let data = campo.log ? JSON.parse(campo.log.dataRaw) : [];
-        // REQ-052: la regla de humedad vive en logic/humedad.js (tambien la usa el mapa).
-        // Sin lectura ya no se muestra "Seco -99%", sino "Sin dato".
-        const estadoMs = __modulo("humedad").estadoHumedad(sensor, data[idx * 8]);
-        let msValue = estadoMs.valor === null ? "" : estadoMs.valor;
-        let msColor = estadoMs.fondo;
-        let msStatus = estadoMs.texto;
-        let text = ``;
-        text += `<div style="padding: 0 10px; width: 130px;">`;  // 👈 Ancho definido aquí
-        text += `    <div class="row" style="margin-bottom: 5px;">`;
-        text += `        <div class="col s12 left-aling contenedor-texto">`;
-        text += `            <b><span style="font-size: .8em;">${ sensor.alias ? sensor.alias : "Sensor: " + (idx + 1) }</span></b>`;
-        text += `        </div>`;
-        text += `    </div>`;
-        if (sensor.type == "Ms" || sensor.type == "SHT4" || sensor.type == "WM") {
-            text += `    <div class="row" style="margin-bottom: 5px; border-radius: 6px; background-color: #f5f5f5;">`;
-            text += `        <div class="col s3" style="padding-top: 7px;"><img src="./assets/images/termometro.png" alt="Termometro" style="width: 15px;"></div>`;
-            text += `        <div class="col s9" style="text-align: center; padding-top: 5px; font-size: 1.2em; color: ` + ($scope.isOutOfRange(data[idx * 8 + 2], sensor.t.minValue, sensor.t.maxValue) ? `red` : `green`) + `;">`;
-            text += `            <b>${data[idx * 8 + 2] !== "NaN" && campo.tempUnit == "C" ? parseFloat(data[idx * 8 + 2]).toFixed(0) + "°C" : data[idx * 8 + 2] !== "NaN" && (campo.tempUnit == "F" || $scope.tempUnit == "F") ? parseFloat(data[idx * 8 + 2] * 9/5 + 32).toFixed(0) + "°F" : ""}</b>`;
-            text += `        </div>`;
-            text += `    </div>`;
-            text += `    <div class="row" style="margin-bottom: 5px; border-radius: 6px; background-color: ${ msColor };">`;
-            text += `        <div class="col s3" style="padding-top: 7px;"><img src="./assets/images/Hr_white.png" alt="Agua" style="width: 15px;"></div>`;
-            text += `        <div class="col s9 soil-moisture-status-text" style="text-align: right; padding-top: 5px; font-size: 1.2em; color: white; margin-left: -15px;">`;
-            text += `           <b style="-webkit-text-stroke: 0.6px #1f1f1f; paint-order: stroke fill; text-shadow: -1px -1px 0 #1f1f1f, 1px -1px 0 #1f1f1f, -1px 1px 0 #1f1f1f, 1px 1px 0 #1f1f1f;">${ msStatus } ${ msValue }${ msValue === "" ? "" : (sensor.type != 'WM' ? '%' : 'cb') }</b>`;
-            text += `        </div>`;
-            text += `    </div>`;
-        }
-        if (sensor.type == "Psi") {
-            text += `    <div class="row" style="margin-bottom: 5px; border-radius: 6px; background-color: #f5f5f5;">`;
-            text += `        <div class="col s3" style="padding-top: 7px;"><img src="./assets/images/pozo.png" alt="Agua" style="width: 15px;"></div>`;
-            text += `        <div class="col s9" style="text-align: right; padding-top: 5px; font-size: 1.2em; color: ` + (data[idx * 8] < 1 ? `red` : `green`) + `;"><b>${data[idx * 8] && !isNaN(data[idx * 8])  && data[idx * 8] !== null ? parseFloat(data[idx * 8]).toFixed(0) : "--"}psi</b></div>`;
-            text += `    </div>`;
-        }
-        text += `</div>`;
-        return text;
     }
 
     $scope.isOutOfRange = function(value, min, max) {

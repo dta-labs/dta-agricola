@@ -279,8 +279,8 @@ test("REQ-054 alertas: umbrales separados con su accion (segun el tipo de sensor
     assert.match(HTML, new RegExp('for="' + prefijo + "HMaxValue\" class=\"alerta-etiqueta\">\\{\\{ " + modelo + "\\.type == 'WM' \\? 'Regar' : 'No regar' \\}\\}"));
     assert.match(HTML, new RegExp('for="' + prefijo + 'TMinValue" class="alerta-etiqueta">Helada<'));
     assert.match(HTML, new RegExp('for="' + prefijo + 'TMaxValue" class="alerta-etiqueta">Exceso de calor<'));
-    // La helada admite valores bajo cero (antes min="0" descartaba -2 °C sin avisar).
-    assert.match(HTML, new RegExp('id="' + prefijo + 'TMinValue" type="number" min="-30"'));
+    // La helada admite valores bajo cero; REQ-066: en la unidad del sistema y guardada en °C.
+    assert.match(HTML, new RegExp('id="' + prefijo + 'TMinValue" type="number" step="0\\.5" min="\\{\\{ actualSystem\\.tempUnit == \'C\' \\? -30 : -22 \\}\\}"'));
   }
   const funciones = fs.readFileSync(path.join(RAIZ, "functions", "index.js"), "utf8");
   assert.match(funciones, /En Watermark una lectura baja indica saturaci/, "si cambia la regla del servidor, revisar las etiquetas");
