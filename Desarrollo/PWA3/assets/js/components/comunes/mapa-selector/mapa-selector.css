@@ -208,3 +208,9 @@ dta-mapa-selector {
         max-width: 220px;
     }
 }
+
+/* REQ-087: pin de referencia (ubicacion del sensor al dibujar su parcela): fijo y algo transparente */
+.mapa-icono.mapa-pin.mapa-referencia span {
+    opacity: 0.85;
+    cursor: default;
+}

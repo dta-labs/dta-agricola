@@ -2959,7 +2959,7 @@
 
                                     <div class="geo-titulo geo-titulo-siguiente"><i class="material-icons" aria-hidden="true">crop_free</i> Área de la parcela <span class="geo-opcional">(opcional)</span></div>
                                     <p class="geo-nota">Marca el terreno que mide este sensor.</p>
-                                    <dta-mapa-selector modo="poligono" poligono="newSensor.poligon"
+                                    <dta-mapa-selector modo="poligono" poligono="newSensor.poligon" marca-lat="newSensor.latitude" marca-lng="newSensor.longitude"
                                         centro-lat="newSensor.latitude || actualSystem.latitude" centro-lng="newSensor.longitude || actualSystem.longitude"
                                         al-cambiar="newSensor.poligon = $poligono"></dta-mapa-selector>
                                 </div>
@@ -3020,7 +3020,7 @@
                                 <!-- REQ-052: parcela que ocupa el sensor (igual que en "Editar parcela") -->
                                 <div class="geo-titulo geo-titulo-siguiente"><i class="material-icons" aria-hidden="true">crop_free</i> Parcela del sensor <span class="geo-opcional">(opcional)</span></div>
                                 <p class="geo-nota">En el mapa del sistema se sombrea con el color de la humedad del suelo.</p>
-                                <dta-mapa-selector modo="poligono" poligono="actualSensor.poligon"
+                                <dta-mapa-selector modo="poligono" poligono="actualSensor.poligon" marca-lat="actualSensor.latitude" marca-lng="actualSensor.longitude"
                                     centro-lat="actualSensor.latitude || actualSystem.latitude" centro-lng="actualSensor.longitude || actualSystem.longitude"
                                     al-cambiar="actualSensor.poligon = $poligono"></dta-mapa-selector>
                             </div>
@@ -3691,7 +3691,7 @@
     <link rel="stylesheet" href="./assets/css/tema.css?v=26.11.06.002">
     <link rel="stylesheet" href="./assets/js/components/login/login.css?v=26.11.06.004">
     <link rel="stylesheet" href="./assets/js/components/comunes/version-app/version-app.css?v=26.11.07.003">
-    <link rel="stylesheet" href="./assets/js/components/comunes/mapa-selector/mapa-selector.css?v=26.11.06.001">
+    <link rel="stylesheet" href="./assets/js/components/comunes/mapa-selector/mapa-selector.css?v=26.11.08.011">
     <link rel="stylesheet" href="./assets/js/components/comunes/lector-codigo/lector-codigo.css?v=26.11.06.001">
     <link rel="stylesheet" href="./assets/js/components/sistema/paneles.css?v=26.11.08.008">
     <link rel="stylesheet" href="./assets/js/components/ayuda/ayuda.css?v=26.11.06.003">
@@ -3938,18 +3938,18 @@
 <script src="./assets/vendor/bootstrap/bootstrap.bundle.min.js?v=5.3.8"></script>
     <script src="./assets/js/core.js?v=26.11.08.009"></script>
     <!-- REQ-038: factories, ayudas de interfaz y componentes (despues de core.js, que crea el modulo) -->
-    <script src="./assets/js/app/version.js?v=26.11.08.010"></script>
+    <script src="./assets/js/app/version.js?v=26.11.08.011"></script>
     <script src="./assets/js/app/reglas.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/auth.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/repo.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/ui/ui.factory.js?v=26.11.06.004"></script>
     <script src="./assets/js/ui/campos-fecha.directive.js?v=26.11.06.002"></script>
-    <script src="./assets/js/ui/mapa.factory.js?v=26.11.06.001"></script>
+    <script src="./assets/js/ui/mapa.factory.js?v=26.11.08.011"></script>
     <script src="./assets/js/ui/campos-unidad.directive.js?v=26.11.07.012"></script>
     <script src="./assets/js/ui/lector.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/components/login/login.component.js?v=26.11.06.004"></script>
     <script src="./assets/js/components/comunes/version-app/version-app.component.js?v=26.11.07.003"></script>
-    <script src="./assets/js/components/comunes/mapa-selector/mapa-selector.component.js?v=26.11.06.001"></script>
+    <script src="./assets/js/components/comunes/mapa-selector/mapa-selector.component.js?v=26.11.08.011"></script>
     <script src="./assets/js/components/comunes/lector-codigo/lector-codigo.component.js?v=26.11.06.001"></script>
     <script src="./assets/js/components/sistema/panel-pivote-central/panel-pivote-central.component.js?v=26.11.06.001"></script>
     <script src="./assets/js/components/sistema/panel-pozo/panel-pozo.component.js?v=26.11.06.001"></script>

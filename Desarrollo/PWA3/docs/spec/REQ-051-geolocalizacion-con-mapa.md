@@ -60,3 +60,15 @@ de una via y salida `al-cambiar` con `$lat/$lng` o `$poligono`. `dtaMapa` resuel
 Las cuatro ventanas en escritorio y movil: el mapa se ve completo al abrir el modal (y al desplegar la
 seccion de la parcela), tocar/arrastrar/deshacer/borrar, Mi ubicacion (permiso del navegador), guardar y
 reabrir (posicion y poligono se conservan), superficie razonable para una parcela conocida.
+
+## 6. Parcela del sensor situada en el sensor (REQ-087, 2026-11-08)
+
+En "Editar sensor" (y "Agregar sensor") el mapa de la parcela usaba el centro solo al crearse (al cargar la pagina,
+sin sensor) y no reaccionaba despues. Nuevas entradas `marca-lat` / `marca-lng` (ubicacion del sensor):
+
+- Si la parcela no tiene puntos, el mapa se situa en el sensor (zoom cercano) al abrir la ventana y cada vez que se
+  cambia su ubicacion; con puntos, no se mueve.
+- Pin de referencia fijo en la ubicacion del sensor (no se arrastra ni se toca) para dibujar la parcela alrededor
+  (`dtaMapa -> mostrarReferencia`).
+
+Compilacion `26.11.08.011`.

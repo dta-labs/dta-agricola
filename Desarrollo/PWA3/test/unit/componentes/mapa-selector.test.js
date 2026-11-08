@@ -16,7 +16,7 @@ const $q = { when: v => Promise.resolve(v) };
 const $timeout = fn => fn();
 
 function montar(bindings, opciones = {}) {
-  const registro = { lienzo: null, dibujos: [], encuadres: [], emitidos: [], destruido: false };
+  const registro = { lienzo: null, dibujos: [], encuadres: [], emitidos: [], destruido: false, referencias: [] };
   const dtaMapa = {
     crearLienzo: (contenedor, op, eventos) => {
       registro.opciones = op;
@@ -25,6 +25,7 @@ function montar(bindings, opciones = {}) {
         mostrarPunto: p => registro.dibujos.push(["punto", p]),
         mostrarPoligono: pts => registro.dibujos.push(["poligono", pts.map(x => x.slice())]),
         encuadrar: o => registro.encuadres.push(o),
+        mostrarReferencia: p => registro.referencias.push(p),
         destruir: () => { registro.destruido = true; }
       };
       return registro.lienzo;
@@ -41,7 +42,7 @@ function montar(bindings, opciones = {}) {
 }
 
 test("REQ-051 definicion: entradas de una via y salida al-cambiar", () => {
-  assert.deepEqual(definicion.bindings, { modo: "@", latitud: "<", longitud: "<", poligono: "<", centroLat: "<", centroLng: "<", alCambiar: "&" });
+  assert.deepEqual(definicion.bindings, { modo: "@", latitud: "<", longitud: "<", poligono: "<", centroLat: "<", centroLng: "<", marcaLat: "<", marcaLng: "<", alCambiar: "&" });
   assert.match(definicion.templateUrl, /mapa-selector\.html\?v=\d/);
 });
 
@@ -145,4 +146,24 @@ test("REQ-051 la plantilla siempre ofrece la ayuda visual en modo poligono", () 
   assert.match(plantilla, /<div class="mapa-ayuda" ng-if="vm\.esPoligono">/);
   assert.match(plantilla, /<svg class="mapa-ayuda-dibujo"/);
   assert.match(plantilla, /Toca la primera esquina de la parcela/);
+});
+
+test("REQ-087 parcela del sensor: sin puntos, el mapa se situa en el sensor y muestra su pin; al moverlo, lo sigue", () => {
+  const { vm, registro } = montar({ modo: "poligono", poligono: undefined, marcaLat: undefined, marcaLng: undefined, centroLat: 28.6, centroLng: -106 });
+  assert.deepEqual(registro.encuadres.at(-1), { centro: { lat: 28.6, lng: -106 } }, "sin sensor: el centro del sistema");
+  vm.marcaLat = 28.612345; vm.marcaLng = -106.054321;      // se fija la ubicacion del sensor
+  vm.$onChanges({ marcaLat: {}, marcaLng: {} });
+  assert.deepEqual(registro.encuadres.at(-1), { punto: { lat: 28.612345, lng: -106.054321 } });
+  assert.deepEqual(registro.referencias.at(-1), { lat: 28.612345, lng: -106.054321 });
+  registro.eventos.alTocar(28.6121, -106.0541);             // ya hay una esquina: no se re-encuadra
+  const antes = registro.encuadres.length;
+  vm.marcaLat = 28.7; vm.$onChanges({ marcaLat: {} });
+  assert.equal(registro.encuadres.length, antes);
+  assert.deepEqual(registro.referencias.at(-1), { lat: 28.7, lng: -106.054321 }, "el pin si se mueve");
+});
+
+test("REQ-087 Agregar y Editar sensor pasan la ubicacion del sensor al mapa de su parcela", () => {
+  const HTML = fs.readFileSync(path.join(__dirname, "..", "..", "..", "index.html"), "utf8");
+  assert.match(HTML, /poligono="newSensor\.poligon" marca-lat="newSensor\.latitude" marca-lng="newSensor\.longitude"/);
+  assert.match(HTML, /poligono="actualSensor\.poligon" marca-lat="actualSensor\.latitude" marca-lng="actualSensor\.longitude"/);
 });

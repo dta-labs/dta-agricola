@@ -15,7 +15,7 @@
 (function (raiz) {
     "use strict";
 
-    var VERSION = "26.11.06.001";
+    var VERSION = "26.11.08.011";
 
     function ControladorMapaSelector($element, $timeout, $q, dtaMapa, dtaReglas) {
         var vm = this;
@@ -33,11 +33,22 @@
             return geo.punto(vm.centroLat, vm.centroLng);
         }
 
+        /** REQ-087: punto de referencia (p. ej. la ubicacion del sensor al dibujar su parcela). */
+        function marca() {
+            return geo.punto(vm.marcaLat, vm.marcaLng);
+        }
+
         function objetivoDeEncuadre() {
             if (vm.esPoligono && vm.puntos.length) return { puntos: vm.puntos };
             if (!vm.esPoligono && vm.punto) return { punto: vm.punto };
+            var m = vm.esPoligono ? marca() : null;
+            if (m) return { punto: m };                 // REQ-087: sin parcela, centrado en el sensor
             var c = centroDeReferencia();
             return c ? { centro: c } : null;
+        }
+
+        function dibujarReferencia() {
+            if (lienzo && lienzo.mostrarReferencia && vm.esPoligono) lienzo.mostrarReferencia(marca());
         }
 
         function dibujar() {
@@ -79,12 +90,19 @@
                 alMoverVertice: enAngular(function (i, lat, lng) { vm.moverVertice(i, lat, lng); })
             });
             dibujar();
+            dibujarReferencia();
             if (lienzo) lienzo.encuadrar(objetivoDeEncuadre());
         };
 
         /** Si el padre cambia el valor (otro sensor, otra parcela), se redibuja y encuadra. */
         vm.$onChanges = function (cambios) {
             if (vm.esPoligono === undefined) return;   // antes de $onInit
+            // REQ-087: cambia la ubicacion de referencia (el sensor) o el centro: pin y, si aun no hay parcela,
+            // el mapa se situa ahi.
+            if (vm.esPoligono && (cambios.marcaLat || cambios.marcaLng || cambios.centroLat || cambios.centroLng)) {
+                dibujarReferencia();
+                if (lienzo && !vm.puntos.length && !cambios.poligono) lienzo.encuadrar(objetivoDeEncuadre());
+            }
             var antes = JSON.stringify(vm.esPoligono ? vm.puntos : vm.punto);
             if (!cambios.poligono && !cambios.latitud && !cambios.longitud) return;
             leerEntradas();
@@ -199,6 +217,8 @@
             poligono: "<",
             centroLat: "<",
             centroLng: "<",
+            marcaLat: "<",
+            marcaLng: "<",
             alCambiar: "&"
         }
     };

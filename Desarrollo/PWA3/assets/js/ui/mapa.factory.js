@@ -42,6 +42,7 @@
             mapa.setView(centro ? [centro.lat, centro.lng] : CENTRO_MEXICO, centro ? 15 : 5);
 
             var capaPunto = null;
+            var capaReferencia = null;   // REQ-087: pin fijo (no se arrastra ni se toca), p. ej. el sensor
             var capaPoligono = null;
             var vertices = [];
             var pendiente = null;   // ultimo encuadre pedido, para repetirlo al recibir tamano
@@ -103,6 +104,15 @@
                         });
                         vertices.push(v);
                     });
+                },
+
+                /** REQ-087: pin de referencia fijo (null lo quita). */
+                mostrarReferencia: function (p) {
+                    if (capaReferencia) { mapa.removeLayer(capaReferencia); capaReferencia = null; }
+                    if (!p) return;
+                    capaReferencia = L.marker([p.lat, p.lng], {
+                        icon: icono(L, "mapa-pin mapa-referencia", "<span></span>"), interactive: false, keyboard: false
+                    }).addTo(mapa);
                 },
 
                 encuadrar: encuadrar,

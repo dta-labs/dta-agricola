@@ -85,8 +85,9 @@
 | REQ-084 | Fichas de sensores: icono de la medicion principal mas grande (26 px) | Implementado (probar: usuario) | - |
 | REQ-085 | La grafica de la ficha abre la de la medicion principal (Ms o temperatura) | Implementado (probar: usuario) | 1 |
 | REQ-086 | Encabezado de la grafica segun el tipo mostrado (decia "Agua disponible" en la de temperatura) | Corregido (probar: usuario) | 1 |
+| REQ-087 | Editar/Agregar sensor: el mapa de la parcela se situa en el sensor y muestra su pin | Implementado (probar: usuario) | 2 |
 
-**Total: 388 pruebas en Node (2026-11-06), todas en verde.** `npm test` funciona en Node 20 y 22.
+**Total: 390 pruebas en Node (2026-11-06), todas en verde.** `npm test` funciona en Node 20 y 22.
 
 ## Bloque de autenticacion (cerrado y confirmado por el usuario)
 
