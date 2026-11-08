@@ -64,3 +64,12 @@ Compilacion `26.11.07.022`.
   (queda un leve aclarado); con teclado, contorno blanco.
 
 Compilacion `26.11.08.003`.
+
+## Ajuste REQ-082 (2026-11-08)
+
+- El recuadro izquierdo muestra el **icono** de la medicion principal (gota de Ms `Hr_white.png` o termometro) en lugar
+  del numero; el boton de intercambio sigue en su esquina.
+- La fila de datos trae **siempre las tres mediciones en el mismo orden: Ms, temperatura, Hr**; la principal va en
+  **negritas y mas grande** (`.sensor-ficha-dato.principal`).
+
+Compilacion `26.11.08.006`.

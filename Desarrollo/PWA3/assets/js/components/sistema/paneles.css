@@ -184,15 +184,14 @@ dta-panel-nevera {
     line-height: 1;
 }
 
-.bs .sensor-ficha-ms {
-    font-size: 2.1rem;
-    font-weight: 800;
-}
-
-.bs .sensor-ficha-unidad {
-    margin-top: 2px;
-    font-size: 1rem;
-    font-weight: 600;
+/* REQ-082: el recuadro izquierdo muestra el icono de la medicion principal */
+.bs .sensor-ficha-icono-principal {
+    width: 38px;
+    height: 38px;
+    font-size: 38px;
+    line-height: 38px;
+    text-align: center;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
 }
 
 /* REQ-076: intercambiar humedad del suelo / temperatura (esquina inferior derecha del valor) */
@@ -261,9 +260,20 @@ dta-panel-nevera {
 .bs .sensor-ficha-datos {
     display: flex;
     flex-wrap: wrap;
-    column-gap: 14px;
+    align-items: baseline;
+    column-gap: 12px;
     row-gap: 2px;
-    font-size: 1.1rem;
+    font-size: 1.05rem;
+}
+
+.bs .sensor-ficha-dato {
+    white-space: nowrap;
+}
+
+/* REQ-082: la medicion principal, en negritas y mas grande */
+.bs .sensor-ficha-dato.principal {
+    font-size: 1.3em;
+    font-weight: 800;
 }
 
 .bs .sensor-ficha-datos .fa {

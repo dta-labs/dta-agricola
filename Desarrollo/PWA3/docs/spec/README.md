@@ -80,6 +80,7 @@
 | REQ-079 | Fichas de sensores: degradado de oscuro a claro, borde y sombra como el listado | Implementado (probar: usuario) | - |
 | REQ-080 | El sombreado de las parcelas se perdia al volver del mosaico al mapa | Diagnostico incompleto (ver REQ-081) | 1 |
 | REQ-081 | Tras guardar un ajuste del equipo el mapa quedaba gris (los ajustes llegan sin log); colores que no se actualizaban con cada lectura | Corregido (probar: usuario) | 1 |
+| REQ-082 | Fichas de sensores: icono de la medicion principal; Ms, Temp y Hr siempre en ese orden, la principal resaltada | Implementado (probar: usuario) | - |
 
 **Total: 386 pruebas en Node (2026-11-06), todas en verde.** `npm test` funciona en Node 20 y 22.
 
