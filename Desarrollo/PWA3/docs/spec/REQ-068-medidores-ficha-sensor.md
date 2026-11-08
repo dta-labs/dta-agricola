@@ -29,3 +29,10 @@
 
 La escala inversa solo se aplica al WM (centibares): los sensores en % ya miden 0..100, igual que distingue el
 resto de la app (`logic/humedad.js`). Asi la barra tiene siempre el mismo sentido: izquierda seco, derecha saturado.
+
+## 3. Barras mas grandes (REQ-069, 2026-11-07)
+
+Pedido: barras mas grandes, que lleguen a verse por debajo del valor de la medicion. Titulo y valor en una
+fila; la barra en la fila siguiente, de todo el ancho de la tarjeta (`col s10 offset-s2`, debajo del valor).
+Barra de 14 px (antes 8), rayas de umbral de 3x20 px, valores de umbral mas legibles y triangulo de 16 px.
+Compilacion `26.11.07.015`.

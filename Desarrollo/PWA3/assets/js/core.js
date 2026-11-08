@@ -52,7 +52,7 @@ function __equipos() {
 }
 
 // Marca de version: si no ves esto en consola, el navegador sirve un core.js viejo.
-console.log("[app] core.js 26.11.07.014");
+console.log("[app] core.js 26.11.07.015");
 
 // #region Controlador Angular
 
@@ -3097,12 +3097,11 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         text += `           <div class="col s2"><img src="./assets/images/Hr.png" alt="Agua" style="width: 30px;"></div>`;
         // REQ-068: barra 0..100 % (WM: 240 cb = 0 %, 0 cb = 100 %), degradado rojo-verde-azul, umbrales y medicion.
         const medidorSuelo = __modulo("medidor").escalaHumedadSuelo(sensor, data[idx * 8]);
-        text += `           <div class="col s7">`;
-        text += `              <div>Humedad del suelo</div>`;
-        text += __modulo("medidor").htmlMedidor(medidorSuelo);
-        text += `           </div>`;
+        // REQ-069: titulo y valor en una fila; la barra debajo, de todo el ancho (pasa por debajo del valor).
+        text += `           <div class="col s7 medidor-titulo">Humedad del suelo</div>`;
         text += `           <div class="col s3 medidor-valor ${medidorSuelo.fueraDeRango ? "medidor-fuera" : "medidor-dentro"}"><b>${medidorSuelo.valorTexto}</b>` +
             (medidorSuelo.porcentaje !== null && sensor.type == "WM" ? `<small>${Math.round(medidorSuelo.porcentaje)} %</small>` : ``) + `</div>`;
+        text += `           <div class="col s10 offset-s2">` + __modulo("medidor").htmlMedidor(medidorSuelo) + `</div>`;
         text += `       </div>`;
 
         // Clima
@@ -3116,11 +3115,9 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         text += `           <div class="col s2"><img src="./assets/images/termometro.png" alt="Termometro" style="width: 30px;"></div>`;
         // REQ-068: barra -50..+125 °C, degradado azul-rojo, umbrales y medicion, en la unidad del sistema.
         const medidorTemperatura = __modulo("medidor").escalaTemperatura(data[idx * 8 + 4], sensor, campo.tempUnit);
-        text += `           <div class="col s7">`;
-        text += `              <div>Temperatura</div>`;
-        text += __modulo("medidor").htmlMedidor(medidorTemperatura);
-        text += `           </div>`;
+        text += `           <div class="col s7 medidor-titulo">Temperatura</div>`;
         text += `           <div class="col s3 medidor-valor ${medidorTemperatura.fueraDeRango ? "medidor-fuera" : "medidor-dentro"}"><b>${medidorTemperatura.valorTexto}</b></div>`;
+        text += `           <div class="col s10 offset-s2">` + __modulo("medidor").htmlMedidor(medidorTemperatura) + `</div>`;
         text += `       </div>`;
         text += `       <div class="row" style="margin-bottom: 5px; padding: 10px; border-radius: 6px; background-color: #f5f5f5;">`;
         text += `           <div class="col s2"><img src="./assets/images/agua.png" alt="Termometro" style="width: 25px;"></div>`;

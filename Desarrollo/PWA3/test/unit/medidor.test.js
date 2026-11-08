@@ -66,3 +66,11 @@ test("REQ-068 la ficha del sensor usa los medidores (sin anchos crudos ni °C/°
   assert.doesNotMatch(cuerpo, /width: ` \+ parseFloat\(data\[idx \* 8\]\)/);
   assert.doesNotMatch(cuerpo, /Temperatura \(°C\/°F\)/);
 });
+
+test("REQ-069 barras gruesas y de todo el ancho (debajo del titulo y del valor)", () => {
+  const ini = CORE.indexOf("const getSensorText = (campo, sensor, idx) => {");
+  const cuerpo = CORE.slice(ini, CORE.indexOf("// Cultivo", ini));
+  assert.equal((cuerpo.match(/<div class="col s10 offset-s2">` \+ __modulo\("medidor"\)\.htmlMedidor\(/g) || []).length, 2);
+  const css = fs.readFileSync(path.join(__dirname, "..", "..", "assets", "css", "style.css"), "utf8");
+  assert.match(css, /\.medidor-barra \{\s*height: 14px;/);
+});
