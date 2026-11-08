@@ -186,10 +186,11 @@ dta-panel-nevera {
 
 /* REQ-083: icono, valor y unidad en vertical, compactos (la ficha no crece por el icono) */
 .bs .sensor-ficha-lectura-icono {
-    width: 18px;
-    height: 18px;
-    font-size: 18px;
-    line-height: 18px;
+    /* REQ-084: 26 px (antes 18): se ve mejor y el recuadro (~73 px) sigue por debajo de la columna de texto */
+    width: 26px;
+    height: 26px;
+    font-size: 26px;
+    line-height: 26px;
     text-align: center;
     margin-bottom: 1px;
 }

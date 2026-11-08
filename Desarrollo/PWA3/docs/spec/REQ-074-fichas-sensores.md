@@ -84,3 +84,8 @@ mediciones secundarias en la fila) con:
 - En la ficha, "Temperatura" se acorta a "Temp." ("Temp. adecuada"); la ficha del mapa conserva el texto completo.
 
 Compilacion `26.11.08.007`.
+
+## Ajuste REQ-084 (2026-11-08)
+
+Icono de la medicion principal de 26 px (antes 18): el recuadro queda en ~73 px, aun por debajo de la columna de
+texto (~95 px), asi que la ficha no cambia de alto. Compilacion `26.11.08.008`.
