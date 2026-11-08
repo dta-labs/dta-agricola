@@ -72,8 +72,9 @@
 | REQ-071 | Ficha del sensor: iconos de humedad del suelo y temperatura centrados en vertical | Implementado (probar: usuario) | 1 |
 | REQ-072 | Mapa: parcela como estimacion, punto de medicion, rayas grises si la lectura tiene mas de 24 h, area repartida entre sensores | Implementado (probar: usuario) | 4 |
 | REQ-073 | Mapa: el marcador del sensor es rojo/verde/azul segun su lectura (en vez del circulo de color) | Implementado (probar: usuario) | 1 |
+| REQ-074 | Fichas de sensores con el formato del listado: lectura, zona, fondo por nivel de humedad, ficha clicable | Implementado (probar: usuario) | 2 |
 
-**Total: 378 pruebas en Node (2026-11-06), todas en verde.** `npm test` funciona en Node 20 y 22.
+**Total: 379 pruebas en Node (2026-11-06), todas en verde.** `npm test` funciona en Node 20 y 22.
 
 ## Bloque de autenticacion (cerrado y confirmado por el usuario)
 

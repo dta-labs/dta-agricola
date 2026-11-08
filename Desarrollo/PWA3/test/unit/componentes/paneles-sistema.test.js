@@ -15,6 +15,7 @@ const pozo = require("../../../assets/js/components/sistema/panel-pozo/panel-poz
 
 const RAIZ = path.join(__dirname, "..", "..", "..");
 const HTML = fs.readFileSync(path.join(RAIZ, "index.html"), "utf8").replace(/\r\n/g, "\n");
+const HTML_INDEX = () => HTML;
 
 // Expresiones originales de index.html, para comparar.
 const original = {
@@ -121,7 +122,8 @@ test("REQ-057 los modales se abren con al-abrir y los comandos llegan por salida
   assert.match(plantilla("panel-pivote-lineal"), /ng-click="vm\.alAbrir\(\{ \$modal: 'modalSuelo' \}\)"/);
   assert.match(plantilla("panel-pivote-lineal"), /vm\.clima\.main\.humidity/);
   assert.match(plantilla("panel-sensores"), /ng-show="vm\.mostrarLista"/);
-  assert.match(plantilla("panel-sensores"), /vm\.valorSensor\(\{ \$clave: coldRoomKey, \$campo: 'soilStatus', \$sensor: coldRoom \}\)/);
+  // REQ-074: la zona de humedad la calcula el propio componente (vm.lectura); temperatura y Hr siguen con valorSensor.
+  assert.match(plantilla("panel-sensores"), /vm\.valorSensor\(\{ \$clave: coldRoomKey, \$campo: 'temperature', \$sensor: coldRoom \}\)/);
   assert.match(plantilla("panel-nevera"), /ng-click="vm\.alEditarSensor\(\{ \$sensor: coldRoom \}\)"/);
   assert.match(plantilla("panel-nevera"), /vm\.datos\[\$index \* 3 \+ 1\]/);
 });
@@ -217,21 +219,40 @@ test("REQ-064 panel, listado y mapa usan el mismo estado", () => {
 
 // ---------- REQ-066: tarjetas de sensores ----------
 
-test("REQ-066 tarjetas de sensores compactas en Bootstrap, con el estado por color", () => {
+test("REQ-074 fichas de sensores con el formato del listado: lectura, nombre/red, zona, datos, bateria y grafica", () => {
   const t = plantilla("panel-sensores");
   const lista = t.slice(t.indexOf('ng-show="vm.mostrarLista"'));
-  assert.match(lista, /<div class="bs sensores-tarjetas">/);
-  assert.match(lista, /<article class="sensor-tarjeta" ng-repeat="\(coldRoomKey, coldRoom\) in vm\.sistema\.sensors" ng-if="coldRoom\.id"/);
-  assert.match(lista, /ng-class="'sensor-' \+ vm\.estado\(coldRoomKey, coldRoom\)"/);
-  ["soilMoisture", "soilStatus", "temperature", "humidity", "battery", "batteryIcon"].forEach(c => assert.match(lista, new RegExp("\\$campo: '" + c + "'"), c));
-  assert.match(lista, /<button type="button" class="btn btn-sm sensor-boton" ng-click="vm\.alGrafica/);
-  assert.match(lista, /<button type="button" class="btn btn-sm sensor-boton" ng-click="vm\.alEditarSensor/);
-  assert.doesNotMatch(lista, /class="[^"]*\b(col s\d|waves-|panel-s-e)/, "sin Materialize ni clases generadas en las tarjetas");
+  assert.match(lista, /<article class="sensor-ficha" ng-repeat="\(coldRoomKey, coldRoom\) in vm\.sistema\.sensors" ng-if="coldRoom\.id"/);
+  assert.match(lista, /ng-class="'zona-' \+ vm\.lectura\(coldRoomKey, coldRoom\)\.zona"/);
+  assert.match(lista, /role="button" tabindex="0"[\s\S]*?ng-click="vm\.alEditarSensor\(\{ \$sensor: coldRoom \}\)"/, "toda la ficha abre la configuracion");
+  assert.match(lista, /<h3 class="sensor-ficha-nombre">/);
+  assert.match(lista, /<div class="sensor-ficha-red">\{\{ vm\.sistema\.name \}\}<\/div>/);
+  assert.match(lista, /<div class="sensor-ficha-estado">\{\{ vm\.lectura\(coldRoomKey, coldRoom\)\.etiqueta \}\}<\/div>/);
+  assert.match(lista, /ng-click="\$event\.stopPropagation\(\); vm\.alGrafica\(/, "la grafica no abre la configuracion");
+  assert.match(lista, /<img ng-src="\{\{ vm\.clima\.weather\.iconUrl \}\}"/);
+  assert.doesNotMatch(lista, /fa-cog/, "sin boton de configuracion");
+  assert.doesNotMatch(lista, /class="[^"]*\b(col s\d|waves-|panel-s-e)/);
+  assert.match(HTML_INDEX(), /<dta-panel-sensores [^>]*clima="meteo\[actualSystem\.key\]"/);
+});
+
+test("REQ-074 lectura de la ficha: valor, unidad, zona y clase de color", () => {
   const sensores = require("../../../assets/js/components/sistema/panel-sensores/panel-sensores.component.js");
-  const vm = new sensores.Controlador({ panel });
-  const valores = { S0: "Seco", S1: "Adecuado", S2: "Saturado", S3: "--" };
-  vm.valorSensor = l => valores[l.$clave];
-  assert.deepEqual(["S0", "S1", "S2", "S3"].map(k => vm.estado(k, {})), ["seco", "adecuado", "saturado", "sin-dato"]);
+  const humedad = require("../../../assets/js/logic/humedad.js");
+  const medidor = require("../../../assets/js/logic/medidor.js");
+  const vm = new sensores.Controlador({ panel, humedad, medidor });
+  vm.sistema = { log: { dataRaw: JSON.stringify([32, 99, 0, 0, 6, 0, 0, 3, 5, 0, 0, 0, 0, 0, 0, 0, 150, 0, 0, 0, 0, 0, 0, 0, 260, 0, 0, 0, 0, 0, 0, 0, "NaN", 0, 0, 0, 0, 0, 0, 0, 45, 0, 0, 0, 0, 0, 0, 0]) } };
+  const wm = { type: "WM" };
+  assert.deepEqual(vm.lectura("S0", wm), { ms: 32, unidad: "cb", etiqueta: "Humedad adecuada", zona: "adecuada" });
+  assert.equal(vm.lectura("S1", wm).zona, "saturado");
+  assert.equal(vm.lectura("S2", wm).zona, "seco");
+  assert.equal(vm.lectura("S3", wm).zona, "fuera");
+  assert.deepEqual(vm.lectura("S4", wm), { ms: "--", unidad: "cb", etiqueta: "Sin lectura", zona: "sin-dato" });
+  const pct = vm.lectura("S5", { type: "SHT4", h: { minValue: 25, maxValue: 60 } });
+  assert.deepEqual([pct.unidad, pct.zona], ["%", "adecuada"]);
+  const css = fs.readFileSync(path.join(RAIZ, "assets", "js", "components", "sistema", "paneles.css"), "utf8");
+  ["saturado", "muy-humedo", "adecuada", "estres", "seco", "fuera", "sin-dato"].forEach(z =>
+    assert.match(css, new RegExp("\\.sensor-ficha\\.zona-" + z + " \\{ --c1: #[0-9a-f]{6}; --c2: #[0-9a-f]{6}; \\}"), z));
+  assert.match(css, /background: linear-gradient\(135deg, var\(--c1\) 0%, var\(--c2\) 100%\);/);
 });
 
 test("REQ-066 sin tarjetas fijas (tooltips permanentes) sobre los sensores del mapa", () => {

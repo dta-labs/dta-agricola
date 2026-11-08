@@ -99,6 +99,23 @@
         return estadoEnRed(red, item.indice);
     }
 
+    function numeroOnulo(valor) {
+        if (valor === undefined || valor === null || valor === "" || valor === "NaN") return null;
+        var n = Number(valor);
+        return isFinite(n) ? n : null;
+    }
+
+    /**
+     * REQ-074: valores crudos del sensor `indice` de una red (8 por sensor en log.dataRaw):
+     * ms = humedad del suelo (cb o %), hr = humedad del ambiente (%), t = temperatura (°C), bateria (V).
+     * `datos` opcional: el arreglo ya leido (para no volver a leer el JSON en cada tarjeta).
+     */
+    function valoresDeSensor(sistema, indice, datos) {
+        var d = datos || datosCrudos(sistema);
+        var base = indice * VALORES_POR_SENSOR;
+        return { ms: numeroOnulo(d[base]), hr: numeroOnulo(d[base + 1]), t: numeroOnulo(d[base + 4]), bateria: numeroOnulo(d[base + 7]) };
+    }
+
     /** Para la leyenda del mapa. */
     function leyenda() {
         return [ESTADOS.seco, ESTADOS.adecuado, ESTADOS.saturado, ESTADOS.sinDato].map(function (e) {
@@ -108,6 +125,8 @@
 
     return {
         estadoHumedad: estadoHumedad,
+        datosCrudos: datosCrudos,
+        valoresDeSensor: valoresDeSensor,
         sensoresDeRed: sensoresDeRed,
         estadoEnRed: estadoEnRed,
         estadoDeParcela: estadoDeParcela,

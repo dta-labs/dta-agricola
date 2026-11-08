@@ -115,7 +115,7 @@ dta-panel-nevera {
 .panel-s-e59 { margin: auto !important; border: 1px solid gray !important; border-radius: 10px !important; background: #0000003d !important; }
 .panel-s-e60 { font-size: 4em !important; text-align: right !important; margin-bottom: 0 !important; width: 100% !important; margin-left: 0px !important; }
 
-/* ===================== REQ-066: tarjetas de sensores ===================== */
+/* ===================== REQ-074: fichas de sensores (formato del listado) ===================== */
 .bs.sensores-tarjetas {
     margin-top: 76px;
     height: calc(100vh - 140px);
@@ -126,121 +126,153 @@ dta-panel-nevera {
 
 .bs .sensores-rejilla {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 10px;
 }
 
-.bs .sensor-tarjeta {
-    --estado: #9e9e9e;
+.bs .sensor-ficha {
+    --c1: #78909c;
+    --c2: #546e7a;
+    display: flex;
+    align-items: stretch;
+    gap: 12px;
+    padding: 12px 12px 12px 10px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--c1) 0%, var(--c2) 100%);
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.bs .sensor-ficha:hover,
+.bs .sensor-ficha:focus-visible {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+    outline: none;
+}
+
+.bs .sensor-ficha:focus-visible {
+    box-shadow: 0 0 0 3px #fff, 0 6px 16px rgba(0, 0, 0, 0.35);
+}
+
+/* Color por nivel de humedad (degradado) */
+.bs .sensor-ficha.zona-saturado { --c1: #42a5f5; --c2: #1565c0; }
+.bs .sensor-ficha.zona-muy-humedo { --c1: #4dd0e1; --c2: #00838f; }
+.bs .sensor-ficha.zona-adecuada { --c1: #66bb6a; --c2: #2e7d32; }
+.bs .sensor-ficha.zona-estres { --c1: #ffb74d; --c2: #e65100; }
+.bs .sensor-ficha.zona-seco { --c1: #ef5350; --c2: #b71c1c; }
+.bs .sensor-ficha.zona-fuera { --c1: #9e9e9e; --c2: #616161; }
+.bs .sensor-ficha.zona-sin-dato { --c1: #90a4ae; --c2: #546e7a; }
+
+.bs .sensor-ficha-lectura {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    padding: 10px 12px 10px 14px;
-    border-radius: 12px;
-    border-left: 5px solid var(--estado);
-    background: rgba(18, 24, 18, 0.72);
-    color: #fff;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
-    backdrop-filter: blur(4px);
-}
-
-.bs .sensor-seco { --estado: #e53935; }
-.bs .sensor-adecuado { --estado: #43a047; }
-.bs .sensor-saturado { --estado: #1e88e5; }
-
-.bs .sensor-cabecera {
-    display: flex;
     align-items: center;
-    gap: 6px;
+    justify-content: center;
+    flex: 0 0 72px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.18);
+    line-height: 1;
 }
 
-.bs .sensor-nombre {
+.bs .sensor-ficha-ms {
+    font-size: 1.9rem;
+    font-weight: 800;
+}
+
+.bs .sensor-ficha-unidad {
+    margin-top: 2px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    opacity: 0.9;
+}
+
+.bs .sensor-ficha-cuerpo {
+    display: flex;
+    flex-direction: column;
     flex: 1 1 auto;
     min-width: 0;
+    gap: 2px;
+}
+
+.bs .sensor-ficha-nombre {
     margin: 0;
-    font-size: 0.95rem;
-    font-weight: 600;
+    font-size: 1.15rem;
+    font-weight: 700;
+    line-height: 1.2;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-.bs .sensor-bateria {
-    flex-shrink: 0;
-    font-size: 0.75rem;
+.bs .sensor-ficha-red {
+    font-size: 0.8rem;
     opacity: 0.85;
+    overflow: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-.bs .sensor-principal {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 6px;
-}
-
-.bs .sensor-valor {
-    font-size: 1.7rem;
+.bs .sensor-ficha-estado {
+    margin-top: 4px;
+    font-size: 1.05rem;
     font-weight: 700;
-    line-height: 1.1;
 }
 
-.bs .sensor-estado {
-    padding: 2px 8px;
-    border-radius: 999px;
-    background: var(--estado);
-    font-size: 0.72rem;
-    font-weight: 600;
-    white-space: nowrap;
-}
-
-.bs .sensor-datos {
+.bs .sensor-ficha-datos {
     display: flex;
-    justify-content: space-between;
-    gap: 6px;
-    font-size: 0.85rem;
-    opacity: 0.9;
+    gap: 14px;
+    font-size: 0.9rem;
 }
 
-.bs .sensor-datos .fa {
+.bs .sensor-ficha-datos .fa {
     width: 1em;
     text-align: center;
 }
 
-.bs .sensor-acciones {
+.bs .sensor-ficha-pie {
     display: flex;
-    gap: 6px;
-    margin-top: 2px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 6px;
 }
 
-.bs .sensor-boton {
+.bs .sensor-ficha-bateria {
+    font-size: 0.8rem;
+    opacity: 0.9;
+    white-space: nowrap;
+}
+
+.bs .sensor-ficha-boton {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    padding: 2px 10px;
-    border: 1px solid rgba(255, 255, 255, 0.35);
-    background: rgba(255, 255, 255, 0.08);
+    gap: 5px;
+    padding: 2px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.15);
     color: #fff;
     box-shadow: none;
+    text-shadow: none;
 }
 
-.bs .sensor-boton:first-child {
-    flex: 1 1 auto;
-    justify-content: center;
-}
-
-.bs .sensor-boton:hover,
-.bs .sensor-boton:focus-visible {
-    background: rgba(255, 255, 255, 0.2);
+.bs .sensor-ficha-boton:hover,
+.bs .sensor-ficha-boton:focus-visible {
+    background: rgba(255, 255, 255, 0.3);
     color: #fff;
 }
 
-@media (max-width: 400px) {
-    .bs .sensores-rejilla {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 8px;
-    }
-    .bs .sensor-valor {
-        font-size: 1.45rem;
-    }
+.bs .sensor-ficha-clima {
+    display: flex;
+    align-items: flex-start;
+    flex: 0 0 auto;
+}
+
+.bs .sensor-ficha-clima img {
+    width: 44px;
+    height: 44px;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
 }
