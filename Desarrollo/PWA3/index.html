@@ -1660,9 +1660,14 @@
                     <div class="swal-title">{{ coldRoomChartSensor.alias || coldRoomChartSensor.id || 'Sensor' }}</div>
                     <div class="modal-content" style="padding: 10px 15px;">
                         <div class="row" style="margin-bottom: 8px; text-align: center;" ng-show="coldRoomChartAvailable && actualSystem.type == 'Sensor'">
-                            <div class="col s12" style="padding: 10px; color: blue; border-bottom: 3px solid blue;">
+                            <!-- REQ-086: el encabezado sigue a la grafica mostrada (humedad del suelo o temperatura, REQ-085) -->
+                            <div class="col s12" ng-if="chartType != 'temperature'" style="padding: 10px; color: blue; border-bottom: 3px solid blue;">
                                 <img src="./assets/images/Hr.png" alt="Humedad del suelo" style="width: 20px;" loading="lazy"><br>
                                 {{ coldRoomChartSensor.type == 'WM' ? 'Agua disponible' : 'Humedad del suelo' }} · Ciclo completo
+                            </div>
+                            <div class="col s12" ng-if="chartType == 'temperature'" style="padding: 10px; color: red; border-bottom: 3px solid red;">
+                                <img src="./assets/images/termometro.png" alt="Temperatura" style="width: 20px;" loading="lazy"><br>
+                                Temperatura · Ciclo completo
                             </div>
                         </div>
                         <div class="row" style="margin-bottom: 8px; text-align: center;" ng-show="coldRoomChartAvailable && actualSystem.type == 'Nevera'">
@@ -3933,7 +3938,7 @@
 <script src="./assets/vendor/bootstrap/bootstrap.bundle.min.js?v=5.3.8"></script>
     <script src="./assets/js/core.js?v=26.11.08.009"></script>
     <!-- REQ-038: factories, ayudas de interfaz y componentes (despues de core.js, que crea el modulo) -->
-    <script src="./assets/js/app/version.js?v=26.11.08.009"></script>
+    <script src="./assets/js/app/version.js?v=26.11.08.010"></script>
     <script src="./assets/js/app/reglas.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/auth.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/repo.factory.js?v=26.11.06.001"></script>

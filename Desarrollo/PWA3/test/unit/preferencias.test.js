@@ -78,3 +78,8 @@ test("REQ-085 el boton de grafica abre la de la medicion principal del sensor", 
   const cuerpo = CORE.slice(ini, CORE.indexOf("$scope.setColdRoomChartType", ini));
   assert.match(cuerpo, /\$scope\.setChartType\(isSensorNetwork\s*\? \(sensor\.primaryValue === "temperature" \? "temperature" : "moisture"\)\s*: "temperature"\);/);
 });
+
+test("REQ-086 el encabezado de la grafica sigue al tipo mostrado (humedad del suelo o temperatura)", () => {
+  assert.match(HTML, /<div class="col s12" ng-if="chartType != 'temperature'"[^>]*>\s*<img src="\.\/assets\/images\/Hr\.png"[\s\S]*?Agua disponible/);
+  assert.match(HTML, /<div class="col s12" ng-if="chartType == 'temperature'"[^>]*>\s*<img src="\.\/assets\/images\/termometro\.png"[^>]*><br>\s*Temperatura · Ciclo completo/);
+});

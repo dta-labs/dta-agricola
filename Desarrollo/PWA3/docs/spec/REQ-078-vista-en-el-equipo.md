@@ -34,3 +34,6 @@ podian repetirse y la prueba REQ-004.8 fallaba de forma intermitente (~1 %). Aho
 El boton de grafica de la ficha abria siempre la de humedad del suelo. Ahora abre la de la medicion principal del
 sensor: temperatura si `primaryValue = "temperature"`; si no, humedad del suelo. Las neveras no cambian (temperatura).
 Compilacion `26.11.08.009`.
+
+REQ-086: el encabezado de la grafica (icono y titulo) sigue al tipo mostrado: "Agua disponible / Humedad del suelo"
+o "Temperatura · Ciclo completo" (termometro, en rojo). Compilacion `26.11.08.010`.
