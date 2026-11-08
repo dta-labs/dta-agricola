@@ -52,7 +52,7 @@ function __equipos() {
 }
 
 // Marca de version: si no ves esto en consola, el navegador sirve un core.js viejo.
-console.log("[app] core.js 26.11.08.002");
+console.log("[app] core.js 26.11.08.004");
 
 // #region Controlador Angular
 
@@ -179,12 +179,19 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             guardarAjustes($scope.actualSystem.key, { viewMode: $scope.actualSystem.viewMode });
         }
 
-        // Leaflet necesita recalcular el contenedor después de volver a mostrarlo.
-        if ($scope.showSensorMapView) {
-            $timeout(() => {
-                if (map) map.invalidateSize();
-            });
-        }
+        if ($scope.showSensorMapView) volverAMostrarMapa();
+    };
+
+    // REQ-080: al volver a la vista de mapa. Con el mapa oculto (0x0) los datos siguen llegando y Leaflet recorta
+    // cada poligono al area visible, que es nula: las parcelas quedaban vacias aunque siguieran en el mapa.
+    // Tras recalcular el tamano se redibujan las capas vectoriales (no las teselas) y las areas de la red.
+    const volverAMostrarMapa = () => {
+        $timeout(() => {
+            if (!map) return;
+            map.invalidateSize();
+            map.eachLayer(capa => { if (capa instanceof L.Path) capa.redraw(); });
+            if ($scope.actualSystem && $scope.actualSystem.type == "Sensor") dibujarAreasDeSensores($scope.actualSystem);
+        });
     };
 
     // #endregion Variables
@@ -777,7 +784,11 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         system.sensorPresion = parseInt(system.sensorPresion);
         $scope.actualSystem = system;
         // REQ-078: cada red de sensores recuerda su vista (mapa o mosaico).
-        if (system.type == "Sensor") $scope.showSensorMapView = system.viewMode !== "tiles";
+        if (system.type == "Sensor") {
+            const estabaOculto = !$scope.showSensorMapView;
+            $scope.showSensorMapView = system.viewMode !== "tiles";
+            if (estabaOculto && $scope.showSensorMapView) volverAMostrarMapa();   // REQ-080
+        }
         $scope.actualSystem.status = $scope.actualSystem.status == "ON" || $scope.actualSystem.status == true ? true : false;
         $scope.actualSystem.sensorSecurity = $scope.actualSystem.sensorSecurity == "ON" || $scope.actualSystem.sensorSecurity == true ? true : false;
         $scope.actualSystem.sensorVoltage = $scope.actualSystem.sensorVoltage == "ON" || $scope.actualSystem.sensorVoltage == true ? true : false;

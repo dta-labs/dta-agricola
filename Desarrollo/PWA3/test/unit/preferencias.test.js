@@ -35,7 +35,7 @@ test("REQ-078 actualizarAjustesSistema: update parcial sobre systems/{red}/setti
 });
 
 test("REQ-078 core: cada red recuerda su vista y cada sensor su valor principal", () => {
-  assert.match(CORE, /if \(system\.type == "Sensor"\) \$scope\.showSensorMapView = system\.viewMode !== "tiles";/);
+  assert.match(CORE, /if \(system\.type == "Sensor"\) \{[\s\S]*?\$scope\.showSensorMapView = system\.viewMode !== "tiles";/);
   assert.match(CORE, /\$scope\.actualSystem\.viewMode = \$scope\.showSensorMapView \? "map" : "tiles";\s*guardarAjustes\(\$scope\.actualSystem\.key, \{ viewMode: \$scope\.actualSystem\.viewMode \}\);/);
   assert.match(CORE, /cambios\[`sensors\/\$\{clave\}\/primaryValue`\] = temperatura \? "temperature" : null;/);
   assert.doesNotMatch(CORE, /guardarPreferencia|aplicarPreferencias|preferencias\.sensores/);
@@ -57,4 +57,13 @@ test("REQ-078 componente: lee y cambia primaryValue en el propio sensor y avisa 
   vm.alternar("S9");
   assert.equal(avisos.length, 2, "un sensor inexistente no hace nada");
   assert.equal(sensores.definicion.bindings.intercambios, undefined);
+});
+
+test("REQ-080 al volver al mapa se redibujan las parcelas (con el mapa oculto Leaflet las recortaba a 0x0)", () => {
+  const ini = CORE.indexOf("const volverAMostrarMapa = () => {");
+  const cuerpo = CORE.slice(ini, CORE.indexOf("\n    };\n", ini));
+  assert.match(cuerpo, /map\.invalidateSize\(\);\s*map\.eachLayer\(capa => \{ if \(capa instanceof L\.Path\) capa\.redraw\(\); \}\);/);
+  assert.match(cuerpo, /dibujarAreasDeSensores\(\$scope\.actualSystem\)/);
+  assert.match(CORE, /if \(\$scope\.showSensorMapView\) volverAMostrarMapa\(\);/, "boton mapa/mosaico");
+  assert.match(CORE, /if \(estabaOculto && \$scope\.showSensorMapView\) volverAMostrarMapa\(\);/, "al seleccionar una red con vista de mapa");
 });
