@@ -45,7 +45,8 @@ Cada version publicada lleva una etiqueta de git `pwa3-vX.Y.Z` sobre el commit d
 - Plan de riego del pivote: "Nuevo plan" y "Planificacion" en un solo formulario con validacion en linea y el
   estilo comun; "Eliminar plan" rediseñado. (REQ-059)
 - Fichas de sensores con el formato del listado: lectura grande, nombre y red, zona de humedad, temperatura y Hr,
-  bateria, grafica y clima; fondo en degradado segun el nivel de humedad; toda la ficha abre la configuracion (REQ-074); textos del tamaño del listado y ficha mas baja. (REQ-075)
+  bateria, grafica y clima; fondo en degradado segun el nivel de humedad; toda la ficha abre la configuracion (REQ-074); textos del tamaño del listado y ficha mas baja (REQ-075); columna derecha con clima, grafica y bateria (4 niveles),
+  e intercambio humedad del suelo / temperatura en cada ficha. (REQ-076)
 - Mapa: la parcela se muestra como estimacion (mas transparente) con el marcador del sensor del color de su lectura (REQ-073);
   rayas grises sobre el color si la lectura tiene mas de 24 h; si una parcela tiene varios sensores, el area se
   reparte entre ellos. (REQ-072)

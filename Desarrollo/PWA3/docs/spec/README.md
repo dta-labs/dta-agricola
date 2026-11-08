@@ -74,8 +74,9 @@
 | REQ-073 | Mapa: el marcador del sensor es rojo/verde/azul segun su lectura (en vez del circulo de color) | Implementado (probar: usuario) | 1 |
 | REQ-074 | Fichas de sensores con el formato del listado: lectura, zona, fondo por nivel de humedad, ficha clicable | Implementado (probar: usuario) | 2 |
 | REQ-075 | Fichas de sensores: textos del tamaño del listado, clima en la esquina, menos alto, degradado horizontal, boton bajo | Implementado (probar: usuario) | 1 |
+| REQ-076 | Fichas de sensores: columna derecha alineada (clima, grafica, bateria con %), bateria en 4 niveles, intercambio humedad/temperatura | Implementado (probar: usuario) | 2 |
 
-**Total: 380 pruebas en Node (2026-11-06), todas en verde.** `npm test` funciona en Node 20 y 22.
+**Total: 381 pruebas en Node (2026-11-06), todas en verde.** `npm test` funciona en Node 20 y 22.
 
 ## Bloque de autenticacion (cerrado y confirmado por el usuario)
 

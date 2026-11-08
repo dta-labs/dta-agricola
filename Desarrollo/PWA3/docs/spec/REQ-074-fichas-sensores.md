@@ -40,3 +40,18 @@ Comparada con la ficha del listado, los textos eran pequeños y la ficha alta. C
 - Boton de 26 px de alto, como los del listado.
 
 Compilacion `26.11.07.021`.
+
+## Ajuste REQ-076 (2026-11-07)
+
+- **Columna derecha de un mismo ancho (44 px)**: icono del clima, boton de grafica **solo con icono** y bateria
+  con su **% debajo** del icono.
+- **Bateria en 4 niveles**: llena (> 75 %), media (> 40 %), casi vacia (> 10 %), vacia (FontAwesome
+  `battery-full/half/quarter/empty`), a partir del voltaje (`logic/panel.js -> porcentajeBateria`).
+- **Intercambio humedad del suelo / temperatura**: boton `swap_vert` en la esquina inferior derecha del valor
+  (no abre la configuracion). Por ficha. Al intercambiar cambian el valor grande y su unidad (°C/°F del sistema),
+  la etiqueta ("Riesgo de helada / Temperatura adecuada / Calor extremo", REQ-070), el icono de la fila de datos
+  (la Ms pasa a esa fila con su icono) y **el color de fondo, que sigue a la variable mostrada** (frio azul,
+  adecuada verde, calor rojo) para que el color no contradiga la etiqueta.
+- La zona vuelve a ocupar su propia linea (el boton de grafica paso a la columna derecha).
+
+Compilacion `26.11.07.022`.

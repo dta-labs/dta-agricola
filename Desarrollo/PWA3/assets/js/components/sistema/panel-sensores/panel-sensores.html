@@ -43,33 +43,39 @@
                 role="button" tabindex="0" aria-label="Configurar {{ coldRoom.alias ? coldRoom.alias : coldRoom.id }}"
                 ng-click="vm.alEditarSensor({ $sensor: coldRoom })"
                 ng-keydown="($event.key === 'Enter' || $event.key === ' ') && vm.alEditarSensor({ $sensor: coldRoom })">
-                <div class="sensor-ficha-lectura" title="Humedad del suelo">
-                    <span class="sensor-ficha-ms">{{ vm.lectura(coldRoomKey, coldRoom).ms }}</span>
+                <!-- Valor principal: humedad del suelo o temperatura (REQ-076: se intercambian con el boton) -->
+                <div class="sensor-ficha-lectura" title="{{ vm.lectura(coldRoomKey, coldRoom).titulo }}">
+                    <span class="sensor-ficha-ms">{{ vm.lectura(coldRoomKey, coldRoom).valor }}</span>
                     <span class="sensor-ficha-unidad">{{ vm.lectura(coldRoomKey, coldRoom).unidad }}</span>
+                    <button type="button" class="sensor-ficha-swap" ng-click="vm.alternar(coldRoomKey, $event)" ng-keydown="$event.stopPropagation()"
+                        aria-label="{{ vm.intercambiado[coldRoomKey] ? 'Mostrar humedad del suelo' : 'Mostrar temperatura' }}">
+                        <i class="material-icons" aria-hidden="true">swap_vert</i>
+                    </button>
                 </div>
                 <div class="sensor-ficha-cuerpo">
-                    <!-- REQ-075: el icono del clima va en la esquina; solo nombre y red le dejan sitio -->
                     <h3 class="sensor-ficha-nombre">{{ coldRoom.alias ? coldRoom.alias : coldRoom.id }}</h3>
                     <div class="sensor-ficha-red">{{ vm.sistema.name }}</div>
-                    <div class="sensor-ficha-fila">
-                        <span class="sensor-ficha-estado">{{ vm.lectura(coldRoomKey, coldRoom).etiqueta }}</span>
-                        <button type="button" class="btn sensor-ficha-boton" aria-label="Ver gráfica del sensor"
-                            ng-click="$event.stopPropagation(); vm.alGrafica({ $sensor: coldRoom, $clave: coldRoomKey })"
-                            ng-keydown="$event.stopPropagation()">
-                            <i class="fa fa-bar-chart" aria-hidden="true"></i> Gráfica
-                        </button>
-                    </div>
+                    <div class="sensor-ficha-estado">{{ vm.lectura(coldRoomKey, coldRoom).etiqueta }}</div>
                     <div class="sensor-ficha-datos">
-                        <span title="Temperatura"><i class="fa fa-thermometer-half" aria-hidden="true"></i> {{ vm.valorSensor({ $clave: coldRoomKey, $campo: 'temperature', $sensor: coldRoom }) }}</span>
+                        <span ng-if="!vm.intercambiado[coldRoomKey]" title="Temperatura"><i class="fa fa-thermometer-half" aria-hidden="true"></i> {{ vm.valorSensor({ $clave: coldRoomKey, $campo: 'temperature', $sensor: coldRoom }) }}</span>
+                        <span ng-if="vm.intercambiado[coldRoomKey]" title="Humedad del suelo"><img class="sensor-ficha-icono" src="./assets/images/Hr_white.png" alt=""> {{ vm.valorSensor({ $clave: coldRoomKey, $campo: 'soilMoisture', $sensor: coldRoom }) }}</span>
                         <span title="Humedad relativa"><i class="fa fa-tint" aria-hidden="true"></i> {{ vm.valorSensor({ $clave: coldRoomKey, $campo: 'humidity', $sensor: coldRoom }) }}</span>
-                        <span class="sensor-ficha-bateria" title="Batería">
-                            <i class="fa fa-{{ vm.valorSensor({ $clave: coldRoomKey, $campo: 'batteryIcon', $sensor: coldRoom }) }}" aria-hidden="true"></i>
-                            {{ vm.valorSensor({ $clave: coldRoomKey, $campo: 'battery', $sensor: coldRoom }) }}
-                        </span>
                     </div>
                 </div>
-                <div class="sensor-ficha-clima" ng-if="vm.clima.weather.iconUrl">
-                    <img ng-src="{{ vm.clima.weather.iconUrl }}" alt="Clima" loading="lazy">
+                <!-- REQ-076: columna derecha de un mismo ancho: clima, grafica y bateria -->
+                <div class="sensor-ficha-lateral">
+                    <div class="sensor-ficha-clima">
+                        <img ng-if="vm.clima.weather.iconUrl" ng-src="{{ vm.clima.weather.iconUrl }}" alt="Clima" loading="lazy">
+                    </div>
+                    <button type="button" class="btn sensor-ficha-boton" aria-label="Ver gráfica del sensor" title="Gráfica"
+                        ng-click="$event.stopPropagation(); vm.alGrafica({ $sensor: coldRoom, $clave: coldRoomKey })"
+                        ng-keydown="$event.stopPropagation()">
+                        <i class="fa fa-bar-chart" aria-hidden="true"></i>
+                    </button>
+                    <div class="sensor-ficha-bateria" title="Batería">
+                        <i class="fa fa-{{ vm.lectura(coldRoomKey, coldRoom).bateria.icono }}" aria-hidden="true"></i>
+                        <span>{{ vm.lectura(coldRoomKey, coldRoom).bateria.texto }}</span>
+                    </div>
                 </div>
             </article>
         </div>
