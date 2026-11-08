@@ -28,3 +28,15 @@ a la primera (franja de color estrecha y etiqueta pequeña), sobre todo en el mo
   sus umbrales.
 - Rejilla de fichas de 300 px como minimo (una columna en el movil).
 - Los valores crudos se leen de `log.dataRaw` una sola vez por actualizacion (cache en el componente).
+
+## Ajuste REQ-075 (2026-11-07)
+
+Comparada con la ficha del listado, los textos eran pequeños y la ficha alta. Cambios:
+
+- Textos del tamaño del listado: nombre 1.45rem, red 1.05rem, zona 1.3rem, datos 1.1rem, lectura 2.1rem.
+- El icono del clima va en la esquina (absoluto): solo nombre y red le dejan sitio; las filas de abajo usan todo el ancho.
+- Menos alto: el boton "Grafica" va en la fila de la zona; la bateria, en la fila de temperatura y humedad.
+- Degradado de izquierda a derecha (90deg).
+- Boton de 26 px de alto, como los del listado.
+
+Compilacion `26.11.07.021`.

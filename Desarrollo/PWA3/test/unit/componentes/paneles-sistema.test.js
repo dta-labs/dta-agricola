@@ -227,7 +227,7 @@ test("REQ-074 fichas de sensores con el formato del listado: lectura, nombre/red
   assert.match(lista, /role="button" tabindex="0"[\s\S]*?ng-click="vm\.alEditarSensor\(\{ \$sensor: coldRoom \}\)"/, "toda la ficha abre la configuracion");
   assert.match(lista, /<h3 class="sensor-ficha-nombre">/);
   assert.match(lista, /<div class="sensor-ficha-red">\{\{ vm\.sistema\.name \}\}<\/div>/);
-  assert.match(lista, /<div class="sensor-ficha-estado">\{\{ vm\.lectura\(coldRoomKey, coldRoom\)\.etiqueta \}\}<\/div>/);
+  assert.match(lista, /<span class="sensor-ficha-estado">\{\{ vm\.lectura\(coldRoomKey, coldRoom\)\.etiqueta \}\}<\/span>/);
   assert.match(lista, /ng-click="\$event\.stopPropagation\(\); vm\.alGrafica\(/, "la grafica no abre la configuracion");
   assert.match(lista, /<img ng-src="\{\{ vm\.clima\.weather\.iconUrl \}\}"/);
   assert.doesNotMatch(lista, /fa-cog/, "sin boton de configuracion");
@@ -252,7 +252,8 @@ test("REQ-074 lectura de la ficha: valor, unidad, zona y clase de color", () => 
   const css = fs.readFileSync(path.join(RAIZ, "assets", "js", "components", "sistema", "paneles.css"), "utf8");
   ["saturado", "muy-humedo", "adecuada", "estres", "seco", "fuera", "sin-dato"].forEach(z =>
     assert.match(css, new RegExp("\\.sensor-ficha\\.zona-" + z + " \\{ --c1: #[0-9a-f]{6}; --c2: #[0-9a-f]{6}; \\}"), z));
-  assert.match(css, /background: linear-gradient\(135deg, var\(--c1\) 0%, var\(--c2\) 100%\);/);
+  // REQ-075: degradado de izquierda a derecha.
+  assert.match(css, /background: linear-gradient\(90deg, var\(--c1\) 0%, var\(--c2\) 100%\);/);
 });
 
 test("REQ-066 sin tarjetas fijas (tooltips permanentes) sobre los sensores del mapa", () => {
@@ -274,4 +275,15 @@ test("REQ-067 mapa de sensores: la parcela muestra los datos y el sensor abre su
   assert.match(cuerpo, /if \(poligons\[capa\]\) \{\s*poligons\[capa\]\.setLatLngs\(area\);[\s\S]*?if \(poligons\[capa\]\.isPopupOpen\(\)\) \{\s*poligons\[capa\]\.setPopupContent\(/);
   assert.match(cuerpo, /Toca para ver los datos/);
   assert.match(CORE, /const sensorVivo = \(claveSistema, indice\) => \{/);
+});
+
+test("REQ-075 fichas: textos grandes, clima en la esquina, grafica junto a la zona y boton bajo", () => {
+  const lista = plantilla("panel-sensores");
+  assert.match(lista, /<div class="sensor-ficha-fila">\s*<span class="sensor-ficha-estado">[\s\S]*?<button type="button" class="btn sensor-ficha-boton"/);
+  assert.match(lista, /<div class="sensor-ficha-datos">[\s\S]*?<span class="sensor-ficha-bateria"/, "bateria en la fila de datos");
+  const css = fs.readFileSync(path.join(RAIZ, "assets", "js", "components", "sistema", "paneles.css"), "utf8");
+  assert.match(css, /\.bs \.sensor-ficha-nombre \{\s*margin: 0;\s*font-size: 1\.45rem;/);
+  assert.match(css, /\.bs \.sensor-ficha-estado \{[^}]*font-size: 1\.3rem;/);
+  assert.match(css, /\.bs \.sensor-ficha-clima \{\s*position: absolute;/);
+  assert.match(css, /\.bs \.sensor-ficha-boton \{[^}]*height: 26px;/);
 });

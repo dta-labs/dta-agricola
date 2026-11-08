@@ -115,7 +115,9 @@ dta-panel-nevera {
 .panel-s-e59 { margin: auto !important; border: 1px solid gray !important; border-radius: 10px !important; background: #0000003d !important; }
 .panel-s-e60 { font-size: 4em !important; text-align: right !important; margin-bottom: 0 !important; width: 100% !important; margin-left: 0px !important; }
 
-/* ===================== REQ-074: fichas de sensores (formato del listado) ===================== */
+/* ===================== REQ-074/075: fichas de sensores (formato del listado) =====================
+   REQ-075: textos del tamaño del listado, clima en la esquina (se aprovecha el espacio bajo el), menos alto,
+   degradado de izquierda a derecha y boton bajo. */
 .bs.sensores-tarjetas {
     margin-top: 76px;
     height: calc(100vh - 140px);
@@ -126,19 +128,20 @@ dta-panel-nevera {
 
 .bs .sensores-rejilla {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 10px;
 }
 
 .bs .sensor-ficha {
     --c1: #78909c;
     --c2: #546e7a;
+    position: relative;
     display: flex;
     align-items: stretch;
     gap: 12px;
-    padding: 12px 12px 12px 10px;
+    padding: 10px 12px 10px 10px;
     border-radius: 14px;
-    background: linear-gradient(135deg, var(--c1) 0%, var(--c2) 100%);
+    background: linear-gradient(90deg, var(--c1) 0%, var(--c2) 100%);
     color: #fff;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
@@ -157,7 +160,7 @@ dta-panel-nevera {
     box-shadow: 0 0 0 3px #fff, 0 6px 16px rgba(0, 0, 0, 0.35);
 }
 
-/* Color por nivel de humedad (degradado) */
+/* Color por nivel de humedad (degradado de izquierda a derecha) */
 .bs .sensor-ficha.zona-saturado { --c1: #42a5f5; --c2: #1565c0; }
 .bs .sensor-ficha.zona-muy-humedo { --c1: #4dd0e1; --c2: #00838f; }
 .bs .sensor-ficha.zona-adecuada { --c1: #66bb6a; --c2: #2e7d32; }
@@ -171,22 +174,21 @@ dta-panel-nevera {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    flex: 0 0 72px;
+    flex: 0 0 68px;
     border-radius: 12px;
-    background: rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.2);
     line-height: 1;
 }
 
 .bs .sensor-ficha-ms {
-    font-size: 1.9rem;
+    font-size: 2.1rem;
     font-weight: 800;
 }
 
 .bs .sensor-ficha-unidad {
     margin-top: 2px;
-    font-size: 0.85rem;
+    font-size: 1rem;
     font-weight: 600;
-    opacity: 0.9;
 }
 
 .bs .sensor-ficha-cuerpo {
@@ -194,37 +196,52 @@ dta-panel-nevera {
     flex-direction: column;
     flex: 1 1 auto;
     min-width: 0;
-    gap: 2px;
+    gap: 1px;
+}
+
+.bs .sensor-ficha-nombre,
+.bs .sensor-ficha-red {
+    padding-right: 48px;   /* sitio para el icono del clima, solo en estas dos lineas */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .bs .sensor-ficha-nombre {
     margin: 0;
-    font-size: 1.15rem;
+    font-size: 1.45rem;
     font-weight: 700;
     line-height: 1.2;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
 }
 
 .bs .sensor-ficha-red {
-    font-size: 0.8rem;
-    opacity: 0.85;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    font-size: 1.05rem;
+    opacity: 0.9;
+}
+
+.bs .sensor-ficha-fila {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 2px;
 }
 
 .bs .sensor-ficha-estado {
-    margin-top: 4px;
-    font-size: 1.05rem;
+    min-width: 0;
+    font-size: 1.3rem;
     font-weight: 700;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .bs .sensor-ficha-datos {
     display: flex;
-    gap: 14px;
-    font-size: 0.9rem;
+    flex-wrap: wrap;
+    column-gap: 14px;
+    row-gap: 2px;
+    font-size: 1.1rem;
 }
 
 .bs .sensor-ficha-datos .fa {
@@ -232,29 +249,24 @@ dta-panel-nevera {
     text-align: center;
 }
 
-.bs .sensor-ficha-pie {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    margin-top: 6px;
-}
-
 .bs .sensor-ficha-bateria {
-    font-size: 0.8rem;
-    opacity: 0.9;
+    margin-left: auto;
     white-space: nowrap;
 }
 
 .bs .sensor-ficha-boton {
     display: inline-flex;
+    flex-shrink: 0;
     align-items: center;
     gap: 5px;
-    padding: 2px 12px;
+    height: 26px;
+    padding: 0 10px;
     border: 1px solid rgba(255, 255, 255, 0.6);
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.15);
     color: #fff;
+    font-size: 0.9rem;
+    line-height: 1;
     box-shadow: none;
     text-shadow: none;
 }
@@ -266,9 +278,9 @@ dta-panel-nevera {
 }
 
 .bs .sensor-ficha-clima {
-    display: flex;
-    align-items: flex-start;
-    flex: 0 0 auto;
+    position: absolute;
+    top: 6px;
+    right: 8px;
 }
 
 .bs .sensor-ficha-clima img {
