@@ -117,8 +117,76 @@
         return confirmado === true ? "encendido" : "apagado";
     }
 
+    // ---------- REQ-088: marcador de equipo en el mapa (pin con icono, nombre y color del estado) ----------
+    // Misma regla que el color de las tarjetas del listado (core.js -> getSystemBackgroundColor), en colores
+    // solidos; ademas, una red de sensores cuyo gateway lleva mas de 24 h sin reportar se ve como sin conexion.
+
+    var ESTADOS_EQUIPO = {
+        encendido: { color: "#20b2aa", texto: "Funcionando" },
+        apagado: { color: "#9e9e9e", texto: "Apagado" },
+        pendiente: { color: "#fdd835", texto: "Esperando confirmación del equipo" },
+        falla: { color: "#e53935", texto: "Falla eléctrica" },
+        seguridad: { color: "#db7093", texto: "Falla de seguridad" },
+        "sin-conexion": { color: "#616161", texto: "Comunicación inestable" },
+        nevera: { color: "#204eb2", texto: "Nevera" }
+    };
+
+    var ICONOS_EQUIPO = {
+        PC: "fa-dot-circle-o", PL: "fa-arrows-h", Pozo: "fa-tint", Pump: "fa-tint",
+        Sensor: "fa-wifi", Estacionario: "fa-th", Nevera: "fa-snowflake-o"
+    };
+
+    function falso(v) { return v === false || v === "false"; }
+
+    /** Estado del equipo: { estado, color, texto }. `lecturaVieja`: el gateway lleva mas de 24 h sin reportar. */
+    function estadoDeEquipo(sistema, lecturaVieja) {
+        var s = sistema || {};
+        var log = s.log;
+        var estado = "encendido";
+        switch (s.type) {
+            case "PC":
+            case "PL":
+                if (s.status == "OFF") estado = "apagado";
+                else if (log && falso(log.voltage)) estado = "falla";
+                else if (log && falso(log.safety)) estado = "seguridad";
+                else if (log && String(log.commDelay) !== "-1") estado = "sin-conexion";   // igual que el listado
+                else if (log && log.status == "OFF") estado = "pendiente";
+                break;
+            case "Estacionario":
+            case "Pump":
+            case "Pozo":
+                estado = s.status == "OFF" ? "apagado" : "encendido";
+                break;
+            case "Sensor":
+                estado = lecturaVieja ? "sin-conexion" : "encendido";
+                if (lecturaVieja) return { estado: estado, color: ESTADOS_EQUIPO[estado].color, texto: "Sin reportar en más de 24 h" };
+                break;
+            case "Nevera":
+                estado = "nevera";
+                break;
+        }
+        return { estado: estado, color: ESTADOS_EQUIPO[estado].color, texto: ESTADOS_EQUIPO[estado].texto };
+    }
+
+    function escapar(texto) {
+        return String(texto == null ? "" : texto).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+
+    /** HTML del marcador: pin (gota) del color del estado con el icono del tipo, borde blanco, y el nombre al lado. */
+    function htmlMarcadorEquipo(sistema, estado) {
+        var s = sistema || {};
+        var icono = ICONOS_EQUIPO[s.type] || "fa-map-marker";
+        var claseOscura = estado.estado === "pendiente" ? " marcador-equipo-claro" : "";
+        return '<div class="marcador-equipo' + claseOscura + '" style="--estado:' + estado.color + '" title="' +
+            escapar((s.name || "Equipo") + " · " + estado.texto) + '">' +
+            '<span class="marcador-equipo-pin"><i class="fa ' + icono + '" aria-hidden="true"></i></span>' +
+            '<span class="marcador-equipo-nombre">' + escapar(s.name || "") + '</span></div>';
+    }
+
     return {
         porcentajeSenal: porcentajeSenal,
+        estadoDeEquipo: estadoDeEquipo,
+        htmlMarcadorEquipo: htmlMarcadorEquipo,
         estadoParcela: estadoParcela,
         sectoresActivos: sectoresActivos,
         porcentajeBateria: porcentajeBateria,

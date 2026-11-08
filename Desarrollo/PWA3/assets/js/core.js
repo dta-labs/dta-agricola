@@ -52,7 +52,7 @@ function __equipos() {
 }
 
 // Marca de version: si no ves esto en consola, el navegador sirve un core.js viejo.
-console.log("[app] core.js 26.11.08.009");
+console.log("[app] core.js 26.11.08.012");
 
 // #region Controlador Angular
 
@@ -526,6 +526,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
 
         processingSensors(locationKey);
         if (map && marker[locationKey]) {
+            actualizarIconoDeEquipo(system);   // REQ-088: el color del pin sigue al estado
             refreshSensorMapContent(system);
             // REQ-081: con cada lectura nueva, tambien el color de las parcelas y de los marcadores de sensor
             // (antes solo cambiaban al recibir ajustes).
@@ -2784,6 +2785,9 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             addLayers();
             rosanautica();
             leyendaHumedad();
+            // REQ-088: con zoom lejano se ocultan los nombres de los equipos (se taparian entre si).
+            const nombresSegunZoom = () => map.getContainer().classList.toggle("mapa-sin-nombres", map.getZoom() < 14);
+            map.on("zoomend", nombresSegunZoom);
         }
     }
 
@@ -3038,12 +3042,33 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         }
     }
 
+    // REQ-088: marcador de equipo = pin del color de su estado con el icono del tipo, borde blanco y su nombre
+    // (antes el logo de 50 px). Solo se cambia el icono cuando cambia su aspecto.
+    const crearIconoDeEquipo = (html) => L.divIcon({
+        className: "marcador-equipo-icono", html: html, iconSize: [34, 40], iconAnchor: [17, 39], popupAnchor: [0, -36]
+    });
+
+    const htmlDeEquipo = (campo) => {
+        const panel = __modulo("panel");
+        const vieja = campo.type == "Sensor" ? antiguedadDeRed(campo).vieja : false;
+        return panel.htmlMarcadorEquipo(campo, panel.estadoDeEquipo(campo, vieja));
+    };
+
+    const actualizarIconoDeEquipo = (campo) => {
+        const m = marker[campo.key];
+        if (!m) return;
+        const html = htmlDeEquipo(campo);
+        if (m._dtaHtml === html) return;
+        m._dtaHtml = html;
+        m.setIcon(crearIconoDeEquipo(html));
+    };
+
     const addMarker = (campo) => {
         let coord = [campo.latitude, campo.longitude];
-        let greenIcon = getMarkerIcon("");
 
         if (marker[campo.key]) {
             marker[campo.key].setLatLng(coord);
+            actualizarIconoDeEquipo(campo);
             marker[campo.key].setPopupContent(getMarkerText(campo));
             refreshSensorMapContent(campo);
             dibujarAreasDeSensores(campo);
@@ -3051,7 +3076,9 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         }
 
         if (!marker[campo.key]) {
-            marker[campo.key] = L.marker(coord, { icon: greenIcon });
+            const html = htmlDeEquipo(campo);
+            marker[campo.key] = L.marker(coord, { icon: crearIconoDeEquipo(html) });
+            marker[campo.key]._dtaHtml = html;
             map.addLayer(marker[campo.key]);
 
             if (campo.type == "Sensor") { 
