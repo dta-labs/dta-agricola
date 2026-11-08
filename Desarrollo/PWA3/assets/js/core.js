@@ -52,7 +52,7 @@ function __equipos() {
 }
 
 // Marca de version: si no ves esto en consola, el navegador sirve un core.js viejo.
-console.log("[app] core.js 26.11.08.005");
+console.log("[app] core.js 26.11.08.009");
 
 // #region Controlador Angular
 
@@ -744,7 +744,11 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         $scope.coldRoomChartAvailable = isSensorNetwork
             ? ["Ms", "SHT4", "WM"].includes(sensor.type)
             : (!sensor.type || sensor.type === "SHT2");
-        $scope.setChartType(isSensorNetwork ? "moisture" : "temperature");
+        // REQ-085: en una red de sensores, la grafica de la medicion principal de la ficha (REQ-076/078):
+        // temperatura si el sensor la tiene como principal; si no, humedad del suelo (como antes).
+        $scope.setChartType(isSensorNetwork
+            ? (sensor.primaryValue === "temperature" ? "temperature" : "moisture")
+            : "temperature");
 
         const modalElement = document.getElementById("modalColdRoomSensorChart");
         if (modalElement && window.M && M.Modal) {

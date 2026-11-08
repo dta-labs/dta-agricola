@@ -83,8 +83,9 @@
 | REQ-082 | Fichas de sensores: icono en lugar del valor; Ms, Temp y Hr | Sustituido por REQ-083 | - |
 | REQ-083 | Fichas de sensores: icono, valor y unidad en vertical sin crecer; "Temp." | Implementado (probar: usuario) | - |
 | REQ-084 | Fichas de sensores: icono de la medicion principal mas grande (26 px) | Implementado (probar: usuario) | - |
+| REQ-085 | La grafica de la ficha abre la de la medicion principal (Ms o temperatura) | Implementado (probar: usuario) | 1 |
 
-**Total: 386 pruebas en Node (2026-11-06), todas en verde.** `npm test` funciona en Node 20 y 22.
+**Total: 387 pruebas en Node (2026-11-06), todas en verde.** `npm test` funciona en Node 20 y 22.
 
 ## Bloque de autenticacion (cerrado y confirmado por el usuario)
 

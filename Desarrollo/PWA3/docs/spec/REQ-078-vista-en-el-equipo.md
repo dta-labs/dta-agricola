@@ -28,3 +28,9 @@ Se guardan en los ajustes del equipo, asi todos los que comparten la red ven lo 
 `logic/ids.js -> generarIdUnico` usaba la hora + 5 caracteres aleatorios (a veces menos): en el mismo milisegundo
 podian repetirse y la prueba REQ-004.8 fallaba de forma intermitente (~1 %). Ahora: hora + contador (2 cifras base36)
 + 6 aleatorios garantizados. 200.000 seguidos sin repetir.
+
+## Grafica de la medicion principal (REQ-085, 2026-11-08)
+
+El boton de grafica de la ficha abria siempre la de humedad del suelo. Ahora abre la de la medicion principal del
+sensor: temperatura si `primaryValue = "temperature"`; si no, humedad del suelo. Las neveras no cambian (temperatura).
+Compilacion `26.11.08.009`.

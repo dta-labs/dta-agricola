@@ -72,3 +72,9 @@ test("REQ-081 al llegar ajustes se conserva el log, y cada lectura nueva repinta
   assert.match(CORE, /const anterior = \$scope\.systems\[locationKey\];\s*if \(anterior && anterior\.log && !sistema\.log\) sistema\.log = anterior\.log;\s*\$scope\.systems\[locationKey\] = sistema;/);
   assert.match(CORE, /refreshSensorMapContent\(system\);[\s\S]{0,250}if \(system\.type == "Sensor"\) dibujarAreasDeSensores\(system\);/);
 });
+
+test("REQ-085 el boton de grafica abre la de la medicion principal del sensor", () => {
+  const ini = CORE.indexOf("$scope.openColdRoomSensorChart = (sensor, sensorKey) => {");
+  const cuerpo = CORE.slice(ini, CORE.indexOf("$scope.setColdRoomChartType", ini));
+  assert.match(cuerpo, /\$scope\.setChartType\(isSensorNetwork\s*\? \(sensor\.primaryValue === "temperature" \? "temperature" : "moisture"\)\s*: "temperature"\);/);
+});

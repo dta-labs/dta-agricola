@@ -31,6 +31,8 @@ Cada version publicada lleva una etiqueta de git `pwa3-vX.Y.Z` sobre el commit d
 - Estacionario: "Aceptar" en Configurar parcela dejaba en 0 la duracion del primer riego programado; en el riego a
   demanda un 0 escrito se guardaba como el valor por defecto (0 °C -> 20 °C); los valores por defecto no llegaban a
   las parcelas; "Editar fecha de riego" mostraba NaN en los dias. (REQ-061 E1)
+- El boton de grafica de las fichas de sensores abria siempre la humedad del suelo; ahora abre la de la medicion
+  principal (Ms o temperatura). (REQ-085)
 - Tras guardar cualquier ajuste del equipo (p. ej. la vista mapa/mosaico) el mapa quedaba en gris: los ajustes llegan
   sin el log y se perdian las lecturas; ademas, el color de las parcelas no se actualizaba con cada lectura. (REQ-080, REQ-081)
 - Los identificadores unicos podian repetirse si se generaban en el mismo milisegundo. (REQ-078)
