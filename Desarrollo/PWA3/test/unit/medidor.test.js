@@ -11,16 +11,31 @@ const m = require("../../assets/js/logic/medidor.js");
 
 const CORE = fs.readFileSync(path.join(__dirname, "..", "..", "assets", "js", "core.js"), "utf8").replace(/\r\n/g, "\n");
 
-test("REQ-068 humedad del tensiometro: 240 cb = 0 %, 0 cb = 100 %, acotada (antes 245 desbordaba la ficha)", () => {
+test("REQ-068/070 humedad del tensiometro: 240 cb = 0 %, 0 cb = 100 %, acotada (antes 245 desbordaba la ficha)", () => {
   assert.equal(m.posicionHumedad(240, true), 0);
   assert.equal(m.posicionHumedad(0, true), 100);
-  assert.equal(m.posicionHumedad(120, true), 50);
   assert.equal(m.posicionHumedad(245, true), 0, "por encima de 240 queda en el extremo seco");
   assert.equal(m.posicionHumedad(-5, true), 100);
   const e = m.escalaHumedadSuelo({ type: "WM", h: { minValue: 25, maxValue: 80 } }, "245");
   assert.equal(e.valorTexto, "245 cb");
-  assert.deepEqual(e.umbrales, [{ posicion: 89.6, texto: "25" }, { posicion: 66.7, texto: "80" }]);
-  assert.equal(e.fueraDeRango, true);
+  assert.equal(e.etiqueta, "Fuera de rango");
+  assert.deepEqual(e.umbrales.map(x => x.texto), ["25", "80"]);
+});
+
+test("REQ-070 escala NO lineal del tensiometro: 6 zonas de igual ancho con los rangos del usuario", () => {
+  const ancho = 100 / 6;
+  // Bordes de zona en la barra (izquierda = seco).
+  [[240, 0], [200, ancho], [100, 2 * ancho], [60, 3 * ancho], [30, 4 * ancho], [10, 5 * ancho], [0, 100]]
+    .forEach(([cb, pos]) => assert.ok(Math.abs(m.posicionHumedad(cb, true) - pos) < 0.1, cb + " cb"));
+  const zonas = [[0, "Suelo saturado"], [10, "Suelo saturado"], [10.5, "Muy húmedo"], [30, "Muy húmedo"], [45, "Humedad adecuada"],
+    [60, "Humedad adecuada"], [80, "Estrés moderado"], [100, "Estrés moderado"], [150, "Suelo muy seco"], [200, "Suelo muy seco"],
+    [201, "Fuera de rango"], [300, "Fuera de rango"]];
+  zonas.forEach(([cb, nombre]) => assert.equal(m.zonaCb(cb).nombre, nombre, cb + " cb"));
+  assert.equal(m.zonaCb("NaN"), null);
+  // El caso de la captura: 22 cb.
+  const e = m.escalaHumedadSuelo({ type: "WM", h: { minValue: 30, maxValue: 80 } }, "22");
+  assert.equal(e.etiqueta, "Muy húmedo");
+  assert.equal(e.nivel, "atencion");
 });
 
 test("REQ-068 sensores en %: el valor ya es 0..100", () => {
@@ -47,7 +62,7 @@ test("REQ-068 temperatura: -50..+125 °C, en la unidad del sistema y sin mezclar
 
 test("REQ-068 HTML: barra con degradado, raya y valor por umbral, triangulo de la medicion", () => {
   const html = m.htmlMedidor(m.escalaTemperatura("8", { t: { minValue: 2, maxValue: 25 } }, "C"));
-  assert.match(html, /^<div class="medidor medidor-temperatura" role="img" aria-label="Temperatura 8 °C">/);
+  assert.match(html, /^<div class="medidor medidor-temperatura" role="img" aria-label="Temperatura adecuada 8 °C">/);
   assert.equal((html.match(/class="medidor-umbral"/g) || []).length, 2);
   assert.equal((html.match(/class="medidor-umbral-texto"/g) || []).length, 2);
   assert.match(html, /<span class="medidor-marca" style="left:33\.1%"><\/span>/);
@@ -67,10 +82,30 @@ test("REQ-068 la ficha del sensor usa los medidores (sin anchos crudos ni °C/°
   assert.doesNotMatch(cuerpo, /Temperatura \(°C\/°F\)/);
 });
 
-test("REQ-069 barras gruesas y de todo el ancho (debajo del titulo y del valor)", () => {
+test("REQ-069/070 zona y valor en una linea, la barra debajo de todo el ancho, alto compacto", () => {
   const ini = CORE.indexOf("const getSensorText = (campo, sensor, idx) => {");
   const cuerpo = CORE.slice(ini, CORE.indexOf("// Cultivo", ini));
-  assert.equal((cuerpo.match(/<div class="col s10 offset-s2">` \+ __modulo\("medidor"\)\.htmlMedidor\(/g) || []).length, 2);
+  assert.equal((cuerpo.match(/<div class="col s10 medidor-bloque">/g) || []).length, 2);
+  assert.match(cuerpo, /<span class="medidor-etiqueta">\$\{escaparHtml\(medidorSuelo\.etiqueta\)\}<\/span>/);
+  assert.match(cuerpo, /<span class="medidor-etiqueta">\$\{escaparHtml\(medidorTemperatura\.etiqueta\)\}<\/span>/);
+  assert.doesNotMatch(cuerpo, /<small>\$\{Math\.round\(medidorSuelo\.porcentaje\)\} %<\/small>/, "sin segunda linea: misma altura");
   const css = fs.readFileSync(path.join(__dirname, "..", "..", "assets", "css", "style.css"), "utf8");
-  assert.match(css, /\.medidor-barra \{\s*height: 14px;/);
+  assert.match(css, /\.medidor-barra \{\s*height: 10px;/);
+  assert.match(css, /\.medidor-zonas \.medidor-barra \{/);
+});
+
+test("REQ-070 temperatura: Riesgo de helada / Temperatura adecuada / Calor extremo", () => {
+  const t = { t: { minValue: 2, maxValue: 25 } };
+  assert.equal(m.escalaTemperatura(1, t, "C").etiqueta, "Riesgo de helada");
+  assert.equal(m.escalaTemperatura(1, t, "C").nivel, "frio");
+  assert.equal(m.escalaTemperatura(8, t, "F").etiqueta, "Temperatura adecuada");
+  assert.equal(m.escalaTemperatura(30, t, "C").etiqueta, "Calor extremo");
+  assert.equal(m.escalaTemperatura("NaN", t, "C").etiqueta, "Temperatura");
+});
+
+test("REQ-070 la barra del tensiometro marca las 6 zonas", () => {
+  const html = m.htmlMedidor(m.escalaHumedadSuelo({ type: "WM" }, 45));
+  assert.match(html, /class="medidor medidor-humedad medidor-zonas"/);
+  assert.equal((html.match(/class="medidor-division"/g) || []).length, 5);
+  assert.doesNotMatch(m.htmlMedidor(m.escalaHumedadSuelo({ type: "SHT4" }, 45)), /medidor-division/, "sensores en %: lineal, sin zonas");
 });

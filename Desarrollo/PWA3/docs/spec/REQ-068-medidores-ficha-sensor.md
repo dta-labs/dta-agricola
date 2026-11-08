@@ -36,3 +36,29 @@ Pedido: barras mas grandes, que lleguen a verse por debajo del valor de la medic
 fila; la barra en la fila siguiente, de todo el ancho de la tarjeta (`col s10 offset-s2`, debajo del valor).
 Barra de 14 px (antes 8), rayas de umbral de 3x20 px, valores de umbral mas legibles y triangulo de 16 px.
 Compilacion `26.11.07.015`.
+
+## 4. Zonas, etiquetas y alto (REQ-070, 2026-11-07)
+
+Pedido del usuario (captura): mantener el alto de la seccion de la ficha anterior; la barra de humedad no es
+lineal; la etiqueta dice el estado.
+
+**Tensiometro (cb): 6 zonas de igual ancho** (dentro de cada zona, lineal); el limite pertenece a la zona mas humeda:
+
+| cb | Zona (etiqueta) | Color del valor |
+|---|---|---|
+| 0 - 10 | Suelo saturado | rojo |
+| 10 - 30 | Muy humedo | naranja |
+| 30 - 60 | Humedad adecuada | verde |
+| 60 - 100 | Estres moderado | naranja |
+| 100 - 200 | Suelo muy seco | rojo |
+| > 200 | Fuera de rango | gris |
+
+En la barra (izquierda -> derecha): fuera de rango (gris) - muy seco (rojo) - estres (naranja) - adecuada (verde)
+- muy humedo (turquesa) - saturado (azul), con separaciones finas entre zonas. Sensores en %: lineal 0..100 y
+etiqueta "Suelo seco / Humedad adecuada / Suelo saturado" segun sus umbrales.
+
+**Temperatura**: etiqueta "Riesgo de helada" (bajo el umbral minimo, azul), "Temperatura adecuada" (verde) o
+"Calor extremo" (sobre el maximo, rojo).
+
+**Alto**: zona y valor en una linea, la barra justo debajo y de todo el ancho; barra de 10 px; sin la segunda
+linea del %. Compilacion `26.11.07.016`.

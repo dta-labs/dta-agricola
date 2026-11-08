@@ -68,8 +68,9 @@
 | REQ-067 | Mapa de sensores: tocar la parcela muestra los datos; tocar el sensor abre su configuracion | Implementado (probar: usuario) | 1 |
 | REQ-068 | Ficha del sensor: medidores con degradado (humedad 0-100 %, WM 240 cb = 0 %; temperatura -50..125 °C), umbrales y medicion | Implementado (probar: usuario) | 5 |
 | REQ-069 | Ficha del sensor: barras mas gruesas y de todo el ancho (debajo del valor) | Implementado (probar: usuario) | 1 |
+| REQ-070 | Ficha del sensor: tensiometro en 6 zonas no lineales con su nombre como etiqueta; temperatura helada/adecuada/calor; alto compacto | Implementado (probar: usuario) | 3 |
 
-**Total: 369 pruebas en Node (2026-11-06), todas en verde.** `npm test` funciona en Node 20 y 22.
+**Total: 372 pruebas en Node (2026-11-06), todas en verde.** `npm test` funciona en Node 20 y 22.
 
 ## Bloque de autenticacion (cerrado y confirmado por el usuario)
 
