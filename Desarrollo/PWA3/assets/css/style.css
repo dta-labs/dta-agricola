@@ -1237,13 +1237,10 @@ canvas[id^="myChart"],
     color: #616161;
     font-size: 11px;
 }
-.mapa-leyenda-humedad i.leyenda-punto {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    border: 2px solid #ffffff;
-    background: #43a047;
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35);
+/* REQ-073: el punto de medicion es el propio marcador del sensor, del color de su lectura */
+.mapa-leyenda-humedad img.leyenda-icono {
+    width: 14px;
+    height: 14px;
 }
 .mapa-leyenda-humedad i.leyenda-rayas {
     background: repeating-linear-gradient(45deg, rgba(97, 97, 97, 0.85) 0 3px, #43a047 3px 7px);

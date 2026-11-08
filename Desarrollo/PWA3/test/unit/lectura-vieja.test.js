@@ -47,12 +47,21 @@ test("REQ-072 lectura vieja: MAS de 24 h desde log.date (hora local del equipo)"
 
 test("REQ-072 mapa: menos opacidad, punto del sensor, rayas grises sobre el color y leyenda", () => {
   assert.match(CORE, /fillOpacity: 0\.35/);
-  assert.match(CORE, /poligons\[capa \+ "-punto"\] = L\.circleMarker\(\[punto\.lat, punto\.lng\], estiloPunto\);/);
-  assert.match(CORE, /fillColor: estado\.color, fillOpacity: 1, interactive: false \};/, "el punto tiene el color de la lectura");
+  // REQ-073: el punto de medicion es el marcador del sensor, del color de su lectura.
+  assert.match(CORE, /if \(marker\[sensor\.id\]\) marker\[sensor\.id\]\.setIcon\(iconoDeSensor\(estado\.estado\)\);/);
+  assert.doesNotMatch(CORE, /circleMarker/);
   assert.match(CORE, /fillColor: "url\(#rayas-lectura-vieja\)", fillOpacity: 1, interactive: false/, "rayas encima, sin tapar el color");
   assert.match(CORE, /rayasDeLecturaVieja\(capa \+ "-rayas", area, vieja\);/);
   assert.match(CORE, /rayasDeLecturaVieja\(campo\.key \+ idx \+ "-rayas", newPoligon, vieja\);/, "tambien las parcelas del estacionario");
   assert.match(CORE, /area = geo\.recortarPorCercania\(area, \[punto\.lat, punto\.lng\], otros\);/);
   assert.match(CORE, /estimada con el sensor/);
   assert.match(CORE, /Lectura de más de 24 h/);
+});
+
+test("REQ-073 marcador del sensor: rojo seco, verde adecuado, azul saturado; sin dato el de siempre", () => {
+  assert.match(CORE, /seco: "\.\/assets\/images\/marcador_sensor_rojo\.png"/);
+  assert.match(CORE, /adecuado: "\.\/assets\/images\/marcador_sensor_verde\.png"/);
+  assert.match(CORE, /saturado: "\.\/assets\/images\/marcador_sensor_azul\.png"/);
+  assert.match(CORE, /ICONOS_SENSOR\[estado\] \|\| "\.\/assets\/images\/marcador_sensor\.png"/);
+  ["rojo", "verde", "azul"].forEach(c => assert.ok(fs.existsSync(path.join(RAIZ, "assets", "images", "marcador_sensor_" + c + ".png")), c));
 });

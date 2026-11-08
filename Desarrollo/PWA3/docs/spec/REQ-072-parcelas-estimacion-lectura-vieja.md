@@ -19,7 +19,7 @@ color solido aparenta mas certeza de la que hay, por eso los 4 puntos siguientes
 | # | Punto | Detalle |
 |---|---|---|
 | 1 | Parcela como **estimacion** | Opacidad 0.35 (antes 0.45); la leyenda dice "estimada con el sensor" |
-| 2 | **Punto de medicion** | Circulo solido (7 px, borde blanco) del color de la lectura en la ubicacion del sensor; se actualiza en su sitio; no captura el toque (el marcador abre "Editar sensor", REQ-067) |
+| 2 | **Punto de medicion** | El marcador del sensor toma el color de su lectura (REQ-073; antes un circulo de color) |
 | 3 | **Lectura vieja** (> 24 h desde `log.date`) | Se **conserva el color** de lo ultimo medido y encima van **rayas grises** (patron SVG); la etiqueta dice "Ultima lectura hace N h / N d". En la red de sensores y en las parcelas del estacionario (lectura de su sensor asociado). Sin fecha o sin lectura: sin rayas |
 | 4 | **Varios sensores en una parcela** | Si otros sensores estan dentro del area de un sensor, el area se reparte: cada uno sombrea la zona mas cercana a el (celda de Voronoi recortada a la parcela) |
 
@@ -27,3 +27,10 @@ Leyenda: Seco / Adecuado / Saturado / Sin dato, "Punto de medicion" y "Lectura d
 
 Notas: "mas de 24 h" es estricto (24 h exactas aun no es vieja). Todos los sensores de una red comparten
 `log.date`, asi que la antiguedad es la de la red.
+
+## 3. Punto de medicion = marcador del color de la lectura (REQ-073, 2026-11-07)
+
+A peticion del usuario, en vez del circulo de color, el propio marcador del sensor cambia de imagen segun su
+lectura: `marcador_sensor_rojo.png` (seco), `_verde.png` (adecuado), `_azul.png` (saturado); sin dato, el
+`marcador_sensor.png` de siempre. Mismo tamaño (20 px) y anclaje. Sale el circulo (`circleMarker`). La leyenda
+muestra el marcador verde: "Sensor (color de su lectura)". Compilacion `26.11.07.019`.

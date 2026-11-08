@@ -44,7 +44,7 @@ Cada version publicada lleva una etiqueta de git `pwa3-vX.Y.Z` sobre el commit d
 - Lector de identificadores con camara (QR y codigos de barras) y NFC en Agregar equipo y en los sensores. (REQ-052)
 - Plan de riego del pivote: "Nuevo plan" y "Planificacion" en un solo formulario con validacion en linea y el
   estilo comun; "Eliminar plan" rediseñado. (REQ-059)
-- Mapa: la parcela se muestra como estimacion (mas transparente) con el punto de medicion del color de la lectura;
+- Mapa: la parcela se muestra como estimacion (mas transparente) con el marcador del sensor del color de su lectura (REQ-073);
   rayas grises sobre el color si la lectura tiene mas de 24 h; si una parcela tiene varios sensores, el area se
   reparte entre ellos. (REQ-072)
 - Ficha del sensor: barras de humedad (0-100 %, tensiometro 240 cb = 0 %) y temperatura (-50..125 °C) con degradado,

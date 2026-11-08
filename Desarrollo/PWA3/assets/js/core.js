@@ -52,7 +52,7 @@ function __equipos() {
 }
 
 // Marca de version: si no ves esto en consola, el navegador sirve un core.js viejo.
-console.log("[app] core.js 26.11.07.018");
+console.log("[app] core.js 26.11.07.019");
 
 // #region Controlador Angular
 
@@ -2743,7 +2743,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             // REQ-072: el color de la parcela es una estimacion a partir del sensor (punto).
             div.innerHTML = '<b>Humedad del suelo</b><small class="leyenda-nota">estimada con el sensor</small>' +
                 __modulo("humedad").leyenda().map(e => `<span><i style="background:${e.color}"></i>${e.texto}</span>`).join("") +
-                '<span><i class="leyenda-punto"></i>Punto de medición</span>' +
+                '<span><img class="leyenda-icono" src="./assets/images/marcador_sensor_verde.png" alt="">Sensor (color de su lectura)</span>' +
                 '<span><i class="leyenda-rayas"></i>Lectura de más de 24 h</span>';
             L.DomEvent.disableClickPropagation(div);
             return div;
@@ -2820,6 +2820,23 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         asegurarPatronRayas(poligons[clave]);
     };
 
+    // REQ-073: marcador del sensor segun su lectura: rojo seco, verde adecuado, azul saturado; sin dato, el de siempre.
+    const ICONOS_SENSOR = {
+        seco: "./assets/images/marcador_sensor_rojo.png",
+        adecuado: "./assets/images/marcador_sensor_verde.png",
+        saturado: "./assets/images/marcador_sensor_azul.png"
+    };
+    const iconosDeSensor = {};
+    const iconoDeSensor = (estado) => {
+        const url = ICONOS_SENSOR[estado] || "./assets/images/marcador_sensor.png";
+        if (!iconosDeSensor[url]) {
+            iconosDeSensor[url] = L.icon({
+                iconUrl: url, iconSize: [20, 20], iconAnchor: [10, 20], popupAnchor: [0, -20]
+            });
+        }
+        return iconosDeSensor[url];
+    };
+
     /** Antiguedad de la lectura de una red de sensores (log.date). */
     const antiguedadDeRed = (red) => __modulo("estado").antiguedadDeLectura(red && red.log && red.log.date);
 
@@ -2864,20 +2881,8 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             const capa = campo.key + clave;
             const estado = humedad.estadoEnRed(campo, indice);
 
-            // REQ-072: punto de medicion, del color de la lectura (el dato exacto).
-            if (punto) {
-                const estiloPunto = { radius: 7, color: "#ffffff", weight: 2, fillColor: estado.color, fillOpacity: 1, interactive: false };
-                if (poligons[capa + "-punto"]) {
-                    poligons[capa + "-punto"].setLatLng([punto.lat, punto.lng]);
-                    poligons[capa + "-punto"].setStyle(estiloPunto);
-                } else {
-                    poligons[capa + "-punto"] = L.circleMarker([punto.lat, punto.lng], estiloPunto);
-                    map.addLayer(poligons[capa + "-punto"]);
-                }
-            } else if (poligons[capa + "-punto"]) {
-                map.removeLayer(poligons[capa + "-punto"]);
-                delete poligons[capa + "-punto"];
-            }
+            // REQ-073: el marcador del sensor toma el color de su lectura (el dato exacto, en su punto).
+            if (marker[sensor.id]) marker[sensor.id].setIcon(iconoDeSensor(estado.estado));
 
             let area = geo.normalizarPoligono(sensor.poligon);
             // REQ-072: si otros sensores estan dentro de esta parcela, cada uno sombrea la zona mas cercana a el.
@@ -2912,7 +2917,6 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                 poligons[capa].bringToBack();
             }
             rayasDeLecturaVieja(capa + "-rayas", area, vieja);
-            if (poligons[capa + "-punto"]) poligons[capa + "-punto"].bringToFront();
         });
     };
 
