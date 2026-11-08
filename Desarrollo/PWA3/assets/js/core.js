@@ -52,7 +52,7 @@ function __equipos() {
 }
 
 // Marca de version: si no ves esto en consola, el navegador sirve un core.js viejo.
-console.log("[app] core.js 26.11.07.013");
+console.log("[app] core.js 26.11.07.014");
 
 // #region Controlador Angular
 
@@ -3095,15 +3095,14 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         text += `       </div>`;
         text += `       <div class="row" style="margin-bottom: 5px; padding: 10px; border-radius: 3px; background-color: #f5f5f5;">`;
         text += `           <div class="col s2"><img src="./assets/images/Hr.png" alt="Agua" style="width: 30px;"></div>`;
+        // REQ-068: barra 0..100 % (WM: 240 cb = 0 %, 0 cb = 100 %), degradado rojo-verde-azul, umbrales y medicion.
+        const medidorSuelo = __modulo("medidor").escalaHumedadSuelo(sensor, data[idx * 8]);
         text += `           <div class="col s7">`;
-        text += `              <div>Humedad (%)</div>`;
-        text += `              <div style="width: 100%; background-color: lightgrey; height: 6px; border-radius: 3px;">`;
-        text += `                  <div style="background-color: ` + ($scope.isOutOfRange(data[idx * 8], sensor.h.minValue, sensor.h.maxValue) ? `red` : `green`) + `; width: ` + parseFloat(data[idx * 8]) + `%; height: 6px; border-radius: 3px;"></div>`;
-        text += `                  <span style="font-size: .8em; margin-left: ` + (sensor.h.minValue < 10 ? 3 : 10) + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i><b>${sensor.h.minValue ?? ''}</b></span>`;
-        text += `                  <span style="font-size: .8em; margin-left: ` + (sensor.h.maxValue - sensor.h.minValue - 20) + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i><b>${sensor.h.maxValue ?? ''}</b></span>`;
-        text += `              </div>`;
+        text += `              <div>Humedad del suelo</div>`;
+        text += __modulo("medidor").htmlMedidor(medidorSuelo);
         text += `           </div>`;
-        text += `           <div class="col s3" style="text-align: right; padding-top: 7px; font-size: 1.5em; color: ` + ($scope.isOutOfRange(data[idx * 8], sensor.h.minValue, sensor.h.maxValue) ? `red` : `green`) + `;"><b>${data[idx * 8] !== "NaN" ? parseFloat(data[idx * 8]).toFixed(0) : "--"}</b></div>`;
+        text += `           <div class="col s3 medidor-valor ${medidorSuelo.fueraDeRango ? "medidor-fuera" : "medidor-dentro"}"><b>${medidorSuelo.valorTexto}</b>` +
+            (medidorSuelo.porcentaje !== null && sensor.type == "WM" ? `<small>${Math.round(medidorSuelo.porcentaje)} %</small>` : ``) + `</div>`;
         text += `       </div>`;
 
         // Clima
@@ -3115,15 +3114,13 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         text += `       </div>`;
         text += `       <div class="row" style="margin-bottom: 5px; padding: 10px; border-radius: 6px; background-color: #f5f5f5;">`;
         text += `           <div class="col s2"><img src="./assets/images/termometro.png" alt="Termometro" style="width: 30px;"></div>`;
+        // REQ-068: barra -50..+125 °C, degradado azul-rojo, umbrales y medicion, en la unidad del sistema.
+        const medidorTemperatura = __modulo("medidor").escalaTemperatura(data[idx * 8 + 4], sensor, campo.tempUnit);
         text += `           <div class="col s7">`;
-        text += `              <div style="font-size: .99em;">Temperatura (°C/°F)</div>`;
-        text += `              <div style="width: 100%; background-color: lightgrey; height: 6px; border-radius: 3px;">`;
-        text += `                  <div style="background-color: ` + ($scope.isOutOfRange(data[idx * 8 + 4], sensor.t.minValue, sensor.t.maxValue) ? `red` : `green`) + `; width: ` + (parseFloat(data[idx * 8 + 4]) < 10 ? parseFloat(data[idx * 8 + 4]) + 5 : parseFloat(data[idx * 8 + 4])) + `%; height: 6px; border-radius: 3px;"></div>`;
-        text += `                  <span style="font-size: .8em; margin-left: ` + (sensor.t.minValue > 10 ? 3 : 10) + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i><b>${sensor.t.minValue ?? ''}</b></span>`;
-        text += `                  <span style="font-size: .8em; margin-left: ` + (sensor.t.maxValue - sensor.t.minValue - 20) + `%"><i class="material-icons" style="font-size: 1.5em;">arrow_upward</i><b>${sensor.t.maxValue ?? ''}</b></span>`;
-        text += `              </div>`;
+        text += `              <div>Temperatura</div>`;
+        text += __modulo("medidor").htmlMedidor(medidorTemperatura);
         text += `           </div>`;
-        text += `           <div class="col s3" style="text-align: right; padding-top: 7px; font-size: 1.5em; color: ` + ($scope.isOutOfRange(data[idx * 8 + 4], sensor.t.minValue, sensor.t.maxValue) ? `red` : `green`) + `;"><b>${data[idx * 8 + 4] !== "NaN" ? (parseFloat(data[idx * 8 + 4]).toFixed(0) + "/" + parseFloat(data[idx * 8 + 4] * 1.8 + 32).toFixed(0)) : "--"}</b></div>`;
+        text += `           <div class="col s3 medidor-valor ${medidorTemperatura.fueraDeRango ? "medidor-fuera" : "medidor-dentro"}"><b>${medidorTemperatura.valorTexto}</b></div>`;
         text += `       </div>`;
         text += `       <div class="row" style="margin-bottom: 5px; padding: 10px; border-radius: 6px; background-color: #f5f5f5;">`;
         text += `           <div class="col s2"><img src="./assets/images/agua.png" alt="Termometro" style="width: 25px;"></div>`;
