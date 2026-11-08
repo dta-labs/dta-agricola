@@ -238,5 +238,19 @@ test("REQ-066 sin tarjetas fijas (tooltips permanentes) sobre los sensores del m
   const CORE = fs.readFileSync(path.join(RAIZ, "assets", "js", "core.js"), "utf8");
   assert.doesNotMatch(CORE, /permanent: true/);
   assert.doesNotMatch(CORE, /getSensorValue/);
-  assert.match(CORE, /marker\[sensor\.id\]\.bindPopup\(/, "la ficha sigue abriendose al tocar el sensor");
+  // REQ-067: la ficha con los datos se abre ahora al tocar la parcela del sensor.
+  assert.match(CORE, /poligons\[capa\]\.bindPopup\(\(\) => fichaDeSensor\(/);
+});
+
+test("REQ-067 mapa de sensores: la parcela muestra los datos y el sensor abre su configuracion", () => {
+  const CORE = fs.readFileSync(path.join(RAIZ, "assets", "js", "core.js"), "utf8").replace(/\r\n/g, "\n");
+  assert.doesNotMatch(CORE, /marker\[sensor\.id\]\.bindPopup/, "el marcador ya no abre la ficha");
+  assert.doesNotMatch(CORE, /poligons\[capa\]\.on\("click", \(\) => abrirEdicionDeSensor/, "la parcela ya no abre la edicion");
+  assert.match(CORE, /poligons\[capa\]\.on\("popupopen", \(\) => setTimeout\(\(\) => bindSensorPopupActions\(indice\), 0\)\);/, "botones de grafica de la ficha");
+  // La parcela se actualiza en su sitio: una ficha abierta no se cierra al llegar datos nuevos.
+  const ini = CORE.indexOf("const dibujarAreasDeSensores = (campo) => {");
+  const cuerpo = CORE.slice(ini, CORE.indexOf("\n    };\n", ini));
+  assert.match(cuerpo, /if \(poligons\[capa\]\) \{\s*poligons\[capa\]\.setLatLngs\(area\);[\s\S]*?if \(poligons\[capa\]\.isPopupOpen\(\)\) \{\s*poligons\[capa\]\.setPopupContent\(/);
+  assert.match(cuerpo, /Toca para ver los datos/);
+  assert.match(CORE, /const sensorVivo = \(claveSistema, indice\) => \{/);
 });

@@ -245,7 +245,9 @@ test("REQ-052 mapa: parcelas y areas de sensores sombreadas por humedad; tocar a
   assert.match(CORE, /__modulo\("humedad"\)\.estadoDeParcela\(campo\.plots\[idx\], \$scope\.systems\)/);
   assert.match(CORE, /poligons\[campo\.key \+ idx\]\.on\("click", \(\) => abrirEdicionDeParcela\(idx\)\);/);
   assert.match(CORE, /\$scope\.setEditPlanEstacionario\(idx\);\s*abrirModal\("modalEditRiegoEstacionario"\);/);
-  assert.match(CORE, /poligons\[capa\]\.on\("click", \(\) => abrirEdicionDeSensor\(sensor\)\);/);
+  // REQ-067: se intercambiaron las acciones: el area del sensor muestra sus datos y el marcador abre "Editar sensor".
+  assert.match(CORE, /poligons\[capa\]\.bindPopup\(\(\) => fichaDeSensor\(/);
+  assert.match(CORE, /marker\[sensor\.id\]\.on\("click", \(\) => \{\s*const vivo = sensorVivo\(campo\.key, i\) \|\| sensor;\s*abrirEdicionDeSensor\(vivo\);/);
   assert.match(CORE, /\$scope\.editSensor\(sensor\);\s*abrirModal\("modalEditSensor"\);/);
   assert.match(CORE, /fillColor: estado\.color/);
   assert.match(CORE, /leyendaHumedad\(\);/);

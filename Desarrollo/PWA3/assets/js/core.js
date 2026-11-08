@@ -52,7 +52,7 @@ function __equipos() {
 }
 
 // Marca de version: si no ves esto en consola, el navegador sirve un core.js viejo.
-console.log("[app] core.js 26.11.07.012");
+console.log("[app] core.js 26.11.07.013");
 
 // #region Controlador Angular
 
@@ -2778,7 +2778,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         });
     };
 
-    // REQ-052: tocar el area de un sensor abre "Editar sensor".
+    // REQ-052/067: abre "Editar sensor" (ahora al tocar el marcador del sensor).
     const abrirEdicionDeSensor = (sensor) => {
         $scope.$evalAsync(() => {
             $scope.editSensor(sensor);
@@ -2786,22 +2786,51 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         });
     };
 
-    // REQ-052: areas (poligonos) de los sensores de una red, sombreadas por su humedad.
+    // Sensor con los datos actuales (el objeto del sistema se reemplaza con cada actualizacion).
+    const sensorVivo = (claveSistema, indice) => {
+        const sistema = ($scope.actualSystem && $scope.actualSystem.key === claveSistema)
+            ? $scope.actualSystem : ($scope.systems && $scope.systems[claveSistema]);
+        return sistema && sistema.sensors ? sistema.sensors["S" + indice] : null;
+    };
+
+    // Ficha con los datos del sensor (la que antes salia en el marcador) y sus botones de grafica.
+    const fichaDeSensor = (campo, sensor, indice) => {
+        const contenido = document.createElement("div");
+        contenido.style.width = "240px";
+        contenido.innerHTML = getSensorText(campo, sensor, indice);
+        return contenido;
+    };
+
+    // REQ-052/067: areas (poligonos) de los sensores de una red, sombreadas por su humedad. Tocar el area
+    // muestra los datos del sensor. Si el area ya esta dibujada se actualiza en su sitio, para que una ficha
+    // abierta no se cierre cada vez que llegan datos nuevos.
     const dibujarAreasDeSensores = (campo) => {
         if (!map || campo.type != "Sensor" || !campo.sensors) return;
         const geo = __modulo("geo");
         const humedad = __modulo("humedad");
         humedad.sensoresDeRed(campo).forEach(({ indice, clave, sensor }) => {
             const capa = campo.key + clave;
-            if (poligons[capa]) { map.removeLayer(poligons[capa]); delete poligons[capa]; }
             const area = geo.normalizarPoligono(sensor.poligon);
-            if (!geo.esPoligonoValido(area)) return;
+            if (!geo.esPoligonoValido(area)) {
+                if (poligons[capa]) { map.removeLayer(poligons[capa]); delete poligons[capa]; }
+                return;
+            }
             const estado = humedad.estadoEnRed(campo, indice);
+            const etiqueta = `<b>${escaparHtml(sensor.alias || "Sensor " + (indice + 1))}</b><br>${textoHumedad(estado)}<br><small>Toca para ver los datos</small>`;
+            if (poligons[capa]) {
+                poligons[capa].setLatLngs(area);
+                poligons[capa].setStyle(estiloParcela(estado, false));
+                poligons[capa].setTooltipContent(etiqueta);
+                if (poligons[capa].isPopupOpen()) {
+                    poligons[capa].setPopupContent(fichaDeSensor(campo, sensor, indice));
+                    setTimeout(() => bindSensorPopupActions(indice), 0);
+                }
+                return;
+            }
             poligons[capa] = L.polygon(area, estiloParcela(estado, false));
-            poligons[capa].bindTooltip(
-                `<b>${escaparHtml(sensor.alias || "Sensor " + (indice + 1))}</b><br>${textoHumedad(estado)}<br><small>Toca para editar</small>`,
-                { sticky: true, direction: "top", className: "parcela-tooltip" });
-            poligons[capa].on("click", () => abrirEdicionDeSensor(sensor));
+            poligons[capa].bindTooltip(etiqueta, { sticky: true, direction: "top", className: "parcela-tooltip" });
+            poligons[capa].bindPopup(() => fichaDeSensor(campo, sensorVivo(campo.key, indice) || sensor, indice));
+            poligons[capa].on("popupopen", () => setTimeout(() => bindSensorPopupActions(indice), 0));
             map.addLayer(poligons[capa]);
             poligons[capa].bringToBack();
         });
@@ -2900,38 +2929,12 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                         marker[sensor.id] = L.marker(sensorCoord, { icon: greenIcon });
                         map.addLayer(marker[sensor.id]);
 
-                        // REQ-066: sin tarjeta fija sobre cada sensor (tapaba el mapa); al tocar el marcador
-                        // se abre su ficha, como antes. Los valores estan tambien en la vista de tarjetas.
-                        // Popup adicional (cuando se hace clic)
-                        marker[sensor.id].bindPopup(() => {
-                            const popupContent = document.createElement('div');
-                            popupContent.style.width = '240px';
-                            popupContent.innerHTML = getSensorText(campo, sensor, i);
-                            // setTimeout(() => { 
-                            //     $scope.setChart(i); 
-                            // }, 0);
-                            return popupContent;
-                        });
-
-                        marker[sensor.id].on("popupopen", () => {
-                            document.getElementById(`btnHome${i}`).addEventListener("click", () => {
-                                showPopupChart("Home", i);
-                            });
-                            document.getElementById(`btnMs${i}`).addEventListener("click", () => {
-                                showPopupChart("Ms", i);
-                            });
-                            document.getElementById(`btnT${i}`).addEventListener("click", () => {
-                                showPopupChart("T", i);
-                            });
-                            document.getElementById(`btnHr${i}`).addEventListener("click", () => {
-                                showPopupChart("Hr", i);
-                            });
-                            document.getElementById(`btnHf${i}`).addEventListener("click", () => {
-                                showPopupChart("Hf", i);
-                            });
-                            document.getElementById(`btnIndicaciones${i}`).addEventListener("click", () => {
-                                showPopupChart("Indicaciones", i);
-                            });
+                        // REQ-067: tocar el sensor abre su configuracion ("Editar sensor"); los datos del sensor
+                        // (antes en este marcador) se ven al tocar su parcela. Se busca el sensor vivo al tocar,
+                        // porque los datos del sistema se reemplazan con cada actualizacion.
+                        marker[sensor.id].on("click", () => {
+                            const vivo = sensorVivo(campo.key, i) || sensor;
+                            abrirEdicionDeSensor(vivo);
                         });
                     }
                 }
@@ -2955,18 +2958,6 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             }
 
 
-            const popupContent = document.createElement("div");
-            popupContent.style.width = "240px";
-            popupContent.innerHTML = getSensorText(campo, sensor, i);
-
-            const popup = sensorMarker.getPopup();
-            if (popup) {
-                popup.setContent(popupContent);
-                if (sensorMarker.isPopupOpen()) {
-                    popup.update();
-                    setTimeout(() => bindSensorPopupActions(i), 0);
-                }
-            }
         }
     };
 

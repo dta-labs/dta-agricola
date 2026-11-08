@@ -44,6 +44,8 @@ Cada version publicada lleva una etiqueta de git `pwa3-vX.Y.Z` sobre el commit d
 - Lector de identificadores con camara (QR y codigos de barras) y NFC en Agregar equipo y en los sensores. (REQ-052)
 - Plan de riego del pivote: "Nuevo plan" y "Planificacion" en un solo formulario con validacion en linea y el
   estilo comun; "Eliminar plan" rediseñado. (REQ-059)
+- Mapa de la red de sensores: tocar la parcela muestra los datos del sensor y tocar el sensor abre su configuracion;
+  la ficha abierta ya no se cierra al llegar datos nuevos. (REQ-067)
 - Red de sensores: tarjetas compactas y modernas; sin tarjetas fijas sobre el mapa; los umbrales de temperatura se
   ven en la unidad del sistema (°C/°F) y se guardan en °C. (REQ-066)
 - Estacionario: codigo de colores comun para parcelas y motor (gris apagado, amarillo sin confirmar, verde encendido;
