@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Estado | **Corregido** (2026-11-08) - probar: usuario |
+| Estado | **Diagnostico incompleto**: la causa principal era otra, ver REQ-081 (se conserva el redibujado al volver) |
 | Alcance | `core.js` (`toggleSensorMapView`, `setDeviceData`, nueva `volverAMostrarMapa`) |
 | Pruebas | 385/385 en Node (1 nueva) |
 | Compilacion | `26.11.08.004` |

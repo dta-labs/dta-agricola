@@ -52,7 +52,7 @@ function __equipos() {
 }
 
 // Marca de version: si no ves esto en consola, el navegador sirve un core.js viejo.
-console.log("[app] core.js 26.11.08.004");
+console.log("[app] core.js 26.11.08.005");
 
 // #region Controlador Angular
 
@@ -190,7 +190,8 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             if (!map) return;
             map.invalidateSize();
             map.eachLayer(capa => { if (capa instanceof L.Path) capa.redraw(); });
-            if ($scope.actualSystem && $scope.actualSystem.type == "Sensor") dibujarAreasDeSensores($scope.actualSystem);
+            const actual = $scope.actualSystem;
+            if (actual && actual.type == "Sensor") dibujarAreasDeSensores(($scope.systems && $scope.systems[actual.key]) || actual);
         });
     };
 
@@ -456,6 +457,10 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         // REQ-013: el servicio sostiene las suscripciones; aqui se hace el trabajo de vista.
         __equipos().cargar(Object.keys(userSystems), {
             alCambiarSistema: (sistema, locationKey) => {
+                // REQ-081: los ajustes llegan SIN el log (va en otra ruta). Sin esto, cualquier cambio de ajustes
+                // (p. ej. guardar la vista mapa/mosaico, REQ-078) dejaba el sistema sin lecturas y el mapa en gris.
+                const anterior = $scope.systems[locationKey];
+                if (anterior && anterior.log && !sistema.log) sistema.log = anterior.log;
                 $scope.systems[locationKey] = sistema;
                 loadSystemUsers(locationKey);
                 getMetorologicalData(locationKey);
@@ -522,6 +527,9 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         processingSensors(locationKey);
         if (map && marker[locationKey]) {
             refreshSensorMapContent(system);
+            // REQ-081: con cada lectura nueva, tambien el color de las parcelas y de los marcadores de sensor
+            // (antes solo cambiaban al recibir ajustes).
+            if (system.type == "Sensor") dibujarAreasDeSensores(system);
         }
         findCommErrors();
         const positionElement = document.getElementById('pos_' + locationKey);

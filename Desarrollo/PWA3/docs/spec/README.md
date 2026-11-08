@@ -78,9 +78,10 @@
 | REQ-077 | Preferencias de vista en el usuario | Sustituido por REQ-078 | - |
 | REQ-078 | Vista mapa/mosaico guardada en la red y humedad/temperatura en cada sensor (ajustes del equipo); ids sin repetir | Implementado (probar: usuario) | 3 |
 | REQ-079 | Fichas de sensores: degradado de oscuro a claro, borde y sombra como el listado | Implementado (probar: usuario) | - |
-| REQ-080 | El sombreado de las parcelas se perdia al volver del mosaico al mapa | Corregido (probar: usuario) | 1 |
+| REQ-080 | El sombreado de las parcelas se perdia al volver del mosaico al mapa | Diagnostico incompleto (ver REQ-081) | 1 |
+| REQ-081 | Tras guardar un ajuste del equipo el mapa quedaba gris (los ajustes llegan sin log); colores que no se actualizaban con cada lectura | Corregido (probar: usuario) | 1 |
 
-**Total: 385 pruebas en Node (2026-11-06), todas en verde.** `npm test` funciona en Node 20 y 22.
+**Total: 386 pruebas en Node (2026-11-06), todas en verde.** `npm test` funciona en Node 20 y 22.
 
 ## Bloque de autenticacion (cerrado y confirmado por el usuario)
 

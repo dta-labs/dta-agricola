@@ -63,7 +63,12 @@ test("REQ-080 al volver al mapa se redibujan las parcelas (con el mapa oculto Le
   const ini = CORE.indexOf("const volverAMostrarMapa = () => {");
   const cuerpo = CORE.slice(ini, CORE.indexOf("\n    };\n", ini));
   assert.match(cuerpo, /map\.invalidateSize\(\);\s*map\.eachLayer\(capa => \{ if \(capa instanceof L\.Path\) capa\.redraw\(\); \}\);/);
-  assert.match(cuerpo, /dibujarAreasDeSensores\(\$scope\.actualSystem\)/);
+  assert.match(cuerpo, /dibujarAreasDeSensores\(\(\$scope\.systems && \$scope\.systems\[actual\.key\]\) \|\| actual\)/);
   assert.match(CORE, /if \(\$scope\.showSensorMapView\) volverAMostrarMapa\(\);/, "boton mapa/mosaico");
   assert.match(CORE, /if \(estabaOculto && \$scope\.showSensorMapView\) volverAMostrarMapa\(\);/, "al seleccionar una red con vista de mapa");
+});
+
+test("REQ-081 al llegar ajustes se conserva el log, y cada lectura nueva repinta parcelas y marcadores", () => {
+  assert.match(CORE, /const anterior = \$scope\.systems\[locationKey\];\s*if \(anterior && anterior\.log && !sistema\.log\) sistema\.log = anterior\.log;\s*\$scope\.systems\[locationKey\] = sistema;/);
+  assert.match(CORE, /refreshSensorMapContent\(system\);[\s\S]{0,250}if \(system\.type == "Sensor"\) dibujarAreasDeSensores\(system\);/);
 });
