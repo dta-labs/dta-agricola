@@ -75,7 +75,8 @@
 | REQ-074 | Fichas de sensores con el formato del listado: lectura, zona, fondo por nivel de humedad, ficha clicable | Implementado (probar: usuario) | 2 |
 | REQ-075 | Fichas de sensores: textos del tamaño del listado, clima en la esquina, menos alto, degradado horizontal, boton bajo | Implementado (probar: usuario) | 1 |
 | REQ-076 | Fichas de sensores: columna derecha alineada (clima, grafica, bateria con %), bateria en 4 niveles, intercambio humedad/temperatura | Implementado (probar: usuario) | 2 |
-| REQ-077 | Preferencias persistentes por usuario: vista mapa/mosaico y humedad/temperatura de cada ficha de sensor | Implementado (probar: usuario) | 3 |
+| REQ-077 | Preferencias de vista en el usuario | Sustituido por REQ-078 | - |
+| REQ-078 | Vista mapa/mosaico guardada en la red y humedad/temperatura en cada sensor (ajustes del equipo); ids sin repetir | Implementado (probar: usuario) | 3 |
 
 **Total: 384 pruebas en Node (2026-11-06), todas en verde.** `npm test` funciona en Node 20 y 22.
 

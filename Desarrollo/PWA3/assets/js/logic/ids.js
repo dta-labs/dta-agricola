@@ -12,9 +12,22 @@
 }(typeof self !== "undefined" ? self : this, function () {
     "use strict";
 
-    /** Base36 del instante + 5 caracteres aleatorios. */
+    var contador = 0;
+
+    function aleatorio(longitud) {
+        var texto = "";
+        while (texto.length < longitud) texto += Math.random().toString(36).slice(2);
+        return texto.slice(0, longitud);
+    }
+
+    /**
+     * Base36 del instante + contador + 6 caracteres aleatorios.
+     * Antes eran solo 5 aleatorios (a veces menos: Math.random().toString(36) puede salir corto) y en el mismo
+     * milisegundo podian repetirse (la prueba REQ-004.8 fallaba ~1 vez de cada 100).
+     */
     function generarIdUnico() {
-        return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+        contador = (contador + 1) % 1296;   // 2 cifras base36
+        return Date.now().toString(36) + ("0" + contador.toString(36)).slice(-2) + aleatorio(6);
     }
 
     return { generarIdUnico: generarIdUnico };

@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Estado | **Implementado** (2026-11-08) - probar: usuario |
+| Estado | **Sustituido por REQ-078** (2026-11-08): las preferencias son del equipo, no del usuario |
 | Alcance | `services/repositorio.js` (`guardarPreferencia`), `core.js` (carga y guardado), `components/sistema/panel-sensores/`, `index.html` |
 | Pruebas | 384/384 en Node (3 nuevas en `preferencias.test.js`) |
 | Compilacion | `26.11.08.001` |

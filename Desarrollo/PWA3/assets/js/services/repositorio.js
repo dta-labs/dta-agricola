@@ -146,13 +146,11 @@
             },
 
             /**
-             * REQ-077: preferencias de vista del usuario (users/{email}/preferences).
-             * `ruta` relativa, p. ej. "vistaSensores" o "sensores/{clave}/S0"; `valor` null la borra.
+             * REQ-078: cambia campos sueltos de los ajustes del equipo (systems/{clave}/settings) sin reescribirlos.
+             * `cambios` con rutas relativas, p. ej. { viewMode: "tiles" } o { "sensors/S0/primaryValue": null }.
              */
-            guardarPreferencia: function (email, ruta, valor) {
-                var cambio = {};
-                cambio[ruta] = valor === undefined ? null : valor;
-                return metodos.actualizar("users/" + claveDeEmail(email) + "/preferences", cambio);
+            actualizarAjustesSistema: function (clave, cambios) {
+                return metodos.actualizar(rutaSistema(clave, "settings"), cambios);
             },
 
             /** Registro de auditoria de accesos. */

@@ -243,7 +243,8 @@ function controladorSensores() {
   const sensores = require("../../../assets/js/components/sistema/panel-sensores/panel-sensores.component.js");
   const vm = new sensores.Controlador({ panel, humedad: require("../../../assets/js/logic/humedad.js"), medidor: require("../../../assets/js/logic/medidor.js") });
   // 8 valores por sensor: ms, hr, -, -, t (°C), -, -, bateria (V)
-  vm.sistema = { tempUnit: "F", log: { dataRaw: JSON.stringify([
+  // REQ-078: el valor principal es un ajuste de cada sensor (sensors.Sx.primaryValue).
+  vm.sistema = { tempUnit: "F", sensors: { S0: {}, S1: {}, S2: {}, S3: {}, S4: {}, S5: {} }, log: { dataRaw: JSON.stringify([
     32, 99, 0, 0, 1, 0, 0, 3.3,
     5, 0, 0, 0, 10, 0, 0, 3.05,
     150, 0, 0, 0, 30, 0, 0, 2.95,
@@ -294,7 +295,7 @@ test("REQ-076 intercambio humedad del suelo / temperatura: valor, unidad, etique
   const lista = plantilla("panel-sensores");
   assert.match(lista, /<button type="button" class="sensor-ficha-swap" ng-click="vm\.alternar\(coldRoomKey, \$event\)"/);
   assert.match(lista, /<i class="material-icons" aria-hidden="true">swap_vert<\/i>/);
-  assert.match(lista, /<span ng-if="vm\.intercambiado\[coldRoomKey\]" title="Humedad del suelo"><img class="sensor-ficha-icono" src="\.\/assets\/images\/Hr_white\.png"/, "al intercambiar, la Ms pasa a la fila de datos con su icono");
+  assert.match(lista, /<span ng-if="vm\.esTemperatura\(coldRoomKey\)" title="Humedad del suelo"><img class="sensor-ficha-icono" src="\.\/assets\/images\/Hr_white\.png"/, "al intercambiar, la Ms pasa a la fila de datos con su icono");
 });
 
 test("REQ-066 sin tarjetas fijas (tooltips permanentes) sobre los sensores del mapa", () => {

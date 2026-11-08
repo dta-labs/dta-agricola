@@ -1,7 +1,8 @@
 "use strict";
 
 /**
- * REQ-077 - Preferencias de vista persistentes (users/{email}/preferences).
+ * REQ-078 - La vista es de la red (mapa/mosaico) y el valor principal de cada sensor (Ms/temperatura):
+ * se guardan en los ajustes del equipo (systems/{red}/settings), no en las preferencias del usuario (REQ-077).
  */
 const test = require("node:test");
 const assert = require("node:assert/strict");
@@ -20,39 +21,40 @@ function repoFalso() {
   return { repo: (repositorio.crear || repositorio)(adaptador), llamadas };
 }
 
-test("REQ-077 guardarPreferencia: update sobre users/{email}/preferences (null borra)", async () => {
+test("REQ-078 actualizarAjustesSistema: update parcial sobre systems/{red}/settings (null borra)", async () => {
   const { repo, llamadas } = repoFalso();
-  await repo.guardarPreferencia("ana.lopez@x.com", "vistaSensores", "mosaico");
-  await repo.guardarPreferencia("ana.lopez@x.com", "sensores/RED1/S0", "temperatura");
-  await repo.guardarPreferencia("ana.lopez@x.com", "sensores/RED1/S0", null);
+  await repo.actualizarAjustesSistema("RED1", { viewMode: "tiles" });
+  await repo.actualizarAjustesSistema("RED1", { "sensors/S0/primaryValue": "temperature" });
+  await repo.actualizarAjustesSistema("RED1", { "sensors/S0/primaryValue": null });
   assert.deepEqual(llamadas, [
-    ["actualizar", "users/ana-lopez@x-com/preferences", { vistaSensores: "mosaico" }],
-    ["actualizar", "users/ana-lopez@x-com/preferences", { "sensores/RED1/S0": "temperatura" }],
-    ["actualizar", "users/ana-lopez@x-com/preferences", { "sensores/RED1/S0": null }]
+    ["actualizar", "systems/RED1/settings", { viewMode: "tiles" }],
+    ["actualizar", "systems/RED1/settings", { "sensors/S0/primaryValue": "temperature" }],
+    ["actualizar", "systems/RED1/settings", { "sensors/S0/primaryValue": null }]
   ]);
+  assert.equal(repo.guardarPreferencia, undefined, "ya no se guarda en las preferencias del usuario");
 });
 
-test("REQ-077 core: carga las preferencias al entrar y guarda mapa/mosaico y el intercambio de cada sensor", () => {
-  assert.match(CORE, /aplicarPreferencias\(result\[convertDotToDash\(\$scope\.authUser\.email\)\]\.preferences\);/);
-  assert.match(CORE, /\$scope\.showSensorMapView = \$scope\.preferencias\.vistaSensores !== "mosaico";/);
-  assert.match(CORE, /guardarPreferencia\("vistaSensores", \$scope\.preferencias\.vistaSensores\);/);
-  assert.match(CORE, /guardarPreferencia\(`sensores\/\$\{sistema\}\/\$\{clave\}`, temperatura \? "temperatura" : null\);/);
-  assert.match(HTML, /intercambios="preferencias\.sensores\[actualSystem\.key\]" al-intercambiar="guardarIntercambioSensor\(\$clave, \$temperatura\)"/);
+test("REQ-078 core: cada red recuerda su vista y cada sensor su valor principal", () => {
+  assert.match(CORE, /if \(system\.type == "Sensor"\) \$scope\.showSensorMapView = system\.viewMode !== "tiles";/);
+  assert.match(CORE, /\$scope\.actualSystem\.viewMode = \$scope\.showSensorMapView \? "map" : "tiles";\s*guardarAjustes\(\$scope\.actualSystem\.key, \{ viewMode: \$scope\.actualSystem\.viewMode \}\);/);
+  assert.match(CORE, /cambios\[`sensors\/\$\{clave\}\/primaryValue`\] = temperatura \? "temperature" : null;/);
+  assert.doesNotMatch(CORE, /guardarPreferencia|aplicarPreferencias|preferencias\.sensores/);
+  assert.match(HTML, /al-intercambiar="guardarIntercambioSensor\(\$clave, \$temperatura\)"/);
+  assert.doesNotMatch(HTML, /intercambios="preferencias/);
 });
 
-test("REQ-077 componente: arranca con lo guardado y avisa de cada intercambio", () => {
+test("REQ-078 componente: lee y cambia primaryValue en el propio sensor y avisa para guardarlo", () => {
   const vm = new sensores.Controlador({ panel: require("../../assets/js/logic/panel.js") });
   const avisos = [];
-  vm.intercambios = { S1: "temperatura", S2: "otra-cosa" };
+  vm.sistema = { sensors: { S0: {}, S1: { primaryValue: "temperature" } } };
   vm.alIntercambiar = l => avisos.push(l);
-  vm.$onInit();
-  assert.deepEqual(vm.intercambiado, { S1: true });
+  assert.equal(vm.esTemperatura("S0"), false);
+  assert.equal(vm.esTemperatura("S1"), true, "lo guardado en el sensor");
   vm.alternar("S0");
   vm.alternar("S1");
+  assert.deepEqual(vm.sistema.sensors, { S0: { primaryValue: "temperature" }, S1: {} }, "se refleja al momento");
   assert.deepEqual(avisos, [{ $clave: "S0", $temperatura: true }, { $clave: "S1", $temperatura: false }]);
-  vm.intercambios = { S3: "temperatura" };
-  vm.$onChanges({ intercambios: {} });
-  assert.deepEqual(vm.intercambiado, { S3: true }, "otra red: se toman sus preferencias");
-  assert.deepEqual(sensores.definicion.bindings.intercambios, "<");
-  assert.deepEqual(sensores.definicion.bindings.alIntercambiar, "&");
+  vm.alternar("S9");
+  assert.equal(avisos.length, 2, "un sensor inexistente no hace nada");
+  assert.equal(sensores.definicion.bindings.intercambios, undefined);
 });

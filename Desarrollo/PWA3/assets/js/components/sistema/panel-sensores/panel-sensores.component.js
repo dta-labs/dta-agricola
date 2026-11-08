@@ -8,7 +8,7 @@
 (function (raiz) {
     "use strict";
 
-    var VERSION = "26.11.08.001";
+    var VERSION = "26.11.08.002";
 
     function Controlador(dtaReglas) {
         var vm = this;
@@ -29,24 +29,20 @@
         }
 
         // REQ-076: por ficha, humedad del suelo (por defecto) o temperatura como valor principal.
-        // REQ-077: la eleccion llega del usuario (`intercambios`: { S0: "temperatura" }) y se guarda con al-intercambiar.
-        vm.intercambiado = {};
-
-        function leerIntercambios() {
-            var guardados = vm.intercambios || {};
-            vm.intercambiado = {};
-            Object.keys(guardados).forEach(function (clave) {
-                if (guardados[clave] === "temperatura") vm.intercambiado[clave] = true;
-            });
-        }
-
-        vm.$onInit = function () { leerIntercambios(); };
-        vm.$onChanges = function (cambios) { if (cambios.intercambios) leerIntercambios(); };
+        // REQ-078: es un ajuste del SENSOR (sensors.Sx.primaryValue = "temperature"); al cambiarlo se refleja
+        // al momento en el sensor y se avisa con al-intercambiar para guardarlo en el equipo.
+        vm.esTemperatura = function (clave) {
+            var sensor = vm.sistema && vm.sistema.sensors && vm.sistema.sensors[clave];
+            return !!sensor && sensor.primaryValue === "temperature";
+        };
 
         vm.alternar = function (clave, evento) {
             if (evento && evento.stopPropagation) evento.stopPropagation();
-            vm.intercambiado[clave] = !vm.intercambiado[clave];
-            if (vm.alIntercambiar) vm.alIntercambiar({ $clave: clave, $temperatura: vm.intercambiado[clave] });
+            var sensor = vm.sistema && vm.sistema.sensors && vm.sistema.sensors[clave];
+            if (!sensor) return;
+            var temperatura = !vm.esTemperatura(clave);
+            if (temperatura) sensor.primaryValue = "temperature"; else delete sensor.primaryValue;
+            if (vm.alIntercambiar) vm.alIntercambiar({ $clave: clave, $temperatura: temperatura });
         };
 
         // REQ-076: bateria en 4 niveles (llena, media, casi vacia, vacia) con su % debajo.
@@ -63,7 +59,7 @@
             var indice = Number(String(clave).replace(/\D/g, ""));
             var valores = dtaReglas.humedad.valoresDeSensor(vm.sistema, indice, datos());
             var resultado = { bateria: bateria(valores.bateria) };
-            if (vm.intercambiado[clave]) {
+            if (vm.esTemperatura(clave)) {
                 var unidad = vm.sistema && vm.sistema.tempUnit === "C" ? "C" : "F";
                 var escalaT = dtaReglas.medidor.escalaTemperatura(valores.t, sensor, unidad);
                 var sinT = valores.t === null;
@@ -95,7 +91,7 @@
         templateUrl: "./assets/js/components/sistema/panel-sensores/panel-sensores.html?v=" + VERSION,
         controller: Controlador,
         controllerAs: "vm",
-        bindings: { sistema: "<", clima: "<", mostrarLista: "<", intercambios: "<", valorSensor: "&", alGrafica: "&", alEditarSensor: "&", alAbrir: "&", alIntercambiar: "&" }
+        bindings: { sistema: "<", clima: "<", mostrarLista: "<", valorSensor: "&", alGrafica: "&", alEditarSensor: "&", alAbrir: "&", alIntercambiar: "&" }
     };
 
     if (typeof module !== "undefined" && module.exports) {

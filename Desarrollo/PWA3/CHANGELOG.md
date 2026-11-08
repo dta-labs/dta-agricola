@@ -31,6 +31,7 @@ Cada version publicada lleva una etiqueta de git `pwa3-vX.Y.Z` sobre el commit d
 - Estacionario: "Aceptar" en Configurar parcela dejaba en 0 la duracion del primer riego programado; en el riego a
   demanda un 0 escrito se guardaba como el valor por defecto (0 °C -> 20 °C); los valores por defecto no llegaban a
   las parcelas; "Editar fecha de riego" mostraba NaN en los dias. (REQ-061 E1)
+- Los identificadores unicos podian repetirse si se generaban en el mismo milisegundo. (REQ-078)
 - Pivote: se podian guardar sectores del plan solapados (p. ej. 0°-150° y 120°-180°). (REQ-060)
 - Pivote: un plan nuevo se guardaba casi siempre a la velocidad maxima (comparaba textos: "50" <= "100" es falso);
   el tipo de suelo no se guardaba. (REQ-059)
@@ -44,8 +45,8 @@ Cada version publicada lleva una etiqueta de git `pwa3-vX.Y.Z` sobre el commit d
 - Lector de identificadores con camara (QR y codigos de barras) y NFC en Agregar equipo y en los sensores. (REQ-052)
 - Plan de riego del pivote: "Nuevo plan" y "Planificacion" en un solo formulario con validacion en linea y el
   estilo comun; "Eliminar plan" rediseñado. (REQ-059)
-- La vista de la red de sensores (mapa o mosaico) y la eleccion humedad/temperatura de cada ficha se guardan en las
-  preferencias del usuario y se recuperan al entrar. (REQ-077)
+- La vista de la red de sensores (mapa o mosaico) se guarda en la red y la eleccion humedad/temperatura en cada sensor
+  (ajustes del equipo): todos los que comparten la red ven lo mismo. (REQ-078)
 - Fichas de sensores con el formato del listado: lectura grande, nombre y red, zona de humedad, temperatura y Hr,
   bateria, grafica y clima; fondo en degradado segun el nivel de humedad; toda la ficha abre la configuracion (REQ-074); textos del tamaño del listado y ficha mas baja (REQ-075); columna derecha con clima, grafica y bateria (4 niveles),
   e intercambio humedad del suelo / temperatura en cada ficha. (REQ-076)

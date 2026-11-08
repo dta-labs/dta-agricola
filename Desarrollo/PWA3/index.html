@@ -683,7 +683,7 @@
                             <!-- Sensor -->
                             <!-- REQ-057: panel de la red de sensores como componente (assets/js/components/sistema/) -->
                             <dta-panel-sensores ng-if="actualSystem.type == 'Sensor'" sistema="actualSystem" clima="meteo[actualSystem.key]" mostrar-lista="!showSensorMapView"
-                                intercambios="preferencias.sensores[actualSystem.key]" al-intercambiar="guardarIntercambioSensor($clave, $temperatura)"
+                                al-intercambiar="guardarIntercambioSensor($clave, $temperatura)"
                                 valor-sensor="getSensorPanelValue($clave, $campo, $sensor)"
                                 al-grafica="openColdRoomSensorChart($sensor, $clave)"
                                 al-editar-sensor="editSensor($sensor); abrirVentana('modalEditSensor')"
@@ -3896,7 +3896,7 @@
     <script src="./assets/js/logic/fechas.js?v=26.11.06.002"></script>
     <script src="./assets/js/logic/secuencias.js?v=26.11.02.001"></script>
     <script src="./assets/js/logic/estado.js?v=26.11.07.018"></script>
-    <script src="./assets/js/logic/ids.js?v=26.11.02.001"></script>
+    <script src="./assets/js/logic/ids.js?v=26.11.08.002"></script>
     <script src="./assets/js/logic/equipos.js?v=26.11.02.001"></script>
     <script src="./assets/js/logic/login.js?v=26.11.06.002"></script>
     <script src="./assets/js/logic/perfil.js?v=26.11.05.001"></script>
@@ -3909,7 +3909,7 @@
     <script src="./assets/js/logic/unidades.js?v=26.11.07.012"></script>
     <script src="./assets/js/logic/medidor.js?v=26.11.07.016"></script>
     <script src="./assets/js/logic/parcela.js?v=26.11.07.007"></script>
-    <script src="./assets/js/services/repositorio.js?v=26.11.08.001"></script>
+    <script src="./assets/js/services/repositorio.js?v=26.11.08.002"></script>
     <script src="./assets/js/services/adaptadorFirebase.js?v=26.11.02.001"></script>
     <script src="./assets/js/services/autenticacion.js?v=26.11.02.001"></script>
     <script src="./assets/js/services/adaptadorFirebaseAuth.js?v=26.11.02.001"></script>
@@ -3931,9 +3931,9 @@
 <script src="./assets/js/logic/meteo.js?v=26.11.02.001"></script>
     <script src="./assets/js/logic/aviso.js?v=26.11.02.001"></script>
 <script src="./assets/vendor/bootstrap/bootstrap.bundle.min.js?v=5.3.8"></script>
-    <script src="./assets/js/core.js?v=26.11.08.001"></script>
+    <script src="./assets/js/core.js?v=26.11.08.002"></script>
     <!-- REQ-038: factories, ayudas de interfaz y componentes (despues de core.js, que crea el modulo) -->
-    <script src="./assets/js/app/version.js?v=26.11.08.001"></script>
+    <script src="./assets/js/app/version.js?v=26.11.08.002"></script>
     <script src="./assets/js/app/reglas.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/auth.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/repo.factory.js?v=26.11.06.001"></script>
@@ -3950,7 +3950,7 @@
     <script src="./assets/js/components/sistema/panel-pozo/panel-pozo.component.js?v=26.11.06.001"></script>
     <script src="./assets/js/components/sistema/panel-pivote-lineal/panel-pivote-lineal.component.js?v=26.11.07.001"></script>
     <script src="./assets/js/components/sistema/panel-estacionario/panel-estacionario.component.js?v=26.11.07.009"></script>
-    <script src="./assets/js/components/sistema/panel-sensores/panel-sensores.component.js?v=26.11.08.001"></script>
+    <script src="./assets/js/components/sistema/panel-sensores/panel-sensores.component.js?v=26.11.08.002"></script>
     <script src="./assets/js/components/sistema/panel-nevera/panel-nevera.component.js?v=26.11.07.001"></script>
     <script src="./assets/js/components/sistema/plan-pivote/plan-pivote.component.js?v=26.11.07.008"></script>
     <script src="./assets/js/components/ayuda/ayuda.component.js?v=26.11.06.003"></script>

@@ -52,7 +52,7 @@ function __equipos() {
 }
 
 // Marca de version: si no ves esto en consola, el navegador sirve un core.js viejo.
-console.log("[app] core.js 26.11.08.001");
+console.log("[app] core.js 26.11.08.002");
 
 // #region Controlador Angular
 
@@ -149,38 +149,35 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     $scope.sensorsList = [];
     $scope.showSensorMapView = true;
 
-    // REQ-077: preferencias de vista del usuario, guardadas en users/{email}/preferences.
-    $scope.preferencias = { sensores: {} };
-
-    const guardarPreferencia = (ruta, valor) => {
-        if (!$scope.authUser || !$scope.authUser.email) return;
+    // REQ-078: la vista (mapa/mosaico) es de la RED de sensores y el valor principal (Ms/temperatura) de cada
+    // SENSOR: se guardan en los ajustes del equipo, asi todos los que comparten la red ven lo mismo.
+    //   systems/{red}/settings/viewMode = "map" | "tiles"
+    //   systems/{red}/settings/sensors/S0/primaryValue = "temperature"   (sin campo = humedad del suelo)
+    const guardarAjustes = (clave, cambios) => {
         try {
-            __repo().guardarPreferencia($scope.authUser.email, ruta, valor)
-                .catch(error => console.warn("[preferencias] no se pudo guardar " + ruta + ":", error));
+            __repo().actualizarAjustesSistema(clave, cambios)
+                .catch(error => console.warn("[ajustes] no se pudo guardar la vista:", error));
         } catch (error) {
-            console.warn("[preferencias] no se pudo guardar " + ruta + ":", error);
+            console.warn("[ajustes] no se pudo guardar la vista:", error);
         }
     };
 
-    const aplicarPreferencias = (preferencias) => {
-        $scope.preferencias = Object.assign({ sensores: {} }, preferencias || {});
-        if (!$scope.preferencias.sensores) $scope.preferencias.sensores = {};
-        $scope.showSensorMapView = $scope.preferencias.vistaSensores !== "mosaico";
-    };
-
-    // Ficha de un sensor: true = temperatura como valor principal; false = humedad del suelo (se borra).
     $scope.guardarIntercambioSensor = (clave, temperatura) => {
-        const sistema = $scope.actualSystem && $scope.actualSystem.key;
-        if (!sistema || !clave) return;
-        const porSistema = $scope.preferencias.sensores[sistema] = $scope.preferencias.sensores[sistema] || {};
-        if (temperatura) porSistema[clave] = "temperatura"; else delete porSistema[clave];
-        guardarPreferencia(`sensores/${sistema}/${clave}`, temperatura ? "temperatura" : null);
+        const sistema = $scope.actualSystem;
+        if (!sistema || !sistema.key || !sistema.sensors || !sistema.sensors[clave]) return;
+        if (temperatura) sistema.sensors[clave].primaryValue = "temperature";
+        else delete sistema.sensors[clave].primaryValue;
+        const cambios = {};
+        cambios[`sensors/${clave}/primaryValue`] = temperatura ? "temperature" : null;
+        guardarAjustes(sistema.key, cambios);
     };
 
     $scope.toggleSensorMapView = () => {
         $scope.showSensorMapView = !$scope.showSensorMapView;
-        $scope.preferencias.vistaSensores = $scope.showSensorMapView ? "mapa" : "mosaico";
-        guardarPreferencia("vistaSensores", $scope.preferencias.vistaSensores);
+        if ($scope.actualSystem && $scope.actualSystem.key) {
+            $scope.actualSystem.viewMode = $scope.showSensorMapView ? "map" : "tiles";
+            guardarAjustes($scope.actualSystem.key, { viewMode: $scope.actualSystem.viewMode });
+        }
 
         // Leaflet necesita recalcular el contenedor después de volver a mostrarlo.
         if ($scope.showSensorMapView) {
@@ -344,7 +341,6 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             }
             if (result[convertDotToDash($scope.authUser.email)]) {
                 $scope.userProfile = result[convertDotToDash($scope.authUser.email)].profile;
-                aplicarPreferencias(result[convertDotToDash($scope.authUser.email)].preferences);
                 loadSystems();
             }
             $scope.showWindow('listado');
@@ -780,6 +776,8 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         system.zona = parseInt(system.zona);
         system.sensorPresion = parseInt(system.sensorPresion);
         $scope.actualSystem = system;
+        // REQ-078: cada red de sensores recuerda su vista (mapa o mosaico).
+        if (system.type == "Sensor") $scope.showSensorMapView = system.viewMode !== "tiles";
         $scope.actualSystem.status = $scope.actualSystem.status == "ON" || $scope.actualSystem.status == true ? true : false;
         $scope.actualSystem.sensorSecurity = $scope.actualSystem.sensorSecurity == "ON" || $scope.actualSystem.sensorSecurity == true ? true : false;
         $scope.actualSystem.sensorVoltage = $scope.actualSystem.sensorVoltage == "ON" || $scope.actualSystem.sensorVoltage == true ? true : false;
