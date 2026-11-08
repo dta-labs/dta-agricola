@@ -55,3 +55,12 @@ Compilacion `26.11.07.021`.
 - La zona vuelve a ocupar su propia linea (el boton de grafica paso a la columna derecha).
 
 Compilacion `26.11.07.022`.
+
+## Ajuste REQ-079 (2026-11-08)
+
+- Degradado en la direccion contraria: **oscuro a la izquierda, claro a la derecha** (`var(--c2)` -> `var(--c1)`).
+- Borde definido y sombra pequeña **como las fichas del listado** (`.sercices-options`): `1px solid lightgrey`,
+  `box-shadow: 1px 1px 3px grey`, esquinas de 10 px. Sale la sombra grande y el desplazamiento al pasar el cursor
+  (queda un leve aclarado); con teclado, contorno blanco.
+
+Compilacion `26.11.08.003`.

@@ -140,24 +140,24 @@ dta-panel-nevera {
     align-items: stretch;
     gap: 12px;
     padding: 10px 12px 10px 10px;
-    border-radius: 14px;
-    background: linear-gradient(90deg, var(--c1) 0%, var(--c2) 100%);
+    /* REQ-079: degradado de oscuro (izquierda) a claro (derecha); borde definido y sombra pequena como las
+       fichas del listado (.sercices-options) */
+    border: 1px solid lightgrey;
+    border-radius: 10px;
+    background: linear-gradient(90deg, var(--c2) 0%, var(--c1) 100%);
     color: #fff;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    box-shadow: 1px 1px 3px grey;
     cursor: pointer;
-    transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 
-.bs .sensor-ficha:hover,
-.bs .sensor-ficha:focus-visible {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
-    outline: none;
+.bs .sensor-ficha:hover {
+    filter: brightness(1.05);
 }
 
 .bs .sensor-ficha:focus-visible {
-    box-shadow: 0 0 0 3px #fff, 0 6px 16px rgba(0, 0, 0, 0.35);
+    outline: 2px solid #fff;
+    outline-offset: 2px;
 }
 
 /* Color por nivel de humedad (degradado de izquierda a derecha) */

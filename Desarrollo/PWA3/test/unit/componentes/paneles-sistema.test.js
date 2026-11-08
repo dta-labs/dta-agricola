@@ -272,7 +272,9 @@ test("REQ-074/076 lectura de la ficha: humedad del suelo por defecto, zona y bat
   const css = fs.readFileSync(path.join(RAIZ, "assets", "js", "components", "sistema", "paneles.css"), "utf8");
   ["saturado", "muy-humedo", "adecuada", "estres", "seco", "fuera", "sin-dato", "frio", "calor"].forEach(z =>
     assert.match(css, new RegExp("\\.sensor-ficha\\.zona-" + z + " \\{ --c1: #[0-9a-f]{6}; --c2: #[0-9a-f]{6}; \\}"), z));
-  assert.match(css, /background: linear-gradient\(90deg, var\(--c1\) 0%, var\(--c2\) 100%\);/);
+  // REQ-079: de oscuro (izquierda) a claro (derecha), borde y sombra como las fichas del listado.
+  assert.match(css, /border: 1px solid lightgrey;\s*border-radius: 10px;\s*background: linear-gradient\(90deg, var\(--c2\) 0%, var\(--c1\) 100%\);/);
+  assert.match(css, /\.bs \.sensor-ficha \{[^}]*box-shadow: 1px 1px 3px grey;/);
 });
 
 test("REQ-076 intercambio humedad del suelo / temperatura: valor, unidad, etiqueta y color", () => {

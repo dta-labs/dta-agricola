@@ -77,6 +77,7 @@
 | REQ-076 | Fichas de sensores: columna derecha alineada (clima, grafica, bateria con %), bateria en 4 niveles, intercambio humedad/temperatura | Implementado (probar: usuario) | 2 |
 | REQ-077 | Preferencias de vista en el usuario | Sustituido por REQ-078 | - |
 | REQ-078 | Vista mapa/mosaico guardada en la red y humedad/temperatura en cada sensor (ajustes del equipo); ids sin repetir | Implementado (probar: usuario) | 3 |
+| REQ-079 | Fichas de sensores: degradado de oscuro a claro, borde y sombra como el listado | Implementado (probar: usuario) | - |
 
 **Total: 384 pruebas en Node (2026-11-06), todas en verde.** `npm test` funciona en Node 20 y 22.
 
