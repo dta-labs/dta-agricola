@@ -184,14 +184,26 @@ dta-panel-nevera {
     line-height: 1;
 }
 
-/* REQ-082: el recuadro izquierdo muestra el icono de la medicion principal */
-.bs .sensor-ficha-icono-principal {
-    width: 38px;
-    height: 38px;
-    font-size: 38px;
-    line-height: 38px;
+/* REQ-083: icono, valor y unidad en vertical, compactos (la ficha no crece por el icono) */
+.bs .sensor-ficha-lectura-icono {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+    line-height: 18px;
     text-align: center;
-    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+    margin-bottom: 1px;
+}
+
+.bs .sensor-ficha-ms {
+    font-size: 1.9rem;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.bs .sensor-ficha-unidad {
+    font-size: 0.9rem;
+    font-weight: 600;
+    line-height: 1.1;
 }
 
 /* REQ-076: intercambiar humedad del suelo / temperatura (esquina inferior derecha del valor) */
@@ -260,20 +272,9 @@ dta-panel-nevera {
 .bs .sensor-ficha-datos {
     display: flex;
     flex-wrap: wrap;
-    align-items: baseline;
-    column-gap: 12px;
+    column-gap: 14px;
     row-gap: 2px;
-    font-size: 1.05rem;
-}
-
-.bs .sensor-ficha-dato {
-    white-space: nowrap;
-}
-
-/* REQ-082: la medicion principal, en negritas y mas grande */
-.bs .sensor-ficha-dato.principal {
-    font-size: 1.3em;
-    font-weight: 800;
+    font-size: 1.1rem;
 }
 
 .bs .sensor-ficha-datos .fa {

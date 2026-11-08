@@ -73,3 +73,14 @@ Compilacion `26.11.08.003`.
   **negritas y mas grande** (`.sensor-ficha-dato.principal`).
 
 Compilacion `26.11.08.006`.
+
+## Ajuste REQ-083 (2026-11-08) - sustituye a REQ-082
+
+REQ-082 no se veia bien (captura del usuario). Se vuelve a la version anterior (valor y unidad en el recuadro; dos
+mediciones secundarias en la fila) con:
+
+- Recuadro en vertical: **icono** (gota de Ms o termometro, 18 px), **valor** y **unidad**, compactos (~65 px): la
+  ficha no es mas alta que con solo el valor (la altura la marca la columna de texto, ~95 px).
+- En la ficha, "Temperatura" se acorta a "Temp." ("Temp. adecuada"); la ficha del mapa conserva el texto completo.
+
+Compilacion `26.11.08.007`.

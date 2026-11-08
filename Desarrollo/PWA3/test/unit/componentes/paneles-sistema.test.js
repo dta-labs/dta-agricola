@@ -287,7 +287,7 @@ test("REQ-076 intercambio humedad del suelo / temperatura: valor, unidad, etique
   assert.deepEqual([t0.valor, t0.unidad, t0.etiqueta, t0.zona, t0.titulo], [34, "°F", "Riesgo de helada", "frio", "Temperatura"]);
   assert.deepEqual([vm.lectura("S1", wm).etiqueta], ["Suelo saturado"], "las demas fichas no cambian");
   vm.alternar("S1");
-  assert.deepEqual([vm.lectura("S1", wm).etiqueta, vm.lectura("S1", wm).zona], ["Temperatura adecuada", "adecuada"]);
+  assert.deepEqual([vm.lectura("S1", wm).etiqueta, vm.lectura("S1", wm).zona], ["Temp. adecuada", "adecuada"], "REQ-083: Temp.");
   vm.alternar("S2");
   assert.deepEqual([vm.lectura("S2", wm).etiqueta, vm.lectura("S2", wm).zona], ["Calor extremo", "calor"]);
   vm.sistema.tempUnit = "C";
@@ -297,15 +297,12 @@ test("REQ-076 intercambio humedad del suelo / temperatura: valor, unidad, etique
   const lista = plantilla("panel-sensores");
   assert.match(lista, /<button type="button" class="sensor-ficha-swap" ng-click="vm\.alternar\(coldRoomKey, \$event\)"/);
   assert.match(lista, /<i class="material-icons" aria-hidden="true">swap_vert<\/i>/);
-  // REQ-082: el recuadro muestra el icono de la principal; la fila siempre trae Ms, Temp y Hr, la principal resaltada.
-  assert.match(lista, /<img ng-if="!vm\.esTemperatura\(coldRoomKey\)" class="sensor-ficha-icono-principal" src="\.\/assets\/images\/Hr_white\.png"/);
-  assert.match(lista, /<i ng-if="vm\.esTemperatura\(coldRoomKey\)" class="fa fa-thermometer-half sensor-ficha-icono-principal"/);
-  const datos = lista.slice(lista.indexOf('<div class="sensor-ficha-datos">'));
-  const orden = ["Humedad del suelo", "Temperatura", "Humedad relativa"].map(x => datos.indexOf('title="' + x + '"'));
-  assert.ok(orden[0] > 0 && orden[0] < orden[1] && orden[1] < orden[2], "orden Ms, Temp, Hr");
-  assert.match(datos, /ng-class="\{ principal: !vm\.esTemperatura\(coldRoomKey\) \}" title="Humedad del suelo"/);
-  assert.match(datos, /ng-class="\{ principal: vm\.esTemperatura\(coldRoomKey\) \}" title="Temperatura"/);
-  assert.doesNotMatch(lista, /sensor-ficha-ms|sensor-ficha-unidad/, "sin el numero en el recuadro");
+  assert.match(lista, /<span ng-if="vm\.esTemperatura\(coldRoomKey\)" title="Humedad del suelo"><img class="sensor-ficha-icono" src="\.\/assets\/images\/Hr_white\.png"/, "al intercambiar, la Ms pasa a la fila de datos con su icono");
+  // REQ-083: icono, valor y unidad en vertical en el recuadro de la medicion principal.
+  const recuadro = lista.slice(lista.indexOf('<div class="sensor-ficha-lectura"'), lista.indexOf('<div class="sensor-ficha-cuerpo">'));
+  const pos = ["sensor-ficha-lectura-icono", "sensor-ficha-ms", "sensor-ficha-unidad"].map(c => recuadro.indexOf(c));
+  assert.ok(pos[0] > 0 && pos[0] < pos[1] && pos[1] < pos[2], "icono, valor, unidad");
+  assert.match(recuadro, /<i ng-if="vm\.esTemperatura\(coldRoomKey\)" class="fa fa-thermometer-half sensor-ficha-lectura-icono"/);
 });
 
 test("REQ-066 sin tarjetas fijas (tooltips permanentes) sobre los sensores del mapa", () => {

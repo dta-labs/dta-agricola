@@ -8,7 +8,7 @@
 (function (raiz) {
     "use strict";
 
-    var VERSION = "26.11.08.006";
+    var VERSION = "26.11.08.007";
 
     function Controlador(dtaReglas) {
         var vm = this;
@@ -65,7 +65,8 @@
                 var sinT = valores.t === null;
                 resultado.valor = sinT ? "--" : Math.round(unidad === "C" ? valores.t : valores.t * 9 / 5 + 32);
                 resultado.unidad = unidad === "C" ? "°C" : "°F";
-                resultado.etiqueta = sinT ? "Sin lectura" : escalaT.etiqueta;
+                // REQ-083: en la ficha, "Temperatura" se acorta a "Temp." (la ficha del mapa conserva el texto completo).
+                resultado.etiqueta = sinT ? "Sin lectura" : escalaT.etiqueta.replace(/^Temperatura\b/, "Temp.");
                 resultado.zona = sinT ? "sin-dato" : (ZONA_TEMPERATURA[escalaT.nivel] || "adecuada");
                 resultado.titulo = "Temperatura";
                 return resultado;
