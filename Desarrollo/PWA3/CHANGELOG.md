@@ -44,6 +44,8 @@ Cada version publicada lleva una etiqueta de git `pwa3-vX.Y.Z` sobre el commit d
 - Lector de identificadores con camara (QR y codigos de barras) y NFC en Agregar equipo y en los sensores. (REQ-052)
 - Plan de riego del pivote: "Nuevo plan" y "Planificacion" en un solo formulario con validacion en linea y el
   estilo comun; "Eliminar plan" rediseñado. (REQ-059)
+- La vista de la red de sensores (mapa o mosaico) y la eleccion humedad/temperatura de cada ficha se guardan en las
+  preferencias del usuario y se recuperan al entrar. (REQ-077)
 - Fichas de sensores con el formato del listado: lectura grande, nombre y red, zona de humedad, temperatura y Hr,
   bateria, grafica y clima; fondo en degradado segun el nivel de humedad; toda la ficha abre la configuracion (REQ-074); textos del tamaño del listado y ficha mas baja (REQ-075); columna derecha con clima, grafica y bateria (4 niveles),
   e intercambio humedad del suelo / temperatura en cada ficha. (REQ-076)

@@ -145,6 +145,16 @@
                 return metodos.actualizar("users/" + claveDeEmail(email) + "/profile", perfil);
             },
 
+            /**
+             * REQ-077: preferencias de vista del usuario (users/{email}/preferences).
+             * `ruta` relativa, p. ej. "vistaSensores" o "sensores/{clave}/S0"; `valor` null la borra.
+             */
+            guardarPreferencia: function (email, ruta, valor) {
+                var cambio = {};
+                cambio[ruta] = valor === undefined ? null : valor;
+                return metodos.actualizar("users/" + claveDeEmail(email) + "/preferences", cambio);
+            },
+
             /** Registro de auditoria de accesos. */
             registrarAcceso: function (id, tipo, datos) {
                 var entrada = {};

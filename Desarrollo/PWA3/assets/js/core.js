@@ -52,7 +52,7 @@ function __equipos() {
 }
 
 // Marca de version: si no ves esto en consola, el navegador sirve un core.js viejo.
-console.log("[app] core.js 26.11.07.019");
+console.log("[app] core.js 26.11.08.001");
 
 // #region Controlador Angular
 
@@ -149,8 +149,38 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     $scope.sensorsList = [];
     $scope.showSensorMapView = true;
 
+    // REQ-077: preferencias de vista del usuario, guardadas en users/{email}/preferences.
+    $scope.preferencias = { sensores: {} };
+
+    const guardarPreferencia = (ruta, valor) => {
+        if (!$scope.authUser || !$scope.authUser.email) return;
+        try {
+            __repo().guardarPreferencia($scope.authUser.email, ruta, valor)
+                .catch(error => console.warn("[preferencias] no se pudo guardar " + ruta + ":", error));
+        } catch (error) {
+            console.warn("[preferencias] no se pudo guardar " + ruta + ":", error);
+        }
+    };
+
+    const aplicarPreferencias = (preferencias) => {
+        $scope.preferencias = Object.assign({ sensores: {} }, preferencias || {});
+        if (!$scope.preferencias.sensores) $scope.preferencias.sensores = {};
+        $scope.showSensorMapView = $scope.preferencias.vistaSensores !== "mosaico";
+    };
+
+    // Ficha de un sensor: true = temperatura como valor principal; false = humedad del suelo (se borra).
+    $scope.guardarIntercambioSensor = (clave, temperatura) => {
+        const sistema = $scope.actualSystem && $scope.actualSystem.key;
+        if (!sistema || !clave) return;
+        const porSistema = $scope.preferencias.sensores[sistema] = $scope.preferencias.sensores[sistema] || {};
+        if (temperatura) porSistema[clave] = "temperatura"; else delete porSistema[clave];
+        guardarPreferencia(`sensores/${sistema}/${clave}`, temperatura ? "temperatura" : null);
+    };
+
     $scope.toggleSensorMapView = () => {
         $scope.showSensorMapView = !$scope.showSensorMapView;
+        $scope.preferencias.vistaSensores = $scope.showSensorMapView ? "mapa" : "mosaico";
+        guardarPreferencia("vistaSensores", $scope.preferencias.vistaSensores);
 
         // Leaflet necesita recalcular el contenedor después de volver a mostrarlo.
         if ($scope.showSensorMapView) {
@@ -314,6 +344,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             }
             if (result[convertDotToDash($scope.authUser.email)]) {
                 $scope.userProfile = result[convertDotToDash($scope.authUser.email)].profile;
+                aplicarPreferencias(result[convertDotToDash($scope.authUser.email)].preferences);
                 loadSystems();
             }
             $scope.showWindow('listado');
