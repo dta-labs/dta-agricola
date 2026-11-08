@@ -1230,3 +1230,25 @@ canvas[id^="myChart"],
     justify-content: center;
     float: none;
 }
+
+/* REQ-072: leyenda (estimacion, punto de medicion, lectura vieja) y aviso en la etiqueta */
+.mapa-leyenda-humedad .leyenda-nota {
+    margin-top: -2px;
+    color: #616161;
+    font-size: 11px;
+}
+.mapa-leyenda-humedad i.leyenda-punto {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid #ffffff;
+    background: #43a047;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35);
+}
+.mapa-leyenda-humedad i.leyenda-rayas {
+    background: repeating-linear-gradient(45deg, rgba(97, 97, 97, 0.85) 0 3px, #43a047 3px 7px);
+}
+.texto-lectura-vieja {
+    color: #b71c1c;
+    font-weight: 600;
+}

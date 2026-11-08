@@ -52,7 +52,7 @@ function __equipos() {
 }
 
 // Marca de version: si no ves esto en consola, el navegador sirve un core.js viejo.
-console.log("[app] core.js 26.11.07.017");
+console.log("[app] core.js 26.11.07.018");
 
 // #region Controlador Angular
 
@@ -2740,8 +2740,11 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         const control = L.control({ position: "bottomleft" });
         control.onAdd = () => {
             const div = L.DomUtil.create("div", "mapa-leyenda-humedad");
-            div.innerHTML = '<b>Humedad del suelo</b>' + __modulo("humedad").leyenda()
-                .map(e => `<span><i style="background:${e.color}"></i>${e.texto}</span>`).join("");
+            // REQ-072: el color de la parcela es una estimacion a partir del sensor (punto).
+            div.innerHTML = '<b>Humedad del suelo</b><small class="leyenda-nota">estimada con el sensor</small>' +
+                __modulo("humedad").leyenda().map(e => `<span><i style="background:${e.color}"></i>${e.texto}</span>`).join("") +
+                '<span><i class="leyenda-punto"></i>Punto de medición</span>' +
+                '<span><i class="leyenda-rayas"></i>Lectura de más de 24 h</span>';
             L.DomEvent.disableClickPropagation(div);
             return div;
         };
@@ -2762,7 +2765,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             weight: clave === "apagado" ? 2 : 4,
             dashArray: clave === "pendiente" ? "8 6" : null,
             fillColor: estado.color,
-            fillOpacity: 0.45
+            fillOpacity: 0.35      // REQ-072: estimacion (antes 0.45); el dato exacto es el punto del sensor
         };
     };
 
@@ -2777,6 +2780,51 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             abrirModal("modalEditRiegoEstacionario");
         });
     };
+
+    // REQ-072: rayas grises (patron SVG) sobre el color de una parcela cuya lectura tiene mas de 24 h:
+    // se ve que es vieja y tambien que fue lo ultimo que se midio.
+    const asegurarPatronRayas = (capa) => {
+        const svg = capa && capa._renderer && capa._renderer._container;
+        if (!svg || svg.querySelector("#rayas-lectura-vieja")) return;
+        const ns = "http://www.w3.org/2000/svg";
+        let defs = svg.querySelector("defs");
+        if (!defs) defs = svg.insertBefore(document.createElementNS(ns, "defs"), svg.firstChild);
+        const patron = document.createElementNS(ns, "pattern");
+        patron.setAttribute("id", "rayas-lectura-vieja");
+        patron.setAttribute("patternUnits", "userSpaceOnUse");
+        patron.setAttribute("width", "10");
+        patron.setAttribute("height", "10");
+        patron.setAttribute("patternTransform", "rotate(45)");
+        const raya = document.createElementNS(ns, "rect");
+        raya.setAttribute("width", "4");
+        raya.setAttribute("height", "10");
+        raya.setAttribute("fill", "#616161");
+        raya.setAttribute("fill-opacity", "0.75");
+        patron.appendChild(raya);
+        defs.appendChild(patron);
+    };
+
+    /** Pone, mueve o quita las rayas de lectura vieja sobre un area. */
+    const rayasDeLecturaVieja = (clave, area, vieja) => {
+        if (!vieja) {
+            if (poligons[clave]) { map.removeLayer(poligons[clave]); delete poligons[clave]; }
+            return;
+        }
+        if (poligons[clave]) {
+            poligons[clave].setLatLngs(area);
+            poligons[clave].bringToFront();   // la parcela se redibuja con cada dato: las rayas quedan encima
+            return;
+        }
+        poligons[clave] = L.polygon(area, { stroke: false, fillColor: "url(#rayas-lectura-vieja)", fillOpacity: 1, interactive: false });
+        map.addLayer(poligons[clave]);
+        asegurarPatronRayas(poligons[clave]);
+    };
+
+    /** Antiguedad de la lectura de una red de sensores (log.date). */
+    const antiguedadDeRed = (red) => __modulo("estado").antiguedadDeLectura(red && red.log && red.log.date);
+
+    const textoLecturaVieja = (antiguedad) => antiguedad.vieja
+        ? `<br><span class="texto-lectura-vieja">Última lectura ${__modulo("estado").textoAntiguedad(antiguedad.horas)}</span>` : "";
 
     // REQ-052/067: abre "Editar sensor" (ahora al tocar el marcador del sensor).
     const abrirEdicionDeSensor = (sensor) => {
@@ -2808,15 +2856,45 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         if (!map || campo.type != "Sensor" || !campo.sensors) return;
         const geo = __modulo("geo");
         const humedad = __modulo("humedad");
-        humedad.sensoresDeRed(campo).forEach(({ indice, clave, sensor }) => {
+        const antiguedad = antiguedadDeRed(campo);
+        const sensores = humedad.sensoresDeRed(campo).map(x => Object.assign({}, x, {
+            punto: geo.punto(x.sensor.latitude, x.sensor.longitude)
+        }));
+        sensores.forEach(({ indice, clave, sensor, punto }) => {
             const capa = campo.key + clave;
-            const area = geo.normalizarPoligono(sensor.poligon);
+            const estado = humedad.estadoEnRed(campo, indice);
+
+            // REQ-072: punto de medicion, del color de la lectura (el dato exacto).
+            if (punto) {
+                const estiloPunto = { radius: 7, color: "#ffffff", weight: 2, fillColor: estado.color, fillOpacity: 1, interactive: false };
+                if (poligons[capa + "-punto"]) {
+                    poligons[capa + "-punto"].setLatLng([punto.lat, punto.lng]);
+                    poligons[capa + "-punto"].setStyle(estiloPunto);
+                } else {
+                    poligons[capa + "-punto"] = L.circleMarker([punto.lat, punto.lng], estiloPunto);
+                    map.addLayer(poligons[capa + "-punto"]);
+                }
+            } else if (poligons[capa + "-punto"]) {
+                map.removeLayer(poligons[capa + "-punto"]);
+                delete poligons[capa + "-punto"];
+            }
+
+            let area = geo.normalizarPoligono(sensor.poligon);
+            // REQ-072: si otros sensores estan dentro de esta parcela, cada uno sombrea la zona mas cercana a el.
+            if (punto && geo.esPoligonoValido(area)) {
+                const otros = sensores.filter(o => o.indice !== indice && o.punto && geo.puntoEnPoligono([o.punto.lat, o.punto.lng], area))
+                    .map(o => [o.punto.lat, o.punto.lng]);
+                if (otros.length) area = geo.recortarPorCercania(area, [punto.lat, punto.lng], otros);
+            }
             if (!geo.esPoligonoValido(area)) {
-                if (poligons[capa]) { map.removeLayer(poligons[capa]); delete poligons[capa]; }
+                ["", "-rayas"].forEach(sufijo => {
+                    if (poligons[capa + sufijo]) { map.removeLayer(poligons[capa + sufijo]); delete poligons[capa + sufijo]; }
+                });
                 return;
             }
-            const estado = humedad.estadoEnRed(campo, indice);
-            const etiqueta = `<b>${escaparHtml(sensor.alias || "Sensor " + (indice + 1))}</b><br>${textoHumedad(estado)}<br><small>Toca para ver los datos</small>`;
+            const vieja = antiguedad.vieja && estado.valor !== null;
+            const etiqueta = `<b>${escaparHtml(sensor.alias || "Sensor " + (indice + 1))}</b><br>${textoHumedad(estado)}` +
+                (vieja ? textoLecturaVieja(antiguedad) : "") + `<br><small>Toca para ver los datos</small>`;
             if (poligons[capa]) {
                 poligons[capa].setLatLngs(area);
                 poligons[capa].setStyle(estiloParcela(estado, false));
@@ -2825,14 +2903,16 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                     poligons[capa].setPopupContent(fichaDeSensor(campo, sensor, indice));
                     setTimeout(() => bindSensorPopupActions(indice), 0);
                 }
-                return;
+            } else {
+                poligons[capa] = L.polygon(area, estiloParcela(estado, false));
+                poligons[capa].bindTooltip(etiqueta, { sticky: true, direction: "top", className: "parcela-tooltip" });
+                poligons[capa].bindPopup(() => fichaDeSensor(campo, sensorVivo(campo.key, indice) || sensor, indice));
+                poligons[capa].on("popupopen", () => setTimeout(() => bindSensorPopupActions(indice), 0));
+                map.addLayer(poligons[capa]);
+                poligons[capa].bringToBack();
             }
-            poligons[capa] = L.polygon(area, estiloParcela(estado, false));
-            poligons[capa].bindTooltip(etiqueta, { sticky: true, direction: "top", className: "parcela-tooltip" });
-            poligons[capa].bindPopup(() => fichaDeSensor(campo, sensorVivo(campo.key, indice) || sensor, indice));
-            poligons[capa].on("popupopen", () => setTimeout(() => bindSensorPopupActions(indice), 0));
-            map.addLayer(poligons[capa]);
-            poligons[capa].bringToBack();
+            rayasDeLecturaVieja(capa + "-rayas", area, vieja);
+            if (poligons[capa + "-punto"]) poligons[capa + "-punto"].bringToFront();
         });
     };
 
@@ -3402,16 +3482,20 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                     const estado = __modulo("humedad").estadoDeParcela(campo.plots[idx], $scope.systems);
                     const riego = __modulo("panel").estadoParcela(campo, idx);
                     const parcela = campo.plots[idx];
+                    // REQ-072: rayas grises si la lectura del sensor asociado tiene mas de 24 h.
+                    const antiguedad = antiguedadDeRed($scope.systems && $scope.systems[parcela.sensor]);
+                    const vieja = antiguedad.vieja && estado.valor !== null;
                     poligons[campo.key + idx] = L.polygon(newPoligon, estiloParcela(estado, riego));
                     poligons[campo.key + idx].bindTooltip(
                         `<b>${escaparHtml(parcela.name || "Parcela " + (i + 1))}</b>` +
                         (parcela.culture ? `<br>Cultivo: ${escaparHtml(parcela.culture)}` : "") +
-                        `<br>${textoHumedad(estado)}` +
+                        `<br>${textoHumedad(estado)}` + (vieja ? textoLecturaVieja(antiguedad) : "") +
                         (riego === "encendido" ? "<br><b>Regando</b>" : riego === "pendiente" ? "<br><b>Esperando confirmación del equipo</b>" : "") +
                         `<br><small>Toca para editar</small>`,
                         { sticky: true, direction: "top", className: "parcela-tooltip" });
                     poligons[campo.key + idx].on("click", () => abrirEdicionDeParcela(idx));
                     map.addLayer(poligons[campo.key + idx]);
+                    rayasDeLecturaVieja(campo.key + idx + "-rayas", newPoligon, vieja);
                 }
             }
         }

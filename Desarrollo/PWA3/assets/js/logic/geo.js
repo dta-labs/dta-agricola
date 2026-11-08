@@ -114,7 +114,79 @@
         return ha.toLocaleString("es-MX", { maximumFractionDigits: 2 }) + " ha";
     }
 
+    // ---------- REQ-072: varios sensores en una parcela ----------
+
+    /** Coordenadas planas locales (suficiente para una parcela): x = lng * cos(lat0), y = lat. */
+    function aPlano(p, lat0) {
+        return [p[1] * Math.cos(lat0 * Math.PI / 180), p[0]];
+    }
+
+    function aGeo(q, lat0) {
+        return [q[1], q[0] / Math.cos(lat0 * Math.PI / 180)];
+    }
+
+    /** ¿El punto [lat, lng] esta dentro del poligono [[lat, lng], ...]? (rayo; el borde puede contar o no). */
+    function puntoEnPoligono(punto, poligono) {
+        var p = normalizarPoligono(poligono);
+        if (!punto || p.length < 3) return false;
+        var y = Number(punto[0]), x = Number(punto[1]);
+        if (!isFinite(x) || !isFinite(y)) return false;
+        var dentro = false;
+        for (var i = 0, j = p.length - 1; i < p.length; j = i, i += 1) {
+            var yi = p[i][0], xi = p[i][1], yj = p[j][0], xj = p[j][1];
+            if (((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi)) dentro = !dentro;
+        }
+        return dentro;
+    }
+
+    /** Recorta un poligono (plano) con el semiplano de puntos mas cerca de `a` que de `b` (Sutherland-Hodgman). */
+    function recortarSemiplano(poligono, a, b) {
+        var mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2;
+        var dx = b[0] - a[0], dy = b[1] - a[1];
+        var lado = function (q) { return (q[0] - mx) * dx + (q[1] - my) * dy; };   // <= 0: lado de a
+        var salida = [];
+        for (var i = 0; i < poligono.length; i += 1) {
+            var actual = poligono[i];
+            var previo = poligono[(i + poligono.length - 1) % poligono.length];
+            var la = lado(actual), lp = lado(previo);
+            if (la <= 0) {
+                if (lp > 0) salida.push(cruce(previo, actual, lp, la));
+                salida.push(actual);
+            } else if (lp <= 0) {
+                salida.push(cruce(previo, actual, lp, la));
+            }
+        }
+        return salida;
+    }
+
+    function cruce(p, q, lp, lq) {
+        var t = lp / (lp - lq);
+        return [p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t];
+    }
+
+    /**
+     * Parte del poligono que esta mas cerca de `punto` que de cualquiera de `otros` (celda de Voronoi dentro
+     * de la parcela). Asi, si una parcela tiene varios sensores, cada uno sombrea la zona que le toca.
+     * Devuelve [[lat, lng], ...] (vacio si no queda area).
+     */
+    function recortarPorCercania(poligono, punto, otros) {
+        var p = normalizarPoligono(poligono);
+        if (p.length < 3 || !punto || !otros || !otros.length) return p;
+        var lat0 = p[0][0];
+        var plano = p.map(function (v) { return aPlano(v, lat0); });
+        var a = aPlano([Number(punto[0]), Number(punto[1])], lat0);
+        otros.forEach(function (o) {
+            if (!plano.length) return;
+            var b = aPlano([Number(o[0]), Number(o[1])], lat0);
+            if (b[0] === a[0] && b[1] === a[1]) return;
+            plano = recortarSemiplano(plano, a, b);
+        });
+        return plano.map(function (q) { var g = aGeo(q, lat0); return [redondear(g[0]), redondear(g[1])]; });
+    }
+
     return {
+        puntoEnPoligono: puntoEnPoligono,
+        recortarPorCercania: recortarPorCercania,
         DECIMALES: DECIMALES,
         redondear: redondear,
         esCoordenadaValida: esCoordenadaValida,

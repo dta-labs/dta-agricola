@@ -69,8 +69,29 @@
         return "-1";
     }
 
+    /**
+     * REQ-072: ¿la lectura es vieja? (MAS de `horas` desde log.date; por defecto 24). Sin fecha: no se sabe -> false.
+     * Devuelve { vieja, horas } (horas transcurridas, entero) para poder decir hace cuanto fue.
+     */
+    function antiguedadDeLectura(date, ahora, horas) {
+        if (!date) return { vieja: false, horas: null };
+        var instante = instanteDeFechaDispositivo(date);
+        if (!isFinite(instante)) return { vieja: false, horas: null };
+        var reloj = typeof ahora === "function" ? ahora() : (typeof ahora === "number" ? ahora : Date.now());
+        var transcurridas = Math.floor((reloj - instante) / 3600000);
+        return { vieja: (reloj - instante) > (horas || 24) * 3600000, horas: transcurridas };   // MAS de 24 h
+    }
+
+    /** "hace 3 d" / "hace 26 h" para la etiqueta del mapa. */
+    function textoAntiguedad(horas) {
+        if (horas === null || horas === undefined) return "";
+        return horas >= 48 ? "hace " + Math.floor(horas / 24) + " d" : "hace " + horas + " h";
+    }
+
     return {
         instanteDeFechaDispositivo: instanteDeFechaDispositivo,
+        antiguedadDeLectura: antiguedadDeLectura,
+        textoAntiguedad: textoAntiguedad,
         getTimeDiference: getTimeDiference,
         calcStatusTime: calcStatusTime
     };
