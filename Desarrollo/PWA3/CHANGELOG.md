@@ -47,7 +47,7 @@ Cada version publicada lleva una etiqueta de git `pwa3-vX.Y.Z` sobre el commit d
 - Ficha del sensor: barras de humedad (0-100 %, tensiometro 240 cb = 0 %) y temperatura (-50..125 °C) con degradado,
   umbrales en su lugar y triangulo de la medicion; la humedad ya no desborda la ficha y la temperatura se muestra
   en la unidad del sistema; barras gruesas y de todo el ancho. (REQ-068, REQ-069); humedad del tensiometro en 6 zonas (saturado ... fuera de rango) con el nombre de la zona como
-  etiqueta y temperatura "Riesgo de helada / Temperatura adecuada / Calor extremo". (REQ-070)
+  etiqueta y temperatura "Riesgo de helada / Temperatura adecuada / Calor extremo". (REQ-070); iconos centrados. (REQ-071)
 - Mapa de la red de sensores: tocar la parcela muestra los datos del sensor y tocar el sensor abre su configuracion;
   la ficha abierta ya no se cierra al llegar datos nuevos. (REQ-067)
 - Red de sensores: tarjetas compactas y modernas; sin tarjetas fijas sobre el mapa; los umbrales de temperatura se

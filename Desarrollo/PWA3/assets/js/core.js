@@ -52,7 +52,7 @@ function __equipos() {
 }
 
 // Marca de version: si no ves esto en consola, el navegador sirve un core.js viejo.
-console.log("[app] core.js 26.11.07.016");
+console.log("[app] core.js 26.11.07.017");
 
 // #region Controlador Angular
 
@@ -3093,8 +3093,9 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         text += `               <b><span style="font-size: 1.2em; color: gray;">Suelo</span></b>`;
         text += `           </div>`;
         text += `       </div>`;
-        text += `       <div class="row" style="margin-bottom: 5px; padding: 10px; border-radius: 3px; background-color: #f5f5f5;">`;
-        text += `           <div class="col s2"><img src="./assets/images/Hr.png" alt="Agua" style="width: 30px;"></div>`;
+        // REQ-071: fila flex para centrar el icono en vertical respecto a la etiqueta y la barra.
+        text += `       <div class="row medidor-fila" style="margin-bottom: 5px; padding: 10px; border-radius: 3px; background-color: #f5f5f5;">`;
+        text += `           <div class="col s2 medidor-icono"><img src="./assets/images/Hr.png" alt="Humedad del suelo" style="width: 30px;"></div>`;
         // REQ-068: barra 0..100 % (WM: 240 cb = 0 %, 0 cb = 100 %), degradado rojo-verde-azul, umbrales y medicion.
         const medidorSuelo = __modulo("medidor").escalaHumedadSuelo(sensor, data[idx * 8]);
         // REQ-069/070: zona y valor en una linea y, justo debajo, la barra de todo el ancho; misma altura que antes.
@@ -3112,8 +3113,8 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         text += `               <b><span style="font-size: 1.2em; color: gray;">Clima</span></b>`;
         text += `           </div>`;
         text += `       </div>`;
-        text += `       <div class="row" style="margin-bottom: 5px; padding: 10px; border-radius: 6px; background-color: #f5f5f5;">`;
-        text += `           <div class="col s2"><img src="./assets/images/termometro.png" alt="Termometro" style="width: 30px;"></div>`;
+        text += `       <div class="row medidor-fila" style="margin-bottom: 5px; padding: 10px; border-radius: 6px; background-color: #f5f5f5;">`;
+        text += `           <div class="col s2 medidor-icono"><img src="./assets/images/termometro.png" alt="Temperatura" style="width: 30px;"></div>`;
         // REQ-068: barra -50..+125 °C, degradado azul-rojo, umbrales y medicion, en la unidad del sistema.
         const medidorTemperatura = __modulo("medidor").escalaTemperatura(data[idx * 8 + 4], sensor, campo.tempUnit);
         text += `           <div class="col s10 medidor-bloque">`;

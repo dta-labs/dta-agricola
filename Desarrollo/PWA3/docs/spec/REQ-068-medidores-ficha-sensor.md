@@ -62,3 +62,8 @@ etiqueta "Suelo seco / Humedad adecuada / Suelo saturado" segun sus umbrales.
 
 **Alto**: zona y valor en una linea, la barra justo debajo y de todo el ancho; barra de 10 px; sin la segunda
 linea del %. Compilacion `26.11.07.016`.
+
+## 5. Iconos centrados (REQ-071, 2026-11-07)
+
+Los iconos de humedad del suelo y temperatura estaban en una columna flotante de Materialize (arriba). Sus dos
+filas pasan a `display: flex; align-items: center` (`.medidor-fila`), con el icono centrado. Compilacion `26.11.07.017`.

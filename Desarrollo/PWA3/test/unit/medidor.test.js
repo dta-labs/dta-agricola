@@ -109,3 +109,12 @@ test("REQ-070 la barra del tensiometro marca las 6 zonas", () => {
   assert.equal((html.match(/class="medidor-division"/g) || []).length, 5);
   assert.doesNotMatch(m.htmlMedidor(m.escalaHumedadSuelo({ type: "SHT4" }, 45)), /medidor-division/, "sensores en %: lineal, sin zonas");
 });
+
+test("REQ-071 iconos de humedad del suelo y temperatura centrados en vertical", () => {
+  const ini = CORE.indexOf("const getSensorText = (campo, sensor, idx) => {");
+  const cuerpo = CORE.slice(ini, CORE.indexOf("// Cultivo", ini));
+  assert.equal((cuerpo.match(/<div class="row medidor-fila"/g) || []).length, 2);
+  assert.equal((cuerpo.match(/<div class="col s2 medidor-icono">/g) || []).length, 2);
+  const css = fs.readFileSync(path.join(__dirname, "..", "..", "assets", "css", "style.css"), "utf8");
+  assert.match(css, /\.row\.medidor-fila \{\s*display: flex;\s*align-items: center;/);
+});

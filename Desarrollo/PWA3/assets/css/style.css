@@ -1215,3 +1215,18 @@ canvas[id^="myChart"],
     background: #212121;
     box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.85);
 }
+
+/* REQ-071: icono de humedad del suelo y de temperatura centrado en vertical en su fila */
+.row.medidor-fila {
+    display: flex;
+    align-items: center;
+}
+.row.medidor-fila::after {
+    display: none;   /* el clearfix de Materialize no hace falta en flex */
+}
+.medidor-fila > .medidor-icono {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    float: none;
+}
