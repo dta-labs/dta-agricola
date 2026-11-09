@@ -2986,7 +2986,8 @@
                     <div class="modal-content">
                         <div class="swal-title">Editar: {{ actualSensor.alias ? actualSensor.alias : actualSensor.id }}</div>
                         <div class="row" style="text-align: center;">
-                            <div class="input-field col s12">
+                            <!-- REQ-091: imagen del sensor centrada -->
+                            <div class="col s12 center-align">
                                 <img ng-src="{{ getSensorImage(actualSensor.type) }}" style="width: 100px;" alt="{{ actualSensor.type }}" loading="lazy">
                             </div>
                             <!-- REQ-052: nombre e identificador (el identificador se protege con "Cambiar") -->
@@ -3012,22 +3013,8 @@
                                     </div>
                                 </div>
                             </div>
-                            <!-- REQ-051: geolocalizacion del sensor en el mapa -->
-                            <div class="col s12 geo-bloque" ng-if="actualSystem.type == 'Sensor'">
-                                <div class="geo-titulo"><i class="material-icons" aria-hidden="true">place</i> Geolocalización</div>
-                                <dta-mapa-selector modo="punto" latitud="actualSensor.latitude" longitud="actualSensor.longitude"
-                                    centro-lat="actualSystem.latitude" centro-lng="actualSystem.longitude"
-                                    al-cambiar="actualSensor.latitude = $lat; actualSensor.longitude = $lng"></dta-mapa-selector>
-
-                                <!-- REQ-052: parcela que ocupa el sensor (igual que en "Editar parcela") -->
-                                <div class="geo-titulo geo-titulo-siguiente"><i class="material-icons" aria-hidden="true">crop_free</i> Parcela del sensor <span class="geo-opcional">(opcional)</span></div>
-                                <p class="geo-nota">En el mapa del sistema se sombrea con el color de la humedad del suelo.</p>
-                                <dta-mapa-selector modo="poligono" poligono="actualSensor.poligon" marca-lat="actualSensor.latitude" marca-lng="actualSensor.longitude"
-                                    centro-lat="actualSensor.latitude || actualSystem.latitude" centro-lng="actualSensor.longitude || actualSystem.longitude"
-                                    al-cambiar="actualSensor.poligon = $poligono"></dta-mapa-selector>
-                            </div>
                             <br>
-                            <div class="input-field col s12 m6">
+                            <div class="input-field col s12">
                                 <select id="editSensorType" class="browser-default" ng-model="actualSensor.type">
                                     <option value="NPKML" selected="{{ actualSensor.type == 'NPKML' ? 'selected' : '' }}" ng-show="actualSystem.type == 'Sensor'"><b>Perfil</b> del suelo</option>
                                     <option value="NPK" selected="{{ actualSensor.type == 'NPK' ? 'selected' : '' }}" ng-show="actualSystem.type == 'Sensor'"><b>Nutrientes</b></option>
@@ -3073,67 +3060,6 @@
                                     <label><b>Alertas {{ actualSensor.type == 'SHT4' || actualSensor.type == 'WM' || actualSensor.type == 'Ms' ? actualSensor['culture'] : '' }}</b></label>
                                     <div id="actualSensorAlerts" class="row">
                                         <div class="input-field col s12 left-align">
-                                            <div ng-repeat="actualCulture in listOfCultures" ng-init="isShowDiseaseDetails = false" 
-                                            ng-show="actualSensor.type == 'SHT4' || actualSensor.type == 'WM' || actualSensor.type == 'Ms'">
-                                                <p ng-repeat="disease in actualCulture.diseases" ng-show="actualCulture.culture == actualSensor.culture">
-                                                    <label class="left-align">
-                                                        <input id="disease_{{ disease.name }}" type="checkbox" ng-model="actualSensor.alerts[disease.name]" />
-                                                        <span class="chip">
-                                                            <img ng-src="assets/images/diseases/{{ disease.photo || 'bug-vector-icon.jpg' }}" alt="{{ disease.name }}" style="margin-top: -5px;" ng-show="disease.photo" loading="lazy">
-                                                            {{ disease.name }}
-                                                        </span>
-                                                    </label>
-                                                    <!-- <a class="waves-effect waves-light btn" href="" style="font-size: .8em; border-radius: 50%;" ng-click="showDiseaseDetails(disease)">?</a> -->
-                                                </p>
-                                            </div>
-                                            <!-- Disease details -->
-                                            <div id="diseaseDetails_{{ actualCulture.culture }}" class="card" ng-show="isShowDiseaseDetails">
-                                                <div class="card-content">
-                                                    <span class="card-title">{{ disease.name }}</span>
-                                                    <p><img ng-src="assets/images/diseases/{{ disease.photo || 'bug-vector-icon.jpg' }}" alt="{{ disease.name }}" style="margin-top: -5px;" loading="lazy"></p>
-                                                    <table>
-                                                        <tr>
-                                                            <td class="left-align">Nombre</td>
-                                                            <td class="left-align">{{ selectedDisease.name }}</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td class="left-align">Descripción</td>
-                                                            <td class="left-align">{{ selectedDisease.description }}</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td class="left-align">Síntomas</td>
-                                                            <td class="left-align">{{ selectedDisease.symptoms }}</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td class="left-align">Condiciones</td>
-                                                            <td class="left-align">
-                                                                <p ng-show="selectedDisease.Msmin != '' && selectedDisease.Msmax != ''">
-                                                                    Humedad del suelo:  <br>
-                                                                    - Mmin: {{ selectedDisease.Msmin }} %<br>
-                                                                    - Mmax: {{ selectedDisease.Msmax }} %<br>
-                                                                </p>
-                                                                <p ng-show="selectedDisease.Rhmin != '' && selectedDisease.Rhmax != ''">
-                                                                    Humedad relativa:  <br>
-                                                                    - Mmin: {{ selectedDisease.Rhmin }} %<br>
-                                                                    - Mmax: {{ selectedDisease.Rhmax }} %<br>
-                                                                </p>
-                                                                <p ng-show="selectedDisease.Tmin != '' && selectedDisease.Tmax != ''">
-                                                                    Temperatura ambiente:  <br>
-                                                                    - Mmin: {{ selectedDisease.Tmin }} °C<br>
-                                                                    - Mmax: {{ selectedDisease.Tmax }} °C<br>
-                                                                </p>
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td class="left-align">Tratamiento</td>
-                                                            <td class="left-align">{{ selectedDisease.treatment }}</td>
-                                                        </tr>
-                                                    </table>
-                                                </div>
-                                                <div class="card-action right-align">
-                                                    <a href="" class="waves-effect waves-green btn-flat" ng-click="isShowDiseaseDetails = false">Cerrar</a>
-                                                </div>
-                                            </div>
                                             <div ng-show="actualSensor.type == 'SHT2' || actualSensor.type == 'SHT4' || actualSensor.type == 'WM' || actualSensor.type == 'Ms'"> <!-- Humbral de Humedad -->
                                                 <!-- REQ-054: casilla de aviso y, separados, los dos umbrales con su accion -->
                                                     <div class="alerta-bloque">
@@ -3216,10 +3142,88 @@
                                                     </label>
                                                 </p>
                                             </div>
+                                            <!-- REQ-091: amenazas biologicas al final de las alertas -->
+                                            <div class="alerta-subtitulo" ng-show="actualSensor.type == 'SHT4' || actualSensor.type == 'WM' || actualSensor.type == 'Ms'">Amenazas biológicas</div>
+                                            <div ng-repeat="actualCulture in listOfCultures" ng-init="isShowDiseaseDetails = false" 
+                                            ng-show="actualSensor.type == 'SHT4' || actualSensor.type == 'WM' || actualSensor.type == 'Ms'">
+                                                <p ng-repeat="disease in actualCulture.diseases" ng-show="actualCulture.culture == actualSensor.culture">
+                                                    <label class="left-align">
+                                                        <input id="disease_{{ disease.name }}" type="checkbox" ng-model="actualSensor.alerts[disease.name]" />
+                                                        <span class="chip">
+                                                            <img ng-src="assets/images/diseases/{{ disease.photo || 'bug-vector-icon.jpg' }}" alt="{{ disease.name }}" style="margin-top: -5px;" ng-show="disease.photo" loading="lazy">
+                                                            {{ disease.name }}
+                                                        </span>
+                                                    </label>
+                                                    <!-- <a class="waves-effect waves-light btn" href="" style="font-size: .8em; border-radius: 50%;" ng-click="showDiseaseDetails(disease)">?</a> -->
+                                                </p>
+                                            </div>
+                                            <!-- Disease details -->
+                                            <div id="diseaseDetails_{{ actualCulture.culture }}" class="card" ng-show="isShowDiseaseDetails">
+                                                <div class="card-content">
+                                                    <span class="card-title">{{ disease.name }}</span>
+                                                    <p><img ng-src="assets/images/diseases/{{ disease.photo || 'bug-vector-icon.jpg' }}" alt="{{ disease.name }}" style="margin-top: -5px;" loading="lazy"></p>
+                                                    <table>
+                                                        <tr>
+                                                            <td class="left-align">Nombre</td>
+                                                            <td class="left-align">{{ selectedDisease.name }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td class="left-align">Descripción</td>
+                                                            <td class="left-align">{{ selectedDisease.description }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td class="left-align">Síntomas</td>
+                                                            <td class="left-align">{{ selectedDisease.symptoms }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td class="left-align">Condiciones</td>
+                                                            <td class="left-align">
+                                                                <p ng-show="selectedDisease.Msmin != '' && selectedDisease.Msmax != ''">
+                                                                    Humedad del suelo:  <br>
+                                                                    - Mmin: {{ selectedDisease.Msmin }} %<br>
+                                                                    - Mmax: {{ selectedDisease.Msmax }} %<br>
+                                                                </p>
+                                                                <p ng-show="selectedDisease.Rhmin != '' && selectedDisease.Rhmax != ''">
+                                                                    Humedad relativa:  <br>
+                                                                    - Mmin: {{ selectedDisease.Rhmin }} %<br>
+                                                                    - Mmax: {{ selectedDisease.Rhmax }} %<br>
+                                                                </p>
+                                                                <p ng-show="selectedDisease.Tmin != '' && selectedDisease.Tmax != ''">
+                                                                    Temperatura ambiente:  <br>
+                                                                    - Mmin: {{ selectedDisease.Tmin }} °C<br>
+                                                                    - Mmax: {{ selectedDisease.Tmax }} °C<br>
+                                                                </p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td class="left-align">Tratamiento</td>
+                                                            <td class="left-align">{{ selectedDisease.treatment }}</td>
+                                                        </tr>
+                                                    </table>
+                                                </div>
+                                                <div class="card-action right-align">
+                                                    <a href="" class="waves-effect waves-green btn-flat" ng-click="isShowDiseaseDetails = false">Cerrar</a>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                            <!-- REQ-051: geolocalizacion del sensor en el mapa -->
+                            <div class="col s12 geo-bloque" ng-if="actualSystem.type == 'Sensor'">
+                                <div class="geo-titulo"><i class="material-icons" aria-hidden="true">place</i> Geolocalización</div>
+                                <dta-mapa-selector modo="punto" latitud="actualSensor.latitude" longitud="actualSensor.longitude"
+                                    centro-lat="actualSystem.latitude" centro-lng="actualSystem.longitude"
+                                    al-cambiar="actualSensor.latitude = $lat; actualSensor.longitude = $lng"></dta-mapa-selector>
+
+                                <!-- REQ-052: parcela que ocupa el sensor (igual que en "Editar parcela") -->
+                                <div class="geo-titulo geo-titulo-siguiente"><i class="material-icons" aria-hidden="true">crop_free</i> Parcela del sensor <span class="geo-opcional">(opcional)</span></div>
+                                <p class="geo-nota">En el mapa del sistema se sombrea con el color de la humedad del suelo.</p>
+                                <dta-mapa-selector modo="poligono" poligono="actualSensor.poligon" marca-lat="actualSensor.latitude" marca-lng="actualSensor.longitude"
+                                    centro-lat="actualSensor.latitude || actualSystem.latitude" centro-lng="actualSensor.longitude || actualSystem.longitude"
+                                    al-cambiar="actualSensor.poligon = $poligono"></dta-mapa-selector>
+                            </div>
+
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -3694,7 +3698,7 @@
     <link rel="stylesheet" href="./assets/vendor/bootstrap/bootstrap-dta.css?v=5.3.8.1">
     <link rel="stylesheet" href="./assets/css/bootstrap-convivencia.css?v=26.11.06.002">
     <link rel="stylesheet" href="./assets/css/perfil.css?v=26.11.06.003">
-    <link rel="stylesheet" href="./assets/css/ventana.css?v=26.11.07.004">
+    <link rel="stylesheet" href="./assets/css/ventana.css?v=26.11.09.001">
     <!-- REQ-047: tema comun (botones, modales, campos, ventanas) para lo que sigue en Materialize -->
     <link rel="stylesheet" href="./assets/css/tema.css?v=26.11.06.002">
     <link rel="stylesheet" href="./assets/js/components/login/login.css?v=26.11.06.004">
@@ -3947,7 +3951,7 @@
 <script src="./assets/vendor/bootstrap/bootstrap.bundle.min.js?v=5.3.8"></script>
     <script src="./assets/js/core.js?v=26.11.08.013"></script>
     <!-- REQ-038: factories, ayudas de interfaz y componentes (despues de core.js, que crea el modulo) -->
-    <script src="./assets/js/app/version.js?v=26.11.08.014"></script>
+    <script src="./assets/js/app/version.js?v=26.11.09.001"></script>
     <script src="./assets/js/app/reglas.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/auth.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/repo.factory.js?v=26.11.06.001"></script>

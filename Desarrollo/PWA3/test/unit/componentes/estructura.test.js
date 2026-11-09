@@ -305,3 +305,17 @@ test("REQ-055 los planes tienen borde verde claro", () => {
   const css = fs.readFileSync(path.join(RAIZ, "assets", "css", "style.css"), "utf8");
   assert.match(css, /\.plan-tarjeta \{[^}]*border: 2px solid #c8e6c9;/);
 });
+
+// ---------- REQ-091 ----------
+
+test("REQ-091 Editar sensor: imagen centrada; nombre, tipo, cultivo, alertas y geolocalizacion, en ese orden", () => {
+  const ini = HTML.indexOf('<div id="modalEditSensor"');
+  const modal = HTML.slice(ini, HTML.indexOf('<div id="modalBuscarSensor"', ini));
+  assert.match(modal, /<div class="col s12 center-align">\s*<img ng-src="\{\{ getSensorImage\(actualSensor\.type\) \}\}"/);
+  const pos = ['id="editSensorAlias"', 'id="editSensorType"', "Cultivo que mide el sensor", 'id="actualSensorAlerts"', "geo-bloque"].map(x => modal.indexOf(x));
+  pos.forEach((p, i) => assert.ok(p > 0, "falta el bloque " + i));
+  for (let i = 1; i < pos.length; i += 1) assert.ok(pos[i - 1] < pos[i], "orden de los bloques " + i);
+  const alertas = ['id="editSensorHNotify"', 'id="editSensorTNotify"', "actualSensor.type == 'Psi'\">", "actualSensor.type == 'Fl'\">", "Amenazas biológicas", "actualCulture in listOfCultures"].map(x => modal.indexOf(x));
+  for (let i = 1; i < alertas.length; i += 1) assert.ok(alertas[i - 1] > 0 && alertas[i - 1] < alertas[i], "orden de las alertas " + i);
+  assert.equal((modal.match(/<div\b/g) || []).length, (modal.match(/<\/div>/g) || []).length, "etiquetas equilibradas");
+});

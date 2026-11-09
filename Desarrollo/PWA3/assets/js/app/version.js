@@ -14,8 +14,8 @@
 
     var VERSION = Object.freeze({
         app: "1.1.0-dev",
-        compilacion: "26.11.08.014",
-        fecha: "2026-11-08"
+        compilacion: "26.11.09.001",
+        fecha: "2026-11-09"
     });
 
     if (typeof module !== "undefined" && module.exports) module.exports = VERSION;

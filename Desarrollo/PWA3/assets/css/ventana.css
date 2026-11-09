@@ -678,3 +678,10 @@
 .bs .ventana-icono.ventana-icono-peligro {
     background: #c62828;
 }
+
+/* REQ-091: subtitulo "Amenazas biologicas" dentro de las alertas del sensor */
+.modal.modal-asistente .alerta-subtitulo {
+    margin: 6px 0 8px 0;
+    font-weight: 600;
+    color: #2e7d32;
+}
