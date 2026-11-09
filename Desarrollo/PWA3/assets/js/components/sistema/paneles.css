@@ -352,3 +352,10 @@ dta-panel-nevera {
     background: rgba(255, 255, 255, 0.3);
     color: #fff;
 }
+
+/* REQ-089: opcion activa en la barra flotante (Satelite) */
+.panel-opcion-activa,
+.panel-opcion-activa b,
+.panel-opcion-activa .material-icons {
+    color: springgreen !important;
+}

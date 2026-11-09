@@ -52,7 +52,7 @@ function __equipos() {
 }
 
 // Marca de version: si no ves esto en consola, el navegador sirve un core.js viejo.
-console.log("[app] core.js 26.11.08.012");
+console.log("[app] core.js 26.11.08.013");
 
 // #region Controlador Angular
 
@@ -180,6 +180,113 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         }
 
         if ($scope.showSensorMapView) volverAMostrarMapa();
+    };
+
+    // ===================== REQ-089: vista satelital (NDVI) =====================
+    // Pivote: el circulo del pivote seleccionado. Red de sensores y estacionario: todas las parcelas del usuario.
+    // Imagen de logic/satelite.js (fuente provisional) recortada al contorno de cada area con un SVG.
+    $scope.vistaSatelital = false;
+    let capaNdvi = null;
+    let leyendaNdvi = null;
+    let recortesNdvi = 0;
+    let avisoNdviMostrado = false;
+
+    const svgNdvi = (url, ancho, alto, recorte) => {
+        const ns = "http://www.w3.org/2000/svg";
+        const svg = document.createElementNS(ns, "svg");
+        svg.setAttribute("viewBox", `0 0 ${ancho} ${alto}`);
+        svg.setAttribute("preserveAspectRatio", "none");
+        const id = "recorte-ndvi-" + (++recortesNdvi);
+        const defs = document.createElementNS(ns, "defs");
+        const clip = document.createElementNS(ns, "clipPath");
+        clip.setAttribute("id", id);
+        const forma = document.createElementNS(ns, recorte.circulo ? "circle" : "polygon");
+        if (recorte.circulo) ["cx", "cy", "r"].forEach(k => forma.setAttribute(k, recorte.circulo[k]));
+        else forma.setAttribute("points", recorte.puntos);
+        clip.appendChild(forma);
+        defs.appendChild(clip);
+        svg.appendChild(defs);
+        const imagen = document.createElementNS(ns, "image");
+        imagen.setAttribute("href", url);
+        imagen.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", url);
+        imagen.setAttribute("width", ancho);
+        imagen.setAttribute("height", alto);
+        imagen.setAttribute("preserveAspectRatio", "none");
+        imagen.setAttribute("clip-path", `url(#${id})`);
+        imagen.addEventListener("error", () => {
+            if (avisoNdviMostrado) return;
+            avisoNdviMostrado = true;
+            if (window.M && M.toast) M.toast({ html: "No se pudo cargar la imagen satelital. Revisa tu conexión." });
+        });
+        svg.appendChild(imagen);
+        return svg;
+    };
+
+    const capaNdviDe = (caja, recorte) => {
+        const satelite = __modulo("satelite");
+        const [ancho, alto] = satelite.tamanoImagen(caja);
+        const url = satelite.urlNdvi(caja, ancho, alto);
+        const forma = recorte.puntos ? { puntos: satelite.puntosEnImagen(recorte.puntos, caja, ancho, alto) }
+            : { circulo: satelite.circuloEnImagen(recorte.lat, recorte.lng, recorte.radio, caja, ancho, alto) };
+        return L.svgOverlay(svgNdvi(url, ancho, alto, forma), satelite.limites(caja), { pane: "ndvi", interactive: false });
+    };
+
+    const quitarNdvi = () => {
+        if (capaNdvi && map) map.removeLayer(capaNdvi);
+        if (leyendaNdvi && map) map.removeControl(leyendaNdvi);
+        capaNdvi = null;
+        leyendaNdvi = null;
+        if (map) map.getContainer().classList.remove("mapa-ndvi");
+    };
+
+    const mostrarNdvi = () => {
+        if (!map) return false;
+        quitarNdvi();
+        if (!map.getPane("ndvi")) {
+            map.createPane("ndvi");
+            map.getPane("ndvi").style.zIndex = 350;          // debajo de las parcelas (400): se siguen pudiendo tocar
+            map.getPane("ndvi").style.pointerEvents = "none";
+        }
+        const satelite = __modulo("satelite");
+        const geo = __modulo("geo");
+        const actual = $scope.actualSystem || {};
+        const capas = [];
+        if (actual.type == "PC") {
+            const lat = Number(actual.latitude), lng = Number(actual.longitude);
+            const radio = actual.length ? parseInt(actual.length) : 50;
+            if (geo.esCoordenadaValida(lat, lng)) capas.push(capaNdviDe(satelite.cajaDeCirculo(lat, lng, radio), { lat, lng, radio }));
+        } else {
+            satelite.parcelasDelUsuario($scope.systems, geo.normalizarPoligono, geo.esPoligonoValido)
+                .forEach(parcela => capas.push(capaNdviDe(satelite.cajaDePuntos(parcela.puntos), { puntos: parcela.puntos })));
+        }
+        if (!capas.length) {
+            if (window.M && M.toast) M.toast({ html: actual.type == "PC" ? "El pivote no tiene ubicación." : "Aún no hay parcelas marcadas en el mapa." });
+            return false;
+        }
+        avisoNdviMostrado = false;
+        capaNdvi = L.layerGroup(capas).addTo(map);
+        leyendaNdvi = L.control({ position: "bottomright" });
+        leyendaNdvi.onAdd = () => {
+            const div = L.DomUtil.create("div", "mapa-leyenda-ndvi");
+            div.innerHTML = '<b>Vigor (NDVI)</b><span class="leyenda-ndvi-barra"></span>' +
+                '<span class="leyenda-ndvi-extremos"><span>Escaso</span><span>Vigoroso</span></span>' +
+                '<small>Sentinel-2 · Esri, ESA</small>';
+            return div;
+        };
+        leyendaNdvi.addTo(map);
+        map.getContainer().classList.add("mapa-ndvi");
+        return true;
+    };
+
+    $scope.alternarVistaSatelital = () => {
+        if ($scope.vistaSatelital) {
+            quitarNdvi();
+            $scope.vistaSatelital = false;
+            return;
+        }
+        // En una red de sensores en mosaico, la imagen se ve en el mapa.
+        if ($scope.actualSystem && $scope.actualSystem.type == "Sensor" && !$scope.showSensorMapView) $scope.toggleSensorMapView();
+        $scope.vistaSatelital = mostrarNdvi();
     };
 
     // REQ-080: al volver a la vista de mapa. Con el mapa oculto (0x0) los datos siguen llegando y Leaflet recorta
@@ -795,6 +902,11 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         system.velocity = parseInt(system.velocity);
         system.zona = parseInt(system.zona);
         system.sensorPresion = parseInt(system.sensorPresion);
+        // REQ-089: la vista satelital es del sistema que se mira: al cambiar de sistema se apaga.
+        if ($scope.vistaSatelital && (!$scope.actualSystem || $scope.actualSystem.key !== system.key)) {
+            quitarNdvi();
+            $scope.vistaSatelital = false;
+        }
         $scope.actualSystem = system;
         // REQ-078: cada red de sensores recuerda su vista (mapa o mosaico).
         if (system.type == "Sensor") {

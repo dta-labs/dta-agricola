@@ -8,7 +8,7 @@
 (function (raiz) {
     "use strict";
 
-    var VERSION = "26.11.07.009";
+    var VERSION = "26.11.08.013";
 
     function Controlador(dtaReglas) {
         var vm = this;
@@ -25,7 +25,7 @@
         templateUrl: "./assets/js/components/sistema/panel-estacionario/panel-estacionario.html?v=" + VERSION,
         controller: Controlador,
         controllerAs: "vm",
-        bindings: { sistema: "<", colorParcela: "&", alAlternarParcela: "&", alAbrir: "&" }
+        bindings: { sistema: "<", sateliteActivo: "<", alSatelite: "&", colorParcela: "&", alAlternarParcela: "&", alAbrir: "&" }
     };
 
     if (typeof module !== "undefined" && module.exports) {

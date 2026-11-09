@@ -8,7 +8,7 @@
 (function (raiz) {
     "use strict";
 
-    var VERSION = "26.11.08.007";
+    var VERSION = "26.11.08.013";
 
     function Controlador(dtaReglas) {
         var vm = this;
@@ -92,7 +92,7 @@
         templateUrl: "./assets/js/components/sistema/panel-sensores/panel-sensores.html?v=" + VERSION,
         controller: Controlador,
         controllerAs: "vm",
-        bindings: { sistema: "<", clima: "<", mostrarLista: "<", valorSensor: "&", alGrafica: "&", alEditarSensor: "&", alAbrir: "&", alIntercambiar: "&" }
+        bindings: { sistema: "<", sateliteActivo: "<", alSatelite: "&", clima: "<", mostrarLista: "<", valorSensor: "&", alGrafica: "&", alEditarSensor: "&", alAbrir: "&", alIntercambiar: "&" }
     };
 
     if (typeof module !== "undefined" && module.exports) {

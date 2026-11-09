@@ -31,6 +31,9 @@ Cada version publicada lleva una etiqueta de git `pwa3-vX.Y.Z` sobre el commit d
 - Estacionario: "Aceptar" en Configurar parcela dejaba en 0 la duracion del primer riego programado; en el riego a
   demanda un 0 escrito se guardaba como el valor por defecto (0 °C -> 20 °C); los valores por defecto no llegaban a
   las parcelas; "Editar fecha de riego" mostraba NaN en los dias. (REQ-061 E1)
+- Vista satelital (NDVI de Sentinel-2) desde el menu lateral y la barra flotante: en la red de sensores y el
+  estacionario, todas las parcelas del usuario; en el pivote, su area circular. Fuente provisional hasta integrar
+  DTA-AgroSat. (REQ-089)
 - Mapa: los equipos se marcan con un pin del color de su estado (el mismo que su tarjeta del listado), con el icono
   del tipo, su nombre y borde blanco, en lugar del logo de 50 px. (REQ-088)
 - Editar/Agregar sensor: el mapa de "Parcela del sensor" se situa en la ubicacion del sensor y la marca con un pin. (REQ-087)

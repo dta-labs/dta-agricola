@@ -20,7 +20,17 @@
                             <b>Planes</b>
                         </div>
                     </td>
-                    <td class="panel-s-e30" ng-click="vm.alAbrir({ $modal: 'modalUsuarios' })" role="button" >
+                    <!-- REQ-089: Satelite (NDVI de las parcelas); en el celular ocupa el lugar de Usuarios -->
+                    <td class="panel-s-e30" ng-click="vm.alSatelite()" role="button" ng-class="{ 'panel-opcion-activa': vm.sateliteActivo }"
+                        aria-pressed="{{ vm.sateliteActivo ? 'true' : 'false' }}">
+                        <div class="center-align">
+                            <i class="material-icons panel-s-e31">satellite</i>
+                        </div>
+                        <div class="center-align">
+                            <b>Satélite</b>
+                        </div>
+                    </td>
+                    <td class="panel-s-e30 hide-on-small-only" ng-click="vm.alAbrir({ $modal: 'modalUsuarios' })" role="button" >
                         <div class="center-align">
                             <i class="fa fa-users panel-s-e32" aria-hidden="true"></i> 
                         </div>
