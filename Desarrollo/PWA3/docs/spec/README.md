@@ -90,8 +90,9 @@
 | REQ-089 | Vista satelital (NDVI): menu lateral y barra flotante; parcelas del usuario o circulo del pivote (fuente provisional Esri Sentinel-2) | Implementado (probar: usuario) | 8 |
 | REQ-090 | Barra flotante: texto "Satelite" alineado con Historial y Sensores/Planes | Implementado (probar: usuario) | - |
 | REQ-091 | Editar sensor: imagen centrada; nombre, tipo, cultivo, alertas (humedad, temperatura, amenazas biologicas) y geolocalizacion | Implementado (probar: usuario) | 1 |
+| REQ-092 | Vista satelital: solo el borde de las parcelas, sin relleno sobre la imagen | Implementado (probar: usuario) | 1 |
 
-**Total: 403 pruebas en Node (2026-11-06), todas en verde.** `npm test` funciona en Node 20 y 22.
+**Total: 404 pruebas en Node (2026-11-06), todas en verde.** `npm test` funciona en Node 20 y 22.
 
 ## Bloque de autenticacion (cerrado y confirmado por el usuario)
 

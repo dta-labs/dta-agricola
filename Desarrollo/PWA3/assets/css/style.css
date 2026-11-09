@@ -1304,10 +1304,11 @@ canvas[id^="myChart"],
     display: none;
 }
 
-/* REQ-089: vista satelital (NDVI). Con la imagen visible, el sombreado de las parcelas casi desaparece
-   (quedan los bordes y se siguen pudiendo tocar). */
-.mapa-ndvi .leaflet-overlay-pane path.leaflet-interactive {
-    fill-opacity: 0.06 !important;
+/* REQ-089/092: vista satelital. Con la imagen visible no hay ningun relleno sobre ella (ni humedad, ni sectores, ni
+   rayas de lectura vieja): solo los bordes, para no alterar sus colores. Las parcelas se siguen pudiendo tocar (en SVG
+   un relleno transparente sigue recibiendo el toque). */
+.mapa-ndvi .leaflet-overlay-pane path {
+    fill-opacity: 0 !important;
 }
 .mapa-leyenda-ndvi {
     display: flex;

@@ -95,3 +95,9 @@ test("REQ-089 core: pivote = su circulo; red y estacionario = todas las parcelas
   assert.match(CORE, /imagen\.setAttribute\("clip-path", `url\(#\$\{id\}\)`\);/, "recortada al contorno");
   assert.match(CORE, /al cambiar de sistema se apaga/);
 });
+
+test("REQ-092 con la imagen satelital, las parcelas solo muestran el borde (sin relleno que cambie sus colores)", () => {
+  const css = fs.readFileSync(path.join(RAIZ, "assets", "css", "style.css"), "utf8");
+  assert.match(css, /\.mapa-ndvi \.leaflet-overlay-pane path \{\s*fill-opacity: 0 !important;\s*\}/);
+  assert.doesNotMatch(css, /fill-opacity: 0\.06/);
+});

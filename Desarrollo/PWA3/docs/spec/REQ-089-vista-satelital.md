@@ -41,3 +41,6 @@ muestra (mosaico); con Sentinel Hub (integracion) se podra elegir y mostrar la f
 
 REQ-090 (2026-11-08): el texto "Satelite" de la barra flotante se alinea con "Historial" y "Sensores/Planes" (misma
 compensacion de -10 px que "Historial", que usa el mismo tipo de icono). Compilacion `26.11.08.014`.
+
+REQ-092 (2026-11-09): con la imagen satelital visible no queda ningun relleno sobre ella (antes 6 % de la humedad y
+las rayas de lectura vieja completas): solo los bordes. Las parcelas se siguen pudiendo tocar. Compilacion `26.11.09.002`.

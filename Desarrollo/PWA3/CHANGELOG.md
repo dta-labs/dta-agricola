@@ -35,7 +35,7 @@ Cada version publicada lleva una etiqueta de git `pwa3-vX.Y.Z` sobre el commit d
   geolocalizacion; imagen del sensor centrada. (REQ-091)
 - Vista satelital (NDVI de Sentinel-2) desde el menu lateral y la barra flotante: en la red de sensores y el
   estacionario, todas las parcelas del usuario; en el pivote, su area circular. Fuente provisional hasta integrar
-  DTA-AgroSat. (REQ-089)
+  DTA-AgroSat; con la imagen visible, las parcelas solo muestran su borde. (REQ-089, REQ-092)
 - Mapa: los equipos se marcan con un pin del color de su estado (el mismo que su tarjeta del listado), con el icono
   del tipo, su nombre y borde blanco, en lugar del logo de 50 px. (REQ-088)
 - Editar/Agregar sensor: el mapa de "Parcela del sensor" se situa en la ubicacion del sensor y la marca con un pin. (REQ-087)
