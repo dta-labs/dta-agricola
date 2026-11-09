@@ -38,3 +38,6 @@ reciente de los ultimos 14 meses), que respondio sin credenciales. Para cambiar 
 **Pendiente**: (1) confirmar los terminos de uso de Esri para uso comercial; (2) la imagen no se pudo probar en vivo
 desde el entorno de desarrollo (sin salida a internet): probar en el navegador; (3) la fecha de la imagen no se
 muestra (mosaico); con Sentinel Hub (integracion) se podra elegir y mostrar la fecha, como en AgroSat.
+
+REQ-090 (2026-11-08): el texto "Satelite" de la barra flotante se alinea con "Historial" y "Sensores/Planes" (misma
+compensacion de -10 px que "Historial", que usa el mismo tipo de icono). Compilacion `26.11.08.014`.

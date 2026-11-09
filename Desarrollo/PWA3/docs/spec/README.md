@@ -88,6 +88,7 @@
 | REQ-087 | Editar/Agregar sensor: el mapa de la parcela se situa en el sensor y muestra su pin | Implementado (probar: usuario) | 2 |
 | REQ-088 | Marcador de equipo: pin del color del estado (como el listado) con icono del tipo, nombre y borde blanco | Implementado (probar: usuario) | 4 |
 | REQ-089 | Vista satelital (NDVI): menu lateral y barra flotante; parcelas del usuario o circulo del pivote (fuente provisional Esri Sentinel-2) | Implementado (probar: usuario) | 8 |
+| REQ-090 | Barra flotante: texto "Satelite" alineado con Historial y Sensores/Planes | Implementado (probar: usuario) | - |
 
 **Total: 402 pruebas en Node (2026-11-06), todas en verde.** `npm test` funciona en Node 20 y 22.
 

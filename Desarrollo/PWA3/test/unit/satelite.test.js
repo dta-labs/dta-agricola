@@ -81,6 +81,8 @@ test("REQ-089 barras flotantes: Satelite entre Sensores/Planes y Usuarios; Usuar
     assert.ok(config > 0 && config < sat && sat < usuarios, n + ": orden");
     assert.match(t, /<td class="panel-s-e30 hide-on-small-only" ng-click="vm\.alAbrir\(\{ \$modal: 'modalUsuarios' \}\)"/, n);
     assert.match(t, /ng-click="vm\.alSatelite\(\)" role="button" ng-class="\{ 'panel-opcion-activa': vm\.sateliteActivo \}"/, n);
+    // REQ-090: el texto se alinea con "Historial" (mismo tipo de icono, misma compensacion).
+    assert.match(t, /<div class="center-align panel-s-e24">\s*<b>Satélite<\/b>/, n);
   }
   assert.equal((HTML.match(/satelite-activo="vistaSatelital" al-satelite="alternarVistaSatelital\(\)"/g) || []).length, 2);
 });
