@@ -83,3 +83,10 @@ test("REQ-095 la imagen se exporta desde una copia limpia (la grafica en pantall
   assert.match(CORE, /imagen\.crossOrigin = "anonymous";/);
   assert.match(CORE, /if \(options\.cors\) \{/);
 });
+
+test("REQ-096 mover o hacer zoom ya no reconstruye la grafica del historial", () => {
+  assert.doesNotMatch(HTML, /<li ng-repeat="sensor in actualSystem\.sensors"[^>]*ng-click=/, "el <li> entero no recarga la grafica");
+  assert.match(HTML, /<div class="collapsible-header" ng-click="setChart\(idx, 'myChartH' \+ idx\)">/);
+  assert.match(CORE, /if \(e && e\.native && e\.native\.stopPropagation\) e\.native\.stopPropagation\(\);/);
+  assert.doesNotMatch(CORE, /\n\s*e\.stopPropagation\(\);\n\s*\},\n\s*\/\/ REQ-093/);
+});

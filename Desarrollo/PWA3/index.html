@@ -1853,8 +1853,10 @@
                             </div>
                             <div ng-show="actualSystem.type == 'Sensor' || actualSystem.type == 'Nevera'">
                                 <ul class="collapsible">
-                                    <li ng-repeat="sensor in actualSystem.sensors" ng-if="sensor.id" ng-init="idx=$index" ng-click="setChart(idx, 'myChartH' + idx)">
-                                        <div class="collapsible-header"><i class="material-icons">place</i>{{ idx + 1 }}.- {{ sensor.alias || sensor.id }}</div>
+                                    <!-- REQ-096: la grafica se carga al tocar el ENCABEZADO; antes el ng-click estaba en todo el <li> y el
+                                         "clic" al soltar tras arrastrar o hacer zoom la reconstruia (se perdia el zoom) -->
+                                    <li ng-repeat="sensor in actualSystem.sensors" ng-if="sensor.id" ng-init="idx=$index">
+                                        <div class="collapsible-header" ng-click="setChart(idx, 'myChartH' + idx)"><i class="material-icons">place</i>{{ idx + 1 }}.- {{ sensor.alias || sensor.id }}</div>
                                         <div class="collapsible-body" style="padding: 5px 10px;">
                                             <!-- Botones de selección de tipo de gráfico -->
                                             <div class="row" style="margin-bottom: 10px;" ng-if="sensor.type != 'Psi'">
@@ -3950,9 +3952,9 @@
 <script src="./assets/js/logic/meteo.js?v=26.11.02.001"></script>
     <script src="./assets/js/logic/aviso.js?v=26.11.02.001"></script>
 <script src="./assets/vendor/bootstrap/bootstrap.bundle.min.js?v=5.3.8"></script>
-    <script src="./assets/js/core.js?v=26.11.13.003"></script>
+    <script src="./assets/js/core.js?v=26.11.13.004"></script>
     <!-- REQ-038: factories, ayudas de interfaz y componentes (despues de core.js, que crea el modulo) -->
-    <script src="./assets/js/app/version.js?v=26.11.13.003"></script>
+    <script src="./assets/js/app/version.js?v=26.11.13.004"></script>
     <script src="./assets/js/app/reglas.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/auth.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/repo.factory.js?v=26.11.06.001"></script>

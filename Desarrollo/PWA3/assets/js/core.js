@@ -52,7 +52,7 @@ function __equipos() {
 }
 
 // Marca de version: si no ves esto en consola, el navegador sirve un core.js viejo.
-console.log("[app] core.js 26.11.13.003");
+console.log("[app] core.js 26.11.13.004");
 
 // #region Controlador Angular
 
@@ -4752,8 +4752,9 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                 }
             } : { y: yScaleConfig },
             onClick: (e) => {
-                // This prevents the default behavior of the chart click
-                e.stopPropagation();
+                // REQ-096: en Chart.js 4 `e` es un ChartEvent (sin stopPropagation): el evento del navegador es e.native.
+                // Antes cada toque en la grafica lanzaba un error.
+                if (e && e.native && e.native.stopPropagation) e.native.stopPropagation();
             },
             // REQ-093: al tocar o pasar por cualquier punto de la grafica se ven todas las series en ese momento
             // (antes habia que acertar al punto exacto de la linea).

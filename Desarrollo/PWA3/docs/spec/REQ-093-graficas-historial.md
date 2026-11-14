@@ -34,3 +34,11 @@ contaminado no se limpia al redibujarlo.
 Correccion: la imagen se genera desde una **copia de la grafica en un lienzo nuevo** (misma vista y zoom, a doble
 resolucion, sin cuadro de datos), con los iconos del clima pedidos con **CORS**: si el servidor lo permite salen en la
 imagen; si no, la imagen sale sin ellos y se avisa. La grafica en pantalla no cambia. Compilacion `26.11.13.003`.
+
+## REQ-096 (2026-11-13): al moverse tras el zoom, la grafica volvia a empezar
+
+Causa: en el historial, cada sensor es un `<li>` desplegable con `ng-click="setChart(...)"` en TODO el elemento: el
+"clic" que el navegador genera al soltar tras arrastrar o hacer zoom subia hasta el `<li>` y reconstruia la grafica
+(se perdia el zoom). Ahora el `ng-click` esta solo en el encabezado (abrir el sensor); los botones de tipo de grafica y
+de periodo siguen recargandola. Ademas, el `onClick` de Chart.js llamaba a `e.stopPropagation()` sobre un ChartEvent (no
+existe: error en cada toque); ahora usa `e.native`. Compilacion `26.11.13.004`.
