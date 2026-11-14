@@ -24,3 +24,13 @@ por grafica (encima del lienzo) y actua sobre la grafica vigente (`Chart.getChar
 REQ-094 (2026-11-13): la barra de controles es solo para las ventanas de graficas (historial y la grafica del sensor);
 en la ficha de la parcela del mapa no se muestra (no cabe): alli quedan el zoom manual y los iconos del clima.
 Compilacion `26.11.13.002`.
+
+## REQ-095 (2026-11-13): no se podia exportar la imagen
+
+Causa: los iconos del clima vienen de otro dominio (`openweathermap.org`); al dibujarlos, el navegador marca el lienzo
+como contaminado y prohibe exportarlo. La alternativa (quitar los iconos y redibujar) tampoco servia: un lienzo
+contaminado no se limpia al redibujarlo.
+
+Correccion: la imagen se genera desde una **copia de la grafica en un lienzo nuevo** (misma vista y zoom, a doble
+resolucion, sin cuadro de datos), con los iconos del clima pedidos con **CORS**: si el servidor lo permite salen en la
+imagen; si no, la imagen sale sin ellos y se avisa. La grafica en pantalla no cambia. Compilacion `26.11.13.003`.

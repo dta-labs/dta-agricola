@@ -55,7 +55,7 @@ test("REQ-093 graficas: datos al tocar en cualquier punto, zoom con limites y ba
   assert.match(CORE, /interaction: \{ mode: "index", intersect: false \}/);
   assert.match(CORE, /title: items => items\.length \? fechaDelPunto\(items\[0\]\.chart, items\[0\]\.dataIndex\) : ""/);
   assert.match(CORE, /limits: \{ x: \{ min: "original", max: "original", minRange: 3 \} \}/);
-  assert.match(CORE, /registrosDeGrafica\.set\(charts\[i\], \{ logs: logs \|\| \[\], tipo: chartType, sensorIndex: i \}\);/);
+  assert.match(CORE, /registrosDeGrafica\.set\(charts\[i\], \{ logs: logs \|\| \[\], tipo: chartType, sensorIndex: i, tipoGrafica: type, opciones: options \}\);/);
   assert.match(CORE, /prepararHerramientasDeGrafica\(canvas\);/);
   ["acercar", "alejar", "restablecer", "datos", "imagen"].forEach(a => assert.match(CORE, new RegExp('data-accion="' + a + '"'), a));
   assert.match(CORE, /<input type="date" data-accion="fecha"/);
@@ -70,4 +70,16 @@ test("REQ-094 sin barra de controles en la ficha de la parcela del mapa (solo zo
   const cuerpo = CORE.slice(ini, ini + 900);
   assert.match(cuerpo, /if \(canvas\.closest\("\.leaflet-popup"\)\) \{[\s\S]*?return;\s*\}/);
   assert.match(CORE, /pinch: \{\s*enabled: true\s*\}/, "el zoom manual sigue en todas las graficas");
+});
+
+test("REQ-095 la imagen se exporta desde una copia limpia (la grafica en pantalla queda bloqueada por los iconos de otro dominio)", () => {
+  const ini = CORE.indexOf("const guardarImagenDeGrafica = (grafica) => {");
+  const cuerpo = CORE.slice(ini, CORE.indexOf("const irAFechaDeGrafica", ini));
+  assert.match(cuerpo, /copia = new Chart\(lienzo, \{ type: datos\.tipoGrafica, data: grafica\.data, options: opciones,/);
+  assert.match(cuerpo, /chartWeather: \{ icons: conIconos \? iconos : \[\], cors: true \}/);
+  assert.match(cuerpo, /x: Object\.assign\(\{\}, \(datos\.opciones\.scales \|\| \{\}\)\.x, \{ min: grafica\.scales\.x\.min, max: grafica\.scales\.x\.max \}\)/, "misma vista y zoom");
+  assert.match(cuerpo, /if \(copia\) copia\.destroy\(\);/);
+  assert.doesNotMatch(cuerpo, /grafica\.canvas\.toDataURL|drawImage\(grafica\.canvas/, "nunca desde el lienzo en pantalla");
+  assert.match(CORE, /imagen\.crossOrigin = "anonymous";/);
+  assert.match(CORE, /if \(options\.cors\) \{/);
 });

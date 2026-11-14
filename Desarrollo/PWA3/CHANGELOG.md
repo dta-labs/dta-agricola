@@ -44,6 +44,7 @@ Cada version publicada lleva una etiqueta de git `pwa3-vX.Y.Z` sobre el commit d
 - Editar/Agregar sensor: el mapa de "Parcela del sensor" se situa en la ubicacion del sensor y la marca con un pin. (REQ-087)
 - El boton de grafica de las fichas de sensores abria siempre la humedad del suelo; ahora abre la de la medicion
   principal (Ms o temperatura), con su titulo e icono. (REQ-085, REQ-086)
+- No se podia guardar la imagen de las graficas (los iconos del clima de otro dominio bloqueaban el lienzo). (REQ-095)
 - Tras guardar cualquier ajuste del equipo (p. ej. la vista mapa/mosaico) el mapa quedaba en gris: los ajustes llegan
   sin el log y se perdian las lecturas; ademas, el color de las parcelas no se actualizaba con cada lectura. (REQ-080, REQ-081)
 - Los identificadores unicos podian repetirse si se generaban en el mismo milisegundo. (REQ-078)

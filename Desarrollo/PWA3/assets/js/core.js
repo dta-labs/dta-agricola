@@ -52,7 +52,7 @@ function __equipos() {
 }
 
 // Marca de version: si no ves esto en consola, el navegador sirve un core.js viejo.
-console.log("[app] core.js 26.11.13.002");
+console.log("[app] core.js 26.11.13.003");
 
 // #region Controlador Angular
 
@@ -4029,6 +4029,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     }
 
     const weatherIconImages = new Map();
+    const iconosCorsDeClima = new Map();   // REQ-095: solo para exportar la imagen
 
     const getChartWeatherIcons = (logs, weatherByDate) => {
         const usedDates = new Set();
@@ -4082,6 +4083,14 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             }
 
             displayedIcons.forEach(weather => {
+                // REQ-095: la copia para exportar usa iconos pedidos con CORS (si no, el lienzo queda bloqueado).
+                if (options.cors) {
+                    const imagenCors = iconosCorsDeClima.get(weather.iconUrl);
+                    if (imagenCors && imagenCors.complete && imagenCors.naturalWidth) {
+                        chartInstance.ctx.drawImage(imagenCors, weather.centerX - size / 2, chartInstance.chartArea.top - size - 4, size, size);
+                    }
+                    return;
+                }
                 let image = weatherIconImages.get(weather.iconUrl);
                 if (!image) {
                     image = new Image();
@@ -4143,7 +4152,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                 plugins: [chartWeatherPlugin, chartThresholdBandsPlugin]
             });
             // REQ-093: registros de la grafica (fecha completa de cada punto) y su barra de herramientas.
-            registrosDeGrafica.set(charts[i], { logs: logs || [], tipo: chartType, sensorIndex: i });
+            registrosDeGrafica.set(charts[i], { logs: logs || [], tipo: chartType, sensorIndex: i, tipoGrafica: type, opciones: options });
             if (canvas.parentNode) canvas.parentNode.style.height = '250px';
             prepararHerramientasDeGrafica(canvas);
         } catch (error) {
@@ -4194,36 +4203,68 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         descargar(blob, g.nombreDeArchivo(partesDelNombre(grafica), "csv"));
     };
 
-    /** PNG con fondo blanco. Si los iconos del clima (de otro dominio) impiden exportar, se guarda sin ellos. */
+    /** Carga un icono del clima con CORS; resuelve true si se puede usar en un lienzo exportable. */
+    const cargarIconoCors = (url) => new Promise(resolver => {
+        const previa = iconosCorsDeClima.get(url);
+        if (previa && previa.complete) return resolver(!!previa.naturalWidth);
+        const imagen = new Image();
+        imagen.crossOrigin = "anonymous";
+        const fin = ok => { clearTimeout(espera); resolver(ok); };
+        const espera = setTimeout(() => fin(false), 4000);
+        imagen.onload = () => fin(true);
+        imagen.onerror = () => fin(false);
+        iconosCorsDeClima.set(url, imagen);
+        imagen.src = url;
+    });
+
+    /**
+     * REQ-095: PNG con fondo blanco desde una COPIA de la grafica en un lienzo nuevo (misma vista y zoom). La grafica
+     * en pantalla dibuja los iconos del clima de otro dominio y el navegador la bloquea para exportar (aunque se
+     * redibuje); la copia usa iconos pedidos con CORS y, si no se pueden, sale sin ellos.
+     */
     const guardarImagenDeGrafica = (grafica) => {
         const nombre = __modulo("grafica").nombreDeArchivo(partesDelNombre(grafica), "png");
-        const componer = () => {
+        const datos = registrosDeGrafica.get(grafica);
+        if (!datos || !datos.opciones) return aviso("No se pudo guardar la imagen de la gráfica.");
+        const iconos = (datos.opciones.plugins.chartWeather && datos.opciones.plugins.chartWeather.icons) || [];
+        Promise.all([...new Set(iconos.map(i => i.iconUrl))].map(cargarIconoCors)).then(resultados => {
+            const conIconos = !resultados.length || resultados.every(Boolean);
+            const ancho = grafica.width, alto = grafica.height;
             const lienzo = document.createElement("canvas");
-            lienzo.width = grafica.canvas.width;
-            lienzo.height = grafica.canvas.height;
-            const ctx = lienzo.getContext("2d");
-            ctx.fillStyle = "#ffffff";
-            ctx.fillRect(0, 0, lienzo.width, lienzo.height);
-            ctx.drawImage(grafica.canvas, 0, 0);
-            return lienzo.toDataURL("image/png");
-        };
-        try {
-            descargar(componer(), nombre);
-        } catch (error) {
-            const clima = grafica.options.plugins.chartWeather;
-            const iconos = clima.icons;
-            clima.icons = [];
-            grafica.update("none");
+            lienzo.style.width = ancho + "px";
+            lienzo.style.height = alto + "px";
+            lienzo.width = ancho;
+            lienzo.height = alto;
+            const escalas = Object.assign({}, datos.opciones.scales, {
+                x: Object.assign({}, (datos.opciones.scales || {}).x, { min: grafica.scales.x.min, max: grafica.scales.x.max })
+            });
+            const opciones = Object.assign({}, datos.opciones, {
+                responsive: false, maintainAspectRatio: false, animation: false, devicePixelRatio: 2, scales: escalas,
+                plugins: Object.assign({}, datos.opciones.plugins, {
+                    chartWeather: { icons: conIconos ? iconos : [], cors: true },
+                    tooltip: { enabled: false }
+                })
+            });
+            let copia = null;
             try {
-                descargar(componer(), nombre);
-                aviso("La imagen se guardó sin los iconos del clima.");
-            } catch (otro) {
+                copia = new Chart(lienzo, { type: datos.tipoGrafica, data: grafica.data, options: opciones,
+                    plugins: [chartWeatherPlugin, chartThresholdBandsPlugin] });
+                const final = document.createElement("canvas");
+                final.width = lienzo.width;
+                final.height = lienzo.height;
+                const ctx = final.getContext("2d");
+                ctx.fillStyle = "#ffffff";
+                ctx.fillRect(0, 0, final.width, final.height);
+                ctx.drawImage(lienzo, 0, 0);
+                descargar(final.toDataURL("image/png"), nombre);
+                if (!conIconos) aviso("La imagen se guardó sin los iconos del clima.");
+            } catch (error) {
+                console.error("[grafica] no se pudo exportar la imagen:", error);
                 aviso("No se pudo guardar la imagen de la gráfica.");
             } finally {
-                clima.icons = iconos;
-                grafica.update("none");
+                if (copia) copia.destroy();
             }
-        }
+        });
     };
 
     const irAFechaDeGrafica = (grafica, valorFecha) => {
