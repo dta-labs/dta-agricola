@@ -52,7 +52,7 @@ function __equipos() {
 }
 
 // Marca de version: si no ves esto en consola, el navegador sirve un core.js viejo.
-console.log("[app] core.js 26.11.13.001");
+console.log("[app] core.js 26.11.13.002");
 
 // #region Controlador Angular
 
@@ -4244,6 +4244,13 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     const prepararHerramientasDeGrafica = (canvas) => {
         const contenedor = canvas.parentNode;
         if (!contenedor || !contenedor.parentNode) return;
+        // REQ-094: la barra es solo para las ventanas de graficas (historial). En la ficha de la parcela del mapa no
+        // cabe: alli quedan el zoom manual (pellizco, rueda, arrastre) y los iconos del clima.
+        if (canvas.closest(".leaflet-popup")) {
+            const sobrante = contenedor.previousElementSibling;
+            if (sobrante && sobrante.classList.contains("grafica-herramientas")) sobrante.remove();
+            return;
+        }
         let barra = contenedor.previousElementSibling;
         if (!barra || !barra.classList.contains("grafica-herramientas")) {
             barra = document.createElement("div");

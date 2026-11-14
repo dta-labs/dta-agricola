@@ -92,8 +92,9 @@
 | REQ-091 | Editar sensor: imagen centrada; nombre, tipo, cultivo, alertas (humedad, temperatura, amenazas biologicas) y geolocalizacion | Implementado (probar: usuario) | 1 |
 | REQ-092 | Vista satelital: solo el borde de las parcelas, sin relleno sobre la imagen | Implementado (probar: usuario) | 1 |
 | REQ-093 | Graficas del historial: clima (CSP de Open-Meteo), datos al tocar, zoom/ir a fecha, CSV e imagen | Implementado (probar: usuario) | 6 |
+| REQ-094 | Graficas: sin barra de controles en la ficha de la parcela del mapa | Implementado (probar: usuario) | 1 |
 
-**Total: 410 pruebas en Node (2026-11-06), todas en verde.** `npm test` funciona en Node 20 y 22.
+**Total: 411 pruebas en Node (2026-11-06), todas en verde.** `npm test` funciona en Node 20 y 22.
 
 ## Bloque de autenticacion (cerrado y confirmado por el usuario)
 

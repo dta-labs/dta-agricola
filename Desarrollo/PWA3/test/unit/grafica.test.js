@@ -64,3 +64,10 @@ test("REQ-093 graficas: datos al tocar en cualquier punto, zoom con limites y ba
   assert.match(CORE, /ctx\.fillStyle = "#ffffff";/, "PNG con fondo blanco");
   assert.match(CORE, /La imagen se guardó sin los iconos del clima\./, "alternativa si los iconos impiden exportar");
 });
+
+test("REQ-094 sin barra de controles en la ficha de la parcela del mapa (solo zoom manual y clima)", () => {
+  const ini = CORE.indexOf("const prepararHerramientasDeGrafica = (canvas) => {");
+  const cuerpo = CORE.slice(ini, ini + 900);
+  assert.match(cuerpo, /if \(canvas\.closest\("\.leaflet-popup"\)\) \{[\s\S]*?return;\s*\}/);
+  assert.match(CORE, /pinch: \{\s*enabled: true\s*\}/, "el zoom manual sigue en todas las graficas");
+});

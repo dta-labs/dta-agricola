@@ -20,3 +20,7 @@ Graficas de agua disponible / humedad del suelo, humedad relativa y temperatura 
 
 Notas: los valores del CSV son los de la grafica (en tensiometros, el % de agua disponible). La barra se crea una vez
 por grafica (encima del lienzo) y actua sobre la grafica vigente (`Chart.getChart`).
+
+REQ-094 (2026-11-13): la barra de controles es solo para las ventanas de graficas (historial y la grafica del sensor);
+en la ficha de la parcela del mapa no se muestra (no cabe): alli quedan el zoom manual y los iconos del clima.
+Compilacion `26.11.13.002`.
