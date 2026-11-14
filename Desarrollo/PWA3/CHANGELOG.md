@@ -31,6 +31,9 @@ Cada version publicada lleva una etiqueta de git `pwa3-vX.Y.Z` sobre el commit d
 - Estacionario: "Aceptar" en Configurar parcela dejaba en 0 la duracion del primer riego programado; en el riego a
   demanda un 0 escrito se guardaba como el valor por defecto (0 °C -> 20 °C); los valores por defecto no llegaban a
   las parcelas; "Editar fecha de riego" mostraba NaN en los dias. (REQ-061 E1)
+- Graficas del historial de sensores: iconos del clima de cada dia (la CSP bloqueaba Open-Meteo), datos de todas las
+  series al tocar cualquier punto, barra con acercar/alejar/ver todo/ir a una fecha, exportar datos (CSV) y guardar
+  imagen (PNG). (REQ-093)
 - Editar sensor reordenado: nombre, tipo, cultivo, alertas (humedad, temperatura y amenazas biologicas) y
   geolocalizacion; imagen del sensor centrada. (REQ-091)
 - Vista satelital (NDVI de Sentinel-2) desde el menu lateral y la barra flotante: en la red de sensores y el

@@ -7,7 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <!-- REQ-022: CSP. AngularJS 1.6 usa new Function en $parse, de ahi unsafe-eval;
          hay un script inline (widget del tiempo) y 900+ style=, de ahi unsafe-inline. -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://ajax.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com https://www.gstatic.com https://cdn.firebase.com https://apis.google.com https://accounts.google.com https://www.google.com https://www.googletagmanager.com https://*.firebaseio.com https://*.firebasedatabase.app; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://cdn.firebase.com; img-src 'self' data: blob: https:; font-src 'self' data: https:; connect-src 'self' https://cdn.jsdelivr.net https://*.firebaseio.com wss://*.firebaseio.com https://*.firebasedatabase.app wss://*.firebasedatabase.app https://*.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.google-analytics.com https://*.analytics.google.com https://api.openweathermap.org https://www.tomorrow.io https://weather.tomorrow.io; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com https://www.youtube.com https://*.facebook.com; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://ajax.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com https://www.gstatic.com https://cdn.firebase.com https://apis.google.com https://accounts.google.com https://www.google.com https://www.googletagmanager.com https://*.firebaseio.com https://*.firebasedatabase.app; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://cdn.firebase.com; img-src 'self' data: blob: https:; font-src 'self' data: https:; connect-src 'self' https://cdn.jsdelivr.net https://*.firebaseio.com wss://*.firebaseio.com https://*.firebasedatabase.app wss://*.firebasedatabase.app https://*.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.google-analytics.com https://*.analytics.google.com https://api.openweathermap.org https://archive-api.open-meteo.com https://www.tomorrow.io https://weather.tomorrow.io; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com https://www.youtube.com https://*.facebook.com; object-src 'none'; base-uri 'self'; form-action 'self'">
     <meta name="description"
         content='"DTA - Monitoring & Control\" es la aplicacón de DTA-Agricola para el monitoreo y control inteligente y en tiempo real de sistemas de riego y bombeo.'>
     <meta name="author" content="DTA-Agrícola (Sustentabilidad y Eficiencia Agrícola) https://dtaamerica.com/dta-agricola/">
@@ -3691,7 +3691,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="./assets/modules/materialize/css/materialize.min.css">
     <link rel="stylesheet" href="./assets/modules/leaflet/leaflet.css">
-    <link rel="stylesheet" href="./assets/css/style.css?v=26.11.09.002">
+    <link rel="stylesheet" href="./assets/css/style.css?v=26.11.13.001">
     <link rel="stylesheet" href="./assets/css/responsive.css">
     <link rel="stylesheet" href="./assets/css/formularios.css?v=26.11.06.002">
     <!-- REQ-043: Bootstrap 5 aislado en .bs (convive con Materialize mientras se migra) -->
@@ -3924,6 +3924,7 @@
     <script src="./assets/js/logic/pivote.js?v=26.11.07.005"></script>
     <script src="./assets/js/logic/panel.js?v=26.11.08.012"></script>
     <script src="./assets/js/logic/unidades.js?v=26.11.07.012"></script>
+    <script src="./assets/js/logic/grafica.js?v=26.11.13.001"></script>
     <script src="./assets/js/logic/satelite.js?v=26.11.08.013"></script>
     <script src="./assets/js/logic/medidor.js?v=26.11.07.016"></script>
     <script src="./assets/js/logic/parcela.js?v=26.11.07.007"></script>
@@ -3949,9 +3950,9 @@
 <script src="./assets/js/logic/meteo.js?v=26.11.02.001"></script>
     <script src="./assets/js/logic/aviso.js?v=26.11.02.001"></script>
 <script src="./assets/vendor/bootstrap/bootstrap.bundle.min.js?v=5.3.8"></script>
-    <script src="./assets/js/core.js?v=26.11.08.013"></script>
+    <script src="./assets/js/core.js?v=26.11.13.001"></script>
     <!-- REQ-038: factories, ayudas de interfaz y componentes (despues de core.js, que crea el modulo) -->
-    <script src="./assets/js/app/version.js?v=26.11.09.002"></script>
+    <script src="./assets/js/app/version.js?v=26.11.13.001"></script>
     <script src="./assets/js/app/reglas.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/auth.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/repo.factory.js?v=26.11.06.001"></script>

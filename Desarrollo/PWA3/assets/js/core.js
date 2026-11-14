@@ -52,7 +52,7 @@ function __equipos() {
 }
 
 // Marca de version: si no ves esto en consola, el navegador sirve un core.js viejo.
-console.log("[app] core.js 26.11.08.013");
+console.log("[app] core.js 26.11.13.001");
 
 // #region Controlador Angular
 
@@ -4142,11 +4142,153 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                 options,
                 plugins: [chartWeatherPlugin, chartThresholdBandsPlugin]
             });
-            if (canvas.parentNode) canvas.parentNode.style.height = '250px';    
+            // REQ-093: registros de la grafica (fecha completa de cada punto) y su barra de herramientas.
+            registrosDeGrafica.set(charts[i], { logs: logs || [], tipo: chartType, sensorIndex: i });
+            if (canvas.parentNode) canvas.parentNode.style.height = '250px';
+            prepararHerramientasDeGrafica(canvas);
         } catch (error) {
             console.error('Error al crear el gráfico:', error);
         }
     }
+
+    // ===================== REQ-093: herramientas de las graficas del historial =====================
+    const registrosDeGrafica = new WeakMap();
+
+    /** Fecha completa del punto (del registro del equipo); las etiquetas del eje se acortan o quedan vacias. */
+    const fechaDelPunto = (grafica, indice) => {
+        const datos = registrosDeGrafica.get(grafica);
+        const log = datos && datos.logs[indice];
+        if (log && log.date) return __modulo("grafica").fechaDeRegistro(log.date).texto;
+        return String((grafica.data.labels || [])[indice] || "").trim();
+    };
+
+    const NOMBRES_DE_TIPO = { moisture: "humedad del suelo", humidity: "humedad relativa", temperature: "temperatura", temperatureHumidity: "temperatura y humedad" };
+
+    const partesDelNombre = (grafica) => {
+        const datos = registrosDeGrafica.get(grafica) || {};
+        const sensor = $scope.actualSystem && $scope.actualSystem.sensors ? $scope.actualSystem.sensors["S" + datos.sensorIndex] : null;
+        return [$scope.actualSystem && $scope.actualSystem.name, sensor && (sensor.alias || sensor.id), NOMBRES_DE_TIPO[datos.tipo] || datos.tipo];
+    };
+
+    const descargar = (contenido, nombre) => {
+        const enlace = document.createElement("a");
+        enlace.download = nombre;
+        enlace.href = typeof contenido === "string" ? contenido : URL.createObjectURL(contenido);
+        document.body.appendChild(enlace);
+        enlace.click();
+        enlace.remove();
+        if (typeof contenido !== "string") setTimeout(() => URL.revokeObjectURL(enlace.href), 1000);
+    };
+
+    const aviso = (texto) => { if (window.M && M.toast) M.toast({ html: texto }); };
+
+    const exportarDatosDeGrafica = (grafica) => {
+        const g = __modulo("grafica");
+        const datos = registrosDeGrafica.get(grafica) || { logs: [] };
+        const total = (grafica.data.labels || []).length;
+        const fechas = Array.from({ length: total }, (_, k) =>
+            datos.logs[k] && datos.logs[k].date ? g.fechaDeRegistro(datos.logs[k].date).iso : String(grafica.data.labels[k] || "").trim());
+        const series = grafica.data.datasets.map(d => ({ nombre: d.label, valores: d.data }));
+        // BOM: Excel abre el CSV en UTF-8 (acentos y °C correctos).
+        const blob = new Blob(["\ufeff" + g.csvDeGrafica(fechas, series)], { type: "text/csv;charset=utf-8" });
+        descargar(blob, g.nombreDeArchivo(partesDelNombre(grafica), "csv"));
+    };
+
+    /** PNG con fondo blanco. Si los iconos del clima (de otro dominio) impiden exportar, se guarda sin ellos. */
+    const guardarImagenDeGrafica = (grafica) => {
+        const nombre = __modulo("grafica").nombreDeArchivo(partesDelNombre(grafica), "png");
+        const componer = () => {
+            const lienzo = document.createElement("canvas");
+            lienzo.width = grafica.canvas.width;
+            lienzo.height = grafica.canvas.height;
+            const ctx = lienzo.getContext("2d");
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, lienzo.width, lienzo.height);
+            ctx.drawImage(grafica.canvas, 0, 0);
+            return lienzo.toDataURL("image/png");
+        };
+        try {
+            descargar(componer(), nombre);
+        } catch (error) {
+            const clima = grafica.options.plugins.chartWeather;
+            const iconos = clima.icons;
+            clima.icons = [];
+            grafica.update("none");
+            try {
+                descargar(componer(), nombre);
+                aviso("La imagen se guardó sin los iconos del clima.");
+            } catch (otro) {
+                aviso("No se pudo guardar la imagen de la gráfica.");
+            } finally {
+                clima.icons = iconos;
+                grafica.update("none");
+            }
+        }
+    };
+
+    const irAFechaDeGrafica = (grafica, valorFecha) => {
+        if (!valorFecha) return;
+        const g = __modulo("grafica");
+        const datos = registrosDeGrafica.get(grafica) || { logs: [] };
+        const claves = datos.logs.map(l => l && l.date ? String(l.date).substring(0, 8) : "");
+        const indice = g.indiceDeFecha(claves, valorFecha.replace(/-/g, ""));
+        if (indice < 0) return;
+        const escala = grafica.scales.x;
+        const visibles = Math.max(3, Math.round(escala.max - escala.min + 1));
+        const total = claves.length;
+        const ventana = g.ventanaAlrededor(indice, visibles >= total ? Math.max(3, Math.round(total / 6)) : visibles, total);
+        grafica.zoomScale("x", ventana, "default");
+    };
+
+    /** Barra sobre la grafica: acercar, alejar, restablecer, ir a fecha, exportar datos y guardar imagen. */
+    const prepararHerramientasDeGrafica = (canvas) => {
+        const contenedor = canvas.parentNode;
+        if (!contenedor || !contenedor.parentNode) return;
+        let barra = contenedor.previousElementSibling;
+        if (!barra || !barra.classList.contains("grafica-herramientas")) {
+            barra = document.createElement("div");
+            barra.className = "grafica-herramientas";
+            barra.innerHTML =
+                '<button type="button" data-accion="acercar" title="Acercar" aria-label="Acercar"><i class="material-icons">zoom_in</i></button>' +
+                '<button type="button" data-accion="alejar" title="Alejar" aria-label="Alejar"><i class="material-icons">zoom_out</i></button>' +
+                '<button type="button" data-accion="restablecer" title="Ver todo" aria-label="Ver todo el periodo"><i class="material-icons">zoom_out_map</i></button>' +
+                '<label class="grafica-fecha" title="Ir a una fecha"><i class="material-icons">event</i><input type="date" data-accion="fecha" aria-label="Ir a una fecha"></label>' +
+                '<span class="grafica-separador"></span>' +
+                '<button type="button" data-accion="datos" title="Exportar datos (CSV)" aria-label="Exportar datos"><i class="material-icons">file_download</i></button>' +
+                '<button type="button" data-accion="imagen" title="Guardar imagen (PNG)" aria-label="Guardar imagen"><i class="material-icons">image</i></button>';
+            contenedor.parentNode.insertBefore(barra, contenedor);
+            barra.addEventListener("click", evento => {
+                const boton = evento.target.closest("button[data-accion]");
+                const grafica = boton && Chart.getChart(canvas);
+                if (!grafica) return;
+                evento.stopPropagation();
+                const accion = boton.getAttribute("data-accion");
+                if (accion === "acercar") grafica.zoom(1.5);
+                else if (accion === "alejar") grafica.zoom(1 / 1.5);
+                else if (accion === "restablecer") grafica.resetZoom();
+                else if (accion === "datos") exportarDatosDeGrafica(grafica);
+                else if (accion === "imagen") guardarImagenDeGrafica(grafica);
+            });
+            // El calendario nativo no siempre se abre al tocar el campo (Chrome de escritorio): se pide explicitamente.
+            barra.querySelector('input[data-accion="fecha"]').addEventListener("click", evento => {
+                try { if (evento.target.showPicker) evento.target.showPicker(); } catch (error) { /* sin calendario emergente */ }
+            });
+            barra.querySelector('input[data-accion="fecha"]').addEventListener("change", evento => {
+                const grafica = Chart.getChart(canvas);
+                if (grafica) irAFechaDeGrafica(grafica, evento.target.value);
+            });
+        }
+        // Rango del selector de fecha = periodo de la grafica
+        const grafica = Chart.getChart(canvas);
+        const datos = grafica ? registrosDeGrafica.get(grafica) : null;
+        const entrada = barra.querySelector('input[data-accion="fecha"]');
+        if (datos && datos.logs.length) {
+            const iso = l => { const k = String(l.date || "").substring(0, 8); return k.length === 8 ? `${k.substring(0, 4)}-${k.substring(4, 6)}-${k.substring(6, 8)}` : ""; };
+            entrada.min = iso(datos.logs[0]);
+            entrada.max = iso(datos.logs[datos.logs.length - 1]);
+            entrada.value = "";
+        }
+    };
 
     const getConfiguredRange = (sensorIndex, chartType) => {
         const index = Number(sensorIndex);
@@ -4565,9 +4707,23 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                 // This prevents the default behavior of the chart click
                 e.stopPropagation();
             },
+            // REQ-093: al tocar o pasar por cualquier punto de la grafica se ven todas las series en ese momento
+            // (antes habia que acertar al punto exacto de la linea).
+            interaction: { mode: "index", intersect: false },
             plugins: {
                 chartWeather: {
                     icons: weatherIcons
+                },
+                tooltip: {
+                    enabled: true,
+                    callbacks: {
+                        title: items => items.length ? fechaDelPunto(items[0].chart, items[0].dataIndex) : "",
+                        label: item => {
+                            const valor = item.parsed && item.parsed.y;
+                            if (valor === null || valor === undefined || !Number.isFinite(valor)) return `${item.dataset.label}: sin dato`;
+                            return `${item.dataset.label}: ${Math.round(valor * 10) / 10}`;
+                        }
+                    }
                 },
                 // Código original comentado que mostraba la leyenda con funcionalidad de clic:
                 // legend: {
@@ -4610,7 +4766,9 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                     pan: {
                         enabled: true,
                         mode: 'x'
-                    }
+                    },
+                    // REQ-093: sin salirse de los datos y con al menos 3 puntos a la vista.
+                    limits: { x: { min: "original", max: "original", minRange: 3 } }
                 }
             }
         };
