@@ -37,3 +37,6 @@ API: `window.dtaSplash.avance(porcentaje, texto)` y `window.dtaSplash.listo()`.
 El usuario queria animar **el icono de DTA-Agricola** (no uno nuevo). El SVG de pivote se sustituye por la imagen del
 manifiesto (`icons/res/DTA_Agricola_512.png`) animada entera: rebote al aparecer, **destello** que la recorre, **pulso**
 suave y el punto en orbita. Colores de la pantalla con el verde del icono (#4C8624). Compilacion `26.11.20.007`.
+
+REQ-107 (2026-11-20): el icono se recorta en circulo; como el circulo verde ocupa el 92 % de la imagen, el blanco queda
+solo como un aro de ~4 px. Compilacion `26.11.20.008`.

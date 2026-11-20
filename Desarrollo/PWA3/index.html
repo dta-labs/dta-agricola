@@ -44,9 +44,10 @@
         #splash .sp-orbita { position: absolute; inset: 0; border: 1px dashed #4c862440; border-radius: 50%; animation: sp-orbita 3.2s linear infinite; }
         #splash .sp-orbita i { position: absolute; top: -5px; left: calc(50% - 5px); width: 10px; height: 10px; border-radius: 50%;
             background: #4c8624; box-shadow: 0 0 8px #4c862499; }
-        #splash .sp-icono { position: relative; width: 112px; height: 112px; overflow: hidden; border-radius: 24px;
+        #splash .sp-icono { position: relative; width: 112px; height: 112px; overflow: hidden; border-radius: 50%; background: #fff;
             animation: sp-pop .7s cubic-bezier(.2,1.4,.4,1) both, sp-pulso 2.4s ease-in-out 1s infinite; }
-        #splash .sp-logo { display: block; width: 100%; height: 100%; object-fit: contain; }
+        /* REQ-107: circular; el circulo verde ocupa el 92 % de la imagen: el blanco queda solo como aro (~4 px) */
+        #splash .sp-logo { display: block; width: 100%; height: 100%; object-fit: cover; }
         #splash .sp-brillo { position: absolute; top: 0; left: -75%; width: 50%; height: 100%; pointer-events: none;
             background: linear-gradient(105deg, transparent 0%, rgba(255,255,255,.75) 50%, transparent 100%);
             transform: skewX(-18deg); animation: sp-brillo 2.8s ease-in-out .9s infinite; }
@@ -4106,7 +4107,7 @@
 <script src="./assets/vendor/bootstrap/bootstrap.bundle.min.js?v=5.3.8"></script>
     <script src="./assets/js/core.js?v=26.11.20.006"></script>
     <!-- REQ-038: factories, ayudas de interfaz y componentes (despues de core.js, que crea el modulo) -->
-    <script src="./assets/js/app/version.js?v=26.11.20.007"></script>
+    <script src="./assets/js/app/version.js?v=26.11.20.008"></script>
     <script src="./assets/js/app/reglas.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/auth.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/repo.factory.js?v=26.11.06.001"></script>

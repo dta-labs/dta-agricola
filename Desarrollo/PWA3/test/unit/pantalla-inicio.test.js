@@ -76,3 +76,7 @@ test("REQ-106 se anima el icono oficial de la app (el del manifiesto), no uno di
   const splash = HTML.slice(HTML.indexOf('<div id="splash"'), HTML.indexOf("<noscript><style>#splash"));
   assert.doesNotMatch(splash, /<svg/);
 });
+
+test("REQ-107 icono de inicio circular (el blanco solo como aro)", () => {
+  assert.match(HTML, /#splash \.sp-icono \{[^}]*border-radius: 50%;/);
+});
