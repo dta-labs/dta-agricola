@@ -1426,3 +1426,107 @@ canvas[id^="myChart"],
     font-size: 15px;
     font-weight: 700;
 }
+
+/* REQ-100: menu del equipo (ficha emergente del marcador) */
+.ficha-equipo {
+    min-width: 250px;
+    font-family: Roboto, "Segoe UI", sans-serif;
+    color: #263238;
+}
+.ficha-equipo-cabecera {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 2px 4px 12px 2px;
+    border-bottom: 1px solid #eceff1;
+}
+.ficha-equipo-pin {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    box-sizing: border-box;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    background: var(--estado, #20b2aa);
+    border: 3px solid #ffffff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+}
+.ficha-equipo-pin .fa {
+    transform: rotate(45deg);
+    color: #ffffff;
+    font-size: 15px;
+}
+.ficha-equipo-claro .fa {
+    color: #5d4037;
+}
+.ficha-equipo-titulos {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+.ficha-equipo-titulos b {
+    font-size: 1.15rem;
+    line-height: 1.25;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.ficha-equipo-titulos small {
+    color: #607d8b;
+    font-size: 0.8rem;
+}
+.ficha-equipo-opciones {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+    margin: 10px 0;
+}
+.ficha-equipo-opcion {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 2px;
+    padding: 8px 2px 6px 2px;
+    border-radius: 10px;
+    background: #f5f7f8;
+    color: #37474f !important;
+    font-size: 0.8rem;
+    font-weight: 600;
+    line-height: 1.1;
+    text-align: center;
+    cursor: pointer;
+}
+.ficha-equipo-opcion:hover,
+.ficha-equipo-opcion:focus-visible {
+    background: #e8f5e9;
+    color: #1b5e20 !important;
+    outline: none;
+}
+.ficha-equipo-opcion .material-icons {
+    font-size: 24px;
+    line-height: 24px;
+}
+.ficha-equipo-ir {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 12px;
+    border-radius: 10px;
+    background: #00897b;   /* color fijo: navegar no es un estado (el estado ya esta en el pin) */
+    color: #ffffff !important;
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+.ficha-equipo-ir small {
+    margin-left: auto;
+    font-weight: 500;
+    opacity: 0.85;
+}
+.ficha-equipo-ir:hover {
+    filter: brightness(1.06);
+}

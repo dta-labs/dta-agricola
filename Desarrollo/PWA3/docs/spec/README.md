@@ -98,8 +98,9 @@
 | REQ-097 | Ajustes del sistema: abrir la configuracion WiFi del Gateway Universal (192.168.4.1) | Implementado (probar: usuario) | 4 |
 | REQ-098 | Mapa de sensores: temperatura y etiqueta de humedad flotando sobre cada sensor, sin recuadro | Implementado (probar: usuario) | 1 |
 | REQ-099 | Etiquetas flotantes de los sensores mas grandes (19/15 px) | Implementado (probar: usuario) | 1 |
+| REQ-100 | Menu del equipo: cabecera con el pin y el estado, opciones alineadas con Ajustes, "Como llegar" al pie | Implementado (probar: usuario) | 3 |
 
-**Total: 419 pruebas en Node (2026-11-06), todas en verde.** `npm test` funciona en Node 20 y 22.
+**Total: 422 pruebas en Node (2026-11-06), todas en verde.** `npm test` funciona en Node 20 y 22.
 
 ## Bloque de autenticacion (cerrado y confirmado por el usuario)
 

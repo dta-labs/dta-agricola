@@ -52,7 +52,7 @@ function __equipos() {
 }
 
 // Marca de version: si no ves esto en consola, el navegador sirve un core.js viejo.
-console.log("[app] core.js 26.11.20.002");
+console.log("[app] core.js 26.11.20.003");
 
 // #region Controlador Angular
 
@@ -3294,62 +3294,35 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         });
     }
 
-    const getMarkerText = (campo) => {
-        const drivingUrl = `https://www.google.com/maps/dir/?api=1&origin=Current+Location&destination=${campo.latitude.toFixed(5)},${campo.longitude.toFixed(5)}&travelmode=driving`;
-        const walkingUrl = `https://www.google.com/maps/dir/?api=1&origin=Current+Location&destination=${campo.latitude.toFixed(5)},${campo.longitude.toFixed(5)}&travelmode=walking`;
-        let label = campo.type == 'Sensor' ? "Sensores" : "Planes";
+    // REQ-100: menu del equipo (ficha al tocar su marcador) con el estilo nuevo: cabecera con el pin del equipo (color del
+    // estado, icono del tipo), nombre y estado; cuatro opciones alineadas (Historial, Sensores/Planes, Usuarios, Ajustes) y
+    // "Como llegar" al pie (antes "Ir" era una opcion mas). HTML fijo: las opciones abren los modales con modal-trigger.
+    const NOMBRES_DE_EQUIPO = { PC: "Pivote central", PL: "Pivote lineal", Pozo: "Pozo", Pump: "Pozo", Sensor: "Red de sensores", Estacionario: "Estacionario", Nevera: "Nevera" };
+    const ICONOS_DE_EQUIPO = { PC: "fa-dot-circle-o", PL: "fa-arrows-h", Pozo: "fa-tint", Pump: "fa-tint", Sensor: "fa-wifi", Estacionario: "fa-th", Nevera: "fa-snowflake-o" };
 
-        let text = ``;
-        text += `<div style="padding: 5px 10px;">`;
-        text += `    <div class="row" style="margin-bottom: 5px;">`;
-        text += `        <div class="col s12">`;
-        text += `            <i class="material-icons">golf_course</i>`;
-        text += `            <b><span style="font-size: 1.4em;">${campo.name ?? "" }</span></b>`;
-        text += `        </div>`;
-        text += `        <div class="col s12"><hr></div>`;
-        text += `        <div class="col s12" style="border-radius: 10px; background: #f5f5f5; color: #434343;">`;
-        text += `           <table>`;
-        text += `               <tr>`;
-        text += `                   <td class="modal-trigger" href="#modalHistorial" style="text-align: center; cursor: pointer;">`;
-        text += `                       <div class="center-align" style="margin-top: -5px;" ng-show="authUser &amp;&amp; selectedWindow == 'sistema'">`;
-        text += `                           <i class="material-icons" style="font-size: 2em;">equalizer</i> `;
-        text += `                       </div>`;
-        text += `                       <div class="center-align" style="margin-top: -5px;" style="margin-top: -5px;">`;
-        text += `                           <b>Historial</b>`;
-        text += `                       </div>`;
-        text += `                   </td>`;
-        text += `                   <td class="modal-trigger" href="#modalConfig" style="text-align: center; cursor: pointer;">`;
-        text += `                       <div class="center-align" ng-show="authUser &amp;&amp; selectedWindow == 'sistema'">`;
-        text += `                           <i class="fa fa-list" aria-hidden="true" style="font-size: 1.5em;"></i>`;
-        text += `                       </div>                                                    `;
-        text += `                       <div class="center-align">`;
-        text += `                           <b>${label}</b>`;
-        text += `                       </div>`;
-        text += `                   </td>`;
-        text += `                   <td class="modal-trigger" href="#modalUsuarios" style="text-align: center; cursor: pointer;">`;
-        text += `                       <div class="center-align" ng-show="authUser &amp;&amp; selectedWindow == 'sistema'">`;
-        text += `                           <i class="fa fa-users" aria-hidden="true" style="font-size: 1.5em;"></i> `;
-        text += `                       </div>`;
-        text += `                       <div class="center-align">`;
-        text += `                           <b>Usuarios</b>`;
-        text += `                       </div>`;
-        text += `                   </td>`;
-        text += `                   <td style="text-align: center; cursor: pointer;">`;
-        text += `                       <a href="${drivingUrl}" target="_blank" style="margin-top: -5px; color: #434343">`;
-        text += `                           <div class="center-align" ng-show="authUser &amp;&amp; selectedWindow == 'sistema'">`;
-        text += `                               <i class="material-icons Small">directions</i>`;
-        text += `                           </div>`;
-        text += `                           <div class="center-align" style="margin-top: -7px">`;
-        text += `                               <b>Ir</b>`;
-        text += `                           </div>`;
-        text += `                       </a>`;
-        text += `                   </td>`;
-        text += `               </tr>`;
-        text += `           </table>`;
-        text += `        </div>`;
-        text += `    </div>`;
-        text += `</div>`;
-        return text;
+    const getMarkerText = (campo) => {
+        const lat = Number(campo.latitude), lng = Number(campo.longitude);
+        const rutaUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat.toFixed(5)},${lng.toFixed(5)}&travelmode=driving`;
+        const panel = __modulo("panel");
+        const estado = panel.estadoDeEquipo(campo, campo.type == "Sensor" ? antiguedadDeRed(campo).vieja : false);
+        const tipo = NOMBRES_DE_EQUIPO[campo.type] || "Equipo";
+        const opcion = (modal, icono, texto) =>
+            `<a class="ficha-equipo-opcion modal-trigger" href="#${modal}" role="button"><i class="material-icons" aria-hidden="true">${icono}</i><span>${texto}</span></a>`;
+        return `<div class="ficha-equipo" style="--estado:${estado.color}">` +
+            `<div class="ficha-equipo-cabecera">` +
+            `<span class="ficha-equipo-pin${estado.estado === "pendiente" ? " ficha-equipo-claro" : ""}"><i class="fa ${ICONOS_DE_EQUIPO[campo.type] || "fa-map-marker"}" aria-hidden="true"></i></span>` +
+            `<div class="ficha-equipo-titulos"><b>${escaparHtml(campo.name || "Equipo")}</b><small>${escaparHtml(tipo)} · ${escaparHtml(estado.texto)}</small></div>` +
+            `</div>` +
+            `<div class="ficha-equipo-opciones">` +
+            opcion("modalHistorial", "equalizer", "Historial") +
+            opcion("modalConfig", "format_list_bulleted", campo.type == "Sensor" ? "Sensores" : "Planes") +
+            opcion("modalUsuarios", "group", "Usuarios") +
+            opcion("modalAdjust", "settings", "Ajustes") +
+            `</div>` +
+            (Number.isFinite(lat) && Number.isFinite(lng)
+                ? `<a class="ficha-equipo-ir" href="${rutaUrl}" target="_blank" rel="noopener"><i class="material-icons" aria-hidden="true">directions</i><span>Cómo llegar</span><small>Google Maps</small></a>`
+                : "") +
+            `</div>`;
     }
 
     const setSensorList = (campo) => {
