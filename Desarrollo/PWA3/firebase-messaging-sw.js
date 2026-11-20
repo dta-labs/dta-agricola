@@ -1,6 +1,22 @@
 importScripts("https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js");
 importScripts("https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js");
 importScripts("./assets/js/firebaseConfig.js");
+// REQ-101: bandeja de notificaciones (las push que llegan con la app cerrada quedan en un buzon para la app).
+importScripts("./assets/js/logic/notificaciones.js?v=26.11.20.004");
+importScripts("./assets/js/services/buzon-notificaciones.js?v=26.11.20.004");
+
+// Con titulo y texto, el navegador muestra la notificacion por su cuenta y Firebase NO llama al manejador en
+// segundo plano: por eso se escucha el evento push directamente (recibe todas).
+self.addEventListener("push", (event) => {
+  try {
+    const payload = event.data ? event.data.json() : null;
+    if (!payload || !self.DTALogic || !self.DTAServicios) return;
+    const entrada = self.DTALogic.notificaciones.desdePush({ notification: payload.notification, data: payload.data });
+    event.waitUntil(self.DTAServicios.buzonNotificaciones.guardar(entrada).catch(() => {}));
+  } catch (error) {
+    // Una push sin JSON no se guarda en la bandeja; el navegador la sigue mostrando.
+  }
+});
 
 firebase.initializeApp(config);
 

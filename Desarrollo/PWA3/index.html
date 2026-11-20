@@ -3704,14 +3704,14 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="./assets/modules/materialize/css/materialize.min.css">
     <link rel="stylesheet" href="./assets/modules/leaflet/leaflet.css">
-    <link rel="stylesheet" href="./assets/css/style.css?v=26.11.20.003">
+    <link rel="stylesheet" href="./assets/css/style.css?v=26.11.20.004">
     <link rel="stylesheet" href="./assets/css/responsive.css">
     <link rel="stylesheet" href="./assets/css/formularios.css?v=26.11.06.002">
     <!-- REQ-043: Bootstrap 5 aislado en .bs (convive con Materialize mientras se migra) -->
     <link rel="stylesheet" href="./assets/vendor/bootstrap/bootstrap-dta.css?v=5.3.8.1">
     <link rel="stylesheet" href="./assets/css/bootstrap-convivencia.css?v=26.11.06.002">
     <link rel="stylesheet" href="./assets/css/perfil.css?v=26.11.06.003">
-    <link rel="stylesheet" href="./assets/css/ventana.css?v=26.11.09.001">
+    <link rel="stylesheet" href="./assets/css/ventana.css?v=26.11.20.004">
     <!-- REQ-047: tema comun (botones, modales, campos, ventanas) para lo que sigue en Materialize -->
     <link rel="stylesheet" href="./assets/css/tema.css?v=26.11.06.002">
     <link rel="stylesheet" href="./assets/js/components/login/login.css?v=26.11.06.004">
@@ -3726,19 +3726,58 @@
     <!-- #region REQ-023: modales de Perfil y Planes -->
 
     <!-- REQ-050: Notificaciones con el estilo comun de ventanas (assets/css/ventana.css) -->
+    <!-- REQ-101: boton flotante de notificaciones nuevas (encima del de acciones; solo si hay sin leer) -->
+    <a class="btn-floating btn-large boton-notificaciones" ng-show="authUser && bandeja.sinLeer.length"
+        ng-click="abrirNotificaciones()" role="button" aria-label="{{ bandeja.sinLeer.length }} notificaciones nuevas">
+        <i class="material-icons">notifications_active</i>
+        <span class="boton-notificaciones-contador">{{ bandeja.sinLeer.length > 9 ? '9+' : bandeja.sinLeer.length }}</span>
+    </a>
+
     <div id="modalNotificaciones" class="modal ventana-modal">
         <div class="bs ventana">
             <header class="ventana-cabecera">
                 <span class="ventana-icono" aria-hidden="true"><i class="material-icons">notifications</i></span>
                 <div class="ventana-titulos">
                     <h2 class="ventana-titulo">Notificaciones</h2>
-                    <div class="ventana-subtitulo">Cómo quieres que te avisemos en este dispositivo</div>
+                    <div class="ventana-subtitulo">Avisos de tus equipos y cómo quieres recibirlos</div>
                 </div>
                 <button type="button" class="btn-close modal-close" aria-label="Cerrar"></button>
             </header>
 
             <div class="ventana-cuerpo">
+                <!-- REQ-101: bandeja -->
                 <section class="ventana-seccion">
+                    <h3 class="ventana-seccion-titulo"><i class="material-icons" aria-hidden="true">fiber_new</i> Sin leer
+                        <span class="badge rounded-pill text-bg-danger ms-1" ng-if="bandejaVista.sinLeer.length">{{ bandejaVista.sinLeer.length }}</span></h3>
+                    <p class="ventana-nota mb-0" ng-if="!bandejaVista.sinLeer.length">No hay notificaciones nuevas.</p>
+                    <ul class="bandeja-lista" ng-if="bandejaVista.sinLeer.length">
+                        <li class="bandeja-item bandeja-nueva" ng-repeat="n in bandejaVista.sinLeer track by n.id" ng-include="'plantillaNotificacion'"></li>
+                    </ul>
+                </section>
+                <section class="ventana-seccion">
+                    <h3 class="ventana-seccion-titulo"><i class="material-icons" aria-hidden="true">history</i> Historial
+                        <button type="button" class="btn btn-link btn-sm ms-auto p-0" ng-if="bandejaVista.historial.length" ng-click="borrarHistorialDeNotificaciones()">Borrar historial</button></h3>
+                    <p class="ventana-nota mb-0" ng-if="!bandejaVista.historial.length">Aún no hay notificaciones anteriores en este dispositivo.</p>
+                    <ul class="bandeja-lista" ng-if="bandejaVista.historial.length">
+                        <li class="bandeja-item" ng-repeat="n in bandejaVista.historial | limitTo: 50 track by n.id" ng-include="'plantillaNotificacion'"></li>
+                    </ul>
+                </section>
+                <script type="text/ng-template" id="plantillaNotificacion">
+                    <span class="bandeja-tipo" ng-style="{ 'background': tiposDeNotificacion[n.tipo].color }" title="{{ tiposDeNotificacion[n.tipo].etiqueta }}">
+                        <i class="material-icons" aria-hidden="true">{{ tiposDeNotificacion[n.tipo].icono }}</i>
+                    </span>
+                    <span class="bandeja-texto">
+                        <span class="bandeja-titulo">{{ n.titulo }}</span>
+                        <span class="bandeja-mensaje">{{ n.mensaje }}</span>
+                        <span class="bandeja-fecha">{{ tiposDeNotificacion[n.tipo].etiqueta }} · {{ fechaDeNotificacion(n.fecha) }}</span>
+                    </span>
+                    <span class="bandeja-nivel" ng-style="{ 'color': nivelesDeNotificacion[n.nivel].color }" title="Urgencia {{ nivelesDeNotificacion[n.nivel].etiqueta }}">
+                        <i class="material-icons" aria-hidden="true">{{ nivelesDeNotificacion[n.nivel].icono }}</i>
+                        <small>{{ nivelesDeNotificacion[n.nivel].etiqueta }}</small>
+                    </span>
+                </script>
+                <section class="ventana-seccion">
+                    <h3 class="ventana-seccion-titulo"><i class="material-icons" aria-hidden="true">tune</i> Preferencias</h3>
                     <button type="button" class="ventana-opcion" ng-click="toggleNotifications()"
                         role="switch" aria-checked="{{ notificationsEnabled() ? 'true' : 'false' }}">
                         <span class="ventana-opcion-icono" aria-hidden="true"><i class="material-icons">notifications_active</i></span>
@@ -3938,6 +3977,7 @@
     <script src="./assets/js/logic/panel.js?v=26.11.08.012"></script>
     <script src="./assets/js/logic/unidades.js?v=26.11.07.012"></script>
     <script src="./assets/js/logic/grafica.js?v=26.11.13.001"></script>
+    <script src="./assets/js/logic/notificaciones.js?v=26.11.20.004"></script>
     <script src="./assets/js/logic/satelite.js?v=26.11.08.013"></script>
     <script src="./assets/js/logic/medidor.js?v=26.11.07.016"></script>
     <script src="./assets/js/logic/parcela.js?v=26.11.07.007"></script>
@@ -3946,9 +3986,10 @@
     <script src="./assets/js/services/autenticacion.js?v=26.11.02.001"></script>
     <script src="./assets/js/services/adaptadorFirebaseAuth.js?v=26.11.02.001"></script>
     <script src="./assets/js/services/equipos.js?v=26.11.02.001"></script>
+    <script src="./assets/js/services/buzon-notificaciones.js?v=26.11.20.004"></script>
     <script src="./assets/js/firebaseConfig.js?v=26.11.02.001"></script>
     <script src="./assets/js/firebaseComm.js?v=26.11.05.001"></script>
-    <script src="./assets/js/firebaseMessaging.js?v=26.11.02.001"></script>
+    <script src="./assets/js/firebaseMessaging.js?v=26.11.20.004"></script>
     <script src="./assets/js/jquery.min.js?v=26.11.02.001"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular-route.js"></script>
@@ -3963,9 +4004,9 @@
 <script src="./assets/js/logic/meteo.js?v=26.11.02.001"></script>
     <script src="./assets/js/logic/aviso.js?v=26.11.02.001"></script>
 <script src="./assets/vendor/bootstrap/bootstrap.bundle.min.js?v=5.3.8"></script>
-    <script src="./assets/js/core.js?v=26.11.20.003"></script>
+    <script src="./assets/js/core.js?v=26.11.20.004"></script>
     <!-- REQ-038: factories, ayudas de interfaz y componentes (despues de core.js, que crea el modulo) -->
-    <script src="./assets/js/app/version.js?v=26.11.20.003"></script>
+    <script src="./assets/js/app/version.js?v=26.11.20.004"></script>
     <script src="./assets/js/app/reglas.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/auth.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/repo.factory.js?v=26.11.06.001"></script>

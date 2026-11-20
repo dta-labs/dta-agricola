@@ -240,7 +240,11 @@ function setupForegroundMessaging(messaging) {
   if (foregroundMessagingConfigured || !messaging || !messaging.onMessage) return;
 
   foregroundMessagingConfigured = true;
-  messaging.onMessage(showForegroundNotification);
+  messaging.onMessage((payload) => {
+    showForegroundNotification(payload);
+    // REQ-101: la app la agrega a la bandeja de notificaciones.
+    window.dispatchEvent(new CustomEvent("dta-notificacion", { detail: payload }));
+  });
 }
 
 function isFirebaseMessagingSupported() {

@@ -48,7 +48,8 @@ test("REQ-050 Notificaciones: modal con interruptores (sin checkbox) y ya no es 
   assert.doesNotMatch(m, /type="checkbox"/);
   assert.equal(HTML.indexOf("selectedWindow == 'notificaciones'"), -1);
   assert.match(HTML, /ng-click="abrirNotificaciones\(\)"/);
-  assert.match(CORE, /\$scope\.abrirNotificaciones = \(\) => abrirModal\("modalNotificaciones"\);/);
+  // REQ-101: antes de abrir, la bandeja pasa las sin leer al historial.
+  assert.match(CORE, /\$scope\.abrirNotificaciones = \(\) => \{[\s\S]*?abrirModal\("modalNotificaciones"\);\s*\};/);
 });
 
 test("REQ-050 Invitar: formulario con validacion; ya no oculta el modal a mano", () => {

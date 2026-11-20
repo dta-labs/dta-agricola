@@ -52,7 +52,7 @@ function __equipos() {
 }
 
 // Marca de version: si no ves esto en consola, el navegador sirve un core.js viejo.
-console.log("[app] core.js 26.11.20.003");
+console.log("[app] core.js 26.11.20.004");
 
 // #region Controlador Angular
 
@@ -456,6 +456,9 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             }
             if (result[convertDotToDash($scope.authUser.email)]) {
                 $scope.userProfile = result[convertDotToDash($scope.authUser.email)].profile;
+                // REQ-101: bandeja de este usuario y lo que llego con la app cerrada.
+                cargarBandeja();
+                recogerNotificacionesPendientes();
                 loadSystems();
             }
             $scope.showWindow('listado');
@@ -668,13 +671,13 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         if (!sistema || !sistema.log) return;
 
         // REQ-013: el servicio decide y deduplica; aqui solo se muestran los efectos.
+        // REQ-101: sin avisos emergentes (al iniciar llegaban todos a la vez): cada alarma va a la bandeja de
+        // notificaciones y solo suena si es nueva (no la que ya estaba de una sesion anterior).
         const evaluacion = __equipos().evaluarAlertas(sistema, sistema.log.date);
-        evaluacion.alarmas.forEach(alarma => {
-            const mensaje = __modulo("equipos").mensajeDeAlarma(alarma, sistema.name);
-            M.toast({ html: mensaje });
-            console.log(mensaje);
-        });
-        if (evaluacion.sonar) activarAlarma();
+        const instanteLog = __modulo("estado").instanteDeFechaDispositivo(sistema.log.date);
+        const nuevas = evaluacion.alarmas.filter(alarma => agregarNotificacion(
+            __modulo("notificaciones").desdeAlarmaDeHelada(alarma, sistema, sistema.log.date, isFinite(instanteLog) ? instanteLog : Date.now())));
+        if (evaluacion.sonar && nuevas.length) activarAlarma();
     }
 
     processingSensors = (locationKey) => {
@@ -4916,7 +4919,67 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     $scope.abrirVentana = (id) => abrirModal(id);
 
     // REQ-050: Notificaciones como modal (antes una pantalla completa).
-    $scope.abrirNotificaciones = () => abrirModal("modalNotificaciones");
+    // ===================== REQ-101: bandeja de notificaciones =====================
+    // Guardada por usuario en este dispositivo (localStorage). Fuentes: alarmas de la app, push con la app abierta
+    // (evento "dta-notificacion") y push con la app cerrada (buzon IndexedDB que llena el service worker).
+    let bandejaLista = [];
+    let bandejaCargada = null;   // correo del usuario cuya bandeja esta cargada
+    $scope.bandeja = { sinLeer: [], historial: [] };
+    $scope.bandejaVista = { sinLeer: [], historial: [] };
+    $scope.tiposDeNotificacion = __modulo("notificaciones").TIPOS;
+    $scope.nivelesDeNotificacion = __modulo("notificaciones").NIVELES;
+    $scope.fechaDeNotificacion = (ms) => __modulo("notificaciones").fechaLegible(ms);
+
+    const claveDeBandeja = () => "dta-notificaciones:" + (($scope.authUser && $scope.authUser.email) || "sin-sesion");
+
+    const cargarBandeja = () => {
+        const correo = ($scope.authUser && $scope.authUser.email) || "sin-sesion";
+        if (bandejaCargada === correo) return;
+        bandejaCargada = correo;
+        try { bandejaLista = JSON.parse(localStorage.getItem(claveDeBandeja()) || "[]") || []; } catch (error) { bandejaLista = []; }
+        $scope.bandeja = __modulo("notificaciones").separar(bandejaLista);
+    };
+
+    const guardarBandeja = () => {
+        try { localStorage.setItem(claveDeBandeja(), JSON.stringify(bandejaLista)); } catch (error) { /* sin espacio: solo en memoria */ }
+        $scope.bandeja = __modulo("notificaciones").separar(bandejaLista);
+    };
+
+    /** Agrega una entrada a la bandeja. Devuelve true si era nueva. */
+    const agregarNotificacion = (entrada) => {
+        cargarBandeja();
+        const resultado = __modulo("notificaciones").agregar(bandejaLista, entrada);
+        if (!resultado.nueva) return false;
+        bandejaLista = resultado.lista;
+        guardarBandeja();
+        return true;
+    };
+
+    const recogerNotificacionesPendientes = () => {
+        const buzon = window.DTAServicios && window.DTAServicios.buzonNotificaciones;
+        if (!buzon || !$scope.authUser) return;
+        buzon.tomar().then(entradas => $scope.$evalAsync(() => entradas.forEach(agregarNotificacion)))
+            .catch(error => console.warn("[notificaciones] no se pudo leer el buzon:", error));
+    };
+
+    window.addEventListener("dta-notificacion", evento => $scope.$evalAsync(() =>
+        agregarNotificacion(__modulo("notificaciones").desdePush(evento.detail))));
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) recogerNotificacionesPendientes(); });
+
+    /** Abre la ventana: muestra las sin leer de este momento y las pasa al historial (el boton flotante se oculta). */
+    $scope.abrirNotificaciones = () => {
+        cargarBandeja();
+        $scope.bandejaVista = __modulo("notificaciones").separar(bandejaLista);
+        bandejaLista = __modulo("notificaciones").marcarLeidas(bandejaLista);
+        guardarBandeja();
+        abrirModal("modalNotificaciones");
+    };
+
+    $scope.borrarHistorialDeNotificaciones = () => {
+        bandejaLista = bandejaLista.filter(e => !e.leida);
+        $scope.bandejaVista = Object.assign({}, $scope.bandejaVista, { historial: [] });
+        guardarBandeja();
+    };
 
     // REQ-050: Ayuda como modal (componente montado con ng-if, como las fichas). La ruta #!/ayuda
     // (showAyuda) tambien lo abre.

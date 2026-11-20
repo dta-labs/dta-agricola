@@ -31,6 +31,8 @@ Cada version publicada lleva una etiqueta de git `pwa3-vX.Y.Z` sobre el commit d
 - Estacionario: "Aceptar" en Configurar parcela dejaba en 0 la duracion del primer riego programado; en el riego a
   demanda un 0 escrito se guardaba como el valor por defecto (0 °C -> 20 °C); los valores por defecto no llegaban a
   las parcelas; "Editar fecha de riego" mostraba NaN en los dias. (REQ-061 E1)
+- Notificaciones: ya no aparecen avisos emergentes al iniciar; boton flotante con contador cuando hay nuevas y ventana
+  con "Sin leer" e "Historial" (tipo, fecha y hora, urgencia), incluidas las push recibidas con la app cerrada. (REQ-101)
 - Menu del equipo en el mapa rediseñado: cabecera con el pin del equipo y su estado, opciones alineadas (Historial,
   Sensores/Planes, Usuarios y Ajustes) y boton "Como llegar". (REQ-100)
 - Mapa de la red de sensores: sobre cada sensor flotan su temperatura y su etiqueta de humedad, sin recuadro y

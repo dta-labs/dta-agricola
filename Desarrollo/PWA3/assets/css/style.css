@@ -1530,3 +1530,32 @@ canvas[id^="myChart"],
 .ficha-equipo-ir:hover {
     filter: brightness(1.06);
 }
+
+/* REQ-101: boton flotante de notificaciones nuevas, encima del de acciones (.bottom-right: 56 px a 10 px del borde) */
+.btn-floating.boton-notificaciones {
+    position: fixed;
+    right: 10px;
+    bottom: 78px;
+    z-index: 1000;
+    background-color: #ef6c00;
+    border: 1px solid;
+    overflow: visible;
+}
+.btn-floating.boton-notificaciones:hover,
+.btn-floating.boton-notificaciones:focus {
+    background-color: #f57c00;
+}
+.boton-notificaciones-contador {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 5px;
+    border: 2px solid #ffffff;
+    border-radius: 999px;
+    background: #c62828;
+    color: #ffffff;
+    font: 700 12px/18px Roboto, sans-serif;
+    text-align: center;
+}
