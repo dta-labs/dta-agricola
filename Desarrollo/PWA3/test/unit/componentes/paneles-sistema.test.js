@@ -307,7 +307,8 @@ test("REQ-076 intercambio humedad del suelo / temperatura: valor, unidad, etique
 
 test("REQ-066 sin tarjetas fijas (tooltips permanentes) sobre los sensores del mapa", () => {
   const CORE = fs.readFileSync(path.join(RAIZ, "assets", "js", "core.js"), "utf8");
-  assert.doesNotMatch(CORE, /permanent: true/);
+  // REQ-098: vuelve una etiqueta fija, pero SIN recuadro (lo que tapaba el mapa era la tarjeta de REQ-066).
+  assert.doesNotMatch(CORE, /permanent: true[^\n]*sensor-summary-tooltip/);
   assert.doesNotMatch(CORE, /getSensorValue/);
   // REQ-067: la ficha con los datos se abre ahora al tocar la parcela del sensor.
   assert.match(CORE, /poligons\[capa\]\.bindPopup\(\(\) => fichaDeSensor\(/);

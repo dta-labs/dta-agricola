@@ -52,7 +52,7 @@ function __equipos() {
 }
 
 // Marca de version: si no ves esto en consola, el navegador sirve un core.js viejo.
-console.log("[app] core.js 26.11.13.004");
+console.log("[app] core.js 26.11.20.001");
 
 // #region Controlador Angular
 
@@ -2988,6 +2988,22 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         asegurarPatronRayas(poligons[clave]);
     };
 
+    // REQ-098: sobre cada sensor, su temperatura y la etiqueta de humedad, flotando (sin recuadro, siempre visibles).
+    const etiquetaFlotanteDeSensor = (campo, sensor, indice) => {
+        const valores = __modulo("humedad").valoresDeSensor(campo, indice);
+        const enC = campo.tempUnit === "C";
+        const temperatura = valores.t === null ? "--" : Math.round(enC ? valores.t : valores.t * 9 / 5 + 32) + (enC ? " °C" : " °F");
+        const zona = valores.ms === null ? "Sin lectura" : __modulo("medidor").escalaHumedadSuelo(sensor, valores.ms).etiqueta;
+        return `<span class="etiqueta-sensor-temp">${escaparHtml(temperatura)}</span><span class="etiqueta-sensor-zona">${escaparHtml(zona)}</span>`;
+    };
+
+    const ponerEtiquetaFlotante = (marcador, html) => {
+        if (marcador._dtaEtiqueta === html) return;
+        if (marcador.getTooltip()) marcador.setTooltipContent(html);
+        else marcador.bindTooltip(html, { permanent: true, direction: "top", offset: [0, -20], opacity: 1, interactive: false, className: "etiqueta-sensor" });
+        marcador._dtaEtiqueta = html;
+    };
+
     // REQ-073: marcador del sensor segun su lectura: rojo seco, verde adecuado, azul saturado; sin dato, el de siempre.
     const ICONOS_SENSOR = {
         seco: "./assets/images/marcador_sensor_rojo.png",
@@ -3050,7 +3066,10 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             const estado = humedad.estadoEnRed(campo, indice);
 
             // REQ-073: el marcador del sensor toma el color de su lectura (el dato exacto, en su punto).
-            if (marker[sensor.id]) marker[sensor.id].setIcon(iconoDeSensor(estado.estado));
+            if (marker[sensor.id]) {
+                marker[sensor.id].setIcon(iconoDeSensor(estado.estado));
+                ponerEtiquetaFlotante(marker[sensor.id], etiquetaFlotanteDeSensor(campo, sensor, indice));
+            }
 
             let area = geo.normalizarPoligono(sensor.poligon);
             // REQ-072: si otros sensores estan dentro de esta parcela, cada uno sombrea la zona mas cercana a el.

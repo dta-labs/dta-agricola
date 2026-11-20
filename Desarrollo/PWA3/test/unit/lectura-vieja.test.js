@@ -48,7 +48,7 @@ test("REQ-072 lectura vieja: MAS de 24 h desde log.date (hora local del equipo)"
 test("REQ-072 mapa: menos opacidad, punto del sensor, rayas grises sobre el color y leyenda", () => {
   assert.match(CORE, /fillOpacity: 0\.35/);
   // REQ-073: el punto de medicion es el marcador del sensor, del color de su lectura.
-  assert.match(CORE, /if \(marker\[sensor\.id\]\) marker\[sensor\.id\]\.setIcon\(iconoDeSensor\(estado\.estado\)\);/);
+  assert.match(CORE, /if \(marker\[sensor\.id\]\) \{?\s*marker\[sensor\.id\]\.setIcon\(iconoDeSensor\(estado\.estado\)\);/);
   assert.doesNotMatch(CORE, /circleMarker/);
   assert.match(CORE, /fillColor: "url\(#rayas-lectura-vieja\)", fillOpacity: 1, interactive: false/, "rayas encima, sin tapar el color");
   assert.match(CORE, /rayasDeLecturaVieja\(capa \+ "-rayas", area, vieja\);/);

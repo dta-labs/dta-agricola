@@ -1392,3 +1392,35 @@ canvas[id^="myChart"],
     margin: 0 4px;
     background: #cfd8dc;
 }
+
+/* REQ-098: etiqueta flotante sobre cada sensor (temperatura y humedad): sin recuadro, texto blanco con contorno
+   oscuro y sombra, legible sobre cualquier fondo. */
+.leaflet-tooltip.etiqueta-sensor {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    color: #ffffff;
+    line-height: 1.15;
+    white-space: nowrap;
+    pointer-events: none;
+    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.55));
+    text-shadow:
+        -1px -1px 0 rgba(0, 0, 0, 0.85), 1px -1px 0 rgba(0, 0, 0, 0.85),
+        -1px 1px 0 rgba(0, 0, 0, 0.85), 1px 1px 0 rgba(0, 0, 0, 0.85),
+        0 0 4px rgba(0, 0, 0, 0.9);
+}
+.leaflet-tooltip.etiqueta-sensor::before {
+    display: none;   /* sin la flecha del recuadro */
+}
+.etiqueta-sensor .etiqueta-sensor-temp {
+    font-size: 15px;
+    font-weight: 800;
+}
+.etiqueta-sensor .etiqueta-sensor-zona {
+    font-size: 12px;
+    font-weight: 700;
+}
