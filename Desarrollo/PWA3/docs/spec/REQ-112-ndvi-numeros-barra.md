@@ -23,3 +23,6 @@ captura el toque (la parcela sigue abriendo "Editar parcela").
 
 ## Barra superior del listado
 Verde oscuro (degradado `#12392a` -> `#1b4d38`); en los sistemas sigue la barra oscura con la franja del estado.
+
+REQ-113 (2026-11-20): la cabecera de los sistemas usa el mismo verde oscuro que la del listado (se mantiene la franja
+inferior del color del estado). Compilacion `26.11.20.014`.

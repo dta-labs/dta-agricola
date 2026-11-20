@@ -123,7 +123,8 @@ test("REQ-112 paleta NDVI rojo-amarillo-verde (como los servicios satelitales), 
 
 test("REQ-112 numero en el centro de cada parcela del estacionario y barra verde en el listado", () => {
   assert.match(CORE, /marker\[campo\.key \+ idx \+ "-num"\] = L\.marker\(poligons\[campo\.key \+ idx\]\.getCenter\(\), \{[\s\S]*?interactive: false/);
-  assert.match(HTML, /class="top-navbar barra-superior" ng-class="\{ 'barra-listado': selectedWindow == 'listado' \}"/);
+  // REQ-113: el mismo verde en el listado y en los sistemas.
   const css = fs.readFileSync(path.join(RAIZ, "assets", "css", "style.css"), "utf8");
-  assert.match(css, /\.top-navbar\.barra-superior\.barra-listado \{\s*background: linear-gradient\(90deg, #12392a/);
+  assert.match(css, /\.top-navbar\.barra-superior \{[^}]*background: linear-gradient\(90deg, #12392a 0%, #1b4d38 100%\) !important;/);
+  assert.doesNotMatch(HTML, /barra-listado/);
 });
