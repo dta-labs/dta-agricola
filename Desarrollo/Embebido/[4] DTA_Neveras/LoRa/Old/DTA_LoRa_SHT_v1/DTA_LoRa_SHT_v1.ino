@@ -3,10 +3,18 @@
 
 #include "configuracion.h"
 #include "miscelaneas.h"
+#include "memoria.h"
 #include "sensorSHT4.h"
 #include "lora.h"
 
 #pragma region Programa Principal
+
+void setupSensors() {
+  String id = setupSHT();
+  id.toUpperCase();
+  NODE_ID += TEST ? "F46A000" : id;
+  Serial.println(NODE_ID);
+}
 
 void setup() {
   Serial.begin(250000);
@@ -29,13 +37,6 @@ void loop() {
   }
   sendData();
   lowPower();
-}
-
-void setupSensors() {
-  String id = setupSHT();
-  id.toUpperCase();
-  NODE_ID += TEST ? "F46A000" : id;
-  Serial.println(NODE_ID);
 }
 
 void sendData() {
