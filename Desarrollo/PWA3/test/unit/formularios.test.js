@@ -101,8 +101,15 @@ test("REQ-043 dtaHoraGuardada muestra 24 h y guarda '6:05 PM'", () => {
 
 test("REQ-043 A1: todos los <select> son nativos y no queda M.FormSelect.init activo", () => {
   // REQ-059: varios formularios salieron a componentes; sus select se comprueban tambien.
-  const componentes = require("node:child_process").execSync("find assets/js/components -name '*.html'", { cwd: path.join(__dirname, "..", "..") })
-    .toString().trim().split("\n").map(r => fs.readFileSync(path.join(__dirname, "..", "..", r), "utf8")).join("\n");
+  // Plantillas de los componentes, recorriendo las carpetas con Node (antes `find`, que en Windows es otro programa).
+  const plantillas = [];
+  const recorrer = carpeta => fs.readdirSync(carpeta, { withFileTypes: true }).forEach(e => {
+    const ruta = path.join(carpeta, e.name);
+    if (e.isDirectory()) recorrer(ruta);
+    else if (e.name.endsWith(".html")) plantillas.push(fs.readFileSync(ruta, "utf8"));
+  });
+  recorrer(path.join(__dirname, "..", "..", "assets", "js", "components"));
+  const componentes = plantillas.join("\n");
   const selects = (HTML + componentes).match(/<select\b[^>]*>/g) || [];
   assert.ok(selects.length >= 25);
   selects.forEach(s => assert.match(s, /browser-default/, s));

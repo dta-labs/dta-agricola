@@ -52,3 +52,12 @@ test("REQ-102 los .bat de doble clic solo llaman a los comandos con comprobacion
   assert.ok(JSON.parse(fs.readFileSync(path.join(RAIZ, "firebase.json"), "utf8")).hosting.ignore.includes("**/*.bat"));
   assert.ok(pub.EXCLUSIONES_OBLIGATORIAS.includes("**/*.bat"));
 });
+
+test("las pruebas no dependen de comandos del sistema (Windows y Linux): solo node y git", () => {
+  const recorrer = carpeta => fs.readdirSync(carpeta, { withFileTypes: true }).flatMap(e =>
+    e.isDirectory() ? recorrer(path.join(carpeta, e.name)) : (e.name.endsWith(".js") ? [path.join(carpeta, e.name)] : []));
+  recorrer(path.join(RAIZ, "test")).forEach(archivo => {
+    const fuente = fs.readFileSync(archivo, "utf8");
+    assert.doesNotMatch(fuente, /execSync\(\s*["'`](find|grep|ls|cat|sed|awk|head|tail)\b/, path.relative(RAIZ, archivo));
+  });
+});
