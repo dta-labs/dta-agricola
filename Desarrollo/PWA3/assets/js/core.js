@@ -52,7 +52,7 @@ function __equipos() {
 }
 
 // Marca de version: si no ves esto en consola, el navegador sirve un core.js viejo.
-console.log("[app] core.js 26.11.20.006");
+console.log("[app] core.js 26.11.20.010");
 
 // #region Controlador Angular
 
@@ -344,11 +344,6 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         $scope.selectedWindow = windowsName;
         if (windowsName == "listado") {
             systemsETL();
-            const navBar = document.getElementById("top-navbar");
-            if (navBar) {
-                navBar.style.backgroundColor = "#00000000"; 
-                navBar.style.color = "#000"; 
-            }
         }
         // window.scrollTo(0, 0);
         showContent();
@@ -761,8 +756,6 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     }
 
     $scope.selectSystem = (system) => {
-        document.getElementById("top-navbar").style.backgroundColor = $scope.getSystemBackgroundColor(system);
-        document.getElementById("top-navbar").style.color = $scope.getSystemTextColor(system);
         setDeviceData(system);
         setActualSystemPlans();
         $scope.actualizarListaCultivos();
@@ -4924,6 +4917,36 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     $scope.abrirVentana = (id) => abrirModal(id);
 
     // REQ-050: Notificaciones como modal (antes una pantalla completa).
+    // ===================== REQ-109: resumen de cada equipo y reloj de la barra =====================
+    // El resumen se recalcula solo cuando cambian el log, el estado o los ajustes del equipo (cache por objeto).
+    const cacheDeResumen = new WeakMap();
+    const reglasDeResumen = () => ({ panel: __modulo("panel"), humedad: __modulo("humedad"), medidor: __modulo("medidor") });
+
+    $scope.resumenDeEquipo = (sistema) => {
+        if (!sistema) return {};
+        const huella = [sistema.log, sistema.status, sistema.plots, sistema.sensors, sistema.tempUnit];
+        const previo = cacheDeResumen.get(sistema);
+        if (previo && previo.huella.every((v, i) => v === huella[i])) return previo.resumen;
+        let opciones = {};
+        if (sistema.type == "Sensor" || sistema.type == "Nevera") {
+            const antiguedad = antiguedadDeRed(sistema);
+            opciones = { lecturaVieja: antiguedad.vieja, antiguedad: antiguedad.vieja ? __modulo("estado").textoAntiguedad(antiguedad.horas) : "" };
+        }
+        const resumen = __modulo("resumen").resumenDeEquipo(sistema, reglasDeResumen(), opciones);
+        cacheDeResumen.set(sistema, { huella, resumen });
+        return resumen;
+    };
+
+    $scope.horaDeRegistro = (fecha) => __modulo("resumen").fechaCorta(fecha).hora;
+
+    // Fecha y hora actuales en la barra del listado ("20/11/2026 13:42"), al minuto.
+    const actualizarReloj = () => {
+        const d = new Date(), dos = n => String(n).padStart(2, "0");
+        $scope.relojDelListado = `${dos(d.getDate())}/${dos(d.getMonth() + 1)}/${d.getFullYear()} ${dos(d.getHours())}:${dos(d.getMinutes())}`;
+    };
+    actualizarReloj();
+    setInterval(() => $scope.$evalAsync(actualizarReloj), 30000);
+
     // ===================== REQ-101: bandeja de notificaciones =====================
     // Guardada por usuario en este dispositivo (localStorage). Fuentes: alarmas de la app, push con la app abierta
     // (evento "dta-notificacion") y push con la app cerrada (buzon IndexedDB que llena el service worker).

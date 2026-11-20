@@ -1565,3 +1565,231 @@ canvas[id^="myChart"],
     font: 700 12px/18px Roboto, sans-serif;
     text-align: center;
 }
+
+/* ===================== REQ-109: aspecto de producto ===================== */
+/* Barra superior: oscura y solida; logo o volver | titulo y fecha en dos lineas | avatar y menu. El titulo se
+   ajusta (no se corta "Control de riego"); en un sistema, una franja inferior con el color de su estado. */
+.top-navbar.barra-superior {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-sizing: border-box;
+    width: 100%;
+    height: 62px;
+    padding: 0 10px;
+    border: 0;
+    border-bottom: 3px solid transparent;
+    background: #1c2321 !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+.barra-superior .barra-izquierda,
+.barra-superior .barra-derecha {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 6px;
+    min-width: 64px;
+}
+.barra-superior .barra-derecha {
+    justify-content: flex-end;
+}
+.barra-superior .barra-logo {
+    height: 26px;
+    width: auto;
+}
+.barra-superior .barra-boton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: #ffffff !important;
+    cursor: pointer;
+}
+.barra-superior .barra-boton:hover,
+.barra-superior .barra-boton:focus-visible {
+    background: rgba(255, 255, 255, 0.12);
+    outline: none;
+}
+.barra-superior .barra-boton .material-icons {
+    font-size: 26px;
+    line-height: 26px;
+}
+.barra-superior .barra-boton .fa {
+    font-size: 22px;
+}
+.barra-superior .barra-centro {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    text-align: center;
+    line-height: 1.2;
+}
+.barra-superior .barra-titulo {
+    max-width: 100%;
+    margin: 0 !important;
+    font-size: clamp(0.95rem, 4.2vw, 1.2rem) !important;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.barra-superior .barra-subtitulo {
+    margin-top: 2px;
+    font-size: 0.8rem;
+    color: #b0bec5;
+    white-space: nowrap;
+}
+.barra-superior .avatar-usuario {
+    margin: 0;
+}
+
+/* Tarjetas del listado: fondo solido, franja del estado a la izquierda, sin transparencias */
+.tarjeta-equipo {
+    --estado: #78909c;
+    margin-bottom: 10px;
+    border: 1px solid #e0e6e3;
+    border-left: 6px solid var(--estado);
+    border-radius: 12px;
+    background: #ffffff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+.tarjeta-equipo:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+    transform: translateY(-1px);
+}
+.tarjeta-equipo-enlace {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 92px;
+    padding: 10px 12px 10px 10px;
+    color: #263238 !important;
+    text-align: left;
+}
+.tarjeta-equipo-icono {
+    display: flex;
+    flex: 0 0 64px;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+}
+.tarjeta-equipo-icono img {
+    width: 56px;
+    height: 56px;
+    object-fit: contain;
+}
+.tarjeta-equipo.estado-inactivo .tarjeta-equipo-icono img {
+    filter: grayscale(100%);
+    opacity: 0.7;
+}
+.tarjeta-equipo-icono .tarjeta-pivote {
+    width: 56px;
+    height: 56px;
+    margin: 0;
+}
+.tarjeta-equipo-icono .tarjeta-pivote .esfera {
+    width: 100%;
+    height: 100%;
+    border-width: 3px;
+}
+.tarjeta-equipo-icono .tarjeta-pivote .brazo {
+    border-width: 2px;
+}
+.tarjeta-equipo-icono .tarjeta-icono-material {
+    color: var(--estado);
+    font-size: 48px;
+}
+.tarjeta-equipo-texto {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+.tarjeta-equipo-nombre {
+    font-size: 1.15rem;
+    font-weight: 700;
+    line-height: 1.25;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.tarjeta-equipo-linea {
+    color: #455a64;
+    font-size: 0.9rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.tarjeta-equipo-mensaje {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 2px;
+    color: var(--estado);
+    font-size: 0.88rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+.tarjeta-equipo-mensaje .material-icons {
+    flex: 0 0 auto;
+    font-size: 18px;
+}
+.tarjeta-equipo-mensaje span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.tarjeta-equipo.estado-emergencia {
+    background: #fff5f5;
+}
+.tarjeta-equipo-lateral {
+    display: flex;
+    flex: 0 0 auto;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    min-width: 48px;
+    color: #607d8b;
+    line-height: 1.15;
+}
+.tarjeta-equipo-lateral img {
+    width: 44px;
+    height: 44px;
+    margin-bottom: 2px;
+}
+.tarjeta-equipo-dia {
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+.tarjeta-equipo-hora {
+    font-size: 0.75rem;
+}
+
+/* Boton flotante mapa / mosaico de la red de sensores (mismo lugar y tamaño que el de acciones del listado) */
+.btn-floating.boton-vista-sensores {
+    position: fixed;
+    right: 10px;
+    bottom: 10px;
+    z-index: 1000;
+    background-color: #00897b;
+    border: 1px solid;
+}
+.btn-floating.boton-vista-sensores:hover,
+.btn-floating.boton-vista-sensores:focus {
+    background-color: #00a08f;
+}

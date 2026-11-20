@@ -80,7 +80,8 @@ test("REQ-101 sin avisos emergentes al inicio: las alarmas van a la bandeja y so
 });
 
 test("REQ-101 boton flotante solo con notificaciones nuevas, encima del de acciones, abre la ventana", () => {
-  assert.match(HTML, /<a class="btn-floating btn-large boton-notificaciones ng-hide" ng-cloak ng-show="authUser && bandeja\.sinLeer\.length"\s+ng-click="abrirNotificaciones\(\)"/);
+  // REQ-109: solo en el listado, como el boton de acciones.
+  assert.match(HTML, /<a class="btn-floating btn-large boton-notificaciones ng-hide" ng-cloak ng-show="authUser && bandeja\.sinLeer\.length && selectedWindow == 'listado'"\s+ng-click="abrirNotificaciones\(\)"/);
   const css = fs.readFileSync(path.join(RAIZ, "assets", "css", "style.css"), "utf8");
   assert.match(css, /\.btn-floating\.boton-notificaciones \{[^}]*position: fixed;[^}]*bottom: 78px;/);
 });

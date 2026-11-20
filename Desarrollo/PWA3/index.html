@@ -164,52 +164,38 @@
     <div id="contenido" style="height: 100%; display: none;">
 
         <!-- Barra de menú -->
-        <div id="top-navbar" class="top-navbar" ng-show="selectedWindow != 'login'">
-            <div class="row">
-                <div class="col s3 m1" style="margin-left: -15px; margin-top: 7px;" ng-show="selectedWindow == 'listado'">
-                    <img class="img-logo-cel" src="./assets/images/DTA.png" alt="DTA-Agricola">
+        <!-- REQ-109: barra superior (logo o volver | titulo y fecha en dos lineas | avatar y menu); el titulo nunca se corta -->
+        <div id="top-navbar" class="top-navbar barra-superior" ng-show="selectedWindow != 'login'"
+            ng-style="{ 'border-bottom-color': selectedWindow == 'sistema' && actualSystem ? resumenDeEquipo(actualSystem).color : 'transparent' }">
+            <div class="barra-izquierda">
+                <img ng-if="selectedWindow == 'listado'" class="barra-logo" src="./assets/images/DTA-white.png" alt="DTA-Agrícola">
+                <button type="button" ng-if="selectedWindow != 'listado'" class="barra-boton" ng-click="showWindow('listado')" aria-label="Volver al listado">
+                    <i class="material-icons" aria-hidden="true">arrow_back</i>
+                </button>
+            </div>
+            <div class="barra-centro">
+                <div id="control_de_riego" class="barra-titulo">{{ selectedWindow == 'listado' ? 'Control de riego' : actualSystem.name }}</div>
+                <div class="barra-subtitulo" ng-if="selectedWindow == 'listado'">{{ relojDelListado }}</div>
+                <div class="barra-subtitulo" ng-if="selectedWindow == 'sistema' && actualSystem">
+                    <span ng-if="resumenDeEquipo(actualSystem).fecha.dia">Último reporte {{ resumenDeEquipo(actualSystem).fecha.dia }}/{{ resumenDeEquipo(actualSystem).fecha.anio }} {{ resumenDeEquipo(actualSystem).fecha.hora }}</span>
                 </div>
-                <div class="col s3 m1" style="margin-left: -15px; margin-top: 7px;" ng-click="showWindow('listado')" ng-show="selectedWindow != 'listado'">
-                    <i class="material-icons" style="font-size: 2.5em; ">keyboard_backspace</i>
-                </div>
-                <div class="col s5 m9 l10 center-align limitar">
-                    <p id="control_de_riego" style="font-size: 1.2em; {{ selectedWindow == 'listado' ? 'margin: 10px 0 0 0;' : 'margin: 0;' }}"><b>{{ selectedWindow == 'listado' ? 'CONTROL DE RIEGO' : actualSystem.name }}</b></p>
-                    <p ng-show="selectedWindow == 'sistema'" style="margin: 0; font-size: .9em;">{{ actualSystem.type != 'Sensor' && actualSystem.log.update ? (actualSystem.log.update.substring(6, 8) + '/' + actualSystem.log.update.substring(4, 6) + '/' + actualSystem.log.update.substring(0, 4) + ' ' + actualSystem.log.update.substring(9, 11) + ':' + actualSystem.log.update.substring(11)) :
-                            (actualSystem.log.date.substring(6, 8) + '/' + actualSystem.log.date.substring(4, 6) + '/' + actualSystem.log.date.substring(0, 4) + ' ' + actualSystem.log.date.substring(9, 11) + ':' + actualSystem.log.date.substring(11)) }}</p>
-                    <!-- <p ng-show="selectedWindow == 'sistema' && actualSystem.type == 'Sensor'" style="margin-top: -5px; font-size: .9em;"> «{{ actualSystem.sleepingTime }}min» </p> -->
-                </div>
-                <div class="col s4 m2 l1 right-align" style="margin-left: 10px; padding-top: 5px; text-align: right;">
-                    <span ng-if="!authUser">
-                        <a href="#!/login" ng-click="login()" aria-label="User" style="color: black; margin-left: 15px;">
-                            <i class="fa fa-user" aria-hidden="true" style="margin-top: 5px; font-size: 2em;"></i>
-                        </a>
-                    </span>
-                    <span ng-if="authUser" class="valign-wrapper">
-                        <span ng-if="selectedWindow == 'sistema' && actualSystem.type == 'Sensor'">
-                            <a ng-click="toggleSensorMapView()"
-                                aria-label="{{ showSensorMapView ? 'Ocultar mapa' : 'Mostrar mapa' }}"
-                                style="color: black; cursor: pointer;">
-                                <i class="fa"
-                                    ng-class="showSensorMapView ? 'fa-th-large' : 'fa-map-o'"
-                                    aria-hidden="true"
-                                    style="margin-top: 5px; font-size: 1.5em; margin-right: 15px;"></i>
-                            </a>
-                        </span>
-                        <span ng-if="selectedWindow != 'sistema' || actualSystem.type != 'Sensor'" style="margin-top: 5px; font-size: 1.5em; margin-right: 15px;">&nbsp;</span>
-                        <!-- REQ-036: el avatar abre el menu lateral, donde vive el menu de usuario -->
-                        <a href="#" data-target="slide-out" class="sidenav-trigger avatar-usuario" aria-label="Menú de usuario">
-                            <img ng-if="authUser.photoURL && !fotoUsuarioFallo"
-                                ng-src="{{ authUser.photoURL }}"
-                                referrerpolicy="no-referrer"
-                                onerror="angular.element(this).scope().marcarFotoFallida(this)"
-                                class="avatar-usuario-img" alt="Foto de {{ authUser.displayName || authUser.email }}">
-                            <span ng-if="!authUser.photoURL || fotoUsuarioFallo" class="avatar-usuario-inicial">{{ inicialDelUsuario() }}</span>
-                        </a>
-                        <a href="#" data-target="slide-out" class="sidenav-trigger" style="color: black;">
-                            <i class="material-icons" style="margin-top: 7px;margin-left: 10px;">more_vert</i>
-                        </a>
-                    </span>
-                </div>
+            </div>
+            <div class="barra-derecha">
+                <a ng-if="!authUser" href="#!/login" ng-click="login()" class="barra-boton" aria-label="Iniciar sesión">
+                    <i class="fa fa-user" aria-hidden="true"></i>
+                </a>
+                <!-- REQ-036: el avatar abre el menu lateral, donde vive el menu de usuario -->
+                <a ng-if="authUser" href="#" data-target="slide-out" class="sidenav-trigger avatar-usuario" aria-label="Menú de usuario">
+                    <img ng-if="authUser.photoURL && !fotoUsuarioFallo"
+                        ng-src="{{ authUser.photoURL }}"
+                        referrerpolicy="no-referrer"
+                        onerror="angular.element(this).scope().marcarFotoFallida(this)"
+                        class="avatar-usuario-img" alt="Foto de {{ authUser.displayName || authUser.email }}">
+                    <span ng-if="!authUser.photoURL || fotoUsuarioFallo" class="avatar-usuario-inicial">{{ inicialDelUsuario() }}</span>
+                </a>
+                <a ng-if="authUser" href="#" data-target="slide-out" class="sidenav-trigger barra-boton" aria-label="Menú">
+                    <i class="material-icons" aria-hidden="true">more_vert</i>
+                </a>
             </div>
         </div>
 
@@ -226,258 +212,36 @@
                         <div class="row" style="margin-left: 0; margin-right: 0;">
                             <div class="col s12 m6 l4 xl3" id="{{ system.key }}" ng-repeat="system in systems"
                                 ng-click="selectSystem(system)" ng-show="system.name">
-                                <div class="sercices-options waves-effect" 
-                                    style="display: block !important; padding-bottom: 0;
-                                           background: {{ getSystemBackgroundColor(system) }}; color: {{ getSystemTextColor(system) }};">
-
-                                    <a href="#!/sistema" ng-click="showWindow('sistema')"
-                                        style="color: {{ color }} !important;" ng-init="color = getSystemColor(system)">
-
-                                        <div class="row" style="margin-bottom: 0;" ng-show="system.type == 'PC'">
-                                            <div class="col s3" style="margin-top: 10px; height: 80px;">
-                                                <div class="pivote">
-                                                    <div class="esfera"
-                                                        style="border-color: {{ color }};">
-                                                        <div id="pos_{{ system.key }}" class="brazo"
-                                                            style="border-color: {{ color }};">
-                                                        </div>
-                                                    </div>
+                                <!-- REQ-109: tarjeta del equipo (fondo solido, franja del estado, resumen humano y accionable) -->
+                                <div class="tarjeta-equipo" ng-class="'estado-' + resumenDeEquipo(system).estado"
+                                    ng-style="{ '--estado': resumenDeEquipo(system).color }">
+                                    <a href="#!/sistema" ng-click="showWindow('sistema')" class="tarjeta-equipo-enlace"
+                                        aria-label="{{ system.name }}: {{ resumenDeEquipo(system).linea }}. {{ resumenDeEquipo(system).mensaje }}">
+                                        <div class="tarjeta-equipo-icono" ng-switch="system.type">
+                                            <div ng-switch-when="PC" class="pivote tarjeta-pivote">
+                                                <div class="esfera" ng-style="{ 'border-color': resumenDeEquipo(system).color }">
+                                                    <div id="pos_{{ system.key }}" class="brazo" ng-style="{ 'border-color': resumenDeEquipo(system).color }"></div>
                                                 </div>
                                             </div>
-                                            <div class="col s7 limitar left-align" style="margin-top: -5px;">
-                                                <div style="font-size: 1.2em;"><b>{{ system.name }}</b> </div>
-                                                <div style="font-size: .8em;">
-                                                    <i class="fa fa-undo" ng-show="system.direction == 'RR'"></i>
-                                                    <i class="fa fa-repeat" ng-show="system.direction == 'FF'"></i>
-                                                    <span>
-                                                        <!-- <i class="material-icons" style="font-size: .9em;">near_me</i> -->
-                                                        {{ system.log.position ? system.log.position : 0 }}°
-                                                    </span>
-                                                    <span>
-                                                        <!-- <i class="material-icons"
-                                                            style="font-size: .9em;">network_check</i> -->
-                                                        <i class="fa fa-tachometer" aria-hidden="true"></i>
-                                                        {{ system.log.speed ? system.log.speed : 0}}%
-                                                    </span>
-                                                    <span ng-show="system.log.presion && system.log.presion != '0.00'">
-                                                        <i class="fa fa-tint" aria-hidden="true"></i>
-                                                        {{ system.log.presion }}psi
-                                                    </span>
-                                                    <br>
-                                                    <!-- <span><b>{{ !system.log ? "OFF" : system.log.state }}</b></span> -->
-                                                    <span>{{ system.log.update ? "[" + system.log.update.substring(6,8) + "/" + system.log.update.substring(4,6) + "/" + system.log.update.substring(2,4) + " " + system.log.update.substring(9,11) + system.log.update.substring(11) + "]" : "" }}</span>
-                                                    <!-- <span style="font-size: .8em;">
-                                                        [{{ ((system.log.voltage == 'true' && system.log.safety == 'true' && system.log.commDelay == '-1') || system.status == 'OFF') && system.log.update ? system.log.update : "00000000 0000" }}]
-                                                    </span> -->
-                                                    <span
-                                                        ng-show="(system.log.voltage == 'false' || system.log.safety == 'false' || (system.log.commDelay != '-1' && system.log.voltage == 'true' && system.log.safety == 'true')) && system.status == 'ON'">
-                                                        <b><i>
-                                                                <span>{{ system.log.voltage == 'false' ? 'Falla de
-                                                                    electricidad!' :
-                                                                    system.log.safety == 'false' ? '¡Alarma: falla de
-                                                                    seguridad!' :
-                                                                    system.log.commDelay != '-1' ? '¡Falla de
-                                                                    comunicación!' : ''
-                                                                    }}</span>
-                                                                <span
-                                                                    ng-show="system.log.voltage == 'false' || system.log.safety == 'false'">{{
-                                                                    system.log.statusTime }}</span>
-                                                                <span
-                                                                    ng-show="system.log.commDelay != '-1' && system.log.voltage == 'true' && system.log.safety == 'true'">
-                                                                    {{ system.log.commDelay }}
-                                                                </span>
-                                                            </i></b>
-                                                    </span>
-                                                    <span
-                                                        ng-show="system.log.voltage == 'false' || system.log.safety == 'false'"><span
-                                                            id="errorTime_{{ system.key }}"></span></span>
-                                                </div>
-                                            </div>
-                                            <div class="col s2" style="margin: 2px 0 0 -10px; text-align: right;">
-                                                <img ng-src="{{meteo[system.key].weather.iconUrl}}" alt="Weather icon" loading="lazy">
+                                            <i ng-switch-when="PL" class="material-icons angle_30 tarjeta-icono-material" aria-hidden="true">flip</i>
+                                            <img ng-switch-when="Estacionario" src="./assets/images/parcela.png" alt="" loading="lazy">
+                                            <img ng-switch-when="Pozo" src="assets/images/pozo.png" alt="" loading="lazy">
+                                            <img ng-switch-when="Sensor" src="assets/images/Red-Sensores.png" alt="" loading="lazy">
+                                            <img ng-switch-when="Nevera" src="assets/images/nieve.png" alt="" loading="lazy">
+                                        </div>
+                                        <div class="tarjeta-equipo-texto">
+                                            <div class="tarjeta-equipo-nombre">{{ system.name }}</div>
+                                            <div class="tarjeta-equipo-linea">{{ resumenDeEquipo(system).linea }}</div>
+                                            <div class="tarjeta-equipo-mensaje">
+                                                <i class="material-icons" aria-hidden="true">{{ resumenDeEquipo(system).icono }}</i>
+                                                <span>{{ resumenDeEquipo(system).mensaje }}</span>
                                             </div>
                                         </div>
-
-                                        <div class="row" style="margin-bottom: 0;" ng-show="system.type == 'PL'">
-                                            <div class="col s3" style="margin-top: 10px; height: 80px;">
-                                                <div>
-                                                    <i class="large material-icons angle_30" style="font-size: 3.5em; margin-left: -55px;
-                                                    margin-top: 10px; color: {{ color }};">flip</i>
-                                                </div>
-                                            </div>
-                                            <div class="col s7 limitar left-align" style="margin-top: -5px;">
-                                                <div style="font-size: 1.2em;"><b>{{ system.name }}</b> </div>
-                                                <div style="font-size: .8em;">
-                                                    <i class="material-icons" style="font-size: 1em;" ng-show="system.direction == 'RR'">arrow_back</i>
-                                                    <i class="material-icons" style="font-size: 1em;" ng-show="system.direction == 'FF'">arrow_forward</i>
-                                                    <span>
-                                                        <!-- <i class="material-icons" style="font-size: .9em;">near_me</i> -->
-                                                        {{ system.log.position ? system.log.position : 0 }}%
-                                                    </span>
-                                                    <span>
-                                                        <!-- <i class="material-icons"
-                                                            style="font-size: .9em;">network_check</i> -->
-                                                        <i class="fa fa-tachometer" aria-hidden="true"></i>
-                                                        {{ system.log.speed ? system.log.speed : 0}}%
-                                                    </span>
-                                                    <span>
-                                                        <i class="fa fa-tint" aria-hidden="true"></i>
-                                                        {{ system.log.presion ? system.log.presion : 0 }}psi
-                                                    </span>
-                                                    <br>
-                                                    <!-- <span><b>{{ !system.log ? "OFF" : system.log.state }}</b></span> -->
-                                                    <span>{{ system.log.update ? "[" + system.log.update.substring(6,8) + "/" + system.log.update.substring(4,6) + "/" + system.log.update.substring(2,4) + " " + system.log.update.substring(9,11) + system.log.update.substring(11) + "]" : "" }}</span>
-                                                    <!-- <span style="font-size: .8em;">
-                                                        [{{ ((system.log.voltage == 'true' && system.log.safety == 'true' && system.log.commDelay == '-1') || system.status == 'OFF') && system.log.update ? system.log.update : "00000000 0000" }}]
-                                                    </span> -->
-                                                    <span
-                                                        ng-show="(system.log.voltage == 'false' || system.log.safety == 'false' || (system.log.commDelay != '-1' && system.log.voltage == 'true' && system.log.safety == 'true')) && system.status == 'ON'">
-                                                        <b><i>
-                                                                <span>{{ system.log.voltage == 'false' ? 'Falla de
-                                                                    electricidad!' :
-                                                                    system.log.safety == 'false' ? '¡Alarma: falla de
-                                                                    seguridad!' :
-                                                                    system.log.commDelay != '-1' ? '¡Falla de
-                                                                    comunicación!' : ''
-                                                                    }}</span>
-                                                                <span
-                                                                    ng-show="system.log.voltage == 'false' || system.log.safety == 'false'">{{
-                                                                    system.log.statusTime }}</span>
-                                                                <span
-                                                                    ng-show="system.log.commDelay != '-1' && system.log.voltage == 'true' && system.log.safety == 'true'">
-                                                                    {{ system.log.commDelay }}
-                                                                </span>
-                                                            </i></b>
-                                                    </span>
-                                                    <span
-                                                        ng-show="system.log.voltage == 'false' || system.log.safety == 'false'"><span
-                                                            id="errorTime_{{ system.key }}"></span></span>
-                                                </div>
-                                            </div>
-                                            <div class="col s2" style="margin: 2px 0 0 -10px; text-align: right;">
-                                                <img ng-src="{{meteo[system.key].weather.iconUrl}}" alt="Weather icon" loading="lazy">
-                                            </div>
+                                        <div class="tarjeta-equipo-lateral">
+                                            <img ng-if="meteo[system.key].weather.iconUrl" ng-src="{{ meteo[system.key].weather.iconUrl }}" alt="Clima" loading="lazy">
+                                            <span class="tarjeta-equipo-dia">{{ resumenDeEquipo(system).fecha.dia }}</span>
+                                            <span class="tarjeta-equipo-hora">{{ resumenDeEquipo(system).fecha.hora }}</span>
                                         </div>
-
-                                        <div class="row" style="margin-bottom: 0;" ng-show="system.type == 'Estacionario'">
-                                            <div class="col s3" style="margin-top: 10px; height: 80px;">
-                                                <div style="margin-top: -5px;">
-                                                        <img ng-src="{{ color == 'grey' ? './assets/images/parcela-grey.png' : './assets/images/parcela.png' }}"
-                                                            class="parcela_icon" 
-                                                            alt="parcela" loading="lazy">
-                                                </div>
-                                            </div>
-                                            <div class="col s7 limitar left-align" style="margin-top: -5px;">
-                                                <div style="font-size: 1.2em;"><b>{{ system.name }}</b></div>
-                                                <div style="font-size: .38em; display: inline; white-space: normal;">
-                                                    <span ng-repeat="plot in system.plots" ng-if="$index != 7" style="color: {{ getPlotColor(system, 'p' + $index) }};">
-                                                        <i class="material-icons" style="margin-top: 3px;">filter_{{ $index + 1 }}</i>&nbsp;
-                                                    </span>
-                                                </div>
-                                                <div style="display: inline;">
-                                                    <div style="position: relative; display: inline-block;">
-                                                        <i class="material-icons" style="color: {{ getPlotColor(actualSystem, 'p7') }};"
-                                                            ng-click="setEditPlanEstacionario('p7'); isPlotActive(actualSystem, 'p7') ? stopPlotIrrigation() : startPlotIrrigation()">
-                                                            filter_none
-                                                        </i>
-                                                        <span style="position: absolute; top: 9px; left: 14px; transform: translate(-50%, -50%); font-size: .7em; font-weight: bold; 
-                                                                     color: {{ getPlotColor(actualSystem, 'p7') }};">M</span>
-                                                    </div>
-                                                </div>
-
-                                                <div style="font-size: .6em;">
-                                                    <span style="font-size: 1.3em;">{{ system.log.update ? "[" + system.log.update.substring(6,8) + "/" + system.log.update.substring(4,6) + "/" + system.log.update.substring(2,4) + " " + system.log.update.substring(9,11) + ":" + system.log.update.substring(11) + "]" : "" }}</span><br>
-                                                </div>
-                                            </div>
-                                            <div class="col s2" style="margin: 2px 0 0 -10px; text-align: right;">
-                                                <img ng-src="{{meteo[system.key].weather.iconUrl}}" alt="Weather icon" loading="lazy">
-                                            </div>
-                                        </div>
-
-                                        <div class="row" style="margin-bottom: 0;" ng-show="system.type == 'Pozo'">
-                                            <div class="col s3" style="margin-bottom: 10px; height: 80px;">
-                                                <div style="margin-top: -5px; filter: grayscale(100%);">
-                                                    <img src="assets/images/pozo.png" class="parcela_icon" alt="parcela" loading="lazy">
-                                                </div>
-                                            </div>
-                                            <div class="col s7 limitar left-align" style="margin-top: -5px;">
-                                                <div style="font-size: 1.2em;"><b>{{ system.name }}</b></div>
-                                                <div style="font-size: .8em;">
-                                                    <!-- <span>
-                                                        <i class="material-icons" style="font-size: 1em;">alarm</i>
-                                                        {{ getDayFromMs(system.plots['p' + system.position].value) + ":" +
-                                                        getHourFromMs(system.plots['p' + system.position].value) + ":" + 
-                                                        getMinutesFromMs(system.plots['p' + system.position].value) }}
-                                                    </span>
-                                                    <span>
-                                                        <i class="material-icons" style="font-size: 1em;">map</i>
-                                                        {{ system.position + 1 }}
-                                                    </span> -->
-                                                    <span>
-                                                        <i class="fa fa-tint" aria-hidden="true"></i>
-                                                        {{ system.log.presion ? system.log.presion : 0 }}psi
-                                                    </span>
-                                                    <br>
-                                                    <!-- <span><b>{{ system.status }}</b></span> -->
-                                                    <span>{{ system.log.update ? "[" + system.log.update.substring(6,8) + "/" + system.log.update.substring(4,6) + "/" + system.log.update.substring(2,4) + " " + system.log.update.substring(9,11) + ":" + system.log.update.substring(11) + "]" : "" }}</span><br>
-                                                    <!-- <span><strong>{{ system.culture }}</strong></span> -->
-                                                </div>
-                                            </div>
-                                            <div class="col s2" style="margin: 2px 0 0 -10px; text-align: right;">
-                                                <img ng-src="{{meteo[system.key].weather.iconUrl}}" alt="Weather icon" loading="lazy">
-                                            </div>
-                                        </div>
-
-                                        <div class="row" style="margin-bottom: 0;" ng-show="system.type == 'Sensor'">
-                                            <div class="col s3" style="margin-top: 10px; height: 80px;">
-                                                <div style="margin-top: -5px;">
-                                                    <img src="assets/images/Red-Sensores.png" 
-                                                        class="parcela_icon" 
-                                                        style="height: 50px; opacity: 0.7; filter: grayscale(100%);" 
-                                                        alt="sensor" loading="lazy">
-                                                </div>
-                                            </div>
-                                            <div class="col s7 limitar left-align" style="margin-top: -5px;">
-                                                <div style="font-size: 1.2em;"><b>{{ system.name }}</b></div>
-                                                <div style="font-size: .8em;">
-                                                    <span>
-                                                        <i class="fa fa-tint" aria-hidden="true"></i>
-                                                        {{ system.log.dataRaw ? (100 - ((system.log.meanVal - system.sensors.S0.minValue) / (system.sensors.S0.maxValue - system.sensors.S0.minValue) * 100) | number : 0) : "0" }} <b>%</b> 
-                                                        <span ng-show="system.type == 'Sensor'"> «{{ system.sleepingTime }}min» </span>
-                                                    </span><br>
-                                                    <span>{{ system.log.date ? "[" + system.log.date.substring(6,8) + "/" + system.log.date.substring(4,6) + "/" + system.log.date.substring(2,4) + " " + system.log.date.substring(9,11) + ":" + system.log.date.substring(11) + "]" : "" }}</span>
-                                                </div>
-                                            </div>
-                                            <div class="col s2" style="margin: 2px 0 0 -10px; text-align: right;">
-                                                <img ng-src="{{meteo[system.key].weather.iconUrl}}" alt="Weather icon" loading="lazy">
-                                            </div>
-                                        </div>
-
-                                        <div class="row" style="margin-bottom: 0;" ng-show="system.type == 'Nevera'">
-                                            <div class="col s3" style="margin-bottom: 10px; height: 80px;">
-                                                <div style="margin-top: -5px;">
-                                                    <img src="assets/images/nieve.png" 
-                                                        class="parcela_icon" 
-                                                        style="opacity: 0.7; filter: grayscale(100%);" 
-                                                        alt="nevera" loading="lazy">
-                                                </div>
-                                            </div>
-                                            <div class="col s7 limitar left-align" style="margin-top: -5px;">
-                                                <div style="font-size: 1.2em;"><b>{{ system.name }}</b></div>
-                                                <div style="font-size: .8em;">
-                                                    <span>
-                                                        <i class="fa fa-tint" aria-hidden="true"></i>
-                                                        {{ system.log.dataRaw ? (100 - ((system.log.meanVal - system.sensors.S0.minValue) / (system.sensors.S0.maxValue - system.sensors.S0.minValue) * 100) | number : 0) : "0" }} <b>%</b> 
-                                                        <span ng-show="system.type == 'Nevera'"> «{{ system.sleepingTime }}min» </span>
-                                                    </span><br>
-                                                    <span>{{ system.log.date ? "[" + system.log.date.substring(6,8) + "/" + system.log.date.substring(4,6) + "/" + system.log.date.substring(2,4) + " " + system.log.date.substring(9,11) + ":" + system.log.date.substring(11) + "]" : "" }}</span>
-                                                </div>
-                                            </div>
-                                            <div class="col s2" style="margin: 2px 0 0 -10px; text-align: right;">
-                                                <img ng-src="{{meteo[system.key].weather.iconUrl}}" alt="Weather icon" loading="lazy">
-                                            </div>
-                                        </div>
-
                                     </a>
                                 </div>
                             </div>
@@ -2031,7 +1795,7 @@
                                                 <tbody>
                                                     <tr ng-repeat="reg in invertedRegisters" ng-init="data=convertStrToJSON(reg.dataRaw)" ng-show="data[(idx * 8)] != 'NaN' && data[(idx * 8)] != 'NAN' && data[(idx * 8) + 1] != 'NaN' && data[(idx * 8) + 1] != 'NAN' && data[(idx * 8) + 4] != 'NaN' && data[(idx * 8) + 4] != 'NAN' && data[(idx * 8) + 5] != 'NaN' && data[(idx * 8) + 5] != 'NAN'">
                                                         <td ng-show="selectedTimeOption != 'DIA'">{{ reg.date.substring(6, 8) }}/{{ reg.date.substring(4, 6) }}/{{ reg.date.substring(2, 4) }}</td>
-                                                        <td ng-show="selectedTimeOption == 'DIA'">{{ reg.date.substring(9, 11) }}:{{  reg.date.substring(11) }}</td>
+                                                        <td ng-show="selectedTimeOption == 'DIA'">{{ horaDeRegistro(reg.date) }}</td>
 
                                                         <td style="color: {{ isOutOfRange(data[idx * 8], sensor.h.minValue, sensor.h.maxValue) ? 'red' : 'green' }};" ng-show="sensor.type != 'WM'"><b>{{ data[(idx * 8)] != "NaN" ? (data[(idx * 8)] | number : 0) : '--' }}%</b></td>
                                                         <td style="color: {{ isOutOfRange(data[idx * 8], sensor.h.minValue, sensor.h.maxValue) ? 'red' : 'green' }};" ng-show="sensor.type == 'WM'"><b>{{ data[(idx * 8)] != "NaN" ? (data[(idx * 8)] != 240 ? (data[(idx * 8)] != 0 ? (data[(idx * 8)] | number : 0) + 'cb' : 'No listo') : 'Error') : '--' }}</b></td>
@@ -2060,7 +1824,7 @@
                                                 <tbody>
                                                     <tr ng-repeat="reg in invertedRegisters" ng-init="data=convertStrToJSON(reg.dataRaw)" ng-show="data[(idx * 8)] != 'NaN' && data[(idx * 8)] != 'NAN' && data[(idx * 8) + 1] != 'NaN' && data[(idx * 8) + 1] != 'NAN' && data[(idx * 8) + 4] != 'NaN' && data[(idx * 8) + 4] != 'NAN' && data[(idx * 8) + 5] != 'NaN' && data[(idx * 8) + 5] != 'NAN'">
                                                         <td ng-show="selectedTimeOption != 'DIA'">{{ reg.date.substring(6, 8) }}/{{ reg.date.substring(4, 6) }}/{{ reg.date.substring(2, 4) }}</td>
-                                                        <td ng-show="selectedTimeOption == 'DIA'">{{ reg.date.substring(9, 11) }}:{{  reg.date.substring(11) }}</td>
+                                                        <td ng-show="selectedTimeOption == 'DIA'">{{ horaDeRegistro(reg.date) }}</td>
                                                         <td style="color: {{ data[idx * 8] < 1 ? 'red' : 'green' }};"><b>{{ data[(idx * 8)] != "NaN" ? (data[(idx * 8)] | number : 0) + 'psi' : 'Apagado' }}</b></td>
                                                         <td ng-if="selectedTimeOption == 'DIA'" style="color: {{ data[(idx * 8) + 7] > 3 ? 'green' : data[(idx * 8) + 7] > 2.8 ? 'darkorange' : 'red'}};" title="{{ data[(idx * 8) + 7] }}V"><i class="material-icons">{{ data[(idx * 8) + 7] > 3 ? 'battery_full' : data[(idx * 8) + 7] > 2.8 ? 'battery_alert' : 'battery_unknown'}}</i></td>
                                                         <td ng-if="selectedTimeOption != 'DIA'" style="color: black;"><b>--h</b></td>
@@ -3802,7 +3566,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="./assets/modules/materialize/css/materialize.min.css">
     <link rel="stylesheet" href="./assets/modules/leaflet/leaflet.css">
-    <link rel="stylesheet" href="./assets/css/style.css?v=26.11.20.005">
+    <link rel="stylesheet" href="./assets/css/style.css?v=26.11.20.010">
     <link rel="stylesheet" href="./assets/css/responsive.css">
     <link rel="stylesheet" href="./assets/css/formularios.css?v=26.11.06.002">
     <!-- REQ-043: Bootstrap 5 aislado en .bs (convive con Materialize mientras se migra) -->
@@ -3824,10 +3588,17 @@
     <!-- #region REQ-023: modales de Perfil y Planes -->
 
     <!-- REQ-050: Notificaciones con el estilo comun de ventanas (assets/css/ventana.css) -->
+    <!-- REQ-109: cambiar mapa / mosaico en la red de sensores (antes en la barra superior) -->
+    <a class="btn-floating btn-large boton-vista-sensores ng-hide" ng-cloak role="button"
+        ng-show="authUser && selectedWindow == 'sistema' && actualSystem.type == 'Sensor'" ng-click="toggleSensorMapView()"
+        ng-attr-aria-label="{{ showSensorMapView ? 'Ver en mosaico' : 'Ver en el mapa' }}" ng-attr-title="{{ showSensorMapView ? 'Ver en mosaico' : 'Ver en el mapa' }}">
+        <i class="material-icons" aria-hidden="true">{{ showSensorMapView ? 'view_module' : 'map' }}</i>
+    </a>
+
     <!-- REQ-101: boton flotante de notificaciones nuevas (encima del de acciones; solo si hay sin leer) -->
     <!-- REQ-103: oculto desde el inicio (ng-hide + ng-cloak) y contador con ng-bind: mientras Angular carga
          no debe verse el boton ni la expresion en crudo -->
-    <a class="btn-floating btn-large boton-notificaciones ng-hide" ng-cloak ng-show="authUser && bandeja.sinLeer.length"
+    <a class="btn-floating btn-large boton-notificaciones ng-hide" ng-cloak ng-show="authUser && bandeja.sinLeer.length && selectedWindow == 'listado'"
         ng-click="abrirNotificaciones()" role="button" ng-attr-aria-label="{{ bandeja.sinLeer.length }} notificaciones nuevas">
         <i class="material-icons">notifications_active</i>
         <span class="boton-notificaciones-contador" ng-bind="bandeja.sinLeer.length > 9 ? '9+' : bandeja.sinLeer.length"></span>
@@ -4077,6 +3848,7 @@
     <script src="./assets/js/logic/panel.js?v=26.11.08.012"></script>
     <script src="./assets/js/logic/unidades.js?v=26.11.07.012"></script>
     <script src="./assets/js/logic/grafica.js?v=26.11.13.001"></script>
+    <script src="./assets/js/logic/resumen.js?v=26.11.20.010"></script>
     <script src="./assets/js/logic/notificaciones.js?v=26.11.20.004"></script>
     <script src="./assets/js/logic/satelite.js?v=26.11.08.013"></script>
     <script src="./assets/js/logic/medidor.js?v=26.11.07.016"></script>
@@ -4104,9 +3876,9 @@
 <script src="./assets/js/logic/meteo.js?v=26.11.02.001"></script>
     <script src="./assets/js/logic/aviso.js?v=26.11.02.001"></script>
 <script src="./assets/vendor/bootstrap/bootstrap.bundle.min.js?v=5.3.8"></script>
-    <script src="./assets/js/core.js?v=26.11.20.006"></script>
+    <script src="./assets/js/core.js?v=26.11.20.010"></script>
     <!-- REQ-038: factories, ayudas de interfaz y componentes (despues de core.js, que crea el modulo) -->
-    <script src="./assets/js/app/version.js?v=26.11.20.009"></script>
+    <script src="./assets/js/app/version.js?v=26.11.20.010"></script>
     <script src="./assets/js/app/reglas.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/auth.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/repo.factory.js?v=26.11.06.001"></script>
@@ -4123,7 +3895,7 @@
     <script src="./assets/js/components/sistema/panel-pozo/panel-pozo.component.js?v=26.11.06.001"></script>
     <script src="./assets/js/components/sistema/panel-pivote-lineal/panel-pivote-lineal.component.js?v=26.11.07.001"></script>
     <script src="./assets/js/components/sistema/panel-estacionario/panel-estacionario.component.js?v=26.11.08.014"></script>
-    <script src="./assets/js/components/sistema/panel-sensores/panel-sensores.component.js?v=26.11.08.014"></script>
+    <script src="./assets/js/components/sistema/panel-sensores/panel-sensores.component.js?v=26.11.20.010"></script>
     <script src="./assets/js/components/sistema/panel-nevera/panel-nevera.component.js?v=26.11.07.001"></script>
     <script src="./assets/js/components/sistema/plan-pivote/plan-pivote.component.js?v=26.11.07.008"></script>
     <script src="./assets/js/components/ayuda/ayuda.component.js?v=26.11.06.003"></script>

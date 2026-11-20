@@ -1,5 +1,6 @@
 <!-- REQ-057: panel de la red de sensores (barra y tarjetas) (antes index.html, seccion "sistema"). Mismo aspecto; estilos en paneles.css. -->
-<div class="col s12">
+<!-- REQ-109: la barra de opciones (Historial, Sensores, Satelite, Usuarios) solo en la vista de mapa -->
+<div class="col s12" ng-show="!vm.mostrarLista">
     <div class="row statusBar panel-s-e11">
         <div class="col s12 panel-s-e40">
             <table class="panel-s-e8">

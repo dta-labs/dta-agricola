@@ -35,6 +35,10 @@ Cada version publicada lleva una etiqueta de git `pwa3-vX.Y.Z` sobre el commit d
 - Al iniciar la app se veia en la esquina el contador de notificaciones como expresion sin procesar. (REQ-103)
 - Publicar con `npm run publicar:vista-previa` y `npm run publicar:produccion`: comprueban exclusiones de secretos, git
   y pruebas antes de desplegar, y produccion pide confirmacion escrita. Corregido el comando de PROMOTE.md. (REQ-102)
+- Aspecto de producto: barra superior oscura en dos lineas (el titulo ya no se corta), tarjetas del listado solidas con
+  el estado en lenguaje claro ("Operando (237°) · Sin alertas", "Alerta: suelo seco en Sensor 2") y fecha/hora bajo el
+  clima; boton flotante de mapa/mosaico en la red de sensores; notificaciones solo en el listado. (REQ-109)
+- Corregida la hora con doble ":" (09::48) en la cabecera y el historial. (REQ-109)
 - Pantalla de inicio con el icono de la app animado (rebote, destello, pulso y satelite en orbita) con barra de avance real de la carga y
   la version. (REQ-105)
 - Notificaciones: ya no aparecen avisos emergentes al iniciar; boton flotante con contador cuando hay nuevas y ventana
