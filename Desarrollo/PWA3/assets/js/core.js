@@ -52,7 +52,7 @@ function __equipos() {
 }
 
 // Marca de version: si no ves esto en consola, el navegador sirve un core.js viejo.
-console.log("[app] core.js 26.11.20.004");
+console.log("[app] core.js 26.11.20.006");
 
 // #region Controlador Angular
 
@@ -420,6 +420,9 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                     getUserData();
                     $scope.showWindow('listado');
                 });
+                // REQ-105: se retira al llegar el primer equipo (o a los 5 s si no tiene ninguno).
+                pantallaDeInicio("avance", 92, "Cargando tus equipos…");
+                setTimeout(() => pantallaDeInicio("listo"), 5000);
                 return;
             }
 
@@ -435,6 +438,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             }
 
             console.log("[auth] sin sesion: se muestra el login");
+            pantallaDeInicio("listo");   // REQ-105: sin sesion, se muestra el acceso
             huboSesionEnEstaCarga = false;
             cierreDeSesionPedido = false;
             removeFirebaseListeners();
@@ -567,6 +571,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         // REQ-013: el servicio sostiene las suscripciones; aqui se hace el trabajo de vista.
         __equipos().cargar(Object.keys(userSystems), {
             alCambiarSistema: (sistema, locationKey) => {
+                pantallaDeInicio("listo");   // REQ-105: ya hay equipos que mostrar
                 // REQ-081: los ajustes llegan SIN el log (va en otra ruta). Sin esto, cualquier cambio de ajustes
                 // (p. ej. guardar la vista mapa/mosaico, REQ-078) dejaba el sistema sin lecturas y el mapa en gris.
                 const anterior = $scope.systems[locationKey];
@@ -5342,8 +5347,14 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
 
     $scope.refresh = () => { $scope.$apply(); };
 
+    // REQ-105: avance y retirada de la pantalla de inicio (index.html -> window.dtaSplash).
+    const pantallaDeInicio = (metodo, ...argumentos) => {
+        if (window.dtaSplash && typeof window.dtaSplash[metodo] === "function") window.dtaSplash[metodo](...argumentos);
+    };
+
     $scope.inicializacion = () => {
         console.log("[app] inicializacion()");
+        pantallaDeInicio("avance", 82, "Comprobando tu sesión…");
         console.log(window.navigator.userAgent);
         document.getElementById('contenido').style.display = 'none';
         requestWakeLock();

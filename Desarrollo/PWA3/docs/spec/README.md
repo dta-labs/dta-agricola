@@ -103,8 +103,9 @@
 | REQ-102 | Publicar con comprobaciones: npm run publicar:vista-previa / publicar:produccion (sustituye a deploy.bat) | Implementado (probar: usuario) | 4 |
 | REQ-103 | Al iniciar se veia la expresion del contador de notificaciones (ng-cloak, ng-bind) | Corregido (probar: usuario) | 1 |
 | REQ-104 | `npm run verificar` no terminaba (--smoke ignorado): prueba de arranque real de los 86 recursos | Corregido | 1 |
+| REQ-105 | Pantalla de inicio animada (pivote, orbita), barra de avance real y version | Implementado (probar: usuario) | 3 |
 
-**Total: 439 pruebas en Node (2026-11-06), todas en verde.** `npm test` funciona en Node 20 y 22.
+**Total: 442 pruebas en Node (2026-11-06), todas en verde.** `npm test` funciona en Node 20 y 22.
 
 ## Bloque de autenticacion (cerrado y confirmado por el usuario)
 

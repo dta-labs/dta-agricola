@@ -14,13 +14,16 @@
 
     var VERSION = Object.freeze({
         app: "1.1.0-dev",
-        compilacion: "26.11.20.005",
+        compilacion: "26.11.20.006",
         fecha: "2026-11-20"
     });
 
     if (typeof module !== "undefined" && module.exports) module.exports = VERSION;
     if (raiz.angular) {
         raiz.angular.module("Administracion").constant("dtaVersion", VERSION);
+        // REQ-105: la version tambien en la pantalla de inicio.
+        var enInicio = raiz.document && raiz.document.getElementById("splash-version");
+        if (enInicio) enInicio.textContent = "Versión " + VERSION.app + " · compilación " + VERSION.compilacion;
         if (raiz.console) raiz.console.info("[app] PWA3 v" + VERSION.app + " · compilación " + VERSION.compilacion + " (" + VERSION.fecha + ")");
     }
 })(typeof window !== "undefined" ? window : globalThis);
