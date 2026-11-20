@@ -33,3 +33,11 @@ Requiere `firebase-tools` instalado y la sesion iniciada (`firebase login`) en e
 `publicar-vista-previa.bat` y `publicar-produccion.bat` (en `Desarrollo/PWA3`): solo cambian a la carpeta del proyecto,
 ejecutan `npm run publicar:...` y dejan la ventana abierta (`pause`). No despliegan por su cuenta: las comprobaciones y la
 confirmacion PUBLICAR son las del script. `firebase.json` excluye `**/*.bat` (no se publican) y el script lo exige.
+
+## REQ-104 (2026-11-20): `npm run verificar` no terminaba nunca
+
+`verificar` llama a `node test/servir-local.js --smoke`, pero ese archivo **no tenia modo `--smoke`**: ignoraba el
+parametro y dejaba el servidor de desarrollo escuchando ("MODO PRUEBA: no desplegar..."), asi que la publicacion se
+quedaba esperando. Ahora `--smoke` es una prueba de arranque real: sirve en un puerto libre, pide `index.html`, todos los
+scripts y estilos locales que enlaza y los service workers, cierra el servidor y termina (0 si todo responde 200; 1 con
+la lista de lo que falla). `verificar` completo: ~20 s. Sin `--smoke`, sigue siendo el servidor de desarrollo.

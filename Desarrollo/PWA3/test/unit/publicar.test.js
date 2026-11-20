@@ -61,3 +61,16 @@ test("las pruebas no dependen de comandos del sistema (Windows y Linux): solo no
     assert.doesNotMatch(fuente, /execSync\(\s*["'`](find|grep|ls|cat|sed|awk|head|tail)\b/, path.relative(RAIZ, archivo));
   });
 });
+
+test("REQ-104 la prueba de arranque de verificar termina (antes --smoke se ignoraba y el servidor no se cerraba)", () => {
+  const { recursosLocales } = require("../servir-local.js");
+  assert.deepEqual(recursosLocales('<script src="./assets/js/a.js?v=1"></script><link href="./assets/css/b.css?v=2"><img src="./x.png"><a href="#y">'),
+    ["/assets/js/a.js", "/assets/css/b.css"]);
+  const fuente = fs.readFileSync(path.join(RAIZ, "test", "servir-local.js"), "utf8");
+  assert.match(fuente, /else if \(process\.argv\.includes\("--smoke"\)\) \{\s*pruebaDeArranque\(\);/);
+  assert.match(fuente, /servidor\.close\(\);/);
+  const { spawnSync } = require("node:child_process");
+  const r = spawnSync(process.execPath, [path.join(RAIZ, "test", "servir-local.js"), "--smoke"], { encoding: "utf8", timeout: 30000 });
+  assert.equal(r.status, 0, r.stdout + r.stderr);
+  assert.match(r.stdout, /Prueba de arranque OK: \d+ recursos responden/);
+});
