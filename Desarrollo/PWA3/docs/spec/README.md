@@ -95,6 +95,7 @@
 | REQ-094 | Graficas: sin barra de controles en la ficha de la parcela del mapa | Implementado (probar: usuario) | 1 |
 | REQ-095 | Graficas: no se podia exportar la imagen (lienzo bloqueado por los iconos del clima); se exporta una copia limpia | Corregido (probar: usuario) | 1 |
 | REQ-096 | Historial: al moverse tras el zoom la grafica se reconstruia (ng-click en todo el elemento); error en cada toque | Corregido (probar: usuario) | 1 |
+| REQ-097 | Ajustes del sistema: abrir la configuracion WiFi del Gateway Universal (192.168.4.1) | Implementado (probar: usuario) | 4 |
 
 **Total: 413 pruebas en Node (2026-11-06), todas en verde.** `npm test` funciona en Node 20 y 22.
 

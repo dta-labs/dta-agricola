@@ -115,6 +115,8 @@ Cada version publicada lleva una etiqueta de git `pwa3-vX.Y.Z` sobre el commit d
   migrados: acordeon, list-group y modales de Bootstrap. El login sigue en Materialize. (REQ-043 fases B-C)
 
 ### Anadido
+- Ajustes del sistema (red de sensores y nevera): boton "Abrir configuracion WiFi" del Gateway Universal
+  (`http://192.168.4.1`), con la indicacion de conectarse antes a la red `DTA-Gateway-...`. (REQ-097)
 - Fecha y hora nativas en el programa de estacionario (selector del sistema en el movil); se guarda en el
   formato de siempre. (REQ-043 A3)
 - Version de la app visible al pie del menu lateral y en consola; `package.json` en `1.1.0-dev`.

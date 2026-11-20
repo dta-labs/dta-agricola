@@ -928,6 +928,17 @@
                                         </select>
                                     </td>
                                 </tr>
+                                <!-- REQ-097: portal WiFi del Gateway Universal (punto de acceso del ESP8266) -->
+                                <tr ng-show="(actualSystem.type == 'Sensor' || actualSystem.type == 'Nevera') && (isSystemOfRole('propietario') || isSystemOfRole('desarrollador') || isSystemOfRole('administrador'))">
+                                    <td style="text-align: left;">WiFi del gateway</td>
+                                    <td style="text-align: left;" id="ajusteWifiGateway">
+                                        <small>Junto al gateway, conecta el celular a la red <b>DTA-Gateway-…</b>
+                                            (clave <b>dtaagricola</b>) y pulsa:</small><br>
+                                        <a href="http://192.168.4.1/" target="_blank" rel="noopener"
+                                            class="waves-effect waves-light btn-small teal" style="margin-top: 6px;">
+                                            <i class="material-icons left">wifi</i>Abrir configuración WiFi</a>
+                                    </td>
+                                </tr>
                             </table>
                             <br>
                         </div>
