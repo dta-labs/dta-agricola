@@ -32,17 +32,24 @@ La prueba `version.test.js` falla si no coinciden.
 Las especificaciones (`docs/spec/`) van en el mismo commit que el codigo que implementan, con el
 mensaje `REQ-NNN: descripcion`; asi cada etiqueta tiene exactamente sus especificaciones.
 
-## Vista previa sin tocar produccion
+## Publicar (REQ-102)
 
-    firebase hosting:channel:deploy pwa3 --expires 7d
+Desde `Desarrollo/PWA3`. Los dos comandos comprueban antes de desplegar y se detienen si `firebase.json` no
+excluye secretos, si hay cambios sin guardar en git o si `npm run verificar` falla.
 
-Devuelve una URL temporal; el sitio en vivo no cambia. Util para probar en el movil.
+**Vista previa** (no toca produccion; URL temporal de 7 dias, util para probar en el movil):
 
-## Promocion
+    npm run publicar:vista-previa
 
-    firebase deploy --only hosting:dta-agricola
+(equivale a `firebase hosting:channel:deploy pwa3 --expires 7d`)
 
-Reemplaza el contenido del sitio. **Nunca** desde un .bat automatico.
+**Produccion** (reemplaza el sitio en vivo; muestra version, compilacion y commit, avisa si es `-dev` y pide escribir
+PUBLICAR):
+
+    npm run publicar:produccion
+
+(equivale a `firebase deploy --only hosting`; el antiguo `--only hosting:dta-agricola` fallaba: ese *target* no esta
+definido en `.firebaserc`). **Nunca** desde un .bat automatico.
 
 ## Vuelta atras
 

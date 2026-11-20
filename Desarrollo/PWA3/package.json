@@ -10,7 +10,9 @@
     "lint": "node test/lint.js",
     "lint:estricto": "node test/lint.js --estricto",
     "verificar": "node test/lint.js && npm test && node test/servir-local.js --smoke",
-    "vendor:bootstrap": "node scripts/vendor-bootstrap.js"
+    "vendor:bootstrap": "node scripts/vendor-bootstrap.js",
+    "publicar:vista-previa": "node scripts/publicar.js vista-previa",
+    "publicar:produccion": "node scripts/publicar.js produccion"
   },
   "dependencies": {
     "express": "^4.18.2",

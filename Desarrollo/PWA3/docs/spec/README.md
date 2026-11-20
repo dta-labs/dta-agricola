@@ -100,8 +100,9 @@
 | REQ-099 | Etiquetas flotantes de los sensores mas grandes (19/15 px) | Implementado (probar: usuario) | 1 |
 | REQ-100 | Menu del equipo: cabecera con el pin y el estado, opciones alineadas con Ajustes, "Como llegar" al pie | Implementado (probar: usuario) | 3 |
 | REQ-101 | Bandeja de notificaciones: sin avisos al iniciar, boton flotante, sin leer e historial con tipo, fecha y urgencia | Implementado (probar: usuario) | 9 |
+| REQ-102 | Publicar con comprobaciones: npm run publicar:vista-previa / publicar:produccion (sustituye a deploy.bat) | Implementado (probar: usuario) | 4 |
 
-**Total: 431 pruebas en Node (2026-11-06), todas en verde.** `npm test` funciona en Node 20 y 22.
+**Total: 435 pruebas en Node (2026-11-06), todas en verde.** `npm test` funciona en Node 20 y 22.
 
 ## Bloque de autenticacion (cerrado y confirmado por el usuario)
 
