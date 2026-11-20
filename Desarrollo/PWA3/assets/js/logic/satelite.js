@@ -20,7 +20,57 @@
     "use strict";
 
     var SERVICIO = "https://sentinel.arcgis.com/arcgis/rest/services/Sentinel2/ImageServer/exportImage";
-    var RENDER = "NDVI Colormap";
+    var RENDER = "NDVI Colormap";             // respaldo: render propio de Esri (escala cafe-amarillo-verde)
+
+    // REQ-112: paleta estandar de los servicios satelitales agricolas (EO Browser, Sentinel Hub, DTA-AgroSat):
+    // rojo (suelo / sin vigor) -> amarillo -> verde (vigoroso). Puntos [NDVI, r, g, b]; entre ellos, interpolacion.
+    var PALETA = [
+        [-1.0, 120, 120, 120], [0.0, 165, 0, 38], [0.1, 215, 48, 39], [0.2, 244, 109, 67], [0.3, 253, 174, 97],
+        [0.4, 254, 224, 139], [0.5, 217, 239, 139], [0.6, 166, 217, 106], [0.7, 102, 189, 99], [0.8, 26, 152, 80],
+        [1.0, 0, 104, 55]
+    ];
+
+    function colorDeNdvi(ndvi) {
+        if (ndvi <= PALETA[0][0]) return PALETA[0].slice(1);
+        for (var i = 1; i < PALETA.length; i += 1) {
+            if (ndvi <= PALETA[i][0]) {
+                var a = PALETA[i - 1], b = PALETA[i], f = (ndvi - a[0]) / (b[0] - a[0]);
+                return [1, 2, 3].map(function (k) { return Math.round(a[k] + (b[k] - a[k]) * f); });
+            }
+        }
+        return PALETA[PALETA.length - 1].slice(1);
+    }
+
+    /**
+     * Regla de Esri: funcion NDVI con las bandas roja (B4, indice 3) e infrarroja (B8, indice 7) -> salida de 8 bits
+     * (NDVI + 1) * 100 (0..200); Remap en tramos de 0.05 de NDVI (de -0.2 a 1; por debajo, un solo tramo) y Colormap
+     * con un color por tramo. Asi la URL queda corta (~1.5 KB) en vez de un color por cada valor (~6 KB).
+     */
+    function reglaNdvi() {
+        var rangos = [0, 80], salidas = [1], colores = [[1].concat(colorDeNdvi(-0.5))];
+        var clase = 2;
+        for (var v = 80; v < 200; v += 5) {
+            rangos.push(v, v + 5);
+            salidas.push(clase);
+            colores.push([clase].concat(colorDeNdvi((v + 2.5) / 100 - 1)));
+            clase += 1;
+        }
+        rangos[rangos.length - 1] = 201;   // incluye NDVI = 1
+        return {
+            rasterFunction: "Colormap",
+            rasterFunctionArguments: {
+                Colormap: colores,
+                Raster: {
+                    rasterFunction: "Remap",
+                    rasterFunctionArguments: {
+                        InputRanges: rangos, OutputValues: salidas, AllowUnmatched: false,
+                        Raster: { rasterFunction: "NDVI", rasterFunctionArguments: { VisibleBandID: 3, InfraredBandID: 7 } }
+                    }
+                }
+            }
+        };
+    }
+
     var ORIGEN = 20037508.342789244;          // extension de Web Mercator (EPSG:3857)
     var METROS_POR_PIXEL = 5;                 // el doble de la resolucion de Sentinel-2 (10 m): bordes mas suaves
     var PIXELES_MIN = 32, PIXELES_MAX = 1024;
@@ -66,14 +116,14 @@
         return [acotar((caja.xmax - caja.xmin) * escala / METROS_POR_PIXEL), acotar((caja.ymax - caja.ymin) * escala / METROS_POR_PIXEL)];
     }
 
-    /** URL de la imagen NDVI (PNG transparente) del rectangulo. */
-    function urlNdvi(caja, ancho, alto) {
+    /** URL de la imagen NDVI (PNG transparente) del rectangulo. `respaldo`: con el render de Esri. */
+    function urlNdvi(caja, ancho, alto, respaldo) {
         var p = [
             "bbox=" + [caja.xmin, caja.ymin, caja.xmax, caja.ymax].map(function (n) { return n.toFixed(2); }).join(","),
             "bboxSR=3857", "imageSR=3857",
             "size=" + ancho + "," + alto,
             "format=png", "transparent=true",
-            "renderingRule=" + encodeURIComponent(JSON.stringify({ rasterFunction: RENDER })),
+            "renderingRule=" + encodeURIComponent(JSON.stringify(respaldo ? { rasterFunction: RENDER } : reglaNdvi())),
             "f=image"
         ];
         return SERVICIO + "?" + p.join("&");
@@ -132,6 +182,9 @@
 
     return {
         RENDER: RENDER,
+        PALETA: PALETA,
+        colorDeNdvi: colorDeNdvi,
+        reglaNdvi: reglaNdvi,
         aMercator: aMercator,
         aLatLng: aLatLng,
         cajaDePuntos: cajaDePuntos,

@@ -52,7 +52,7 @@ function __equipos() {
 }
 
 // Marca de version: si no ves esto en consola, el navegador sirve un core.js viejo.
-console.log("[app] core.js 26.11.20.011");
+console.log("[app] core.js 26.11.20.013");
 
 // #region Controlador Angular
 
@@ -191,7 +191,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     let recortesNdvi = 0;
     let avisoNdviMostrado = false;
 
-    const svgNdvi = (url, ancho, alto, recorte) => {
+    const svgNdvi = (url, ancho, alto, recorte, respaldo) => {
         const ns = "http://www.w3.org/2000/svg";
         const svg = document.createElementNS(ns, "svg");
         svg.setAttribute("viewBox", `0 0 ${ancho} ${alto}`);
@@ -214,6 +214,13 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         imagen.setAttribute("preserveAspectRatio", "none");
         imagen.setAttribute("clip-path", `url(#${id})`);
         imagen.addEventListener("error", () => {
+            // REQ-112: si la paleta propia falla, se pide con el render de Esri antes de avisar.
+            if (respaldo && !imagen.dataset.respaldo) {
+                imagen.dataset.respaldo = "1";
+                imagen.setAttribute("href", respaldo);
+                imagen.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", respaldo);
+                return;
+            }
             if (avisoNdviMostrado) return;
             avisoNdviMostrado = true;
             if (window.M && M.toast) M.toast({ html: "No se pudo cargar la imagen satelital. Revisa tu conexión." });
@@ -226,9 +233,10 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         const satelite = __modulo("satelite");
         const [ancho, alto] = satelite.tamanoImagen(caja);
         const url = satelite.urlNdvi(caja, ancho, alto);
+        const respaldo = satelite.urlNdvi(caja, ancho, alto, true);
         const forma = recorte.puntos ? { puntos: satelite.puntosEnImagen(recorte.puntos, caja, ancho, alto) }
             : { circulo: satelite.circuloEnImagen(recorte.lat, recorte.lng, recorte.radio, caja, ancho, alto) };
-        return L.svgOverlay(svgNdvi(url, ancho, alto, forma), satelite.limites(caja), { pane: "ndvi", interactive: false });
+        return L.svgOverlay(svgNdvi(url, ancho, alto, forma, respaldo), satelite.limites(caja), { pane: "ndvi", interactive: false });
     };
 
     const quitarNdvi = () => {
@@ -3703,6 +3711,12 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                         { sticky: true, direction: "top", className: "parcela-tooltip" });
                     poligons[campo.key + idx].on("click", () => abrirEdicionDeParcela(idx));
                     map.addLayer(poligons[campo.key + idx]);
+                    // REQ-112: numero de la parcela en su centro, como referencia (no captura el toque).
+                    if (marker[campo.key + idx + "-num"]) map.removeLayer(marker[campo.key + idx + "-num"]);
+                    marker[campo.key + idx + "-num"] = L.marker(poligons[campo.key + idx].getCenter(), {
+                        icon: L.divIcon({ className: "numero-parcela", html: `<span>${i + 1}</span>`, iconSize: [28, 28], iconAnchor: [14, 14] }),
+                        interactive: false, keyboard: false
+                    }).addTo(map);
                     rayasDeLecturaVieja(campo.key + idx + "-rayas", newPoligon, vieja);
                 }
             }

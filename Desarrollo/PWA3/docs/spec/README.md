@@ -110,8 +110,9 @@
 | REQ-109 | Aspecto de producto: barra superior en dos lineas, tarjetas solidas con estado accionable, hora sin "::", botones flotantes por vista | Implementado (probar: usuario) | 7 |
 | REQ-110 | Listado (textos, iconos negros, fondo tenue, valvulas, mensajes cortos) y mapas (carga al hacerse visible, NDVI con estado, iconos de giro, mosaico sin hueco) | Implementado (probar: usuario) | 3 |
 | REQ-111 | Listado: codigo de colores que no se aplicaba (ng-style y variables CSS), alertas llamativas, iconos gris oscuro, valvulas en una fila | Corregido (probar: usuario) | 1 |
+| REQ-112 | NDVI con paleta rojo-amarillo-verde (regla propia con respaldo), numero de cada parcela del estacionario, barra verde del listado | Implementado (probar: usuario) | 2 |
 
-**Total: 456 pruebas en Node (2026-11-06), todas en verde.** `npm test` funciona en Node 20 y 22.
+**Total: 458 pruebas en Node (2026-11-06), todas en verde.** `npm test` funciona en Node 20 y 22.
 
 ## Bloque de autenticacion (cerrado y confirmado por el usuario)
 

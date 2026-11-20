@@ -35,6 +35,8 @@ Cada version publicada lleva una etiqueta de git `pwa3-vX.Y.Z` sobre el commit d
 - Al iniciar la app se veia en la esquina el contador de notificaciones como expresion sin procesar. (REQ-103)
 - Publicar con `npm run publicar:vista-previa` y `npm run publicar:produccion`: comprueban exclusiones de secretos, git
   y pruebas antes de desplegar, y produccion pide confirmacion escrita. Corregido el comando de PROMOTE.md. (REQ-102)
+- Vista satelital con la paleta estandar rojo-amarillo-verde de los servicios satelitales (antes amarillenta); numero
+  de cada parcela en el mapa del estacionario; barra superior del listado en verde oscuro. (REQ-112)
 - Listado: el color del estado no se aplicaba a las tarjetas (todas grises); ahora liston fuerte y fondo tenue por
   estado, alertas como etiqueta de color, iconos gris oscuro y valvulas en una fila. (REQ-111)
 - Listado: textos mas grandes, iconos en negro, fondo tenue del color del estado, valvulas y motor del estacionario y

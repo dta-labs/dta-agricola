@@ -1314,7 +1314,7 @@ canvas[id^="myChart"],
    rayas de lectura vieja): solo los bordes, para no alterar sus colores. Las parcelas se siguen pudiendo tocar (en SVG
    un relleno transparente sigue recibiendo el toque). */
 .mapa-ndvi .leaflet-overlay-pane path {
-    fill-opacity: 0.2 !important;   /* REQ-110: el estado de la parcela encima de la imagen, tenue: se ven ambos */
+    fill-opacity: 0.12 !important;   /* REQ-110/112: el estado encima de la imagen, tenue (no tiñe los colores) */
 }
 .mapa-leyenda-ndvi {
     display: flex;
@@ -1331,7 +1331,7 @@ canvas[id^="myChart"],
 .mapa-leyenda-ndvi .leyenda-ndvi-barra {
     height: 10px;
     border-radius: 5px;
-    background: linear-gradient(90deg, #8c510a 0%, #d8b365 30%, #f6e8c3 45%, #91cf60 70%, #1a9850 100%);
+    background: linear-gradient(90deg, #a50026 0%, #f46d43 25%, #fee08b 45%, #a6d96a 65%, #1a9850 85%, #006837 100%);   /* REQ-112 */
 }
 .mapa-leyenda-ndvi .leyenda-ndvi-extremos {
     display: flex;
@@ -1853,4 +1853,28 @@ canvas[id^="myChart"],
 .btn-floating.boton-vista-sensores:hover,
 .btn-floating.boton-vista-sensores:focus {
     background-color: #00a08f;
+}
+
+/* REQ-112: barra superior del listado en verde oscuro */
+.top-navbar.barra-superior.barra-listado {
+    background: linear-gradient(90deg, #12392a 0%, #1b4d38 100%) !important;
+}
+
+/* REQ-112: numero de cada parcela del estacionario en su centro */
+.numero-parcela {
+    background: transparent;
+    border: 0;
+}
+.numero-parcela span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    background: rgba(28, 35, 33, 0.82);
+    color: #ffffff;
+    font: 700 14px/1 Roboto, "Segoe UI", sans-serif;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
 }

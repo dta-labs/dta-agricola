@@ -51,7 +51,10 @@ test("REQ-089 URL: servicio, render NDVI, rectangulo en EPSG:3857 y PNG transpar
   const url = s.urlNdvi(caja, 211, 240);
   assert.match(url, /^https:\/\/sentinel\.arcgis\.com\/arcgis\/rest\/services\/Sentinel2\/ImageServer\/exportImage\?/);
   assert.match(url, /bboxSR=3857&imageSR=3857&size=211,240&format=png&transparent=true/);
-  assert.ok(url.includes("renderingRule=" + encodeURIComponent('{"rasterFunction":"NDVI Colormap"}')));
+  // REQ-112: paleta propia (NDVI B4/B8 -> Remap -> Colormap); el render de Esri queda de respaldo.
+  assert.ok(url.includes("renderingRule=" + encodeURIComponent(JSON.stringify(s.reglaNdvi()))));
+  assert.ok(s.urlNdvi(caja, 211, 240, true).includes("renderingRule=" + encodeURIComponent('{"rasterFunction":"NDVI Colormap"}')));
+  assert.ok(url.length < 2500, "URL corta: " + url.length);
   const [[sur, oeste], [norte, este]] = s.limites(caja);
   assert.ok(sur < 28.6 && norte > 28.61 && oeste < -106.1 && este > -106.09);
 });
@@ -91,7 +94,7 @@ test("REQ-089 core: pivote = su circulo; red y estacionario = todas las parcelas
   assert.match(CORE, /if \(actual\.type == "PC"\) \{[\s\S]*?satelite\.cajaDeCirculo\(lat, lng, radio\)/);
   assert.match(CORE, /satelite\.parcelasDelUsuario\(\$scope\.systems, geo\.normalizarPoligono, geo\.esPoligonoValido\)/);
   assert.match(CORE, /map\.getPane\("ndvi"\)\.style\.zIndex = 350;/);
-  assert.match(CORE, /L\.svgOverlay\(svgNdvi\(url, ancho, alto, forma\), satelite\.limites\(caja\), \{ pane: "ndvi", interactive: false \}\)/);
+  assert.match(CORE, /L\.svgOverlay\(svgNdvi\(url, ancho, alto, forma, respaldo\), satelite\.limites\(caja\), \{ pane: "ndvi", interactive: false \}\)/);
   assert.match(CORE, /imagen\.setAttribute\("clip-path", `url\(#\$\{id\}\)`\);/, "recortada al contorno");
   assert.match(CORE, /al cambiar de sistema se apaga/);
 });
@@ -99,5 +102,28 @@ test("REQ-089 core: pivote = su circulo; red y estacionario = todas las parcelas
 test("REQ-092 con la imagen satelital, las parcelas solo muestran el borde (sin relleno que cambie sus colores)", () => {
   const css = fs.readFileSync(path.join(RAIZ, "assets", "css", "style.css"), "utf8");
   // REQ-110: el estado de la parcela vuelve encima de la imagen, tenue (0.2), para que se vean ambos.
-  assert.match(css, /\.mapa-ndvi \.leaflet-overlay-pane path \{\s*fill-opacity: 0\.2 !important;/);
+  assert.match(css, /\.mapa-ndvi \.leaflet-overlay-pane path \{\s*fill-opacity: 0\.12 !important;/);
+});
+
+test("REQ-112 paleta NDVI rojo-amarillo-verde (como los servicios satelitales), tramos de 0.05 y respaldo", () => {
+  const rojo = s.colorDeNdvi(0.05), amarillo = s.colorDeNdvi(0.42), verde = s.colorDeNdvi(0.85);
+  assert.ok(rojo[0] > 150 && rojo[1] < 90 && rojo[2] < 90, "bajo: rojo " + rojo);
+  assert.ok(amarillo[0] > 220 && amarillo[1] > 200 && amarillo[2] < 160, "medio: amarillo " + amarillo);
+  assert.ok(verde[1] > verde[0] && verde[1] > verde[2], "alto: verde " + verde);
+  const r = s.reglaNdvi();
+  assert.equal(r.rasterFunction, "Colormap");
+  const remap = r.rasterFunctionArguments.Raster;
+  assert.equal(remap.rasterFunction, "Remap");
+  assert.deepEqual(remap.rasterFunctionArguments.Raster, { rasterFunction: "NDVI", rasterFunctionArguments: { VisibleBandID: 3, InfraredBandID: 7 } });
+  assert.equal(remap.rasterFunctionArguments.OutputValues.length, r.rasterFunctionArguments.Colormap.length);
+  assert.deepEqual(remap.rasterFunctionArguments.InputRanges.slice(0, 4), [0, 80, 80, 85]);
+  assert.equal(remap.rasterFunctionArguments.InputRanges.at(-1), 201);
+  assert.match(CORE, /if \(respaldo && !imagen\.dataset\.respaldo\) \{/, "si falla, el render de Esri");
+});
+
+test("REQ-112 numero en el centro de cada parcela del estacionario y barra verde en el listado", () => {
+  assert.match(CORE, /marker\[campo\.key \+ idx \+ "-num"\] = L\.marker\(poligons\[campo\.key \+ idx\]\.getCenter\(\), \{[\s\S]*?interactive: false/);
+  assert.match(HTML, /class="top-navbar barra-superior" ng-class="\{ 'barra-listado': selectedWindow == 'listado' \}"/);
+  const css = fs.readFileSync(path.join(RAIZ, "assets", "css", "style.css"), "utf8");
+  assert.match(css, /\.top-navbar\.barra-superior\.barra-listado \{\s*background: linear-gradient\(90deg, #12392a/);
 });

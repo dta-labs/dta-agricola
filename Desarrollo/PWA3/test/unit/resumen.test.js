@@ -118,7 +118,7 @@ test("REQ-110 mapa: se recalcula al hacerse visible, NDVI con el estado encima, 
   assert.match(CORE, /new ResizeObserver\(\(\) => \{[\s\S]*?map\.invalidateSize\(\{ pan: false \}\);[\s\S]*?\}\)\.observe\(map\.getContainer\(\)\);/);
   assert.match(CORE, /map\.setView\(coord, 16\);\s*volverAMostrarMapa\(\);/);
   const css = fs.readFileSync(path.join(RAIZ, "assets", "css", "style.css"), "utf8");
-  assert.match(css, /\.mapa-ndvi \.leaflet-overlay-pane path \{\s*fill-opacity: 0\.2 !important;/);
+  assert.match(css, /\.mapa-ndvi \.leaflet-overlay-pane path \{\s*fill-opacity: 0\.12 !important;/);
   const pc = fs.readFileSync(path.join(RAIZ, "assets", "js", "components", "sistema", "panel-pivote-central", "panel-pivote-central.html"), "utf8");
   assert.match(pc, />rotate_left<\/i>/); assert.match(pc, />rotate_right<\/i>/); assert.doesNotMatch(pc, /fa-reply|fa-share/);
   const paneles = fs.readFileSync(path.join(RAIZ, "assets", "js", "components", "sistema", "paneles.css"), "utf8");
