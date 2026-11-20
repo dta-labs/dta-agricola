@@ -38,30 +38,32 @@
     <!-- REQ-105: pantalla de inicio animada (estilos en linea: deben estar listos antes que el resto de la pagina) -->
     <style>
         #splash { position: fixed; inset: 0; z-index: 3000; display: flex; flex-direction: column; align-items: center;
-            justify-content: center; gap: .55rem; background: #f4f8f7; font-family: Roboto, "Segoe UI", sans-serif; transition: opacity .45s; }
+            justify-content: center; gap: .55rem; background: #f4f8f1; font-family: Roboto, "Segoe UI", sans-serif; transition: opacity .45s; }
         #splash.oculto { opacity: 0; pointer-events: none; }
         #splash .sp-centro { position: relative; display: flex; align-items: center; justify-content: center; width: 176px; height: 176px; }
-        #splash .sp-orbita { position: absolute; inset: 0; border: 1px dashed #00897b40; border-radius: 50%; animation: sp-orbita 3.2s linear infinite; }
+        #splash .sp-orbita { position: absolute; inset: 0; border: 1px dashed #4c862440; border-radius: 50%; animation: sp-orbita 3.2s linear infinite; }
         #splash .sp-orbita i { position: absolute; top: -5px; left: calc(50% - 5px); width: 10px; height: 10px; border-radius: 50%;
-            background: #00897b; box-shadow: 0 0 8px #00897b99; }
-        #splash .sp-logo { width: 112px; height: 112px; filter: drop-shadow(0 6px 14px #00695c40); animation: sp-pop .7s cubic-bezier(.2,1.4,.4,1) both; }
-        #splash .sp-trazo { stroke-dasharray: 1; stroke-dashoffset: 1; animation: sp-dibujar .8s ease forwards; }
-        #splash .sp-t1 { animation-delay: .35s; } #splash .sp-t2 { animation-delay: .75s; } #splash .sp-t3 { animation-delay: 1.05s; }
-        #splash .sp-brazo { transform-box: view-box; transform-origin: 32px 32px; animation: sp-girar 3.6s linear 1.3s infinite; }
-        #splash .sp-nombre { margin-top: .5rem; font-size: 1.9rem; font-weight: 700; color: #00695c; letter-spacing: .02em; animation: sp-aparecer .6s ease .9s both; }
+            background: #4c8624; box-shadow: 0 0 8px #4c862499; }
+        #splash .sp-icono { position: relative; width: 112px; height: 112px; overflow: hidden; border-radius: 24px;
+            animation: sp-pop .7s cubic-bezier(.2,1.4,.4,1) both, sp-pulso 2.4s ease-in-out 1s infinite; }
+        #splash .sp-logo { display: block; width: 100%; height: 100%; object-fit: contain; }
+        #splash .sp-brillo { position: absolute; top: 0; left: -75%; width: 50%; height: 100%; pointer-events: none;
+            background: linear-gradient(105deg, transparent 0%, rgba(255,255,255,.75) 50%, transparent 100%);
+            transform: skewX(-18deg); animation: sp-brillo 2.8s ease-in-out .9s infinite; }
+        #splash .sp-nombre { margin-top: .5rem; font-size: 1.9rem; font-weight: 700; color: #3d6e1d; letter-spacing: .02em; animation: sp-aparecer .6s ease .9s both; }
         #splash .sp-lema { font-size: .9rem; color: #546e7a; animation: sp-aparecer .6s ease 1.2s both; }
-        #splash .sp-carga { width: min(220px, 60vw); height: 6px; margin-top: 1.1rem; overflow: hidden; border-radius: 3px; background: #00897b22; }
-        #splash .sp-carga i { display: block; width: 0; height: 100%; border-radius: 3px; background: linear-gradient(90deg, #26a69a, #00897b); transition: width .25s linear; }
+        #splash .sp-carga { width: min(220px, 60vw); height: 6px; margin-top: 1.1rem; overflow: hidden; border-radius: 3px; background: #4c862422; }
+        #splash .sp-carga i { display: block; width: 0; height: 100%; border-radius: 3px; background: linear-gradient(90deg, #7cb342, #4c8624); transition: width .25s linear; }
         #splash .sp-estado { min-height: 1.1em; font-size: .78rem; color: #78909c; }
         #splash .sp-version { position: absolute; bottom: max(1rem, env(safe-area-inset-bottom)); font-size: .75rem; color: #90a4ae; }
         @keyframes sp-pop { from { transform: scale(.4) rotate(-12deg); opacity: 0; } to { transform: none; opacity: 1; } }
-        @keyframes sp-dibujar { to { stroke-dashoffset: 0; } }
-        @keyframes sp-girar { to { transform: rotate(360deg); } }
+        @keyframes sp-pulso { 0%, 100% { transform: scale(1); box-shadow: 0 6px 14px #4c862430; } 50% { transform: scale(1.05); box-shadow: 0 10px 24px #4c862455; } }
+        @keyframes sp-brillo { 0% { left: -75%; } 45%, 100% { left: 130%; } }
         @keyframes sp-orbita { to { transform: rotate(360deg); } }
         @keyframes sp-aparecer { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
         @media (prefers-reduced-motion: reduce) {
-            #splash *, #splash .sp-trazo { animation: none !important; }
-            #splash .sp-trazo { stroke-dashoffset: 0; }
+            #splash *, #splash .sp-icono { animation: none !important; }
+            #splash .sp-brillo { display: none; }
         }
     </style>
 </head>
@@ -69,20 +71,16 @@
 <body id="ControladorPrincipal" class="body" ng-controller="ControladorPrincipal" ng-init="inicializacion()">
 
     <!-- #region: Pantalla de inicio (REQ-105) -->
-    <!-- Logo animado (pivote: circulo que se dibuja, brazo que gira, punto en orbita como en DTA-AgroSat), barra de
-         avance real y version. Se retira con window.dtaSplash.listo() cuando la app muestra el acceso o los equipos. -->
+    <!-- Icono oficial animado (rebote, destello, pulso y punto en orbita como en DTA-AgroSat), barra de avance
+         real y version. Se retira con window.dtaSplash.listo() cuando la app muestra el acceso o los equipos. -->
     <div id="splash" role="progressbar" aria-label="Cargando DTA-Agrícola" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
         <div class="sp-centro">
             <div class="sp-orbita" aria-hidden="true"><i></i></div>
-            <svg class="sp-logo" viewBox="0 0 64 64" aria-hidden="true">
-                <rect width="64" height="64" rx="14" fill="#00897b"/>
-                <g fill="none" stroke="#e0f2f1" stroke-width="3" stroke-linecap="round">
-                    <circle class="sp-trazo sp-t1" pathLength="1" cx="32" cy="32" r="20" transform="rotate(-90 32 32)"/>
-                    <path class="sp-trazo sp-t2" pathLength="1" d="M32 18v-4M46 32h4M32 46v4M18 32h-4" stroke-width="2"/>
-                    <g class="sp-brazo"><path class="sp-trazo sp-t3" pathLength="1" d="M32 32 47 22"/></g>
-                </g>
-                <circle cx="32" cy="32" r="3.5" fill="#e0f2f1"/>
-            </svg>
+            <!-- REQ-106: el icono oficial de la app (manifest.json), animado entero -->
+            <div class="sp-icono">
+                <img class="sp-logo" src="./assets/images/icons/res/DTA_Agricola_512.png" alt="" width="112" height="112" decoding="async">
+                <span class="sp-brillo" aria-hidden="true"></span>
+            </div>
         </div>
         <div class="sp-nombre">DTA-Agrícola</div>
         <div class="sp-lema">Riego y monitoreo de cultivos</div>
@@ -4108,7 +4106,7 @@
 <script src="./assets/vendor/bootstrap/bootstrap.bundle.min.js?v=5.3.8"></script>
     <script src="./assets/js/core.js?v=26.11.20.006"></script>
     <!-- REQ-038: factories, ayudas de interfaz y componentes (despues de core.js, que crea el modulo) -->
-    <script src="./assets/js/app/version.js?v=26.11.20.006"></script>
+    <script src="./assets/js/app/version.js?v=26.11.20.007"></script>
     <script src="./assets/js/app/reglas.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/auth.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/repo.factory.js?v=26.11.06.001"></script>

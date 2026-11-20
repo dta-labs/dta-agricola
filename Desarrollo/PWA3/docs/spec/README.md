@@ -104,8 +104,9 @@
 | REQ-103 | Al iniciar se veia la expresion del contador de notificaciones (ng-cloak, ng-bind) | Corregido (probar: usuario) | 1 |
 | REQ-104 | `npm run verificar` no terminaba (--smoke ignorado): prueba de arranque real de los 86 recursos | Corregido | 1 |
 | REQ-105 | Pantalla de inicio animada (pivote, orbita), barra de avance real y version | Implementado (probar: usuario) | 3 |
+| REQ-106 | Pantalla de inicio: se anima el icono oficial de la app (rebote, destello, pulso, orbita) | Implementado (probar: usuario) | 1 |
 
-**Total: 442 pruebas en Node (2026-11-06), todas en verde.** `npm test` funciona en Node 20 y 22.
+**Total: 443 pruebas en Node (2026-11-06), todas en verde.** `npm test` funciona en Node 20 y 22.
 
 ## Bloque de autenticacion (cerrado y confirmado por el usuario)
 

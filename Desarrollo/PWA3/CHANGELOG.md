@@ -35,7 +35,7 @@ Cada version publicada lleva una etiqueta de git `pwa3-vX.Y.Z` sobre el commit d
 - Al iniciar la app se veia en la esquina el contador de notificaciones como expresion sin procesar. (REQ-103)
 - Publicar con `npm run publicar:vista-previa` y `npm run publicar:produccion`: comprueban exclusiones de secretos, git
   y pruebas antes de desplegar, y produccion pide confirmacion escrita. Corregido el comando de PROMOTE.md. (REQ-102)
-- Pantalla de inicio animada (pivote que se dibuja y gira, satelite en orbita) con barra de avance real de la carga y
+- Pantalla de inicio con el icono de la app animado (rebote, destello, pulso y satelite en orbita) con barra de avance real de la carga y
   la version. (REQ-105)
 - Notificaciones: ya no aparecen avisos emergentes al iniciar; boton flotante con contador cuando hay nuevas y ventana
   con "Sin leer" e "Historial" (tipo, fecha y hora, urgencia), incluidas las push recibidas con la app cerrada. (REQ-101)

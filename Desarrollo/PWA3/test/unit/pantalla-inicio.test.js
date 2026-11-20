@@ -20,11 +20,11 @@ const scriptDelSplash = () => {
 test("REQ-105 la pantalla de inicio es lo primero del body, con logo animado, barra y version", () => {
   const body = HTML.indexOf("<body");
   assert.ok(HTML.indexOf('<div id="splash"') > body && HTML.indexOf('<div id="splash"') < HTML.indexOf('<div id="spinner"'));
-  ["sp-orbita", "sp-logo", "sp-brazo", 'id="splash-barra"', 'id="splash-estado"', 'id="splash-version"', "DTA-Agrícola"]
+  ["sp-orbita", "sp-logo", "sp-brillo", 'id="splash-barra"', 'id="splash-estado"', 'id="splash-version"', "DTA-Agrícola"]
     .forEach(x => assert.ok(HTML.includes(x), x));
   assert.match(HTML, /<noscript><style>#splash \{ display: none; \}<\/style><\/noscript>/);
   const estilos = HTML.slice(HTML.indexOf("REQ-105: pantalla de inicio animada"), HTML.indexOf("</head>"));
-  ["@keyframes sp-pop", "@keyframes sp-dibujar", "@keyframes sp-girar", "@keyframes sp-orbita", "prefers-reduced-motion"]
+  ["@keyframes sp-pop", "@keyframes sp-pulso", "@keyframes sp-brillo", "@keyframes sp-orbita", "prefers-reduced-motion"]
     .forEach(x => assert.ok(estilos.includes(x), x));
   const version = fs.readFileSync(path.join(RAIZ, "assets", "js", "app", "version.js"), "utf8");
   assert.match(version, /getElementById\("splash-version"\)/);
@@ -66,4 +66,13 @@ test("REQ-105 la app marca el avance y retira la pantalla (acceso o primer equip
   assert.match(CORE, /pantallaDeInicio\("avance", 92, "Cargando tus equipos…"\);/);
   assert.match(CORE, /console\.log\("\[auth\] sin sesion: se muestra el login"\);\s*pantallaDeInicio\("listo"\);/);
   assert.match(CORE, /alCambiarSistema: \(sistema, locationKey\) => \{\s*pantallaDeInicio\("listo"\);/);
+});
+
+test("REQ-106 se anima el icono oficial de la app (el del manifiesto), no uno dibujado", () => {
+  assert.match(HTML, /<img class="sp-logo" src="\.\/assets\/images\/icons\/res\/DTA_Agricola_512\.png"/);
+  const manifiesto = JSON.parse(fs.readFileSync(path.join(RAIZ, "manifest.json"), "utf8"));
+  assert.ok(manifiesto.icons.some(i => i.src === "./assets/images/icons/res/DTA_Agricola_512.png"));
+  assert.ok(fs.existsSync(path.join(RAIZ, "assets", "images", "icons", "res", "DTA_Agricola_512.png")));
+  const splash = HTML.slice(HTML.indexOf('<div id="splash"'), HTML.indexOf("<noscript><style>#splash"));
+  assert.doesNotMatch(splash, /<svg/);
 });

@@ -31,3 +31,9 @@ Primer elemento del `body` (estilos en linea en el `head`, listos antes que el r
 - `prefers-reduced-motion`: sin animaciones. `<noscript>`: no se muestra. `role="progressbar"` con `aria-valuenow`.
 
 API: `window.dtaSplash.avance(porcentaje, texto)` y `window.dtaSplash.listo()`.
+
+## REQ-106 (2026-11-20): animar el icono oficial
+
+El usuario queria animar **el icono de DTA-Agricola** (no uno nuevo). El SVG de pivote se sustituye por la imagen del
+manifiesto (`icons/res/DTA_Agricola_512.png`) animada entera: rebote al aparecer, **destello** que la recorre, **pulso**
+suave y el punto en orbita. Colores de la pantalla con el verde del icono (#4C8624). Compilacion `26.11.20.007`.
