@@ -76,14 +76,14 @@ test("REQ-109 barra superior en dos lineas sin cortes; el boton de mapa/mosaico 
 test("REQ-109 tarjetas del listado: solidas, resumen, fecha y hora bajo el clima, sin fechas crudas", () => {
   const ini = HTML.indexOf('ng-repeat="system in systems"');
   const tarjeta = HTML.slice(ini, HTML.indexOf("</a>", HTML.indexOf('class="tarjeta-equipo-lateral"', ini)));
-  assert.match(tarjeta, /class="tarjeta-equipo" ng-class="'estado-' \+ resumenDeEquipo\(system\)\.estado"/);
+  assert.match(tarjeta, /class="tarjeta-equipo" ng-class="'estado-' \+ resumenDeEquipo\(system\)\.estado">/);
   ["resumenDeEquipo(system).linea", "resumenDeEquipo(system).mensaje", "resumenDeEquipo(system).fecha.dia", "resumenDeEquipo(system).fecha.hora", 'id="pos_{{ system.key }}"']
     .forEach(x => assert.ok(tarjeta.includes(x), x));
   assert.doesNotMatch(tarjeta, /substring\(|getSystemBackgroundColor|«/);
   const lateral = tarjeta.slice(tarjeta.indexOf("tarjeta-equipo-lateral"));
   assert.ok(lateral.indexOf("iconUrl") < lateral.indexOf("fecha.dia") && lateral.indexOf("fecha.dia") < lateral.indexOf("fecha.hora"));
   const css = fs.readFileSync(path.join(RAIZ, "assets", "css", "style.css"), "utf8");
-  assert.match(css, /\.tarjeta-equipo \{[^}]*border-left: 6px solid var\(--estado\);[^}]*background: #ffffff;/);
+  assert.match(css, /\.tarjeta-equipo \{[^}]*border-left: 7px solid var\(--estado\);[^}]*background: var\(--estado-fondo, #ffffff\);/);
 });
 
 test("REQ-109 botones flotantes por vista y barra de opciones solo en el mapa de sensores", () => {
@@ -109,8 +109,7 @@ test("REQ-110 estacionario: valvulas y motor con su estado en la tarjeta", () =>
   assert.deepEqual(x.valvulas.map(v => [v.texto, v.estado, v.motor]), [["1", "pendiente", false], ["2", "encendido", false], ["4", "encendido", false], ["M", "apagado", true]]);
   assert.match(HTML, /ng-repeat="v in resumenDeEquipo\(system\)\.valvulas track by v\.clave" class="valvula"/);
   const css = fs.readFileSync(path.join(RAIZ, "assets", "css", "style.css"), "utf8");
-  assert.match(css, /background: color-mix\(in srgb, var\(--estado\) 9%, #ffffff\);/, "fondo tenue del estado");
-  assert.match(css, /filter: brightness\(0\);\s*\/\* REQ-110: iconos del tipo de equipo en negro/);
+  assert.match(css, /\.tarjeta-equipo\.estado-ok \{ --estado: #[0-9a-f]{6}; --estado-fondo: #[0-9a-f]{6}; \}/, "fondo tenue del estado");
   assert.match(css, /\.tarjeta-equipo-nombre \{\s*font-size: 1\.35rem;/);
   assert.match(css, /justify-content: space-between;\s*\/\* REQ-110: fecha y hora alineadas abajo/);
 });
@@ -124,4 +123,16 @@ test("REQ-110 mapa: se recalcula al hacerse visible, NDVI con el estado encima, 
   assert.match(pc, />rotate_left<\/i>/); assert.match(pc, />rotate_right<\/i>/); assert.doesNotMatch(pc, /fa-reply|fa-share/);
   const paneles = fs.readFileSync(path.join(RAIZ, "assets", "js", "components", "sistema", "paneles.css"), "utf8");
   assert.match(paneles, /\.bs\.sensores-tarjetas \{\s*margin-top: 10px;/);
+});
+
+test("REQ-111 colores por clase de estado (ng-style no aplica variables CSS), iconos gris oscuro, alertas llamativas, valvulas en una fila", () => {
+  assert.doesNotMatch(HTML, /ng-style="\{ '--estado'/, "AngularJS 1.6 no aplica --variables con ng-style");
+  const css = fs.readFileSync(path.join(RAIZ, "assets", "css", "style.css"), "utf8");
+  ["ok", "atencion", "emergencia", "inactivo"].forEach(e =>
+    assert.match(css, new RegExp("\\.tarjeta-equipo\\.estado-" + e + " \\{ --estado: #[0-9a-f]{6}; --estado-fondo: #[0-9a-f]{6}; \\}"), e));
+  assert.match(css, /filter: brightness\(0\) opacity\(0\.68\);/);
+  assert.match(css, /img\.icono-bomba \{\s*filter: grayscale\(100%\)/);
+  assert.match(HTML, /<img ng-switch-when="Pozo" class="icono-bomba"/);
+  assert.match(css, /\.estado-emergencia \.tarjeta-equipo-mensaje \{[^}]*background: var\(--estado\);[^}]*color: #ffffff;/);
+  assert.match(css, /\.tarjeta-equipo-valvulas \{\s*display: flex;\s*flex-wrap: nowrap;/);
 });

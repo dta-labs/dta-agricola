@@ -213,8 +213,8 @@
                             <div class="col s12 m6 l4 xl3" id="{{ system.key }}" ng-repeat="system in systems"
                                 ng-click="selectSystem(system)" ng-show="system.name">
                                 <!-- REQ-109: tarjeta del equipo (fondo solido, franja del estado, resumen humano y accionable) -->
-                                <div class="tarjeta-equipo" ng-class="'estado-' + resumenDeEquipo(system).estado"
-                                    ng-style="{ '--estado': resumenDeEquipo(system).color }">
+                                <!-- REQ-111: el color sale de la clase del estado (ng-style de AngularJS 1.6 no aplica variables CSS) -->
+                                <div class="tarjeta-equipo" ng-class="'estado-' + resumenDeEquipo(system).estado">
                                     <a href="#!/sistema" ng-click="showWindow('sistema')" class="tarjeta-equipo-enlace"
                                         aria-label="{{ system.name }}: {{ resumenDeEquipo(system).linea }}. {{ resumenDeEquipo(system).mensaje }}">
                                         <div class="tarjeta-equipo-icono" ng-switch="system.type">
@@ -225,7 +225,7 @@
                                             </div>
                                             <i ng-switch-when="PL" class="material-icons angle_30 tarjeta-icono-material" aria-hidden="true">flip</i>
                                             <img ng-switch-when="Estacionario" src="./assets/images/parcela.png" alt="" loading="lazy">
-                                            <img ng-switch-when="Pozo" src="assets/images/pozo.png" alt="" loading="lazy">
+                                            <img ng-switch-when="Pozo" class="icono-bomba" src="assets/images/pozo.png" alt="" loading="lazy">
                                             <img ng-switch-when="Sensor" src="assets/images/Red-Sensores.png" alt="" loading="lazy">
                                             <img ng-switch-when="Nevera" src="assets/images/nieve.png" alt="" loading="lazy">
                                         </div>
@@ -3573,7 +3573,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="./assets/modules/materialize/css/materialize.min.css">
     <link rel="stylesheet" href="./assets/modules/leaflet/leaflet.css">
-    <link rel="stylesheet" href="./assets/css/style.css?v=26.11.20.011">
+    <link rel="stylesheet" href="./assets/css/style.css?v=26.11.20.012">
     <link rel="stylesheet" href="./assets/css/responsive.css">
     <link rel="stylesheet" href="./assets/css/formularios.css?v=26.11.06.002">
     <!-- REQ-043: Bootstrap 5 aislado en .bs (convive con Materialize mientras se migra) -->
@@ -3885,7 +3885,7 @@
 <script src="./assets/vendor/bootstrap/bootstrap.bundle.min.js?v=5.3.8"></script>
     <script src="./assets/js/core.js?v=26.11.20.011"></script>
     <!-- REQ-038: factories, ayudas de interfaz y componentes (despues de core.js, que crea el modulo) -->
-    <script src="./assets/js/app/version.js?v=26.11.20.011"></script>
+    <script src="./assets/js/app/version.js?v=26.11.20.012"></script>
     <script src="./assets/js/app/reglas.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/auth.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/repo.factory.js?v=26.11.06.001"></script>

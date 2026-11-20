@@ -29,3 +29,15 @@
   ambos (antes REQ-092 lo quitaba).
 - Pivote central: retroceso/avance con iconos de **giro** (`rotate_left` / `rotate_right`); pivote lineal con flechas.
 - Mosaico de sensores: sin el hueco de la barra de opciones (oculta desde REQ-109).
+
+## REQ-111 (2026-11-20): colores del listado
+
+- **Error corregido**: el color de cada tarjeta se pasaba con `ng-style="{ '--estado': ... }"`, pero AngularJS 1.6 asigna
+  `style[nombre]` y asi **no aplica variables CSS**: todas las tarjetas quedaban en el gris por defecto. Ahora el color
+  sale de la clase del estado: liston fuerte y fondo tenue solido (ok `#2e7d32`/`#edf6ee`, atencion `#ef6c00`/`#fff4e5`,
+  emergencia `#d32f2f`/`#fdecec`, detenido `#78909c`/`#f1f4f5`).
+- Mensajes de atencion y emergencia como **etiqueta de color** (texto blanco); la de emergencia late suavemente.
+- Iconos en **gris oscuro** (el negro contrastaba demasiado); la **bomba en tonos de gris**.
+- Estacionario: valvulas y motor **en una sola fila**.
+
+Compilacion `26.11.20.012`.

@@ -1660,14 +1660,18 @@ canvas[id^="myChart"],
     --estado: #78909c;
     margin-bottom: 10px;
     border: 1px solid #e0e6e3;
-    border-left: 6px solid var(--estado);
+    border-left: 7px solid var(--estado);
     border-radius: 12px;
-    background: #ffffff;
-    /* REQ-110: fondo del color del estado, muy tenue (sin transparencia: solido sobre el fondo de la app) */
-    background: color-mix(in srgb, var(--estado) 9%, #ffffff);
+    background: var(--estado-fondo, #ffffff);
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
     transition: box-shadow 0.15s ease, transform 0.15s ease;
 }
+/* REQ-111: codigo de colores por estado: liston con el color fuerte, fondo del mismo color muy tenue (solido),
+   mensaje de alerta como etiqueta llamativa */
+.tarjeta-equipo.estado-ok { --estado: #2e7d32; --estado-fondo: #edf6ee; }
+.tarjeta-equipo.estado-atencion { --estado: #ef6c00; --estado-fondo: #fff4e5; }
+.tarjeta-equipo.estado-emergencia { --estado: #d32f2f; --estado-fondo: #fdecec; }
+.tarjeta-equipo.estado-inactivo { --estado: #78909c; --estado-fondo: #f1f4f5; }
 .tarjeta-equipo:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
     transform: translateY(-1px);
@@ -1694,7 +1698,10 @@ canvas[id^="myChart"],
     width: 56px;
     height: 56px;
     object-fit: contain;
-    filter: brightness(0);   /* REQ-110: iconos del tipo de equipo en negro */
+    filter: brightness(0) opacity(0.68);   /* REQ-111: gris oscuro (el negro contrastaba demasiado) */
+}
+.tarjeta-equipo-icono img.icono-bomba {
+    filter: grayscale(100%) contrast(1.05);   /* REQ-111: la bomba en tonos de gris */
 }
 .tarjeta-equipo-icono .tarjeta-pivote {
     width: 56px;
@@ -1705,14 +1712,14 @@ canvas[id^="myChart"],
     width: 100%;
     height: 100%;
     border-width: 3px;
-    border-color: #000000 !important;
+    border-color: #555b5e !important;
 }
 .tarjeta-equipo-icono .tarjeta-pivote .brazo {
     border-width: 2px;
-    border-color: #000000 !important;
+    border-color: #555b5e !important;
 }
 .tarjeta-equipo-icono .tarjeta-icono-material {
-    color: #000000;
+    color: #555b5e;
     font-size: 48px;
 }
 .tarjeta-equipo-texto {
@@ -1757,6 +1764,25 @@ canvas[id^="myChart"],
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+.tarjeta-equipo.estado-atencion .tarjeta-equipo-mensaje,
+.tarjeta-equipo.estado-emergencia .tarjeta-equipo-mensaje {
+    align-self: flex-start;
+    max-width: 100%;
+    padding: 2px 10px 2px 6px;
+    border-radius: 999px;
+    background: var(--estado);
+    color: #ffffff;
+}
+.tarjeta-equipo.estado-emergencia .tarjeta-equipo-mensaje {
+    animation: alerta-pulso 1.6s ease-in-out infinite;
+}
+@keyframes alerta-pulso {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(211, 47, 47, 0.45); }
+    50% { box-shadow: 0 0 0 5px rgba(211, 47, 47, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .tarjeta-equipo.estado-emergencia .tarjeta-equipo-mensaje { animation: none; }
+}
 .tarjeta-equipo-lateral {
     display: flex;
     flex: 0 0 auto;
@@ -1784,23 +1810,26 @@ canvas[id^="myChart"],
 /* REQ-110: valvulas y motor del estacionario */
 .tarjeta-equipo-valvulas {
     display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
+    flex-wrap: nowrap;   /* REQ-111: valvulas y motor en una sola fila */
+    gap: 3px;
+    min-width: 0;
 }
 .tarjeta-equipo-valvulas .valvula {
     display: inline-flex;
+    flex: 0 1 22px;
     align-items: center;
     justify-content: center;
-    min-width: 24px;
-    height: 24px;
-    padding: 0 4px;
-    border-radius: 6px;
+    min-width: 18px;
+    height: 22px;
+    border-radius: 5px;
     background: #cfd8dc;
     color: #455a64;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     font-weight: 700;
 }
 .tarjeta-equipo-valvulas .valvula-motor {
+    flex-basis: 22px;
+    margin-left: 3px;
     border-radius: 50%;
 }
 .tarjeta-equipo-valvulas .valvula-encendido {
