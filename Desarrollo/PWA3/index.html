@@ -40,19 +40,18 @@
         #splash { position: fixed; inset: 0; z-index: 3000; display: flex; flex-direction: column; align-items: center;
             justify-content: center; gap: .55rem; background: #f4f8f1; font-family: Roboto, "Segoe UI", sans-serif; transition: opacity .45s; }
         #splash.oculto { opacity: 0; pointer-events: none; }
-        #splash .sp-centro { position: relative; display: flex; align-items: center; justify-content: center; width: 176px; height: 176px; }
+        #splash .sp-centro { position: relative; display: flex; align-items: center; justify-content: center; width: 200px; height: 200px; }
         #splash .sp-orbita { position: absolute; inset: 0; border: 1px dashed #4c862440; border-radius: 50%; animation: sp-orbita 3.2s linear infinite; }
         #splash .sp-orbita i { position: absolute; top: -5px; left: calc(50% - 5px); width: 10px; height: 10px; border-radius: 50%;
             background: #4c8624; box-shadow: 0 0 8px #4c862499; }
-        #splash .sp-icono { position: relative; width: 112px; height: 112px; overflow: hidden; border-radius: 50%; background: #fff;
+        #splash .sp-icono { position: relative; width: 140px; height: 140px; overflow: hidden; border-radius: 50%; background: #fff;
             animation: sp-pop .7s cubic-bezier(.2,1.4,.4,1) both, sp-pulso 2.4s ease-in-out 1s infinite; }
         /* REQ-107: circular; el circulo verde ocupa el 92 % de la imagen: el blanco queda solo como aro (~4 px) */
         #splash .sp-logo { display: block; width: 100%; height: 100%; object-fit: cover; }
         #splash .sp-brillo { position: absolute; top: 0; left: -75%; width: 50%; height: 100%; pointer-events: none;
             background: linear-gradient(105deg, transparent 0%, rgba(255,255,255,.75) 50%, transparent 100%);
             transform: skewX(-18deg); animation: sp-brillo 2.8s ease-in-out .9s infinite; }
-        #splash .sp-nombre { margin-top: .5rem; font-size: 1.9rem; font-weight: 700; color: #3d6e1d; letter-spacing: .02em; animation: sp-aparecer .6s ease .9s both; }
-        #splash .sp-lema { font-size: .9rem; color: #546e7a; animation: sp-aparecer .6s ease 1.2s both; }
+        #splash .sp-marca { display: block; width: min(300px, 78vw); height: auto; margin-top: .8rem; animation: sp-aparecer .6s ease .9s both; }
         #splash .sp-carga { width: min(220px, 60vw); height: 6px; margin-top: 1.1rem; overflow: hidden; border-radius: 3px; background: #4c862422; }
         #splash .sp-carga i { display: block; width: 0; height: 100%; border-radius: 3px; background: linear-gradient(90deg, #7cb342, #4c8624); transition: width .25s linear; }
         #splash .sp-estado { min-height: 1.1em; font-size: .78rem; color: #78909c; }
@@ -79,12 +78,12 @@
             <div class="sp-orbita" aria-hidden="true"><i></i></div>
             <!-- REQ-106: el icono oficial de la app (manifest.json), animado entero -->
             <div class="sp-icono">
-                <img class="sp-logo" src="./assets/images/icons/res/DTA_Agricola_512.png" alt="" width="112" height="112" decoding="async">
+                <img class="sp-logo" src="./assets/images/icons/res/DTA_Agricola_512.png" alt="" width="140" height="140" decoding="async">
                 <span class="sp-brillo" aria-hidden="true"></span>
             </div>
         </div>
-        <div class="sp-nombre">DTA-Agrícola</div>
-        <div class="sp-lema">Riego y monitoreo de cultivos</div>
+        <!-- REQ-108: logotipo con el lema (imagen oficial) en lugar del nombre y el lema en texto -->
+        <img class="sp-marca" src="./assets/images/DTA-Agricola-lema.png" alt="DTA-Agrícola · Sustentabilidad y eficiencia agrícola" width="491" height="147" decoding="async">
         <div class="sp-carga" aria-hidden="true"><i id="splash-barra"></i></div>
         <div class="sp-estado" id="splash-estado" role="status" aria-live="polite">Cargando…</div>
         <div class="sp-version" id="splash-version"></div>
@@ -4107,7 +4106,7 @@
 <script src="./assets/vendor/bootstrap/bootstrap.bundle.min.js?v=5.3.8"></script>
     <script src="./assets/js/core.js?v=26.11.20.006"></script>
     <!-- REQ-038: factories, ayudas de interfaz y componentes (despues de core.js, que crea el modulo) -->
-    <script src="./assets/js/app/version.js?v=26.11.20.008"></script>
+    <script src="./assets/js/app/version.js?v=26.11.20.009"></script>
     <script src="./assets/js/app/reglas.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/auth.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/repo.factory.js?v=26.11.06.001"></script>

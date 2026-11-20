@@ -40,3 +40,7 @@ suave y el punto en orbita. Colores de la pantalla con el verde del icono (#4C86
 
 REQ-107 (2026-11-20): el icono se recorta en circulo; como el circulo verde ocupa el 92 % de la imagen, el blanco queda
 solo como un aro de ~4 px. Compilacion `26.11.20.008`.
+
+REQ-108 (2026-11-20): el nombre y el lema en texto se sustituyen por el logotipo oficial con el lema
+("Sustentabilidad y eficiencia agricola", `assets/images/DTA-Agricola-lema.png`, 64 colores, 8 KB); icono de 140 px
+(antes 112) y orbita de 200 px. Compilacion `26.11.20.009`.

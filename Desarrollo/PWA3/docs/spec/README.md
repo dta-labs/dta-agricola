@@ -106,8 +106,9 @@
 | REQ-105 | Pantalla de inicio animada (pivote, orbita), barra de avance real y version | Implementado (probar: usuario) | 3 |
 | REQ-106 | Pantalla de inicio: se anima el icono oficial de la app (rebote, destello, pulso, orbita) | Implementado (probar: usuario) | 1 |
 | REQ-107 | Pantalla de inicio: icono circular, blanco solo como aro | Implementado (probar: usuario) | 1 |
+| REQ-108 | Pantalla de inicio: logotipo con lema en imagen, icono mas grande | Implementado (probar: usuario) | 1 |
 
-**Total: 444 pruebas en Node (2026-11-06), todas en verde.** `npm test` funciona en Node 20 y 22.
+**Total: 445 pruebas en Node (2026-11-06), todas en verde.** `npm test` funciona en Node 20 y 22.
 
 ## Bloque de autenticacion (cerrado y confirmado por el usuario)
 

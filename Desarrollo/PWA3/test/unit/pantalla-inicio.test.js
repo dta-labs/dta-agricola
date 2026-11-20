@@ -80,3 +80,10 @@ test("REQ-106 se anima el icono oficial de la app (el del manifiesto), no uno di
 test("REQ-107 icono de inicio circular (el blanco solo como aro)", () => {
   assert.match(HTML, /#splash \.sp-icono \{[^}]*border-radius: 50%;/);
 });
+
+test("REQ-108 logotipo con lema en imagen e icono mas grande dentro de la orbita", () => {
+  assert.match(HTML, /<img class="sp-marca" src="\.\/assets\/images\/DTA-Agricola-lema\.png"/);
+  assert.ok(fs.existsSync(path.join(RAIZ, "assets", "images", "DTA-Agricola-lema.png")));
+  assert.match(HTML, /#splash \.sp-icono \{ position: relative; width: 140px; height: 140px;/);
+  assert.doesNotMatch(HTML, /class="sp-nombre"|class="sp-lema"/);
+});
