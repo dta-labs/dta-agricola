@@ -22,3 +22,6 @@ Relacion con REQ-066: alli se quitaron las tarjetas fijas porque su recuadro tap
 recuadro.
 
 Nota: numerado primero como REQ-097 por error (ese numero ya era de la WiFi del gateway); renumerado el 2026-11-20.
+
+REQ-099 (2026-11-20): mas grandes para leerse con facilidad: temperatura 19 px (antes 15), humedad 15 px (antes 12),
+contorno un poco mas grueso y la etiqueta 4 px mas arriba del marcador. Compilacion `26.11.20.002`.

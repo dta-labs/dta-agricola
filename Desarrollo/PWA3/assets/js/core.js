@@ -52,7 +52,7 @@ function __equipos() {
 }
 
 // Marca de version: si no ves esto en consola, el navegador sirve un core.js viejo.
-console.log("[app] core.js 26.11.20.001");
+console.log("[app] core.js 26.11.20.002");
 
 // #region Controlador Angular
 
@@ -3000,7 +3000,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     const ponerEtiquetaFlotante = (marcador, html) => {
         if (marcador._dtaEtiqueta === html) return;
         if (marcador.getTooltip()) marcador.setTooltipContent(html);
-        else marcador.bindTooltip(html, { permanent: true, direction: "top", offset: [0, -20], opacity: 1, interactive: false, className: "etiqueta-sensor" });
+        else marcador.bindTooltip(html, { permanent: true, direction: "top", offset: [0, -24], opacity: 1, interactive: false, className: "etiqueta-sensor" });
         marcador._dtaEtiqueta = html;
     };
 

@@ -1408,19 +1408,21 @@ canvas[id^="myChart"],
     white-space: nowrap;
     pointer-events: none;
     filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.55));
+    /* REQ-099: contorno algo mas grueso para el texto mas grande */
     text-shadow:
-        -1px -1px 0 rgba(0, 0, 0, 0.85), 1px -1px 0 rgba(0, 0, 0, 0.85),
-        -1px 1px 0 rgba(0, 0, 0, 0.85), 1px 1px 0 rgba(0, 0, 0, 0.85),
-        0 0 4px rgba(0, 0, 0, 0.9);
+        -1.5px -1.5px 0 rgba(0, 0, 0, 0.85), 1.5px -1.5px 0 rgba(0, 0, 0, 0.85),
+        -1.5px 1.5px 0 rgba(0, 0, 0, 0.85), 1.5px 1.5px 0 rgba(0, 0, 0, 0.85),
+        0 0 5px rgba(0, 0, 0, 0.9);
 }
 .leaflet-tooltip.etiqueta-sensor::before {
     display: none;   /* sin la flecha del recuadro */
 }
+/* REQ-099: mas grandes para leerse con facilidad (antes 15 y 12 px) */
 .etiqueta-sensor .etiqueta-sensor-temp {
-    font-size: 15px;
+    font-size: 19px;
     font-weight: 800;
 }
 .etiqueta-sensor .etiqueta-sensor-zona {
-    font-size: 12px;
+    font-size: 15px;
     font-weight: 700;
 }

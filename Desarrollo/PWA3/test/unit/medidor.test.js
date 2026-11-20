@@ -121,11 +121,17 @@ test("REQ-071 iconos de humedad del suelo y temperatura centrados en vertical", 
 
 test("REQ-098 etiqueta flotante sobre cada sensor: temperatura y humedad, sin recuadro y legible en cualquier fondo", () => {
   assert.match(CORE, /ponerEtiquetaFlotante\(marker\[sensor\.id\], etiquetaFlotanteDeSensor\(campo, sensor, indice\)\);/);
-  assert.match(CORE, /bindTooltip\(html, \{ permanent: true, direction: "top", offset: \[0, -20\], opacity: 1, interactive: false, className: "etiqueta-sensor" \}\)/);
+  assert.match(CORE, /bindTooltip\(html, \{ permanent: true, direction: "top", offset: \[0, -24\], opacity: 1, interactive: false, className: "etiqueta-sensor" \}\)/);
   assert.match(CORE, /<span class="etiqueta-sensor-temp">\$\{escaparHtml\(temperatura\)\}<\/span><span class="etiqueta-sensor-zona">\$\{escaparHtml\(zona\)\}<\/span>/);
   assert.match(CORE, /if \(marcador\._dtaEtiqueta === html\) return;/, "solo se cambia si cambia el texto");
   const css = fs.readFileSync(path.join(__dirname, "..", "..", "assets", "css", "style.css"), "utf8");
   assert.match(css, /\.leaflet-tooltip\.etiqueta-sensor \{[^}]*background: transparent;[^}]*box-shadow: none;/);
   assert.match(css, /\.leaflet-tooltip\.etiqueta-sensor::before \{\s*display: none;/);
   assert.match(css, /\.leaflet-tooltip\.etiqueta-sensor \{[^}]*filter: drop-shadow\([^}]*text-shadow:/);
+});
+
+test("REQ-099 etiquetas flotantes mas grandes (19 y 15 px)", () => {
+  const css = fs.readFileSync(path.join(__dirname, "..", "..", "assets", "css", "style.css"), "utf8");
+  assert.match(css, /\.etiqueta-sensor \.etiqueta-sensor-temp \{\s*font-size: 19px;/);
+  assert.match(css, /\.etiqueta-sensor \.etiqueta-sensor-zona \{\s*font-size: 15px;/);
 });

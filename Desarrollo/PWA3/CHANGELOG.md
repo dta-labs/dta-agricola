@@ -32,7 +32,7 @@ Cada version publicada lleva una etiqueta de git `pwa3-vX.Y.Z` sobre el commit d
   demanda un 0 escrito se guardaba como el valor por defecto (0 °C -> 20 °C); los valores por defecto no llegaban a
   las parcelas; "Editar fecha de riego" mostraba NaN en los dias. (REQ-061 E1)
 - Mapa de la red de sensores: sobre cada sensor flotan su temperatura y su etiqueta de humedad, sin recuadro y
-  legibles sobre cualquier fondo. (REQ-098)
+  legibles sobre cualquier fondo, en letra grande. (REQ-098, REQ-099)
 - Graficas del historial de sensores: iconos del clima de cada dia (la CSP bloqueaba Open-Meteo), datos de todas las
   series al tocar cualquier punto, barra con acercar/alejar/ver todo/ir a una fecha, exportar datos (CSV) y guardar
   imagen (PNG); la barra solo en las ventanas de graficas, no en la ficha del mapa. (REQ-093, REQ-094)
