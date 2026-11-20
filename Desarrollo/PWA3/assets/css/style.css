@@ -1,3 +1,9 @@
+/* REQ-103: ocultar lo marcado con ng-cloak (y ng-hide) mientras Angular carga. Angular inyecta esta regla al
+   iniciarse, pero los scripts estan al final de la pagina: sin ella se veian expresiones {{ }} en crudo. */
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak, .ng-hide:not(.ng-hide-animate) {
+    display: none !important;
+}
+
 .body {
   background: whitesmoke;
   background-color: whitesmoke;

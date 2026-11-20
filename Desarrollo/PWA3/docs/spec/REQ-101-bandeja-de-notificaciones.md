@@ -37,3 +37,10 @@ Bandeja **por usuario en este dispositivo** (`localStorage`, maximo 200, sin dup
 
 Limitacion: el historial es del dispositivo (otro dispositivo tiene el suyo). Para un historial comun habria que
 guardar cada notificacion en la base de datos desde `functions` (siguiente paso posible).
+
+## REQ-103 (2026-11-20): al iniciar se veia la expresion del contador
+
+Mientras Angular cargaba (los scripts van al final de la pagina) el boton flotante se mostraba con
+`{{ bandeja.sinLeer.length > 9 ? '9+' : ... }}` en crudo. Ahora el boton empieza oculto (`ng-hide` + `ng-cloak`), el
+contador usa `ng-bind` y `style.css` incluye al principio la regla `[ng-cloak], .ng-hide { display: none !important }`
+(la que Angular inyecta llega tarde). Compilacion `26.11.20.005`.

@@ -31,6 +31,7 @@ Cada version publicada lleva una etiqueta de git `pwa3-vX.Y.Z` sobre el commit d
 - Estacionario: "Aceptar" en Configurar parcela dejaba en 0 la duracion del primer riego programado; en el riego a
   demanda un 0 escrito se guardaba como el valor por defecto (0 °C -> 20 °C); los valores por defecto no llegaban a
   las parcelas; "Editar fecha de riego" mostraba NaN en los dias. (REQ-061 E1)
+- Al iniciar la app se veia en la esquina el contador de notificaciones como expresion sin procesar. (REQ-103)
 - Publicar con `npm run publicar:vista-previa` y `npm run publicar:produccion`: comprueban exclusiones de secretos, git
   y pruebas antes de desplegar, y produccion pide confirmacion escrita. Corregido el comando de PROMOTE.md. (REQ-102)
 - Notificaciones: ya no aparecen avisos emergentes al iniciar; boton flotante con contador cuando hay nuevas y ventana

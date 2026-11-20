@@ -80,7 +80,7 @@ test("REQ-101 sin avisos emergentes al inicio: las alarmas van a la bandeja y so
 });
 
 test("REQ-101 boton flotante solo con notificaciones nuevas, encima del de acciones, abre la ventana", () => {
-  assert.match(HTML, /<a class="btn-floating btn-large boton-notificaciones" ng-show="authUser && bandeja\.sinLeer\.length"\s+ng-click="abrirNotificaciones\(\)"/);
+  assert.match(HTML, /<a class="btn-floating btn-large boton-notificaciones ng-hide" ng-cloak ng-show="authUser && bandeja\.sinLeer\.length"\s+ng-click="abrirNotificaciones\(\)"/);
   const css = fs.readFileSync(path.join(RAIZ, "assets", "css", "style.css"), "utf8");
   assert.match(css, /\.btn-floating\.boton-notificaciones \{[^}]*position: fixed;[^}]*bottom: 78px;/);
 });
@@ -131,4 +131,14 @@ test("REQ-101 buzon: guardar y tomar (una sola vez) con un IndexedDB simulado", 
   await buzon.guardar({ id: "b", fecha: 2 }, fabrica);
   assert.deepEqual((await buzon.tomar(fabrica)).map(e => e.id), ["a", "b"]);
   assert.deepEqual(await buzon.tomar(fabrica), [], "se borran al tomarlas");
+});
+
+test("REQ-103 mientras Angular carga no se ve el boton ni la expresion del contador", () => {
+  const ini = HTML.indexOf('class="btn-floating btn-large boton-notificaciones');
+  const boton = HTML.slice(ini, HTML.indexOf("</a>", ini));
+  assert.match(boton, /ng-hide" ng-cloak/);
+  assert.doesNotMatch(boton.replace(/ng-attr-aria-label="[^"]*"/, ""), /\{\{/, "sin expresiones {{ }} visibles");
+  assert.match(boton, /ng-bind="bandeja\.sinLeer\.length > 9 \? '9\+' : bandeja\.sinLeer\.length"/);
+  const css = fs.readFileSync(path.join(RAIZ, "assets", "css", "style.css"), "utf8").replace(/\r\n/g, "\n");
+  assert.match(css.slice(0, 600), /\[ng-cloak\][^{]*\.ng-hide:not\(\.ng-hide-animate\) \{\s*display: none !important;/);
 });

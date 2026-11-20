@@ -3704,7 +3704,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="./assets/modules/materialize/css/materialize.min.css">
     <link rel="stylesheet" href="./assets/modules/leaflet/leaflet.css">
-    <link rel="stylesheet" href="./assets/css/style.css?v=26.11.20.004">
+    <link rel="stylesheet" href="./assets/css/style.css?v=26.11.20.005">
     <link rel="stylesheet" href="./assets/css/responsive.css">
     <link rel="stylesheet" href="./assets/css/formularios.css?v=26.11.06.002">
     <!-- REQ-043: Bootstrap 5 aislado en .bs (convive con Materialize mientras se migra) -->
@@ -3727,10 +3727,12 @@
 
     <!-- REQ-050: Notificaciones con el estilo comun de ventanas (assets/css/ventana.css) -->
     <!-- REQ-101: boton flotante de notificaciones nuevas (encima del de acciones; solo si hay sin leer) -->
-    <a class="btn-floating btn-large boton-notificaciones" ng-show="authUser && bandeja.sinLeer.length"
-        ng-click="abrirNotificaciones()" role="button" aria-label="{{ bandeja.sinLeer.length }} notificaciones nuevas">
+    <!-- REQ-103: oculto desde el inicio (ng-hide + ng-cloak) y contador con ng-bind: mientras Angular carga
+         no debe verse el boton ni la expresion en crudo -->
+    <a class="btn-floating btn-large boton-notificaciones ng-hide" ng-cloak ng-show="authUser && bandeja.sinLeer.length"
+        ng-click="abrirNotificaciones()" role="button" ng-attr-aria-label="{{ bandeja.sinLeer.length }} notificaciones nuevas">
         <i class="material-icons">notifications_active</i>
-        <span class="boton-notificaciones-contador">{{ bandeja.sinLeer.length > 9 ? '9+' : bandeja.sinLeer.length }}</span>
+        <span class="boton-notificaciones-contador" ng-bind="bandeja.sinLeer.length > 9 ? '9+' : bandeja.sinLeer.length"></span>
     </a>
 
     <div id="modalNotificaciones" class="modal ventana-modal">
@@ -4006,7 +4008,7 @@
 <script src="./assets/vendor/bootstrap/bootstrap.bundle.min.js?v=5.3.8"></script>
     <script src="./assets/js/core.js?v=26.11.20.004"></script>
     <!-- REQ-038: factories, ayudas de interfaz y componentes (despues de core.js, que crea el modulo) -->
-    <script src="./assets/js/app/version.js?v=26.11.20.004"></script>
+    <script src="./assets/js/app/version.js?v=26.11.20.005"></script>
     <script src="./assets/js/app/reglas.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/auth.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/repo.factory.js?v=26.11.06.001"></script>
