@@ -10,7 +10,7 @@
 (function (raiz) {
     "use strict";
 
-    var VERSION = "26.11.06.001";
+    var VERSION = "26.11.20.011";
     var ENCENDIDO = "springgreen";
     var APAGADO = "lightgray";
 

@@ -119,8 +119,8 @@ dta-panel-nevera {
    REQ-075: textos del tamaño del listado, clima en la esquina (se aprovecha el espacio bajo el), menos alto,
    degradado de izquierda a derecha y boton bajo. */
 .bs.sensores-tarjetas {
-    margin-top: 76px;
-    height: calc(100vh - 140px);
+    margin-top: 10px;              /* REQ-110: sin el hueco de la barra de opciones (oculta en el mosaico) */
+    height: calc(100vh - 82px);
     overflow-y: auto;
     padding: 0 8px 16px 8px;
     scroll-behavior: smooth;
@@ -358,4 +358,11 @@ dta-panel-nevera {
 .panel-opcion-activa b,
 .panel-opcion-activa .material-icons {
     color: springgreen !important;
+}
+
+/* REQ-110: iconos de direccion del pivote (giro horario / antihorario; lineal: atras / adelante) */
+.material-icons.panel-direccion {
+    font-size: 1em;
+    line-height: 1;
+    vertical-align: middle;
 }

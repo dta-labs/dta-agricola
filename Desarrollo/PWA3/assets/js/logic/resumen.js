@@ -56,8 +56,24 @@
         return nombres[0] + " y " + (nombres.length - 1) + " más";
     }
 
+    // REQ-110: mensajes cortos y precisos; si no caben, el generico del nivel. "Sin alertas" siempre con el check.
+    var MAXIMO_MENSAJE = 26;
+    var GENERICOS = { emergencia: "Acción inmediata", atencion: "Requiere atención" };
+
+    function mensajeCorto(estado, mensaje) {
+        if (mensaje.length <= MAXIMO_MENSAJE || !GENERICOS[estado]) return mensaje;
+        return GENERICOS[estado];
+    }
+
     function resultado(estado, linea, mensaje) {
-        return { estado: estado, linea: linea, mensaje: mensaje, color: COLORES[estado], icono: ICONOS[estado] };
+        var texto = mensajeCorto(estado, mensaje);
+        var sinAlertas = /^Sin alertas/.test(texto);
+        return { estado: estado, linea: linea, mensaje: texto, color: COLORES[estado], icono: sinAlertas ? "check_circle" : ICONOS[estado] };
+    }
+
+    /** "Suelo seco en Nogal" / "Suelo seco en 3 sensores" */
+    function enQuien(texto, nombres) {
+        return texto + " en " + (nombres.length === 1 ? nombres[0] : nombres.length + " sensores");
     }
 
     function temperaturaTexto(c, unidad) {
@@ -73,16 +89,31 @@
         var presion = numero(log.presion);
         var agua = presion ? " · " + presion + " psi" : "";
         switch (estado) {
-            case "falla": return resultado("emergencia", "Detenido · Sin energía", "Emergencia: falla eléctrica · Revisar ya");
-            case "seguridad": return resultado("emergencia", "Detenido · Posición " + posicion, "Emergencia: falla de seguridad · Revisar ya");
-            case "sin-conexion": return resultado("atencion", "Posición " + posicion, "Sin comunicación · Verificar equipo");
-            case "pendiente": return resultado("atencion", "Posición " + posicion, "Esperando confirmación del equipo");
+            case "falla": return resultado("emergencia", "Detenido · Sin energía", "Falla eléctrica");
+            case "seguridad": return resultado("emergencia", "Detenido · Posición " + posicion, "Falla de seguridad");
+            case "sin-conexion": return resultado("atencion", "Posición " + posicion, "Sin comunicación");
+            case "pendiente": return resultado("atencion", "Posición " + posicion, "Esperando confirmación");
             case "apagado": return resultado("inactivo", "Detenido · Posición " + posicion, "Sin alertas");
             default: return resultado("ok", "Operando (" + posicion + ") · Velocidad " + velocidad + " %", "Sin alertas" + agua);
         }
     }
 
+    /** REQ-110: valvulas (1..7) y motor (M) con su estado: encendido, pendiente o apagado (logic/panel.js). */
+    function valvulas(s, reglas) {
+        return Object.keys(s.plots || {}).filter(function (k) { return /^p[0-7]$/.test(k) && s.plots[k]; }).sort()
+            .map(function (k) {
+                var motor = k === "p7";
+                return { clave: k, texto: motor ? "M" : String(parseInt(k.slice(1), 10) + 1), motor: motor, estado: reglas.panel.estadoParcela(s, k) };
+            });
+    }
+
     function estacionario(s, reglas) {
+        var r = estacionarioSinValvulas(s, reglas);
+        r.valvulas = valvulas(s, reglas);
+        return r;
+    }
+
+    function estacionarioSinValvulas(s, reglas) {
         if (s.status === "OFF") return resultado("inactivo", "Detenido", "Sin alertas");
         var activas = [], pendientes = [];
         Object.keys(s.plots || {}).filter(function (k) { return /^p[0-6]$/.test(k); }).sort().forEach(function (k) {
@@ -92,7 +123,7 @@
             if (e === "encendido") activas.push(nombre);
             else if (e === "pendiente") pendientes.push(nombre);
         });
-        if (pendientes.length) return resultado("atencion", activas.length ? "Regando " + lista(activas) : "En espera", "Esperando confirmación: " + lista(pendientes));
+        if (pendientes.length) return resultado("atencion", activas.length ? "Regando " + lista(activas) : "En espera", "Esperando confirmación");
         if (activas.length) return resultado("ok", "Regando " + lista(activas), "Sin alertas");
         return resultado("ok", "En espera · Sin riego activo", "Sin alertas");
     }
@@ -129,12 +160,12 @@
         });
         var media = temperaturas.length ? temperaturas.reduce(function (a, b) { return a + b; }, 0) / temperaturas.length : null;
         var linea = claves.length + (claves.length === 1 ? " sensor" : " sensores") + (media !== null ? " · " + temperaturaTexto(media, unidad) : "");
-        if (opciones.lecturaVieja) return resultado("atencion", linea, "Sin reportar " + (opciones.antiguedad || "hace más de 24 h") + " · Verificar gateway");
-        if (helada.length) return resultado("emergencia", linea, "Alerta: riesgo de helada en " + lista(helada));
-        if (secos.length) return resultado("atencion", linea, "Alerta: suelo seco en " + lista(secos));
-        if (estres.length) return resultado("atencion", linea, "Programar riego: estrés en " + lista(estres));
-        if (!claves.length) return resultado("inactivo", "Sin sensores registrados", "Agregar sensores");
-        return resultado("ok", linea, "Humedad adecuada · Sin alertas");
+        if (opciones.lecturaVieja) return resultado("atencion", linea, "Sin reportar " + (opciones.antiguedad || "en 24 h"));
+        if (helada.length) return resultado("emergencia", linea, enQuien("Helada", helada));
+        if (secos.length) return resultado("atencion", linea, enQuien("Suelo seco", secos));
+        if (estres.length) return resultado("atencion", linea, "Programar riego");
+        if (!claves.length) return resultado("inactivo", "Sin sensores registrados", "Sin sensores");
+        return resultado("ok", linea + " · Humedad adecuada", "Sin alertas");
     }
 
     function nevera(s, reglas, opciones) {
@@ -151,9 +182,9 @@
             if ((minimo !== null && v.t < minimo) || (maximo !== null && v.t > maximo)) fuera.push(sensor.alias || sensor.id || k);
         });
         var linea = valores.length ? temperaturaTexto(valores.reduce(function (a, b) { return a + b; }, 0) / valores.length, unidad) : "Sin lectura";
-        if (opciones.lecturaVieja) return resultado("atencion", linea, "Sin reportar " + (opciones.antiguedad || "hace más de 24 h") + " · Verificar equipo");
-        if (fuera.length) return resultado("emergencia", linea, "Alerta: temperatura fuera de rango en " + lista(fuera));
-        if (!valores.length) return resultado("inactivo", linea, "Esperando la primera lectura");
+        if (opciones.lecturaVieja) return resultado("atencion", linea, "Sin reportar " + (opciones.antiguedad || "en 24 h"));
+        if (fuera.length) return resultado("emergencia", linea, "Temperatura fuera de rango");
+        if (!valores.length) return resultado("inactivo", linea, "Sin lectura");
         return resultado("ok", linea + " · Estable", "Sin alertas");
     }
 

@@ -1314,7 +1314,7 @@ canvas[id^="myChart"],
    rayas de lectura vieja): solo los bordes, para no alterar sus colores. Las parcelas se siguen pudiendo tocar (en SVG
    un relleno transparente sigue recibiendo el toque). */
 .mapa-ndvi .leaflet-overlay-pane path {
-    fill-opacity: 0 !important;
+    fill-opacity: 0.2 !important;   /* REQ-110: el estado de la parcela encima de la imagen, tenue: se ven ambos */
 }
 .mapa-leyenda-ndvi {
     display: flex;
@@ -1663,6 +1663,8 @@ canvas[id^="myChart"],
     border-left: 6px solid var(--estado);
     border-radius: 12px;
     background: #ffffff;
+    /* REQ-110: fondo del color del estado, muy tenue (sin transparencia: solido sobre el fondo de la app) */
+    background: color-mix(in srgb, var(--estado) 9%, #ffffff);
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
     transition: box-shadow 0.15s ease, transform 0.15s ease;
 }
@@ -1672,7 +1674,7 @@ canvas[id^="myChart"],
 }
 .tarjeta-equipo-enlace {
     display: flex;
-    align-items: center;
+    align-items: stretch;
     gap: 12px;
     min-height: 92px;
     padding: 10px 12px 10px 10px;
@@ -1681,6 +1683,7 @@ canvas[id^="myChart"],
 }
 .tarjeta-equipo-icono {
     display: flex;
+    align-self: center;
     flex: 0 0 64px;
     align-items: center;
     justify-content: center;
@@ -1691,10 +1694,7 @@ canvas[id^="myChart"],
     width: 56px;
     height: 56px;
     object-fit: contain;
-}
-.tarjeta-equipo.estado-inactivo .tarjeta-equipo-icono img {
-    filter: grayscale(100%);
-    opacity: 0.7;
+    filter: brightness(0);   /* REQ-110: iconos del tipo de equipo en negro */
 }
 .tarjeta-equipo-icono .tarjeta-pivote {
     width: 56px;
@@ -1705,23 +1705,26 @@ canvas[id^="myChart"],
     width: 100%;
     height: 100%;
     border-width: 3px;
+    border-color: #000000 !important;
 }
 .tarjeta-equipo-icono .tarjeta-pivote .brazo {
     border-width: 2px;
+    border-color: #000000 !important;
 }
 .tarjeta-equipo-icono .tarjeta-icono-material {
-    color: var(--estado);
+    color: #000000;
     font-size: 48px;
 }
 .tarjeta-equipo-texto {
     display: flex;
     flex: 1 1 auto;
     flex-direction: column;
-    gap: 2px;
+    justify-content: center;
+    gap: 3px;
     min-width: 0;
 }
 .tarjeta-equipo-nombre {
-    font-size: 1.15rem;
+    font-size: 1.35rem;
     font-weight: 700;
     line-height: 1.25;
     overflow: hidden;
@@ -1729,8 +1732,8 @@ canvas[id^="myChart"],
     white-space: nowrap;
 }
 .tarjeta-equipo-linea {
-    color: #455a64;
-    font-size: 0.9rem;
+    color: #37474f;
+    font-size: 1.05rem;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -1741,27 +1744,25 @@ canvas[id^="myChart"],
     gap: 4px;
     margin-top: 2px;
     color: var(--estado);
-    font-size: 0.88rem;
+    font-size: 1.05rem;
     font-weight: 700;
     line-height: 1.2;
 }
 .tarjeta-equipo-mensaje .material-icons {
     flex: 0 0 auto;
-    font-size: 18px;
+    font-size: 20px;
 }
 .tarjeta-equipo-mensaje span {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
-.tarjeta-equipo.estado-emergencia {
-    background: #fff5f5;
-}
 .tarjeta-equipo-lateral {
     display: flex;
     flex: 0 0 auto;
     flex-direction: column;
     align-items: center;
+    justify-content: space-between;   /* REQ-110: fecha y hora alineadas abajo con el mensaje */
     gap: 0;
     min-width: 48px;
     color: #607d8b;
@@ -1773,11 +1774,42 @@ canvas[id^="myChart"],
     margin-bottom: 2px;
 }
 .tarjeta-equipo-dia {
-    font-size: 0.8rem;
+    margin-top: auto;
+    font-size: 0.95rem;
     font-weight: 600;
 }
 .tarjeta-equipo-hora {
-    font-size: 0.75rem;
+    font-size: 0.9rem;
+}
+/* REQ-110: valvulas y motor del estacionario */
+.tarjeta-equipo-valvulas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+.tarjeta-equipo-valvulas .valvula {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    height: 24px;
+    padding: 0 4px;
+    border-radius: 6px;
+    background: #cfd8dc;
+    color: #455a64;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+.tarjeta-equipo-valvulas .valvula-motor {
+    border-radius: 50%;
+}
+.tarjeta-equipo-valvulas .valvula-encendido {
+    background: #2e7d32;
+    color: #ffffff;
+}
+.tarjeta-equipo-valvulas .valvula-pendiente {
+    background: #fbc02d;
+    color: #3e2723;
 }
 
 /* Boton flotante mapa / mosaico de la red de sensores (mismo lugar y tamaño que el de acciones del listado) */

@@ -98,6 +98,6 @@ test("REQ-089 core: pivote = su circulo; red y estacionario = todas las parcelas
 
 test("REQ-092 con la imagen satelital, las parcelas solo muestran el borde (sin relleno que cambie sus colores)", () => {
   const css = fs.readFileSync(path.join(RAIZ, "assets", "css", "style.css"), "utf8");
-  assert.match(css, /\.mapa-ndvi \.leaflet-overlay-pane path \{\s*fill-opacity: 0 !important;\s*\}/);
-  assert.doesNotMatch(css, /fill-opacity: 0\.06/);
+  // REQ-110: el estado de la parcela vuelve encima de la imagen, tenue (0.2), para que se vean ambos.
+  assert.match(css, /\.mapa-ndvi \.leaflet-overlay-pane path \{\s*fill-opacity: 0\.2 !important;/);
 });

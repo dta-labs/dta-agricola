@@ -32,9 +32,9 @@ test("REQ-109 pivote: operando, detenido, emergencias y sin comunicacion", () =>
   assert.equal(e({ type: "PC", status: "ON", log: Object.assign({}, ok, { presion: "32" }) }).mensaje, "Sin alertas · 32 psi");
   assert.equal(e({ type: "PC", status: "OFF", log: ok }).estado, "inactivo");
   assert.deepEqual([e({ type: "PC", status: "ON", log: Object.assign({}, ok, { voltage: "false" }) }).estado, e({ type: "PC", status: "ON", log: Object.assign({}, ok, { voltage: "false" }) }).mensaje],
-    ["emergencia", "Emergencia: falla eléctrica · Revisar ya"]);
+    ["emergencia", "Falla eléctrica"]);
   assert.equal(e({ type: "PC", status: "ON", log: Object.assign({}, ok, { safety: "false" }) }).estado, "emergencia");
-  assert.equal(e({ type: "PC", status: "ON", log: Object.assign({}, ok, { commDelay: "12" }) }).mensaje, "Sin comunicación · Verificar equipo");
+  assert.equal(e({ type: "PC", status: "ON", log: Object.assign({}, ok, { commDelay: "12" }) }).mensaje, "Sin comunicación");
   assert.equal(e({ type: "PL", status: "ON", log: ok }).linea, "Operando (237 %) · Velocidad 45 %");
   assert.deepEqual(e({ type: "PC", status: "ON", log: ok }).fecha, { dia: "20/11", hora: "09:48", anio: "2026" });
 });
@@ -42,7 +42,7 @@ test("REQ-109 pivote: operando, detenido, emergencias y sin comunicacion", () =>
 test("REQ-109 estacionario y pozo: sectores regando, confirmaciones pendientes, detenido", () => {
   const est = { type: "Estacionario", status: "ON", plots: { p0: { name: "Nogal norte", forcedStart: "1" }, p1: {}, p3: { forcedStart: 1 } }, log: { activeSectors: "[0,1,0,1,0,0,0,0]" } };
   const a = r.resumenDeEquipo(est, reglas);
-  assert.deepEqual([a.estado, a.linea, a.mensaje], ["atencion", "Regando Sector 2 y Sector 4", "Esperando confirmación: Nogal norte"]);
+  assert.deepEqual([a.estado, a.linea, a.mensaje], ["atencion", "Regando Sector 2 y Sector 4", "Esperando confirmación"]);
   const b = r.resumenDeEquipo({ type: "Estacionario", status: "ON", plots: { p1: {} }, log: { activeSectors: "[0,1,0,0,0,0,0,0]" } }, reglas);
   assert.deepEqual([b.estado, b.linea], ["ok", "Regando Sector 2"]);
   assert.equal(r.resumenDeEquipo({ type: "Estacionario", status: "OFF", plots: {} }, reglas).estado, "inactivo");
@@ -53,14 +53,14 @@ test("REQ-109 red de sensores y nevera: helada, suelo seco, estres, sin reportar
   const red = (ms, t, extra) => r.resumenDeEquipo({ type: "Sensor", tempUnit: "C",
     sensors: { S0: { id: "a", alias: "Nogal", type: "WM", t: { minValue: 2, maxValue: 30 } } },
     log: { dataRaw: JSON.stringify([ms, 50, 0, 0, t, 0, 0, 3.3]), date: "20261120 0948am" } }, reglas, extra);
-  assert.deepEqual([red(32, 15).estado, red(32, 15).mensaje, red(32, 15).linea], ["ok", "Humedad adecuada · Sin alertas", "1 sensor · 15 °C"]);
-  assert.deepEqual([red(150, 15).estado, red(150, 15).mensaje], ["atencion", "Alerta: suelo seco en Nogal"]);
-  assert.equal(red(80, 15).mensaje, "Programar riego: estrés en Nogal");
-  assert.deepEqual([red(150, 1).estado, red(150, 1).mensaje], ["emergencia", "Alerta: riesgo de helada en Nogal"], "la helada manda");
-  assert.equal(red(32, 15, { lecturaVieja: true, antiguedad: "hace 2 d" }).mensaje, "Sin reportar hace 2 d · Verificar gateway");
+  assert.deepEqual([red(32, 15).estado, red(32, 15).mensaje, red(32, 15).linea], ["ok", "Sin alertas", "1 sensor · 15 °C · Humedad adecuada"]);
+  assert.deepEqual([red(150, 15).estado, red(150, 15).mensaje], ["atencion", "Suelo seco en Nogal"]);
+  assert.equal(red(80, 15).mensaje, "Programar riego");
+  assert.deepEqual([red(150, 1).estado, red(150, 1).mensaje], ["emergencia", "Helada en Nogal"], "la helada manda");
+  assert.equal(red(32, 15, { lecturaVieja: true, antiguedad: "hace 2 d" }).mensaje, "Sin reportar hace 2 d");
   const nev = t => r.resumenDeEquipo({ type: "Nevera", sensors: { S0: { id: "x", alias: "Cámara", t: { minValue: 0, maxValue: 8 } } }, log: { dataRaw: JSON.stringify([0, 60, 0, 0, t, 0, 0, 3]) } }, reglas);
   assert.deepEqual([nev(4.2).estado, nev(4.2).linea], ["ok", "4.2 °C · Estable"]);
-  assert.deepEqual([nev(19.6).estado, nev(19.6).mensaje], ["emergencia", "Alerta: temperatura fuera de rango en Cámara"]);
+  assert.deepEqual([nev(19.6).estado, nev(19.6).mensaje], ["emergencia", "Temperatura fuera de rango"]);
 });
 
 test("REQ-109 barra superior en dos lineas sin cortes; el boton de mapa/mosaico ya no esta en ella", () => {
@@ -90,4 +90,38 @@ test("REQ-109 botones flotantes por vista y barra de opciones solo en el mapa de
   assert.match(HTML, /class="btn-floating btn-large boton-vista-sensores ng-hide"[\s\S]*?ng-show="authUser && selectedWindow == 'sistema' && actualSystem\.type == 'Sensor'" ng-click="toggleSensorMapView\(\)"/);
   const panel = fs.readFileSync(path.join(RAIZ, "assets", "js", "components", "sistema", "panel-sensores", "panel-sensores.html"), "utf8");
   assert.match(panel, /<div class="col s12" ng-show="!vm\.mostrarLista">\s*<div class="row statusBar panel-s-e11">/);
+});
+
+test("REQ-110 mensajes cortos (si no, generico por nivel) y 'Sin alertas' siempre con el check", () => {
+  const red = (alias, ms, t) => r.resumenDeEquipo({ type: "Sensor", tempUnit: "C",
+    sensors: { S0: { id: "a", alias, type: "WM", t: { minValue: 2, maxValue: 30 } } },
+    log: { dataRaw: JSON.stringify([ms, 50, 0, 0, t, 0, 0, 3.3]), date: "20261120 0948am" } }, reglas);
+  assert.equal(red("Nogal del bajío oriente", 150, 15).mensaje, "Requiere atención");
+  assert.equal(red("Nogal del bajío oriente", 150, 1).mensaje, "Acción inmediata");
+  const todos = [red("N", 32, 15), r.resumenDeEquipo({ type: "PC", status: "ON", log: ok }, reglas), r.resumenDeEquipo({ type: "PC", status: "OFF", log: ok }, reglas)];
+  todos.forEach(x => { assert.match(x.mensaje, /^Sin alertas/); assert.equal(x.icono, "check_circle"); });
+  [red("N", 150, 15), red("N", 150, 1)].forEach(x => assert.ok(x.mensaje.length <= 26));
+});
+
+test("REQ-110 estacionario: valvulas y motor con su estado en la tarjeta", () => {
+  const x = r.resumenDeEquipo({ type: "Estacionario", status: "ON", plots: { p0: { forcedStart: "1" }, p1: {}, p3: { forcedStart: 1 }, p7: {} },
+    log: { activeSectors: "[0,1,0,1,0,0,0,0]" } }, reglas);
+  assert.deepEqual(x.valvulas.map(v => [v.texto, v.estado, v.motor]), [["1", "pendiente", false], ["2", "encendido", false], ["4", "encendido", false], ["M", "apagado", true]]);
+  assert.match(HTML, /ng-repeat="v in resumenDeEquipo\(system\)\.valvulas track by v\.clave" class="valvula"/);
+  const css = fs.readFileSync(path.join(RAIZ, "assets", "css", "style.css"), "utf8");
+  assert.match(css, /background: color-mix\(in srgb, var\(--estado\) 9%, #ffffff\);/, "fondo tenue del estado");
+  assert.match(css, /filter: brightness\(0\);\s*\/\* REQ-110: iconos del tipo de equipo en negro/);
+  assert.match(css, /\.tarjeta-equipo-nombre \{\s*font-size: 1\.35rem;/);
+  assert.match(css, /justify-content: space-between;\s*\/\* REQ-110: fecha y hora alineadas abajo/);
+});
+
+test("REQ-110 mapa: se recalcula al hacerse visible, NDVI con el estado encima, iconos de giro y mosaico sin hueco", () => {
+  assert.match(CORE, /new ResizeObserver\(\(\) => \{[\s\S]*?map\.invalidateSize\(\{ pan: false \}\);[\s\S]*?\}\)\.observe\(map\.getContainer\(\)\);/);
+  assert.match(CORE, /map\.setView\(coord, 16\);\s*volverAMostrarMapa\(\);/);
+  const css = fs.readFileSync(path.join(RAIZ, "assets", "css", "style.css"), "utf8");
+  assert.match(css, /\.mapa-ndvi \.leaflet-overlay-pane path \{\s*fill-opacity: 0\.2 !important;/);
+  const pc = fs.readFileSync(path.join(RAIZ, "assets", "js", "components", "sistema", "panel-pivote-central", "panel-pivote-central.html"), "utf8");
+  assert.match(pc, />rotate_left<\/i>/); assert.match(pc, />rotate_right<\/i>/); assert.doesNotMatch(pc, /fa-reply|fa-share/);
+  const paneles = fs.readFileSync(path.join(RAIZ, "assets", "js", "components", "sistema", "paneles.css"), "utf8");
+  assert.match(paneles, /\.bs\.sensores-tarjetas \{\s*margin-top: 10px;/);
 });

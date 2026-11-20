@@ -35,6 +35,9 @@ Cada version publicada lleva una etiqueta de git `pwa3-vX.Y.Z` sobre el commit d
 - Al iniciar la app se veia en la esquina el contador de notificaciones como expresion sin procesar. (REQ-103)
 - Publicar con `npm run publicar:vista-previa` y `npm run publicar:produccion`: comprueban exclusiones de secretos, git
   y pruebas antes de desplegar, y produccion pide confirmacion escrita. Corregido el comando de PROMOTE.md. (REQ-102)
+- Listado: textos mas grandes, iconos en negro, fondo tenue del color del estado, valvulas y motor del estacionario y
+  mensajes cortos ("Suelo seco en Nogal", o "Requiere atencion" / "Accion inmediata"). (REQ-110)
+- Los mapas no cargaban bien y las parcelas de sensores no se dibujaban al entrar (mapa creado oculto). (REQ-110)
 - Aspecto de producto: barra superior oscura en dos lineas (el titulo ya no se corta), tarjetas del listado solidas con
   el estado en lenguaje claro ("Operando (237°) · Sin alertas", "Alerta: suelo seco en Sensor 2") y fecha/hora bajo el
   clima; boton flotante de mapa/mosaico en la red de sensores; notificaciones solo en el listado. (REQ-109)

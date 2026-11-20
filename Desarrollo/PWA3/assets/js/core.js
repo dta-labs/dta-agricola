@@ -52,7 +52,7 @@ function __equipos() {
 }
 
 // Marca de version: si no ves esto en consola, el navegador sirve un core.js viejo.
-console.log("[app] core.js 26.11.20.010");
+console.log("[app] core.js 26.11.20.011");
 
 // #region Controlador Angular
 
@@ -2901,6 +2901,25 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             // REQ-088: con zoom lejano se ocultan los nombres de los equipos (se taparian entre si).
             const nombresSegunZoom = () => map.getContainer().classList.toggle("mapa-sin-nombres", map.getZoom() < 14);
             map.on("zoomend", nombresSegunZoom);
+            // REQ-110: el mapa se crea con la pantalla del sistema oculta (0x0). Leaflet no se entera cuando se
+            // muestra: no pedia las imagenes del satelite y recortaba las parcelas a un area nula (mapa a medias y
+            // parcelas sin dibujar la primera vez). Cada vez que el contenedor cambia de tamaño (pasa a visible,
+            // gira el telefono, cambia la barra) se recalcula y se redibuja.
+            if (typeof ResizeObserver !== "undefined") {
+                let pendiente = false;
+                new ResizeObserver(() => {
+                    const contenedor = map.getContainer();
+                    if (pendiente || !contenedor.offsetWidth || !contenedor.offsetHeight) return;
+                    pendiente = true;
+                    requestAnimationFrame(() => {
+                        pendiente = false;
+                        map.invalidateSize({ pan: false });
+                        map.eachLayer(capa => { if (capa instanceof L.Path) capa.redraw(); });
+                        const actual = $scope.actualSystem;
+                        if (actual && actual.type == "Sensor") dibujarAreasDeSensores(($scope.systems && $scope.systems[actual.key]) || actual);
+                    });
+                }).observe(map.getContainer());
+            }
         }
     }
 
@@ -3168,6 +3187,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         if (system.latitude != "NaN" && system.longitude != "NaN") {
             let coord = [system.latitude, system.longitude];
             map.setView(coord, 16);
+            volverAMostrarMapa();   // REQ-110: por si el contenedor acaba de hacerse visible
             //geoLocation(system.key);
             addMarker(system);
             addShape(system);

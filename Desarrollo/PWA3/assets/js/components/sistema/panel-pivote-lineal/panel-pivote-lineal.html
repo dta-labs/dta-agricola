@@ -6,8 +6,8 @@
          <div ng-style="{ 'background': (vm.sistema.status && !vm.sistema.direction ? '#04d604' : 'transparent') }" class="col s3 center-align panel-s-e4" ng-click="vm.alRetroceder()"
              ng-show="vm.sistema.type == 'PC' || vm.sistema.type == 'PL'"
             >
-             <i ng-style="{ 'color': (vm.sistema.status && !vm.sistema.direction ? 'white' : 'grey') }" class="fa fa-reply" aria-hidden="true"
-                ></i>
+             <i ng-style="{ 'color': (vm.sistema.status && !vm.sistema.direction ? 'white' : 'grey') }" class="material-icons panel-direccion" aria-hidden="true"
+                >arrow_back</i>
          </div>
          <div ng-style="{ 'background': (vm.sistema.status ? 'transparent' : 'red') }" class="col s5 center-align panel-s-e5" ng-click="vm.alDetener()"
             >
@@ -16,8 +16,8 @@
          </div>
          <div ng-style="{ 'background': (vm.sistema.status && vm.sistema.direction ? '#04d604' : 'transparent') }" class="col s3 center-align panel-s-e6" ng-click="vm.alAvanzar()"
             >
-             <i ng-style="{ 'color': (vm.sistema.status && vm.sistema.direction ? 'white' : 'grey') }" class="fa fa-share" aria-hidden="true"
-                ></i>
+             <i ng-style="{ 'color': (vm.sistema.status && vm.sistema.direction ? 'white' : 'grey') }" class="material-icons panel-direccion" aria-hidden="true"
+                >arrow_forward</i>
          </div>
      </div>
      <!-- Status General -->

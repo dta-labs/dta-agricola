@@ -231,7 +231,14 @@
                                         </div>
                                         <div class="tarjeta-equipo-texto">
                                             <div class="tarjeta-equipo-nombre">{{ system.name }}</div>
-                                            <div class="tarjeta-equipo-linea">{{ resumenDeEquipo(system).linea }}</div>
+                                            <div class="tarjeta-equipo-linea" ng-if="!resumenDeEquipo(system).valvulas">{{ resumenDeEquipo(system).linea }}</div>
+                                            <!-- REQ-110: estacionario: valvulas (1..7) y motor (M) con su estado -->
+                                            <div class="tarjeta-equipo-valvulas" ng-if="resumenDeEquipo(system).valvulas"
+                                                aria-label="{{ resumenDeEquipo(system).linea }}">
+                                                <span ng-repeat="v in resumenDeEquipo(system).valvulas track by v.clave" class="valvula"
+                                                    ng-class="['valvula-' + v.estado, { 'valvula-motor': v.motor }]"
+                                                    title="{{ v.motor ? 'Motor' : 'Válvula ' + v.texto }}: {{ v.estado }}">{{ v.texto }}</span>
+                                            </div>
                                             <div class="tarjeta-equipo-mensaje">
                                                 <i class="material-icons" aria-hidden="true">{{ resumenDeEquipo(system).icono }}</i>
                                                 <span>{{ resumenDeEquipo(system).mensaje }}</span>
@@ -3566,7 +3573,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="./assets/modules/materialize/css/materialize.min.css">
     <link rel="stylesheet" href="./assets/modules/leaflet/leaflet.css">
-    <link rel="stylesheet" href="./assets/css/style.css?v=26.11.20.010">
+    <link rel="stylesheet" href="./assets/css/style.css?v=26.11.20.011">
     <link rel="stylesheet" href="./assets/css/responsive.css">
     <link rel="stylesheet" href="./assets/css/formularios.css?v=26.11.06.002">
     <!-- REQ-043: Bootstrap 5 aislado en .bs (convive con Materialize mientras se migra) -->
@@ -3580,7 +3587,7 @@
     <link rel="stylesheet" href="./assets/js/components/comunes/version-app/version-app.css?v=26.11.07.003">
     <link rel="stylesheet" href="./assets/js/components/comunes/mapa-selector/mapa-selector.css?v=26.11.08.011">
     <link rel="stylesheet" href="./assets/js/components/comunes/lector-codigo/lector-codigo.css?v=26.11.06.001">
-    <link rel="stylesheet" href="./assets/js/components/sistema/paneles.css?v=26.11.08.013">
+    <link rel="stylesheet" href="./assets/js/components/sistema/paneles.css?v=26.11.20.011">
     <link rel="stylesheet" href="./assets/js/components/ayuda/ayuda.css?v=26.11.06.003">
     <link rel="stylesheet" href="./assets/js/components/fichas-tecnicas/fichas-tecnicas.css?v=26.11.06.003">
 
@@ -3876,9 +3883,9 @@
 <script src="./assets/js/logic/meteo.js?v=26.11.02.001"></script>
     <script src="./assets/js/logic/aviso.js?v=26.11.02.001"></script>
 <script src="./assets/vendor/bootstrap/bootstrap.bundle.min.js?v=5.3.8"></script>
-    <script src="./assets/js/core.js?v=26.11.20.010"></script>
+    <script src="./assets/js/core.js?v=26.11.20.011"></script>
     <!-- REQ-038: factories, ayudas de interfaz y componentes (despues de core.js, que crea el modulo) -->
-    <script src="./assets/js/app/version.js?v=26.11.20.010"></script>
+    <script src="./assets/js/app/version.js?v=26.11.20.011"></script>
     <script src="./assets/js/app/reglas.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/auth.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/repo.factory.js?v=26.11.06.001"></script>
@@ -3891,9 +3898,9 @@
     <script src="./assets/js/components/comunes/version-app/version-app.component.js?v=26.11.07.003"></script>
     <script src="./assets/js/components/comunes/mapa-selector/mapa-selector.component.js?v=26.11.08.011"></script>
     <script src="./assets/js/components/comunes/lector-codigo/lector-codigo.component.js?v=26.11.06.001"></script>
-    <script src="./assets/js/components/sistema/panel-pivote-central/panel-pivote-central.component.js?v=26.11.06.001"></script>
+    <script src="./assets/js/components/sistema/panel-pivote-central/panel-pivote-central.component.js?v=26.11.20.011"></script>
     <script src="./assets/js/components/sistema/panel-pozo/panel-pozo.component.js?v=26.11.06.001"></script>
-    <script src="./assets/js/components/sistema/panel-pivote-lineal/panel-pivote-lineal.component.js?v=26.11.07.001"></script>
+    <script src="./assets/js/components/sistema/panel-pivote-lineal/panel-pivote-lineal.component.js?v=26.11.20.011"></script>
     <script src="./assets/js/components/sistema/panel-estacionario/panel-estacionario.component.js?v=26.11.08.014"></script>
     <script src="./assets/js/components/sistema/panel-sensores/panel-sensores.component.js?v=26.11.20.010"></script>
     <script src="./assets/js/components/sistema/panel-nevera/panel-nevera.component.js?v=26.11.07.001"></script>
