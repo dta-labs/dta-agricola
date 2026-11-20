@@ -40,3 +40,15 @@ test("REQ-102 scripts de npm y produccion con confirmacion escrita", () => {
   const promote = fs.readFileSync(path.join(RAIZ, "PROMOTE.md"), "utf8");
   assert.doesNotMatch(promote, /^\s+firebase deploy --only hosting:dta-agricola\s*$/m, "el comando que fallaba ya no se indica");
 });
+
+test("REQ-102 los .bat de doble clic solo llaman a los comandos con comprobaciones y no se publican", () => {
+  for (const [archivo, modo] of [["publicar-vista-previa.bat", "vista-previa"], ["publicar-produccion.bat", "produccion"]]) {
+    const bat = fs.readFileSync(path.join(RAIZ, archivo), "utf8");
+    assert.match(bat, new RegExp("call npm run publicar:" + modo + "\\r\\n"), archivo);
+    assert.match(bat, /cd \/d "%~dp0"/);
+    assert.match(bat, /\r\npause\r\n$/);
+    assert.doesNotMatch(bat, /firebase /, "no despliegan por su cuenta");
+  }
+  assert.ok(JSON.parse(fs.readFileSync(path.join(RAIZ, "firebase.json"), "utf8")).hosting.ignore.includes("**/*.bat"));
+  assert.ok(pub.EXCLUSIONES_OBLIGATORIAS.includes("**/*.bat"));
+});

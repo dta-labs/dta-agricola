@@ -18,7 +18,7 @@ const path = require("node:path");
 const readline = require("node:readline");
 
 const RAIZ = path.join(__dirname, "..");
-const EXCLUSIONES_OBLIGATORIAS = ["**/*adminsdk*.json", "server.key", "functions/**", "public_old/**", "_archivo/**"];
+const EXCLUSIONES_OBLIGATORIAS = ["**/*adminsdk*.json", "server.key", "functions/**", "public_old/**", "_archivo/**", "**/*.bat"];
 const ES_WINDOWS = process.platform === "win32";
 
 /** Exclusiones obligatorias que faltan en la lista `ignore` de firebase.json. */

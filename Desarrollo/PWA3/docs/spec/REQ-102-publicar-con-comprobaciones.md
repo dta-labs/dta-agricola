@@ -27,3 +27,9 @@ comprobaciones y publicaba la carpeta completa (secretos, `public_old`) en produ
 4. Solo produccion: muestra version, compilacion y commit; avisa si la version es `-dev`; pide escribir **PUBLICAR**.
 
 Requiere `firebase-tools` instalado y la sesion iniciada (`firebase login`) en el equipo del usuario.
+
+## Doble clic (2026-11-20)
+
+`publicar-vista-previa.bat` y `publicar-produccion.bat` (en `Desarrollo/PWA3`): solo cambian a la carpeta del proyecto,
+ejecutan `npm run publicar:...` y dejan la ventana abierta (`pause`). No despliegan por su cuenta: las comprobaciones y la
+confirmacion PUBLICAR son las del script. `firebase.json` excluye `**/*.bat` (no se publican) y el script lo exige.

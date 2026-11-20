@@ -34,7 +34,8 @@ mensaje `REQ-NNN: descripcion`; asi cada etiqueta tiene exactamente sus especifi
 
 ## Publicar (REQ-102)
 
-Desde `Desarrollo/PWA3`. Los dos comandos comprueban antes de desplegar y se detienen si `firebase.json` no
+Desde `Desarrollo/PWA3` (o con doble clic en `publicar-vista-previa.bat` / `publicar-produccion.bat`, que solo
+llaman a estos comandos). Los dos comandos comprueban antes de desplegar y se detienen si `firebase.json` no
 excluye secretos, si hay cambios sin guardar en git o si `npm run verificar` falla.
 
 **Vista previa** (no toca produccion; URL temporal de 7 dias, util para probar en el movil):

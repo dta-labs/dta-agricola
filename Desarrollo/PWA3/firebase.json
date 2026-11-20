@@ -19,6 +19,7 @@
       "models/**",
       "server-https.js",
       "deploy*.bat",
+      "**/*.bat",
       "PROMOTE.md",
       "public_old/**",
       "monitor.zip",
