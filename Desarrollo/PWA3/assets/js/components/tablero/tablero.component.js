@@ -3,15 +3,26 @@
  * "Hoy". Los datos los calcula logic/tablero.js (core.js los pasa ya cacheados).
  *
  *   <dta-tablero datos="tableroActual()" hoy="hoyActual()" al-abrir-equipo="abrirEquipo($clave)"
- *       al-ver-equipos="cambiarVistaPrincipal('equipos')"></dta-tablero>
+ *       al-ver-equipos="cambiarVistaPrincipal('equipos')" al-agregar-equipo="..."></dta-tablero>
+ * REQ-115: sugerencias del dia (al final) y, sin equipos registrados, bienvenida con las sugerencias de inicio.
  */
 (function (raiz) {
     "use strict";
 
-    var VERSION = "26.11.20.015";
+    var VERSION = "26.11.20.016";
 
     function ControladorTablero() {
         var vm = this;
+
+        /** REQ-115: accion de una sugerencia (abrir equipo, ver equipos, agregar equipo o pagina externa). */
+        vm.sugerencia = function (s) {
+            var a = s && s.accion;
+            if (!a) return;
+            if (a.tipo === "equipo" && a.clave) vm.alAbrirEquipo({ $clave: a.clave });
+            else if (a.tipo === "agregar") vm.alAgregarEquipo();
+            else if (a.tipo === "url" && /^https:\/\//.test(a.url || "")) raiz.open(a.url, "_blank", "noopener");
+            else vm.alVerEquipos();
+        };
 
         vm.abrir = function (item) {
             if (item && item.clave) vm.alAbrirEquipo({ $clave: item.clave });
@@ -33,7 +44,7 @@
         templateUrl: "./assets/js/components/tablero/tablero.html?v=" + VERSION,
         controller: ControladorTablero,
         controllerAs: "vm",
-        bindings: { datos: "<", hoy: "<", alAbrirEquipo: "&", alVerEquipos: "&" }
+        bindings: { datos: "<", hoy: "<", alAbrirEquipo: "&", alVerEquipos: "&", alAgregarEquipo: "&" }
     };
 
     if (typeof module !== "undefined" && module.exports) {

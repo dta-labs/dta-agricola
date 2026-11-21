@@ -138,6 +138,9 @@ Cada version publicada lleva una etiqueta de git `pwa3-vX.Y.Z` sobre el commit d
   migrados: acordeon, list-group y modales de Bootstrap. El login sigue en Materialize. (REQ-043 fases B-C)
 
 ### Anadido
+- Resumen: "Sugerencias del dia" al final (lo accionable de tus equipos y un consejo que rota cada dia); sin equipos
+  registrados, bienvenida con las sugerencias de inicio como protagonistas (agregar equipo, conocer equipos DTA,
+  instalar la app). (REQ-115)
 - Resumen ejecutivo como pagina de entrada: semaforo e indicadores (equipos bien, regando, suelo adecuado, minima
   de la noche), "Atiende primero", "Mis cultivos" y "Hoy"; la cabecera alterna Resumen / Equipos. (REQ-114)
 - Ajustes del sistema (red de sensores y nevera): boton "Abrir configuracion WiFi" del Gateway Universal

@@ -1,6 +1,27 @@
 <!-- REQ-114: vista de resumen (pagina de entrada) -->
 <div class="bs">
-<div class="tablero" ng-if="vm.datos">
+<!-- REQ-115: sin equipos registrados, la bienvenida y las sugerencias de inicio son protagonistas -->
+<div class="tablero tablero-bienvenida" ng-if="vm.datos && vm.datos.vacio">
+    <section class="tablero-seccion tablero-hero">
+        <span class="tablero-hero-icono"><i class="material-icons" aria-hidden="true">spa</i></span>
+        <h2 class="tablero-hero-titulo">¡Bienvenido a DTA-Agrícola!</h2>
+        <p class="tablero-hero-texto">Aún no tienes equipos registrados. Empieza por aquí:</p>
+    </section>
+    <section class="tablero-seccion" aria-label="Para empezar">
+        <div class="tablero-sugerencias destacadas">
+            <div class="tablero-sugerencia" ng-repeat="s in vm.datos.sugerencias track by $index">
+                <span class="tablero-sugerencia-icono"><i class="material-icons" aria-hidden="true">{{ s.icono }}</i></span>
+                <span class="tablero-sugerencia-texto">
+                    <span class="tablero-sugerencia-titulo">{{ s.titulo }}</span>
+                    <span class="tablero-sugerencia-detalle">{{ s.detalle }}</span>
+                    <button type="button" class="tablero-sugerencia-boton" ng-if="s.accion" ng-click="vm.sugerencia(s)">{{ s.boton || 'Ver' }} →</button>
+                </span>
+            </div>
+        </div>
+    </section>
+</div>
+
+<div class="tablero" ng-if="vm.datos && !vm.datos.vacio">
 
     <!-- 1. Indicadores -->
     <section class="tablero-seccion" aria-label="Indicadores">
@@ -68,6 +89,21 @@
                 <span class="tablero-hoy-texto">{{ vm.titulo(e.texto) }}</span>
             </li>
         </ol>
+    </section>
+
+    <!-- 5. Sugerencias del dia (REQ-115) -->
+    <section class="tablero-seccion" ng-if="vm.datos.sugerencias.length" aria-label="Sugerencias del día">
+        <h3 class="tablero-titulo">Sugerencias del día</h3>
+        <div class="tablero-sugerencias">
+            <div class="tablero-sugerencia" ng-repeat="s in vm.datos.sugerencias track by $index">
+                <span class="tablero-sugerencia-icono"><i class="material-icons" aria-hidden="true">{{ s.icono }}</i></span>
+                <span class="tablero-sugerencia-texto">
+                    <span class="tablero-sugerencia-titulo">{{ s.titulo }}</span>
+                    <span class="tablero-sugerencia-detalle">{{ s.detalle }}</span>
+                    <button type="button" class="tablero-sugerencia-boton" ng-if="s.accion" ng-click="vm.sugerencia(s)">{{ s.boton || 'Ver' }} →</button>
+                </span>
+            </div>
+        </div>
     </section>
 
     <button type="button" class="tablero-ver-equipos" ng-click="vm.alVerEquipos()">Ver todos los equipos →</button>

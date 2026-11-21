@@ -204,3 +204,63 @@
     color: #12392a;
     font-weight: 700;
 }
+
+/* REQ-115: sugerencias del dia */
+.tablero-sugerencias { display: grid; gap: 8px; }
+.tablero-sugerencia {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 12px;
+    border: 1px solid #e0e6e3;
+    border-radius: 12px;
+    background: #ffffff;
+}
+.tablero-sugerencia-icono {
+    display: flex;
+    flex: 0 0 36px;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #e8f5e9;
+    color: #1b4d38;
+}
+.tablero-sugerencia-icono .material-icons { font-size: 20px; }
+.tablero-sugerencia-texto { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.tablero-sugerencia-titulo { color: #263238; font-size: 0.98rem; font-weight: 700; }
+.tablero-sugerencia-detalle { color: #546e7a; font-size: 0.88rem; line-height: 1.35; }
+.tablero-sugerencia-boton {
+    align-self: flex-start;
+    margin-top: 6px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #1b4d38;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+/* sin equipos: bienvenida y sugerencias protagonistas */
+.tablero-hero { padding: 22px 16px 6px; text-align: center; }
+.tablero-hero-icono {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #12392a, #2e7d32);
+    color: #ffffff;
+}
+.tablero-hero-icono .material-icons { font-size: 34px; }
+.tablero-hero-titulo { margin: 12px 0 4px; color: #12392a; font-size: 1.45rem; font-weight: 700; }
+.tablero-hero-texto { margin: 0; color: #546e7a; font-size: 1rem; }
+.tablero-sugerencias.destacadas .tablero-sugerencia { padding: 16px; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1); }
+.tablero-sugerencias.destacadas .tablero-sugerencia:first-child { border: 2px solid #2e7d32; }
+.tablero-sugerencias.destacadas .tablero-sugerencia-boton {
+    padding: 8px 16px;
+    border-radius: 20px;
+    background: #1b4d38;
+    color: #ffffff;
+}

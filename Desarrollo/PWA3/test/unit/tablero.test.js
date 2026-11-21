@@ -103,3 +103,38 @@ test("REQ-114 componente, cache (sin infdig), eventos y pronostico conectados", 
   assert.match(HTML, /components\/tablero\/tablero\.component\.js\?v=/);
   assert.match(HTML, /components\/tablero\/tablero\.css\?v=/);
 });
+
+// ---------- REQ-115: sugerencias del dia ----------
+
+test("REQ-115 sin equipos: bienvenida con sugerencias de inicio (agregar, adquirir, instalar)", () => {
+  const r = t.tablero([], deps, { sinEquipos: true });
+  assert.equal(r.vacio, true);
+  assert.deepEqual(r.sugerencias.map(s => s.accion && s.accion.tipo), ["agregar", "url", undefined]);
+  assert.equal(t.tablero([], deps, { sinEquipos: true, instalada: true }).sugerencias.length, 2);
+  assert.equal(t.tablero({}, deps, {}).vacio, false);   // cargando: no es "sin equipos"
+});
+
+test("REQ-115 con equipos: lo accionable primero (maximo 2) y un consejo del dia que rota", () => {
+  const sinSenal = { key: "a", name: "Pivote Norte", type: "PC", status: "ON", log: Object.assign({}, ok, { commDelay: "12" }) };
+  const r = t.tablero({ a: sinSenal }, deps, { ahora: new Date(2026, 10, 20).getTime() });
+  assert.equal(r.vacio, false);
+  assert.equal(r.sugerencias[0].titulo, "Revisa la conexión de Pivote Norte");
+  assert.deepEqual(r.sugerencias[0].accion, { tipo: "equipo", clave: "a" });
+  assert.equal(r.sugerencias.length, 2);
+  assert.ok(t.CONSEJOS.includes(r.sugerencias[1]));
+  const otroDia = t.tablero({ a: sinSenal }, deps, { ahora: new Date(2026, 10, 21).getTime() }).sugerencias[1];
+  assert.notEqual(otroDia, r.sugerencias[1]);
+  const helada = t.tablero({}, deps, { pronostico: { min: -1, instante: Date.now() + 3600000 } }).sugerencias;
+  assert.equal(helada[0].titulo, "Prepárate para la helada");
+});
+
+test("REQ-115 vista: sugerencias al final, bienvenida sin equipos y 'Agregar equipo' conectado", () => {
+  assert.ok(VISTA.indexOf("Sugerencias del día") > VISTA.indexOf("<!-- 4. Hoy -->"));
+  assert.match(VISTA, /ng-if="vm\.datos && vm\.datos\.vacio"/);
+  assert.match(VISTA, /ng-if="vm\.datos && !vm\.datos\.vacio"/);
+  assert.match(COMP, /alAgregarEquipo: "&"/);
+  assert.match(COMP, /raiz\.open\(a\.url, "_blank", "noopener"\)/);
+  assert.match(HTML, /al-agregar-equipo="agregarEquipoDesdeResumen\(\)"/);
+  assert.match(CORE, /abrirModal\("modalNuevoEquipo"\)/);
+  assert.match(CORE, /\$scope\.sinEquipos = true; pantallaDeInicio\("listo"\); return; \}/);
+});

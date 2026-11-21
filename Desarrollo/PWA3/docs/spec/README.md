@@ -113,8 +113,9 @@
 | REQ-112 | NDVI con paleta rojo-amarillo-verde (regla propia con respaldo), numero de cada parcela del estacionario, barra verde del listado | Implementado (probar: usuario) | 2 |
 | REQ-113 | Cabecera de los sistemas en el mismo verde que el listado | Implementado (probar: usuario) | - |
 | REQ-114 | Resumen ejecutivo como pagina de entrada (indicadores, Atiende primero, Mis cultivos, Hoy) y selector Resumen / Equipos | Implementado (probar: usuario) | 7 |
+| REQ-115 | Resumen: sugerencias del dia y bienvenida sin equipos registrados | Implementado (probar: usuario) | 3 |
 
-**Total: 465 pruebas en Node (2026-11-20), todas en verde.** `npm test` funciona en Node 20 y 22.
+**Total: 468 pruebas en Node (2026-11-20), todas en verde.** `npm test` funciona en Node 20 y 22.
 
 ## Bloque de autenticacion (cerrado y confirmado por el usuario)
 

@@ -52,7 +52,7 @@ function __equipos() {
 }
 
 // Marca de version: si no ves esto en consola, el navegador sirve un core.js viejo.
-console.log("[app] core.js 26.11.20.015");
+console.log("[app] core.js 26.11.20.016");
 
 // #region Controlador Angular
 
@@ -570,7 +570,8 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         if (!$scope.authUser) return;
         const usuario = $scope.userLocations[convertDotToDash($scope.authUser.email)];
         const userSystems = usuario && usuario.systems;
-        if (!userSystems) { $scope.systems = []; return; }
+        if (!userSystems) { $scope.systems = []; $scope.sinEquipos = true; pantallaDeInicio("listo"); return; }   // REQ-115: bienvenida en el resumen
+        $scope.sinEquipos = false;
 
         // REQ-013: el servicio sostiene las suscripciones; aqui se hace el trabajo de vista.
         __equipos().cargar(Object.keys(userSystems), {
@@ -4981,6 +4982,16 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     $scope.vistaPrincipal = "resumen";
     $scope.cambiarVistaPrincipal = (vista) => { $scope.vistaPrincipal = vista === "equipos" ? "equipos" : "resumen"; };
 
+    // REQ-115: "Agregar equipo" desde las sugerencias (el mismo formulario que el boton +)
+    $scope.agregarEquipoDesdeResumen = () => {
+        $scope.createNewDevice();
+        abrirModal("modalNuevoEquipo");
+    };
+    const appInstalada = () => {
+        try { return !!(window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || window.navigator.standalone === true; }
+        catch (error) { return false; }
+    };
+
     $scope.abrirEquipoDesdeResumen = (clave) => {
         const sistema = $scope.systems && $scope.systems[clave];
         if (!sistema) return;
@@ -5006,7 +5017,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     const huellaDelTablero = () => {
         const sistemas = Object.values($scope.systems || {});
         return sistemas.map(s => s && s.log).concat(sistemas, sistemas.map(s => s && s.status), sistemas.map(s => s && s.plots),
-            sistemas.map(s => s && s.sensors), [pronosticoNoche, eventosDelDia, bandejaLista]);
+            sistemas.map(s => s && s.sensors), [pronosticoNoche, eventosDelDia, bandejaLista, $scope.sinEquipos, new Date().toDateString()]);
     };
     const actualizarTablero = () => {
         const huella = huellaDelTablero();
@@ -5016,7 +5027,8 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         const umbral = umbralDeHelada();
         cacheTablero = {
             huella,
-            datos: tablero.tablero($scope.systems, depsDeTablero(), { resumenDe: $scope.resumenDeEquipo, pronostico: pronosticoNoche, umbralHelada: umbral }),
+            datos: tablero.tablero($scope.systems, depsDeTablero(), { resumenDe: $scope.resumenDeEquipo, pronostico: pronosticoNoche, umbralHelada: umbral,
+                sinEquipos: !!$scope.sinEquipos, instalada: appInstalada(), ahora: Date.now() }),
             hoy: tablero.lineaDeHoy(eventosDelDia, bandejaLista, pronosticoNoche, Date.now(), umbral)
         };
     };

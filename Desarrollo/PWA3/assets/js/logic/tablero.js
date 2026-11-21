@@ -3,7 +3,8 @@
  * Puro: recibe los sistemas y las reglas (logic/), sin DOM ni Firebase. UMD (DTALogic.tablero / Node).
  *
  * deps: { resumen, panel, humedad, medidor, geo }
- * opciones: { resumenDe(sistema) (cache de core), pronostico: { min (°C), instante (ms) }, umbralHelada (°C) }
+ * opciones: { resumenDe(sistema) (cache de core), pronostico: { min (°C), instante (ms) }, umbralHelada (°C),
+ *             sinEquipos (el usuario no tiene equipos registrados), instalada (la app ya esta instalada), ahora (ms) }
  */
 (function (root, factory) {
     if (typeof module === "object" && module.exports) {
@@ -117,6 +118,68 @@
         }).sort(function (a, b) { return GRAVEDAD[b.estado] - GRAVEDAD[a.estado] || a.nombre.localeCompare(b.nombre); });
     }
 
+    // ---------- REQ-115: sugerencias del dia ----------
+
+    /** Consejos generales: uno por dia (rota con el dia del año). */
+    var CONSEJOS = [
+        { icono: "schedule", titulo: "Riega temprano", detalle: "Entre las 5 y las 9 h se pierde menos agua por evaporación y viento." },
+        { icono: "build", titulo: "Revisa filtros y boquillas", detalle: "Una revisión semanal evita tapones y riegos disparejos." },
+        { icono: "compare_arrows", titulo: "Compara antes y después", detalle: "Mira la humedad antes y 24 h después del riego para ajustar el tiempo." },
+        { icono: "eco", titulo: "Actualiza la etapa del cultivo", detalle: "Las alertas de humedad y temperatura se ajustan mejor con la etapa al día." },
+        { icono: "notifications_active", titulo: "Activa las notificaciones", detalle: "Te enteras al momento de fallas, heladas y suelo seco." },
+        { icono: "speed", titulo: "Ajusta la velocidad del pivote", detalle: "Menor velocidad, más lámina de riego: ajústala a la humedad del suelo." },
+        { icono: "invert_colors", titulo: "Riega por zonas", detalle: "Usa la humedad de cada sensor para regar solo donde hace falta." }
+    ];
+
+    function diaDelAnio(ms) {
+        var d = new Date(ms), inicio = new Date(d.getFullYear(), 0, 0);
+        return Math.floor((d - inicio) / 86400000);
+    }
+
+    /** Sugerencias sin equipos: protagonistas, para empezar. */
+    function sugerenciasDeInicio(instalada) {
+        var lista = [
+            { icono: "add_circle", titulo: "Agrega tu primer equipo", detalle: "Registra tu pivote, bomba, riego sectorial o red de sensores con su número de serie.", accion: { tipo: "agregar" }, boton: "Agregar equipo" },
+            { icono: "shopping_cart", titulo: "¿Aún no tienes un equipo DTA?", detalle: "Conoce los controladores de riego y las redes de sensores de humedad.", accion: { tipo: "url", url: "https://dtaamerica.com/dta-agricola" }, boton: "Ver equipos" }
+        ];
+        if (!instalada) lista.push({ icono: "get_app", titulo: "Instala la app en tu teléfono", detalle: "En el menú del navegador elige \"Agregar a pantalla de inicio\" para abrirla como una app." });
+        return lista;
+    }
+
+    /** Sugerencias del dia a partir de los datos (maximo 3): lo accionable primero, luego un consejo del dia. */
+    function sugerenciasDelDia(sistemas, medidas, resumenDe, noche, umbral, ahora) {
+        var lista = [];
+        var heladas = noche && noche.min <= umbral;
+        if (heladas) lista.push({ icono: "ac_unit", titulo: "Prepárate para la helada", detalle: "Un riego ligero por la tarde ayuda a que el suelo guarde calor durante la noche." });
+        var secos = medidas.filter(function (m) { return SECA[m.zona]; });
+        if (secos.length && !heladas) {
+            lista.push({ icono: "opacity", titulo: "Programa el riego temprano",
+                detalle: plural(secos.length, "sensor marca", "sensores marcan") + " suelo seco: regar temprano aprovecha mejor el agua.",
+                accion: { tipo: "equipo", clave: secos[0].red.key }, boton: "Ver " + secos[0].red.name });
+        }
+        var sinSenal = sistemas.filter(function (s) { var r = resumenDe(s) || {}; return /comunicaci/i.test(r.mensaje || ""); });
+        if (sinSenal.length) {
+            lista.push({ icono: "wifi_off", titulo: "Revisa la conexión de " + sinSenal[0].name,
+                detalle: "No reporta desde hace rato: verifica la alimentación y la señal" + (sinSenal.length > 1 ? " (y " + plural(sinSenal.length - 1, "equipo más", "equipos más") + ")." : "."),
+                accion: { tipo: "equipo", clave: sinSenal[0].key }, boton: "Ver equipo" });
+        }
+        var sinCultivo = medidas.filter(function (m) { return !String(m.sensor.culture || "").trim(); });
+        if (sinCultivo.length) {
+            lista.push({ icono: "local_florist", titulo: "Asigna el cultivo a tus sensores",
+                detalle: plural(sinCultivo.length, "sensor no tiene", "sensores no tienen") + " cultivo: asígnalo para verlo en \"Mis cultivos\".",
+                accion: { tipo: "equipo", clave: sinCultivo[0].red.key }, boton: "Ver " + sinCultivo[0].red.name });
+        }
+        var sinParcela = medidas.filter(function (m) { return String(m.sensor.culture || "").trim() && !(m.sensor.poligon && String(m.sensor.poligon).trim()); });
+        if (sinParcela.length) {
+            lista.push({ icono: "crop_free", titulo: "Dibuja tus parcelas",
+                detalle: plural(sinParcela.length, "sensor no tiene", "sensores no tienen") + " parcela dibujada: así calculamos las hectáreas.",
+                accion: { tipo: "equipo", clave: sinParcela[0].red.key }, boton: "Ver " + sinParcela[0].red.name });
+        }
+        lista = lista.slice(0, 2);
+        lista.push(CONSEJOS[diaDelAnio(ahora) % CONSEJOS.length]);
+        return lista;
+    }
+
     /** Tablero completo. */
     function tablero(sistemasObj, deps, opciones) {
         var o = opciones || {};
@@ -150,6 +213,10 @@
         }
         atiende.sort(function (a, b) { return ORDEN[a.nivel] - ORDEN[b.nivel]; });
 
+        var ahora = o.ahora || Date.now();
+        var vacio = !!o.sinEquipos && !sistemas.length;
+        var sugerencias = vacio ? sugerenciasDeInicio(!!o.instalada) : sugerenciasDelDia(sistemas, medidas, resumenDe, noche, umbral, ahora);
+
         var urgentes = atiende.filter(function (a) { return a.nivel === "emergencia"; }).length;
         var semaforo = !atiende.length
             ? { nivel: "ok", titulo: "Todo en orden", detalle: plural(sistemas.length, "equipo sin alertas", "equipos sin alertas") }
@@ -168,7 +235,9 @@
                 nocheMin: noche ? Math.round(noche.min) : null
             },
             atiende: atiende,
-            cultivos: cultivos(sistemas, deps, medidas)
+            cultivos: cultivos(sistemas, deps, medidas),
+            vacio: vacio,
+            sugerencias: sugerencias
         };
     }
 
@@ -228,5 +297,5 @@
         return mejor;
     }
 
-    return { tablero: tablero, eventoDeCambio: eventoDeCambio, lineaDeHoy: lineaDeHoy, minimaDeLaNoche: minimaDeLaNoche, nombreDeCultivo: nombreDeCultivo };
+    return { tablero: tablero, eventoDeCambio: eventoDeCambio, lineaDeHoy: lineaDeHoy, minimaDeLaNoche: minimaDeLaNoche, nombreDeCultivo: nombreDeCultivo, CONSEJOS: CONSEJOS };
 }));
