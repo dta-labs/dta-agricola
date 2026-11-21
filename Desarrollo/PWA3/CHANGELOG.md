@@ -12,6 +12,8 @@ Cada version publicada lleva una etiqueta de git `pwa3-vX.Y.Z` sobre el commit d
 ## [Sin publicar] - candidata a 1.1.0
 
 ### Corregido
+- Listado en escritorio: tarjetas de alturas distintas dejaban huecos en la cuadricula; ahora todas miden lo mismo.
+  (REQ-116)
 - Login con Google fiable: `authDomain` = dominio de hosting; popup solo en local; errores visibles. (REQ-035)
 - "Salir" cierra de verdad la sesion de Firebase. (REQ-035)
 - Foto del usuario en la barra superior y en el menu lateral. (REQ-036)

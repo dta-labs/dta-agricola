@@ -1685,6 +1685,30 @@ canvas[id^="myChart"],
     color: #263238 !important;
     text-align: left;
 }
+/* REQ-116: todas las tarjetas del listado con la misma altura (en escritorio las columnas flotantes se
+   enganchaban con tarjetas mas altas y dejaban huecos): filas flexibles y altura fija de la tarjeta */
+.lista-equipos {
+    display: flex;
+    flex-wrap: wrap;
+}
+.lista-equipos::before,
+.lista-equipos::after {
+    display: none !important;
+}
+.lista-equipos > .col {
+    display: flex;
+    float: none;
+}
+.lista-equipos > .col > .tarjeta-equipo {
+    flex: 1 1 auto;
+    width: 100%;
+}
+.lista-equipos .tarjeta-equipo-enlace {
+    box-sizing: border-box;
+    height: 112px;
+    min-height: 0;
+    overflow: hidden;
+}
 .tarjeta-equipo-icono {
     display: flex;
     align-self: center;

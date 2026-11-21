@@ -136,3 +136,11 @@ test("REQ-111 colores por clase de estado (ng-style no aplica variables CSS), ic
   assert.match(css, /\.estado-emergencia \.tarjeta-equipo-mensaje \{[^}]*background: var\(--estado\);[^}]*color: #ffffff;/);
   assert.match(css, /\.tarjeta-equipo-valvulas \{\s*display: flex;\s*flex-wrap: nowrap;/);
 });
+
+test("REQ-116 listado: todas las tarjetas con la misma altura (filas flexibles, altura fija)", () => {
+  const CSS = fs.readFileSync(path.join(RAIZ, "assets", "css", "style.css"), "utf8").replace(/\r\n/g, "\n");
+  assert.match(HTML, /<div class="row lista-equipos"/);
+  assert.match(CSS, /\.lista-equipos \{\n    display: flex;\n    flex-wrap: wrap;/);
+  assert.match(CSS, /\.lista-equipos \.tarjeta-equipo-enlace \{[^}]*height: 112px;/);
+  assert.match(CSS, /\.lista-equipos > \.col \{\n    display: flex;\n    float: none;/);
+});

@@ -114,8 +114,9 @@
 | REQ-113 | Cabecera de los sistemas en el mismo verde que el listado | Implementado (probar: usuario) | - |
 | REQ-114 | Resumen ejecutivo como pagina de entrada (indicadores, Atiende primero, Mis cultivos, Hoy) y selector Resumen / Equipos | Implementado (probar: usuario) | 7 |
 | REQ-115 | Resumen: sugerencias del dia y bienvenida sin equipos registrados | Implementado (probar: usuario) | 3 |
+| REQ-116 | Listado: tarjetas de la misma altura (sin huecos en escritorio) | Corregido (probar: usuario) | 1 |
 
-**Total: 468 pruebas en Node (2026-11-20), todas en verde.** `npm test` funciona en Node 20 y 22.
+**Total: 469 pruebas en Node (2026-11-20), todas en verde.** `npm test` funciona en Node 20 y 22.
 
 ## Bloque de autenticacion (cerrado y confirmado por el usuario)
 
