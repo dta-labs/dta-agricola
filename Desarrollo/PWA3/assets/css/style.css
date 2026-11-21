@@ -1085,8 +1085,19 @@ canvas[id^="myChart"],
 #slide-out.sidenav {
     display: flex;
     flex-direction: column;
-    height: calc(100% - 50px) !important;
+    height: 100% !important;
     padding-bottom: env(safe-area-inset-bottom);
+}
+/* REQ-119: el menu lateral, en primer plano y desde arriba (antes quedaba debajo de la cabecera, z-index 1000, y
+   empezaba 50 px mas abajo). El fondo oscuro tambien cubre la cabecera. */
+#slide-out.sidenav {
+    top: 0;
+    margin-top: 0;
+    padding-top: env(safe-area-inset-top);
+    z-index: 1002;   /* encima de la cabecera (1000), debajo de las ventanas de Materialize (1003+) */
+}
+.sidenav-overlay {
+    z-index: 1001;
 }
 #slide-out.sidenav > li {
     flex-shrink: 0;

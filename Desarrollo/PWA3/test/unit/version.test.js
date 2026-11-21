@@ -55,7 +55,10 @@ test("la compilacion se muestra en el menu y en la consola", () => {
 test("REQ-058 la version va al fondo del menu lateral, en dos lineas seguidas", () => {
   assert.match(HTML, /<li class="menu-version"><dta-version-app><\/dta-version-app><\/li>/);
   const estilo = fs.readFileSync(path.join(RAIZ, "assets", "css", "style.css"), "utf8");
-  assert.match(estilo, /#slide-out\.sidenav \{[^}]*display: flex;[^}]*flex-direction: column;[^}]*height: calc\(100% - 50px\) !important;/);
+  assert.match(estilo, /#slide-out\.sidenav \{[^}]*display: flex;[^}]*flex-direction: column;[^}]*height: 100% !important;/);   // REQ-119: desde arriba
+  assert.match(estilo, /#slide-out\.sidenav \{\r?\n    top: 0;\r?\n    margin-top: 0;\r?\n    padding-top: env\(safe-area-inset-top\);\r?\n    z-index: 1002;/);
+  assert.match(estilo, /\.sidenav-overlay \{\r?\n    z-index: 1001;\r?\n\}/);
+  assert.match(HTML, /<ul id="slide-out" class="sidenav left-align">/);
   assert.match(estilo, /#slide-out\.sidenav > li\.menu-version \{[^}]*margin-top: auto;[^}]*line-height: normal;/);
   const plantilla = fs.readFileSync(path.join(RAIZ, "assets", "js", "components", "comunes", "version-app", "version-app.html"), "utf8");
   assert.doesNotMatch(plantilla, /<br>/);

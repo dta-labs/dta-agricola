@@ -12,6 +12,7 @@ Cada version publicada lleva una etiqueta de git `pwa3-vX.Y.Z` sobre el commit d
 ## [Sin publicar] - candidata a 1.1.0
 
 ### Corregido
+- El menu lateral quedaba por debajo de la cabecera; ahora se abre en primer plano, desde arriba. (REQ-119)
 - El mapa de un equipo aparecia desplazado (el equipo en una esquina o fuera de la vista): ahora, al entrar al equipo
   o volver a la vista de mapa, se encuadra en su zona (sensores y parcelas, parcelas o circulo del pivote). (REQ-117)
 - Listado en escritorio: tarjetas de alturas distintas dejaban huecos en la cuadricula; ahora todas miden lo mismo.
