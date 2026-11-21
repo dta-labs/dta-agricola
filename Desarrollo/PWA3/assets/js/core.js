@@ -52,7 +52,7 @@ function __equipos() {
 }
 
 // Marca de version: si no ves esto en consola, el navegador sirve un core.js viejo.
-console.log("[app] core.js 26.11.20.016");
+console.log("[app] core.js 26.11.20.018");
 
 // #region Controlador Angular
 
@@ -179,7 +179,10 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             guardarAjustes($scope.actualSystem.key, { viewMode: $scope.actualSystem.viewMode });
         }
 
-        if ($scope.showSensorMapView) volverAMostrarMapa();
+        if ($scope.showSensorMapView) {
+            pedirEncuadre($scope.actualSystem);   // REQ-117: al volver a la vista de mapa, encuadrar la red
+            volverAMostrarMapa();
+        }
     };
 
     // ===================== REQ-089: vista satelital (NDVI) =====================
@@ -307,6 +310,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             map.eachLayer(capa => { if (capa instanceof L.Path) capa.redraw(); });
             const actual = $scope.actualSystem;
             if (actual && actual.type == "Sensor") dibujarAreasDeSensores(($scope.systems && $scope.systems[actual.key]) || actual);
+            encuadrarSiPendiente();   // REQ-117
         });
     };
 
@@ -342,6 +346,10 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         $scope.login();
     }
 
+    // REQ-117: encuadre del mapa en el equipo (ver encuadrarEnEquipo)
+    let encuadrePendiente = null;      // clave del equipo por encuadrar
+    let ultimoEncuadre = null;         // clave del ultimo equipo encuadrado (no se re-encuadra con cada ajuste)
+
     $scope.showWindow = windowsName => {
         $scope.showMore = false;
         if (!$scope.authUser) {
@@ -351,6 +359,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         }
         $scope.selectedWindow = windowsName;
         if (windowsName == "listado") {
+            ultimoEncuadre = null;   // REQ-117: al volver a entrar a un equipo, el mapa se encuadra de nuevo
             systemsETL();
         }
         // window.scrollTo(0, 0);
@@ -2929,6 +2938,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                         map.eachLayer(capa => { if (capa instanceof L.Path) capa.redraw(); });
                         const actual = $scope.actualSystem;
                         if (actual && actual.type == "Sensor") dibujarAreasDeSensores(($scope.systems && $scope.systems[actual.key]) || actual);
+                        encuadrarSiPendiente();   // REQ-117: el mapa acaba de hacerse visible
                     });
                 }).observe(map.getContainer());
             }
@@ -3195,10 +3205,41 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
 
     }
 
+    // REQ-117: al entrar a un equipo (o volver a su vista de mapa) el mapa se encuadra en su zona: sensores y parcelas,
+    // parcelas del estacionario o circulo del pivote. Antes se centraba con el mapa aun oculto (0x0) y, al hacerse
+    // visible, Leaflet recalculaba el tamaño sin desplazar: el equipo quedaba en la esquina o fuera de la vista.
+    // Si el mapa esta oculto, se deja pendiente y se encuadra cuando el contenedor ya tiene tamaño.
+    // (encuadrePendiente / ultimoEncuadre: declarados junto a showWindow)
+    const encuadrarEnEquipo = (system) => {
+        if (!map || !system) return;
+        const contenedor = map.getContainer();
+        if (!contenedor.offsetWidth || !contenedor.offsetHeight) { encuadrePendiente = system.key; return; }
+        encuadrePendiente = null;
+        ultimoEncuadre = system.key;
+        map.invalidateSize({ pan: false });
+        const caja = __modulo("geo").limitesDeEquipo(($scope.systems && $scope.systems[system.key]) || system);
+        if (!caja) return;
+        if (caja.sur === caja.norte && caja.oeste === caja.este) map.setView([caja.sur, caja.oeste], 16);
+        else map.fitBounds([[caja.sur, caja.oeste], [caja.norte, caja.este]], { padding: [40, 40], maxZoom: 17 });
+    };
+    const encuadrarSiPendiente = () => {
+        const actual = $scope.actualSystem;
+        if (encuadrePendiente && actual && actual.key === encuadrePendiente) encuadrarEnEquipo(actual);
+    };
+    // Pedir el encuadre (al entrar al equipo o al volver a la vista de mapa): ahora si se ve, o al mostrarse.
+    const pedirEncuadre = (system) => {
+        if (!system) return;
+        encuadrePendiente = system.key;
+        $timeout(encuadrarSiPendiente, 0);
+    };
+
     const initializeSystemMap = (system) => {
         if (system.latitude != "NaN" && system.longitude != "NaN") {
-            let coord = [system.latitude, system.longitude];
-            map.setView(coord, 16);
+            // REQ-117: solo al entrar a otro equipo (los ajustes que llegan del mismo equipo no mueven el mapa)
+            if (ultimoEncuadre !== system.key) {
+                map.setView([system.latitude, system.longitude], 16);
+                pedirEncuadre(system);
+            }
             volverAMostrarMapa();   // REQ-110: por si el contenedor acaba de hacerse visible
             //geoLocation(system.key);
             addMarker(system);

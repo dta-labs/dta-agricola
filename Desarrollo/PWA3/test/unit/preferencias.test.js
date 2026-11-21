@@ -64,7 +64,7 @@ test("REQ-080 al volver al mapa se redibujan las parcelas (con el mapa oculto Le
   const cuerpo = CORE.slice(ini, CORE.indexOf("\n    };\n", ini));
   assert.match(cuerpo, /map\.invalidateSize\(\);\s*map\.eachLayer\(capa => \{ if \(capa instanceof L\.Path\) capa\.redraw\(\); \}\);/);
   assert.match(cuerpo, /dibujarAreasDeSensores\(\(\$scope\.systems && \$scope\.systems\[actual\.key\]\) \|\| actual\)/);
-  assert.match(CORE, /if \(\$scope\.showSensorMapView\) volverAMostrarMapa\(\);/, "boton mapa/mosaico");
+  assert.match(CORE, /if \(\$scope\.showSensorMapView\) \{\s*pedirEncuadre\(\$scope\.actualSystem\);[^\n]*\n\s*volverAMostrarMapa\(\);/, "boton mapa/mosaico (REQ-117: y encuadre)");
   assert.match(CORE, /if \(estabaOculto && \$scope\.showSensorMapView\) volverAMostrarMapa\(\);/, "al seleccionar una red con vista de mapa");
 });
 

@@ -184,7 +184,74 @@
         return plano.map(function (q) { var g = aGeo(q, lat0); return [redondear(g[0]), redondear(g[1])]; });
     }
 
+    // ---------- REQ-117: encuadre del mapa en el equipo ----------
+
+    var METROS_POR_GRADO = 111320;
+
+    function mediana(valores) {
+        var v = valores.slice().sort(function (a, b) { return a - b; });
+        var m = Math.floor(v.length / 2);
+        return v.length % 2 ? v[m] : (v[m - 1] + v[m]) / 2;
+    }
+
+    function distanciaMetros(a, b) {
+        var dLat = (a[0] - b[0]) * METROS_POR_GRADO;
+        var dLng = (a[1] - b[1]) * METROS_POR_GRADO * Math.cos(a[0] * Math.PI / 180);
+        return Math.sqrt(dLat * dLat + dLng * dLng);
+    }
+
+    /** Punto [lat, lng] valido y distinto de (0, 0) (valor por defecto de equipos sin ubicar), o null. */
+    function puntoUtil(lat, lng) {
+        var p = punto(lat, lng);
+        return p && !(p.lat === 0 && p.lng === 0) ? [p.lat, p.lng] : null;
+    }
+
+    /**
+     * Zona que ocupa un equipo, para encuadrar el mapa al entrar: { sur, oeste, norte, este } o null.
+     * - Red de sensores: sus sensores (punto y parcela). Estacionario: sus parcelas. Pivote central: el circulo (radio
+     *   `length` en metros). Si no hay nada de eso, la ubicacion del equipo.
+     * - Se descartan los puntos a mas de `maximoMetros` (20 km) de la mediana: un sensor mal ubicado no aleja el mapa.
+     */
+    function limitesDeEquipo(sistema, maximoMetros) {
+        var s = sistema || {};
+        var maximo = maximoMetros || 20000;
+        var puntos = [];
+        function agregarPoligono(valor) { normalizarPoligono(valor).forEach(function (v) { if (puntoUtil(v[0], v[1])) puntos.push(v); }); }
+        if (s.type === "Sensor") {
+            Object.keys(s.sensors || {}).filter(function (k) { return /^S\d+$/.test(k) && s.sensors[k]; }).forEach(function (k) {
+                var sensor = s.sensors[k];
+                var p = puntoUtil(sensor.latitude, sensor.longitude);
+                if (p) puntos.push(p);
+                if (sensor.poligon) agregarPoligono(sensor.poligon);
+            });
+        } else if (s.type === "Estacionario") {
+            Object.keys(s.plots || {}).filter(function (k) { return /^p\d+$/.test(k) && s.plots[k] && s.plots[k].poligon; })
+                .forEach(function (k) { agregarPoligono(s.plots[k].poligon); });
+        }
+        var equipo = puntoUtil(s.latitude, s.longitude);
+        if (!puntos.length && equipo) {
+            puntos.push(equipo);
+            var radio = (s.type === "PC" && Number(s.length) > 0) ? Number(s.length) : 0;
+            if (radio) {
+                var dLat = radio / METROS_POR_GRADO;
+                var dLng = radio / (METROS_POR_GRADO * Math.cos(equipo[0] * Math.PI / 180));
+                puntos.push([equipo[0] - dLat, equipo[1] - dLng], [equipo[0] + dLat, equipo[1] + dLng]);
+            }
+        }
+        if (!puntos.length) return null;
+        var centro = [mediana(puntos.map(function (p) { return p[0]; })), mediana(puntos.map(function (p) { return p[1]; }))];
+        var cerca = puntos.filter(function (p) { return distanciaMetros(p, centro) <= maximo; });
+        if (!cerca.length) cerca = puntos;
+        return {
+            sur: Math.min.apply(null, cerca.map(function (p) { return p[0]; })),
+            norte: Math.max.apply(null, cerca.map(function (p) { return p[0]; })),
+            oeste: Math.min.apply(null, cerca.map(function (p) { return p[1]; })),
+            este: Math.max.apply(null, cerca.map(function (p) { return p[1]; }))
+        };
+    }
+
     return {
+        limitesDeEquipo: limitesDeEquipo,
         puntoEnPoligono: puntoEnPoligono,
         recortarPorCercania: recortarPorCercania,
         DECIMALES: DECIMALES,

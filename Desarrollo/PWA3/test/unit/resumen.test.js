@@ -116,7 +116,7 @@ test("REQ-110 estacionario: valvulas y motor con su estado en la tarjeta", () =>
 
 test("REQ-110 mapa: se recalcula al hacerse visible, NDVI con el estado encima, iconos de giro y mosaico sin hueco", () => {
   assert.match(CORE, /new ResizeObserver\(\(\) => \{[\s\S]*?map\.invalidateSize\(\{ pan: false \}\);[\s\S]*?\}\)\.observe\(map\.getContainer\(\)\);/);
-  assert.match(CORE, /map\.setView\(coord, 16\);\s*volverAMostrarMapa\(\);/);
+  assert.match(CORE, /pedirEncuadre\(system\);\s*\}\s*volverAMostrarMapa\(\);/);   // REQ-117: el encuadre espera a que el mapa se vea
   const css = fs.readFileSync(path.join(RAIZ, "assets", "css", "style.css"), "utf8");
   assert.match(css, /\.mapa-ndvi \.leaflet-overlay-pane path \{\s*fill-opacity: 0\.12 !important;/);
   const pc = fs.readFileSync(path.join(RAIZ, "assets", "js", "components", "sistema", "panel-pivote-central", "panel-pivote-central.html"), "utf8");
