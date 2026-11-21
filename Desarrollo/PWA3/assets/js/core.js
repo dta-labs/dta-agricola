@@ -52,7 +52,7 @@ function __equipos() {
 }
 
 // Marca de version: si no ves esto en consola, el navegador sirve un core.js viejo.
-console.log("[app] core.js 26.11.20.013");
+console.log("[app] core.js 26.11.20.015");
 
 // #region Controlador Angular
 
@@ -421,6 +421,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                     $scope.authUser = sesion.usuario;
                     authUser = $scope.authUser;
                     getUserData();
+                    $scope.vistaPrincipal = "resumen";   // REQ-114: la app entra por el resumen
                     $scope.showWindow('listado');
                 });
                 // REQ-105: se retira al llegar el primer equipo (o a los 5 s si no tiene ninguno).
@@ -575,6 +576,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         __equipos().cargar(Object.keys(userSystems), {
             alCambiarSistema: (sistema, locationKey) => {
                 pantallaDeInicio("listo");   // REQ-105: ya hay equipos que mostrar
+                pedirPronostico();           // REQ-114: minima de la noche para el resumen
                 // REQ-081: los ajustes llegan SIN el log (va en otra ruta). Sin esto, cualquier cambio de ajustes
                 // (p. ej. guardar la vista mapa/mosaico, REQ-078) dejaba el sistema sin lecturas y el mapa en gris.
                 const anterior = $scope.systems[locationKey];
@@ -643,6 +645,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         system.log = log;
 
         processingSensors(locationKey);
+        registrarCambioDeEquipo(system);   // REQ-114: "Hoy" (cambios de estado de cada equipo)
         if (map && marker[locationKey]) {
             actualizarIconoDeEquipo(system);   // REQ-088: el color del pin sigue al estado
             refreshSensorMapContent(system);
@@ -4972,6 +4975,101 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     };
 
     $scope.horaDeRegistro = (fecha) => __modulo("resumen").fechaCorta(fecha).hora;
+
+    // ===================== REQ-114: resumen (pagina de entrada) =====================
+    // La pantalla principal ("listado") alterna entre Resumen (entrada) y Equipos (las tarjetas).
+    $scope.vistaPrincipal = "resumen";
+    $scope.cambiarVistaPrincipal = (vista) => { $scope.vistaPrincipal = vista === "equipos" ? "equipos" : "resumen"; };
+
+    $scope.abrirEquipoDesdeResumen = (clave) => {
+        const sistema = $scope.systems && $scope.systems[clave];
+        if (!sistema) return;
+        $scope.selectSystem(sistema);
+        $scope.showWindow("sistema");
+    };
+
+    const depsDeTablero = () => ({ resumen: __modulo("resumen"), panel: __modulo("panel"), humedad: __modulo("humedad"), medidor: __modulo("medidor"), geo: __modulo("geo") });
+
+    // Umbral de helada: el minimo configurado en los sensores (°C); si no hay, 2 °C.
+    const umbralDeHelada = () => {
+        const minimos = [];
+        Object.values($scope.systems || {}).forEach(s => Object.keys((s && s.sensors) || {}).forEach(k => {
+            const v = Number(s.sensors[k] && s.sensors[k].t && s.sensors[k].t.minValue);
+            if (/^S\d+$/.test(k) && s.sensors[k].t && s.sensors[k].t.minValue !== "" && Number.isFinite(v)) minimos.push(v);
+        }));
+        return minimos.length ? Math.max(...minimos) : 2;
+    };
+
+    // Cache: se recalcula solo si cambia algun equipo (log, estado, ajustes), el pronostico, los eventos o la bandeja
+    // (con un objeto nuevo en cada digest, AngularJS entraria en bucle).
+    let cacheTablero = { huella: null, datos: null, hoy: [] };
+    const huellaDelTablero = () => {
+        const sistemas = Object.values($scope.systems || {});
+        return sistemas.map(s => s && s.log).concat(sistemas, sistemas.map(s => s && s.status), sistemas.map(s => s && s.plots),
+            sistemas.map(s => s && s.sensors), [pronosticoNoche, eventosDelDia, bandejaLista]);
+    };
+    const actualizarTablero = () => {
+        const huella = huellaDelTablero();
+        const previa = cacheTablero.huella;
+        if (previa && previa.length === huella.length && previa.every((v, i) => v === huella[i])) return;
+        const tablero = __modulo("tablero");
+        const umbral = umbralDeHelada();
+        cacheTablero = {
+            huella,
+            datos: tablero.tablero($scope.systems, depsDeTablero(), { resumenDe: $scope.resumenDeEquipo, pronostico: pronosticoNoche, umbralHelada: umbral }),
+            hoy: tablero.lineaDeHoy(eventosDelDia, bandejaLista, pronosticoNoche, Date.now(), umbral)
+        };
+    };
+    $scope.tableroActual = () => { actualizarTablero(); return cacheTablero.datos; };
+    $scope.hoyActual = () => { actualizarTablero(); return cacheTablero.hoy; };
+
+    // "Hoy": eventos por cambio de estado de cada equipo, guardados por usuario en este dispositivo (solo los de hoy).
+    let eventosDelDia = [];
+    let eventosCargados = null;
+    const ultimoResumen = {};
+    const claveDeEventos = () => "dta-eventos:" + (($scope.authUser && $scope.authUser.email) || "sin-sesion");
+    const cargarEventos = () => {
+        const correo = ($scope.authUser && $scope.authUser.email) || "sin-sesion";
+        if (eventosCargados === correo) return;
+        eventosCargados = correo;
+        let guardados = [];
+        try { guardados = JSON.parse(localStorage.getItem(claveDeEventos()) || "[]") || []; } catch (error) { guardados = []; }
+        const hoy = new Date().toDateString();
+        eventosDelDia = guardados.filter(e => new Date(e.instante).toDateString() === hoy);
+    };
+    const registrarCambioDeEquipo = (sistema) => {
+        if (!sistema || !sistema.key) return;
+        cargarEventos();
+        const ahora = $scope.resumenDeEquipo(sistema);
+        const evento = __modulo("tablero").eventoDeCambio(sistema, ultimoResumen[sistema.key], ahora, Date.now());
+        ultimoResumen[sistema.key] = { estado: ahora.estado, linea: ahora.linea };
+        if (!evento) return;
+        eventosDelDia = [evento].concat(eventosDelDia).slice(0, 50);
+        try { localStorage.setItem(claveDeEventos(), JSON.stringify(eventosDelDia)); } catch (error) { /* solo en memoria */ }
+    };
+
+    // Pronostico de la noche (Open-Meteo, gratuito): en la ubicacion del primer equipo con coordenadas; cada 3 h.
+    let pronosticoNoche = null;
+    let pronosticoPedido = 0;
+    const pedirPronostico = () => {
+        if (Date.now() - pronosticoPedido < 3 * 3600000) return;
+        const geo = __modulo("geo");
+        const sistemas = Object.values($scope.systems || {});
+        const conUbicacion = sistemas.filter(s => s && geo.esCoordenadaValida(Number(s.latitude), Number(s.longitude)));
+        const base = conUbicacion.find(s => s.type == "Sensor") || conUbicacion[0];
+        if (!base) return;
+        pronosticoPedido = Date.now();
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${Number(base.latitude).toFixed(3)}&longitude=${Number(base.longitude).toFixed(3)}` +
+            "&hourly=temperature_2m&forecast_days=2&timeformat=unixtime&timezone=auto";
+        fetch(url).then(r => r.ok ? r.json() : Promise.reject(new Error("HTTP " + r.status))).then(datos => {
+            const horas = ((datos.hourly && datos.hourly.time) || []).map(t => t * 1000);
+            const minima = __modulo("tablero").minimaDeLaNoche(horas, (datos.hourly && datos.hourly.temperature_2m) || [], Date.now());
+            $scope.$evalAsync(() => { pronosticoNoche = minima; });
+        }).catch(error => {
+            pronosticoPedido = Date.now() - 2.5 * 3600000;   // reintentar en 30 min
+            console.warn("[resumen] sin pronostico:", error);
+        });
+    };
 
     // Fecha y hora actuales en la barra del listado ("20/11/2026 13:42"), al minuto.
     const actualizarReloj = () => {

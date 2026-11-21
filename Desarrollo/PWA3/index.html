@@ -7,7 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <!-- REQ-022: CSP. AngularJS 1.6 usa new Function en $parse, de ahi unsafe-eval;
          hay un script inline (widget del tiempo) y 900+ style=, de ahi unsafe-inline. -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://ajax.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com https://www.gstatic.com https://cdn.firebase.com https://apis.google.com https://accounts.google.com https://www.google.com https://www.googletagmanager.com https://*.firebaseio.com https://*.firebasedatabase.app; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://cdn.firebase.com; img-src 'self' data: blob: https:; font-src 'self' data: https:; connect-src 'self' https://cdn.jsdelivr.net https://*.firebaseio.com wss://*.firebaseio.com https://*.firebasedatabase.app wss://*.firebasedatabase.app https://*.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.google-analytics.com https://*.analytics.google.com https://api.openweathermap.org https://archive-api.open-meteo.com https://www.tomorrow.io https://weather.tomorrow.io; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com https://www.youtube.com https://*.facebook.com; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://ajax.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com https://www.gstatic.com https://cdn.firebase.com https://apis.google.com https://accounts.google.com https://www.google.com https://www.googletagmanager.com https://*.firebaseio.com https://*.firebasedatabase.app; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://cdn.firebase.com; img-src 'self' data: blob: https:; font-src 'self' data: https:; connect-src 'self' https://cdn.jsdelivr.net https://*.firebaseio.com wss://*.firebaseio.com https://*.firebasedatabase.app wss://*.firebasedatabase.app https://*.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.google-analytics.com https://*.analytics.google.com https://api.openweathermap.org https://archive-api.open-meteo.com https://api.open-meteo.com https://www.tomorrow.io https://weather.tomorrow.io; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com https://www.youtube.com https://*.facebook.com; object-src 'none'; base-uri 'self'; form-action 'self'">
     <meta name="description"
         content='"DTA - Monitoring & Control\" es la aplicacón de DTA-Agricola para el monitoreo y control inteligente y en tiempo real de sistemas de riego y bombeo.'>
     <meta name="author" content="DTA-Agrícola (Sustentabilidad y Eficiencia Agrícola) https://dtaamerica.com/dta-agricola/">
@@ -165,11 +165,11 @@
 
         <!-- Barra de menú -->
         <!-- REQ-109: barra superior (logo o volver | titulo y fecha en dos lineas | avatar y menu); el titulo nunca se corta -->
-        <div id="top-navbar" class="top-navbar barra-superior" ng-show="selectedWindow != 'login'"
+        <div id="top-navbar" class="top-navbar barra-superior" ng-class="{ 'con-selector': selectedWindow == 'listado' }" ng-show="selectedWindow != 'login'"
             ng-style="{ 'border-bottom-color': selectedWindow == 'sistema' && actualSystem ? resumenDeEquipo(actualSystem).color : 'transparent' }">
             <div class="barra-izquierda">
                 <img ng-if="selectedWindow == 'listado'" class="barra-logo" src="./assets/images/DTA-white.png" alt="DTA-Agrícola">
-                <button type="button" ng-if="selectedWindow != 'listado'" class="barra-boton" ng-click="showWindow('listado')" aria-label="Volver al listado">
+                <button type="button" ng-if="selectedWindow != 'listado'" class="barra-boton" ng-click="showWindow('listado')" aria-label="Volver">
                     <i class="material-icons" aria-hidden="true">arrow_back</i>
                 </button>
             </div>
@@ -197,6 +197,13 @@
                     <i class="material-icons" aria-hidden="true">more_vert</i>
                 </a>
             </div>
+            <!-- REQ-114: selector de la pantalla principal: Resumen (entrada) / Equipos (listado) -->
+            <div class="barra-selector" role="tablist" ng-if="selectedWindow == 'listado'">
+                <button type="button" role="tab" ng-class="{ activa: vistaPrincipal == 'resumen' }" aria-selected="{{ vistaPrincipal == 'resumen' }}"
+                    ng-click="cambiarVistaPrincipal('resumen')"><i class="material-icons" aria-hidden="true">dashboard</i> Resumen</button>
+                <button type="button" role="tab" ng-class="{ activa: vistaPrincipal == 'equipos' }" aria-selected="{{ vistaPrincipal == 'equipos' }}"
+                    ng-click="cambiarVistaPrincipal('equipos')"><i class="material-icons" aria-hidden="true">view_list</i> Equipos</button>
+            </div>
         </div>
 
         <div>   <!-- Contenido -->
@@ -205,10 +212,14 @@
 
             <section id="listado" class="listado" ng-show="selectedWindow == 'listado'">
 
+                <!-- REQ-114: resumen (pagina de entrada) -->
+                <dta-tablero ng-if="vistaPrincipal == 'resumen'" datos="tableroActual()" hoy="hoyActual()"
+                    al-abrir-equipo="abrirEquipoDesdeResumen($clave)" al-ver-equipos="cambiarVistaPrincipal('equipos')"></dta-tablero>
+
                 <br>
                 <div class="" style="width: 100% !important;">
 
-                    <div class="text-center our-services" ng-show="systems">
+                    <div class="text-center our-services" ng-show="systems && vistaPrincipal == 'equipos'">
                         <div class="row" style="margin-left: 0; margin-right: 0;">
                             <div class="col s12 m6 l4 xl3" id="{{ system.key }}" ng-repeat="system in systems"
                                 ng-click="selectSystem(system)" ng-show="system.name">
@@ -3587,6 +3598,7 @@
     <link rel="stylesheet" href="./assets/js/components/comunes/version-app/version-app.css?v=26.11.07.003">
     <link rel="stylesheet" href="./assets/js/components/comunes/mapa-selector/mapa-selector.css?v=26.11.08.011">
     <link rel="stylesheet" href="./assets/js/components/comunes/lector-codigo/lector-codigo.css?v=26.11.06.001">
+    <link rel="stylesheet" href="./assets/js/components/tablero/tablero.css?v=26.11.20.015">
     <link rel="stylesheet" href="./assets/js/components/sistema/paneles.css?v=26.11.20.011">
     <link rel="stylesheet" href="./assets/js/components/ayuda/ayuda.css?v=26.11.06.003">
     <link rel="stylesheet" href="./assets/js/components/fichas-tecnicas/fichas-tecnicas.css?v=26.11.06.003">
@@ -3855,6 +3867,7 @@
     <script src="./assets/js/logic/panel.js?v=26.11.08.012"></script>
     <script src="./assets/js/logic/unidades.js?v=26.11.07.012"></script>
     <script src="./assets/js/logic/grafica.js?v=26.11.13.001"></script>
+    <script src="./assets/js/logic/tablero.js?v=26.11.20.015"></script>
     <script src="./assets/js/logic/resumen.js?v=26.11.20.010"></script>
     <script src="./assets/js/logic/notificaciones.js?v=26.11.20.004"></script>
     <script src="./assets/js/logic/satelite.js?v=26.11.20.013"></script>
@@ -3883,9 +3896,9 @@
 <script src="./assets/js/logic/meteo.js?v=26.11.02.001"></script>
     <script src="./assets/js/logic/aviso.js?v=26.11.02.001"></script>
 <script src="./assets/vendor/bootstrap/bootstrap.bundle.min.js?v=5.3.8"></script>
-    <script src="./assets/js/core.js?v=26.11.20.013"></script>
+    <script src="./assets/js/core.js?v=26.11.20.015"></script>
     <!-- REQ-038: factories, ayudas de interfaz y componentes (despues de core.js, que crea el modulo) -->
-    <script src="./assets/js/app/version.js?v=26.11.20.014"></script>
+    <script src="./assets/js/app/version.js?v=26.11.20.015"></script>
     <script src="./assets/js/app/reglas.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/auth.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/repo.factory.js?v=26.11.06.001"></script>
@@ -3899,6 +3912,7 @@
     <script src="./assets/js/components/comunes/mapa-selector/mapa-selector.component.js?v=26.11.08.011"></script>
     <script src="./assets/js/components/comunes/lector-codigo/lector-codigo.component.js?v=26.11.06.001"></script>
     <script src="./assets/js/components/sistema/panel-pivote-central/panel-pivote-central.component.js?v=26.11.20.011"></script>
+    <script src="./assets/js/components/tablero/tablero.component.js?v=26.11.20.015"></script>
     <script src="./assets/js/components/sistema/panel-pozo/panel-pozo.component.js?v=26.11.06.001"></script>
     <script src="./assets/js/components/sistema/panel-pivote-lineal/panel-pivote-lineal.component.js?v=26.11.20.011"></script>
     <script src="./assets/js/components/sistema/panel-estacionario/panel-estacionario.component.js?v=26.11.08.014"></script>

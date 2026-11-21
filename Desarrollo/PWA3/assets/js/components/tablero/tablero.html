@@ -1,0 +1,75 @@
+<!-- REQ-114: vista de resumen (pagina de entrada) -->
+<div class="bs">
+<div class="tablero" ng-if="vm.datos">
+
+    <!-- 1. Indicadores -->
+    <section class="tablero-seccion" aria-label="Indicadores">
+        <div class="tablero-semaforo" ng-class="'nivel-' + vm.datos.semaforo.nivel" role="status">
+            <span class="tablero-semaforo-icono">
+                <i class="material-icons" aria-hidden="true">{{ vm.datos.semaforo.nivel == 'ok' ? 'check' : vm.datos.semaforo.nivel == 'emergencia' ? 'error_outline' : 'warning' }}</i>
+            </span>
+            <span>
+                <span class="tablero-semaforo-titulo">{{ vm.datos.semaforo.titulo }}</span>
+                <span class="tablero-semaforo-detalle">{{ vm.datos.semaforo.detalle }}</span>
+            </span>
+        </div>
+        <div class="tablero-kpis">
+            <div class="tablero-kpi">
+                <span class="tablero-kpi-etiqueta"><i class="material-icons" aria-hidden="true">check_circle</i> Equipos bien</span>
+                <span class="tablero-kpi-valor kpi-bien">{{ vm.datos.kpis.equiposBien }} de {{ vm.datos.kpis.total }}</span>
+            </div>
+            <div class="tablero-kpi">
+                <span class="tablero-kpi-etiqueta"><i class="material-icons" aria-hidden="true">opacity</i> Regando ahora</span>
+                <span class="tablero-kpi-valor">{{ vm.datos.kpis.regando }} {{ vm.datos.kpis.regando == 1 ? 'equipo' : 'equipos' }}</span>
+            </div>
+            <div class="tablero-kpi">
+                <span class="tablero-kpi-etiqueta"><i class="material-icons" aria-hidden="true">grass</i> Suelo adecuado</span>
+                <span class="tablero-kpi-valor">{{ vm.datos.kpis.sueloAdecuado === null ? '—' : vm.datos.kpis.sueloAdecuado + ' %' }}</span>
+            </div>
+            <div class="tablero-kpi">
+                <span class="tablero-kpi-etiqueta"><i class="material-icons" aria-hidden="true">ac_unit</i> Esta noche</span>
+                <span class="tablero-kpi-valor kpi-noche">{{ vm.grados(vm.datos.kpis.nocheMin) }}</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. Atiende primero -->
+    <section class="tablero-seccion" ng-if="vm.datos.atiende.length" aria-label="Atiende primero">
+        <h3 class="tablero-titulo">Atiende primero</h3>
+        <button type="button" class="tablero-aviso" ng-repeat="a in vm.datos.atiende track by $index"
+            ng-class="'nivel-' + a.nivel" ng-click="vm.abrir(a)">
+            <span class="tablero-aviso-titulo">{{ vm.titulo(a.titulo) }}</span>
+            <span class="tablero-aviso-detalle">{{ a.detalle }} <span class="tablero-aviso-ir">· {{ a.clave ? 'Ver equipo' : 'Ver equipos' }} →</span></span>
+        </button>
+    </section>
+
+    <!-- 3. Mis cultivos -->
+    <section class="tablero-seccion" ng-if="vm.datos.cultivos.length" aria-label="Mis cultivos">
+        <h3 class="tablero-titulo">Mis cultivos</h3>
+        <div class="tablero-cultivos">
+            <div class="tablero-cultivo" ng-repeat="c in vm.datos.cultivos track by c.nombre">
+                <span class="tablero-cultivo-nombre">{{ c.nombre }}</span>
+                <span class="tablero-cultivo-dato">{{ c.hectareas !== null ? c.hectareas + ' ha' : '' }}{{ c.hectareas !== null && c.fase ? ' · ' : '' }}{{ c.fase }}</span>
+                <span class="tablero-cultivo-estado" ng-class="'cultivo-' + c.estado">
+                    <i class="material-icons" aria-hidden="true">{{ c.estado == 'helada' ? 'ac_unit' : c.estado == 'seco' ? 'opacity' : c.estado == 'adecuado' ? 'check' : 'remove' }}</i>
+                    {{ c.texto }}
+                </span>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. Hoy -->
+    <section class="tablero-seccion" aria-label="Hoy">
+        <h3 class="tablero-titulo">Hoy</h3>
+        <p class="tablero-vacio" ng-if="!vm.hoy.length">Sin novedades por ahora. Aquí verás los cambios de tus equipos durante el día.</p>
+        <ol class="tablero-hoy" ng-if="vm.hoy.length">
+            <li ng-repeat="e in vm.hoy track by $index" ng-class="'nivel-' + e.nivel">
+                <span class="tablero-hoy-hora">{{ e.hora }}</span>
+                <span class="tablero-hoy-texto">{{ vm.titulo(e.texto) }}</span>
+            </li>
+        </ol>
+    </section>
+
+    <button type="button" class="tablero-ver-equipos" ng-click="vm.alVerEquipos()">Ver todos los equipos →</button>
+</div>
+</div>

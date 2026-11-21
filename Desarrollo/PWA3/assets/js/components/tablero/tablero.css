@@ -1,0 +1,206 @@
+/* REQ-114: vista de resumen (pagina de entrada) */
+.tablero {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 12px 12px 96px 12px;
+    color: #263238;
+    font-family: Roboto, "Segoe UI", sans-serif;
+    text-align: left;
+}
+.tablero-seccion {
+    margin-bottom: 18px;
+}
+.tablero-titulo {
+    margin: 0 0 8px 2px;
+    color: #546e7a;
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+/* semaforo */
+.tablero-semaforo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 14px;
+}
+.tablero-semaforo > span:last-child {
+    display: flex;
+    flex-direction: column;
+}
+.tablero-semaforo-icono {
+    display: flex;
+    flex: 0 0 46px;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    color: #ffffff;
+}
+.tablero-semaforo-icono .material-icons { font-size: 26px; }
+.tablero-semaforo-titulo { font-size: 1.15rem; font-weight: 700; }
+.tablero-semaforo-detalle { font-size: 0.9rem; }
+.tablero-semaforo.nivel-ok { background: #edf6ee; color: #1b5e20; }
+.tablero-semaforo.nivel-ok .tablero-semaforo-icono { background: #2e7d32; }
+.tablero-semaforo.nivel-atencion { background: #fff4e5; color: #8a4b00; }
+.tablero-semaforo.nivel-atencion .tablero-semaforo-icono { background: #ef6c00; }
+.tablero-semaforo.nivel-emergencia { background: #fdecec; color: #8e1c1c; }
+.tablero-semaforo.nivel-emergencia .tablero-semaforo-icono { background: #d32f2f; }
+
+/* indicadores */
+.tablero-kpis {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 8px;
+}
+@media (min-width: 640px) {
+    .tablero-kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+.tablero-kpi {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 10px 12px;
+    border: 1px solid #e3e8e6;
+    border-radius: 12px;
+    background: #ffffff;
+}
+.tablero-kpi-etiqueta {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #607d8b;
+    font-size: 0.85rem;
+}
+.tablero-kpi-etiqueta .material-icons { font-size: 17px; }
+.tablero-kpi-valor { font-size: 1.45rem; font-weight: 700; line-height: 1.2; }
+.tablero-kpi-valor.kpi-bien { color: #2e7d32; }
+.tablero-kpi-valor.kpi-noche { color: #0d47a1; }
+
+/* atiende primero */
+.tablero-aviso {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    width: 100%;
+    margin: 0 0 6px 0;
+    padding: 10px 12px;
+    border: 0;
+    border-left: 5px solid;
+    border-radius: 0 10px 10px 0;
+    text-align: left;
+    cursor: pointer;
+}
+.tablero-aviso:focus-visible { outline: 2px solid #1b4d38; outline-offset: 2px; }
+.tablero-aviso-titulo { font-size: 1.02rem; font-weight: 700; }
+.tablero-aviso-detalle { font-size: 0.86rem; }
+.tablero-aviso-ir { white-space: nowrap; font-weight: 600; }
+.tablero-aviso.nivel-emergencia { border-left-color: #d32f2f; background: #fdecec; color: #8e1c1c; }
+.tablero-aviso.nivel-atencion { border-left-color: #ef6c00; background: #fff4e5; color: #8a4b00; }
+
+/* cultivos */
+.tablero-cultivos {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+@media (min-width: 640px) {
+    .tablero-cultivos { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+.tablero-cultivo {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    padding: 10px 12px;
+    border: 1px solid #e3e8e6;
+    border-radius: 12px;
+    background: #ffffff;
+}
+.tablero-cultivo-nombre { font-size: 1.05rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tablero-cultivo-dato { min-height: 1.1em; color: #607d8b; font-size: 0.82rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tablero-cultivo-estado { display: flex; align-items: center; gap: 3px; margin-top: 4px; font-size: 0.88rem; font-weight: 600; }
+.tablero-cultivo-estado .material-icons { font-size: 17px; }
+.cultivo-adecuado { color: #2e7d32; }
+.cultivo-seco { color: #c25e00; }
+.cultivo-helada { color: #0d47a1; }
+.cultivo-sin-dato { color: #90a4ae; }
+
+/* hoy */
+.tablero-hoy {
+    margin: 0;
+    padding: 4px 12px;
+    border: 1px solid #e3e8e6;
+    border-radius: 12px;
+    background: #ffffff;
+    list-style: none;
+}
+.tablero-hoy li {
+    display: grid;
+    grid-template-columns: 52px 1fr;
+    gap: 6px;
+    padding: 8px 0;
+    border-bottom: 1px solid #eef1f0;
+    font-size: 0.92rem;
+}
+.tablero-hoy li:last-child { border-bottom: 0; }
+.tablero-hoy-hora { color: #78909c; font-variant-numeric: tabular-nums; }
+.tablero-hoy li.nivel-emergencia .tablero-hoy-texto { color: #c62828; font-weight: 700; }
+.tablero-hoy li.nivel-atencion .tablero-hoy-texto { color: #c25e00; font-weight: 600; }
+.tablero-hoy li.nivel-proximo .tablero-hoy-texto { color: #0d47a1; font-weight: 600; }
+.tablero-vacio { margin: 0; padding: 12px; border-radius: 12px; background: #f4f7f6; color: #607d8b; font-size: 0.9rem; }
+
+.tablero-ver-equipos {
+    display: block;
+    margin: 4px auto 0;
+    padding: 8px 16px;
+    border: 0;
+    background: transparent;
+    color: #1b4d38;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* selector Resumen / Equipos en la cabecera */
+.top-navbar.barra-superior.con-selector {
+    flex-wrap: wrap;
+    height: auto;
+    min-height: 62px;
+    padding-top: 6px;
+    padding-bottom: 8px;
+}
+.barra-selector {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    flex: 1 0 100%;
+    max-width: 420px;
+    margin: 6px auto 0;
+    padding: 3px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.28);
+}
+.barra-selector button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 32px;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: #c8e6c9;
+    font-size: 0.95rem;
+    cursor: pointer;
+}
+.barra-selector button .material-icons { font-size: 18px; }
+.barra-selector button.activa {
+    background: #e8f5e9;
+    color: #12392a;
+    font-weight: 700;
+}
