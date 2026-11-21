@@ -83,6 +83,7 @@ Cada version publicada lleva una etiqueta de git `pwa3-vX.Y.Z` sobre el commit d
 - Etiquetas que tapaban los datos y selectores que no mostraban lo elegido, en toda la app. (REQ-043 A1-A2)
 
 ### Cambiado
+- Resumen: el semaforo dice "N alertas requieren tu atencion" (antes "cosas"). (REQ-118)
 - Menu de perfil dentro del menu lateral; plan actual destacado. (REQ-036)
 - Mapa del sistema: parcelas y areas de sensores sombreadas segun la humedad del suelo (con leyenda); tocar una
   parcela abre "Editar parcela" y tocar el area de un sensor abre "Editar sensor". (REQ-052)

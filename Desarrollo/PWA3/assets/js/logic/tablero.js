@@ -222,7 +222,7 @@
             ? { nivel: "ok", titulo: "Todo en orden", detalle: plural(sistemas.length, "equipo sin alertas", "equipos sin alertas") }
             : {
                 nivel: urgentes ? "emergencia" : "atencion",
-                titulo: (atiende.length === 1 ? "1 cosa requiere" : atiende.length + " cosas requieren") + " tu atención",
+                titulo: (atiende.length === 1 ? "1 alerta requiere" : atiende.length + " alertas requieren") + " tu atención",
                 detalle: [urgentes ? plural(urgentes, "urgente", "urgentes") : "", (atiende.length - urgentes) ? (atiende.length - urgentes) + " por revisar hoy" : ""]
                     .filter(Boolean).join(" · ")
             };

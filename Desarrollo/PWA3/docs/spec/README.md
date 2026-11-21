@@ -116,6 +116,7 @@
 | REQ-115 | Resumen: sugerencias del dia y bienvenida sin equipos registrados | Implementado (probar: usuario) | 3 |
 | REQ-116 | Listado: tarjetas de la misma altura (sin huecos en escritorio) | Corregido (probar: usuario) | 1 |
 | REQ-117 | Mapa encuadrado en la zona del equipo al entrar y al volver a la vista de mapa | Corregido (probar: usuario) | 2 |
+| REQ-118 | Resumen: "alertas" en lugar de "cosas" en el semaforo | Implementado | - |
 
 **Total: 471 pruebas en Node (2026-11-20), todas en verde.** `npm test` funciona en Node 20 y 22.
 

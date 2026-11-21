@@ -16,7 +16,7 @@ La pantalla principal ("listado") tiene dos modos, elegidos con un selector en l
 **Resumen** (de entrada, cada vez que se inicia sesion) y **Equipos** (las tarjetas de siempre). El resto de la app
 (botones flotantes, volver, menu) no cambia.
 
-1. **Indicadores**: semaforo ("Todo en orden" / "N cosas requieren tu atencion · X urgentes · Y por revisar hoy") y 4
+1. **Indicadores**: semaforo ("Todo en orden" / "N alertas requieren tu atencion · X urgentes · Y por revisar hoy") y 4
    casillas: equipos bien (de N), regando ahora, suelo adecuado (% de sensores con humedad adecuada o muy humedo) y
    esta noche (minima del pronostico).
 2. **Atiende primero**: equipos en emergencia y luego en atencion (mismo resumen humano del listado, REQ-109/110) y la

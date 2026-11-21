@@ -39,8 +39,9 @@ test("REQ-114 'Atiende primero': urgentes arriba, helada del pronostico y textos
   assert.equal(r.atiende[0].nivel, "emergencia");
   assert.match(r.atiende[0].titulo, /^Pivote Norte · Falla eléctrica/);
   assert.equal(r.atiende[1].clave, null);
+  assert.equal(t.tablero({ a: sistemas.a }, deps).semaforo.titulo, "1 alerta requiere tu atención");
   assert.match(r.atiende[1].titulo, /^Helada esta noche · 1 °C/);
-  assert.equal(r.semaforo.titulo, "2 cosas requieren tu atención");
+  assert.equal(r.semaforo.titulo, "2 alertas requieren tu atención");   // REQ-118: "alertas", no "cosas"
   assert.equal(r.semaforo.detalle, "1 urgente · 1 por revisar hoy");
   assert.equal(r.kpis.nocheMin, 1);
   assert.equal(r.kpis.equiposBien, 1);
