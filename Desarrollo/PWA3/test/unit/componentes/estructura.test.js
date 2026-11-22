@@ -277,10 +277,10 @@ test("REQ-054 alertas: umbrales separados con su accion (segun el tipo de sensor
       }
     }
     // Humedad: WM (centibares) al reves que los sensores en % (igual que functions/index.js).
-    assert.match(HTML, new RegExp('for="' + prefijo + "HMinValue\" class=\"alerta-etiqueta\">\\{\\{ " + modelo + "\\.type == 'WM' \\? 'No regar' : 'Regar' \\}\\}"));
-    assert.match(HTML, new RegExp('for="' + prefijo + "HMaxValue\" class=\"alerta-etiqueta\">\\{\\{ " + modelo + "\\.type == 'WM' \\? 'Regar' : 'No regar' \\}\\}"));
-    assert.match(HTML, new RegExp('for="' + prefijo + 'TMinValue" class="alerta-etiqueta">Helada<'));
-    assert.match(HTML, new RegExp('for="' + prefijo + 'TMaxValue" class="alerta-etiqueta">Exceso de calor<'));
+    assert.match(HTML, new RegExp('for="' + prefijo + "HMinValue\" class=\"alerta-etiqueta\">\\{\\{ " + modelo + "\\.type == 'WM' \\? 'No regar' : " + modelo + "\\.type == 'SHT2' \\? 'Humedad baja' : 'Regar' \\}\\}"));   // REQ-145: SHT2 = humedad relativa
+    assert.match(HTML, new RegExp('for="' + prefijo + "HMaxValue\" class=\"alerta-etiqueta\">\\{\\{ " + modelo + "\\.type == 'WM' \\? 'Regar' : " + modelo + "\\.type == 'SHT2' \\? 'Humedad alta' : 'No regar' \\}\\}"));
+    assert.match(HTML, new RegExp('for="' + prefijo + "TMinValue\" class=\"alerta-etiqueta\">\\{\\{ " + modelo + "\\.type == 'SHT2' \\? 'Mínima' : 'Helada' \\}\\}<"));
+    assert.match(HTML, new RegExp('for="' + prefijo + "TMaxValue\" class=\"alerta-etiqueta\">\\{\\{ " + modelo + "\\.type == 'SHT2' \\? 'Máxima' : 'Exceso de calor' \\}\\}<"));
     // La helada admite valores bajo cero; REQ-066: en la unidad del sistema y guardada en °C.
     assert.match(HTML, new RegExp('id="' + prefijo + 'TMinValue" type="number" step="0\\.5" min="\\{\\{ actualSystem\\.tempUnit == \'C\' \\? -30 : -22 \\}\\}"'));
   }

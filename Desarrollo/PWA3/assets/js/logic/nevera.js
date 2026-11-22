@@ -104,6 +104,11 @@
     }
 
     function corriente(s, v0, v1) {
+        // REQ-145: con limites configurados (sensor.i) el estado es Corriente baja / Normal / Corriente alta
+        if (rango(s.i)) {
+            var r = porUmbrales(v0, v1, s.i, { icono: "flash_on", unidad: "A", etiqueta: "Corriente", bajo: "Corriente baja", alto: "Corriente alta", activo: "", inactivo: "", minimo: 0 });
+            return r;
+        }
         var on = v0 === null ? null : v0 >= CORRIENTE_ENCENDIDO;
         return {
             estado: on === null ? SIN_DATO

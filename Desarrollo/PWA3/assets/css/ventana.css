@@ -530,6 +530,15 @@
     margin-bottom: 8px;
 }
 
+/* REQ-145: icono de los limites de presion, caudal, corriente y humedad relativa */
+.modal.modal-asistente .alerta-icono-material {
+    margin-right: 6px;
+    font-size: 20px;
+    line-height: inherit;
+    vertical-align: middle;
+    color: #546e7a;
+}
+
 .modal.modal-asistente .alerta-icono {
     margin-top: -5px;
 }

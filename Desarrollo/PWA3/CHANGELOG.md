@@ -159,6 +159,7 @@ Cada version publicada lleva una etiqueta de git `pwa3-vX.Y.Z` sobre el commit d
   migrados: acordeon, list-group y modales de Bootstrap. El login sigue en Materialize. (REQ-043 fases B-C)
 
 ### Anadido
+- Sensores: en Agregar y Editar sensor se configuran los limites de todo lo que mide cada sensor: humedad del suelo, temperatura, humedad relativa (tambien en los sensores de suelo), presion, caudal y corriente; en neveras e invernaderos la humedad del SHT2 se trata como humedad relativa. El caudal tenia el minimo y el maximo cruzados. La tarjeta de corriente y la columna H.Relativa del historial usan esos limites. (REQ-145)
 - Invernadero: cada sensor puede tener varios cultivos (Ajustes del sensor: "Cultivos del invernadero", con su fase; el primero es el principal). Se ven en la tarjeta del sensor y en "Mis cultivos" del resumen. (REQ-144)
 - Neveras e invernaderos: icono de notificacion en la tarjeta del sensor cuando el gateway no recibe sus datos (`lo`
   negativo) y aviso "Sin datos" en Notificaciones con desde cuando no se actualiza. (REQ-142)

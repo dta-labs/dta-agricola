@@ -134,9 +134,24 @@
         };
     }
 
-    /** Color de un dato de la tabla del historial: medida "humedad" (% o cb segun el sensor) o "temperatura" (°C). */
+    /**
+     * REQ-145: humedad relativa (ambiente) con los limites del sensor (sensor.hr): < min ambar, > max azul, entre
+     * ambos verde. Sin limites, el color normal del texto.
+     */
+    function colorDeHumedadRelativa(sensor, valor) {
+        var v = numero(valor);
+        var l = par(sensor && sensor.hr && sensor.hr.minValue, sensor && sensor.hr && sensor.hr.maxValue);
+        if (v === null || v < 0) return COLORES.gris;
+        if (!l) return "#263238";
+        if (v < l[0]) return COLORES.amarillo;
+        if (v > l[1]) return COLORES.azul;
+        return COLORES.verde;
+    }
+
+    /** Color de un dato de la tabla del historial: medida "humedad" (% o cb segun el sensor), "hr" o "temperatura" (°C). */
     function color(sensor, medida, valor) {
         if (medida === "temperatura") return colorDeTemperatura(sensor, valor);
+        if (medida === "hr") return colorDeHumedadRelativa(sensor, valor);
         if (sensor && sensor.type === "WM") return colorDeTension(valor);
         return colorDeHumedad(sensor, valor);
     }
@@ -148,6 +163,7 @@
         colorDeHumedad: colorDeHumedad,
         colorDeTension: colorDeTension,
         colorDeTemperatura: colorDeTemperatura,
+        colorDeHumedadRelativa: colorDeHumedadRelativa,
         color: color,
         cbValido: cbValido,
         cbDeAguaDisponible: cbDeAguaDisponible,

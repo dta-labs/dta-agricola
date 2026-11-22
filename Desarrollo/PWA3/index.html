@@ -1872,7 +1872,7 @@
                                                         <td style="color: {{ colorHistorial(sensor, 'humedad', data[idx * 8]) }};" ng-show="sensor.type == 'WM'"><b>{{ data[(idx * 8)] != "NaN" ? (data[(idx * 8)] != 240 ? (data[(idx * 8)] != 0 ? (data[(idx * 8)] | number : 0) + 'cb' : 'No listo') : 'Error') : '--' }}</b></td>
                                                         <!-- <td style="color: {{ data[idx * 8] < 1 ? 'red' : 'green' }};" ng-show="sensor.type != 'Psi'"><b>{{ data[(idx * 8)] != "NaN" ? (data[(idx * 8)] | number : 0) + 'psi' : 'Apagado' }}</b></td> -->
                                                         
-                                                        <td style="color: black;"><b>{{ data[(idx * 8) + 1] != "NaN" && data[(idx * 8) + 1] != "-1" ? (data[(idx * 8) + 1] | number : 0) : (meteo[actualSystem.key].main.humidity) }}%</b></td>
+                                                        <td style="color: {{ colorHistorial(sensor, 'hr', data[idx * 8 + 1]) }};"><b>{{ data[(idx * 8) + 1] != "NaN" && data[(idx * 8) + 1] != "-1" ? (data[(idx * 8) + 1] | number : 0) : (meteo[actualSystem.key].main.humidity) }}%</b></td>
                                                         
                                                         <td style="color: {{ colorHistorial(sensor, 'temperatura', data[idx * 8 + 4]) }};"><b>{{ data[(idx * 8) + 4] != "NaN" && actualSystem.tempUnit == "C" ? (data[(idx * 8) + 4] | number : 1) + '°C' : data[(idx * 8) + 4] != "NaN" && (actualSystem.tempUnit == "F" || tempUnit == "F") ? (data[(idx * 8) + 4] * 1.8 + 32 | number : 1) + '°F' : '--' }}</b></td>
                                                         
@@ -2823,24 +2823,24 @@
                                                     <div class="alerta-bloque">
                                                         <label class="left-align alerta-cabecera">
                                                             <input id="newSensorHNotify" type="checkbox" ng-model="newSensor.h.notify" />
-                                                            <span class="chip"><img src="assets/images/gota.jpg" alt="Gota" class="alerta-icono" loading="lazy">Humedad</span>
+                                                            <span class="chip"><img src="assets/images/gota.jpg" alt="Gota" class="alerta-icono" loading="lazy">{{ newSensor.type == 'SHT2' ? 'Humedad relativa' : 'Humedad del suelo' }}</span>
                                                         </label>
                                                         <div class="alerta-umbrales">
                                                             <div class="alerta-umbral">
-                                                                <label for="newSensorHMinValue" class="alerta-etiqueta">{{ newSensor.type == 'WM' ? 'No regar' : 'Regar' }}</label>
+                                                                <label for="newSensorHMinValue" class="alerta-etiqueta">{{ newSensor.type == 'WM' ? 'No regar' : newSensor.type == 'SHT2' ? 'Humedad baja' : 'Regar' }}</label>
                                                                 <div class="alerta-campo">
                                                                     <input id="newSensorHMinValue" type="number" min="0" max="{{ newSensor.type == 'WM' ? 239 : 100 }}" step="1" ng-model="newSensor.h.minValue">
                                                                     <span>{{ newSensor.type == 'WM' ? 'cb' : '%' }}</span>
                                                                 </div>
-                                                                <small class="alerta-ayuda">{{ newSensor.type == 'WM' ? 'Por debajo: suelo saturado' : 'Por debajo: suelo seco' }}</small>
+                                                                <small class="alerta-ayuda">{{ newSensor.type == 'WM' ? 'Por debajo: suelo saturado' : newSensor.type == 'SHT2' ? 'Por debajo: ambiente seco' : 'Por debajo: suelo seco' }}</small>
                                                             </div>
                                                             <div class="alerta-umbral">
-                                                                <label for="newSensorHMaxValue" class="alerta-etiqueta">{{ newSensor.type == 'WM' ? 'Regar' : 'No regar' }}</label>
+                                                                <label for="newSensorHMaxValue" class="alerta-etiqueta">{{ newSensor.type == 'WM' ? 'Regar' : newSensor.type == 'SHT2' ? 'Humedad alta' : 'No regar' }}</label>
                                                                 <div class="alerta-campo">
                                                                     <input id="newSensorHMaxValue" type="number" min="0" max="{{ newSensor.type == 'WM' ? 239 : 100 }}" step="1" ng-model="newSensor.h.maxValue">
                                                                     <span>{{ newSensor.type == 'WM' ? 'cb' : '%' }}</span>
                                                                 </div>
-                                                                <small class="alerta-ayuda">{{ newSensor.type == 'WM' ? 'Por encima: suelo seco' : 'Por encima: suelo saturado' }}</small>
+                                                                <small class="alerta-ayuda">{{ newSensor.type == 'WM' ? 'Por encima: suelo seco' : newSensor.type == 'SHT2' ? 'Por encima: exceso de humedad' : 'Por encima: suelo saturado' }}</small>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -2860,51 +2860,129 @@
                                                         </label>
                                                         <div class="alerta-umbrales">
                                                             <div class="alerta-umbral">
-                                                                <label for="newSensorTMinValue" class="alerta-etiqueta">Helada</label>
+                                                                <label for="newSensorTMinValue" class="alerta-etiqueta">{{ newSensor.type == 'SHT2' ? 'Mínima' : 'Helada' }}</label>
                                                                 <div class="alerta-campo">
                                                                     <input id="newSensorTMinValue" type="number" step="0.5" min="{{ actualSystem.tempUnit == 'C' ? -30 : -22 }}" max="{{ actualSystem.tempUnit == 'C' ? 60 : 140 }}"
                                                                         dta-temperatura="newSensor.t.minValue" dta-unidad="actualSystem.tempUnit">
                                                                     <span>{{ actualSystem.tempUnit == 'C' ? '°C' : '°F' }}</span>
                                                                 </div>
-                                                                <small class="alerta-ayuda">Por debajo: riesgo de helada</small>
+                                                                <small class="alerta-ayuda">{{ newSensor.type == 'SHT2' ? 'Por debajo: helado' : 'Por debajo: riesgo de helada' }}</small>
                                                             </div>
                                                             <div class="alerta-umbral">
-                                                                <label for="newSensorTMaxValue" class="alerta-etiqueta">Exceso de calor</label>
+                                                                <label for="newSensorTMaxValue" class="alerta-etiqueta">{{ newSensor.type == 'SHT2' ? 'Máxima' : 'Exceso de calor' }}</label>
                                                                 <div class="alerta-campo">
                                                                     <input id="newSensorTMaxValue" type="number" step="0.5" min="{{ actualSystem.tempUnit == 'C' ? -30 : -22 }}" max="{{ actualSystem.tempUnit == 'C' ? 60 : 140 }}"
                                                                         dta-temperatura="newSensor.t.maxValue" dta-unidad="actualSystem.tempUnit">
                                                                     <span>{{ actualSystem.tempUnit == 'C' ? '°C' : '°F' }}</span>
                                                                 </div>
-                                                                <small class="alerta-ayuda">Por encima: estrés por calor</small>
+                                                                <small class="alerta-ayuda">{{ newSensor.type == 'SHT2' ? 'Por encima: caliente' : 'Por encima: estrés por calor' }}</small>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div ng-show="newSensor.type == 'Psi'"> <!-- Humbral de Presión -->
-                                                    <p style="margin-top: -5px; margin-bottom: 0;">
-                                                        <label class="left-align">
-                                                            <input id="newSensorPsiNotify" type="checkbox" ng-model="newSensor.psi.notify" />
-                                                            <span class="chip">
-                                                                <img src="assets/images/presion.jpg" alt="Presión" style="margin-top: -5px;" loading="lazy">
-                                                                Alerta de presión
-                                                            </span>
-                                                            <input id="newSensorPsiMinValue" type="number" val="0" min="0" max="100" ng-model="newSensor.psi.minValue" style="width: 50px;" placeholder="Min">
-                                                            <input id="newSensorPsiMaxValue" type="number" val="0" min="0" max="100" ng-model="newSensor.psi.maxValue" style="width: 50px;" placeholder="Max"> psi
+                                                <div ng-show="newSensor.type == 'SHT4' || newSensor.type == 'WM' || newSensor.type == 'Ms'"> <!-- REQ-145: humedad relativa (ambiente) de los sensores de suelo -->
+                                                    <div class="alerta-bloque">
+                                                        <label class="left-align alerta-cabecera">
+                                                            <input id="newSensorHrNotify" type="checkbox" ng-model="newSensor.hr.notify" />
+                                                            <span class="chip"><i class="material-icons alerta-icono-material" aria-hidden="true">opacity</i>Humedad relativa</span>
                                                         </label>
-                                                    </p>
+                                                        <div class="alerta-umbrales">
+                                                            <div class="alerta-umbral">
+                                                                <label for="newSensorHrMinValue" class="alerta-etiqueta">Baja</label>
+                                                                <div class="alerta-campo">
+                                                                    <input id="newSensorHrMinValue" type="number" min="0" max="100" step="1" ng-model="newSensor.hr.minValue">
+                                                                    <span>%</span>
+                                                                </div>
+                                                                <small class="alerta-ayuda">Por debajo: ambiente seco</small>
+                                                            </div>
+                                                            <div class="alerta-umbral">
+                                                                <label for="newSensorHrMaxValue" class="alerta-etiqueta">Alta</label>
+                                                                <div class="alerta-campo">
+                                                                    <input id="newSensorHrMaxValue" type="number" min="0" max="100" step="1" ng-model="newSensor.hr.maxValue">
+                                                                    <span>%</span>
+                                                                </div>
+                                                                <small class="alerta-ayuda">Por encima: exceso de humedad</small>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <div ng-show="newSensor.type == 'Fl'"> <!-- Humbral de Flujo -->
-                                                    <p style="margin-top: -5px; margin-bottom: 0;">
-                                                        <label class="left-align">
-                                                            <input id="newSensorFlNotify" type="checkbox" ng-model="newSensor.fl.notify" />
-                                                            <span class="chip">
-                                                                <img src="assets/images/caudal.png" alt="Caudal" style="margin-top: -5px;" loading="lazy">
-                                                                Alerta de caudal
-                                                            </span>
-                                                            Min: <input id="newSensorFlMaxValue" type="number" val="0" min="0" max="100" ng-model="newSensor.fl.maxValue" style="width: 50px;">
-                                                            Max: <input id="newSensorFlMinValue" type="number" val="0" min="0" max="100" ng-model="newSensor.fl.minValue" style="width: 50px;">
+                                                <div ng-show="newSensor.type == 'Psi'"> <!-- REQ-145: presion -->
+                                                    <div class="alerta-bloque">
+                                                        <label class="left-align alerta-cabecera">
+                                                            <input id="newSensorPsiNotify" type="checkbox" ng-model="newSensor.psi.notify" />
+                                                            <span class="chip"><i class="material-icons alerta-icono-material" aria-hidden="true">speed</i>Presión</span>
                                                         </label>
-                                                    </p>
+                                                        <div class="alerta-umbrales">
+                                                            <div class="alerta-umbral">
+                                                                <label for="newSensorPsiMinValue" class="alerta-etiqueta">Presión baja</label>
+                                                                <div class="alerta-campo">
+                                                                    <input id="newSensorPsiMinValue" type="number" min="0" max="300" step="0.5" ng-model="newSensor.psi.minValue">
+                                                                    <span>psi</span>
+                                                                </div>
+                                                                <small class="alerta-ayuda">Por debajo: presión baja</small>
+                                                            </div>
+                                                            <div class="alerta-umbral">
+                                                                <label for="newSensorPsiMaxValue" class="alerta-etiqueta">Presión alta</label>
+                                                                <div class="alerta-campo">
+                                                                    <input id="newSensorPsiMaxValue" type="number" min="0" max="300" step="0.5" ng-model="newSensor.psi.maxValue">
+                                                                    <span>psi</span>
+                                                                </div>
+                                                                <small class="alerta-ayuda">Por encima: presión alta</small>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div ng-show="newSensor.type == 'Fl'"> <!-- REQ-145: caudal (antes min y max estaban cruzados) -->
+                                                    <div class="alerta-bloque">
+                                                        <label class="left-align alerta-cabecera">
+                                                            <input id="newSensorFlNotify" type="checkbox" ng-model="newSensor.fl.notify" />
+                                                            <span class="chip"><i class="material-icons alerta-icono-material" aria-hidden="true">waves</i>Caudal</span>
+                                                        </label>
+                                                        <div class="alerta-umbrales">
+                                                            <div class="alerta-umbral">
+                                                                <label for="newSensorFlMinValue" class="alerta-etiqueta">Caudal bajo</label>
+                                                                <div class="alerta-campo">
+                                                                    <input id="newSensorFlMinValue" type="number" min="0" max="10000" step="0.1" ng-model="newSensor.fl.minValue">
+                                                                    <span>L/min</span>
+                                                                </div>
+                                                                <small class="alerta-ayuda">Por debajo: caudal bajo</small>
+                                                            </div>
+                                                            <div class="alerta-umbral">
+                                                                <label for="newSensorFlMaxValue" class="alerta-etiqueta">Caudal alto</label>
+                                                                <div class="alerta-campo">
+                                                                    <input id="newSensorFlMaxValue" type="number" min="0" max="10000" step="0.1" ng-model="newSensor.fl.maxValue">
+                                                                    <span>L/min</span>
+                                                                </div>
+                                                                <small class="alerta-ayuda">Por encima: caudal alto</small>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div ng-show="newSensor.type == 'Irms'"> <!-- REQ-145: corriente -->
+                                                    <div class="alerta-bloque">
+                                                        <label class="left-align alerta-cabecera">
+                                                            <input id="newSensorINotify" type="checkbox" ng-model="newSensor.i.notify" />
+                                                            <span class="chip"><i class="material-icons alerta-icono-material" aria-hidden="true">flash_on</i>Corriente</span>
+                                                        </label>
+                                                        <div class="alerta-umbrales">
+                                                            <div class="alerta-umbral">
+                                                                <label for="newSensorIMinValue" class="alerta-etiqueta">Corriente baja</label>
+                                                                <div class="alerta-campo">
+                                                                    <input id="newSensorIMinValue" type="number" min="0" max="500" step="0.1" ng-model="newSensor.i.minValue">
+                                                                    <span>A</span>
+                                                                </div>
+                                                                <small class="alerta-ayuda">Por debajo: equipo apagado o sin carga</small>
+                                                            </div>
+                                                            <div class="alerta-umbral">
+                                                                <label for="newSensorIMaxValue" class="alerta-etiqueta">Corriente alta</label>
+                                                                <div class="alerta-campo">
+                                                                    <input id="newSensorIMaxValue" type="number" min="0" max="500" step="0.1" ng-model="newSensor.i.maxValue">
+                                                                    <span>A</span>
+                                                                </div>
+                                                                <small class="alerta-ayuda">Por encima: sobrecarga</small>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -3071,29 +3149,29 @@
                                                     <div class="alerta-bloque">
                                                         <label class="left-align alerta-cabecera">
                                                             <input id="editSensorHNotify" type="checkbox" ng-model="actualSensor.h.notify" />
-                                                            <span class="chip"><img src="assets/images/gota.jpg" alt="Gota" class="alerta-icono" loading="lazy">Humedad</span>
+                                                            <span class="chip"><img src="assets/images/gota.jpg" alt="Gota" class="alerta-icono" loading="lazy">{{ actualSensor.type == 'SHT2' ? 'Humedad relativa' : 'Humedad del suelo' }}</span>
                                                         </label>
                                                         <div class="alerta-umbrales">
                                                             <div class="alerta-umbral">
-                                                                <label for="editSensorHMinValue" class="alerta-etiqueta">{{ actualSensor.type == 'WM' ? 'No regar' : 'Regar' }}</label>
+                                                                <label for="editSensorHMinValue" class="alerta-etiqueta">{{ actualSensor.type == 'WM' ? 'No regar' : actualSensor.type == 'SHT2' ? 'Humedad baja' : 'Regar' }}</label>
                                                                 <div class="alerta-campo">
                                                                     <input id="editSensorHMinValue" type="number" min="0" max="{{ actualSensor.type == 'WM' ? 239 : 100 }}" step="1" ng-model="actualSensor.h.minValue">
                                                                     <span>{{ actualSensor.type == 'WM' ? 'cb' : '%' }}</span>
                                                                 </div>
-                                                                <small class="alerta-ayuda">{{ actualSensor.type == 'WM' ? 'Por debajo: suelo saturado' : 'Por debajo: suelo seco' }}</small>
+                                                                <small class="alerta-ayuda">{{ actualSensor.type == 'WM' ? 'Por debajo: suelo saturado' : actualSensor.type == 'SHT2' ? 'Por debajo: ambiente seco' : 'Por debajo: suelo seco' }}</small>
                                                             </div>
                                                             <div class="alerta-umbral">
-                                                                <label for="editSensorHMaxValue" class="alerta-etiqueta">{{ actualSensor.type == 'WM' ? 'Regar' : 'No regar' }}</label>
+                                                                <label for="editSensorHMaxValue" class="alerta-etiqueta">{{ actualSensor.type == 'WM' ? 'Regar' : actualSensor.type == 'SHT2' ? 'Humedad alta' : 'No regar' }}</label>
                                                                 <div class="alerta-campo">
                                                                     <input id="editSensorHMaxValue" type="number" min="0" max="{{ actualSensor.type == 'WM' ? 239 : 100 }}" step="1" ng-model="actualSensor.h.maxValue">
                                                                     <span>{{ actualSensor.type == 'WM' ? 'cb' : '%' }}</span>
                                                                 </div>
-                                                                <small class="alerta-ayuda">{{ actualSensor.type == 'WM' ? 'Por encima: suelo seco' : 'Por encima: suelo saturado' }}</small>
+                                                                <small class="alerta-ayuda">{{ actualSensor.type == 'WM' ? 'Por encima: suelo seco' : actualSensor.type == 'SHT2' ? 'Por encima: exceso de humedad' : 'Por encima: suelo saturado' }}</small>
                                                             </div>
                                                         </div>
                                                     </div>
                                             </div>
-                                            <div ng-show="actualSensor.type == 'Tr' || actualSensor.type == 'SHT2' || actualSensor.type == 'SHT4' || actualSensor.type == 'WM'"> <!-- Humbral de temperatura -->
+                                            <div ng-show="actualSensor.type == 'Tr' || actualSensor.type == 'SHT2' || actualSensor.type == 'SHT4' || actualSensor.type == 'WM' || actualSensor.type == 'Ms'"> <!-- Humbral de temperatura -->
                                                 <!-- REQ-054: casilla de aviso y, separados, los dos umbrales con su accion -->
                                                     <div class="alerta-bloque">
                                                         <label class="left-align alerta-cabecera">
@@ -3102,51 +3180,129 @@
                                                         </label>
                                                         <div class="alerta-umbrales">
                                                             <div class="alerta-umbral">
-                                                                <label for="editSensorTMinValue" class="alerta-etiqueta">Helada</label>
+                                                                <label for="editSensorTMinValue" class="alerta-etiqueta">{{ actualSensor.type == 'SHT2' ? 'Mínima' : 'Helada' }}</label>
                                                                 <div class="alerta-campo">
                                                                     <input id="editSensorTMinValue" type="number" step="0.5" min="{{ actualSystem.tempUnit == 'C' ? -30 : -22 }}" max="{{ actualSystem.tempUnit == 'C' ? 60 : 140 }}"
                                                                         dta-temperatura="actualSensor.t.minValue" dta-unidad="actualSystem.tempUnit">
                                                                     <span>{{ actualSystem.tempUnit == 'C' ? '°C' : '°F' }}</span>
                                                                 </div>
-                                                                <small class="alerta-ayuda">Por debajo: riesgo de helada</small>
+                                                                <small class="alerta-ayuda">{{ actualSensor.type == 'SHT2' ? 'Por debajo: helado' : 'Por debajo: riesgo de helada' }}</small>
                                                             </div>
                                                             <div class="alerta-umbral">
-                                                                <label for="editSensorTMaxValue" class="alerta-etiqueta">Exceso de calor</label>
+                                                                <label for="editSensorTMaxValue" class="alerta-etiqueta">{{ actualSensor.type == 'SHT2' ? 'Máxima' : 'Exceso de calor' }}</label>
                                                                 <div class="alerta-campo">
                                                                     <input id="editSensorTMaxValue" type="number" step="0.5" min="{{ actualSystem.tempUnit == 'C' ? -30 : -22 }}" max="{{ actualSystem.tempUnit == 'C' ? 60 : 140 }}"
                                                                         dta-temperatura="actualSensor.t.maxValue" dta-unidad="actualSystem.tempUnit">
                                                                     <span>{{ actualSystem.tempUnit == 'C' ? '°C' : '°F' }}</span>
                                                                 </div>
-                                                                <small class="alerta-ayuda">Por encima: estrés por calor</small>
+                                                                <small class="alerta-ayuda">{{ actualSensor.type == 'SHT2' ? 'Por encima: caliente' : 'Por encima: estrés por calor' }}</small>
                                                             </div>
                                                         </div>
                                                     </div>
                                             </div>
-                                            <div ng-show="actualSensor.type == 'Psi'"> <!-- Humbral de Presión -->
-                                                <p style="margin-top: -5px; margin-bottom: 0;">
-                                                    <label class="left-align">
-                                                        <input id="editSensorPsiNotify" type="checkbox" ng-model="actualSensor.psi.notify" />
-                                                        <span class="chip">
-                                                            <img src="assets/images/presion.jpg" alt="Presión" style="margin-top: -5px;" loading="lazy">
-                                                            Alerta de presión
-                                                        </span>
-                                                        <input id="editSensorPsiMinValue" type="number" min="0" max="100" ng-model="actualSensor.psi.minValue" style="width: 50px;" placeholder="Min">
-                                                        <input id="editSensorPsiMaxValue" type="number" min="0" max="100" ng-model="actualSensor.psi.maxValue" style="width: 50px;" placeholder="Max"> psi
+                                            <div ng-show="actualSensor.type == 'SHT4' || actualSensor.type == 'WM' || actualSensor.type == 'Ms'"> <!-- REQ-145: humedad relativa (ambiente) de los sensores de suelo -->
+                                                <div class="alerta-bloque">
+                                                    <label class="left-align alerta-cabecera">
+                                                        <input id="editSensorHrNotify" type="checkbox" ng-model="actualSensor.hr.notify" />
+                                                        <span class="chip"><i class="material-icons alerta-icono-material" aria-hidden="true">opacity</i>Humedad relativa</span>
                                                     </label>
-                                                </p>
+                                                    <div class="alerta-umbrales">
+                                                        <div class="alerta-umbral">
+                                                            <label for="editSensorHrMinValue" class="alerta-etiqueta">Baja</label>
+                                                            <div class="alerta-campo">
+                                                                <input id="editSensorHrMinValue" type="number" min="0" max="100" step="1" ng-model="actualSensor.hr.minValue">
+                                                                <span>%</span>
+                                                            </div>
+                                                            <small class="alerta-ayuda">Por debajo: ambiente seco</small>
+                                                        </div>
+                                                        <div class="alerta-umbral">
+                                                            <label for="editSensorHrMaxValue" class="alerta-etiqueta">Alta</label>
+                                                            <div class="alerta-campo">
+                                                                <input id="editSensorHrMaxValue" type="number" min="0" max="100" step="1" ng-model="actualSensor.hr.maxValue">
+                                                                <span>%</span>
+                                                            </div>
+                                                            <small class="alerta-ayuda">Por encima: exceso de humedad</small>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div ng-show="actualSensor.type == 'Fl'"> <!-- Humbral de Flujo -->
-                                                <p style="margin-top: -5px; margin-bottom: 0;">
-                                                    <label class="left-align">
-                                                        <input id="editSensorFlNotify" type="checkbox" ng-model="actualSensor.fl.notify" />
-                                                        <span class="chip">
-                                                            <img src="assets/images/caudal.png" alt="Caudal" style="margin-top: -5px;" loading="lazy">
-                                                            Alerta de caudal
-                                                        </span>
-                                                        Min: <input id="editSensorFlMaxValue" type="number" min="0" max="100" ng-model="actualSensor.fl.maxValue" style="width: 50px;">
-                                                        Max: <input id="editSensorFlMinValue" type="number" min="0" max="100" ng-model="actualSensor.fl.minValue" style="width: 50px;">
+                                            <div ng-show="actualSensor.type == 'Psi'"> <!-- REQ-145: presion -->
+                                                <div class="alerta-bloque">
+                                                    <label class="left-align alerta-cabecera">
+                                                        <input id="editSensorPsiNotify" type="checkbox" ng-model="actualSensor.psi.notify" />
+                                                        <span class="chip"><i class="material-icons alerta-icono-material" aria-hidden="true">speed</i>Presión</span>
                                                     </label>
-                                                </p>
+                                                    <div class="alerta-umbrales">
+                                                        <div class="alerta-umbral">
+                                                            <label for="editSensorPsiMinValue" class="alerta-etiqueta">Presión baja</label>
+                                                            <div class="alerta-campo">
+                                                                <input id="editSensorPsiMinValue" type="number" min="0" max="300" step="0.5" ng-model="actualSensor.psi.minValue">
+                                                                <span>psi</span>
+                                                            </div>
+                                                            <small class="alerta-ayuda">Por debajo: presión baja</small>
+                                                        </div>
+                                                        <div class="alerta-umbral">
+                                                            <label for="editSensorPsiMaxValue" class="alerta-etiqueta">Presión alta</label>
+                                                            <div class="alerta-campo">
+                                                                <input id="editSensorPsiMaxValue" type="number" min="0" max="300" step="0.5" ng-model="actualSensor.psi.maxValue">
+                                                                <span>psi</span>
+                                                            </div>
+                                                            <small class="alerta-ayuda">Por encima: presión alta</small>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div ng-show="actualSensor.type == 'Fl'"> <!-- REQ-145: caudal (antes min y max estaban cruzados) -->
+                                                <div class="alerta-bloque">
+                                                    <label class="left-align alerta-cabecera">
+                                                        <input id="editSensorFlNotify" type="checkbox" ng-model="actualSensor.fl.notify" />
+                                                        <span class="chip"><i class="material-icons alerta-icono-material" aria-hidden="true">waves</i>Caudal</span>
+                                                    </label>
+                                                    <div class="alerta-umbrales">
+                                                        <div class="alerta-umbral">
+                                                            <label for="editSensorFlMinValue" class="alerta-etiqueta">Caudal bajo</label>
+                                                            <div class="alerta-campo">
+                                                                <input id="editSensorFlMinValue" type="number" min="0" max="10000" step="0.1" ng-model="actualSensor.fl.minValue">
+                                                                <span>L/min</span>
+                                                            </div>
+                                                            <small class="alerta-ayuda">Por debajo: caudal bajo</small>
+                                                        </div>
+                                                        <div class="alerta-umbral">
+                                                            <label for="editSensorFlMaxValue" class="alerta-etiqueta">Caudal alto</label>
+                                                            <div class="alerta-campo">
+                                                                <input id="editSensorFlMaxValue" type="number" min="0" max="10000" step="0.1" ng-model="actualSensor.fl.maxValue">
+                                                                <span>L/min</span>
+                                                            </div>
+                                                            <small class="alerta-ayuda">Por encima: caudal alto</small>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div ng-show="actualSensor.type == 'Irms'"> <!-- REQ-145: corriente -->
+                                                <div class="alerta-bloque">
+                                                    <label class="left-align alerta-cabecera">
+                                                        <input id="editSensorINotify" type="checkbox" ng-model="actualSensor.i.notify" />
+                                                        <span class="chip"><i class="material-icons alerta-icono-material" aria-hidden="true">flash_on</i>Corriente</span>
+                                                    </label>
+                                                    <div class="alerta-umbrales">
+                                                        <div class="alerta-umbral">
+                                                            <label for="editSensorIMinValue" class="alerta-etiqueta">Corriente baja</label>
+                                                            <div class="alerta-campo">
+                                                                <input id="editSensorIMinValue" type="number" min="0" max="500" step="0.1" ng-model="actualSensor.i.minValue">
+                                                                <span>A</span>
+                                                            </div>
+                                                            <small class="alerta-ayuda">Por debajo: equipo apagado o sin carga</small>
+                                                        </div>
+                                                        <div class="alerta-umbral">
+                                                            <label for="editSensorIMaxValue" class="alerta-etiqueta">Corriente alta</label>
+                                                            <div class="alerta-campo">
+                                                                <input id="editSensorIMaxValue" type="number" min="0" max="500" step="0.1" ng-model="actualSensor.i.maxValue">
+                                                                <span>A</span>
+                                                            </div>
+                                                            <small class="alerta-ayuda">Por encima: sobrecarga</small>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                             <!-- REQ-091: amenazas biologicas al final de las alertas -->
                                             <div class="alerta-subtitulo" ng-show="actualSensor.type == 'SHT4' || actualSensor.type == 'WM' || actualSensor.type == 'Ms'">Amenazas biológicas</div>
@@ -3704,7 +3860,7 @@
     <link rel="stylesheet" href="./assets/vendor/bootstrap/bootstrap-dta.css?v=5.3.8.1">
     <link rel="stylesheet" href="./assets/css/bootstrap-convivencia.css?v=26.11.06.002">
     <link rel="stylesheet" href="./assets/css/perfil.css?v=26.11.06.003">
-    <link rel="stylesheet" href="./assets/css/ventana.css?v=26.11.22.021">
+    <link rel="stylesheet" href="./assets/css/ventana.css?v=26.11.22.022">
     <!-- REQ-047: tema comun (botones, modales, campos, ventanas) para lo que sigue en Materialize -->
     <link rel="stylesheet" href="./assets/css/tema.css?v=26.11.06.002">
     <link rel="stylesheet" href="./assets/js/components/login/login.css?v=26.11.06.004">
@@ -3981,8 +4137,8 @@
     <script src="./assets/js/logic/unidades.js?v=26.11.07.012"></script>
     <script src="./assets/js/logic/estaciones.js?v=26.11.21.001"></script>
     <script src="./assets/js/logic/frio.js?v=26.11.22.006"></script>
-    <script src="./assets/js/logic/historial.js?v=26.11.22.007"></script>
-    <script src="./assets/js/logic/nevera.js?v=26.11.22.021"></script>
+    <script src="./assets/js/logic/historial.js?v=26.11.22.022"></script>
+    <script src="./assets/js/logic/nevera.js?v=26.11.22.022"></script>
     <script src="./assets/js/logic/grafica.js?v=26.11.13.001"></script>
     <script src="./assets/js/logic/tablero.js?v=26.11.22.021"></script>
     <script src="./assets/js/logic/resumen.js?v=26.11.22.020"></script>
@@ -4015,7 +4171,7 @@
 <script src="./assets/vendor/bootstrap/bootstrap.bundle.min.js?v=5.3.8"></script>
     <script src="./assets/js/core.js?v=26.11.22.021"></script>
     <!-- REQ-038: factories, ayudas de interfaz y componentes (despues de core.js, que crea el modulo) -->
-    <script src="./assets/js/app/version.js?v=26.11.22.021"></script>
+    <script src="./assets/js/app/version.js?v=26.11.22.022"></script>
     <script src="./assets/js/app/reglas.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/auth.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/repo.factory.js?v=26.11.06.001"></script>
