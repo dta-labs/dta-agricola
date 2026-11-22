@@ -41,7 +41,11 @@
     <div class="panel-s-e44">
         <div class="row panel-s-e45 nevera-tarjetas">
             <div class="col s12 m6 l4 xl3 panel-s-e46" ng-repeat="(coldRoomKey, coldRoom) in vm.sistema.sensors" ng-if="coldRoom.id">
-                <div class="nevera-tarjeta" ng-class="['tono-' + vm.tarjeta(coldRoomKey, coldRoom).estado.tono, 'tipo-' + vm.tarjeta(coldRoomKey, coldRoom).tipo]">
+                <!-- REQ-135: toda la tarjeta abre la configuracion del sensor (como las fichas de los sensores de suelo) -->
+                <div class="nevera-tarjeta" ng-class="['tono-' + vm.tarjeta(coldRoomKey, coldRoom).estado.tono, 'tipo-' + vm.tarjeta(coldRoomKey, coldRoom).tipo]"
+                    role="button" tabindex="0" aria-label="Configurar {{ vm.tarjeta(coldRoomKey, coldRoom).nombre }}"
+                    ng-click="vm.alEditarSensor({ $sensor: coldRoom })"
+                    ng-keydown="($event.key === 'Enter' || $event.key === ' ') && vm.alEditarSensor({ $sensor: coldRoom })">
                     <div class="nevera-cabecera">
                         <span class="nevera-nombre" title="{{ vm.tarjeta(coldRoomKey, coldRoom).nombre }}">{{ vm.tarjeta(coldRoomKey, coldRoom).nombre }}</span>
                         <span class="nevera-estado"><i class="material-icons" aria-hidden="true">{{ vm.tarjeta(coldRoomKey, coldRoom).estado.icono }}</i>{{ vm.tarjeta(coldRoomKey, coldRoom).estado.texto }}</span>
@@ -66,10 +70,10 @@
                             <i class="fa fa-battery-{{ vm.bateria(vm.tarjeta(coldRoomKey, coldRoom).voltaje) > 75 ? 'full' : vm.bateria(vm.tarjeta(coldRoomKey, coldRoom).voltaje) > 50 ? 'three-quarters' : vm.bateria(vm.tarjeta(coldRoomKey, coldRoom).voltaje) > 25 ? 'half' : 'empty'}}" aria-hidden="true"></i>
                             {{ vm.bateria(vm.tarjeta(coldRoomKey, coldRoom).voltaje) ? vm.bateria(vm.tarjeta(coldRoomKey, coldRoom).voltaje) + ' %' : '--' }}
                         </span>
-                        <span class="nevera-acciones">
-                            <button type="button" class="nevera-boton" ng-click="vm.alGrafica({ $sensor: coldRoom, $clave: coldRoomKey })" aria-label="Ver gráfica del sensor" title="Gráfica"><i class="material-icons" aria-hidden="true">show_chart</i></button>
-                            <button type="button" class="nevera-boton" ng-click="vm.alEditarSensor({ $sensor: coldRoom })" aria-label="Configurar el sensor" title="Configurar"><i class="material-icons" aria-hidden="true">settings</i></button>
-                        </span>
+                        <!-- REQ-135: solo la grafica, mas grande (la configuracion se abre tocando la tarjeta) -->
+                        <button type="button" class="nevera-boton-grafica" aria-label="Ver gráfica del sensor" title="Gráfica"
+                            ng-click="$event.stopPropagation(); vm.alGrafica({ $sensor: coldRoom, $clave: coldRoomKey })"
+                            ng-keydown="$event.stopPropagation()"><i class="material-icons" aria-hidden="true">show_chart</i></button>
                     </div>
                 </div>
             </div>

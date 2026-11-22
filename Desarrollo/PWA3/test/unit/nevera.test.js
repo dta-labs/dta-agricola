@@ -63,3 +63,14 @@ test("REQ-134 la tarjeta: fondo atenuado por tono, principal y secundario en dos
   assert.match(leer("assets", "css", "style.css"), /\.lista-equipos > \.col \{\n    display: flex;\n    float: none;\n    margin-left: 0 !important;/);
   assert.match(leer("index.html"), /<script src="\.\/assets\/js\/logic\/nevera\.js\?v=/);
 });
+
+test("REQ-135 la tarjeta abre la configuracion; solo queda el boton de la grafica, mas grande; titulo mayor", () => {
+  const html = leer("assets", "js", "components", "sistema", "panel-nevera", "panel-nevera.html");
+  assert.match(html, /<div class="nevera-tarjeta" ng-class="[^"]*"\n\s*role="button" tabindex="0" aria-label="Configurar [^"]*"\n\s*ng-click="vm\.alEditarSensor\(\{ \$sensor: coldRoom \}\)"\n\s*ng-keydown="\(\$event\.key === 'Enter' \|\| \$event\.key === ' '\) && vm\.alEditarSensor\(\{ \$sensor: coldRoom \}\)">/);
+  assert.match(html, /ng-click="\$event\.stopPropagation\(\); vm\.alGrafica\(\{ \$sensor: coldRoom, \$clave: coldRoomKey \}\)"/);
+  assert.doesNotMatch(html, />settings</);
+  assert.equal((html.match(/<button /g) || []).length, 1);
+  const css = leer("assets", "js", "components", "sistema", "paneles.css");
+  assert.match(css, /\.nevera-boton-grafica \{[^}]*width: 64px;\n    height: 42px;/);
+  assert.match(css, /\.nevera-nombre \{[^}]*font-size: 1\.4rem;/);
+});

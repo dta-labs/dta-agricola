@@ -387,9 +387,10 @@ dta-panel-nevera {
     display: flex;
     flex-direction: column;
     gap: 2px;
-    padding: 12px 14px 10px;
+    padding: 10px 14px 8px;
     border: 1px solid #e0e6e3;
     border-left: 7px solid var(--nevera);
+    cursor: pointer;   /* REQ-135: toda la tarjeta abre la configuracion */
     border-radius: 14px;
     background: var(--nevera-fondo);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
@@ -409,8 +410,9 @@ dta-panel-nevera {
     min-width: 0;
     overflow: hidden;
     color: #263238;
-    font-size: 1.15rem;
+    font-size: 1.4rem;   /* REQ-135: titulo mas grande; la tarjeta no crece (menos relleno arriba y en el pie) */
     font-weight: 700;
+    line-height: 1.2;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
@@ -431,7 +433,7 @@ dta-panel-nevera {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin: 4px 0 8px;
+    margin: 2px 0 6px;
 }
 .nevera-principal {
     flex: 1 1 auto;
@@ -502,26 +504,29 @@ dta-panel-nevera {
     margin-top: auto !important;
     align-items: center;
     justify-content: space-between;
-    padding-top: 8px;
+    padding-top: 6px;
     border-top: 1px solid rgba(0, 0, 0, 0.08);
     color: #607d8b;
     font-size: 0.9rem;
 }
 .nevera-bateria .fa { margin-right: 4px; font-size: 1.1em; }
-.nevera-acciones { display: inline-flex; gap: 6px; }
-.nevera-boton {
+.nevera-tarjeta:hover { box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25); }
+.nevera-tarjeta:focus-visible { outline: 3px solid #1b4d38; outline-offset: 2px; }
+/* REQ-135: un solo boton (grafica), mas grande para tocarlo con facilidad */
+.nevera-boton-grafica {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
+    width: 64px;
+    height: 42px;
     padding: 0;
-    border: 1px solid #cfd8dc;
-    border-radius: 10px;
+    border: 1px solid #b0bec5;
+    border-radius: 12px;
     background: #ffffff;
-    color: #37474f;
+    color: var(--nevera);
     cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
 }
-.nevera-boton:hover,
-.nevera-boton:focus-visible { background: #eceff1; }
-.nevera-boton .material-icons { font-size: 20px; }
+.nevera-boton-grafica:hover,
+.nevera-boton-grafica:focus-visible { background: #eceff1; }
+.nevera-boton-grafica .material-icons { font-size: 28px; }
