@@ -48,10 +48,13 @@
                     ng-keydown="($event.key === 'Enter' || $event.key === ' ') && vm.alEditarSensor({ $sensor: coldRoom })">
                     <div class="nevera-cabecera">
                         <span class="nevera-nombre" title="{{ vm.tarjeta(coldRoomKey, coldRoom).nombre }}">{{ vm.tarjeta(coldRoomKey, coldRoom).nombre }}</span>
-                        <!-- REQ-142: el gateway no recibe datos de este sensor (log.lo negativo) -->
-                        <i class="material-icons nevera-sin-datos" ng-if="vm.ciclosSinRecepcion(coldRoomKey) > 0"
-                            title="Sin datos: {{ vm.ciclosSinRecepcion(coldRoomKey) }} ciclos sin recibir"
-                            aria-label="Sin datos: {{ vm.ciclosSinRecepcion(coldRoomKey) }} ciclos sin recibir">notification_important</i>
+                        <!-- REQ-142: el gateway no recibe datos de este sensor (log.lo negativo); REQ-147: abre las notificaciones -->
+                        <button type="button" class="nevera-sin-datos" ng-if="vm.ciclosSinRecepcion(coldRoomKey) > 0"
+                            ng-click="$event.stopPropagation(); vm.alNotificaciones()" ng-keydown="$event.stopPropagation()"
+                            title="Sin datos: {{ vm.ciclosSinRecepcion(coldRoomKey) }} ciclos sin recibir. Ver notificaciones"
+                            aria-label="Sin datos: {{ vm.ciclosSinRecepcion(coldRoomKey) }} ciclos sin recibir. Ver notificaciones">
+                            <i class="material-icons" aria-hidden="true">notification_important</i>
+                        </button>
                         <span class="nevera-estado"><i class="material-icons" aria-hidden="true">{{ vm.tarjeta(coldRoomKey, coldRoom).estado.icono }}</i>{{ vm.tarjeta(coldRoomKey, coldRoom).estado.texto }}</span>
                     </div>
                     <!-- REQ-144: cultivos del sensor (invernaderos) -->

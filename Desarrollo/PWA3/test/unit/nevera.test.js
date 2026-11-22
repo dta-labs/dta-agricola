@@ -69,7 +69,9 @@ test("REQ-135 la tarjeta abre la configuracion; solo queda el boton de la grafic
   assert.match(html, /<div class="nevera-tarjeta" ng-class="[^"]*"\n\s*role="button" tabindex="0" aria-label="Configurar [^"]*"\n\s*ng-click="vm\.alEditarSensor\(\{ \$sensor: coldRoom \}\)"\n\s*ng-keydown="\(\$event\.key === 'Enter' \|\| \$event\.key === ' '\) && vm\.alEditarSensor\(\{ \$sensor: coldRoom \}\)">/);
   assert.match(html, /ng-click="\$event\.stopPropagation\(\); vm\.alGrafica\(\{ \$sensor: coldRoom, \$clave: coldRoomKey \}\)"/);
   assert.doesNotMatch(html, />settings</);
-  assert.equal((html.match(/<button /g) || []).length, 1);
+  // REQ-147: ademas del de la grafica, solo el aviso "sin datos" (abre las notificaciones)
+  assert.equal((html.match(/<button /g) || []).length, 2);
+  assert.equal((html.match(/<button type="button" class="nevera-sin-datos"/g) || []).length, 1);
   const css = leer("assets", "js", "components", "sistema", "paneles.css");
   assert.match(css, /\.nevera-boton-grafica \{[^}]*width: 96px;[^\n]*\n    height: 36px;/);   // REQ-136: mas ancho, altura de antes
   assert.match(css, /\.nevera-nombre \{[^}]*font-size: 1\.4rem;/);

@@ -783,7 +783,8 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         if (evaluacion.sonar && nuevas.length) activarAlarma();
 
         // REQ-142: sensores de neveras/invernaderos de los que el gateway no recibe datos (log.lo negativo)
-        if (esTipoNevera(sistema.type) && sistema.log.lo) {
+        // REQ-147: tambien las redes de sensores (el WS guarda lo en el registro de dayLogs)
+        if ((esTipoNevera(sistema.type) || sistema.type === "Sensor") && sistema.log.lo) {
             __modulo("nevera").sensoresSinRecepcion(sistema, sistema.log, instanteLog)
                 .forEach(item => agregarNotificacion(__modulo("notificaciones").desdeSensorSinRecepcion(item, sistema)));
         }

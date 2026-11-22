@@ -430,11 +430,40 @@ dta-panel-nevera {
 }
 .nevera-estado .material-icons { font-size: 16px; }
 /* REQ-142: aviso de sensor sin datos (log.lo < 0) junto al nombre */
-.nevera-sin-datos {
+/* REQ-142/147: aviso "sin datos" (abre las notificaciones) en tarjetas de neveras y redes de sensores */
+.nevera-sin-datos,
+.bs .sensor-sin-datos {
     flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    background: transparent;
     color: #c62828;
-    font-size: 22px;
     line-height: 1;
+    cursor: pointer;
+}
+.nevera-sin-datos .material-icons,
+.bs .sensor-sin-datos .material-icons {
+    font-size: 22px;
+}
+.nevera-sin-datos:focus-visible,
+.bs .sensor-sin-datos:focus-visible {
+    outline: 2px solid #c62828;
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+.bs .sensor-ficha-titulo {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+}
+.bs .sensor-ficha-titulo .sensor-ficha-nombre {
+    flex: 0 1 auto;
+    min-width: 0;
 }
 .nevera-cuerpo {
     display: flex;

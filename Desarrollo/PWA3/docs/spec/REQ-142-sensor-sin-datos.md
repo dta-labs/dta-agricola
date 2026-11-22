@@ -9,6 +9,9 @@
 
 (Se registro primero como REQ-140; renumerado porque REQ-140 es "guardar programa" del Estacionario.)
 
+**Aplica a todos los sensores** que use la app: redes de sensores (`Sensor`), neveras e invernaderos. La extension a
+redes de sensores y el icono que abre las notificaciones estan en [REQ-147](REQ-147-sensor-sin-datos-redes.md).
+
 ## Datos
 
 El WS v7 escribe en `logs` del equipo (Nevera e Invernadero no tienen `dayLogs`). Con `data=[]` actualiza `date` del

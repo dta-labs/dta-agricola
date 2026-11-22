@@ -8,7 +8,7 @@
 (function (raiz) {
     "use strict";
 
-    var VERSION = "26.11.20.010";
+    var VERSION = "26.11.22.023";
 
     function Controlador(dtaReglas) {
         var vm = this;
@@ -81,6 +81,13 @@
             return resultado;
         };
 
+        /** REQ-147: ciclos que el gateway lleva sin recibir de este sensor (0 = recibe; ver log.lo). */
+        vm.ciclosSinRecepcion = function (clave) {
+            var nevera = (raiz.DTALogic && raiz.DTALogic.nevera) || (typeof require === "function" ? require("../../../logic/nevera.js") : null);
+            var indice = Number(String(clave).replace(/\D/g, ""));
+            return nevera ? nevera.ciclosSinRecepcion(vm.sistema && vm.sistema.log, isFinite(indice) ? indice : null) : 0;
+        };
+
         /** Senal del modem en % (logic/panel.js). */
         vm.senal = function () {
             return panel.porcentajeSenal(vm.sistema && vm.sistema.log && vm.sistema.log.signal);
@@ -92,7 +99,7 @@
         templateUrl: "./assets/js/components/sistema/panel-sensores/panel-sensores.html?v=" + VERSION,
         controller: Controlador,
         controllerAs: "vm",
-        bindings: { sistema: "<", sateliteActivo: "<", alSatelite: "&", clima: "<", mostrarLista: "<", valorSensor: "&", alGrafica: "&", alEditarSensor: "&", alAbrir: "&", alIntercambiar: "&" }
+        bindings: { sistema: "<", sateliteActivo: "<", alSatelite: "&", clima: "<", mostrarLista: "<", valorSensor: "&", alGrafica: "&", alEditarSensor: "&", alAbrir: "&", alIntercambiar: "&", alNotificaciones: "&" }
     };
 
     if (typeof module !== "undefined" && module.exports) {

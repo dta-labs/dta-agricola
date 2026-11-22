@@ -8,7 +8,7 @@
 (function (raiz) {
     "use strict";
 
-    var VERSION = "26.11.22.021";
+    var VERSION = "26.11.22.023";
 
     function Controlador(dtaReglas) {
         var vm = this;
@@ -50,7 +50,7 @@
         templateUrl: "./assets/js/components/sistema/panel-nevera/panel-nevera.html?v=" + VERSION,
         controller: Controlador,
         controllerAs: "vm",
-        bindings: { sistema: "<", datos: "<", alGrafica: "&", alEditarSensor: "&", alAbrir: "&" }
+        bindings: { sistema: "<", datos: "<", alGrafica: "&", alEditarSensor: "&", alAbrir: "&", alNotificaciones: "&" }
     };
 
     if (typeof module !== "undefined" && module.exports) {

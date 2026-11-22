@@ -66,7 +66,16 @@
                     </button>
                 </div>
                 <div class="sensor-ficha-cuerpo">
-                    <h3 class="sensor-ficha-nombre">{{ coldRoom.alias ? coldRoom.alias : coldRoom.id }}</h3>
+                    <div class="sensor-ficha-titulo">
+                        <h3 class="sensor-ficha-nombre">{{ coldRoom.alias ? coldRoom.alias : coldRoom.id }}</h3>
+                        <!-- REQ-147: el gateway no recibe datos de este sensor (log.lo negativo); abre las notificaciones -->
+                        <button type="button" class="sensor-sin-datos" ng-if="vm.ciclosSinRecepcion(coldRoomKey) > 0"
+                            ng-click="$event.stopPropagation(); vm.alNotificaciones()" ng-keydown="$event.stopPropagation()"
+                            title="Sin datos: {{ vm.ciclosSinRecepcion(coldRoomKey) }} ciclos sin recibir. Ver notificaciones"
+                            aria-label="Sin datos: {{ vm.ciclosSinRecepcion(coldRoomKey) }} ciclos sin recibir. Ver notificaciones">
+                            <i class="material-icons" aria-hidden="true">notification_important</i>
+                        </button>
+                    </div>
                     <div class="sensor-ficha-red">{{ vm.sistema.name }}</div>
                     <div class="sensor-ficha-estado">{{ vm.lectura(coldRoomKey, coldRoom).etiqueta }}</div>
                     <div class="sensor-ficha-datos">

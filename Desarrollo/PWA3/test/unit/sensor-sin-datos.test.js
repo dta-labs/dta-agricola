@@ -55,19 +55,48 @@ test("REQ-142 notificacion: tipo Sin datos, desde cuando y misma entrada mientra
 
 test("REQ-142 la tarjeta muestra el icono de notificacion cuando lo del sensor es negativo", () => {
   const html = leer("assets", "js", "components", "sistema", "panel-nevera", "panel-nevera.html");
-  assert.match(html, /<i class="material-icons nevera-sin-datos" ng-if="vm\.ciclosSinRecepcion\(coldRoomKey\) > 0"/);
+  // REQ-147: ahora es un boton que abre la ventana de notificaciones
+  assert.match(html, /<button type="button" class="nevera-sin-datos" ng-if="vm\.ciclosSinRecepcion\(coldRoomKey\) > 0"/);
   assert.match(html, />notification_important<\/i>/);
   const { Controlador } = require("../../assets/js/components/sistema/panel-nevera/panel-nevera.component.js");
   const vm = new Controlador({ panel: {} });
   vm.sistema = { log };
   assert.equal(vm.ciclosSinRecepcion("S0"), 17);
   assert.equal(vm.ciclosSinRecepcion("S1"), 0);
-  assert.match(leer("assets", "js", "components", "sistema", "paneles.css"), /\.nevera-sin-datos \{/);
+  assert.match(leer("assets", "js", "components", "sistema", "paneles.css"), /\.nevera-sin-datos,/);
 });
 
 test("REQ-142 core.js manda a la bandeja los sensores sin datos de neveras e invernaderos", () => {
   const core = leer("assets", "js", "core.js");
-  assert.match(core, /esTipoNevera\(sistema\.type\) && sistema\.log\.lo/);
+  assert.match(core, /\(esTipoNevera\(sistema\.type\) \|\| sistema\.type === "Sensor"\) && sistema\.log\.lo/);
   assert.match(core, /__modulo\("nevera"\)\.sensoresSinRecepcion\(sistema, sistema\.log, instanteLog\)/);
   assert.match(core, /__modulo\("notificaciones"\)\.desdeSensorSinRecepcion\(item, sistema\)/);
+});
+
+// ---------- REQ-147: redes de sensores e icono que abre las notificaciones ----------
+
+test("REQ-147 redes de sensores: lo del registro de dayLogs genera la misma notificacion", () => {
+  const red = { key: "R1", name: "Nogal norte", type: "Sensor", operationMode: "30",
+    sensors: { sensorNumber: 2, S0: { id: "0x01", alias: "Bloque A" }, S1: { id: "0x02" } } };
+  const lista = nevera.sensoresSinRecepcion(red, { lo: "[0,-3]" }, instante);
+  assert.deepEqual(lista.map(s => [s.clave, s.nombre, s.ciclos]), [["S1", "0x02", 3]]);
+  assert.equal(lista[0].desde, instante - 3 * 30 * 60000);
+  assert.equal(notificaciones.desdeSensorSinRecepcion(lista[0], red, instante).titulo, "Sensor sin datos en Nogal norte");
+});
+
+test("REQ-147 la ficha de la red de sensores muestra el icono y abre las notificaciones", () => {
+  const html = leer("assets", "js", "components", "sistema", "panel-sensores", "panel-sensores.html");
+  assert.match(html, /<button type="button" class="sensor-sin-datos" ng-if="vm\.ciclosSinRecepcion\(coldRoomKey\) > 0"/);
+  assert.match(html, /ng-click="\$event\.stopPropagation\(\); vm\.alNotificaciones\(\)"/);
+  const htmlNevera = leer("assets", "js", "components", "sistema", "panel-nevera", "panel-nevera.html");
+  assert.match(htmlNevera, /ng-click="\$event\.stopPropagation\(\); vm\.alNotificaciones\(\)"/);
+  const { Controlador } = require("../../assets/js/components/sistema/panel-sensores/panel-sensores.component.js");
+  const vm = new Controlador({ panel: {}, humedad: {}, medidor: {} });
+  vm.sistema = { log: { lo: [0, -2] } };
+  assert.equal(vm.ciclosSinRecepcion("S0"), 0);
+  assert.equal(vm.ciclosSinRecepcion("S1"), 2);
+  const index = leer("index.html");
+  assert.match(index, /al-abrir="abrirVentana\(\$modal\)" al-notificaciones="abrirNotificaciones\(\)"><\/dta-panel-sensores>/);
+  assert.match(index, /al-abrir="abrirVentana\(\$modal\)" al-notificaciones="abrirNotificaciones\(\)"><\/dta-panel-nevera>/);
+  assert.match(leer("assets", "js", "components", "sistema", "paneles.css"), /\.bs \.sensor-sin-datos \{/);
 });
