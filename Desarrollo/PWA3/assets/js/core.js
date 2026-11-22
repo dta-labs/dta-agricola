@@ -6095,6 +6095,44 @@ let appUpdatePromptVisible = false;
 let appServiceWorkerRegistration = null;
 let reloadingForServiceWorkerUpdate = false;
 
+// REQ-153: UNA sola recarga por actualizacion. Antes cada aviso (archivos cambiados, service worker nuevo, cache
+// nueva) recargaba por su cuenta: con varias versiones pendientes la app se reiniciaba una y otra vez. La recarga
+// pide todo a la red (index.html y archivos con su ?v nuevo), asi que tras ella ya se tiene la ultima version: los
+// avisos que lleguen en los RECARGA_UNICA_MS siguientes se ignoran. Al arrancar (pantalla de inicio) se recarga sin
+// preguntar; con la app en uso se avisa antes.
+const RECARGA_CLAVE = "dta-recarga-actualizacion";
+const RECARGA_UNICA_MS = 60 * 1000;
+const ARRANQUE_MS = 15 * 1000;
+const instanteDeArranque = Date.now();
+
+function recargaRecienteParaActualizar() {
+    try {
+        const t = Number(sessionStorage.getItem(RECARGA_CLAVE));
+        return isFinite(t) && t > 0 && Date.now() - t < RECARGA_UNICA_MS;
+    } catch (error) {
+        return false;
+    }
+}
+
+function recargarParaActualizar(motivo, preguntar) {
+    if (reloadingForServiceWorkerUpdate) return;
+    if (recargaRecienteParaActualizar()) {
+        console.log("[actualizacion] ya se recargo hace poco; se omite (" + motivo + ")");
+        return;
+    }
+    const recargar = () => {
+        if (reloadingForServiceWorkerUpdate) return;
+        reloadingForServiceWorkerUpdate = true;
+        try { sessionStorage.setItem(RECARGA_CLAVE, String(Date.now())); } catch (error) { /* sin sessionStorage */ }
+        const url = new URL(window.location.href);
+        url.searchParams.set('appVersion', String(Date.now()));
+        window.location.replace(url.href);
+    };
+    const arrancando = Date.now() - instanteDeArranque < ARRANQUE_MS;
+    if (preguntar && !arrancando) showAppUpdatePopup(motivo, recargar);
+    else recargar();
+}
+
 serviceWorker();
 
 function serviceWorker() {
@@ -6187,15 +6225,12 @@ function fetchAssetSignature(url) {
         .then(text => hashText(text));
 }
 
-function showAppUpdatePopup(version) {
+function showAppUpdatePopup(version, recargar) {
     if (appUpdatePromptVisible) return;
+    if (!recargar) { recargarParaActualizar(version || "aviso", true); return; }   // REQ-153: todo pasa por el coordinador
     appUpdatePromptVisible = true;
 
-    const reloadApp = () => {
-        const url = new URL(window.location.href);
-        url.searchParams.set('appVersion', String(Date.now()));
-        window.location.replace(url.href);
-    };
+    const reloadApp = recargar;
 
     if (typeof swal === "function") {
         swal({
@@ -6242,7 +6277,7 @@ function checkForAppUpdates() {
         }
 
         if (hasStoredSignatures && hasChangedAsset) {
-            showAppUpdatePopup("assets");
+            recargarParaActualizar("archivos", true);   // REQ-153
         }
     });
 }
@@ -6390,11 +6425,7 @@ if ("clearAppBadge" in navigator) {
 // Escuchar mensajes del SW
 if ('serviceWorker' in navigator) {
 navigator.serviceWorker.addEventListener('controllerchange', () => {
-  if (reloadingForServiceWorkerUpdate) return;
-  reloadingForServiceWorkerUpdate = true;
-  const url = new URL(window.location.href);
-  url.searchParams.set('appVersion', String(Date.now()));
-  window.location.replace(url.href);
+  recargarParaActualizar("service worker", false);   // REQ-153: una sola recarga
 });
 
 navigator.serviceWorker.addEventListener('message', event => {
@@ -6416,7 +6447,7 @@ navigator.serviceWorker.addEventListener('message', event => {
   }
 
   if (event.data && event.data.action === 'appUpdated') {
-    showAppUpdatePopup(event.data.version);
+    recargarParaActualizar(event.data.version, true);   // REQ-153
   }
 });
 

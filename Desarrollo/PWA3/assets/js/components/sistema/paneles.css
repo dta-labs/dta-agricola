@@ -103,8 +103,9 @@ dta-panel-nevera {
 .panel-s-e39 { position: absolute !important; top: 17px !important; left: 27px !important; transform: translate(-50%, -50%) !important; font-size: 1.6em !important; font-weight: bold !important; }
 .panel-s-e40 { margin-left: 12% !important; position: fixed !important; top: 65px !important; width: 73% !important; z-index: 1 !important; text-shadow: 1px 1px 2px #000 !important; }
 .panel-s-e42 { border-top: 2px solid lightgrey !important; color: white !important; }
-.panel-s-e44 { margin-top: 80px !important; }
-.panel-s-e45 { color: white !important; margin: auto !important; z-index: 1 !important; text-shadow: 1px 1px 2px #000 !important; height: calc(100vh - 145px) !important; overflow-y: auto !important; scroll-behavior: smooth !important; }
+/* REQ-153: sin la barra de opciones (REQ-152) no queda su hueco: mismo margen y alto que las fichas de sensores */
+.panel-s-e44 { margin-top: 10px !important; }
+.panel-s-e45 { color: white !important; margin: auto !important; z-index: 1 !important; text-shadow: 1px 1px 2px #000 !important; height: calc(100vh - 82px) !important; overflow-y: auto !important; scroll-behavior: smooth !important; padding-bottom: 16px !important; }
 .panel-s-e46 { margin-bottom: 10px !important; }
 
 /* ===================== REQ-074/075: fichas de sensores (formato del listado) =====================

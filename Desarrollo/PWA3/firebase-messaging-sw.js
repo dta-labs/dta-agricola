@@ -21,7 +21,7 @@ self.addEventListener("push", (event) => {
 firebase.initializeApp(config);
 
 const messaging = firebase.messaging();
-const CACHE_NAME = "DTA_Irrigation_Control_v1.15";   // v1.15: precache ligero (REQ-033)
+const CACHE_NAME = "DTA_Irrigation_Control_v1.15";   // v1.15: precache ligero (REQ-033). REQ-153: se conserva (cambiarlo forzaria otra recarga)
 const CACHE_PREFIX = "DTA_Irrigation_Control_";
 const PWA_LAUNCH_URL = "./index.html";
 const NOTIFICATION_SOUND_FILE = "./assets/sounds/alarma-de-evacuacion.mp3";
@@ -81,42 +81,62 @@ self.addEventListener("activate", (event) => {
   );
 });
 
+// REQ-153: arranque rapido en el celular. La pantalla de inicio del sistema (icono sobre fondo blanco) dura hasta que
+// llega index.html; antes se pedia SIEMPRE a la red (sin cache) y en datos moviles tardaba varios segundos.
+//   - Navegacion (abrir la app): red con tiempo maximo (TIEMPO_RED_MS); si no responde a tiempo, la copia guardada
+//     (la red sigue y actualiza la copia; la app detecta la version nueva y recarga UNA vez, ver core.js).
+//   - Archivos versionados (?v=...): primero la copia guardada (no cambian sin cambiar la version).
+//   - El resto del mismo origen: red primero y copia guardada sin conexion (como antes).
+const TIEMPO_RED_MS = 2500;
+
+function guardarCopia(request, response) {
+  if (!response || !response.ok || response.type === "opaque") return;
+  const copy = response.clone();
+  caches.open(CACHE_NAME).then((cache) => cache.put(request, copy)).catch(() => {});
+}
+
+function redConCopia(request) {
+  return fetch(request, { cache: "no-store" })
+    .then((response) => { guardarCopia(request, response); return response; });
+}
+
+function redConTiempoMaximo(request, claveCopia) {
+  const red = redConCopia(request);
+  const copia = () => caches.match(claveCopia || request, { ignoreSearch: true });
+  return new Promise((resolve, reject) => {
+    let resuelto = false;
+    const responder = (respuesta) => { if (!resuelto && respuesta) { resuelto = true; resolve(respuesta); } };
+    const temporizador = setTimeout(() => copia().then(responder), TIEMPO_RED_MS);
+    red.then((respuesta) => { clearTimeout(temporizador); responder(respuesta); })
+      .catch(() => copia().then((respuesta) => {
+        clearTimeout(temporizador);
+        if (respuesta) responder(respuesta); else if (!resuelto) reject(new Error("sin red ni copia"));
+      }));
+  });
+}
+
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
 
   const url = new URL(event.request.url);
+  if (url.origin !== self.location.origin) return;
   const isNavigation = event.request.mode === "navigate";
-  const isScript = url.pathname.endsWith(".js");
-  const isStyle = url.pathname.endsWith(".css");
 
-  if (isNavigation || isScript || isStyle || url.pathname.endsWith(".html")) {
+  if (isNavigation) {
+    // index.html?appVersion=... es la misma pagina: la copia se busca sin la consulta. (Las demas peticiones de
+    // .html, como la revision de version de core.js, van a la red: deben ver siempre lo publicado.)
+    event.respondWith(redConTiempoMaximo(event.request, new URL(PWA_LAUNCH_URL, self.registration.scope).href));
+    return;
+  }
+
+  if (url.searchParams.has("v")) {
     event.respondWith(
-      fetch(event.request, { cache: "no-store" })
-        .then((response) => {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
-          return response;
-        })
-        .catch(() => caches.match(event.request))
+      caches.match(event.request).then((guardada) => guardada || redConCopia(event.request))
     );
     return;
   }
 
-  if (url.origin === self.location.origin) {
-    event.respondWith(
-      fetch(event.request, { cache: "no-store" })
-        .then((response) => {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
-          return response;
-        })
-        .catch(() => caches.match(event.request))
-    );
-    return;
-  }
-
-  // REQ-036: lo que no es de este origen (foto de Google, APIs) lo resuelve el navegador.
-  // Re-pedirlo desde aqui convertia cualquier fallo en una respuesta vacia (foto rota).
+  event.respondWith(redConCopia(event.request).catch(() => caches.match(event.request)));
 });
 
 function getScopedUrl(url) {
