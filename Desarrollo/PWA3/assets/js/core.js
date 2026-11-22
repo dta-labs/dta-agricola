@@ -2678,6 +2678,27 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         return paleta[__modulo("panel").estadoParcela(system, index)];
     }
 
+    // REQ-139: datos de la tarjeta de cada parcela del estacionario (logic/parcela.js), en cache mientras no cambien
+    // las parcelas, la lectura del equipo ni las redes de sensores
+    let cacheParcelas = { huella: null, porClave: {} };
+    $scope.tarjetaParcela = (clave) => {
+        const sistema = $scope.actualSystem;
+        if (!sistema) return {};
+        // (los cambios de la propia app, p. ej. encender una parcela, se hacen sobre el mismo objeto: se incluyen
+        // los campos que cambian)
+        const campos = Object.keys(sistema.plots || {}).map(k => {
+            const p = sistema.plots[k] || {};
+            return [k, p.forcedStart, p.name, p.culture, p.value, p.sensor, p.sensorId].join("|");
+        }).join(";");
+        const huella = [sistema, sistema.plots, sistema.log, $scope.systems, campos];
+        if (!cacheParcelas.huella || cacheParcelas.huella.some((v, i) => v !== huella[i])) cacheParcelas = { huella, porClave: {} };
+        if (!cacheParcelas.porClave[clave]) {
+            cacheParcelas.porClave[clave] = __modulo("parcela").tarjeta(sistema, clave,
+                { panel: __modulo("panel"), humedad: __modulo("humedad"), geo: __modulo("geo") }, $scope.systems);
+        }
+        return cacheParcelas.porClave[clave];
+    };
+
     $scope.isPlotActive = (system, index) => {
         let active = false;
         if (index && system && system.plots) {

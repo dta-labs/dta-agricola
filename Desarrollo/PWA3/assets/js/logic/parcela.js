@@ -71,7 +71,66 @@
         return parte(x.dias) * MS_DIA + parte(x.horas) * MS_HORA + parte(x.minutos) * MS_MINUTO;
     }
 
+    // ---------- REQ-139: tarjeta de la parcela en "Plan de riego \ Parcelas" ----------
+
+    var ESTADOS_PARCELA = {
+        encendido: { nivel: "encendido", texto: "Regando", icono: "opacity", tono: "ok" },
+        pendiente: { nivel: "pendiente", texto: "Esperando", icono: "hourglass_empty", tono: "atencion" },
+        apagado: { nivel: "apagado", texto: "Detenida", icono: "pause_circle_outline", tono: "inactivo" }
+    };
+    var ESTADOS_MOTOR = {
+        encendido: { nivel: "encendido", texto: "Encendido", icono: "power", tono: "ok" },
+        pendiente: { nivel: "pendiente", texto: "Esperando", icono: "hourglass_empty", tono: "atencion" },
+        apagado: { nivel: "apagado", texto: "Apagado", icono: "power_off", tono: "inactivo" }
+    };
+
+    /** "1 d 2 h 30 min", "45 min" o "" (sin duracion). */
+    function textoDuracion(ms) {
+        var d = duracionDesdeMs(ms);
+        var partes = [];
+        if (d.dias) partes.push(d.dias + " d");
+        if (d.horas) partes.push(d.horas + " h");
+        if (d.minutos) partes.push(d.minutos + " min");
+        return partes.join(" ");
+    }
+
+    /**
+     * Datos de la tarjeta de una parcela (p0..p6) o del motor (p7).
+     * deps: { panel (estadoParcela), humedad (estadoDeParcela), geo (areaHectareas...) }; sistemas: para el sensor
+     * asociado a la parcela.
+     */
+    function tarjeta(sistema, clave, deps, sistemas) {
+        var s = sistema || {};
+        var p = (s.plots && s.plots[clave]) || {};
+        var numero = parseInt(String(clave || "").replace(/\D/g, ""), 10);
+        var esMotor = numero === 7;
+        var estadoClave = deps.panel.estadoParcela(s, clave);
+        var estado = (esMotor ? ESTADOS_MOTOR : ESTADOS_PARCELA)[estadoClave] || ESTADOS_PARCELA.apagado;
+        var hectareas = null;
+        if (!esMotor && deps.geo && deps.geo.esPoligonoValido(p.poligon)) {
+            hectareas = Math.round(deps.geo.areaHectareas(deps.geo.normalizarPoligono(p.poligon)) * 100) / 100;
+        }
+        var humedad = null;
+        if (!esMotor && deps.humedad && p.sensor && p.sensorId) {
+            var h = deps.humedad.estadoDeParcela(p, sistemas);
+            if (h && h.estado !== "sin-dato") humedad = { texto: h.texto, color: h.color, valor: h.valor === null ? "" : h.valor + " " + h.unidad };
+        }
+        return {
+            clave: clave,
+            numero: esMotor ? "M" : String(numero + 1),
+            esMotor: esMotor,
+            nombre: esMotor ? "Motor" : (String(p.name || "").trim() || "Sección " + (numero + 1)),
+            cultivo: esMotor ? "" : String(p.culture || "").trim(),
+            hectareas: hectareas,
+            duracion: esMotor ? "" : textoDuracion(p.value),
+            estado: { nivel: estado.nivel, texto: estado.texto, icono: estado.icono, tono: estado.tono },
+            humedad: humedad
+        };
+    }
+
     return {
+        tarjeta: tarjeta,
+        textoDuracion: textoDuracion,
         normalizarConfiguracion: normalizarConfiguracion,
         duracionDesdeMs: duracionDesdeMs,
         msDesdeDuracion: msDesdeDuracion,

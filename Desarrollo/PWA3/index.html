@@ -1099,41 +1099,44 @@
                             </ul>
                             <div id="parcelas">
                                 <br>
-                                <div class="row"> <!-- Áreas -->
-                                    <div class="col s6 m3 modal-trigger" 
-                                        ng-repeat="plot in actualSystem.plots" 
-                                        href="#modalEditRiegoEstacionario" 
-                                        ng-click="setEditPlanEstacionario('p' + $index)" ng-if="$index < 7">
-                                        <div class="row">
-                                            <div class="col s12">
-                                                <div class="card card-panel hoverable" style="padding: 5px; border-radius: 5px; box-shadow: 2px 2px 10px gray !important;">
-                                                    <div class="card-image">
-                                                        <img src="assets/images/image-icon.png" loading="lazy">
-                                                        <!-- <a class="btn-floating halfway-fab waves-effect waves-light red"><i class="material-icons">add_a_photo</i></a> -->
-                                                    </div>
-                                                    <div class="card-content" style="padding: 5px;">
-                                                        <span class="card-title black-text" style="font-size: 1em;">{{ plot.name ? plot.name : 'Sección ' + ($index + 1) }}</span>
-                                                        <p class="limite-una-linea">{{ plot.culture ? plot.culture : ""}}&nbsp;</p>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                <!-- REQ-139: tarjetas de las parcelas (numero con el color de su estado, nombre, cultivo, superficie,
+                                     duracion del riego y humedad del sensor asociado) y del motor. Mismo comportamiento: la parcela
+                                     abre "Editar riego"; el motor se enciende o apaga. -->
+                                <div class="parcelas-tarjetas"> <!-- Áreas -->
+                                    <div class="parcela-tarjeta modal-trigger" role="button" tabindex="0"
+                                        ng-repeat="plot in actualSystem.plots" ng-if="$index < 7"
+                                        href="#modalEditRiegoEstacionario"
+                                        ng-class="'tono-' + tarjetaParcela('p' + $index).estado.tono"
+                                        ng-click="setEditPlanEstacionario('p' + $index)"
+                                        aria-label="{{ tarjetaParcela('p' + $index).nombre }}: {{ tarjetaParcela('p' + $index).estado.texto }}">
+                                        <div class="parcela-cabecera">
+                                            <span class="parcela-numero">{{ tarjetaParcela('p' + $index).numero }}</span>
+                                            <span class="parcela-nombre">{{ tarjetaParcela('p' + $index).nombre }}</span>
                                         </div>
+                                        <div class="parcela-cultivo" ng-class="{ 'sin-cultivo': !tarjetaParcela('p' + $index).cultivo }">
+                                            <i class="material-icons" aria-hidden="true">eco</i>{{ tarjetaParcela('p' + $index).cultivo || 'Sin cultivo' }}
+                                        </div>
+                                        <div class="parcela-datos">
+                                            <span ng-if="tarjetaParcela('p' + $index).hectareas !== null"><i class="material-icons" aria-hidden="true">crop_free</i>{{ tarjetaParcela('p' + $index).hectareas }} ha</span>
+                                            <span ng-if="tarjetaParcela('p' + $index).duracion"><i class="material-icons" aria-hidden="true">schedule</i>{{ tarjetaParcela('p' + $index).duracion }}</span>
+                                        </div>
+                                        <div class="parcela-humedad" ng-if="tarjetaParcela('p' + $index).humedad">
+                                            <span class="parcela-punto" ng-style="{ 'background-color': tarjetaParcela('p' + $index).humedad.color }"></span>
+                                            Suelo {{ tarjetaParcela('p' + $index).humedad.texto | lowercase }}<small ng-if="tarjetaParcela('p' + $index).humedad.valor"> · {{ tarjetaParcela('p' + $index).humedad.valor }}</small>
+                                        </div>
+                                        <div class="parcela-estado"><i class="material-icons" aria-hidden="true">{{ tarjetaParcela('p' + $index).estado.icono }}</i>{{ tarjetaParcela('p' + $index).estado.texto }}</div>
                                     </div>
-                                    <div class="col s6 m3">
-                                        <div class="row">
-                                            <div class="col s12" ng-click="setEditPlanEstacionario('p7'); isPlotActive(actualSystem, 'p7') ? stopPlotIrrigation() : startPlotIrrigation()">
-                                                <div class="card card-panel hoverable" style="padding: 5px; border-radius: 5px; box-shadow: 2px 2px 10px gray !important; ">
-                                                    <div class="card-image">
-                                                        <img src="assets/images/pozo.png" style="filter: grayscale(100%);" loading="lazy">
-                                                        <!-- <a class="btn-floating halfway-fab waves-effect waves-light red"><i class="material-icons">add_a_photo</i></a> -->
-                                                    </div>
-                                                    <div class="card-content" style="padding: 5px;">
-                                                        <span class="card-title black-text" style="font-size: 1em;">Pozo</span>
-                                                        <p class="limite-una-linea">&nbsp;</p>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                    <div class="parcela-tarjeta parcela-motor" role="button" tabindex="0"
+                                        ng-class="'tono-' + tarjetaParcela('p7').estado.tono"
+                                        ng-click="setEditPlanEstacionario('p7'); isPlotActive(actualSystem, 'p7') ? stopPlotIrrigation() : startPlotIrrigation()"
+                                        aria-label="Motor: {{ tarjetaParcela('p7').estado.texto }}. Tocar para {{ tarjetaParcela('p7').estado.nivel == 'apagado' ? 'encender' : 'apagar' }}">
+                                        <div class="parcela-cabecera">
+                                            <span class="parcela-numero">M</span>
+                                            <span class="parcela-nombre">{{ tarjetaParcela('p7').nombre }}</span>
                                         </div>
+                                        <div class="parcela-motor-icono"><img src="assets/images/pozo.png" alt="" loading="lazy"></div>
+                                        <div class="parcela-datos"><span>Toca para {{ tarjetaParcela('p7').estado.nivel == 'apagado' ? 'encender' : 'apagar' }}</span></div>
+                                        <div class="parcela-estado"><i class="material-icons" aria-hidden="true">{{ tarjetaParcela('p7').estado.icono }}</i>{{ tarjetaParcela('p7').estado.texto }}</div>
                                     </div>
                                 </div>
                                 <br>
@@ -3623,7 +3626,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="./assets/modules/materialize/css/materialize.min.css">
     <link rel="stylesheet" href="./assets/modules/leaflet/leaflet.css">
-    <link rel="stylesheet" href="./assets/css/style.css?v=26.11.22.011">
+    <link rel="stylesheet" href="./assets/css/style.css?v=26.11.22.016">
     <link rel="stylesheet" href="./assets/css/responsive.css">
     <link rel="stylesheet" href="./assets/css/formularios.css?v=26.11.06.002">
     <!-- REQ-043: Bootstrap 5 aislado en .bs (convive con Materialize mientras se migra) -->
@@ -3915,7 +3918,7 @@
     <script src="./assets/js/logic/notificaciones.js?v=26.11.20.004"></script>
     <script src="./assets/js/logic/satelite.js?v=26.11.20.013"></script>
     <script src="./assets/js/logic/medidor.js?v=26.11.07.016"></script>
-    <script src="./assets/js/logic/parcela.js?v=26.11.07.007"></script>
+    <script src="./assets/js/logic/parcela.js?v=26.11.22.016"></script>
     <script src="./assets/js/services/repositorio.js?v=26.11.21.001"></script>
     <script src="./assets/js/services/adaptadorFirebase.js?v=26.11.02.001"></script>
     <script src="./assets/js/services/autenticacion.js?v=26.11.02.001"></script>
@@ -3939,9 +3942,9 @@
 <script src="./assets/js/logic/meteo.js?v=26.11.02.001"></script>
     <script src="./assets/js/logic/aviso.js?v=26.11.02.001"></script>
 <script src="./assets/vendor/bootstrap/bootstrap.bundle.min.js?v=5.3.8"></script>
-    <script src="./assets/js/core.js?v=26.11.22.014"></script>
+    <script src="./assets/js/core.js?v=26.11.22.016"></script>
     <!-- REQ-038: factories, ayudas de interfaz y componentes (despues de core.js, que crea el modulo) -->
-    <script src="./assets/js/app/version.js?v=26.11.22.015"></script>
+    <script src="./assets/js/app/version.js?v=26.11.22.016"></script>
     <script src="./assets/js/app/reglas.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/auth.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/repo.factory.js?v=26.11.06.001"></script>

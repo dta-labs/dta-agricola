@@ -1964,3 +1964,126 @@ canvas[id^="myChart"],
     font: 700 14px/1 Roboto, "Segoe UI", sans-serif;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
 }
+
+/* ===================== REQ-139: tarjetas de las parcelas del estacionario (Plan de riego \ Parcelas) =====================
+   Tarjeta solida con liston y numero del color del estado (verde regando, ambar esperando, gris detenida), nombre,
+   cultivo, superficie, duracion del riego y humedad del sensor asociado. */
+.parcelas-tarjetas {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    padding: 4px 2px 8px;
+    text-align: left;
+}
+@media (min-width: 601px) {
+    .parcelas-tarjetas { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+.parcela-tarjeta {
+    --parcela: #78909c;
+    --parcela-fondo: #f1f4f5;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+    padding: 10px 12px;
+    border: 1px solid #e0e6e3;
+    border-left: 6px solid var(--parcela);
+    border-radius: 12px;
+    background: #ffffff;
+    color: #263238;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+    cursor: pointer;
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+.parcela-tarjeta:hover { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18); transform: translateY(-1px); }
+.parcela-tarjeta:focus-visible { outline: 3px solid #1b4d38; outline-offset: 2px; }
+.parcela-tarjeta.tono-ok { --parcela: #2e7d32; --parcela-fondo: #edf6ee; }
+.parcela-tarjeta.tono-atencion { --parcela: #ef6c00; --parcela-fondo: #fff4e5; }
+.parcela-tarjeta.tono-inactivo { --parcela: #78909c; --parcela-fondo: #f1f4f5; }
+.parcela-cabecera {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+.parcela-numero {
+    display: inline-flex;
+    flex: 0 0 28px;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: var(--parcela);
+    color: #ffffff;
+    font-size: 0.95rem;
+    font-weight: 800;
+}
+.parcela-nombre {
+    min-width: 0;
+    overflow: hidden;
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.parcela-cultivo {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+    overflow: hidden;
+    color: #2e7d32;
+    font-size: 0.92rem;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.parcela-cultivo.sin-cultivo { color: #90a4ae; font-weight: 500; }
+.parcela-cultivo .material-icons { font-size: 17px; }
+.parcela-datos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 10px;
+    min-height: 1.2em;
+    color: #607d8b;
+    font-size: 0.8rem;
+}
+.parcela-datos span { display: inline-flex; align-items: center; gap: 3px; white-space: nowrap; }
+.parcela-datos .material-icons { font-size: 15px; }
+.parcela-humedad {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    gap: 5px;
+    color: #455a64;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+.parcela-humedad small { color: #78909c; font-weight: 500; }
+.parcela-punto { flex: 0 0 8px; width: 8px; height: 8px; border-radius: 50%; }
+.parcela-estado {
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    gap: 4px;
+    margin-top: auto;
+    padding: 3px 9px 3px 6px;
+    border-radius: 999px;
+    background: var(--parcela-fondo);
+    color: var(--parcela);
+    font-size: 0.8rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+.parcela-estado .material-icons { font-size: 16px; }
+.parcela-motor-icono img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    filter: grayscale(100%) contrast(1.05);
+}
