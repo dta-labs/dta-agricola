@@ -1,38 +1,5 @@
 <!-- REQ-057: panel de la nevera (barra y tarjetas) (antes index.html, seccion "sistema"). Mismo aspecto; estilos en paneles.css. -->
-<div class="col s12">
-    <div class="row statusBar panel-s-e11">
-        <div class="col s12 panel-s-e40">
-            <table class="panel-s-e8">
-                <tr class="panel-s-e42">
-                    <td class="panel-s-e30" ng-click="vm.alAbrir({ $modal: 'modalHistorial' })" role="button" >
-                        <div class="center-align">
-                            <i class="material-icons panel-s-e31">equalizer</i> 
-                        </div>
-                        <div class="center-align panel-s-e24">
-                            <b>Historial</b>
-                        </div>
-                    </td>
-                    <td class="panel-s-e30" ng-click="vm.alAbrir({ $modal: 'modalConfig' })" role="button" >
-                        <div class="center-align">
-                            <i class="fa fa-list panel-s-e32" aria-hidden="true"></i>
-                        </div>                                                    
-                        <div class="center-align">
-                            <b>Sensores</b>
-                        </div>
-                    </td>
-                    <td class="panel-s-e30" ng-click="vm.alAbrir({ $modal: 'modalUsuarios' })" role="button" >
-                        <div class="center-align">
-                            <i class="fa fa-users panel-s-e32" aria-hidden="true"></i> 
-                        </div>
-                        <div class="center-align">
-                            <b>Usuarios</b>
-                        </div>
-                    </td>
-                </tr>
-            </table>
-        </div>
-    </div>
-</div>
+<!-- REQ-152: sin la barra Historial / Sensores / Usuarios (siguen en el menu lateral) -->
 
 <!-- REQ-133/134: tarjetas de la nevera. Un solo diseño para todos los tipos de sensor (temperatura y humedad, puerta,
      corriente, presion, caudal): valor principal grande, secundario pequeño en una segunda columna, estado con su tono

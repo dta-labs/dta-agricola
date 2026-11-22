@@ -123,7 +123,7 @@
 | REQ-122 | Catalogo de estaciones desde Firebase `/stations` (respaldo: `assets/data/estaciones.json`); regla de lectura | Implementado (probar: usuario) | 4 |
 | REQ-123 | Ficha del sensor: unidades frio acumuladas de la temporada (desde el 1 nov) en lugar del valor puntual | Implementado (probar: usuario) | 6 |
 
-**Total: 547 pruebas en Node (2026-11-22), todas en verde.** `npm test` funciona en Node 20 y 22.
+**Total: 548 pruebas en Node (2026-11-22), todas en verde.** `npm test` funciona en Node 20 y 22.
 
 ## Bloque de autenticacion (cerrado y confirmado por el usuario)
 
@@ -168,6 +168,7 @@
 | REQ-149 | Alertas push: humedad relativa (redes) y neveras/invernaderos (t, h, psi, fl, i), solo con "avisar" | Implementado (desplegar funciones: usuario) | 5 |
 | REQ-150 | Unidades frío: horas cálidas restan, temporada propia por sensor y recálculo de los días inflados (antes del 21/11) | Implementado (probar: usuario) | 4 (+1 ajustada) |
 | REQ-151 | Corrige en la base los nombres de cultivo "Jalape��o" y "Manazana" (catálogo y equipos) | Implementado (probar: usuario) | 4 |
+| REQ-152 | Neveras e invernaderos sin la barra de menú (Historial, Sensores, Usuarios) | Implementado | 1 |
 | Prueba manual del resto | listado de equipos, retraso de comunicacion, alarma de nevera, plan de riego |
 | Empaquetado nativo | Capacitor (Android/iOS), objetivo final de la refactorizacion |
 

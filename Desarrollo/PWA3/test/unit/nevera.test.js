@@ -106,3 +106,12 @@ test("REQ-148 el panel pasa el tipo del sistema a la tarjeta", () => {
   vm.sistema = { type: "Nevera" };
   assert.equal(vm.tarjeta("S0", { id: "I1" }).estado.texto, "Caliente");
 });
+
+test("REQ-152 neveras e invernaderos sin la barra Historial / Sensores / Usuarios (quedan en el menu lateral)", () => {
+  const html = leer("assets", "js", "components", "sistema", "panel-nevera", "panel-nevera.html");
+  assert.doesNotMatch(html, /statusBar|modalHistorial|modalUsuarios|modalConfig/);
+  const index = leer("index.html");
+  assert.match(index, /href="#modalHistorial" ng-show="authUser && selectedWindow == 'sistema'"/);
+  assert.match(index, /href="#modalUsuarios" ng-show="authUser && selectedWindow == 'sistema'"/);
+  assert.match(index, /\{\{ actualSystem\.type == 'Sensor' \|\| esTipoNevera\(actualSystem\.type\) \? "Sensores" : "Planes" \}\}/);
+});

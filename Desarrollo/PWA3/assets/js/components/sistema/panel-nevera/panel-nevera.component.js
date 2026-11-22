@@ -8,7 +8,7 @@
 (function (raiz) {
     "use strict";
 
-    var VERSION = "26.11.22.024";
+    var VERSION = "26.11.22.028";
 
     function Controlador(dtaReglas) {
         var vm = this;
