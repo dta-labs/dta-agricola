@@ -92,6 +92,11 @@
                 return metodos.leer("cultivos");
             },
 
+            /** stations: catalogo de estaciones meteorologicas locales (REQ-122) */
+            leerEstaciones: function () {
+                return metodos.leer("stations");
+            },
+
             /** configurations/{tipo} */
             leerConfiguracion: function (tipo) {
                 return metodos.leer("configurations/" + tipo);

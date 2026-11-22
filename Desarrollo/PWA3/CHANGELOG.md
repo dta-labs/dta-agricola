@@ -144,6 +144,13 @@ Cada version publicada lleva una etiqueta de git `pwa3-vX.Y.Z` sobre el commit d
   migrados: acordeon, list-group y modales de Bootstrap. El login sigue en Materialize. (REQ-043 fases B-C)
 
 ### Anadido
+- Ajustes de la red de sensores: "Estacion meteorologica" con selector de region y de estacion
+  (`settings.station = { region, id }`) desde el catalogo `assets/data/estaciones.json` (29 estaciones, 6 regiones);
+  el servidor (WS v7) usa esa estacion local para completar HR y temperatura. (REQ-121)
+- El catalogo de estaciones se lee de Firebase `/stations` (respaldo: `assets/data/estaciones.json`); regla de solo
+  lectura con sesion para `stations`. (REQ-122)
+- Ficha del sensor ("Cultivo"): "Unidades frio acumuladas" de la temporada (desde el 1 de noviembre) en lugar de
+  las unidades de la ultima hora. (REQ-123)
 - Resumen: "Sugerencias del dia" al final (lo accionable de tus equipos y un consejo que rota cada dia); sin equipos
   registrados, bienvenida con las sugerencias de inicio como protagonistas (agregar equipo, conocer equipos DTA,
   instalar la app). (REQ-115)

@@ -809,6 +809,27 @@
                                         </select>
                                     </td>
                                 </tr>
+                                <!-- REQ-121: estacion meteorologica local (settings.station = { region, id }), la usa el servidor (WS v7) -->
+                                <tr ng-show="actualSystem.type == 'Sensor'">
+                                    <td style="text-align: left;">Estación meteorológica</td>
+                                    <td style="text-align: left;" id="ajusteEstacion">
+                                        <select class="browser-default" style="font-size: 1em;"
+                                            ng-model="actualSystem.station.region"
+                                            ng-change="actualSystem.station.id = ''"
+                                            ng-disabled="edit">
+                                            <option value="">Región: sin estación</option>
+                                            <option ng-repeat="r in regionesEstacion()" value="{{ r }}">{{ r }}</option>
+                                        </select>
+                                        <select class="browser-default" style="font-size: 1em; margin-top: 6px;"
+                                            ng-model="actualSystem.station.id"
+                                            ng-show="actualSystem.station.region"
+                                            ng-disabled="edit">
+                                            <option value="">Seleccione la estación</option>
+                                            <option ng-repeat="e in estacionesDeRegion(actualSystem.station.region)" value="{{ e.id }}">{{ e.name }}</option>
+                                        </select>
+                                        <small>Estación local más cercana: sus datos de HR y temperatura completan las lecturas que falten.</small>
+                                    </td>
+                                </tr>
                                 <!-- REQ-097: portal WiFi del Gateway Universal (punto de acceso del ESP8266) -->
                                 <tr ng-show="(actualSystem.type == 'Sensor' || actualSystem.type == 'Nevera') && (isSystemOfRole('propietario') || isSystemOfRole('desarrollador') || isSystemOfRole('administrador'))">
                                     <td style="text-align: left;">WiFi del gateway</td>
@@ -3867,6 +3888,8 @@
     <script src="./assets/js/logic/pivote.js?v=26.11.07.005"></script>
     <script src="./assets/js/logic/panel.js?v=26.11.08.012"></script>
     <script src="./assets/js/logic/unidades.js?v=26.11.07.012"></script>
+    <script src="./assets/js/logic/estaciones.js?v=26.11.21.001"></script>
+    <script src="./assets/js/logic/frio.js?v=26.11.21.002"></script>
     <script src="./assets/js/logic/grafica.js?v=26.11.13.001"></script>
     <script src="./assets/js/logic/tablero.js?v=26.11.20.019"></script>
     <script src="./assets/js/logic/resumen.js?v=26.11.20.010"></script>
@@ -3874,7 +3897,7 @@
     <script src="./assets/js/logic/satelite.js?v=26.11.20.013"></script>
     <script src="./assets/js/logic/medidor.js?v=26.11.07.016"></script>
     <script src="./assets/js/logic/parcela.js?v=26.11.07.007"></script>
-    <script src="./assets/js/services/repositorio.js?v=26.11.08.002"></script>
+    <script src="./assets/js/services/repositorio.js?v=26.11.21.001"></script>
     <script src="./assets/js/services/adaptadorFirebase.js?v=26.11.02.001"></script>
     <script src="./assets/js/services/autenticacion.js?v=26.11.02.001"></script>
     <script src="./assets/js/services/adaptadorFirebaseAuth.js?v=26.11.02.001"></script>
@@ -3897,9 +3920,9 @@
 <script src="./assets/js/logic/meteo.js?v=26.11.02.001"></script>
     <script src="./assets/js/logic/aviso.js?v=26.11.02.001"></script>
 <script src="./assets/vendor/bootstrap/bootstrap.bundle.min.js?v=5.3.8"></script>
-    <script src="./assets/js/core.js?v=26.11.20.018"></script>
+    <script src="./assets/js/core.js?v=26.11.21.002"></script>
     <!-- REQ-038: factories, ayudas de interfaz y componentes (despues de core.js, que crea el modulo) -->
-    <script src="./assets/js/app/version.js?v=26.11.20.020"></script>
+    <script src="./assets/js/app/version.js?v=26.11.21.002"></script>
     <script src="./assets/js/app/reglas.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/auth.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/repo.factory.js?v=26.11.06.001"></script>

@@ -44,6 +44,10 @@
         }
       }
     },
+    "stations": {
+      ".read": "auth != null",
+      ".write": false
+    },
     "cultivos": {
       ".read": "auth != null",
       ".write": "auth != null"

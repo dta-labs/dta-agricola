@@ -118,8 +118,12 @@
 | REQ-117 | Mapa encuadrado en la zona del equipo al entrar y al volver a la vista de mapa | Corregido (probar: usuario) | 2 |
 | REQ-118 | Resumen: "alertas" en lugar de "cosas" en el semaforo | Implementado | - |
 | REQ-119 | Menu lateral en primer plano (encima de la cabecera) | Corregido (probar: usuario) | - |
+| REQ-120 | Ajustes de la red de sensores: estacion meteorologica local (`settings.station`, texto) | **Sustituido** (REQ-121) | - |
+| REQ-121 | Ajustes de la red de sensores: estacion por region y estacion (`settings.station = { region, id }`, catalogo `assets/data/estaciones.json`) | Implementado (probar: usuario) | 6 |
+| REQ-122 | Catalogo de estaciones desde Firebase `/stations` (respaldo: `assets/data/estaciones.json`); regla de lectura | Implementado (probar: usuario) | 4 |
+| REQ-123 | Ficha del sensor: unidades frio acumuladas de la temporada (desde el 1 nov) en lugar del valor puntual | Implementado (probar: usuario) | 6 |
 
-**Total: 471 pruebas en Node (2026-11-20), todas en verde.** `npm test` funciona en Node 20 y 22.
+**Total: 487 pruebas en Node (2026-11-21), todas en verde.** `npm test` funciona en Node 20 y 22.
 
 ## Bloque de autenticacion (cerrado y confirmado por el usuario)
 

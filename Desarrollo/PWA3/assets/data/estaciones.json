@@ -1,0 +1,147 @@
+[
+  {
+    "id": "_bac",
+    "name": "Bachíniva, Chih",
+    "region": "BACHINIVA"
+  },
+  {
+    "id": "_ojo",
+    "name": "El Ojo",
+    "region": "BACHINIVA"
+  },
+  {
+    "id": "_lva",
+    "name": "Las Varas",
+    "region": "BACHINIVA"
+  },
+  {
+    "id": "_bvt",
+    "name": "Buena Vista",
+    "region": "CARICHI"
+  },
+  {
+    "id": "_101",
+    "name": "Campo 101",
+    "region": "CUAUHTEMOC"
+  },
+  {
+    "id": "_rub",
+    "name": "Col. Álvaro Obregón",
+    "region": "CUAUHTEMOC"
+  },
+  {
+    "id": "_hbu",
+    "name": "Hacienda de Bustillos",
+    "region": "CUAUHTEMOC"
+  },
+  {
+    "id": "_lno",
+    "name": "La Noria",
+    "region": "CUAUHTEMOC"
+  },
+  {
+    "id": "_qtl",
+    "name": "Quinta Lupita",
+    "region": "CUAUHTEMOC"
+  },
+  {
+    "id": "_yam",
+    "name": "San José de la Herradura",
+    "region": "CUAUHTEMOC"
+  },
+  {
+    "id": "_zdr",
+    "name": "Zona Dorada",
+    "region": "CUAUHTEMOC"
+  },
+  {
+    "id": "_bas",
+    "name": "Basuchil",
+    "region": "GUERRERO"
+  },
+  {
+    "id": "_ros",
+    "name": "El Rosario",
+    "region": "GUERRERO"
+  },
+  {
+    "id": "_gue",
+    "name": "Guerrero",
+    "region": "GUERRERO"
+  },
+  {
+    "id": "_lju",
+    "name": "La Junta",
+    "region": "GUERRERO"
+  },
+  {
+    "id": "_mrc",
+    "name": "Mesa Rancho Colorado",
+    "region": "GUERRERO"
+  },
+  {
+    "id": "_por",
+    "name": "Pascual Orozco",
+    "region": "GUERRERO"
+  },
+  {
+    "id": "_rsa",
+    "name": "Ranchos de Santiago",
+    "region": "GUERRERO"
+  },
+  {
+    "id": "_her",
+    "name": "Tonachi",
+    "region": "GUERRERO"
+  },
+  {
+    "id": "_cho",
+    "name": "Chopeque",
+    "region": "CUSIHUIRIACHI"
+  },
+  {
+    "id": "_lac",
+    "name": "La Capilla",
+    "region": "CUSIHUIRIACHI"
+  },
+  {
+    "id": "_lmo",
+    "name": "La Morenita",
+    "region": "CUSIHUIRIACHI"
+  },
+  {
+    "id": "_oso",
+    "name": "El Oso",
+    "region": "NAMIQUIPA"
+  },
+  {
+    "id": "_fac",
+    "name": "FACIATEC",
+    "region": "NAMIQUIPA"
+  },
+  {
+    "id": "_lbr",
+    "name": "La Brecha \"Felipe Angeles\"",
+    "region": "NAMIQUIPA"
+  },
+  {
+    "id": "_lcr",
+    "name": "Las Cruces",
+    "region": "NAMIQUIPA"
+  },
+  {
+    "id": "_nal",
+    "name": "Namiquipa Alto \"El Terrero\"",
+    "region": "NAMIQUIPA"
+  },
+  {
+    "id": "_lal",
+    "name": "Namiquipa Bajo \"El Molino\"",
+    "region": "NAMIQUIPA"
+  },
+  {
+    "id": "_osm",
+    "name": "Óscar Soto Maynez",
+    "region": "NAMIQUIPA"
+  }
+]

@@ -153,6 +153,45 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     // SENSOR: se guardan en los ajustes del equipo, asi todos los que comparten la red ven lo mismo.
     //   systems/{red}/settings/viewMode = "map" | "tiles"
     //   systems/{red}/settings/sensors/S0/primaryValue = "temperature"   (sin campo = humedad del suelo)
+    // REQ-121/122: catalogo de estaciones meteorologicas locales (region -> estacion) para los ajustes de la red de
+    // sensores. Fuente: Firebase /stations (requiere sesion); mientras tanto, o si no se puede leer, el respaldo
+    // assets/data/estaciones.json.
+    let catalogoEstaciones = [];
+    let estacionesDeFirebase = false;
+    let leyendoEstaciones = false;
+    const usarCatalogoEstaciones = lista => {
+        catalogoEstaciones = lista;
+        const sistema = $scope.actualSystem;
+        if (sistema && sistema.type == "Sensor") {
+            sistema.station = __modulo("estaciones").normalizar(sistema.station, catalogoEstaciones);
+        }
+        $scope.$evalAsync();
+    };
+    fetch("./assets/data/estaciones.json?v=26.11.21.001")
+        .then(r => r.ok ? r.json() : Promise.reject(new Error("HTTP " + r.status)))
+        .then(lista => { if (!estacionesDeFirebase) usarCatalogoEstaciones(Array.isArray(lista) ? lista : []); })
+        .catch(error => console.warn("[estaciones] no se pudo cargar el catalogo de respaldo:", error));
+    const cargarEstaciones = () => {
+        if (estacionesDeFirebase || leyendoEstaciones) return;
+        leyendoEstaciones = true;
+        __repo().leerEstaciones().then(datos => {
+            leyendoEstaciones = false;
+            const valor = datos && typeof datos.val === "function" ? datos.val() : datos;
+            const lista = __modulo("estaciones").desdeFirebase(valor);
+            if (lista.length) {
+                estacionesDeFirebase = true;
+                usarCatalogoEstaciones(lista);
+            } else {
+                console.warn("[estaciones] /stations vacio o con formato no reconocido; se usa el catalogo de respaldo");
+            }
+        }).catch(error => {
+            leyendoEstaciones = false;
+            console.warn("[estaciones] no se pudo leer /stations; se usa el catalogo de respaldo:", (error && error.message) || error);
+        });
+    };
+    $scope.regionesEstacion = () => __modulo("estaciones").regiones(catalogoEstaciones);
+    $scope.estacionesDeRegion = region => __modulo("estaciones").deRegion(catalogoEstaciones, region);
+
     const guardarAjustes = (clave, cambios) => {
         try {
             __repo().actualizarAjustesSistema(clave, cambios)
@@ -924,6 +963,11 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         system.velocity = parseInt(system.velocity);
         system.zona = parseInt(system.zona);
         system.sensorPresion = parseInt(system.sensorPresion);
+        // REQ-121: los selectores de region/estacion siempre trabajan sobre { region, id }.
+        if (system.type == "Sensor") {
+            system.station = __modulo("estaciones").normalizar(system.station, catalogoEstaciones);
+            cargarEstaciones();   // REQ-122: ya hay sesion; lee /stations una vez
+        }
         // REQ-089: la vista satelital es del sistema que se mira: al cambiar de sistema se apaga.
         if ($scope.vistaSatelital && (!$scope.actualSystem || $scope.actualSystem.key !== system.key)) {
             quitarNdvi();
@@ -1523,6 +1567,8 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         settings.velocity = "" + (settings.velocity && !isNaN(settings.velocity) ? settings.velocity : "");
         settings.maxVelocity = "" + (settings.maxVelocity <= 100 ? settings.maxVelocity : 100);
         settings.sensorPresion = "" + (settings.sensorPresion && !isNaN(settings.sensorPresion) ? settings.sensorPresion : "");
+        // REQ-121: estacion meteorologica local { region, id } del catalogo; null = sin estacion (Firebase quita la clave).
+        if (settings.type == "Sensor") settings.station = __modulo("estaciones").paraGuardar(settings.station, catalogoEstaciones);
         // system.irrigation = document.querySelector('input[name=groupRiego]:checked').getAttribute("data");
         if (settings.type == "Estacionario") { verifyPlots(settings); }
         const updatePromise = setMachineSettings(settings);
@@ -3482,11 +3528,12 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         text += `           </div>`;
         text += `       </div>`;
         text += `       <div class="row" style="margin-bottom: 5px; padding: 10px; border-radius: 6px; background-color: #f5f5f5;">`;
-        text += `           <div class="col s2"><img src="./assets/images/nieve.png" alt="Horas frío" style="width: 25px;"></div>`;
+        // REQ-123: unidades frio ACUMULADAS de la temporada (desde el 1 de noviembre), no el valor de la hora.
+        text += `           <div class="col s2"><img src="./assets/images/nieve.png" alt="Unidades frío" style="width: 25px;"></div>`;
         text += `           <div class="col s7">`;
-        text += `              <div style="margin-top: 5px;">Horas frío (u)</div>`;
+        text += `              <div style="margin-top: 5px;">Unidades frío acumuladas <small style="color: gray;">(desde el 1 nov)</small></div>`;
         text += `           </div>`;
-        text += `           <div class="col s3" style="text-align: right; padding-top: 2px; font-size: 1.5em;"><b>${data[idx * 8 + 6] !== "NaN" ? parseFloat(data[idx * 8 + 6]).toFixed(0) : "--"}</b></div>`;
+        text += `           <div class="col s3" style="text-align: right; padding-top: 2px; font-size: 1.5em;"><b id="ufAcumulado${idx}">--</b></div>`;
         text += `       </div>`;
         text += `       <div class="row" style="margin-bottom: 5px; padding: 10px; border-radius: 6px; background-color: #f5f5f5;">`;
         text += `           <div class="col s2"><img src="./assets/images/ETo.png" alt="Termometro" style="width: 25px;"></div>`;
@@ -3556,6 +3603,31 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         return text;
     }
 
+    // REQ-123: suma los resumenes diarios (/logs) de la temporada y lo que va del dia (/dayLogs) de un sensor.
+    const cargarUnidadesFrio = idx => {
+        const sistema = $scope.actualSystem;
+        if (!sistema || !sistema.key) return;
+        const frio = __modulo("frio");
+        const ahora = new Date();
+        const hoy = `${ahora.getFullYear()}${String(ahora.getMonth() + 1).padStart(2, "0")}${String(ahora.getDate()).padStart(2, "0")}`;
+        const pintar = texto => {
+            const celda = document.getElementById("ufAcumulado" + idx);
+            if (celda) celda.textContent = texto;
+        };
+        const valores = r => (r && typeof r.val === "function" ? r.val() : r);
+        pintar("…");
+        Promise.all([
+            __repo().leerLogsPorRango(sistema.key, "logs", frio.inicioTemporada(hoy), hoy),
+            __repo().leerLogs(sistema.key, "dayLogs", 300)
+        ]).then(([logs, dia]) => {
+            const uf = frio.acumulado(valores(logs), valores(dia), idx, hoy);
+            pintar(uf === null ? "--" : uf.toFixed(0));
+        }).catch(error => {
+            console.warn("[frio] no se pudo calcular el acumulado:", (error && error.message) || error);
+            pintar("--");
+        });
+    };
+
     const showPopupChart = (type, idx) => {
         document.getElementById("showPopupSueloClima").style.display = "none";
         document.getElementById("showPupupCultivo").style.display = "none";
@@ -3582,6 +3654,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                 break;
             case "Hf": 
                 document.getElementById("showPupupCultivo").style.display = "block";
+                cargarUnidadesFrio(idx);   // REQ-123
                 break;
             case "Indicaciones": 
                 // document.getElementById("showPupupIndicaciones").style.display = "block";
