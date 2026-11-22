@@ -76,3 +76,33 @@ test("REQ-135 la tarjeta abre la configuracion; solo queda el boton de la grafic
   assert.match(css, /\.nevera-boton-grafica \{[^}]*width: 96px;[^\n]*\n    height: 36px;/);   // REQ-136: mas ancho, altura de antes
   assert.match(css, /\.nevera-nombre \{[^}]*font-size: 1\.4rem;/);
 });
+
+// ---------- REQ-148: invernadero sin rango por defecto ----------
+
+test("REQ-148 invernadero: sin limites definidos no aplica el 0-3 °C de las neveras", () => {
+  const inv = { tipoSistema: "Invernadero" };
+  const sin = n.tarjeta({ id: "I1" }, [70, 24.5, 3.9], 0, "C", inv);
+  assert.equal(sin.estado.nivel, "sin-limites");
+  assert.equal(sin.estado.texto, "Sin límites");
+  assert.equal(sin.estado.tono, "inactivo");
+  assert.equal(sin.principal.valorTexto, "24.5");
+  assert.equal(sin.rangoTexto, "Define los límites en la configuración");
+  assert.equal(n.tarjeta({ id: "I1" }, [], 0, "C", inv).estado.nivel, "sin-dato");
+  // con los limites del usuario: Helado / Adecuado / Caliente como siempre
+  const con = n.tarjeta({ id: "I1", t: { minValue: "15", maxValue: "30" } }, [70, 24.5, 3.9], 0, "C", inv);
+  assert.equal(con.estado.texto, "Adecuado");
+  assert.equal(con.rangoTexto, "Rango 15 a 30 °C");
+  assert.equal(n.tarjeta({ id: "I1", t: { minValue: "15", maxValue: "30" } }, [70, 31, 3.9], 0, "C", inv).estado.texto, "Caliente");
+  // la nevera conserva su rango por defecto
+  assert.equal(n.tarjeta({ id: "N1" }, [70, 24.5, 3.9], 0, "C", { tipoSistema: "Nevera" }).rangoTexto, "Rango 0 a 3 °C (por defecto)");
+});
+
+test("REQ-148 el panel pasa el tipo del sistema a la tarjeta", () => {
+  const { Controlador } = require("../../assets/js/components/sistema/panel-nevera/panel-nevera.component.js");
+  const vm = new Controlador({ panel: {} });
+  vm.sistema = { type: "Invernadero" };
+  vm.datos = [70, 24.5, 3.9];
+  assert.equal(vm.tarjeta("S0", { id: "I1" }).estado.nivel, "sin-limites");
+  vm.sistema = { type: "Nevera" };
+  assert.equal(vm.tarjeta("S0", { id: "I1" }).estado.texto, "Caliente");
+});

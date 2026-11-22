@@ -8,7 +8,7 @@
 (function (raiz) {
     "use strict";
 
-    var VERSION = "26.11.22.023";
+    var VERSION = "26.11.22.024";
 
     function Controlador(dtaReglas) {
         var vm = this;
@@ -23,12 +23,13 @@
         var cache = { datos: null, unidad: null, porClave: {} };
         vm.tarjeta = function (clave, sensor) {
             var unidad = vm.sistema && vm.sistema.tempUnit === "F" ? "F" : "C";
-            if (cache.datos !== vm.datos || cache.unidad !== unidad) cache = { datos: vm.datos, unidad: unidad, porClave: {} };
-            var huella = JSON.stringify([sensor && sensor.type, sensor && sensor.alias, sensor && sensor.id, sensor && sensor.t, sensor && sensor.h, sensor && sensor.psi, sensor && sensor.fl, sensor && sensor.culture, sensor && sensor.cultures]);
+            var tipoSistema = vm.sistema && vm.sistema.type;
+            if (cache.datos !== vm.datos || cache.unidad !== unidad || cache.tipo !== tipoSistema) cache = { datos: vm.datos, unidad: unidad, tipo: tipoSistema, porClave: {} };
+            var huella = JSON.stringify([sensor && sensor.type, sensor && sensor.alias, sensor && sensor.id, sensor && sensor.t, sensor && sensor.h, sensor && sensor.psi, sensor && sensor.fl, sensor && sensor.i, sensor && sensor.culture, sensor && sensor.cultures]);
             var guardada = cache.porClave[clave];
             if (guardada && guardada.huella === huella) return guardada.valor;
             var nevera = (raiz.DTALogic && raiz.DTALogic.nevera) || (typeof require === "function" ? require("../../../logic/nevera.js") : null);
-            var valor = nevera.tarjeta(sensor, vm.datos, nevera.indiceDe(clave), unidad);
+            var valor = nevera.tarjeta(sensor, vm.datos, nevera.indiceDe(clave), unidad, { tipoSistema: tipoSistema });
             cache.porClave[clave] = { huella: huella, valor: valor };
             return valor;
         };

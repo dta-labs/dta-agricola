@@ -72,18 +72,30 @@
 
     // ---------- por tipo ----------
 
-    function temperatura(s, v0, v1, unidad) {
+    function temperatura(s, v0, v1, unidad, opciones) {
         var t = v1, hr = v0;
         var limites = rango(s.t);
+        // REQ-148: el rango 0-3 °C por defecto es de las neveras; un invernadero usa solo los limites que defina el usuario
+        var sinLimites = !limites && opciones && opciones.tipoSistema === "Invernadero";
         var l = limites || TEMPERATURA_POR_DEFECTO;
         var simbolo = unidad === "F" ? "°F" : "°C";
+        var r = function (c) { return redondear(enUnidad(c, unidad), 1); };
+        if (sinLimites) {
+            var ehs = rango(s.h);
+            return {
+                estado: t === null ? SIN_DATO : estado("sin-limites", "Sin límites", "tune", "inactivo"),
+                principal: { icono: "device_thermostat", valorTexto: t === null ? "--" : r(t).toFixed(1), unidad: simbolo, etiqueta: "Temperatura" },
+                secundario: { icono: "opacity", valorTexto: texto(hr, 0), unidad: "% Hr",
+                    etiqueta: hr === null || !ehs ? "Humedad" : hr < ehs.min ? "Seca" : hr > ehs.max ? "Alta" : "Adecuada" },
+                rangoTexto: "Define los límites en la configuración"
+            };
+        }
         var e = t === null ? SIN_DATO
             : t < l.min ? estado("helado", "Helado", "ac_unit", "frio")
             : t > l.max ? estado("caliente", "Caliente", "whatshot", "alerta")
             : estado("adecuado", "Adecuado", "check_circle", "ok");
         var lh = rango(s.h);
         var eh = hr === null || !lh ? null : hr < lh.min ? "Seca" : hr > lh.max ? "Alta" : "Adecuada";
-        var r = function (c) { return redondear(enUnidad(c, unidad), 1); };
         return {
             estado: e,
             principal: { icono: "device_thermostat", valorTexto: t === null ? "--" : r(t).toFixed(1), unidad: simbolo, etiqueta: "Temperatura" },
@@ -153,13 +165,14 @@
      * @param datos    dataRaw de la nevera (arreglo)
      * @param indice   posicion del sensor (S0 = 0)
      * @param unidad   "C" (por defecto) o "F"
+     * @param opciones { tipoSistema } (REQ-148: "Invernadero" no aplica el rango 0-3 °C de las neveras)
      */
-    function tarjeta(sensor, datos, indice, unidad) {
+    function tarjeta(sensor, datos, indice, unidad, opciones) {
         var s = sensor || {};
         var d = Array.isArray(datos) ? datos : [];
         var base = (indice || 0) * VALORES_POR_SENSOR;
         var tipo = TIPOS[s.type] ? s.type : "SHT2";      // sin tipo: el sensor de temperatura y humedad de siempre
-        var r = TIPOS[tipo](s, numero(d[base]), numero(d[base + 1]), unidad);
+        var r = TIPOS[tipo](s, numero(d[base]), numero(d[base + 1]), unidad, opciones || {});
         r.tipo = tipo;
         r.nombre = s.alias || s.id || "Sensor";
         r.voltaje = numero(d[base + 2]);
