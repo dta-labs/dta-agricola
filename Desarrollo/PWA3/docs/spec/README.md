@@ -152,6 +152,7 @@
 | REQ-133 | Nevera: tarjetas con temperatura primero, humedad despues y estado del sensor (Helado, Adecuado, Caliente) | Implementado (probar: usuario) | 3 |
 | REQ-134 | Nevera: humedad en segunda columna, fondo por estado y tarjeta comun para puerta, corriente, presion y caudal; ultima fila sin correrse | Implementado (probar: usuario) | 2 (+2 ajustadas) |
 | REQ-135 | Nevera: titulo mas grande, configuracion al tocar la tarjeta, solo boton de grafica (mas grande) | Implementado (probar: usuario) | 1 |
+| REQ-136 | Nevera: boton de grafica mas ancho (96 px) con la altura anterior (36 px) | Implementado (probar: usuario) | (REQ-135 ajustada) |
 | Prueba manual del resto | listado de equipos, retraso de comunicacion, alarma de nevera, plan de riego |
 | Empaquetado nativo | Capacitor (Android/iOS), objetivo final de la refactorizacion |
 

@@ -517,8 +517,8 @@ dta-panel-nevera {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 64px;
-    height: 42px;
+    width: 96px;   /* REQ-136: mas ancho para tocarlo facil, con la altura de antes (36 px) */
+    height: 36px;
     padding: 0;
     border: 1px solid #b0bec5;
     border-radius: 12px;
@@ -529,4 +529,4 @@ dta-panel-nevera {
 }
 .nevera-boton-grafica:hover,
 .nevera-boton-grafica:focus-visible { background: #eceff1; }
-.nevera-boton-grafica .material-icons { font-size: 28px; }
+.nevera-boton-grafica .material-icons { font-size: 26px; }

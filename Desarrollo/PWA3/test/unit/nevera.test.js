@@ -71,6 +71,6 @@ test("REQ-135 la tarjeta abre la configuracion; solo queda el boton de la grafic
   assert.doesNotMatch(html, />settings</);
   assert.equal((html.match(/<button /g) || []).length, 1);
   const css = leer("assets", "js", "components", "sistema", "paneles.css");
-  assert.match(css, /\.nevera-boton-grafica \{[^}]*width: 64px;\n    height: 42px;/);
+  assert.match(css, /\.nevera-boton-grafica \{[^}]*width: 96px;[^\n]*\n    height: 36px;/);   // REQ-136: mas ancho, altura de antes
   assert.match(css, /\.nevera-nombre \{[^}]*font-size: 1\.4rem;/);
 });

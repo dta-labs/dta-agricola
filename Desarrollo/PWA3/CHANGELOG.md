@@ -87,6 +87,7 @@ Cada version publicada lleva una etiqueta de git `pwa3-vX.Y.Z` sobre el commit d
 - Etiquetas que tapaban los datos y selectores que no mostraban lo elegido, en toda la app. (REQ-043 A1-A2)
 
 ### Cambiado
+- Nevera: el boton de la grafica es mas ancho (96 px) con la altura de antes (36 px). (REQ-136)
 - Nevera: titulo de la tarjeta mas grande (sin agrandar la tarjeta); toda la tarjeta abre la configuracion del sensor, como las fichas de los sensores de suelo, y al pie queda solo el boton de la grafica, mas grande. (REQ-135)
 - Nevera: la humedad pasa a una segunda columna (pequeña) junto a la temperatura y la tarjeta toma el fondo atenuado del color de su estado, como el listado. El mismo diseño sirve para sensores de puerta (abierta/cerrada), corriente, presion y caudal (1 o 2 valores) con sus iconos y estados. Tambien: en el listado y en la nevera la ultima fila de tarjetas ya no se corre a la derecha. (REQ-134)
 - Nevera: tarjetas nuevas, con la temperatura grande y en el color de su estado ("Helado", "Adecuado", "Caliente", segun los umbrales del sensor o 0 y 3 °C), luego la humedad (con "Seca/Adecuada/Alta" si tiene umbrales) y al pie bateria, grafica y configuracion. (REQ-133)
