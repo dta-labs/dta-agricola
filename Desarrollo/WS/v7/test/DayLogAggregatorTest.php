@@ -37,6 +37,14 @@ final class DayLogAggregatorTest extends TestCase {
         $this->assertSame('NaN', $r[8]);
     }
 
+    public function testSummarizeIgnoresInvalidTensiometerReadings(): void {
+        // REQ-146: en un WM, 0 ("no listo") y 240 ("error") no entran al promedio; en otros tipos el 0 si cuenta
+        $logs = ['a' => $this->log([0, 40, 3, 3, 3, 0, 0, 3.6]), 'b' => $this->log([240, 40, 3, 3, 3, 0, 0, 3.6]), 'c' => $this->log([30, 40, 3, 3, 3, 0, 0, 3.6])];
+        $this->assertSame(30.0, DayLogAggregator::summarize($logs, ['WM'])[0]);
+        $this->assertSame(90.0, DayLogAggregator::summarize($logs, ['SHT4'])[0]);
+        $this->assertSame('NaN', DayLogAggregator::summarize(['a' => $this->log([0, 40, 3, 3, 3, 0, 0, 3.6])], ['WM'])[0]);
+    }
+
     public function testSummarizeKeepsNegativeMaxTemperature(): void {
         $logs = ['a' => $this->log([10, 40, -8, -8, -8, 0, 0.5, 3.6]), 'b' => $this->log([10, 40, -3, -3, -3, 0, 0.5, 3.6])];
         $r = DayLogAggregator::summarize($logs);

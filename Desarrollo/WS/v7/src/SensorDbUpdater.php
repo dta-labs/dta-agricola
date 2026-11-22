@@ -98,6 +98,9 @@ class SensorDbUpdater {
         if (self::isEmptyRecord($last)) {
             $this->db->put("systems/{$this->id}/dayLogs/$lastKey/date", $this->date);
         }
+        // REQ-147: el lo del gateway se actualiza siempre en el ultimo registro del dia (aunque no haya lecturas)
+        $lo = $this->req->lo();
+        if ($lo !== null) $this->db->put("systems/{$this->id}/dayLogs/$lastKey/lo", $lo);
     }
 
     /** Registro sin ningún valor numérico en dataRaw (todo NAN/NaN/null/vacío). */
@@ -138,14 +141,28 @@ class SensorDbUpdater {
         return $this->record($this->date, $expanded);
     }
 
-    private function record(string $date, array $dataRaw): array {
-        return [
+    private function record(string $date, array $dataRaw, bool $withLo = true): array {
+        $record = [
             'date'      => $date,
             'dataRaw'   => json_encode($dataRaw),
             'signal'    => $this->req->get('si'),
             'qos'       => $this->req->get('qos'),
             'reception' => $this->req->get('rx'),
         ];
+        // REQ-147: lo = ciclos que el gateway lleva sin recibir de cada sensor (negativo = sin datos), como en neveras
+        $lo = $this->req->lo();
+        if ($withLo && $lo !== null) $record['lo'] = $lo;
+        return $record;
+    }
+
+    /** REQ-146: tipo de cada sensor (S0..S9) para el resumen del día. */
+    private function sensorTypes(): array {
+        $types = [];
+        for ($i = 0; $i < DayLogAggregator::SENSORS; $i++) {
+            $sensor = SystemSettings::sensor($this->settings, $i);
+            $types[$i] = $sensor && isset($sensor->type) ? (string) $sensor->type : '';
+        }
+        return $types;
     }
 
     /**
@@ -163,7 +180,7 @@ class SensorDbUpdater {
         }
 
         $lastDay = $lastDate !== null ? substr($lastDate, 0, 8) : '';
-        $summary = $this->record(($lastDay ?: date('Ymd')) . ' 0000am', DayLogAggregator::summarize($logs));
+        $summary = $this->record(($lastDay ?: date('Ymd')) . ' 0000am', DayLogAggregator::summarize($logs, $this->sensorTypes()), false);
         $this->db->delete($path);
         $this->db->post("systems/{$this->id}/logs", $summary);
         $this->db->post($path, $record);

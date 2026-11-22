@@ -166,6 +166,15 @@ directo en `logs` (no usan `dayLogs` ni resumen diario).
 - `lo` = ciclos que el gateway lleva sin recibir de cada sensor, p. ej. `"[-17,-17,-17,-17,-17,0,0,0,0,0]"`
   (negativo = sin datos). Se guarda como texto, igual que `dataRaw`. Si no es una lista de enteros, se ignora.
 
+## 🆕 Tensiómetros y `lo` en redes de sensores (2026-11-22)
+
+- **REQ-146** — Resumen diario: en los sensores `type = "WM"` (tensiómetros) la tensión 0 ("no listo") y 240 o más
+  ("error") ya no entran al promedio del día (antes lo sesgaban). En los demás tipos no cambia nada.
+  `DayLogAggregator::summarize($dayLogs, $types)` recibe el tipo de cada sensor (S0..S9).
+- **REQ-147** — Redes de sensores (`type = "Sensor"`): si el gateway envía `lo`, se guarda en el registro de
+  `dayLogs` (igual que en neveras). Con `data=[]` se actualiza el `lo` del último registro del día. El resumen diario
+  de `logs` no lleva `lo`.
+
 ## Pruebas
 
 ```bash

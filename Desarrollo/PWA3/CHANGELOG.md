@@ -12,6 +12,7 @@ Cada version publicada lleva una etiqueta de git `pwa3-vX.Y.Z` sobre el commit d
 ## [Sin publicar] - candidata a 1.1.0
 
 ### Corregido
+- Servidor (WS v7): el promedio diario de los tensiometros incluia las lecturas "no listo" (0) y "error" (240) y salia sesgado; ahora se ignoran. (REQ-146)
 - En iOS y Android, al trabajar con el mapa la vista se descuadraba y la cabecera quedaba cortada (sin titulo ni controles). El mapa media mas que la pantalla y el navegador desplazaba la vista; ahora su alto se ajusta al espacio visible y la vista vuelve arriba si algo la desplaza. (REQ-137)
 - Historial: las graficas no mostraban los iconos del clima. Al abrir un sensor se veian solo las lecturas del dia (aunque "Semana" apareciera elegido) y su unico icono, el del borde, se descartaba; ahora se carga el periodo elegido, los dias del borde se dibujan y los iconos que cargan tarde redibujan la grafica vigente. (REQ-132)
 - Historial: en el celular las tablas mas anchas que la pantalla movian toda la ventana; ahora se desplazan dentro de su caja y la fecha queda fija a la izquierda. (REQ-131)

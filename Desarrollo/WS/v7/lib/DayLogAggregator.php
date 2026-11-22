@@ -40,8 +40,11 @@ final class DayLogAggregator {
      *
      * Corrección v7: en v6 el máximo arrancaba en PHP_FLOAT_MIN (el positivo
      * más pequeño), así que un día con Tmax bajo cero quedaba como "NaN".
+     *
+     * REQ-146: $types[i] = tipo del sensor i. En los tensiómetros ("WM") la tensión 0 ("no listo") y 240 o más
+     * ("error") no son lecturas: no entran al promedio del día (antes lo sesgaban hacia saturado o seco).
      */
-    public static function summarize(array $dayLogs): array {
+    public static function summarize(array $dayLogs, array $types = []): array {
         if (!$dayLogs) return [];
         $n = self::SENSORS;
         $sum = ['ms' => array_fill(0, $n, 0.0), 'hr' => array_fill(0, $n, 0.0), 't' => array_fill(0, $n, 0.0), 'etc' => array_fill(0, $n, 0.0), 'hf' => array_fill(0, $n, 0.0)];
@@ -64,6 +67,9 @@ final class DayLogAggregator {
                     if ($f === 'hr' && $v === DTA_HR_NOT_MEASURED) {
                         $hrNotMeasured[$i] = true;   // -1: el sensor no mide HR; no entra al promedio
                         continue;
+                    }
+                    if ($f === 'ms' && $v !== null && ($types[$i] ?? '') === 'WM' && !self::validTension($v)) {
+                        continue;                     // REQ-146: 0 = no listo, >= 240 = error
                     }
                     if ($v !== null) {
                         $sum[$f][$i] += $v;
@@ -91,6 +97,11 @@ final class DayLogAggregator {
             $out[] = $vcc[$i] ?: 'NaN';
         }
         return $out;
+    }
+
+    /** REQ-146: tensión válida de un tensiómetro (cb): ni 0 ("no listo") ni 240 o más ("error"), ni negativa. */
+    public static function validTension(float $cb): bool {
+        return $cb > 0 && $cb < 240;
     }
 
     /** Número redondeado a 1 decimal, o null si no es numérico ("NAN", "NaN", vacío...). */

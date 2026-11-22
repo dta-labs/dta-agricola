@@ -18,6 +18,20 @@ final class SensorDbUpdaterTest extends TestCase {
         return [$fb];
     }
 
+    public function testLoIsSavedWithTheRecord(): void {
+        // REQ-147: el lo del gateway (ciclos sin recibir de cada sensor) se guarda como en las neveras
+        [$fb] = $this->updater(['data' => '[12.50,45,23.4,3.7,,]', 'lo' => '[0, -17]'], []);
+        $this->assertSame('[0,-17]', $fb->writes()[0][2]['lo']);
+        [$fb] = $this->updater(['data' => '[12.50,45,23.4,3.7,,]', 'lo' => 'x'], []);
+        $this->assertArrayNotHasKey('lo', $fb->writes()[0][2]);
+    }
+
+    public function testEmptyDataUpdatesLoOfTheLastRecord(): void {
+        $lleno = ['date' => '20261120 0100pm', 'dataRaw' => json_encode(array_fill(0, 80, '1'))];
+        [$fb] = $this->updater(['data' => '[]', 'lo' => '[-3,0]'], ['systems/1/dayLogs' => ['k1' => $lleno]]);
+        $this->assertSame([['PUT', 'systems/1/dayLogs/k1/lo', '[-3,0]']], $fb->writes());
+    }
+
     public function testFirstRecordOfTheDay(): void {
         [$fb] = $this->updater(['data' => '[12.50,45,23.4,3.7,,]', 'si' => '20', 'rx' => 'Ok'], []);
         $w = $fb->writes();

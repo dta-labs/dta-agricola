@@ -162,6 +162,7 @@
 | REQ-143 | Invernadero: mismo panel, sensores, logs y avisos que la nevera; alta en el asistente | Implementado (probar: usuario) | 4 |
 | REQ-144 | Invernadero: varios cultivos por sensor (formulario, tarjeta y resumen) | Implementado (probar: usuario) | 4 |
 | REQ-145 | Sensores: limites configurables de cada parametro medido (humedad, temperatura, humedad relativa, presion, caudal, corriente) | Implementado (probar: usuario) | 2 (+1 ajustada) |
+| REQ-146 | Servidor (WS v7): el promedio diario de los tensiometros ignora 0 ("no listo") y 240 ("error") | Implementado (subir v7) | PHP 1 |
 | Prueba manual del resto | listado de equipos, retraso de comunicacion, alarma de nevera, plan de riego |
 | Empaquetado nativo | Capacitor (Android/iOS), objetivo final de la refactorizacion |
 
