@@ -1354,6 +1354,14 @@ canvas[id^="myChart"],
     font-size: 10px;
 }
 
+/* REQ-125: los controles de la grafica (zoom, calendario, exportar datos e imagen) solo en la vista de PC. En celular
+   y tableta (pantallas hasta 992 px o tactiles sin raton) se ocultan; el zoom con dos dedos y el arrastre siguen. */
+@media (max-width: 992px), (hover: none) and (pointer: coarse) {
+    .grafica-herramientas {
+        display: none !important;
+    }
+}
+
 /* REQ-093: barra de herramientas de las graficas del historial */
 .grafica-herramientas {
     display: flex;

@@ -21,3 +21,8 @@ test("REQ-124 historial: boton Dia tambien en las redes de sensores, con la hora
   assert.equal((CORE.match(/labels\.push\(\$scope\.selectedTimeOption == 'DIA' \? \$scope\.horaDeRegistro\(element\.date\) : date\);/g) || []).length, 4);
   assert.doesNotMatch(CORE, /element\.date\.substr\(9, 14\)\)\);/);
 });
+
+test("REQ-125 controles de la grafica solo en la vista de PC (ocultos en celular, tableta y pantallas tactiles)", () => {
+  const CSS = leer("assets", "css", "style.css");
+  assert.match(CSS, /@media \(max-width: 992px\), \(hover: none\) and \(pointer: coarse\) \{\n    \.grafica-herramientas \{\n        display: none !important;/);
+});
