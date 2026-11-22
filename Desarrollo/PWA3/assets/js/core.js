@@ -778,6 +778,12 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         const nuevas = evaluacion.alarmas.filter(alarma => agregarNotificacion(
             __modulo("notificaciones").desdeAlarmaDeHelada(alarma, sistema, sistema.log.date, isFinite(instanteLog) ? instanteLog : Date.now())));
         if (evaluacion.sonar && nuevas.length) activarAlarma();
+
+        // REQ-140: sensores de neveras/invernaderos de los que el gateway no recibe datos (log.lo negativo)
+        if ((sistema.type === "Nevera" || sistema.type === "Invernadero") && sistema.log.lo) {
+            __modulo("nevera").sensoresSinRecepcion(sistema, sistema.log, instanteLog)
+                .forEach(item => agregarNotificacion(__modulo("notificaciones").desdeSensorSinRecepcion(item, sistema)));
+        }
     }
 
     processingSensors = (locationKey) => {

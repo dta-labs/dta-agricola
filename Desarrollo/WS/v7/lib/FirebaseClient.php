@@ -39,6 +39,19 @@ class FirebaseClient {
         return $vars ? end($vars) : null;
     }
 
+    /** Último hijo con su llave: ['key' => ..., 'value' => ...] o null. */
+    public function getLastEntry(string $path): ?array {
+        $data = $this->get($path, ['orderBy' => '"$key"', 'limitToLast' => 1]);
+        if (!is_object($data)) return null;
+        foreach (get_object_vars($data) as $key => $value) return ['key' => (string) $key, 'value' => $value];
+        return null;
+    }
+
+    /** Actualiza solo los campos dados de un nodo. */
+    public function patch(string $path, $value): bool {
+        return $this->write('PATCH', $path, $value);
+    }
+
     public function put(string $path, $value): bool {
         return $this->write('PUT', $path, $value);
     }

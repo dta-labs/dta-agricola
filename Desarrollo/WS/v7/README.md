@@ -155,6 +155,17 @@ Los logs están en `v7/logs/`.
 
 A partir de aquí los cambios se hacen solo en la v7.
 
+## 🆕 Neveras e invernaderos (2026-11-22)
+
+`type = "Nevera"` y `type = "Invernadero"` se procesan igual (`updateNeveraDB.php`, 3 valores por sensor) y escriben
+directo en `logs` (no usan `dayLogs` ni resumen diario).
+
+- `data=[...]`: registro nuevo en `logs`; si llega `lo`, se guarda en el registro.
+- `data=[]` y ya hay un registro en `logs`: se actualiza su `date` y su `lo` (PATCH; las lecturas no cambian).
+- `data=[]` sin registros: se crea uno vacío (30 valores `null`) con `lo`.
+- `lo` = ciclos que el gateway lleva sin recibir de cada sensor, p. ej. `"[-17,-17,-17,-17,-17,0,0,0,0,0]"`
+  (negativo = sin datos). Se guarda como texto, igual que `dataRaw`. Si no es una lista de enteros, se ignora.
+
 ## Pruebas
 
 ```bash
@@ -163,7 +174,7 @@ composer install          # instala phpunit (require-dev de composer.json)
 vendor/bin/phpunit -c v7/phpunit.xml
 ```
 
-54 pruebas: parser, registro/resumen diario, respuesta al gateway, seguridad
+59 pruebas: parser, registro/resumen diario, respuesta al gateway, seguridad
 (inyección e id), flujo completo de updateSensorDB/updateNeveraDB
 (primer registro, cambio de día, lectura única de dayLogs, `data=[]`, descubrimiento) y
 estaciones (renglón correcto, formatos de fecha, datos viejos, prioridad sobre Open-Meteo, fechas aaaa-mm-dd) y HR = -1.

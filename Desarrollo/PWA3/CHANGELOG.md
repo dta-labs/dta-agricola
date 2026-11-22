@@ -159,6 +159,8 @@ Cada version publicada lleva una etiqueta de git `pwa3-vX.Y.Z` sobre el commit d
   migrados: acordeon, list-group y modales de Bootstrap. El login sigue en Materialize. (REQ-043 fases B-C)
 
 ### Anadido
+- Neveras e invernaderos: icono de notificacion en la tarjeta del sensor cuando el gateway no recibe sus datos (`lo`
+  negativo) y aviso "Sin datos" en Notificaciones con desde cuando no se actualiza. (REQ-140)
 - Estacionario, Plan de riego \ Programacion: boton "Guardar" en el programa de riego para guardarlo sin iniciarlo (se inicia despues con ▶ en la lista). (REQ-140)
 - Historial: columna "Clima" (icono del dia) junto a la fecha en Semana, Mes y Ciclo; los ultimos 7 dias se piden al pronostico porque el archivo historico los publica con retraso (antes la semana salia sin iconos en la grafica). Descripcion del clima en español. (REQ-130)
 - Historial de los sensores: boton "Dia" (lecturas de hoy) junto a Semana, Mes y Ciclo; el eje muestra la hora. (REQ-124)

@@ -26,6 +26,7 @@ final class SensorEndpointTest extends TestCase {
     public function testProcessorByType(): void {
         $this->assertSame(DTA_WS_V7_URL . '/updateSensorDB.php', SensorEndpoint::processorUrl($this->settings('30', 'Sensor')));
         $this->assertSame(DTA_WS_V7_URL . '/updateNeveraDB.php', SensorEndpoint::processorUrl($this->settings('30', 'Nevera')));
+        $this->assertSame(DTA_WS_V7_URL . '/updateNeveraDB.php', SensorEndpoint::processorUrl($this->settings('30', 'Invernadero')));
         $this->assertNull(SensorEndpoint::processorUrl($this->settings('30', 'Pivot')));
     }
 }

@@ -8,7 +8,7 @@
 (function (raiz) {
     "use strict";
 
-    var VERSION = "26.11.22.012";
+    var VERSION = "26.11.22.019";
 
     function Controlador(dtaReglas) {
         var vm = this;
@@ -31,6 +31,12 @@
             var valor = nevera.tarjeta(sensor, vm.datos, nevera.indiceDe(clave), unidad);
             cache.porClave[clave] = { huella: huella, valor: valor };
             return valor;
+        };
+
+        /** REQ-140: ciclos que el gateway lleva sin recibir de este sensor (0 = recibe; ver log.lo). */
+        vm.ciclosSinRecepcion = function (clave) {
+            var nevera = (raiz.DTALogic && raiz.DTALogic.nevera) || (typeof require === "function" ? require("../../../logic/nevera.js") : null);
+            return nevera.ciclosSinRecepcion(vm.sistema && vm.sistema.log, nevera.indiceDe(clave));
         };
 
         /** Senal del modem en % (logic/panel.js). */

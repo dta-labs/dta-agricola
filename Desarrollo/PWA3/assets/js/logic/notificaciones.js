@@ -26,6 +26,7 @@
         plagas: { etiqueta: "Plagas", icono: "bug_report", color: "#6d4c41" },
         electricidad: { etiqueta: "Electricidad", icono: "flash_on", color: "#f9a825" },
         seguridad: { etiqueta: "Seguridad", icono: "security", color: "#ad1457" },
+        sinDatos: { etiqueta: "Sin datos", icono: "portable_wifi_off", color: "#757575" },   // REQ-140
         general: { etiqueta: "Aviso", icono: "notifications", color: "#546e7a" }
     };
 
@@ -95,6 +96,28 @@
         };
     }
 
+    /**
+     * REQ-140: entrada para un sensor del que el gateway no recibe datos (logic/nevera.js -> sensoresSinRecepcion).
+     * El id lleva el instante "desde" redondeado a la frecuencia: mientras siga sin datos es la misma notificacion;
+     * si vuelve y se pierde otra vez, es una nueva.
+     */
+    function desdeSensorSinRecepcion(item, sistema, ahora) {
+        var s = sistema || {};
+        var paso = (item.frecuencia || 1) * 60000;
+        var desde = isFinite(item.desde) && item.desde !== null ? Math.round(item.desde / paso) * paso : null;
+        var cuando = desde !== null ? "desde " + fechaLegible(desde, ahora) : "hace " + item.ciclos + " ciclos";
+        return {
+            id: ["sin-datos", s.key || s.name || "", item.clave, desde !== null ? desde : "?"].join("|"),
+            tipo: "sinDatos",
+            nivel: "alta",
+            titulo: "Sensor sin datos en " + (s.name || "un equipo"),
+            mensaje: item.nombre + ": no se actualiza " + cuando + " (" + item.ciclos + (item.ciclos === 1 ? " ciclo" : " ciclos") + " sin recibir)",
+            sistema: s.key || "",
+            fecha: desde !== null ? desde : (ahora || Date.now()),
+            leida: false
+        };
+    }
+
     /** Agrega una entrada si no estaba (mismo id). Devuelve { lista, nueva }. Mas reciente primero; maximo MAXIMO. */
     function agregar(lista, entrada) {
         var actual = Array.isArray(lista) ? lista : [];
@@ -136,6 +159,7 @@
         textoSinFecha: textoSinFecha,
         desdePush: desdePush,
         desdeAlarmaDeHelada: desdeAlarmaDeHelada,
+        desdeSensorSinRecepcion: desdeSensorSinRecepcion,
         agregar: agregar,
         separar: separar,
         marcarLeidas: marcarLeidas,

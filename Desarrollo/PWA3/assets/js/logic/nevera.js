@@ -12,6 +12,9 @@
  *   Psi      Presion psi (v0)                Presion 2 psi (v1)           Baja / Normal / Alta (psi.min/max); sin umbrales: Con / Sin presion
  *   Fl       Caudal L/min (v0)               Caudal 2 L/min (v1)          Bajo / Normal / Alto (fl.min/max); sin umbrales: Fluyendo / Sin flujo
  * Tonos: frio (azul), ok (verde), atencion (ambar), alerta (rojo), inactivo (gris).
+ *
+ * REQ-140: `log.lo` = ciclos que el gateway lleva sin recibir de cada sensor ("[-17,-17,0,...]", posicion = S0, S1...);
+ * negativo = sin datos. ciclosSinRecepcion() y sensoresSinRecepcion() lo traducen para la tarjeta y las notificaciones.
  */
 (function (root, factory) {
     if (typeof module === "object" && module.exports) {
@@ -156,5 +159,44 @@
         return r;
     }
 
-    return { tarjeta: tarjeta, indiceDe: indiceDe, TIPOS: Object.keys(TIPOS) };
+    /** Lista de ciclos sin recibir (log.lo como texto JSON o arreglo), o [] si no viene. */
+    function listaLo(log) {
+        var lo = log && log.lo;
+        if (typeof lo === "string") {
+            try { lo = JSON.parse(lo); } catch (e) { return []; }
+        }
+        return Array.isArray(lo) ? lo : [];
+    }
+
+    /** Ciclos que el gateway lleva sin recibir del sensor `indice` (0 si los recibe o no hay dato). */
+    function ciclosSinRecepcion(log, indice) {
+        if (indice === null || indice === undefined) return 0;
+        var v = numero(listaLo(log)[indice]);
+        return v !== null && v < 0 ? Math.round(-v) : 0;
+    }
+
+    /**
+     * Sensores sin datos: [{ clave, nombre, ciclos, desde }]. `desde` (ms) = instante del registro - ciclos x
+     * frecuencia del sistema (operationMode, minutos); null si la frecuencia no es valida.
+     */
+    function sensoresSinRecepcion(sistema, log, instanteLog) {
+        var s = sistema || {};
+        var sensores = s.sensors || {};
+        var frecuencia = numero(s.operationMode);
+        var salida = [];
+        Object.keys(sensores).forEach(function (clave) {
+            var sensor = sensores[clave];
+            if (!sensor || !sensor.id) return;
+            var ciclos = ciclosSinRecepcion(log, indiceDe(clave));
+            if (!ciclos) return;
+            var desde = frecuencia > 0 && isFinite(instanteLog) ? instanteLog - ciclos * frecuencia * 60000 : null;
+            salida.push({ clave: clave, nombre: sensor.alias || sensor.id || clave, ciclos: ciclos, desde: desde, frecuencia: frecuencia > 0 ? frecuencia : null });
+        });
+        return salida;
+    }
+
+    return {
+        tarjeta: tarjeta, indiceDe: indiceDe, TIPOS: Object.keys(TIPOS),
+        ciclosSinRecepcion: ciclosSinRecepcion, sensoresSinRecepcion: sensoresSinRecepcion
+    };
 }));

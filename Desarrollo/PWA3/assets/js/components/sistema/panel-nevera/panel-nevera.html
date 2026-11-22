@@ -48,6 +48,10 @@
                     ng-keydown="($event.key === 'Enter' || $event.key === ' ') && vm.alEditarSensor({ $sensor: coldRoom })">
                     <div class="nevera-cabecera">
                         <span class="nevera-nombre" title="{{ vm.tarjeta(coldRoomKey, coldRoom).nombre }}">{{ vm.tarjeta(coldRoomKey, coldRoom).nombre }}</span>
+                        <!-- REQ-140: el gateway no recibe datos de este sensor (log.lo negativo) -->
+                        <i class="material-icons nevera-sin-datos" ng-if="vm.ciclosSinRecepcion(coldRoomKey) > 0"
+                            title="Sin datos: {{ vm.ciclosSinRecepcion(coldRoomKey) }} ciclos sin recibir"
+                            aria-label="Sin datos: {{ vm.ciclosSinRecepcion(coldRoomKey) }} ciclos sin recibir">notification_important</i>
                         <span class="nevera-estado"><i class="material-icons" aria-hidden="true">{{ vm.tarjeta(coldRoomKey, coldRoom).estado.icono }}</i>{{ vm.tarjeta(coldRoomKey, coldRoom).estado.texto }}</span>
                     </div>
                     <div class="nevera-cuerpo">

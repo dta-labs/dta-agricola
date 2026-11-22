@@ -17,6 +17,14 @@ class FakeFirebase extends FirebaseClient {
     public function put(string $path, $value): bool { $this->calls[] = ['PUT', $path, $value]; return true; }
     public function post(string $path, $value): bool { $this->calls[] = ['POST', $path, $value]; return true; }
     public function delete(string $path): bool { $this->calls[] = ['DELETE', $path]; return true; }
+    public function patch(string $path, $value): bool { $this->calls[] = ['PATCH', $path, $value]; return true; }
+    public function getLastEntry(string $path): ?array {
+        $this->calls[] = ['GET', $path];
+        $all = $this->data[$path] ?? null;
+        if (!is_array($all) || !$all) return null;
+        $key = (string) array_key_last($all);
+        return ['key' => $key, 'value' => json_decode(json_encode($all[$key]))];
+    }
 
     public function writes(): array {
         return array_values(array_filter($this->calls, fn($c) => $c[0] !== 'GET'));

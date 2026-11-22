@@ -10,6 +10,7 @@ class SensorEndpoint {
     private const PROCESSORS = [
         'Sensor' => '/updateSensorDB.php',
         'Nevera' => '/updateNeveraDB.php',
+        'Invernadero' => '/updateNeveraDB.php',   // mismo formato que la nevera (3 valores por sensor)
     ];
 
     public static function deviceResponse(object $settings, LocalClock $clock): string {

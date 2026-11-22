@@ -25,6 +25,16 @@ class Request {
     }
 
     /**
+     * lo = ciclos sin recibir de cada sensor, como lo manda el gateway: "[-17,-17,0,...]" (negativo = sin datos).
+     * Devuelve el arreglo normalizado como texto ("[-17,-17,0]") o null si falta o no es una lista de enteros.
+     */
+    public function lo(): ?string {
+        $raw = preg_replace('/\s+/', '', $this->get('lo'));
+        if (!is_string($raw) || preg_match('/^\[-?\d{1,6}(,-?\d{1,6}){0,31}\]$/D', $raw) !== 1) return null;
+        return '[' . implode(',', array_map('intval', explode(',', trim($raw, '[]')))) . ']';
+    }
+
+    /**
      * Id del sistema. Rechaza caracteres que alterarían la ruta de Firebase
      * (/ . # $ [ ] ? & %) o espacios.
      */
