@@ -139,3 +139,14 @@ test("REQ-130 clima en el historial: columna junto a la fecha (Semana, Mes, Cicl
   assert.deepEqual([0, 2, 3, 45, 63, 81, 95].map(h.descripcionWmo),
     ["Despejado", "Parcialmente nublado", "Nublado", "Niebla", "Lluvia", "Chubascos", "Tormenta"]);
 });
+
+test("REQ-131 tablas del historial con desplazamiento propio y la fecha fija a la izquierda", () => {
+  const ini = HTML.indexOf('<div id="modalHistorial"');
+  const hist = HTML.slice(ini, HTML.indexOf('<div id="modal', ini + 10));
+  assert.equal((hist.match(/<div class="tabla-desplazable">\n\s*<table ng-if="sensor\.type == /g) || []).length, 2);
+  assert.equal((hist.match(/<\/table>\n\s*<\/div>/g) || []).length, 2);
+  assert.equal((hist.match(/class="historial-fecha"/g) || []).length, 6);
+  const CSS = leer("assets", "css", "style.css");
+  assert.match(CSS, /\.tabla-desplazable \{\n    width: 100%;\n    max-width: 100%;\n    overflow-x: auto;/);
+  assert.match(CSS, /\.tabla-desplazable \.historial-fecha \{\n    position: sticky;\n    left: 0;/);
+});
