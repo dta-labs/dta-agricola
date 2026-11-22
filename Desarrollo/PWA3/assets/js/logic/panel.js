@@ -128,12 +128,13 @@
         falla: { color: "#e53935", texto: "Falla eléctrica" },
         seguridad: { color: "#db7093", texto: "Falla de seguridad" },
         "sin-conexion": { color: "#616161", texto: "Comunicación inestable" },
-        nevera: { color: "#204eb2", texto: "Nevera" }
+        nevera: { color: "#204eb2", texto: "Nevera" },
+        invernadero: { color: "#204eb2", texto: "Invernadero" }   // REQ-143: mismo tono que la nevera
     };
 
     var ICONOS_EQUIPO = {
         PC: "fa-dot-circle-o", PL: "fa-arrows-h", Pozo: "fa-tint", Pump: "fa-tint",
-        Sensor: "fa-wifi", Estacionario: "fa-th", Nevera: "fa-snowflake-o"
+        Sensor: "fa-wifi", Estacionario: "fa-th", Nevera: "fa-snowflake-o", Invernadero: "fa-leaf"
     };
 
     function falso(v) { return v === false || v === "false"; }
@@ -163,6 +164,9 @@
                 break;
             case "Nevera":
                 estado = "nevera";
+                break;
+            case "Invernadero":
+                estado = "invernadero";
                 break;
         }
         return { estado: estado, color: ESTADOS_EQUIPO[estado].color, texto: ESTADOS_EQUIPO[estado].texto };

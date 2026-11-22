@@ -13,8 +13,10 @@
  *   Fl       Caudal L/min (v0)               Caudal 2 L/min (v1)          Bajo / Normal / Alto (fl.min/max); sin umbrales: Fluyendo / Sin flujo
  * Tonos: frio (azul), ok (verde), atencion (ambar), alerta (rojo), inactivo (gris).
  *
- * REQ-140: `log.lo` = ciclos que el gateway lleva sin recibir de cada sensor ("[-17,-17,0,...]", posicion = S0, S1...);
+ * REQ-142: `log.lo` = ciclos que el gateway lleva sin recibir de cada sensor ("[-17,-17,0,...]", posicion = S0, S1...);
  * negativo = sin datos. ciclosSinRecepcion() y sensoresSinRecepcion() lo traducen para la tarjeta y las notificaciones.
+ *
+ * REQ-143: los invernaderos (type "Invernadero") usan el mismo panel, sensores y logs que las neveras: esTipoNevera().
  */
 (function (root, factory) {
     if (typeof module === "object" && module.exports) {
@@ -195,7 +197,13 @@
         return salida;
     }
 
+    /** REQ-143: Nevera e Invernadero comparten panel, tarjetas, sensores y carpeta de logs. */
+    function esTipoNevera(tipo) {
+        return tipo === "Nevera" || tipo === "Invernadero";
+    }
+
     return {
+        esTipoNevera: esTipoNevera,
         tarjeta: tarjeta, indiceDe: indiceDe, TIPOS: Object.keys(TIPOS),
         ciclosSinRecepcion: ciclosSinRecepcion, sensoresSinRecepcion: sensoresSinRecepcion
     };

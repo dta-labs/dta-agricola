@@ -189,6 +189,9 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             console.warn("[estaciones] no se pudo leer /stations; se usa el catalogo de respaldo:", (error && error.message) || error);
         });
     };
+    // REQ-143: Nevera e Invernadero comparten panel, sensores y logs (logic/nevera.js).
+    const esTipoNevera = tipo => __modulo("nevera").esTipoNevera(tipo);
+    $scope.esTipoNevera = esTipoNevera;
     $scope.regionesEstacion = () => __modulo("estaciones").regiones(catalogoEstaciones);
     $scope.estacionesDeRegion = region => __modulo("estaciones").deRegion(catalogoEstaciones, region);
 
@@ -757,7 +760,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
 
     const updateNeveraDataRaw = locationKey => {
         const system = $scope.systems[locationKey];
-        if (system?.type !== "Nevera" || $scope.actualSystem?.key !== locationKey || !system.log?.dataRaw) return;
+        if (!esTipoNevera(system?.type) || $scope.actualSystem?.key !== locationKey || !system.log?.dataRaw) return;
 
         try {
             $scope.actualSystemDataRaw = JSON.parse(system.log.dataRaw);
@@ -779,8 +782,8 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             __modulo("notificaciones").desdeAlarmaDeHelada(alarma, sistema, sistema.log.date, isFinite(instanteLog) ? instanteLog : Date.now())));
         if (evaluacion.sonar && nuevas.length) activarAlarma();
 
-        // REQ-140: sensores de neveras/invernaderos de los que el gateway no recibe datos (log.lo negativo)
-        if ((sistema.type === "Nevera" || sistema.type === "Invernadero") && sistema.log.lo) {
+        // REQ-142: sensores de neveras/invernaderos de los que el gateway no recibe datos (log.lo negativo)
+        if (esTipoNevera(sistema.type) && sistema.log.lo) {
             __modulo("nevera").sensoresSinRecepcion(sistema, sistema.log, instanteLog)
                 .forEach(item => agregarNotificacion(__modulo("notificaciones").desdeSensorSinRecepcion(item, sistema)));
         }
@@ -869,7 +872,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         $scope.actualizarListaCultivos();
         let dir = "/" + __modulo("equipos").carpetaDeLogs(system.type);
         let items = __modulo("equipos").registrosIniciales(system.type, $scope.limitRegisters);
-        if (system.type == "Nevera") {
+        if (esTipoNevera(system.type)) {
             $scope.setChartType('humidity');
             $scope.selectedTimeOption = 'DIA';
             $scope.limitRegisters = 300;
@@ -913,7 +916,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         // REQ-013: la regla del historico vive en logic/equipos.js.
         const source = "/" + __modulo("equipos").carpetaDeHistorico($scope.actualSystem?.type, option);
         let dateRange = null;
-        if ($scope.actualSystem?.type === "Nevera") {
+        if (esTipoNevera($scope.actualSystem?.type)) {
             const now = new Date();
             const formatDate = date => `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, "0")}${String(date.getDate()).padStart(2, "0")}`;
             const start = new Date(now);
@@ -1974,7 +1977,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
 
     $scope.addNewSensorToNet = () => {
         let s = $scope.newSensor;
-        if (s.id && ($scope.actualSystem.type == 'Sensor' && s.latitude && s.longitude || $scope.actualSystem.type == 'Nevera')) {
+        if (s.id && ($scope.actualSystem.type == 'Sensor' && s.latitude && s.longitude || esTipoNevera($scope.actualSystem.type))) {
             swal({
                 title: "",
                 text: "Agrear nuevo sensor",
@@ -2634,6 +2637,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                     color = "#000";
                     break;
                 case 'Nevera':
+                case 'Invernadero':
                     color = "#fff";
                     break;
             }
@@ -2661,6 +2665,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                     color = "#20b2aab0";
                     break;
                 case 'Nevera':
+                case 'Invernadero':
                     color = "#204eb2b0";
                     break;
             }
@@ -3498,8 +3503,8 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     // REQ-100: menu del equipo (ficha al tocar su marcador) con el estilo nuevo: cabecera con el pin del equipo (color del
     // estado, icono del tipo), nombre y estado; cuatro opciones alineadas (Historial, Sensores/Planes, Usuarios, Ajustes) y
     // "Como llegar" al pie (antes "Ir" era una opcion mas). HTML fijo: las opciones abren los modales con modal-trigger.
-    const NOMBRES_DE_EQUIPO = { PC: "Pivote central", PL: "Pivote lineal", Pozo: "Pozo", Pump: "Pozo", Sensor: "Red de sensores", Estacionario: "Estacionario", Nevera: "Nevera" };
-    const ICONOS_DE_EQUIPO = { PC: "fa-dot-circle-o", PL: "fa-arrows-h", Pozo: "fa-tint", Pump: "fa-tint", Sensor: "fa-wifi", Estacionario: "fa-th", Nevera: "fa-snowflake-o" };
+    const NOMBRES_DE_EQUIPO = { PC: "Pivote central", PL: "Pivote lineal", Pozo: "Pozo", Pump: "Pozo", Sensor: "Red de sensores", Estacionario: "Estacionario", Nevera: "Nevera", Invernadero: "Invernadero" };
+    const ICONOS_DE_EQUIPO = { PC: "fa-dot-circle-o", PL: "fa-arrows-h", Pozo: "fa-tint", Pump: "fa-tint", Sensor: "fa-wifi", Estacionario: "fa-th", Nevera: "fa-snowflake-o", Invernadero: "fa-leaf" };
 
     const getMarkerText = (campo) => {
         const lat = Number(campo.latitude), lng = Number(campo.longitude);
@@ -4023,7 +4028,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         }
         let result = getRegisterValues(systemLogs);
         let title = sensor.alias ? sensor.alias : sensor.id;
-        let sensorType = sensor.type || (system.type === "Nevera" ? "SHT2" : "");
+        let sensorType = sensor.type || (esTipoNevera(system.type) ? "SHT2" : "");
         let threshold = sensor.t ? sensor.t.minValue : null;
         loadChartWeather(result).then(weatherByDate => {
             switch (sensorType) {
@@ -4162,7 +4167,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         for (let element in items) {
             result.push(items[element]);
         }
-        if ($scope.actualSystem?.type === "Nevera" &&
+        if (esTipoNevera($scope.actualSystem?.type) &&
             $scope.selectedTimeOption === "DIA" && result.length) {
             const latestDate = result
                 .map(item => item?.date?.substring(0, 8))
@@ -4715,7 +4720,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                     const chartArea = chart.chartArea;
                     
                     // Dibujar las tres franjas con etiquetas según el tipo de gráfico
-                    if ($scope.actualSystem.type === "Nevera" && (chartType === "humidity" || chartType === "temperature")) {
+                    if (esTipoNevera($scope.actualSystem.type) && (chartType === "humidity" || chartType === "temperature")) {
                         drawNeveraBands(ctx, chartArea, yScale, chartType, sensorIndex);
                     } else if (chartType === 'moisture' && sensorType === 'WM') {
                         // REQ-126: mismas zonas que la tabla (cb): < 10 azul, < 30 verde, < 60 amarillo, 60+ rojo.
@@ -4971,7 +4976,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                 break;
             }
             case 'humidity':
-                const humidityBounds = $scope.actualSystem.type === "Nevera"
+                const humidityBounds = esTipoNevera($scope.actualSystem.type)
                     ? getDynamicScaleBounds(scaleValues, 10, 0, 100)
                     : null;
                 yScaleConfig = {
@@ -4985,16 +4990,16 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                 };
                 break;
             case 'temperature':
-                const temperatureBounds = $scope.actualSystem.type === "Nevera"
+                const temperatureBounds = esTipoNevera($scope.actualSystem.type)
                     ? getDynamicScaleBounds(scaleValues, 5)
                     : null;
                 yScaleConfig = {
                     beginAtZero: false,
                     type: 'linear',
-                    min: temperatureBounds ? temperatureBounds.min : ($scope.actualSystem.type === "Nevera" ? -5 : -10),
-                    max: temperatureBounds ? temperatureBounds.max : ($scope.actualSystem.type === "Nevera" ? 10 : 50),
+                    min: temperatureBounds ? temperatureBounds.min : (esTipoNevera($scope.actualSystem.type) ? -5 : -10),
+                    max: temperatureBounds ? temperatureBounds.max : (esTipoNevera($scope.actualSystem.type) ? 10 : 50),
                     ticks: {
-                        stepSize: $scope.actualSystem.type == "Nevera" ? 1 : 5
+                        stepSize: esTipoNevera($scope.actualSystem.type) ? 1 : 5
                     }
                 };
                 break;
@@ -5246,7 +5251,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         const previo = cacheDeResumen.get(sistema);
         if (previo && previo.huella.every((v, i) => v === huella[i])) return previo.resumen;
         let opciones = {};
-        if (sistema.type == "Sensor" || sistema.type == "Nevera") {
+        if (sistema.type == "Sensor" || esTipoNevera(sistema.type)) {
             const antiguedad = antiguedadDeRed(sistema);
             opciones = { lecturaVieja: antiguedad.vieja, antiguedad: antiguedad.vieja ? __modulo("estado").textoAntiguedad(antiguedad.horas) : "" };
         }

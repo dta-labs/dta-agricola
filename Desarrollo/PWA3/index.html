@@ -240,6 +240,7 @@
                                             <img ng-switch-when="Pozo" class="icono-bomba" src="assets/images/pozo.png" alt="" loading="lazy">
                                             <img ng-switch-when="Sensor" src="assets/images/Red-Sensores.png" alt="" loading="lazy">
                                             <img ng-switch-when="Nevera" src="assets/images/nieve.png" alt="" loading="lazy">
+                                            <i ng-switch-when="Invernadero" class="material-icons tarjeta-icono-material" aria-hidden="true">local_florist</i>
                                         </div>
                                         <div class="tarjeta-equipo-texto">
                                             <div class="tarjeta-equipo-nombre">{{ system.name }}</div>
@@ -344,7 +345,7 @@
                         <div class="row" style="margin-bottom: 0;">
                             <div class="row">
                                 <div class="col s12" style="font-size: 1.5em; border-bottom: 1px solid;"">
-                                    {{ steep == 0 ? '' : (newDevice.type == 'PC' ? 'Pivote central' : newDevice.type == 'Estacionario' ? 'Estacionario' : newDevice.type == 'Sensor' ? 'Sensor' : newDevice.type == 'Nevera' ? 'Nevera' : 'Pozo') }}
+                                    {{ steep == 0 ? '' : (newDevice.type == 'PC' ? 'Pivote central' : newDevice.type == 'Estacionario' ? 'Estacionario' : newDevice.type == 'Sensor' ? 'Sensor' : newDevice.type == 'Nevera' ? 'Nevera' : newDevice.type == 'Invernadero' ? 'Invernadero' : 'Pozo') }}
                                 </div>
                             </div>
 
@@ -390,6 +391,18 @@
                                         </div>
                                         <div class="card-content">
                                             <p style="text-align: center; font-size: 1.2em;"><span class="show-in-mobil-only">Nevera</span><span class="show-in-pc-only">Sistema de nevera</span></p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- REQ-143: invernadero (mismo panel y sensores que la nevera) -->
+                                <div class="col s6">
+                                    <div class="card tarjeta-sensores" ng-click="newDevice.type='Invernadero'; newDevice.operationMode=5; steep = steep + 1" style="box-shadow: 8px 8px 8px gray !important;">
+                                        <div class="card-image">
+                                            <img src="./assets/images/sensores.png" style="height: 80px; width: 90px; margin: auto;" loading="lazy">
+                                        </div>
+                                        <div class="card-content">
+                                            <p style="text-align: center; font-size: 1.2em;"><span class="show-in-mobil-only">Invernadero</span><span class="show-in-pc-only">Sistema de invernadero</span></p>
                                         </div>
                                     </div>
                                 </div>
@@ -545,7 +558,7 @@
                             <!-- Mapa -->
                             <div class="main-container map col s12"
                                 style="margin-bottom: 10px; padding: 0; height: calc(100vh - 40px);"
-                                ng-show="actualSystem.type != 'Nevera' && (actualSystem.type != 'Sensor' || showSensorMapView)">
+                                ng-show="!esTipoNevera(actualSystem.type) && (actualSystem.type != 'Sensor' || showSensorMapView)">
                                 <div id="map" class="map" style="border-radius: 5px; position: relative; height: calc(100vh - 40px);" tabindex="-1"></div>
                             </div>
                             
@@ -586,7 +599,7 @@
 
                             <!-- Nevera -->
                             <!-- REQ-057: panel de la nevera como componente (assets/js/components/sistema/) -->
-                            <dta-panel-nevera ng-if="actualSystem.type == 'Nevera'" sistema="actualSystem" datos="actualSystemDataRaw"
+                            <dta-panel-nevera ng-if="esTipoNevera(actualSystem.type)" sistema="actualSystem" datos="actualSystemDataRaw"
                                 al-grafica="openColdRoomSensorChart($sensor, $clave)"
                                 al-editar-sensor="editSensor($sensor); abrirVentana('modalEditSensor')"
                                 al-abrir="abrirVentana($modal)"></dta-panel-nevera>
@@ -831,7 +844,7 @@
                                     </td>
                                 </tr>
                                 <!-- REQ-097: portal WiFi del Gateway Universal (punto de acceso del ESP8266) -->
-                                <tr ng-show="(actualSystem.type == 'Sensor' || actualSystem.type == 'Nevera') && (isSystemOfRole('propietario') || isSystemOfRole('desarrollador') || isSystemOfRole('administrador'))">
+                                <tr ng-show="(actualSystem.type == 'Sensor' || esTipoNevera(actualSystem.type)) && (isSystemOfRole('propietario') || isSystemOfRole('desarrollador') || isSystemOfRole('administrador'))">
                                     <td style="text-align: left;">WiFi del gateway</td>
                                     <td style="text-align: left;" id="ajusteWifiGateway">
                                         <small>Junto al gateway, conecta el celular a la red <b>DTA-Gateway-…</b>
@@ -1037,7 +1050,7 @@
                 </div>
 
                 <div id="modalConfig" class="modal" style="min-height: 70% !important;" ng-init="as_config = true"> <!-- Modal Configurar Sistema -->
-                    <div class="swal-title">{{ actualSystem.type != 'Sensor' && actualSystem.type != 'Nevera' ? "Plan de riego" : "Sensores" }}</div>
+                    <div class="swal-title">{{ actualSystem.type != 'Sensor' && !esTipoNevera(actualSystem.type) ? "Plan de riego" : "Sensores" }}</div>
 
                     <div class="modal-content" ng-show="actualSystem.type == 'PC' || actualSystem.type == 'PL'"> <!-- Pivotes -->
                         <table class="striped highlight">
@@ -1189,7 +1202,7 @@
                         </div>
                     </div>
 
-                    <div ng-show="actualSystem.type == 'Sensor' || actualSystem.type == 'Nevera'"> <!-- Sensores -->
+                    <div ng-show="actualSystem.type == 'Sensor' || esTipoNevera(actualSystem.type)"> <!-- Sensores -->
                         <div class="modal-content">
                             <!-- <ul class="collapsible">
                                 <li class="active"> Sensores  -->
@@ -1592,7 +1605,7 @@
                                 Temperatura · Ciclo completo
                             </div>
                         </div>
-                        <div class="row" style="margin-bottom: 8px; text-align: center;" ng-show="coldRoomChartAvailable && actualSystem.type == 'Nevera'">
+                        <div class="row" style="margin-bottom: 8px; text-align: center;" ng-show="coldRoomChartAvailable && esTipoNevera(actualSystem.type)">
                             <div class="col s4" ng-click="setColdRoomChartType('temperature')" style="padding: 10px 2px; cursor: pointer; color: {{ chartType == 'temperature' ? 'red' : 'gray' }}; border-bottom: 3px solid {{ chartType == 'temperature' ? 'red' : 'gray' }};">
                                 <img src="./assets/images/termometro.png" alt="Temperatura" style="width: 20px;" loading="lazy"><br>Temperatura
                             </div>
@@ -1609,7 +1622,7 @@
                         <div class="center-align" ng-show="!coldRoomChartAvailable" style="padding: 30px 10px; color: gray;">
                             Este tipo de sensor no tiene una serie histórica configurable.
                         </div>
-                        <div class="row center-align" style="margin-bottom: 0;" ng-show="coldRoomChartAvailable && actualSystem.type == 'Nevera'">
+                        <div class="row center-align" style="margin-bottom: 0;" ng-show="coldRoomChartAvailable && esTipoNevera(actualSystem.type)">
                             <button class="btn-small" ng-class="selectedTimeOption == 'DIA' ? 'teal' : 'grey lighten-2'" ng-click="reloadColdRoomSensorChart('DIA')">Día</button>
                             <button class="btn-small" ng-class="selectedTimeOption == 'MES' ? 'teal' : 'grey lighten-2'" ng-click="reloadColdRoomSensorChart('MES')">Mes</button>
                             <button class="btn-small" ng-class="selectedTimeOption == 'CICLO' ? 'teal' : 'grey lighten-2'" ng-click="reloadColdRoomSensorChart('CICLO')">Ciclo</button>
@@ -1771,7 +1784,7 @@
                                     </li>
                                 </ul>
                             </div>
-                            <div ng-show="actualSystem.type == 'Sensor' || actualSystem.type == 'Nevera'">
+                            <div ng-show="actualSystem.type == 'Sensor' || esTipoNevera(actualSystem.type)">
                                 <ul class="collapsible">
                                     <!-- REQ-096: la grafica se carga al tocar el ENCABEZADO; antes el ng-click estaba en todo el <li> y el
                                          "clic" al soltar tras arrastrar o hacer zoom la reconstruia (se perdia el zoom) -->
@@ -1824,7 +1837,7 @@
                                                     <button class="btn-small" ng-class="selectedTimeOption == 'SEMANA' ? 'teal' : 'grey lighten-2'" ng-click="reloadSystemLog(actualSystem.key, 'SEMANA');" style="margin-right: 5px; padding: 0 15px; height: 28px; line-height: 28px; font-size: 0.8em; color: {{ selectedTimeOption == 'SEMANA' ? 'white' : '#616161' }};">Semana</button> -->
                                                     <!-- REQ-124: "Dia" tambien en las redes de sensores (lecturas de hoy, de dayLogs) -->
                                                     <button class="btn-small" ng-class="selectedTimeOption == 'DIA' ? 'teal' : 'grey lighten-2'" ng-click="$event.stopPropagation(); reloadSystemLog(actualSystem.key, 'DIA', idx);" style="padding: 0 15px; height: 28px; line-height: 28px; font-size: 0.8em; color: {{ selectedTimeOption == 'DIA' ? 'white' : '#616161' }};"><span class="history-button-spinner" ng-if="historyLoadingOption == 'DIA'"></span>Día</button>
-                                                    <button class="btn-small" ng-if="actualSystem.type != 'Nevera'" ng-class="selectedTimeOption == 'SEMANA' ? 'teal' : 'grey lighten-2'" ng-click="$event.stopPropagation(); reloadSystemLog(actualSystem.key, 'SEMANA', idx);" style="padding: 0 15px; height: 28px; line-height: 28px; font-size: 0.8em; color: {{ selectedTimeOption == 'SEMANA' ? 'white' : '#616161' }};"><span class="history-button-spinner" ng-if="historyLoadingOption == 'SEMANA'"></span>Semana</button>
+                                                    <button class="btn-small" ng-if="!esTipoNevera(actualSystem.type)" ng-class="selectedTimeOption == 'SEMANA' ? 'teal' : 'grey lighten-2'" ng-click="$event.stopPropagation(); reloadSystemLog(actualSystem.key, 'SEMANA', idx);" style="padding: 0 15px; height: 28px; line-height: 28px; font-size: 0.8em; color: {{ selectedTimeOption == 'SEMANA' ? 'white' : '#616161' }};"><span class="history-button-spinner" ng-if="historyLoadingOption == 'SEMANA'"></span>Semana</button>
                                                     <button class="btn-small" ng-class="selectedTimeOption == 'MES' ? 'teal' : 'grey lighten-2'" ng-click="$event.stopPropagation(); reloadSystemLog(actualSystem.key, 'MES', idx);" style="padding: 0 15px; height: 28px; line-height: 28px; font-size: 0.8em; color: {{ selectedTimeOption == 'MES' ? 'white' : '#616161' }};"><span class="history-button-spinner" ng-if="historyLoadingOption == 'MES'"></span>Mes</button>
                                                     <button class="btn-small" ng-class="selectedTimeOption == 'CICLO' ? 'teal' : 'grey lighten-2'" ng-click="$event.stopPropagation(); reloadSystemLog(actualSystem.key, 'CICLO', idx);" style="padding: 0 15px; height: 28px; line-height: 28px; font-size: 0.8em; color: {{ selectedTimeOption == 'CICLO' ? 'white' : '#616161' }};"><span class="history-button-spinner" ng-if="historyLoadingOption == 'CICLO'"></span>Ciclo</button>
                                                     <!-- <button class="btn-small" ng-class="selectedTimeOption == 'AÑO' ? 'teal' : 'grey lighten-2'" ng-click="reloadSystemLog(actualSystem.key, 'AÑO');" style="padding: 0 15px; height: 28px; line-height: 28px; font-size: 0.8em; color: {{ selectedTimeOption == 'AÑO' ? 'white' : '#616161' }};">Año</button> -->
@@ -2622,7 +2635,7 @@
                                     </div>
                                 </section>
 
-                                <section ng-show="actualSystem.type == 'Nevera'">
+                                <section ng-show="esTipoNevera(actualSystem.type)">
                                     <div class="col s6">
                                         <div class="card tarjeta-sensores" ng-click="newSensor.type='SHT2'; steepSensor = steepSensor + 1" style="box-shadow: 8px 8px 8px gray !important;">
                                             <div class="card-image">
@@ -2666,9 +2679,9 @@
                                         <option value="Tr" selected="{{ newSensor.type == 'Tr' ? 'selected' : '' }}" ng-show="actualSystem.type == 'Sensor'">Sensor de <b>temperatura</b></option>
                                         <option value="Psi" selected="{{ newSensor.type == 'Psi' ? 'selected' : '' }}" ng-show="actualSystem.type == 'Sensor'">Sensor de <b>presión</b></option>
                                         <option value="Fl" selected="{{ newSensor.type == 'Fl' ? 'selected' : '' }}" ng-show="actualSystem.type == 'Sensor'">Sensor de <b>caudal</b></option>
-                                        <option value="SHT2" selected="{{ newSensor.type == 'SHT2' ? 'selected' : '' }}" ng-show="actualSystem.type == 'Nevera'">Sensor de <b>Temp y Hr</b></option>
-                                        <option value="Irms" selected="{{ newSensor.type == 'Irms' ? 'selected' : '' }}" ng-show="actualSystem.type == 'Nevera'">Sensor de <b>corriente</b></option>
-                                        <option value="Contact" selected="{{ newSensor.type == 'Contact' ? 'selected' : '' }}" ng-show="actualSystem.type == 'Nevera'">Sensor de <b>contacto</b></option>
+                                        <option value="SHT2" selected="{{ newSensor.type == 'SHT2' ? 'selected' : '' }}" ng-show="esTipoNevera(actualSystem.type)">Sensor de <b>Temp y Hr</b></option>
+                                        <option value="Irms" selected="{{ newSensor.type == 'Irms' ? 'selected' : '' }}" ng-show="esTipoNevera(actualSystem.type)">Sensor de <b>corriente</b></option>
+                                        <option value="Contact" selected="{{ newSensor.type == 'Contact' ? 'selected' : '' }}" ng-show="esTipoNevera(actualSystem.type)">Sensor de <b>contacto</b></option>
                                     </select>
                                     <label style="top: -28px; font-size: .8em;">Tipo de sensor</label>
                                 </div>
@@ -2962,9 +2975,9 @@
                                     <option value="Tr" selected="{{ actualSensor.type == 'Tr' ? 'selected' : '' }}" ng-show="actualSystem.type == 'Sensor'">Sensor de <b>temperatura</b></option>
                                     <option value="Psi" selected="{{ actualSensor.type == 'Psi' ? 'selected' : '' }}" ng-show="actualSystem.type == 'Sensor'">Sensor de <b>presión</b></option>
                                     <option value="Fl" selected="{{ actualSensor.type == 'Fl' ? 'selected' : '' }}" ng-show="actualSystem.type == 'Sensor'">Sensor de <b>caudal</b></option>
-                                    <option value="SHT2" selected="{{ actualSensor.type == 'SHT2' ? 'selected' : '' }}" ng-show="actualSystem.type == 'Nevera'">Sensor de <b>Temp y Hr</b></option>
-                                    <option value="Irms" selected="{{ actualSensor.type == 'Irms' ? 'selected' : '' }}" ng-show="actualSystem.type == 'Nevera'">Sensor de <b>corriente</b></option>
-                                    <option value="Contact" selected="{{ actualSensor.type == 'Contact' ? 'selected' : '' }}" ng-show="actualSystem.type == 'Nevera'">Sensor de <b>contacto</b></option>
+                                    <option value="SHT2" selected="{{ actualSensor.type == 'SHT2' ? 'selected' : '' }}" ng-show="esTipoNevera(actualSystem.type)">Sensor de <b>Temp y Hr</b></option>
+                                    <option value="Irms" selected="{{ actualSensor.type == 'Irms' ? 'selected' : '' }}" ng-show="esTipoNevera(actualSystem.type)">Sensor de <b>corriente</b></option>
+                                    <option value="Contact" selected="{{ actualSensor.type == 'Contact' ? 'selected' : '' }}" ng-show="esTipoNevera(actualSystem.type)">Sensor de <b>contacto</b></option>
                                 </select>
                                 <label style="top: -28px; font-size: .8em;">Tipo de sensor</label>
                             </div>
@@ -3902,7 +3915,7 @@
     <script src="./assets/js/logic/secuencias.js?v=26.11.02.001"></script>
     <script src="./assets/js/logic/estado.js?v=26.11.07.018"></script>
     <script src="./assets/js/logic/ids.js?v=26.11.08.002"></script>
-    <script src="./assets/js/logic/equipos.js?v=26.11.02.001"></script>
+    <script src="./assets/js/logic/equipos.js?v=26.11.22.020"></script>
     <script src="./assets/js/logic/login.js?v=26.11.06.002"></script>
     <script src="./assets/js/logic/perfil.js?v=26.11.05.001"></script>
     <script src="./assets/js/logic/riego.js?v=26.11.06.001"></script>
@@ -3910,15 +3923,15 @@
     <script src="./assets/js/logic/geo.js?v=26.11.20.018"></script>
     <script src="./assets/js/logic/humedad.js?v=26.11.07.020"></script>
     <script src="./assets/js/logic/pivote.js?v=26.11.07.005"></script>
-    <script src="./assets/js/logic/panel.js?v=26.11.08.012"></script>
+    <script src="./assets/js/logic/panel.js?v=26.11.22.020"></script>
     <script src="./assets/js/logic/unidades.js?v=26.11.07.012"></script>
     <script src="./assets/js/logic/estaciones.js?v=26.11.21.001"></script>
     <script src="./assets/js/logic/frio.js?v=26.11.22.006"></script>
     <script src="./assets/js/logic/historial.js?v=26.11.22.007"></script>
-    <script src="./assets/js/logic/nevera.js?v=26.11.22.019"></script>
+    <script src="./assets/js/logic/nevera.js?v=26.11.22.020"></script>
     <script src="./assets/js/logic/grafica.js?v=26.11.13.001"></script>
-    <script src="./assets/js/logic/tablero.js?v=26.11.22.015"></script>
-    <script src="./assets/js/logic/resumen.js?v=26.11.20.010"></script>
+    <script src="./assets/js/logic/tablero.js?v=26.11.22.020"></script>
+    <script src="./assets/js/logic/resumen.js?v=26.11.22.020"></script>
     <script src="./assets/js/logic/notificaciones.js?v=26.11.22.019"></script>
     <script src="./assets/js/logic/satelite.js?v=26.11.20.013"></script>
     <script src="./assets/js/logic/medidor.js?v=26.11.07.016"></script>
@@ -3946,9 +3959,9 @@
 <script src="./assets/js/logic/meteo.js?v=26.11.02.001"></script>
     <script src="./assets/js/logic/aviso.js?v=26.11.02.001"></script>
 <script src="./assets/vendor/bootstrap/bootstrap.bundle.min.js?v=5.3.8"></script>
-    <script src="./assets/js/core.js?v=26.11.22.019"></script>
+    <script src="./assets/js/core.js?v=26.11.22.020"></script>
     <!-- REQ-038: factories, ayudas de interfaz y componentes (despues de core.js, que crea el modulo) -->
-    <script src="./assets/js/app/version.js?v=26.11.22.019"></script>
+    <script src="./assets/js/app/version.js?v=26.11.22.020"></script>
     <script src="./assets/js/app/reglas.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/auth.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/repo.factory.js?v=26.11.06.001"></script>

@@ -198,11 +198,11 @@
             case "Estacionario": r = estacionario(s, reglas); break;
             case "Pozo": case "Pump": r = pozo(s); break;
             case "Sensor": r = redDeSensores(s, reglas, o); break;
-            case "Nevera": r = nevera(s, reglas, o); break;
+            case "Nevera": case "Invernadero": r = nevera(s, reglas, o); break;
             default: r = resultado("inactivo", "", "Sin datos del equipo");
         }
         var log = s.log || {};
-        r.fecha = fechaCorta(s.type === "Sensor" || s.type === "Nevera" ? log.date : (log.update || log.date));
+        r.fecha = fechaCorta(s.type === "Sensor" || s.type === "Nevera" || s.type === "Invernadero" ? log.date : (log.update || log.date));
         return r;
     }
 

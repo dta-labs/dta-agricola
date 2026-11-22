@@ -26,7 +26,7 @@
         plagas: { etiqueta: "Plagas", icono: "bug_report", color: "#6d4c41" },
         electricidad: { etiqueta: "Electricidad", icono: "flash_on", color: "#f9a825" },
         seguridad: { etiqueta: "Seguridad", icono: "security", color: "#ad1457" },
-        sinDatos: { etiqueta: "Sin datos", icono: "portable_wifi_off", color: "#757575" },   // REQ-140
+        sinDatos: { etiqueta: "Sin datos", icono: "portable_wifi_off", color: "#757575" },   // REQ-142
         general: { etiqueta: "Aviso", icono: "notifications", color: "#546e7a" }
     };
 
@@ -97,7 +97,7 @@
     }
 
     /**
-     * REQ-140: entrada para un sensor del que el gateway no recibe datos (logic/nevera.js -> sensoresSinRecepcion).
+     * REQ-142: entrada para un sensor del que el gateway no recibe datos (logic/nevera.js -> sensoresSinRecepcion).
      * El id lleva el instante "desde" redondeado a la frecuencia: mientras siga sin datos es la misma notificacion;
      * si vuelve y se pierde otra vez, es una nueva.
      */

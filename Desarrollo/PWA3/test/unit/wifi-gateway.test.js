@@ -45,7 +45,7 @@ test("REQ-097 el boton abre el portal del gateway en otra pestana", () => {
 
 test("REQ-097 solo en equipos con gateway LoRa (red de sensores y nevera) y para quien puede editar", () => {
   const fila = filaWifi() || "";
-  assert.match(fila, /ng-show="\(actualSystem\.type == 'Sensor' \|\| actualSystem\.type == 'Nevera'\) && \(isSystemOfRole\('propietario'\) \|\| isSystemOfRole\('desarrollador'\) \|\| isSystemOfRole\('administrador'\)\)"/);
+  assert.match(fila, /ng-show="\(actualSystem\.type == 'Sensor' \|\| esTipoNevera\(actualSystem\.type\)\) && \(isSystemOfRole\('propietario'\) \|\| isSystemOfRole\('desarrollador'\) \|\| isSystemOfRole\('administrador'\)\)"/);
 });
 
 test("REQ-097 explica antes que hay que conectarse a la red del gateway", () => {

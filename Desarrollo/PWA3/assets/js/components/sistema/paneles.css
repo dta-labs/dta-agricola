@@ -429,7 +429,7 @@ dta-panel-nevera {
     font-weight: 700;
 }
 .nevera-estado .material-icons { font-size: 16px; }
-/* REQ-140: aviso de sensor sin datos (log.lo < 0) junto al nombre */
+/* REQ-142: aviso de sensor sin datos (log.lo < 0) junto al nombre */
 .nevera-sin-datos {
     flex: 0 0 auto;
     color: #c62828;

@@ -160,7 +160,9 @@ Cada version publicada lleva una etiqueta de git `pwa3-vX.Y.Z` sobre el commit d
 
 ### Anadido
 - Neveras e invernaderos: icono de notificacion en la tarjeta del sensor cuando el gateway no recibe sus datos (`lo`
-  negativo) y aviso "Sin datos" en Notificaciones con desde cuando no se actualiza. (REQ-140)
+  negativo) y aviso "Sin datos" en Notificaciones con desde cuando no se actualiza. (REQ-142)
+- Invernaderos (`type = "Invernadero"`): mismo panel, sensores, logs, graficas y avisos que las neveras; tarjeta
+  "Invernadero" en el asistente de alta. (REQ-143)
 - Estacionario, Plan de riego \ Programacion: boton "Guardar" en el programa de riego para guardarlo sin iniciarlo (se inicia despues con ▶ en la lista). (REQ-140)
 - Historial: columna "Clima" (icono del dia) junto a la fecha en Semana, Mes y Ciclo; los ultimos 7 dias se piden al pronostico porque el archivo historico los publica con retraso (antes la semana salia sin iconos en la grafica). Descripcion del clima en español. (REQ-130)
 - Historial de los sensores: boton "Dia" (lecturas de hoy) junto a Semana, Mes y Ciclo; el eje muestra la hora. (REQ-124)

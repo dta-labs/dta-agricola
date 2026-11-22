@@ -131,8 +131,9 @@ test("REQ-057 los modales se abren con al-abrir y los comandos llegan por salida
 test("REQ-057 index.html monta los seis paneles y core.js expone abrirVentana", () => {
   const CORE = fs.readFileSync(path.join(RAIZ, "assets", "js", "core.js"), "utf8");
   assert.match(CORE, /\$scope\.abrirVentana = \(id\) => abrirModal\(id\);/);
-  [["dta-panel-pivote-lineal", "PL"], ["dta-panel-estacionario", "Estacionario"], ["dta-panel-sensores", "Sensor"], ["dta-panel-nevera", "Nevera"]]
+  [["dta-panel-pivote-lineal", "PL"], ["dta-panel-estacionario", "Estacionario"], ["dta-panel-sensores", "Sensor"]]
     .forEach(([etiqueta, tipo]) => assert.match(HTML, new RegExp("<" + etiqueta + " ng-if=\"actualSystem\\.type == '" + tipo + "'\"")));
+  assert.match(HTML, /<dta-panel-nevera ng-if="esTipoNevera\(actualSystem\.type\)"/);   // REQ-143: nevera e invernadero
   assert.match(HTML, /al-alternar-parcela="setEditPlanEstacionario\(\$parcela\); isPlotActive\(actualSystem, \$parcela\) \? stopPlotIrrigation\(\) : startPlotIrrigation\(\)"/);
   assert.match(HTML, /al-editar-sensor="editSensor\(\$sensor\); abrirVentana\('modalEditSensor'\)"/);
   assert.equal((HTML.match(/ng-show="actualSystem\.type == '(PL|Estacionario|Sensor|Nevera)'/g) || []).filter(x => !/Sensor'"|Nevera'"/.test(x) || true).length >= 0, true);

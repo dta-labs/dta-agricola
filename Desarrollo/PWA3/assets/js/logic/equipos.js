@@ -26,14 +26,14 @@
      * Las neveras guardan sus lecturas intradia en logs; dayLogs es el detalle diario de sensores.
      */
     function carpetaDeHistorico(tipo, opcion) {
-        if (opcion !== "DIA" || tipo === "Nevera") return "logs";
+        if (opcion !== "DIA" || (tipo === "Nevera" || tipo === "Invernadero")) return "logs";
         return "dayLogs";
     }
 
     /** Cuantas lecturas se piden al abrir el equipo, segun su tipo. */
     function registrosIniciales(tipo, limite) {
         if (tipo === "Sensor") return 7;
-        if (tipo === "Nevera") return 300;
+        if ((tipo === "Nevera" || tipo === "Invernadero")) return 300;
         return limite;
     }
 

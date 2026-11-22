@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * REQ-140 - Sensores de neveras e invernaderos sin datos: log.lo (ciclos que el gateway lleva sin recibir de cada
+ * REQ-142 - Sensores de neveras e invernaderos sin datos: log.lo (ciclos que el gateway lleva sin recibir de cada
  * sensor, negativo = sin datos). Icono en la tarjeta y notificacion "no se actualiza desde ...".
  */
 const test = require("node:test");
@@ -21,7 +21,7 @@ const sistema = {
 const log = { date: "20261122 1150am", lo: "[-17,0,-1,0,0,0,0,0,0,0]" };
 const instante = new Date(2026, 10, 22, 11, 50).getTime();
 
-test("REQ-140 ciclos sin recibir por sensor (texto o arreglo; 0 si recibe o no hay lo)", () => {
+test("REQ-142 ciclos sin recibir por sensor (texto o arreglo; 0 si recibe o no hay lo)", () => {
   assert.equal(nevera.ciclosSinRecepcion(log, 0), 17);
   assert.equal(nevera.ciclosSinRecepcion(log, 1), 0);
   assert.equal(nevera.ciclosSinRecepcion({ lo: [-4, 0] }, 0), 4);
@@ -30,14 +30,14 @@ test("REQ-140 ciclos sin recibir por sensor (texto o arreglo; 0 si recibe o no h
   assert.equal(nevera.ciclosSinRecepcion(log, null), 0);
 });
 
-test("REQ-140 sensores sin datos y desde cuando (registro - ciclos x frecuencia)", () => {
+test("REQ-142 sensores sin datos y desde cuando (registro - ciclos x frecuencia)", () => {
   const lista = nevera.sensoresSinRecepcion(sistema, log, instante);
   assert.deepEqual(lista.map(s => [s.clave, s.nombre, s.ciclos]), [["S0", "Cámara 1", 17], ["S2", "0x3C", 1]]);
   assert.equal(lista[0].desde, instante - 17 * 5 * 60000);                 // 17 ciclos de 5 min = 85 min antes
   assert.equal(nevera.sensoresSinRecepcion({ ...sistema, operationMode: "" }, log, instante)[0].desde, null);
 });
 
-test("REQ-140 notificacion: tipo Sin datos, desde cuando y misma entrada mientras siga sin datos", () => {
+test("REQ-142 notificacion: tipo Sin datos, desde cuando y misma entrada mientras siga sin datos", () => {
   const [s0] = nevera.sensoresSinRecepcion(sistema, log, instante);
   const e = notificaciones.desdeSensorSinRecepcion(s0, sistema, instante);
   assert.equal(e.tipo, "sinDatos");
@@ -53,7 +53,7 @@ test("REQ-140 notificacion: tipo Sin datos, desde cuando y misma entrada mientra
   assert.match(notificaciones.desdeSensorSinRecepcion(sinFrecuencia, sistema, instante).mensaje, /hace 1 ciclos \(1 ciclo sin recibir\)/);
 });
 
-test("REQ-140 la tarjeta muestra el icono de notificacion cuando lo del sensor es negativo", () => {
+test("REQ-142 la tarjeta muestra el icono de notificacion cuando lo del sensor es negativo", () => {
   const html = leer("assets", "js", "components", "sistema", "panel-nevera", "panel-nevera.html");
   assert.match(html, /<i class="material-icons nevera-sin-datos" ng-if="vm\.ciclosSinRecepcion\(coldRoomKey\) > 0"/);
   assert.match(html, />notification_important<\/i>/);
@@ -65,9 +65,9 @@ test("REQ-140 la tarjeta muestra el icono de notificacion cuando lo del sensor e
   assert.match(leer("assets", "js", "components", "sistema", "paneles.css"), /\.nevera-sin-datos \{/);
 });
 
-test("REQ-140 core.js manda a la bandeja los sensores sin datos de neveras e invernaderos", () => {
+test("REQ-142 core.js manda a la bandeja los sensores sin datos de neveras e invernaderos", () => {
   const core = leer("assets", "js", "core.js");
-  assert.match(core, /\(sistema\.type === "Nevera" \|\| sistema\.type === "Invernadero"\) && sistema\.log\.lo/);
+  assert.match(core, /esTipoNevera\(sistema\.type\) && sistema\.log\.lo/);
   assert.match(core, /__modulo\("nevera"\)\.sensoresSinRecepcion\(sistema, sistema\.log, instanteLog\)/);
   assert.match(core, /__modulo\("notificaciones"\)\.desdeSensorSinRecepcion\(item, sistema\)/);
 });

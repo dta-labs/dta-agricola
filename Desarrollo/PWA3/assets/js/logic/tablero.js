@@ -17,7 +17,7 @@
     "use strict";
 
     var ORDEN = { emergencia: 0, atencion: 1 };
-    var NOMBRES = { PC: "Pivote central", PL: "Pivote lineal", Estacionario: "Riego sectorial", Pozo: "Bombeo", Pump: "Bombeo", Sensor: "Red de sensores", Nevera: "Nevera" };
+    var NOMBRES = { PC: "Pivote central", PL: "Pivote lineal", Estacionario: "Riego sectorial", Pozo: "Bombeo", Pump: "Bombeo", Sensor: "Red de sensores", Nevera: "Nevera", Invernadero: "Invernadero" };
     var ADECUADA = { "Humedad adecuada": true, "Muy húmedo": true };
     var SECA = { "Suelo seco": true, "Suelo muy seco": true, "Estrés moderado": true };
 
