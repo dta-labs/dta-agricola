@@ -1838,13 +1838,14 @@
                                                         <td ng-show="selectedTimeOption != 'DIA'">{{ reg.date.substring(6, 8) }}/{{ reg.date.substring(4, 6) }}/{{ reg.date.substring(2, 4) }}</td>
                                                         <td ng-show="selectedTimeOption == 'DIA'">{{ horaDeRegistro(reg.date) }}</td>
 
-                                                        <td style="color: {{ isOutOfRange(data[idx * 8], sensor.h.minValue, sensor.h.maxValue) ? 'red' : 'green' }};" ng-show="sensor.type != 'WM'"><b>{{ data[(idx * 8)] != "NaN" ? (data[(idx * 8)] | number : 0) : '--' }}%</b></td>
-                                                        <td style="color: {{ isOutOfRange(data[idx * 8], sensor.h.minValue, sensor.h.maxValue) ? 'red' : 'green' }};" ng-show="sensor.type == 'WM'"><b>{{ data[(idx * 8)] != "NaN" ? (data[(idx * 8)] != 240 ? (data[(idx * 8)] != 0 ? (data[(idx * 8)] | number : 0) + 'cb' : 'No listo') : 'Error') : '--' }}</b></td>
+                                                        <!-- REQ-126: colores por capacidad de campo (%), por tension (cb) y por umbrales de temperatura -->
+                                                        <td style="color: {{ colorHistorial(sensor, 'humedad', data[idx * 8]) }};" ng-show="sensor.type != 'WM'"><b>{{ data[(idx * 8)] != "NaN" ? (data[(idx * 8)] | number : 0) : '--' }}%</b></td>
+                                                        <td style="color: {{ colorHistorial(sensor, 'humedad', data[idx * 8]) }};" ng-show="sensor.type == 'WM'"><b>{{ data[(idx * 8)] != "NaN" ? (data[(idx * 8)] != 240 ? (data[(idx * 8)] != 0 ? (data[(idx * 8)] | number : 0) + 'cb' : 'No listo') : 'Error') : '--' }}</b></td>
                                                         <!-- <td style="color: {{ data[idx * 8] < 1 ? 'red' : 'green' }};" ng-show="sensor.type != 'Psi'"><b>{{ data[(idx * 8)] != "NaN" ? (data[(idx * 8)] | number : 0) + 'psi' : 'Apagado' }}</b></td> -->
                                                         
                                                         <td style="color: black;"><b>{{ data[(idx * 8) + 1] != "NaN" && data[(idx * 8) + 1] != "-1" ? (data[(idx * 8) + 1] | number : 0) : (meteo[actualSystem.key].main.humidity) }}%</b></td>
                                                         
-                                                        <td style="color: {{ isOutOfRange(data[idx * 8 + 4], sensor.t.minValue, sensor.t.maxValue) ? 'red' : 'green' }};"><b>{{ data[(idx * 8) + 4] != "NaN" && actualSystem.tempUnit == "C" ? (data[(idx * 8) + 4] | number : 1) + '°C' : data[(idx * 8) + 4] != "NaN" && (actualSystem.tempUnit == "F" || tempUnit == "F") ? (data[(idx * 8) + 4] * 1.8 + 32 | number : 1) + '°F' : '--' }}</b></td>
+                                                        <td style="color: {{ colorHistorial(sensor, 'temperatura', data[idx * 8 + 4]) }};"><b>{{ data[(idx * 8) + 4] != "NaN" && actualSystem.tempUnit == "C" ? (data[(idx * 8) + 4] | number : 1) + '°C' : data[(idx * 8) + 4] != "NaN" && (actualSystem.tempUnit == "F" || tempUnit == "F") ? (data[(idx * 8) + 4] * 1.8 + 32 | number : 1) + '°F' : '--' }}</b></td>
                                                         
                                                         <td><b>{{ data[(idx * 8) + 5] != "NaN" ? (data[(idx * 8) + 5] | number : 1) : '--' }}</b></td>
 
@@ -3891,6 +3892,7 @@
     <script src="./assets/js/logic/unidades.js?v=26.11.07.012"></script>
     <script src="./assets/js/logic/estaciones.js?v=26.11.21.001"></script>
     <script src="./assets/js/logic/frio.js?v=26.11.21.002"></script>
+    <script src="./assets/js/logic/historial.js?v=26.11.22.003"></script>
     <script src="./assets/js/logic/grafica.js?v=26.11.13.001"></script>
     <script src="./assets/js/logic/tablero.js?v=26.11.20.019"></script>
     <script src="./assets/js/logic/resumen.js?v=26.11.20.010"></script>
@@ -3921,9 +3923,9 @@
 <script src="./assets/js/logic/meteo.js?v=26.11.02.001"></script>
     <script src="./assets/js/logic/aviso.js?v=26.11.02.001"></script>
 <script src="./assets/vendor/bootstrap/bootstrap.bundle.min.js?v=5.3.8"></script>
-    <script src="./assets/js/core.js?v=26.11.22.001"></script>
+    <script src="./assets/js/core.js?v=26.11.22.003"></script>
     <!-- REQ-038: factories, ayudas de interfaz y componentes (despues de core.js, que crea el modulo) -->
-    <script src="./assets/js/app/version.js?v=26.11.22.002"></script>
+    <script src="./assets/js/app/version.js?v=26.11.22.003"></script>
     <script src="./assets/js/app/reglas.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/auth.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/repo.factory.js?v=26.11.06.001"></script>

@@ -3663,6 +3663,9 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         }
     }
 
+    // REQ-126: color de un dato de la tabla del historial (logic/historial.js)
+    $scope.colorHistorial = (sensor, medida, valor) => __modulo("historial").color(sensor, medida, valor);
+
     $scope.isOutOfRange = function(value, min, max) {
         if (value == "NaN") return false;
         const numValue = parseFloat(value);
@@ -4547,13 +4550,12 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                     if ($scope.actualSystem.type === "Nevera" && (chartType === "humidity" || chartType === "temperature")) {
                         drawNeveraBands(ctx, chartArea, yScale, chartType, sensorIndex);
                     } else if (chartType === 'moisture' && sensorType === 'WM') {
-                        // Etiquetas para disponibilidad de agua en el suelo
-                        drawBand(ctx, chartArea, yScale, 80, 100, 'rgba(0, 123, 255, 0.15)', 'Saturado - No regar', 'rgba(0, 123, 255, 0.9)');
-                        drawBand(ctx, chartArea, yScale, 60, 80, 'rgba(40, 167, 69, 0.15)', 'Adecuado - No regar', 'rgba(40, 167, 69, 0.9)');
-                        drawBand(ctx, chartArea, yScale, 40, 60, 'rgba(210, 255, 7, 0.15)', 'Secándose - Programar riego', 'rgba(118, 144, 2, 0.9)');
-                        drawBand(ctx, chartArea, yScale, 30, 40, 'rgba(255, 193, 7, 0.15)', 'Estrés moderado - Regar', 'rgba(183, 138, 2, 0.9)');
-                        drawBand(ctx, chartArea, yScale, 20, 30, 'rgba(255, 106, 7, 0.15)', 'Seco - Regar urgente', 'rgba(255, 106, 7, 0.9)');
-                        drawBand(ctx, chartArea, yScale, 0, 20, 'rgba(255, 0, 0, 0.15)', 'Muy seco - Regar inmediatamente', 'rgba(255, 0, 0, 0.9)');
+                        // REQ-126: mismas zonas que la tabla (cb): < 10 azul, < 30 verde, < 60 amarillo, 60+ rojo.
+                        // El eje esta en % de agua disponible (formulas.cbToPercent: 10 cb = 80 %, 30 cb = 60 %, 60 cb = 40 %).
+                        drawBand(ctx, chartArea, yScale, 80, 100, 'rgba(30, 136, 229, 0.15)', 'Saturado (< 10 cb) - No regar', 'rgba(30, 136, 229, 0.9)');
+                        drawBand(ctx, chartArea, yScale, 60, 80, 'rgba(46, 125, 50, 0.15)', 'Adecuado (10-30 cb)', 'rgba(46, 125, 50, 0.9)');
+                        drawBand(ctx, chartArea, yScale, 40, 60, 'rgba(249, 168, 37, 0.18)', 'Secándose (30-60 cb) - Programar riego', 'rgba(170, 110, 0, 0.95)');
+                        drawBand(ctx, chartArea, yScale, 0, 40, 'rgba(211, 47, 47, 0.15)', 'Seco (60+ cb) - Regar', 'rgba(211, 47, 47, 0.9)');
                         // Dibujar línea de umbral de riego
                     } else if (sensorType === 'Psi') {
                         // Etiquetas para temperatura
@@ -4562,10 +4564,11 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                         // Dibujar línea de umbral de helada
                         drawThresholdLine(ctx, yScale, sensorType, chartType, chartArea, 3, 'rgba(255, 13, 0, 0.8)', 'Presión mínima (1psi)');
                     } else if (chartType === 'moisture') {
-                        // Etiquetas para humedad del suelo
-                        drawBand(ctx, chartArea, yScale, 40, 100, 'rgba(0, 123, 255, 0.15)', 'Saturado', 'rgba(0, 123, 255, 0.9)');
-                        drawBand(ctx, chartArea, yScale, 15, 40, 'rgba(40, 167, 69, 0.15)', 'Humedad Adecuada', 'rgba(40, 167, 69, 0.9)');
-                        drawBand(ctx, chartArea, yScale, 0, 15, 'rgba(255, 193, 7, 0.15)', 'Necesidad de Riego', 'rgba(255, 131, 7, 0.39)');
+                        // REQ-126: segun la capacidad de campo del sensor (umbral "No regar") y su umbral de riego.
+                        const hum = __modulo("historial").limitesDeHumedad($scope.actualSystem?.sensors?.[`S${sensorIndex}`]);
+                        drawBand(ctx, chartArea, yScale, hum.cc, 100, 'rgba(30, 136, 229, 0.15)', `Sobre capacidad de campo (${hum.cc} %)`, 'rgba(30, 136, 229, 0.9)');
+                        drawBand(ctx, chartArea, yScale, hum.riego, hum.cc, 'rgba(46, 125, 50, 0.15)', 'Humedad adecuada', 'rgba(46, 125, 50, 0.9)');
+                        drawBand(ctx, chartArea, yScale, 0, hum.riego, 'rgba(211, 47, 47, 0.15)', `Regar (< ${hum.riego} %)`, 'rgba(211, 47, 47, 0.9)');
                     } else if (chartType === 'humidity') {
                         // Etiquetas para humedad del suelo
                         drawBand(ctx, chartArea, yScale, 60, 100, 'rgba(0, 123, 255, 0.15)', 'Alta', 'rgba(0, 123, 255, 0.9)');
@@ -4573,10 +4576,12 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                         drawBand(ctx, chartArea, yScale, 0, 40, 'rgba(255, 193, 7, 0.15)', 'Baja', 'rgba(255, 131, 7, 0.39)');
                     } else if (chartType === 'temperature') {
                         // Etiquetas para temperatura
-                        if (sensorType === 'WM' || sensorType === 'SHT4') {
-                            drawBand(ctx, chartArea, yScale, 25, 50, 'rgba(255, 123, 0, 0.15)', 'Muy caliente', 'rgba(255, 13, 0, 0.9)');
-                            drawBand(ctx, chartArea, yScale, 5, 25, 'rgba(40, 167, 69, 0.15)', 'Temperatura Normal', 'rgba(40, 167, 69, 0.9)');
-                            drawBand(ctx, chartArea, yScale, -10, 5, 'rgba(0, 123, 255, 0.15)', 'Helada', 'rgba(0, 123, 255, 0.9)');
+                        if (sensorType === 'WM' || sensorType === 'SHT4' || sensorType === 'Ms') {
+                            // REQ-126: umbrales del sensor (o 2 y 20 °C): < Tmin azul, entre medias verde, Tmax+ rojo
+                            const tem = __modulo("historial").limitesDeTemperatura($scope.actualSystem?.sensors?.[`S${sensorIndex}`]);
+                            drawBand(ctx, chartArea, yScale, tem.max, yScale.max, 'rgba(211, 47, 47, 0.15)', `Calor (≥ ${tem.max} °C)`, 'rgba(211, 47, 47, 0.9)');
+                            drawBand(ctx, chartArea, yScale, tem.min, tem.max, 'rgba(46, 125, 50, 0.15)', 'Temperatura adecuada', 'rgba(46, 125, 50, 0.9)');
+                            drawBand(ctx, chartArea, yScale, yScale.min, tem.min, 'rgba(30, 136, 229, 0.15)', `Frío (< ${tem.min} °C)`, 'rgba(30, 136, 229, 0.9)');
                             // Dibujar línea de umbral de helada
                             drawThresholdLine(ctx, yScale, sensorType, chartType, chartArea, threshold, 'rgba(54, 162, 235, 0.8)', 'Umbral Helada');
                         } else if (sensorType === 'SHT2') {
