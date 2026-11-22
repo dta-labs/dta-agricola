@@ -108,5 +108,29 @@
         return hayDatos ? Math.round(total * 10) / 10 : null;
     }
 
-    return { inicioTemporada: inicioTemporada, acumulado: acumulado, horaDe: horaDe };
+    /**
+     * REQ-128 - Unidades frio ACUMULADAS de cada registro diario del historial (los resumenes de /logs traen las UF
+     * de cada dia: se mostraban sueltas). Se suman del dia mas antiguo mostrado al mas reciente y vuelven a 0 al
+     * empezar una temporada (1 de noviembre). Registros sin dato no suman y quedan con el acumulado hasta ese dia.
+     * @param registros  registros diarios (cualquier orden), con { date: "AAAAMMDD ...", dataRaw }
+     * @param sensor     indice del sensor (S0 = 0)
+     * @return objeto { "AAAAMMDD ...": acumulado (1 decimal) | null si aun no hay datos }
+     */
+    function acumuladoPorRegistro(registros, sensor) {
+        var ordenados = lista(registros).filter(function (r) { return diaDe(r); })
+            .slice().sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; });
+        var salida = {};
+        var total = null;
+        var temporada = null;
+        ordenados.forEach(function (r) {
+            var t = inicioTemporada(diaDe(r));
+            if (t !== temporada) { temporada = t; total = null; }
+            var uf = valorUF(r, sensor);
+            if (uf !== null) total = (total || 0) + uf;
+            salida[r.date] = total === null ? null : Math.round(total * 10) / 10;
+        });
+        return salida;
+    }
+
+    return { inicioTemporada: inicioTemporada, acumulado: acumulado, horaDe: horaDe, acumuladoPorRegistro: acumuladoPorRegistro };
 }));

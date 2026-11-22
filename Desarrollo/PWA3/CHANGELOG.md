@@ -85,6 +85,7 @@ Cada version publicada lleva una etiqueta de git `pwa3-vX.Y.Z` sobre el commit d
 - Etiquetas que tapaban los datos y selectores que no mostraban lo elegido, en toda la app. (REQ-043 A1-A2)
 
 ### Cambiado
+- Historial: la columna "H.Frio" pasa a "U.Frio acum." (unidades frio del modelo Utah) y muestra el acumulado de cada dia en el periodo, que vuelve a 0 el 1 de noviembre; el valor del dia queda en la informacion de la celda. (REQ-128)
 - Historial: colores de los datos segun la capacidad de campo (humedad %), la tension (cb: < 10 azul, < 30 verde, < 60 amarillo, 60+ rojo) y los umbrales de temperatura (o 2 y 20 °C); las bandas de la grafica siguen los mismos criterios. (REQ-126)
 - Historial: los controles de la grafica (zoom, calendario, exportar datos e imagen) solo se muestran en PC; en el celular quedan el zoom con dos dedos y el arrastre. (REQ-125)
 - Resumen: el semaforo dice "N alertas requieren tu atencion" (antes "cosas"). (REQ-118)

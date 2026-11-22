@@ -3663,6 +3663,16 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         }
     }
 
+    // REQ-128: unidades frio acumuladas de cada dia del historial (cache por lista de registros y sensor)
+    let cacheUfHistorial = { registros: null, porSensor: {} };
+    $scope.ufAcumuladaDe = (reg, indice) => {
+        if (cacheUfHistorial.registros !== $scope.invertedRegisters) cacheUfHistorial = { registros: $scope.invertedRegisters, porSensor: {} };
+        const porSensor = cacheUfHistorial.porSensor;
+        if (!porSensor[indice]) porSensor[indice] = __modulo("frio").acumuladoPorRegistro($scope.invertedRegisters, indice);
+        const valor = reg ? porSensor[indice][reg.date] : null;
+        return valor === null || valor === undefined ? "--" : valor.toFixed(1);
+    };
+
     // REQ-126: color de un dato de la tabla del historial (logic/historial.js)
     $scope.colorHistorial = (sensor, medida, valor) => __modulo("historial").color(sensor, medida, valor);
 

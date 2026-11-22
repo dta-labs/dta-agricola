@@ -79,3 +79,17 @@ test("REQ-127 humedad Ms: 8 valores por sensor y valor ya en %", () => {
   assert.match(CORE, /const dataValue = datos\[i \* 8\] != "NaN" && datos\[i \* 8\] !== undefined \? parseFloat\(datos\[i \* 8\]\) : null;/);
   assert.doesNotMatch(CORE, /let dataValue = JSON\.parse\(element\.dataRaw\)\[i\];/);
 });
+
+test("REQ-128 U.Frio: unidades frio acumuladas en el historial (del dia mas antiguo al mas reciente, de nuevo a 0 el 1 nov)", () => {
+  const f = require("../../assets/js/logic/frio.js");
+  const r = (d, uf) => ({ date: d + " 0000am", dataRaw: JSON.stringify([0, 0, 0, 0, 0, 0, uf, 0, 0, 0, 0, 0, 0, 0, uf === "NaN" ? "NaN" : uf * 2, 0]) });
+  const regs = [r("20261103", 3), r("20261030", 5), r("20261101", 2), r("20261102", "NaN"), r("20261031", 1)];   // orden de la tabla: cualquiera
+  assert.deepEqual(f.acumuladoPorRegistro(regs, 0),
+    { "20261030 0000am": 5, "20261031 0000am": 6, "20261101 0000am": 2, "20261102 0000am": 2, "20261103 0000am": 5 });
+  assert.deepEqual(f.acumuladoPorRegistro([r("20261201", 2), r("20261202", 3)], 1), { "20261201 0000am": 4, "20261202 0000am": 10 });
+  assert.deepEqual(f.acumuladoPorRegistro([r("20261201", "NaN")], 0), { "20261201 0000am": null });
+  assert.match(HTML, /<br> U\.Frío acum\.<\/th>/);
+  assert.doesNotMatch(HTML, /H\.Frío/);
+  assert.match(HTML, /<b>\{\{ ufAcumuladaDe\(reg, idx\) \}\}<\/b><\/td>/);
+  assert.match(CORE, /porSensor\[indice\] = __modulo\("frio"\)\.acumuladoPorRegistro\(\$scope\.invertedRegisters, indice\);/);
+});
