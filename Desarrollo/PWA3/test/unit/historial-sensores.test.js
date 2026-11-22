@@ -58,3 +58,24 @@ test("REQ-126 tabla y bandas de la grafica usan los mismos criterios", () => {
   assert.match(CORE, /const hum = __modulo\("historial"\)\.limitesDeHumedad/);
   assert.match(CORE, /const tem = __modulo\("historial"\)\.limitesDeTemperatura/);
 });
+
+test("REQ-127 agua disponible: la pestaña redibuja la grafica (ng-click entero) y aparece tambien en sensores Ms", () => {
+  assert.match(HTML, /<div class="col" ng-click="setChartType\('moisture'\); setChart\(idx, 'myChartH' \+ idx\);" ng-show="sensor\.type == 'SHT4' \|\| sensor\.type == 'WM' \|\| sensor\.type == 'Ms'"/);
+  assert.doesNotMatch(HTML, /ng-click="setChartType\('moisture'\)" ng-show=/);
+});
+
+test("REQ-127 agua disponible: lecturas invalidas sin dato, eje en cb exacto y tension en la informacion", () => {
+  assert.deepEqual([0, 240, 300, -99, "NaN", 45].map(h.cbValido), [null, null, null, null, null, 45]);
+  const f = require("../../assets/js/logic/formulas.js");
+  [5, 16, 45, 100].forEach(cb => assert.ok(Math.abs(h.cbDeAguaDisponible(f.cbToPercent(cb)) - cb) < 1.5, String(cb)));
+  assert.deepEqual([100, 80, 60, 40, 0].map(p => Math.round(h.cbDeAguaDisponible(p))), [0, 10, 30, 60, 240]);
+  assert.match(CORE, /let cbValue = __modulo\("historial"\)\.cbValido\(data\[i \* 8\]\);/);
+  assert.match(CORE, /callback: value => String\(Math\.round\(__modulo\("historial"\)\.cbDeAguaDisponible\(value\)\)\)/);
+  assert.match(CORE, /datosDeGrafica\.datasets\[0\]\.label = 'Agua disponible';/);
+  assert.match(CORE, /return `\$\{item\.dataset\.label\}: \$\{Math\.round\(valor\)\} % \(≈ \$\{Math\.round\(cb\)\} cb\)`;/);
+});
+
+test("REQ-127 humedad Ms: 8 valores por sensor y valor ya en %", () => {
+  assert.match(CORE, /const dataValue = datos\[i \* 8\] != "NaN" && datos\[i \* 8\] !== undefined \? parseFloat\(datos\[i \* 8\]\) : null;/);
+  assert.doesNotMatch(CORE, /let dataValue = JSON\.parse\(element\.dataRaw\)\[i\];/);
+});

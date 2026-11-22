@@ -12,6 +12,7 @@ Cada version publicada lleva una etiqueta de git `pwa3-vX.Y.Z` sobre el commit d
 ## [Sin publicar] - candidata a 1.1.0
 
 ### Corregido
+- Historial: la grafica de "Agua disponible" no se redibujaba al tocar su pestaña (el clic estaba partido); las lecturas "no listo" (0), error (240) y sin dato salian como 100 %; el eje rotulaba mal los cb. La humedad de los sensores Ms leia otra posicion del registro. (REQ-127)
 - El menu lateral quedaba por debajo de la cabecera; ahora se abre en primer plano, desde arriba. (REQ-119)
 - El mapa de un equipo aparecia desplazado (el equipo en una esquina o fuera de la vista): ahora, al entrar al equipo
   o volver a la vista de mapa, se encuadra en su zona (sensores y parcelas, parcelas o circulo del pivote). (REQ-117)

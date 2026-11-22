@@ -77,6 +77,29 @@
         return COLORES.verde;
     }
 
+    // ---------- REQ-127: agua disponible (tensiometro WM) ----------
+
+    /** Lectura de tension valida en cb, o null: 0 = "no listo", 240 o mas = error, negativos (-99) = sin dato. */
+    function cbValido(valor) {
+        var cb = numero(valor);
+        return cb === null || cb <= 0 || cb >= CB_ERROR ? null : cb;
+    }
+
+    // Tramos de formulas.cbToPercent: [cb desde, cb hasta, % desde, % hasta]
+    var TRAMOS_CB = [[0, 10, 100, 80], [10, 30, 80, 60], [30, 60, 60, 40], [60, 100, 40, 30], [100, 150, 30, 20], [150, 240, 20, 0]];
+
+    /** Inversa de formulas.cbToPercent: cb que corresponde a un % de agua disponible (para el eje de la grafica). */
+    function cbDeAguaDisponible(porcentaje) {
+        var p = numero(porcentaje);
+        if (p === null) return null;
+        p = Math.max(0, Math.min(100, p));
+        for (var i = 0; i < TRAMOS_CB.length; i += 1) {
+            var t = TRAMOS_CB[i];
+            if (p <= t[2] && p >= t[3]) return t[0] + (t[2] - p) / (t[2] - t[3]) * (t[1] - t[0]);
+        }
+        return null;
+    }
+
     /** Color de un dato de la tabla del historial: medida "humedad" (% o cb segun el sensor) o "temperatura" (°C). */
     function color(sensor, medida, valor) {
         if (medida === "temperatura") return colorDeTemperatura(sensor, valor);
@@ -91,6 +114,8 @@
         colorDeHumedad: colorDeHumedad,
         colorDeTension: colorDeTension,
         colorDeTemperatura: colorDeTemperatura,
-        color: color
+        color: color,
+        cbValido: cbValido,
+        cbDeAguaDisponible: cbDeAguaDisponible
     };
 }));

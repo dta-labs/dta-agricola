@@ -4027,14 +4027,15 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         lastDate = "";
         let idx = 'S' + i;
         getStValues(idx);
-        let min = $scope.actualSystem.sensors[idx].minValue;
-        let max = $scope.actualSystem.sensors[idx].maxValue;
         moisture = [];
         temperature = [];
         result.forEach(element => {
-            let dataValue = JSON.parse(element.dataRaw)[i];
-            let value = dataValue != -99.00 ? 100 - ((dataValue - min) / (max - min) * 100) : "";
-            moisture.push(value < 0 ? 0 : value > 100 ? 100 : value);
+            // REQ-127: 8 valores por sensor (antes se leia la posicion i, de otro dato u otro sensor) y la humedad ya
+            // llega en % (como en la tabla y en la ficha); -99 o NaN: sin dato.
+            const datos = JSON.parse(element.dataRaw);
+            const dataValue = datos[i * 8] != "NaN" && datos[i * 8] !== undefined ? parseFloat(datos[i * 8]) : null;
+            moisture.push(dataValue === null || !Number.isFinite(dataValue) || dataValue === -99 ? null : Math.max(0, Math.min(100, dataValue)));
+            temperature.push(datos[i * 8 + 4] != "NaN" && datos[i * 8 + 4] !== undefined ? parseFloat(datos[i * 8 + 4]) : null);
             date = element.date.substr(6, 2) + "/" + element.date.substr(4, 2);
             if (lastDate != date) {
                 lastDate = date;
@@ -4139,7 +4140,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         result.forEach(element => {
             let data = JSON.parse(element.dataRaw);
            
-            let cbValue = data[i * 8] != "NaN" ? parseFloat(data[i * 8]) : null;    // Lectura cruda en cb
+            let cbValue = __modulo("historial").cbValido(data[i * 8]);              // REQ-127: cb valido (0, 240, -99: sin dato)
             let moisturePercent = cbToPercent(cbValue);                             // Normalización a 0–100 %
             moisture.push(moisturePercent);
             humidity.push(data[i * 8 + 1] != "NaN" ? parseFloat(data[i * 8 + 1]) : null);
@@ -4293,9 +4294,15 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                     : moisture;
             const options = getOptions(title, chartType, sensorType, weatherIcons, scaleValues);
             options.plugins.chartThresholdBands = { threshold, sensorType, chartType, sensorIndex: i };
+            const datosDeGrafica = getDataArray(moisture, humidity, temp_min, temp_max, temperature, labels, chartType);
+            // REQ-127: en el tensiometro la serie es "Agua disponible" (en %, con su tension en cb en la informacion)
+            if (sensorType === 'WM' && chartType === 'moisture' && datosDeGrafica.datasets[0]) {
+                datosDeGrafica.datasets[0].label = 'Agua disponible';
+                datosDeGrafica.datasets[0].aguaDisponible = true;
+            }
             charts[i] = new Chart(canvas, {
                 type: type,
-                data: getDataArray(moisture, humidity, temp_min, temp_max, temperature, labels, chartType),
+                data: datosDeGrafica,
                 options,
                 plugins: [chartWeatherPlugin, chartThresholdBandsPlugin]
             });
@@ -4832,27 +4839,16 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                 break;
             case 'moisture':
                 if (sensorType === 'WM') {
+                    // REQ-127: eje en % de agua disponible, rotulado con su tension (cb), inversa exacta de cbToPercent
+                    // (antes 50 % decia 40 cb y 10 % decia 200 cb). Un tick cada 10 %.
                     yScaleConfig =  {
+                        type: 'linear',
                         min: 0,
                         max: 100,
+                        title: { display: true, text: 'Tensión (cb)' },
                         ticks: {
-                            callback: function(value) {
-                                // Correspondencia % ↔ cb
-                                switch (value) {
-                                    case 100: return '0';
-                                    case 90:  return '5';
-                                    case 80:  return '10';
-                                    case 70:  return '20';
-                                    case 60:  return '30';
-                                    case 50:  return '40';
-                                    case 40:  return '60';
-                                    case 30:  return '100';
-                                    case 20:  return '150';
-                                    case 10:  return '200';
-                                    case 0:   return '240';
-                                    default:  return value; // valor por defecto
-                                }
-                            }
+                            stepSize: 10,
+                            callback: value => String(Math.round(__modulo("historial").cbDeAguaDisponible(value)))
                         }
                     }
                 } else {
@@ -4920,6 +4916,10 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                         label: item => {
                             const valor = item.parsed && item.parsed.y;
                             if (valor === null || valor === undefined || !Number.isFinite(valor)) return `${item.dataset.label}: sin dato`;
+                            if (item.dataset.aguaDisponible) {   // REQ-127
+                                const cb = __modulo("historial").cbDeAguaDisponible(valor);
+                                return `${item.dataset.label}: ${Math.round(valor)} % (≈ ${Math.round(cb)} cb)`;
+                            }
                             return `${item.dataset.label}: ${Math.round(valor * 10) / 10}`;
                         }
                     }

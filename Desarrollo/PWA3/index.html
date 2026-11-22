@@ -1775,13 +1775,15 @@
                                             <div class="row" style="margin-bottom: 10px;" ng-if="sensor.type != 'Psi'">
                                                 <div class="col s12" style="text-align: center;">
                                                     <div class="row" style="display: inline-flex; justify-content: center; width: auto;">
-                                                        <div class="col" ng-click="setChartType('moisture')" ng-show="sensor.type == 'SHT4' || sensor.type == 'WM'"
-                                                        setChart(idx, 'myChartH' + idx);" style="margin-right: 5px; text-align: center; padding: 10px; cursor: pointer; color: {{ chartType == 'moisture' ? 'blue' : 'gray' }}; border-bottom: 3px solid {{ chartType == 'moisture' ? 'blue' : 'gray' }};">
+                                                        <!-- REQ-127: el ng-click estaba partido ("setChart" quedaba fuera): al tocar "Agua disponible" o
+                                                             "Humedad suelo" no se redibujaba la grafica. Tambien para los sensores Ms. -->
+                                                        <div class="col" ng-click="setChartType('moisture'); setChart(idx, 'myChartH' + idx);" ng-show="sensor.type == 'SHT4' || sensor.type == 'WM' || sensor.type == 'Ms'"
+                                                            style="margin-right: 5px; text-align: center; padding: 10px; cursor: pointer; color: {{ chartType == 'moisture' ? 'blue' : 'gray' }}; border-bottom: 3px solid {{ chartType == 'moisture' ? 'blue' : 'gray' }};">
                                                             <div style="margin-bottom: 5px;">
                                                                 <img src="./assets/images/Hr.png" alt="Ms" style="width: 20px;" loading="lazy">
                                                             </div>
                                                             <div style="font-size: 0.8em; line-height: 1.2;">
-                                                                <span ng-show="sensor.type == 'SHT4' || sensor.type == 'SHT'">Humedad<br>Suelo</span>
+                                                                <span ng-show="sensor.type == 'SHT4' || sensor.type == 'SHT' || sensor.type == 'Ms'">Humedad<br>Suelo</span>
                                                                 <span ng-show="sensor.type == 'WM'">Agua<br>Disponible</span>
                                                             </div>
                                                         </div>
@@ -3892,7 +3894,7 @@
     <script src="./assets/js/logic/unidades.js?v=26.11.07.012"></script>
     <script src="./assets/js/logic/estaciones.js?v=26.11.21.001"></script>
     <script src="./assets/js/logic/frio.js?v=26.11.21.002"></script>
-    <script src="./assets/js/logic/historial.js?v=26.11.22.003"></script>
+    <script src="./assets/js/logic/historial.js?v=26.11.22.004"></script>
     <script src="./assets/js/logic/grafica.js?v=26.11.13.001"></script>
     <script src="./assets/js/logic/tablero.js?v=26.11.20.019"></script>
     <script src="./assets/js/logic/resumen.js?v=26.11.20.010"></script>
@@ -3923,9 +3925,9 @@
 <script src="./assets/js/logic/meteo.js?v=26.11.02.001"></script>
     <script src="./assets/js/logic/aviso.js?v=26.11.02.001"></script>
 <script src="./assets/vendor/bootstrap/bootstrap.bundle.min.js?v=5.3.8"></script>
-    <script src="./assets/js/core.js?v=26.11.22.003"></script>
+    <script src="./assets/js/core.js?v=26.11.22.004"></script>
     <!-- REQ-038: factories, ayudas de interfaz y componentes (despues de core.js, que crea el modulo) -->
-    <script src="./assets/js/app/version.js?v=26.11.22.003"></script>
+    <script src="./assets/js/app/version.js?v=26.11.22.004"></script>
     <script src="./assets/js/app/reglas.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/auth.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/repo.factory.js?v=26.11.06.001"></script>
