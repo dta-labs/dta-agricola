@@ -87,7 +87,7 @@ test("REQ-095 la imagen se exporta desde una copia limpia (la grafica en pantall
 
 test("REQ-096 mover o hacer zoom ya no reconstruye la grafica del historial", () => {
   assert.doesNotMatch(HTML, /<li ng-repeat="sensor in actualSystem\.sensors"[^>]*ng-click=/, "el <li> entero no recarga la grafica");
-  assert.match(HTML, /<div class="collapsible-header" ng-click="setChart\(idx, 'myChartH' \+ idx\)">/);
+  assert.match(HTML, /<div class="collapsible-header" ng-click="abrirSensorDelHistorial\(idx\)">/);   // REQ-132: carga el periodo elegido o dibuja
   assert.match(CORE, /if \(e && e\.native && e\.native\.stopPropagation\) e\.native\.stopPropagation\(\);/);
   assert.doesNotMatch(CORE, /\n\s*e\.stopPropagation\(\);\n\s*\},\n\s*\/\/ REQ-093/);
 });

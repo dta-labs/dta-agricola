@@ -815,6 +815,8 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         $scope.selectSystem($scope.systems[systemKey]);
     }
 
+    let periodoCargado = null;   // REQ-132 (ver abrirSensorDelHistorial)
+
     $scope.selectSystem = (system) => {
         setDeviceData(system);
         setActualSystemPlans();
@@ -828,6 +830,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             $scope.chartItems = 300;
             items = 300;
         }
+        periodoCargado = null;   // REQ-132: las lecturas iniciales no son un periodo del historial
         $scope.loadSystemLog(system.key, items, dir);
         // invertLog();
         // $scope.actualSystem.posicionActual = parseInt($scope.actualSystem.log.position ? $scope.actualSystem.log.position : "0") + parseInt($scope.actualSystem.summerHour ? $scope.actualSystem.summerHour : "0");
@@ -842,6 +845,16 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     }
 
     $scope.selectedTimeOption = 'SEMANA'; // "DIA", "SEMANA" (por defecto), "MES", "CICLO" (último ciclo de riego), "AÑO" (último año)
+
+    // REQ-132: periodo del historial cargado de verdad ("clave|SEMANA"). Al abrir el equipo se cargan las ultimas
+    // lecturas del dia (no la semana) aunque el boton "Semana" se vea elegido: al abrir un sensor del historial se
+    // carga el periodo elegido si aun no esta (antes la grafica y la tabla mostraban solo el dia, con un icono).
+    $scope.abrirSensorDelHistorial = (idx) => {
+        const sistema = $scope.actualSystem;
+        if (!sistema) return;
+        if (periodoCargado === sistema.key + "|" + $scope.selectedTimeOption) $scope.setChart(idx, 'myChartH' + idx);
+        else $scope.reloadSystemLog(sistema.key, $scope.selectedTimeOption, idx);
+    };
 
     $scope.reloadSystemLog = (systemKey, option = 'DIA', chartId = null, chartLabel = null) => {
         $scope.selectedTimeOption = option;
@@ -867,6 +880,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
 
         return $scope.loadSystemLog(systemKey, $scope.limitRegisters, source, requestId, false, dateRange)
             .then(() => {
+                if (requestId === historyRequestId) periodoCargado = systemKey + "|" + option;   // REQ-132
                 if (requestId === historyRequestId &&
                     requestId === latestLogRequestBySystem[systemKey] &&
                     chartId !== null) {
@@ -4280,12 +4294,14 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             const minimumSpacing = size + 6;
             const leftLimit = chartInstance.chartArea.left + size / 2;
             const rightLimit = chartInstance.chartArea.right - size / 2;
+            // REQ-132: los dias en el borde (primer y ultimo punto de una linea, o una grafica de un solo dia) quedaban
+            // fuera por medio icono y no se dibujaban: se acercan al borde en lugar de descartarlos. Los que quedan
+            // fuera de la vista al hacer zoom o desplazar se siguen omitiendo.
             const visibleIcons = icons
-                .map(weather => ({
-                    ...weather,
-                    centerX: xScale.getPixelForValue(weather.index)
-                }))
-                .filter(weather => weather.centerX >= leftLimit && weather.centerX <= rightLimit)
+                .map(weather => ({ ...weather, rawX: xScale.getPixelForValue(weather.index) }))
+                .filter(weather => Number.isFinite(weather.rawX) &&
+                    weather.rawX >= chartInstance.chartArea.left - 1 && weather.rawX <= chartInstance.chartArea.right + 1)
+                .map(weather => ({ ...weather, centerX: Math.min(rightLimit, Math.max(leftLimit, weather.rawX)) }))
                 .sort((first, second) => first.centerX - second.centerX);
 
             const displayedIcons = [];
@@ -4320,7 +4336,9 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                 if (!image) {
                     image = new Image();
                     image.src = weather.iconUrl;
-                    image.onload = () => chartInstance.draw();
+                    // REQ-132: redibujar las graficas que siguen vivas (la que pidio el icono pudo reemplazarse antes de
+                    // que cargara y la nueva quedaba sin iconos hasta tocarla)
+                    image.onload = () => Object.values(Chart.instances || {}).forEach(g => { try { g.draw(); } catch (error) { /* destruida */ } });
                     weatherIconImages.set(weather.iconUrl, image);
                 }
                 if (!image.complete || !image.naturalWidth) return;

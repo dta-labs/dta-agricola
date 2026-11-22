@@ -123,7 +123,7 @@
 | REQ-122 | Catalogo de estaciones desde Firebase `/stations` (respaldo: `assets/data/estaciones.json`); regla de lectura | Implementado (probar: usuario) | 4 |
 | REQ-123 | Ficha del sensor: unidades frio acumuladas de la temporada (desde el 1 nov) en lugar del valor puntual | Implementado (probar: usuario) | 6 |
 
-**Total: 500 pruebas en Node (2026-11-22), todas en verde.** `npm test` funciona en Node 20 y 22.
+**Total: 501 pruebas en Node (2026-11-22), todas en verde.** `npm test` funciona en Node 20 y 22.
 
 ## Bloque de autenticacion (cerrado y confirmado por el usuario)
 
@@ -148,6 +148,7 @@
 | REQ-129 | Unidades frio por temporada del cultivo: columna U.Frio solo en temporada, acumulado desde su inicio; ficha con "Fuera de temporada" / "No aplica" | Implementado (probar: usuario) | 1 (+1 ajustada) |
 | REQ-130 | Historial: icono del clima por dia en la tabla (junto a la fecha) y en la grafica, tambien para los ultimos dias | Implementado (probar: usuario) | 1 |
 | REQ-131 | Historial: tablas con desplazamiento horizontal propio y fecha fija | Corregido (probar: usuario) | 1 |
+| REQ-132 | Historial: iconos del clima en las graficas (periodo elegido al abrir el sensor, dias del borde, redibujo al cargar) | Corregido (probar: usuario) | 1 |
 | Prueba manual del resto | listado de equipos, retraso de comunicacion, alarma de nevera, plan de riego |
 | Empaquetado nativo | Capacitor (Android/iOS), objetivo final de la refactorizacion |
 

@@ -150,3 +150,13 @@ test("REQ-131 tablas del historial con desplazamiento propio y la fecha fija a l
   assert.match(CSS, /\.tabla-desplazable \{\n    width: 100%;\n    max-width: 100%;\n    overflow-x: auto;/);
   assert.match(CSS, /\.tabla-desplazable \.historial-fecha \{\n    position: sticky;\n    left: 0;/);
 });
+
+test("REQ-132 iconos del clima en las graficas: dias del borde, redibujo al cargar y periodo elegido al abrir el sensor", () => {
+  assert.match(CORE, /\.map\(weather => \(\{ \.\.\.weather, centerX: Math\.min\(rightLimit, Math\.max\(leftLimit, weather\.rawX\)\) \}\)\)/);
+  assert.doesNotMatch(CORE, /\.filter\(weather => weather\.centerX >= leftLimit && weather\.centerX <= rightLimit\)/);
+  assert.match(CORE, /image\.onload = \(\) => Object\.values\(Chart\.instances \|\| \{\}\)\.forEach\(g => \{ try \{ g\.draw\(\); \}/);
+  assert.match(HTML, /<div class="collapsible-header" ng-click="abrirSensorDelHistorial\(idx\)">/);
+  assert.match(CORE, /if \(periodoCargado === sistema\.key \+ "\|" \+ \$scope\.selectedTimeOption\) \$scope\.setChart\(idx, 'myChartH' \+ idx\);\n\s*else \$scope\.reloadSystemLog\(sistema\.key, \$scope\.selectedTimeOption, idx\);/);
+  assert.match(CORE, /if \(requestId === historyRequestId\) periodoCargado = systemKey \+ "\|" \+ option;/);
+  assert.match(CORE, /periodoCargado = null;   \/\/ REQ-132: las lecturas iniciales no son un periodo del historial/);
+});
