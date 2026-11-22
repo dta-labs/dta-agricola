@@ -3531,7 +3531,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         // REQ-123: unidades frio ACUMULADAS de la temporada (desde el 1 de noviembre), no el valor de la hora.
         text += `           <div class="col s2"><img src="./assets/images/nieve.png" alt="Unidades frío" style="width: 25px;"></div>`;
         text += `           <div class="col s7">`;
-        text += `              <div style="margin-top: 5px;">Unidades frío acumuladas <small style="color: gray;">(desde el 1 nov)</small></div>`;
+        text += `              <div style="margin-top: 5px;">Unidades frío acumuladas <small style="color: gray;" id="ufTemporada${idx}"></small></div>`;
         text += `           </div>`;
         text += `           <div class="col s3" style="text-align: right; padding-top: 2px; font-size: 1.5em;"><b id="ufAcumulado${idx}">--</b></div>`;
         text += `       </div>`;
@@ -3615,12 +3615,19 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             if (celda) celda.textContent = texto;
         };
         const valores = r => (r && typeof r.val === "function" ? r.val() : r);
+        // REQ-129: solo en la temporada de frio del cultivo del sensor
+        const sensor = sistema.sensors && sistema.sensors["S" + idx];
+        const temporada = temporadaDeFrio(sensor);
+        const nota = document.getElementById("ufTemporada" + idx);
+        if (nota) nota.textContent = temporada ? `(${temporada.texto})` : "";
+        if (!temporada) { pintar(sensor && sensor.culture ? "No aplica" : "--"); return; }
+        if (!frio.rangoDeTemporada(hoy, temporada)) { pintar("Fuera de temporada"); return; }
         pintar("…");
         Promise.all([
-            __repo().leerLogsPorRango(sistema.key, "logs", frio.inicioTemporada(hoy), hoy),
+            __repo().leerLogsPorRango(sistema.key, "logs", frio.rangoDeTemporada(hoy, temporada).inicio, hoy),
             __repo().leerLogs(sistema.key, "dayLogs", 300)
         ]).then(([logs, dia]) => {
-            const uf = frio.acumulado(valores(logs), valores(dia), idx, hoy);
+            const uf = frio.acumulado(valores(logs), valores(dia), idx, hoy, temporada);
             pintar(uf === null ? "--" : uf.toFixed(0));
         }).catch(error => {
             console.warn("[frio] no se pudo calcular el acumulado:", (error && error.message) || error);
@@ -3663,14 +3670,44 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         }
     }
 
-    // REQ-128: unidades frio acumuladas de cada dia del historial (cache por lista de registros y sensor)
+    // REQ-128/129: unidades frio acumuladas de cada dia del historial, solo en la temporada de frio del cultivo del
+    // sensor (frio.temporadaDeCultivo). El acumulado empieza el primer dia de la temporada: si el periodo mostrado
+    // empieza despues, se leen de /logs los dias anteriores de la temporada (una vez por lista y sensor).
+    const temporadaDeFrio = sensor => __modulo("frio").temporadaDeCultivo(sensor && sensor.culture, $scope.actualSystem && $scope.actualSystem.latitude);
     let cacheUfHistorial = { registros: null, porSensor: {} };
-    $scope.ufAcumuladaDe = (reg, indice) => {
+    const ufDelSensor = (indice, sensor) => {
         if (cacheUfHistorial.registros !== $scope.invertedRegisters) cacheUfHistorial = { registros: $scope.invertedRegisters, porSensor: {} };
         const porSensor = cacheUfHistorial.porSensor;
-        if (!porSensor[indice]) porSensor[indice] = __modulo("frio").acumuladoPorRegistro($scope.invertedRegisters, indice);
-        const valor = reg ? porSensor[indice][reg.date] : null;
-        return valor === null || valor === undefined ? "--" : valor.toFixed(1);
+        const temporada = temporadaDeFrio(sensor);
+        if (porSensor[indice] && porSensor[indice].cultivo === (sensor && sensor.culture)) return porSensor[indice];
+        const frio = __modulo("frio");
+        const registros = $scope.invertedRegisters || [];
+        const enTemporada = temporada ? registros.filter(r => r && r.date && frio.rangoDeTemporada(r.date.substring(0, 8), temporada)) : [];
+        const entrada = porSensor[indice] = {
+            cultivo: sensor && sensor.culture, temporada, visible: enTemporada.length > 0,
+            valores: temporada ? frio.acumuladoPorRegistro(registros, indice, temporada) : {}
+        };
+        if (entrada.visible) {
+            // dias de la temporada anteriores al primero mostrado
+            const primero = enTemporada.map(r => r.date.substring(0, 8)).sort()[0];
+            const rango = frio.rangoDeTemporada(primero, temporada);
+            if (rango && rango.inicio < primero && $scope.actualSystem) {
+                const listaDe = r => (r && typeof r.val === "function" ? r.val() : r);
+                __repo().leerLogsPorRango($scope.actualSystem.key, "logs", rango.inicio, primero).then(previos => {
+                    if (cacheUfHistorial.porSensor[indice] !== entrada) return;   // ya cambio el periodo
+                    $scope.$evalAsync(() => { entrada.valores = frio.acumuladoPorRegistro(registros, indice, temporada, listaDe(previos)); });
+                }).catch(error => console.warn("[frio] historial sin los dias previos de la temporada:", (error && error.message) || error));
+            }
+        }
+        return entrada;
+    };
+    /** Columna "U.Frio": solo si el cultivo del sensor necesita frio y el periodo mostrado toca su temporada. */
+    $scope.mostrarUF = (sensor, indice) => $scope.selectedTimeOption != 'DIA' && ufDelSensor(indice, sensor).visible;
+    $scope.temporadaUF = (sensor, indice) => { const t = ufDelSensor(indice, sensor).temporada; return t ? t.cultivo + ": " + t.texto : ""; };
+    $scope.ufAcumuladaDe = (reg, indice, sensor) => {
+        const valor = reg ? ufDelSensor(indice, sensor).valores[reg.date] : undefined;
+        if (valor === undefined) return "—";          // fuera de la temporada
+        return valor === null ? "--" : valor.toFixed(1);
     };
 
     // REQ-126: color de un dato de la tabla del historial (logic/historial.js)

@@ -80,16 +80,47 @@ test("REQ-127 humedad Ms: 8 valores por sensor y valor ya en %", () => {
   assert.doesNotMatch(CORE, /let dataValue = JSON\.parse\(element\.dataRaw\)\[i\];/);
 });
 
-test("REQ-128 U.Frio: unidades frio acumuladas en el historial (del dia mas antiguo al mas reciente, de nuevo a 0 el 1 nov)", () => {
+test("REQ-128/129 U.Frio: acumulado solo en la temporada del cultivo, desde su primer dia (con los dias previos de /logs)", () => {
   const f = require("../../assets/js/logic/frio.js");
   const r = (d, uf) => ({ date: d + " 0000am", dataRaw: JSON.stringify([0, 0, 0, 0, 0, 0, uf, 0, 0, 0, 0, 0, 0, 0, uf === "NaN" ? "NaN" : uf * 2, 0]) });
-  const regs = [r("20261103", 3), r("20261030", 5), r("20261101", 2), r("20261102", "NaN"), r("20261031", 1)];   // orden de la tabla: cualquiera
-  assert.deepEqual(f.acumuladoPorRegistro(regs, 0),
-    { "20261030 0000am": 5, "20261031 0000am": 6, "20261101 0000am": 2, "20261102 0000am": 2, "20261103 0000am": 5 });
-  assert.deepEqual(f.acumuladoPorRegistro([r("20261201", 2), r("20261202", 3)], 1), { "20261201 0000am": 4, "20261202 0000am": 10 });
-  assert.deepEqual(f.acumuladoPorRegistro([r("20261201", "NaN")], 0), { "20261201 0000am": null });
-  assert.match(HTML, /<br> U\.Frío acum\.<\/th>/);
-  assert.doesNotMatch(HTML, /H\.Frío/);
-  assert.match(HTML, /<b>\{\{ ufAcumuladaDe\(reg, idx\) \}\}<\/b><\/td>/);
-  assert.match(CORE, /porSensor\[indice\] = __modulo\("frio"\)\.acumuladoPorRegistro\(\$scope\.invertedRegisters, indice\);/);
+  const nogal = f.temporadaDeCultivo("Nogal", 28.6);   // 1 nov - 28/29 feb
+  const regs = [r("20261103", 3), r("20261030", 5), r("20261101", 2), r("20261102", "NaN"), r("20261031", 1)];   // cualquier orden
+  assert.deepEqual(f.acumuladoPorRegistro(regs, 0, nogal),
+    { "20261101 0000am": 2, "20261102 0000am": 2, "20261103 0000am": 5 });          // 30 y 31 oct: fuera (sin valor)
+  // la semana mostrada empieza el 20 nov: se suman los dias previos de la temporada
+  const previos = [r("20261101", 10), r("20261110", 5), r("20261031", 99)];
+  assert.deepEqual(f.acumuladoPorRegistro([r("20261121", 2), r("20261120", 1)], 0, nogal, previos),
+    { "20261101 0000am": 10, "20261110 0000am": 15, "20261120 0000am": 16, "20261121 0000am": 18 });
+  // fin de temporada: el 1 de marzo ya no cuenta (nogal); el manzano sigue hasta el 15 de marzo
+  assert.deepEqual(f.acumuladoPorRegistro([r("20270228", 4), r("20270301", 4)], 0, nogal), { "20270228 0000am": 4 });
+  const manzano = f.temporadaDeCultivo("Manzana", 28.6);
+  assert.deepEqual(f.acumuladoPorRegistro([r("20270315", 4), r("20270316", 4)], 0, manzano), { "20270315 0000am": 4 });
+  assert.deepEqual(f.acumuladoPorRegistro([r("20261201", "NaN")], 0, nogal), { "20261201 0000am": null });
+  assert.match(HTML, /<br> U\.Frío<\/th>/);
+  assert.doesNotMatch(HTML, /H\.Frío|U\.Frío acum\./);
+  assert.match(HTML, /<th ng-if="mostrarUF\(sensor, idx\)"/);
+  assert.match(HTML, /<td ng-if="mostrarUF\(sensor, idx\)"[^>]*><b>\{\{ ufAcumuladaDe\(reg, idx, sensor\) \}\}<\/b><\/td>/);
+  assert.match(CORE, /__repo\(\)\.leerLogsPorRango\(\$scope\.actualSystem\.key, "logs", rango\.inicio, primero\)/);
+});
+
+test("REQ-129 temporada de frio segun el cultivo (hemisferio norte y sur) y cultivos sin frio", () => {
+  const f = require("../../assets/js/logic/frio.js");
+  assert.equal(f.temporadaDeCultivo("Maíz", 28), null);
+  assert.equal(f.temporadaDeCultivo("Tomate", 28), null);
+  assert.equal(f.temporadaDeCultivo("", 28), null);
+  assert.equal(f.temporadaDeCultivo("Esperanza", 28), null);                     // "pera" solo como palabra
+  assert.deepEqual(["Manzana Golden", "pera", "Cerezo", "Nuez de Castilla"].map(c => f.temporadaDeCultivo(c, 28).texto),
+    ["1 nov – 15 mar", "1 nov – 15 mar", "1 nov – 15 mar", "1 nov – 15 mar"]);
+  assert.deepEqual(["Nogal", "Nogal pecanero", "Durazno", "Uva", "Arándano", "Higo"].map(c => f.temporadaDeCultivo(c, 28).texto),
+    ["1 nov – 28 feb", "1 nov – 28 feb", "1 nov – 28 feb", "1 nov – 28 feb", "1 nov – 28 feb", "1 nov – 28 feb"]);
+  assert.equal(f.temporadaDeCultivo("Uva", -33).texto, "1 may – 31 ago");      // hemisferio sur
+  const nogal = f.temporadaDeCultivo("Nogal", 28);
+  assert.deepEqual(f.rangoDeTemporada("20261122", nogal), { inicio: "20261101", fin: "20270228" });
+  assert.deepEqual(f.rangoDeTemporada("20280229", nogal), { inicio: "20271101", fin: "20280229" });   // bisiesto
+  assert.equal(f.rangoDeTemporada("20270301", nogal), null);
+  assert.equal(f.rangoDeTemporada("20260715", nogal), null);
+  // ficha del sensor: fuera de temporada no hay acumulado; dentro, desde el inicio de la temporada del cultivo
+  assert.equal(f.acumulado([], [], 0, "20260715", nogal), null);
+  assert.match(CORE, /if \(!frio\.rangoDeTemporada\(hoy, temporada\)\) \{ pintar\("Fuera de temporada"\); return; \}/);
+  assert.match(CORE, /const uf = frio\.acumulado\(valores\(logs\), valores\(dia\), idx, hoy, temporada\);/);
 });

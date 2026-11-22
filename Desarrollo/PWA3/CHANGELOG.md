@@ -85,6 +85,7 @@ Cada version publicada lleva una etiqueta de git `pwa3-vX.Y.Z` sobre el commit d
 - Etiquetas que tapaban los datos y selectores que no mostraban lo elegido, en toda la app. (REQ-043 A1-A2)
 
 ### Cambiado
+- Unidades frio segun el cultivo: la columna "U.Frio" del historial solo aparece si el cultivo del sensor necesita frio y el periodo toca su temporada (p. ej. nogal 1 nov - 28 feb, manzano 1 nov - 15 mar); el acumulado cuenta solo esas fechas, desde el primer dia de la temporada. La ficha del sensor dice "Fuera de temporada" o "No aplica". (REQ-129)
 - Historial: la columna "H.Frio" pasa a "U.Frio acum." (unidades frio del modelo Utah) y muestra el acumulado de cada dia en el periodo, que vuelve a 0 el 1 de noviembre; el valor del dia queda en la informacion de la celda. (REQ-128)
 - Historial: colores de los datos segun la capacidad de campo (humedad %), la tension (cb: < 10 azul, < 30 verde, < 60 amarillo, 60+ rojo) y los umbrales de temperatura (o 2 y 20 °C); las bandas de la grafica siguen los mismos criterios. (REQ-126)
 - Historial: los controles de la grafica (zoom, calendario, exportar datos e imagen) solo se muestran en PC; en el celular quedan el zoom con dos dedos y el arrastre. (REQ-125)

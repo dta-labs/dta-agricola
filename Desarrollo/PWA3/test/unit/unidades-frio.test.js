@@ -59,6 +59,6 @@ test("REQ-123 el popup Cultivo muestra el acumulado, no el valor puntual", () =>
   assert.match(CORE, /id="ufAcumulado\$\{idx\}"/);
   assert.match(CORE, /Unidades frío acumuladas/);
   assert.match(CORE, /const frio = __modulo\("frio"\);/);
-  assert.match(CORE, /frio\.acumulado\(valores\(logs\), valores\(dia\), idx, hoy\)/);
+  assert.match(CORE, /frio\.acumulado\(valores\(logs\), valores\(dia\), idx, hoy(, temporada)?\)/);
   assert.ok(HTML.indexOf("./assets/js/logic/frio.js?v=") > 0, "falta <script> de logic/frio.js");
 });
