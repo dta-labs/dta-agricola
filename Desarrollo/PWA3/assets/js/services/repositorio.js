@@ -92,6 +92,11 @@
                 return metodos.leer("cultivos");
             },
 
+            /** REQ-151: actualiza campos del catalogo de cultivos ({ "clave/culture": "Manzana" }). */
+            actualizarCultivos: function (cambios) {
+                return metodos.actualizar("cultivos", cambios);
+            },
+
             /** stations: catalogo de estaciones meteorologicas locales (REQ-122) */
             leerEstaciones: function () {
                 return metodos.leer("stations");

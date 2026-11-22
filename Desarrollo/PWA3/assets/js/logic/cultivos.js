@@ -136,7 +136,56 @@
         return sensor;
     }
 
+    // REQ-151: nombres de cultivo mal escritos en la base (catalogo /cultivos y cultivos de los equipos).
+    // "Jalape\uFFFD\uFFFDo": la "ñ" se guardo con otra codificacion (quedan caracteres de reemplazo).
+    var CORRECCIONES = [
+        { patron: /jalape(\uFFFD+|\u00C3\u00B1|\u00C3\u2018|\?+)o/gi, texto: "Jalapeño" },
+        { patron: /\bmanazana(s?)\b/gi, texto: "Manzana$1" }
+    ];
+
+    /** Nombre corregido (o el mismo si no hay nada que corregir). */
+    function corregirNombre(texto) {
+        if (typeof texto !== "string") return texto;
+        return CORRECCIONES.reduce(function (t, c) { return t.replace(c.patron, c.texto); }, texto);
+    }
+
+    /**
+     * Cambios para corregir los nombres en un objeto de la base: { "ruta/relativa/culture": "Manzana", ... }
+     * (solo los campos `campos`, por defecto culture y detail; hasta 6 niveles). Objeto vacio si no hay nada.
+     */
+    function correccionesDeNombres(objeto, campos) {
+        var nombres = campos || ["culture", "detail"];
+        var cambios = {};
+        (function recorrer(nodo, ruta, nivel) {
+            if (!nodo || typeof nodo !== "object" || nivel > 6) return;
+            Object.keys(nodo).forEach(function (clave) {
+                var valor = nodo[clave];
+                var aqui = ruta ? ruta + "/" + clave : clave;
+                if (typeof valor === "string") {
+                    if (nombres.indexOf(clave) >= 0 && corregirNombre(valor) !== valor) cambios[aqui] = corregirNombre(valor);
+                } else {
+                    recorrer(valor, aqui, nivel + 1);
+                }
+            });
+        })(objeto, "", 0);
+        return cambios;
+    }
+
+    /** Aplica los cambios ({ "a/b/c": v }) al objeto en memoria (lo que se escribio en la base). */
+    function aplicarCorrecciones(objeto, cambios) {
+        Object.keys(cambios || {}).forEach(function (ruta) {
+            var partes = ruta.split("/");
+            var nodo = objeto;
+            for (var i = 0; i < partes.length - 1 && nodo; i++) nodo = nodo[partes[i]];
+            if (nodo && typeof nodo === "object") nodo[partes[partes.length - 1]] = cambios[ruta];
+        });
+        return objeto;
+    }
+
     return {
+        corregirNombre: corregirNombre,
+        correccionesDeNombres: correccionesDeNombres,
+        aplicarCorrecciones: aplicarCorrecciones,
         cultivosDeSensor: cultivosDeSensor,
         normalizarCultivosDeSensor: normalizarCultivosDeSensor,
         FASES_FENOLOGICAS: FASES_FENOLOGICAS,

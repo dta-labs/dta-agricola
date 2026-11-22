@@ -657,6 +657,34 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         });
     };
 
+    // REQ-151: nombres de cultivo mal escritos en la base ("Jalape��o", "Manazana"): se corrigen en la base la
+    // primera vez que se leen (catalogo /cultivos y cultivos de cada equipo) y en memoria. Una vez por sesion y ruta.
+    const correccionesIntentadas = new Set();
+    const corregirNombresDeCultivos = (sistema, clave) => {
+        const cultivos = __modulo("cultivos");
+        const cambios = {};
+        ["sensors", "plots", "plans"].forEach(rama => {
+            const parcial = cultivos.correccionesDeNombres(sistema && sistema[rama], ["culture"]);
+            Object.keys(parcial).forEach(ruta => { cambios[rama + "/" + ruta] = parcial[ruta]; });
+        });
+        if (!Object.keys(cambios).length || correccionesIntentadas.has("systems/" + clave)) return;
+        correccionesIntentadas.add("systems/" + clave);
+        cultivos.aplicarCorrecciones(sistema, cambios);
+        Promise.resolve(__repo().actualizarAjustesSistema(clave, cambios))
+            .then(() => console.info("[cultivos] nombres corregidos en " + clave + ":", cambios))
+            .catch(error => console.warn("[cultivos] no se pudieron corregir los nombres de " + clave + ":", (error && error.message) || error));
+    };
+    const corregirNombresDelCatalogo = (catalogo) => {
+        const cultivos = __modulo("cultivos");
+        const cambios = cultivos.correccionesDeNombres(catalogo, ["culture", "detail"]);
+        if (!Object.keys(cambios).length || correccionesIntentadas.has("cultivos")) return;
+        correccionesIntentadas.add("cultivos");
+        cultivos.aplicarCorrecciones(catalogo, cambios);
+        Promise.resolve(__repo().actualizarCultivos(cambios))
+            .then(() => console.info("[cultivos] catalogo corregido:", cambios))
+            .catch(error => console.warn("[cultivos] no se pudo corregir el catalogo:", (error && error.message) || error));
+    };
+
     loadSystems = () => {
         if (!$scope.authUser) return;
         const usuario = $scope.userLocations[convertDotToDash($scope.authUser.email)];
@@ -674,6 +702,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                 const anterior = $scope.systems[locationKey];
                 if (anterior && anterior.log && !sistema.log) sistema.log = anterior.log;
                 $scope.systems[locationKey] = sistema;
+                corregirNombresDeCultivos(sistema, locationKey);   // REQ-151
                 loadSystemUsers(locationKey);
                 getMetorologicalData(locationKey);
                 const dir = __modulo("equipos").carpetaDeLogs(sistema.type);
@@ -2849,6 +2878,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             cultivosCargados = true;
             // Nunca null/undefined: si no hay datos, objeto vacio (evita el TypeError del <select>).
             $scope.listOfCultures = (cultivos && typeof cultivos.val === 'function' && cultivos.val()) || {};
+            corregirNombresDelCatalogo($scope.listOfCultures);   // REQ-151
             // REQ-042/043: los select son nativos (browser-default): basta con el digest.
             $scope.$apply();
             M.AutoInit();

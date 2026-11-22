@@ -60,7 +60,9 @@
     }
 
     function nombreDeCultivo(texto) {
-        var t = String(texto || "").trim();
+        // REQ-151: mientras la base tenga nombres mal escritos, el resumen los muestra corregidos
+        var t = String(texto || "").trim()
+            .replace(/jalape(\uFFFD+|\u00C3\u00B1|\?+)o/gi, "Jalapeño").replace(/\bmanazana(s?)\b/gi, "Manzana$1");
         return t ? t.charAt(0).toUpperCase() + t.slice(1) : "";
     }
 
