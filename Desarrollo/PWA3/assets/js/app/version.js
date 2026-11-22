@@ -14,7 +14,7 @@
 
     var VERSION = Object.freeze({
         app: "1.1.0-dev",
-        compilacion: "26.11.22.010",
+        compilacion: "26.11.22.011",
         fecha: "2026-11-22"
     });
 

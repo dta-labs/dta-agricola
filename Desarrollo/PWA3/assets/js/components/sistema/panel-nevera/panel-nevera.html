@@ -34,28 +34,32 @@
     </div>
 </div>
 
-<!-- REQ-133: tarjetas de la nevera. Lo mas importante es la temperatura (grande, con el color de su estado: Helado,
-     Adecuado, Caliente), luego la humedad relativa; al pie la bateria, la grafica y la configuracion. -->
+<!-- REQ-133/134: tarjetas de la nevera. Un solo diseño para todos los tipos de sensor (temperatura y humedad, puerta,
+     corriente, presion, caudal): valor principal grande, secundario pequeño en una segunda columna, estado con su tono
+     (fondo atenuado y liston del color del estado, como el listado) e iconos del tipo. -->
 <div class="col s12">
     <div class="panel-s-e44">
         <div class="row panel-s-e45 nevera-tarjetas">
             <div class="col s12 m6 l4 xl3 panel-s-e46" ng-repeat="(coldRoomKey, coldRoom) in vm.sistema.sensors" ng-if="coldRoom.id">
-                <div class="nevera-tarjeta" ng-class="'nevera-' + vm.tarjeta(coldRoomKey, coldRoom).estado.nivel">
+                <div class="nevera-tarjeta" ng-class="['tono-' + vm.tarjeta(coldRoomKey, coldRoom).estado.tono, 'tipo-' + vm.tarjeta(coldRoomKey, coldRoom).tipo]">
                     <div class="nevera-cabecera">
                         <span class="nevera-nombre" title="{{ vm.tarjeta(coldRoomKey, coldRoom).nombre }}">{{ vm.tarjeta(coldRoomKey, coldRoom).nombre }}</span>
                         <span class="nevera-estado"><i class="material-icons" aria-hidden="true">{{ vm.tarjeta(coldRoomKey, coldRoom).estado.icono }}</i>{{ vm.tarjeta(coldRoomKey, coldRoom).estado.texto }}</span>
                     </div>
-                    <div class="nevera-temperatura" aria-label="Temperatura {{ vm.tarjeta(coldRoomKey, coldRoom).temperaturaTexto }} {{ vm.tarjeta(coldRoomKey, coldRoom).unidad }}">
-                        <i class="material-icons nevera-temperatura-icono" aria-hidden="true">device_thermostat</i>
-                        <span class="nevera-temperatura-valor">{{ vm.tarjeta(coldRoomKey, coldRoom).temperaturaTexto }}</span>
-                        <span class="nevera-temperatura-unidad">{{ vm.tarjeta(coldRoomKey, coldRoom).unidad }}</span>
-                    </div>
-                    <div class="nevera-rango">{{ vm.tarjeta(coldRoomKey, coldRoom).rangoTexto }}</div>
-                    <div class="nevera-humedad">
-                        <i class="material-icons" aria-hidden="true">opacity</i>
-                        <span class="nevera-humedad-valor">{{ vm.tarjeta(coldRoomKey, coldRoom).humedadTexto }}<small> % Hr</small></span>
-                        <span class="nevera-humedad-estado" ng-if="vm.tarjeta(coldRoomKey, coldRoom).humedadEstado"
-                            ng-class="'humedad-' + vm.tarjeta(coldRoomKey, coldRoom).humedadEstado.nivel">{{ vm.tarjeta(coldRoomKey, coldRoom).humedadEstado.texto }}</span>
+                    <div class="nevera-cuerpo">
+                        <div class="nevera-principal" aria-label="{{ vm.tarjeta(coldRoomKey, coldRoom).principal.etiqueta }} {{ vm.tarjeta(coldRoomKey, coldRoom).principal.valorTexto }} {{ vm.tarjeta(coldRoomKey, coldRoom).principal.unidad }}">
+                            <div class="nevera-principal-valor" ng-class="{ 'es-texto': vm.tarjeta(coldRoomKey, coldRoom).principal.esTexto }">
+                                <i class="material-icons nevera-principal-icono" aria-hidden="true">{{ vm.tarjeta(coldRoomKey, coldRoom).principal.icono }}</i>
+                                <span class="nevera-numero">{{ vm.tarjeta(coldRoomKey, coldRoom).principal.valorTexto }}</span>
+                                <span class="nevera-unidad">{{ vm.tarjeta(coldRoomKey, coldRoom).principal.unidad }}</span>
+                            </div>
+                            <div class="nevera-rango">{{ vm.tarjeta(coldRoomKey, coldRoom).rangoTexto || vm.tarjeta(coldRoomKey, coldRoom).principal.etiqueta }}</div>
+                        </div>
+                        <div class="nevera-secundario" ng-if="vm.tarjeta(coldRoomKey, coldRoom).secundario">
+                            <i class="material-icons" aria-hidden="true">{{ vm.tarjeta(coldRoomKey, coldRoom).secundario.icono }}</i>
+                            <span class="nevera-secundario-valor">{{ vm.tarjeta(coldRoomKey, coldRoom).secundario.valorTexto }}<small> {{ vm.tarjeta(coldRoomKey, coldRoom).secundario.unidad }}</small></span>
+                            <span class="nevera-secundario-etiqueta">{{ vm.tarjeta(coldRoomKey, coldRoom).secundario.etiqueta }}</span>
+                        </div>
                     </div>
                     <div class="nevera-pie">
                         <span class="nevera-bateria" title="Batería del sensor">

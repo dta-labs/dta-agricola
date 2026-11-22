@@ -359,12 +359,27 @@ dta-panel-nevera {
     vertical-align: middle;
 }
 
-/* ===================== REQ-133: tarjetas de la nevera =====================
-   Tarjeta solida (como el listado): liston izquierdo y temperatura con el color del estado (Helado, Adecuado,
-   Caliente); la temperatura es lo mas grande, luego la humedad; al pie bateria, grafica y configuracion. */
+/* ===================== REQ-133/134: tarjetas de la nevera =====================
+   Un diseño para todos los tipos: fondo atenuado y liston del color del estado (como el listado), valor principal
+   grande y secundario pequeño en una segunda columna; al pie bateria, grafica y configuracion. */
 .nevera-tarjetas {
+    display: flex !important;
+    flex-wrap: wrap;
+    align-content: flex-start;
     color: #263238 !important;
     text-shadow: none !important;
+}
+/* todas las tarjetas de una fila con la misma altura (sin huecos aunque alguna no tenga valor secundario) */
+.nevera-tarjetas::before,
+.nevera-tarjetas::after { display: none !important; }
+.nevera-tarjetas > .col {
+    display: flex;
+    float: none;
+    margin-left: 0 !important;   /* Materialize pone margin-left: auto: en flex empujaria la ultima fila */
+}
+.nevera-tarjetas > .col > .nevera-tarjeta {
+    flex: 1 1 auto;
+    width: 100%;
 }
 .nevera-tarjeta {
     --nevera: #78909c;
@@ -376,12 +391,14 @@ dta-panel-nevera {
     border: 1px solid #e0e6e3;
     border-left: 7px solid var(--nevera);
     border-radius: 14px;
-    background: #ffffff;
+    background: var(--nevera-fondo);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
 }
-.nevera-tarjeta.nevera-helado { --nevera: #1e88e5; --nevera-fondo: #e8f2fc; }
-.nevera-tarjeta.nevera-adecuado { --nevera: #2e7d32; --nevera-fondo: #edf6ee; }
-.nevera-tarjeta.nevera-caliente { --nevera: #d32f2f; --nevera-fondo: #fdecec; }
+.nevera-tarjeta.tono-frio { --nevera: #1e88e5; --nevera-fondo: #e8f2fc; }
+.nevera-tarjeta.tono-ok { --nevera: #2e7d32; --nevera-fondo: #edf6ee; }
+.nevera-tarjeta.tono-atencion { --nevera: #ef6c00; --nevera-fondo: #fff4e5; }
+.nevera-tarjeta.tono-alerta { --nevera: #d32f2f; --nevera-fondo: #fdecec; }
+.nevera-tarjeta.tono-inactivo { --nevera: #78909c; --nevera-fondo: #f1f4f5; }
 .nevera-cabecera {
     display: flex;
     align-items: center;
@@ -410,70 +427,83 @@ dta-panel-nevera {
     font-weight: 700;
 }
 .nevera-estado .material-icons { font-size: 16px; }
-.nevera-temperatura {
+.nevera-cuerpo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 4px 0 8px;
+}
+.nevera-principal {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+.nevera-principal-valor {
     display: flex;
     align-items: flex-start;
-    margin-top: 4px;
     color: var(--nevera);
     line-height: 1;
 }
-.nevera-temperatura-icono {
+.nevera-principal-icono {
     align-self: center;
     margin-right: 2px;
     font-size: 34px !important;
     opacity: 0.85;
 }
-.nevera-temperatura-valor {
-    font-size: 3.4rem;
+.nevera-numero {
+    font-size: 3.2rem;
     font-weight: 800;
     letter-spacing: -0.02em;
     font-variant-numeric: tabular-nums;
 }
-.nevera-temperatura-unidad {
+.nevera-principal-valor.es-texto .nevera-numero {
+    font-size: 2.2rem;
+    line-height: 1.3;
+}
+.nevera-unidad {
     margin: 6px 0 0 4px;
-    font-size: 1.4rem;
+    font-size: 1.3rem;
     font-weight: 700;
 }
 .nevera-rango {
-    color: #78909c;
+    margin-top: 2px;
+    color: #607d8b;
     font-size: 0.8rem;
 }
-.nevera-humedad {
+.nevera-secundario {
     display: flex;
+    flex: 0 0 auto;
+    flex-direction: column;
     align-items: center;
-    gap: 6px;
-    margin-top: 8px;
-    padding: 6px 10px;
-    border-radius: 10px;
-    background: #f3f6f8;
+    min-width: 84px;
+    padding: 6px 8px;
+    border-left: 1px solid rgba(0, 0, 0, 0.1);
     color: #37474f;
+    text-align: center;
 }
-.nevera-humedad .material-icons { color: #1e88e5; font-size: 22px; }
-.nevera-humedad-valor {
-    font-size: 1.5rem;
+.nevera-secundario .material-icons { color: #1e88e5; font-size: 20px; }
+.nevera-secundario-valor {
+    font-size: 1.35rem;
     font-weight: 700;
+    line-height: 1.1;
     font-variant-numeric: tabular-nums;
 }
-.nevera-humedad-valor small {
-    font-size: 0.85rem;
+.nevera-secundario-valor small {
+    font-size: 0.75rem;
     font-weight: 600;
     color: #607d8b;
 }
-.nevera-humedad-estado {
-    margin-left: auto;
-    font-size: 0.85rem;
-    font-weight: 700;
+.nevera-secundario-etiqueta {
+    color: #607d8b;
+    font-size: 0.75rem;
+    font-weight: 600;
 }
-.nevera-humedad-estado.humedad-seca { color: #ef6c00; }
-.nevera-humedad-estado.humedad-adecuada { color: #2e7d32; }
-.nevera-humedad-estado.humedad-alta { color: #1e88e5; }
 .nevera-pie {
     display: flex;
+    margin-top: auto !important;
     align-items: center;
     justify-content: space-between;
-    margin-top: 8px;
     padding-top: 8px;
-    border-top: 1px solid #eceff1;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
     color: #607d8b;
     font-size: 0.9rem;
 }

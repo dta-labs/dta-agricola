@@ -1763,6 +1763,7 @@ canvas[id^="myChart"],
 .lista-equipos > .col {
     display: flex;
     float: none;
+    margin-left: 0 !important;   /* Materialize pone margin-left: auto: en flex empujaba la ultima fila a la derecha */
 }
 .lista-equipos > .col > .tarjeta-equipo {
     flex: 1 1 auto;

@@ -87,6 +87,7 @@ Cada version publicada lleva una etiqueta de git `pwa3-vX.Y.Z` sobre el commit d
 - Etiquetas que tapaban los datos y selectores que no mostraban lo elegido, en toda la app. (REQ-043 A1-A2)
 
 ### Cambiado
+- Nevera: la humedad pasa a una segunda columna (pequeña) junto a la temperatura y la tarjeta toma el fondo atenuado del color de su estado, como el listado. El mismo diseño sirve para sensores de puerta (abierta/cerrada), corriente, presion y caudal (1 o 2 valores) con sus iconos y estados. Tambien: en el listado y en la nevera la ultima fila de tarjetas ya no se corre a la derecha. (REQ-134)
 - Nevera: tarjetas nuevas, con la temperatura grande y en el color de su estado ("Helado", "Adecuado", "Caliente", segun los umbrales del sensor o 0 y 3 °C), luego la humedad (con "Seca/Adecuada/Alta" si tiene umbrales) y al pie bateria, grafica y configuracion. (REQ-133)
 - Unidades frio segun el cultivo: la columna "U.Frio" del historial solo aparece si el cultivo del sensor necesita frio y el periodo toca su temporada (p. ej. nogal 1 nov - 28 feb, manzano 1 nov - 15 mar); el acumulado cuenta solo esas fechas, desde el primer dia de la temporada. La ficha del sensor dice "Fuera de temporada" o "No aplica". (REQ-129)
 - Historial: la columna "H.Frio" pasa a "U.Frio acum." (unidades frio del modelo Utah) y muestra el acumulado de cada dia en el periodo, que vuelve a 0 el 1 de noviembre; el valor del dia queda en la informacion de la celda. (REQ-128)

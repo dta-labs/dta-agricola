@@ -123,7 +123,7 @@
 | REQ-122 | Catalogo de estaciones desde Firebase `/stations` (respaldo: `assets/data/estaciones.json`); regla de lectura | Implementado (probar: usuario) | 4 |
 | REQ-123 | Ficha del sensor: unidades frio acumuladas de la temporada (desde el 1 nov) en lugar del valor puntual | Implementado (probar: usuario) | 6 |
 
-**Total: 504 pruebas en Node (2026-11-22), todas en verde.** `npm test` funciona en Node 20 y 22.
+**Total: 505 pruebas en Node (2026-11-22), todas en verde.** `npm test` funciona en Node 20 y 22.
 
 ## Bloque de autenticacion (cerrado y confirmado por el usuario)
 
@@ -150,6 +150,7 @@
 | REQ-131 | Historial: tablas con desplazamiento horizontal propio y fecha fija | Corregido (probar: usuario) | 1 |
 | REQ-132 | Historial: iconos del clima en las graficas (periodo elegido al abrir el sensor, dias del borde, redibujo al cargar) | Corregido (probar: usuario) | 1 |
 | REQ-133 | Nevera: tarjetas con temperatura primero, humedad despues y estado del sensor (Helado, Adecuado, Caliente) | Implementado (probar: usuario) | 3 |
+| REQ-134 | Nevera: humedad en segunda columna, fondo por estado y tarjeta comun para puerta, corriente, presion y caudal; ultima fila sin correrse | Implementado (probar: usuario) | 2 (+2 ajustadas) |
 | Prueba manual del resto | listado de equipos, retraso de comunicacion, alarma de nevera, plan de riego |
 | Empaquetado nativo | Capacitor (Android/iOS), objetivo final de la refactorizacion |
 
