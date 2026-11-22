@@ -75,12 +75,12 @@
 
     var ESTADOS_PARCELA = {
         encendido: { nivel: "encendido", texto: "Regando", icono: "opacity", tono: "ok" },
-        pendiente: { nivel: "pendiente", texto: "Esperando", icono: "hourglass_empty", tono: "atencion" },
+        pendiente: { nivel: "pendiente", texto: "En espera", icono: "hourglass_empty", tono: "atencion" },
         apagado: { nivel: "apagado", texto: "Detenida", icono: "pause_circle_outline", tono: "inactivo" }
     };
     var ESTADOS_MOTOR = {
         encendido: { nivel: "encendido", texto: "Encendido", icono: "power", tono: "ok" },
-        pendiente: { nivel: "pendiente", texto: "Esperando", icono: "hourglass_empty", tono: "atencion" },
+        pendiente: { nivel: "pendiente", texto: "En espera", icono: "hourglass_empty", tono: "atencion" },
         apagado: { nivel: "apagado", texto: "Apagado", icono: "power_off", tono: "inactivo" }
     };
 

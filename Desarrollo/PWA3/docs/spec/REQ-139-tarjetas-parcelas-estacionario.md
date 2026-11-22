@@ -17,9 +17,9 @@ Cuadricula de 2 columnas (celular) o 4 (desde 601 px). Cada tarjeta, solida con 
 - **Cultivo** con icono (o "Sin cultivo" en gris).
 - **Superficie** (ha, del poligono dibujado) y **duracion del riego** programada ("1 h 30 min"), si existen.
 - **Humedad del suelo** del sensor asociado a la parcela (punto de color y "Suelo adecuado · 42 %"), si tiene.
-- **Estado**: Regando (verde), Esperando (ambar: orden enviada, sin confirmar), Detenida (gris), con la misma regla
+- **Estado**: Regando (verde), En espera (ambar: orden enviada, sin confirmar; REQ-141), Detenida (gris), con la misma regla
   que el mapa y el listado (`panel.estadoParcela`).
-- **Motor (M)**: icono de la bomba, "Toca para encender/apagar" y su estado (Encendido / Esperando / Apagado).
+- **Motor (M)**: icono de la bomba, "Toca para encender/apagar" y su estado (Encendido / En espera / Apagado).
 
 El comportamiento no cambia: la parcela abre "Editar riego"; el motor se enciende o apaga al tocarlo.
 Los datos se calculan en `DTALogic.parcela.tarjeta` y se guardan en cache mientras no cambien las parcelas (incluidos

@@ -20,7 +20,7 @@ test("REQ-139 datos de la tarjeta: nombre, cultivo, superficie, duracion, estado
     log: { dataRaw: JSON.stringify(["42", "0", "0", "0", "20", "0", "0", "3"]) } };
   const s = { plots: { p0: { name: "Norte", culture: "Nogal", value: 5400000, forcedStart: 1, poligon: P, sensor: "r", sensorId: "A1" }, p1: {}, p7: {} }, log: {} };
   const t = pa.tarjeta(s, "p0", deps, { r: red });
-  assert.deepEqual([t.numero, t.nombre, t.cultivo, t.hectareas, t.duracion, t.estado.texto, t.estado.tono], ["1", "Norte", "Nogal", 1.09, "1 h 30 min", "Esperando", "atencion"]);
+  assert.deepEqual([t.numero, t.nombre, t.cultivo, t.hectareas, t.duracion, t.estado.texto, t.estado.tono], ["1", "Norte", "Nogal", 1.09, "1 h 30 min", "En espera", "atencion"]);
   assert.deepEqual([t.humedad.texto, t.humedad.valor], ["Adecuado", "42 %"]);
   const vacia = pa.tarjeta(s, "p1", deps, {});
   assert.deepEqual([vacia.nombre, vacia.cultivo, vacia.hectareas, vacia.duracion, vacia.humedad, vacia.estado.texto], ["Sección 2", "", null, "", null, "Detenida"]);
@@ -49,4 +49,11 @@ test("REQ-140 Programacion: guardar el programa sin iniciarlo", () => {
   assert.match(cuerpo, /erroresDelPrograma\(p, __modulo\("fechas"\)\)/);
   assert.match(cuerpo, /if \(!p\.id\) p\.id = generarIdUnico\(\);\n\s*\$scope\.saveIrrigationPlan\(p\);/);
   assert.doesNotMatch(cuerpo, /startStationaryProgram|stopStationaryProgram|createStationaryProgram/);   // no toca las parcelas
+});
+
+test("REQ-141 parcelas y motor: \"En espera\" (no \"Esperando equipo\")", () => {
+  const s = { plots: { p0: { forcedStart: 1 }, p7: { forcedStart: 1 } }, log: {} };
+  assert.equal(pa.tarjeta(s, "p0", deps, {}).estado.texto, "En espera");
+  assert.equal(pa.tarjeta(s, "p7", deps, {}).estado.texto, "En espera");
+  assert.doesNotMatch(leer("assets", "js", "logic", "parcela.js"), /Esperando/);
 });
