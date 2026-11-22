@@ -403,7 +403,47 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         }
         // window.scrollTo(0, 0);
         showContent();
+        volverArriba();                              // REQ-137
+        if (windowsName == "sistema") $timeout(ajustarAltoDelSistema);
     }
+
+    // ===================== REQ-137: la cabecera ya no se corta al trabajar con el mapa =====================
+    // El mapa media calc(100vh - 40px) y quedaba debajo de la cabecera y de un margen de 40 px: la vista del sistema era
+    // ~50 px (en el celular, mas: 100vh es la pantalla sin barras del navegador) mas alta que la pantalla. #contenido
+    // tiene overflow: hidden, pero el navegador igual lo desplaza al enfocar el mapa, abrir un popup o el teclado: la
+    // cabecera quedaba cortada (titulo y controles fuera de la vista) y la barra de controles de abajo, tapada.
+    // 1) El alto del mapa se calcula con el espacio que de verdad queda debajo de la cabecera.
+    // 2) #contenido y la pagina vuelven arriba si algo los desplaza (salvo mientras se escribe en un campo).
+    // (declaraciones de funcion: showWindow puede llamarlas antes de llegar a esta linea)
+    function editandoCampo() {
+        const activo = document.activeElement;
+        return !!activo && (/^(INPUT|TEXTAREA|SELECT)$/.test(activo.tagName) || activo.isContentEditable);
+    }
+    function volverArriba() {
+        const contenido = document.getElementById("contenido");
+        if (contenido && (contenido.scrollTop || contenido.scrollLeft)) { contenido.scrollTop = 0; contenido.scrollLeft = 0; }
+        if (!editandoCampo() && (window.scrollY || window.scrollX)) window.scrollTo(0, 0);
+    }
+    function ajustarAltoDelSistema() {
+        const fila = document.querySelector("#sistema .contentEstacionario");
+        if (!fila || !fila.offsetParent) return;                  // la vista del sistema no se ve
+        volverArriba();
+        const altoVisible = (window.visualViewport && window.visualViewport.height) || window.innerHeight;
+        const alto = Math.max(260, Math.floor(altoVisible - fila.getBoundingClientRect().top));
+        [fila, document.querySelector("#sistema .main-container.map"), document.getElementById("map")]
+            .forEach(el => { if (el) el.style.height = alto + "px"; });
+    }
+    (() => {
+        const contenido = document.getElementById("contenido");
+        if (contenido) contenido.addEventListener("scroll", volverArriba, { passive: true });
+        window.addEventListener("scroll", () => { if (!editandoCampo()) volverArriba(); }, { passive: true });
+        document.addEventListener("focusout", () => setTimeout(volverArriba, 150));   // al cerrar el teclado (iOS)
+        let pendiente = null;
+        const alCambiarTamano = () => { clearTimeout(pendiente); pendiente = setTimeout(ajustarAltoDelSistema, 120); };
+        window.addEventListener("resize", alCambiarTamano);
+        window.addEventListener("orientationchange", alCambiarTamano);
+        if (window.visualViewport) window.visualViewport.addEventListener("resize", alCambiarTamano);
+    })();
 
     systemsETL = () => {
         if ($scope.systems) {
