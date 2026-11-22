@@ -9,7 +9,7 @@
 (function (raiz) {
     "use strict";
 
-    var VERSION = "26.11.20.016";
+    var VERSION = "26.11.22.015";
 
     function ControladorTablero() {
         var vm = this;
@@ -44,7 +44,7 @@
         templateUrl: "./assets/js/components/tablero/tablero.html?v=" + VERSION,
         controller: ControladorTablero,
         controllerAs: "vm",
-        bindings: { datos: "<", hoy: "<", alAbrirEquipo: "&", alVerEquipos: "&", alAgregarEquipo: "&" }
+        bindings: { datos: "<", hoy: "<", alAbrirEquipo: "&", alVerEquipos: "&", alAgregarEquipo: "&", alAbrirNotificaciones: "&" }
     };
 
     if (typeof module !== "undefined" && module.exports) {

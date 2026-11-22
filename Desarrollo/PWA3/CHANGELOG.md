@@ -88,6 +88,7 @@ Cada version publicada lleva una etiqueta de git `pwa3-vX.Y.Z` sobre el commit d
 - Etiquetas que tapaban los datos y selectores que no mostraban lo elegido, en toda la app. (REQ-043 A1-A2)
 
 ### Cambiado
+- Resumen: en "Mis cultivos" los cultivos sin sensor muestran el equipo donde estan y su estado (y lo abren); "Maiz" y "Maíz" se agrupan. "Atiende primero" va en un area de alto fijo con desplazamiento sin barra. El semaforo abre las notificaciones. Los avisos de helada no se muestran para cultivos en su reposo invernal (p. ej. manzano o nogal de noviembre a febrero/marzo). (REQ-138)
 - Nevera: el boton de la grafica es mas ancho (96 px) con la altura de antes (36 px). (REQ-136)
 - Nevera: titulo de la tarjeta mas grande (sin agrandar la tarjeta); toda la tarjeta abre la configuracion del sensor, como las fichas de los sensores de suelo, y al pie queda solo el boton de la grafica, mas grande. (REQ-135)
 - Nevera: la humedad pasa a una segunda columna (pequeña) junto a la temperatura y la tarjeta toma el fondo atenuado del color de su estado, como el listado. El mismo diseño sirve para sensores de puerta (abierta/cerrada), corriente, presion y caudal (1 o 2 valores) con sus iconos y estados. Tambien: en el listado y en la nevera la ultima fila de tarjetas ya no se corre a la derecha. (REQ-134)

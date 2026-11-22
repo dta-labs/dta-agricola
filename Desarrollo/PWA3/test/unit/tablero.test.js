@@ -17,7 +17,7 @@ const COMP = leer("assets", "js", "components", "tablero", "tablero.component.js
 const VISTA = leer("assets", "js", "components", "tablero", "tablero.html");
 const deps = {
   resumen: require("../../assets/js/logic/resumen.js"), panel: require("../../assets/js/logic/panel.js"),
-  humedad: require("../../assets/js/logic/humedad.js"), medidor: require("../../assets/js/logic/medidor.js"), geo: require("../../assets/js/logic/geo.js")
+  humedad: require("../../assets/js/logic/humedad.js"), medidor: require("../../assets/js/logic/medidor.js"), geo: require("../../assets/js/logic/geo.js"), frio: require("../../assets/js/logic/frio.js")
 };
 const ok = { voltage: "true", safety: "true", commDelay: "-1", status: "ON", position: "237", speed: "45", update: "20261120 09:48" };
 
@@ -138,4 +138,55 @@ test("REQ-115 vista: sugerencias al final, bienvenida sin equipos y 'Agregar equ
   assert.match(HTML, /al-agregar-equipo="agregarEquipoDesdeResumen\(\)"/);
   assert.match(CORE, /abrirModal\("modalNuevoEquipo"\)/);
   assert.match(CORE, /\$scope\.sinEquipos = true; pantallaDeInicio\("listo"\); return; \}/);
+});
+
+// ---------- REQ-138: cultivos con su equipo, reposo invernal, semaforo y "Atiende primero" ----------
+
+test("REQ-138 Mis cultivos: sin sensor, el equipo donde esta y su estado; agrupa sin acentos", () => {
+  const ahora = new Date(2026, 5, 15).getTime();   // junio: fuera del reposo
+  const s = {
+    a: { key: "a", name: "Pivote Norte", type: "PC", status: "ON", latitude: "28.6", log: ok, length: "100",
+      plans: { p0: { culture: "Manzana", starAngle: "0", endAngle: "360" } } },
+    b: { key: "b", name: "Estacionario 2", type: "Estacionario", status: "ON", latitude: "28.6", log: ok,
+      plots: { p0: { culture: "Maíz" }, p1: { culture: "Maiz" } } }
+  };
+  const r = t.tablero(s, deps, { ahora });
+  const maiz = r.cultivos.find(c => c.clave === "maiz");
+  assert.equal(maiz.nombre, "Maíz");                                   // "Maiz" y "Maíz": un solo cultivo
+  assert.deepEqual([maiz.equipo.clave, maiz.equipo.nombre, maiz.otrosEquipos], ["b", "Estacionario 2", 0]);
+  const manzana = r.cultivos.find(c => c.clave === "manzana");
+  assert.deepEqual([manzana.equipo.nombre, manzana.equipo.linea, manzana.reposo], ["Pivote Norte", "Operando", false]);
+});
+
+test("REQ-138 periodo del cultivo: en reposo invernal la helada no se avisa (Atiende primero, sugerencias, Hoy)", () => {
+  const ahora = new Date(2026, 10, 22).getTime();  // 22 nov: manzano en reposo (1 nov - 15 mar)
+  const pronostico = { min: -1, instante: ahora + 3600000 };
+  const manzano = { a: { key: "a", name: "Huerta", type: "PC", status: "ON", latitude: "28.6", log: ok, length: "100",
+    plans: { p0: { culture: "Manzana", starAngle: "0", endAngle: "360" } } } };
+  const r = t.tablero(manzano, deps, { pronostico, umbralHelada: 2, ahora });
+  assert.deepEqual(r.atiende, []);
+  assert.deepEqual(r.reposo, { heladaRelevante: false, sistemas: ["a"] });
+  assert.equal(r.cultivos[0].fase, "En reposo invernal");
+  assert.ok(!r.sugerencias.some(sg => /helada/i.test(sg.titulo)));
+  const notif = [{ fecha: ahora + 1000, titulo: "Riesgo de helada en Huerta", tipo: "helada", sistema: "a", nivel: "alta" }];
+  assert.deepEqual(t.lineaDeHoy([], notif, pronostico, ahora + 2000, 2, r.reposo), []);
+  // con un cultivo sensible (maiz) la helada si se avisa
+  const mixto = Object.assign({}, manzano, { b: { key: "b", name: "Parcela", type: "Estacionario", status: "ON", latitude: "28.6", log: ok, plots: { p0: { culture: "Maíz" } } } });
+  const r2 = t.tablero(mixto, deps, { pronostico, umbralHelada: 2, ahora });
+  assert.match(r2.atiende[0].titulo, /^Helada esta noche/);
+  assert.deepEqual(r2.reposo.sistemas, ["a"]);
+  assert.equal(t.lineaDeHoy([], notif, pronostico, ahora + 2000, 2, r2.reposo).length, 1);   // solo el "Proximo"
+});
+
+test("REQ-138 vista: semaforo abre las notificaciones, Atiende primero con alto fijo y sin barra, cultivo abre su equipo", () => {
+  assert.match(VISTA, /<button type="button" class="tablero-semaforo" ng-class="'nivel-' \+ vm\.datos\.semaforo\.nivel" ng-click="vm\.alAbrirNotificaciones\(\)"/);
+  assert.match(COMP, /alAbrirNotificaciones: "&"/);
+  assert.match(HTML, /al-abrir-notificaciones="abrirNotificaciones\(\)"/);
+  assert.match(VISTA, /<div class="tablero-atiende-lista" ng-class="\{ 'con-mas': vm\.datos\.atiende\.length > 3 \}">/);
+  const CSS = leer("assets", "js", "components", "tablero", "tablero.css");
+  assert.match(CSS, /\.tablero-atiende-lista \{\n    max-height: 214px;[^}]*overflow-y: auto;[^}]*scrollbar-width: none;/);
+  assert.match(CSS, /\.tablero-atiende-lista::-webkit-scrollbar \{ display: none; \}/);
+  assert.match(VISTA, /ng-click="c\.equipo && vm\.alAbrirEquipo\(\{ \$clave: c\.equipo\.clave \}\)"/);
+  assert.match(CORE, /frio: __modulo\("frio"\) \}\);/);
+  assert.match(CORE, /tablero\.lineaDeHoy\(eventosDelDia, bandejaLista, pronosticoNoche, Date\.now\(\), umbral, datos\.reposo\)/);
 });

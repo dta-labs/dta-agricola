@@ -5252,7 +5252,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         $scope.showWindow("sistema");
     };
 
-    const depsDeTablero = () => ({ resumen: __modulo("resumen"), panel: __modulo("panel"), humedad: __modulo("humedad"), medidor: __modulo("medidor"), geo: __modulo("geo") });
+    const depsDeTablero = () => ({ resumen: __modulo("resumen"), panel: __modulo("panel"), humedad: __modulo("humedad"), medidor: __modulo("medidor"), geo: __modulo("geo"), frio: __modulo("frio") });   // REQ-138: frio (reposo)
 
     // Umbral de helada: el minimo configurado en los sensores (°C); si no hay, 2 °C.
     const umbralDeHelada = () => {
@@ -5278,11 +5278,12 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         if (previa && previa.length === huella.length && previa.every((v, i) => v === huella[i])) return;
         const tablero = __modulo("tablero");
         const umbral = umbralDeHelada();
+        const datos = tablero.tablero($scope.systems, depsDeTablero(), { resumenDe: $scope.resumenDeEquipo, pronostico: pronosticoNoche, umbralHelada: umbral,
+            sinEquipos: !!$scope.sinEquipos, instalada: appInstalada(), ahora: Date.now() });
         cacheTablero = {
             huella,
-            datos: tablero.tablero($scope.systems, depsDeTablero(), { resumenDe: $scope.resumenDeEquipo, pronostico: pronosticoNoche, umbralHelada: umbral,
-                sinEquipos: !!$scope.sinEquipos, instalada: appInstalada(), ahora: Date.now() }),
-            hoy: tablero.lineaDeHoy(eventosDelDia, bandejaLista, pronosticoNoche, Date.now(), umbral)
+            datos,
+            hoy: tablero.lineaDeHoy(eventosDelDia, bandejaLista, pronosticoNoche, Date.now(), umbral, datos.reposo)   // REQ-138
         };
     };
     $scope.tableroActual = () => { actualizarTablero(); return cacheTablero.datos; };

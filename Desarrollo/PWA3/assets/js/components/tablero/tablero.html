@@ -25,7 +25,9 @@
 
     <!-- 1. Indicadores -->
     <section class="tablero-seccion" aria-label="Indicadores">
-        <div class="tablero-semaforo" ng-class="'nivel-' + vm.datos.semaforo.nivel" role="status">
+        <!-- REQ-138: el semaforo abre la ventana de notificaciones -->
+        <button type="button" class="tablero-semaforo" ng-class="'nivel-' + vm.datos.semaforo.nivel" ng-click="vm.alAbrirNotificaciones()"
+            aria-label="{{ vm.datos.semaforo.titulo }}. Ver notificaciones">
             <span class="tablero-semaforo-icono">
                 <i class="material-icons" aria-hidden="true">{{ vm.datos.semaforo.nivel == 'ok' ? 'check' : vm.datos.semaforo.nivel == 'emergencia' ? 'error_outline' : 'warning' }}</i>
             </span>
@@ -33,7 +35,8 @@
                 <span class="tablero-semaforo-titulo">{{ vm.datos.semaforo.titulo }}</span>
                 <span class="tablero-semaforo-detalle">{{ vm.datos.semaforo.detalle }}</span>
             </span>
-        </div>
+            <i class="material-icons tablero-semaforo-ir" aria-hidden="true">chevron_right</i>
+        </button>
         <div class="tablero-kpis">
             <div class="tablero-kpi">
                 <span class="tablero-kpi-etiqueta"><i class="material-icons" aria-hidden="true">check_circle</i> Equipos bien</span>
@@ -56,26 +59,36 @@
 
     <!-- 2. Atiende primero -->
     <section class="tablero-seccion" ng-if="vm.datos.atiende.length" aria-label="Atiende primero">
-        <h3 class="tablero-titulo">Atiende primero</h3>
-        <button type="button" class="tablero-aviso" ng-repeat="a in vm.datos.atiende track by $index"
-            ng-class="'nivel-' + a.nivel" ng-click="vm.abrir(a)">
-            <span class="tablero-aviso-titulo">{{ vm.titulo(a.titulo) }}</span>
-            <span class="tablero-aviso-detalle">{{ a.detalle }} <span class="tablero-aviso-ir">· {{ a.clave ? 'Ver equipo' : 'Ver equipos' }} →</span></span>
-        </button>
+        <h3 class="tablero-titulo">Atiende primero <small ng-if="vm.datos.atiende.length > 3">({{ vm.datos.atiende.length }})</small></h3>
+        <!-- REQ-138: area de alto fijo con desplazamiento (sin barra visible) -->
+        <div class="tablero-atiende-lista" ng-class="{ 'con-mas': vm.datos.atiende.length > 3 }">
+            <button type="button" class="tablero-aviso" ng-repeat="a in vm.datos.atiende track by $index"
+                ng-class="'nivel-' + a.nivel" ng-click="vm.abrir(a)">
+                <span class="tablero-aviso-titulo">{{ vm.titulo(a.titulo) }}</span>
+                <span class="tablero-aviso-detalle">{{ a.detalle }} <span class="tablero-aviso-ir">· {{ a.clave ? 'Ver equipo' : 'Ver equipos' }} →</span></span>
+            </button>
+        </div>
     </section>
 
     <!-- 3. Mis cultivos -->
     <section class="tablero-seccion" ng-if="vm.datos.cultivos.length" aria-label="Mis cultivos">
         <h3 class="tablero-titulo">Mis cultivos</h3>
         <div class="tablero-cultivos">
-            <div class="tablero-cultivo" ng-repeat="c in vm.datos.cultivos track by c.nombre">
+            <!-- REQ-138: sin sensor, el equipo donde esta el cultivo y su estado; la tarjeta abre ese equipo -->
+            <button type="button" class="tablero-cultivo" ng-repeat="c in vm.datos.cultivos track by c.clave"
+                ng-click="c.equipo && vm.alAbrirEquipo({ $clave: c.equipo.clave })" ng-disabled="!c.equipo">
                 <span class="tablero-cultivo-nombre">{{ c.nombre }}</span>
                 <span class="tablero-cultivo-dato">{{ c.hectareas !== null ? c.hectareas + ' ha' : '' }}{{ c.hectareas !== null && c.fase ? ' · ' : '' }}{{ c.fase }}</span>
-                <span class="tablero-cultivo-estado" ng-class="'cultivo-' + c.estado">
-                    <i class="material-icons" aria-hidden="true">{{ c.estado == 'helada' ? 'ac_unit' : c.estado == 'seco' ? 'opacity' : c.estado == 'adecuado' ? 'check' : 'remove' }}</i>
+                <span class="tablero-cultivo-estado" ng-if="c.estado != 'sin-dato' || !c.equipo" ng-class="'cultivo-' + c.estado">
+                    <i class="material-icons" aria-hidden="true">{{ c.estado == 'helada' ? 'ac_unit' : c.estado == 'seco' ? 'opacity' : c.estado == 'adecuado' ? 'check' : c.estado == 'reposo' ? 'bedtime' : 'remove' }}</i>
                     {{ c.texto }}
                 </span>
-            </div>
+                <span class="tablero-cultivo-equipo" ng-if="c.equipo" ng-class="'equipo-' + c.equipo.nivel">
+                    <span class="tablero-cultivo-punto" aria-hidden="true"></span>
+                    <span class="tablero-cultivo-equipo-texto">{{ c.equipo.nombre }}{{ c.equipo.linea ? ' · ' + c.equipo.linea : '' }}</span>
+                    <span class="tablero-cultivo-mas" ng-if="c.otrosEquipos">+{{ c.otrosEquipos }}</span>
+                </span>
+            </button>
         </div>
     </section>
 

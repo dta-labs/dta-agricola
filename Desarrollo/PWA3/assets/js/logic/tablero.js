@@ -64,19 +64,54 @@
         return t ? t.charAt(0).toUpperCase() + t.slice(1) : "";
     }
 
-    var GRAVEDAD = { helada: 3, seco: 2, adecuado: 1, "sin-dato": 0 };
-    var TEXTOS_CULTIVO = { helada: "Riesgo de helada", seco: "Algo seco", adecuado: "Adecuado", "sin-dato": "Sin sensor" };
+    /** Clave para agrupar cultivos: sin mayusculas ni acentos ("Maiz" y "Maíz" son el mismo). */
+    function claveDeCultivo(texto) {
+        return String(texto || "").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    }
 
-    function cultivos(sistemas, deps, medidas) {
+    function diaDe(ms) {
+        var d = new Date(ms);
+        return d.getFullYear() + dos(d.getMonth() + 1) + dos(d.getDate());
+    }
+
+    /**
+     * REQ-138: el cultivo esta en su reposo invernal (temporada de frio, logic/frio.js)? En reposo la helada no es un
+     * riesgo para el cultivo (el frio es lo que necesita): no se avisa.
+     */
+    function enReposo(cultivo, latitud, ahora, frio) {
+        if (!frio) return false;
+        var temporada = frio.temporadaDeCultivo(cultivo, latitud);
+        return !!(temporada && frio.rangoDeTemporada(diaDe(ahora), temporada));
+    }
+
+    var GRAVEDAD = { helada: 3, seco: 2, reposo: 1.5, adecuado: 1, "sin-dato": 0 };
+    var TEXTOS_CULTIVO = { helada: "Riesgo de helada", seco: "Algo seco", reposo: "En reposo", adecuado: "Adecuado", "sin-dato": "Sin sensor" };
+
+    /** "Operando (237°) · Velocidad 45 %" -> "Operando"; "5 sensores · 54 °F" -> "5 sensores". */
+    function lineaCorta(linea) {
+        return String(linea || "").split(" · ")[0].replace(/\s*\(.*\)\s*$/, "").trim();
+    }
+
+    function cultivos(sistemas, deps, medidas, resumenDe, ahora) {
         var grupos = {};
-        function agregar(nombre, hectareas, fase, estado) {
+        function agregar(nombre, hectareas, fase, estado, sistema) {
             var n = nombreDeCultivo(nombre);
             if (!n) return;
-            var clave = n.toLowerCase();
-            var g = grupos[clave] = grupos[clave] || { nombre: n, hectareas: 0, fases: {}, estado: "sin-dato" };
+            var clave = claveDeCultivo(n);
+            var g = grupos[clave] = grupos[clave] || { nombre: n, hectareas: 0, fases: {}, estado: "sin-dato", equipos: [], reposo: false };
+            if (/[^\x00-\x7f]/.test(n) && !/[^\x00-\x7f]/.test(g.nombre)) g.nombre = n;   // preferir la forma con acentos
             g.hectareas += hectareas || 0;
             if (fase) g.fases[fase] = (g.fases[fase] || 0) + 1;
+            // REQ-138: en reposo invernal la helada no es un riesgo
+            var reposo = enReposo(n, sistema && sistema.latitude, ahora, deps.frio);
+            if (reposo) g.reposo = true;
+            if (estado === "helada" && reposo) estado = "reposo";
             if (GRAVEDAD[estado] > GRAVEDAD[g.estado]) g.estado = estado;
+            // REQ-138: equipos donde esta el cultivo (para los que no tienen sensor)
+            if (sistema && sistema.key && !g.equipos.some(function (e) { return e.clave === sistema.key; })) {
+                var r = resumenDe(sistema) || {};
+                g.equipos.push({ clave: sistema.key, nombre: sistema.name, linea: lineaCorta(r.linea), nivel: r.estado || "inactivo" });
+            }
         }
         function area(poligono) {
             return deps.geo.esPoligonoValido(poligono) ? deps.geo.areaHectareas(deps.geo.normalizarPoligono(poligono)) : 0;
@@ -84,7 +119,7 @@
         medidas.forEach(function (m) {
             if (!m.sensor.culture) return;
             agregar(m.sensor.culture, area(m.sensor.poligon), (m.sensor.phenologicalStage || "").trim(),
-                m.helada ? "helada" : m.zona === null ? "sin-dato" : SECA[m.zona] ? "seco" : "adecuado");
+                m.helada ? "helada" : m.zona === null ? "sin-dato" : SECA[m.zona] ? "seco" : "adecuado", m.red);
         });
         sistemas.forEach(function (s) {
             if (s.type === "Estacionario") {
@@ -92,7 +127,7 @@
                     var p = s.plots[k];
                     if (!p || !p.culture) return;
                     var e = deps.humedad.estadoDeParcela(p, null).estado;
-                    agregar(p.culture, area(p.poligon), "", e === "seco" ? "seco" : e === "sin-dato" ? "sin-dato" : "adecuado");
+                    agregar(p.culture, area(p.poligon), "", e === "seco" ? "seco" : e === "sin-dato" ? "sin-dato" : "adecuado", s);
                 });
             }
             if (s.type === "PC" && s.plans) {
@@ -101,7 +136,7 @@
                     var plan = s.plans[k];
                     if (!plan || !plan.culture) return;
                     var arco = ((Number(plan.endAngle) - Number(plan.starAngle)) % 360 + 360) % 360 || 360;
-                    agregar(plan.culture, Math.PI * radio * radio * arco / 360 / 10000, "", "sin-dato");
+                    agregar(plan.culture, Math.PI * radio * radio * arco / 360 / 10000, "", "sin-dato", s);
                 });
             }
         });
@@ -109,13 +144,30 @@
             var g = grupos[k];
             var fases = Object.keys(g.fases).sort(function (a, b) { return g.fases[b] - g.fases[a]; });
             return {
+                clave: k,
                 nombre: g.nombre,
                 hectareas: g.hectareas ? Math.round(g.hectareas * 10) / 10 : null,
-                fase: fases[0] || "",
+                fase: fases[0] || (g.reposo ? "En reposo invernal" : ""),
                 estado: g.estado,
-                texto: TEXTOS_CULTIVO[g.estado]
+                texto: TEXTOS_CULTIVO[g.estado],
+                reposo: g.reposo,
+                equipo: g.equipos[0] || null,             // REQ-138: equipo donde esta (el primero)
+                otrosEquipos: Math.max(0, g.equipos.length - 1)
             };
         }).sort(function (a, b) { return GRAVEDAD[b.estado] - GRAVEDAD[a.estado] || a.nombre.localeCompare(b.nombre); });
+    }
+
+    /** REQ-138: claves de los equipos cuyos cultivos (sensores, parcelas o plan) estan todos en reposo invernal. */
+    function sistemasConTodoEnReposo(sistemas, medidas, deps, ahora) {
+        var claves = [];
+        sistemas.forEach(function (s) {
+            var nombres = [];
+            if (s.type === "Sensor") medidas.filter(function (m) { return m.red === s; }).forEach(function (m) { if (m.sensor.culture) nombres.push(m.sensor.culture); });
+            if (s.type === "Estacionario") Object.keys(s.plots || {}).forEach(function (k) { if (/^p[0-6]$/.test(k) && s.plots[k] && s.plots[k].culture) nombres.push(s.plots[k].culture); });
+            if (s.type === "PC" && s.plans) Object.keys(s.plans).forEach(function (k) { if (s.plans[k] && s.plans[k].culture) nombres.push(s.plans[k].culture); });
+            if (nombres.length && nombres.every(function (n) { return enReposo(n, s.latitude, ahora, deps.frio); })) claves.push(s.key);
+        });
+        return claves;
     }
 
     // ---------- REQ-115: sugerencias del dia ----------
@@ -204,7 +256,13 @@
 
         var noche = o.pronostico && isFinite(o.pronostico.min) ? o.pronostico : null;
         var umbral = isFinite(o.umbralHelada) ? o.umbralHelada : 2;
-        if (noche && noche.min <= umbral) {
+        var ahora = o.ahora || Date.now();
+        var listaCultivos = cultivos(sistemas, deps, medidas, resumenDe, ahora);
+        // REQ-138: la helada importa si hay algun cultivo fuera de su reposo invernal (o no hay cultivos registrados).
+        // Equipos cuyos cultivos estan todos en reposo: sus avisos de helada no se muestran en el resumen.
+        var heladaRelevante = !listaCultivos.length || listaCultivos.some(function (c) { return !c.reposo; });
+        var sistemasEnReposo = sistemasConTodoEnReposo(sistemas, medidas, deps, ahora);
+        if (noche && noche.min <= umbral && heladaRelevante) {
             atiende.push({
                 clave: null, nivel: noche.min <= 0 ? "emergencia" : "atencion",
                 titulo: "Helada esta noche · " + Math.round(noche.min) + " °C",
@@ -213,9 +271,8 @@
         }
         atiende.sort(function (a, b) { return ORDEN[a.nivel] - ORDEN[b.nivel]; });
 
-        var ahora = o.ahora || Date.now();
         var vacio = !!o.sinEquipos && !sistemas.length;
-        var sugerencias = vacio ? sugerenciasDeInicio(!!o.instalada) : sugerenciasDelDia(sistemas, medidas, resumenDe, noche, umbral, ahora);
+        var sugerencias = vacio ? sugerenciasDeInicio(!!o.instalada) : sugerenciasDelDia(sistemas, medidas, resumenDe, heladaRelevante ? noche : null, umbral, ahora);
 
         var urgentes = atiende.filter(function (a) { return a.nivel === "emergencia"; }).length;
         var semaforo = !atiende.length
@@ -235,7 +292,8 @@
                 nocheMin: noche ? Math.round(noche.min) : null
             },
             atiende: atiende,
-            cultivos: cultivos(sistemas, deps, medidas),
+            cultivos: listaCultivos,
+            reposo: { heladaRelevante: heladaRelevante, sistemas: sistemasEnReposo },   // REQ-138 (para "Hoy")
             vacio: vacio,
             sugerencias: sugerencias
         };
@@ -267,18 +325,24 @@
     }
 
     /** Linea del dia: eventos y notificaciones de hoy (mas reciente arriba) y lo que viene (helada). */
-    function lineaDeHoy(eventos, notificaciones, pronostico, ahora, umbralHelada) {
+    function lineaDeHoy(eventos, notificaciones, pronostico, ahora, umbralHelada, reposo) {
         var ya = ahora || Date.now();
+        // REQ-138: sin avisos de helada para equipos con todos sus cultivos en reposo (ni el "Proximo" si ningun cultivo
+        // la sufre)
+        var rp = reposo || { heladaRelevante: true, sistemas: [] };
+        var esHelada = function (n) { return n.tipo === "helada" || n.tipo === "temperatura"; };
         var items = (eventos || []).filter(function (e) { return mismoDia(e.instante, ya); }).map(function (e) {
             return { instante: e.instante, hora: horaDe(e.instante), texto: e.texto, nivel: e.nivel };
         });
-        (notificaciones || []).filter(function (n) { return mismoDia(n.fecha, ya); }).forEach(function (n) {
+        (notificaciones || []).filter(function (n) {
+            return mismoDia(n.fecha, ya) && !(esHelada(n) && rp.sistemas.indexOf(n.sistema) >= 0);
+        }).forEach(function (n) {
             items.push({ instante: n.fecha, hora: horaDe(n.fecha), texto: n.titulo + (n.mensaje ? " · " + n.mensaje : ""),
                 nivel: n.nivel === "critica" ? "emergencia" : (n.nivel === "alta" || n.nivel === "media") ? "atencion" : "ok" });
         });
         items.sort(function (a, b) { return b.instante - a.instante; });
         var umbral = isFinite(umbralHelada) ? umbralHelada : 2;
-        if (pronostico && isFinite(pronostico.min) && pronostico.min <= umbral && pronostico.instante > ya) {
+        if (rp.heladaRelevante && pronostico && isFinite(pronostico.min) && pronostico.min <= umbral && pronostico.instante > ya) {
             items.unshift({ instante: pronostico.instante, hora: horaDe(pronostico.instante), texto: "Próximo: riesgo de helada (" + Math.round(pronostico.min) + " °C)", nivel: "proximo" });
         }
         return items.slice(0, 12);

@@ -23,10 +23,18 @@
     display: flex;
     align-items: center;
     gap: 12px;
+    width: 100%;
     padding: 12px 14px;
+    border: 0;
     border-radius: 14px;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;   /* REQ-138: abre las notificaciones */
 }
-.tablero-semaforo > span:last-child {
+.tablero-semaforo > span:nth-child(2) { flex: 1 1 auto; min-width: 0; }
+.tablero-semaforo-ir { margin-left: auto; font-size: 26px; opacity: 0.7; }
+.tablero-semaforo:focus-visible { outline: 2px solid #1b4d38; outline-offset: 2px; }
+.tablero-semaforo > span:nth-child(2) {
     display: flex;
     flex-direction: column;
 }
@@ -114,13 +122,52 @@
 .tablero-cultivo {
     display: flex;
     flex-direction: column;
+    align-items: stretch;
     gap: 2px;
     min-width: 0;
     padding: 10px 12px;
     border: 1px solid #e3e8e6;
     border-radius: 12px;
     background: #ffffff;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
 }
+.tablero-cultivo[disabled] { cursor: default; opacity: 1; }
+.tablero-cultivo:focus-visible { outline: 2px solid #1b4d38; outline-offset: 2px; }
+/* REQ-138: equipo donde esta el cultivo (con el color de su estado) */
+.tablero-cultivo-equipo {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    min-width: 0;
+    margin-top: 4px;
+    color: #455a64;
+    font-size: 0.84rem;
+    font-weight: 600;
+}
+.tablero-cultivo-equipo-texto { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tablero-cultivo-punto { flex: 0 0 8px; width: 8px; height: 8px; border-radius: 50%; background: #78909c; }
+.equipo-ok .tablero-cultivo-punto { background: #2e7d32; }
+.equipo-atencion .tablero-cultivo-punto { background: #ef6c00; }
+.equipo-emergencia .tablero-cultivo-punto { background: #d32f2f; }
+.tablero-cultivo-mas { flex: 0 0 auto; padding: 0 5px; border-radius: 8px; background: #eceff1; color: #546e7a; font-size: 0.75rem; }
+.cultivo-reposo { color: #5c6bc0; }
+/* REQ-138: "Atiende primero" en un area de alto fijo con desplazamiento (sin barra visible) */
+.tablero-atiende-lista {
+    max-height: 214px;   /* tres avisos */
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+.tablero-atiende-lista::-webkit-scrollbar { display: none; }
+.tablero-atiende-lista.con-mas {
+    -webkit-mask-image: linear-gradient(to bottom, #000 82%, transparent);
+    mask-image: linear-gradient(to bottom, #000 82%, transparent);
+}
+.tablero-titulo small { color: #90a4ae; font-weight: 600; }
 .tablero-cultivo-nombre { font-size: 1.05rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tablero-cultivo-dato { min-height: 1.1em; color: #607d8b; font-size: 0.82rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tablero-cultivo-estado { display: flex; align-items: center; gap: 3px; margin-top: 4px; font-size: 0.88rem; font-weight: 600; }
