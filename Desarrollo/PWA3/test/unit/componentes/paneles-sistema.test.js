@@ -125,7 +125,7 @@ test("REQ-057 los modales se abren con al-abrir y los comandos llegan por salida
   // REQ-074: la zona de humedad la calcula el propio componente (vm.lectura); temperatura y Hr siguen con valorSensor.
   assert.match(plantilla("panel-sensores"), /vm\.valorSensor\(\{ \$clave: coldRoomKey, \$campo: 'temperature', \$sensor: coldRoom \}\)/);
   assert.match(plantilla("panel-nevera"), /ng-click="vm\.alEditarSensor\(\{ \$sensor: coldRoom \}\)"/);
-  assert.match(plantilla("panel-nevera"), /vm\.datos\[\$index \* 3 \+ 1\]/);
+  assert.match(plantilla("panel-nevera"), /vm\.tarjeta\(coldRoomKey, coldRoom\)\.temperaturaTexto/);   // REQ-133: lecturas por la clave del sensor
 });
 
 test("REQ-057 index.html monta los seis paneles y core.js expone abrirVentana", () => {

@@ -34,31 +34,38 @@
     </div>
 </div>
 
+<!-- REQ-133: tarjetas de la nevera. Lo mas importante es la temperatura (grande, con el color de su estado: Helado,
+     Adecuado, Caliente), luego la humedad relativa; al pie la bateria, la grafica y la configuracion. -->
 <div class="col s12">
     <div class="panel-s-e44">
-        <div class="row panel-s-e45">
-            <div class="col s12 m4 l3 panel-s-e46" ng-repeat="(coldRoomKey, coldRoom) in vm.sistema.sensors" ng-show="coldRoom.id">
-                <div class="panel-s-e59">
-                    <div class="panel-s-e48" title="{{ coldRoom.alias ? coldRoom.alias : coldRoom.id }}"
-                       >
-                        <b>{{ coldRoom.alias ? coldRoom.alias : coldRoom.id }}</b>
+        <div class="row panel-s-e45 nevera-tarjetas">
+            <div class="col s12 m6 l4 xl3 panel-s-e46" ng-repeat="(coldRoomKey, coldRoom) in vm.sistema.sensors" ng-if="coldRoom.id">
+                <div class="nevera-tarjeta" ng-class="'nevera-' + vm.tarjeta(coldRoomKey, coldRoom).estado.nivel">
+                    <div class="nevera-cabecera">
+                        <span class="nevera-nombre" title="{{ vm.tarjeta(coldRoomKey, coldRoom).nombre }}">{{ vm.tarjeta(coldRoomKey, coldRoom).nombre }}</span>
+                        <span class="nevera-estado"><i class="material-icons" aria-hidden="true">{{ vm.tarjeta(coldRoomKey, coldRoom).estado.icono }}</i>{{ vm.tarjeta(coldRoomKey, coldRoom).estado.texto }}</span>
                     </div>
-                    <div class="row panel-s-e60">
-                        <div class="col s3 center-align"><i class="fa fa-thermometer-0" aria-hidden="true"></i></div>
-                        <div class="col s8 right-align">{{ vm.datos[$index * 3 + 1] }}°C</div>
-                        <div class="col s1"></div>
+                    <div class="nevera-temperatura" aria-label="Temperatura {{ vm.tarjeta(coldRoomKey, coldRoom).temperaturaTexto }} {{ vm.tarjeta(coldRoomKey, coldRoom).unidad }}">
+                        <i class="material-icons nevera-temperatura-icono" aria-hidden="true">device_thermostat</i>
+                        <span class="nevera-temperatura-valor">{{ vm.tarjeta(coldRoomKey, coldRoom).temperaturaTexto }}</span>
+                        <span class="nevera-temperatura-unidad">{{ vm.tarjeta(coldRoomKey, coldRoom).unidad }}</span>
                     </div>
-                    <div class="row panel-s-e53">
-                        <div class="col s3 center-align"><i class="fa fa-tint" aria-hidden="true"></i></div>
-                        <div class="col s8 right-align">{{ vm.datos[$index * 3] }}%Hr</div>
-                        <div class="col s1"></div>
+                    <div class="nevera-rango">{{ vm.tarjeta(coldRoomKey, coldRoom).rangoTexto }}</div>
+                    <div class="nevera-humedad">
+                        <i class="material-icons" aria-hidden="true">opacity</i>
+                        <span class="nevera-humedad-valor">{{ vm.tarjeta(coldRoomKey, coldRoom).humedadTexto }}<small> % Hr</small></span>
+                        <span class="nevera-humedad-estado" ng-if="vm.tarjeta(coldRoomKey, coldRoom).humedadEstado"
+                            ng-class="'humedad-' + vm.tarjeta(coldRoomKey, coldRoom).humedadEstado.nivel">{{ vm.tarjeta(coldRoomKey, coldRoom).humedadEstado.texto }}</span>
                     </div>
-                    <hr class="panel-s-e54">
-                    <div class="row center-align panel-s-e55">
-                        <div class="col s4"><i class="fa fa-battery-{{ vm.bateria(vm.datos[$index * 3 + 2]) > 75 ? 'full' : vm.bateria(vm.datos[$index * 3 + 2]) > 50 ? 'three-quarters' : vm.bateria(vm.datos[$index * 3 + 2]) > 25 ? 'half' : 'empty'}}" aria-hidden="true"></i><span class="panel-s-e56">{{ vm.bateria(vm.datos[$index * 3 + 2]) ? vm.bateria(vm.datos[$index * 3 + 2]) : "" }}%</span></div>
-                        <div class="col s2"></div>
-                        <div class="col s3"><i class="fa fa-bar-chart btn grey waves-light panel-s-e58" role="button" tabindex="0" ng-click="vm.alGrafica({ $sensor: coldRoom, $clave: coldRoomKey })" aria-label="Ver gráfica del sensor"></i></div>
-                        <div class="col s3"><i class="fa fa-cog btn grey waves-light panel-s-e58"  ng-click="vm.alEditarSensor({ $sensor: coldRoom })" aria-hidden="true"></i></div>
+                    <div class="nevera-pie">
+                        <span class="nevera-bateria" title="Batería del sensor">
+                            <i class="fa fa-battery-{{ vm.bateria(vm.tarjeta(coldRoomKey, coldRoom).voltaje) > 75 ? 'full' : vm.bateria(vm.tarjeta(coldRoomKey, coldRoom).voltaje) > 50 ? 'three-quarters' : vm.bateria(vm.tarjeta(coldRoomKey, coldRoom).voltaje) > 25 ? 'half' : 'empty'}}" aria-hidden="true"></i>
+                            {{ vm.bateria(vm.tarjeta(coldRoomKey, coldRoom).voltaje) ? vm.bateria(vm.tarjeta(coldRoomKey, coldRoom).voltaje) + ' %' : '--' }}
+                        </span>
+                        <span class="nevera-acciones">
+                            <button type="button" class="nevera-boton" ng-click="vm.alGrafica({ $sensor: coldRoom, $clave: coldRoomKey })" aria-label="Ver gráfica del sensor" title="Gráfica"><i class="material-icons" aria-hidden="true">show_chart</i></button>
+                            <button type="button" class="nevera-boton" ng-click="vm.alEditarSensor({ $sensor: coldRoom })" aria-label="Configurar el sensor" title="Configurar"><i class="material-icons" aria-hidden="true">settings</i></button>
+                        </span>
                     </div>
                 </div>
             </div>
