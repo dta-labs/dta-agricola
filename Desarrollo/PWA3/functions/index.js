@@ -1,5 +1,7 @@
 const { onValueCreated, onValueWritten } = require("firebase-functions/v2/database");
 const admin = require("firebase-admin");
+// REQ-149: reglas puras de alertas de humedad relativa, neveras e invernaderos (probadas en test/unit)
+const alertasSensores = require("./alertas-sensores");
 
 admin.initializeApp();
 
@@ -717,6 +719,75 @@ exports.sendTemperatureNotifications = onValueCreated({
     });
   });
 
+// --- Humedad relativa (REQ-149) ---
+
+function collectRelativeHumidityAlerts(log, sensors) {
+  return getSensorReadings(log, sensors)
+    .map(alertasSensores.alertaDeHumedadRelativa)
+    .filter(Boolean);
+}
+
+exports.sendRelativeHumidityNotifications = onValueCreated({
+  ref: "/systems/{systemId}/dayLogs/{logId}",
+  instance: "dta-agricola",
+  region: "us-central1",
+}, async (event) => {
+    return sendSensorMetricNotification(event, {
+      metricKey: "Hr",
+      title: "DTA-Agricola humedad relativa!",
+      alertType: "relative-humidity-threshold",
+      tag: "dta-relative-humidity-alert",
+      icons: {},
+      collectAlerts: collectRelativeHumidityAlerts,
+    });
+  });
+
+// --- Neveras e invernaderos (REQ-149) ---
+// Temperatura y humedad relativa (SHT2), presion (Psi), caudal (Fl) y corriente (Irms), cada una solo si su
+// casilla "avisar" esta marcada. Se avisa al cruzar el limite y, mientras siga fuera, cada 3 horas (tambien de noche).
+
+exports.sendColdRoomNotifications = onValueCreated({
+  ref: "/systems/{systemId}/logs/{logId}",
+  instance: "dta-agricola",
+  region: "us-central1",
+}, async (event) => {
+    const currentLog = event.data && event.data.val ? event.data.val() : null;
+    if (!currentLog || !currentLog.dataRaw) return null;      // registros de pivotes, pozos, etc.
+
+    const { systemId, logId } = event.params;
+    const settings = (await admin.database().ref(`/systems/${systemId}/settings`).once("value")).val() || {};
+    if (!alertasSensores.TIPOS_NEVERA.has(settings.type)) return null;
+
+    const currentAlerts = alertasSensores.alertasDeNevera(currentLog, settings.sensors);
+    if (currentAlerts.length === 0) return null;
+
+    const previousLog = await getPreviousLog(systemId, "logs", logId);
+    const previousAlerts = alertasSensores.alertasDeNevera(previousLog, settings.sensors);
+    const dateTime = getNotificationDateTime(currentLog, event.time);
+    const stateKey = (alert) => `coldRoom_${alert.metricKey}`;
+
+    const notifiableAlerts = await alertasSensores.alertasANotificar(currentAlerts, previousAlerts, async (alert, isCrossing) => {
+      if (isCrossing) {
+        await getThresholdNotificationStateRef(systemId, stateKey(alert), alert).set(dateTime.iso);
+        return true;
+      }
+      return claimThreeHourNotification(systemId, stateKey(alert), alert, dateTime.iso);
+    });
+    if (notifiableAlerts.length === 0) return null;
+
+    const systemName = settings.name || systemId;
+    const message = buildSensorThresholdMessage(systemId, logId, systemName, notifiableAlerts, {
+      title: `DTA-Agricola ${settings.type === "Invernadero" ? "invernadero" : "nevera"}!`,
+      alertType: "cold-room-threshold",
+      metricKey: notifiableAlerts[0].metricKey,
+      tag: "dta-cold-room-alert",
+      icons: notifiableAlerts[0].metricKey === "t" ? SENSOR_ALERT_ICONS.temperature : {},
+    }, dateTime);
+
+    await sendMulticastToSystemUsers(systemId, message);
+    return null;
+  });
+
 // --- Riesgo de plagas y enfermedades ---
 
 const DISEASE_CONDITION_FIELDS = [
@@ -925,8 +996,12 @@ function getAbsoluteAssetUrl(relativePath) {
 }
 
 async function getPreviousDayLog(systemId, logId) {
+  return getPreviousLog(systemId, "dayLogs", logId);
+}
+
+async function getPreviousLog(systemId, folder, logId) {
   const snapshot = await admin.database()
-    .ref(`/systems/${systemId}/dayLogs`)
+    .ref(`/systems/${systemId}/${folder}`)
     .orderByKey()
     .endAt(logId)
     .limitToLast(2)

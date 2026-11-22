@@ -35,8 +35,8 @@ Cambios respecto a antes:
 - Tarjeta de la nevera/invernadero (REQ-133/134): temperatura (`t`), humedad (`h`), presion (`psi`), caudal (`fl`) y
   ahora corriente (`i`: Corriente baja / Normal / Corriente alta; sin limites, Encendido / Apagado como antes).
 - Historial (REQ-126): la columna H.Relativa toma color con `hr` (baja ambar, normal verde, alta azul).
-- Las alertas del servidor (Cloud Functions) siguen usando `h` y `t`; `hr`, `psi`, `fl` e `i` quedan guardados para
-  cuando el servidor los use.
+- Alertas del servidor (Cloud Functions): `h` y `t`; desde [REQ-149](REQ-149-alertas-push-parametros.md) tambien `hr`,
+  `psi`, `fl` e `i` y las neveras/invernaderos, cada uno con su casilla "avisar".
 
 ## Sin limites
 El sensor de contacto (puerta) no tiene un valor con limites (abierta/cerrada).
