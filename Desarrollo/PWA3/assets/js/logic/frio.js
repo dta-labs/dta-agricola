@@ -7,6 +7,13 @@
  *   - systems/{red}/dayLogs  registros del dia en curso ("AAAAMMDD hhmmam"): UF por hora del momento
  * Acumulado = suma de los resumenes diarios desde el inicio de la temporada + lo que va del dia.
  * Los dias que todavia estan solo en dayLogs (sin resumen) se estiman con el promedio de sus registros.
+ *
+ * REQ-150:
+ *   - Los dias calidos RESTAN (modelo Utah completo: -0.5 y -1 por hora sobre 16 °C); no se usa "Utah positivo".
+ *   - Temporada propia por sensor (`sensor.chillSeason = { start: "MM-DD", end: "MM-DD" }`); sin ella, la del cultivo.
+ *   - Los resumenes diarios anteriores al WS v7 (antes del 21/11/2026) sumaban cada registro de 10-30 min como una
+ *     hora (2 a 6 veces de mas): esos dias se recalculan con su Tmin/Tmax (curva horaria + Utah). Lo mismo con
+ *     cualquier resumen imposible (mas de 24 UF en un dia).
  */
 (function (root, factory) {
     if (typeof module === "object" && module.exports) {
@@ -24,6 +31,35 @@
     var DIA_INICIO = 1;
 
     function dos(n) { return (n < 10 ? "0" : "") + n; }
+
+    // ---------- REQ-150: correccion de los resumenes anteriores al WS v7 ----------
+    var CORTE_V7 = "20261121";          // primer dia resumido por el WS v7 (promedio horario x 24)
+    var INDICE_TMIN = 2, INDICE_TMAX = 3;
+    var UF_MAXIMA_DIA = 24;
+
+    /** Unidades frio de una hora a la temperatura t (°C), modelo Utah (Richardson, 1974); igual que el WS v7. */
+    function utah(t) {
+        if (t < 1.5) return 0;
+        if (t < 2.5) return 0.5;
+        if (t < 9.2) return 1;
+        if (t < 12.5) return 0.5;
+        if (t < 16) return 0;
+        if (t <= 18) return -0.5;
+        return -1;
+    }
+
+    /**
+     * UF de un dia estimadas con su Tmin y Tmax: curva horaria (coseno, minima a las 3:00 y maxima a las 15:00) y
+     * Utah en cada una de las 24 horas. null si falta alguna temperatura.
+     */
+    function ufEstimadaDelDia(tmin, tmax) {
+        if (tmin === null || tmax === null) return null;
+        var bajo = Math.min(tmin, tmax), alto = Math.max(tmin, tmax);
+        var media = (alto + bajo) / 2, amplitud = (alto - bajo) / 2;
+        var total = 0;
+        for (var h = 0; h < 24; h++) total += utah(media + amplitud * Math.cos(Math.PI * (h - 15) / 12));
+        return total;
+    }
 
     /** "AAAAMMDD" del 1 de noviembre de la temporada en curso para el dia hoy ("AAAAMMDD"). */
     function inicioTemporada(hoy) {
@@ -112,15 +148,82 @@
         return d >= desde && d <= hasta ? { inicio: desde, fin: hasta } : null;
     }
 
-    function valorUF(registro, sensor) {
+    function datosDe(registro) {
         if (!registro || typeof registro.dataRaw !== "string") return null;
         var datos;
         try { datos = JSON.parse(registro.dataRaw); } catch (e) { return null; }
-        if (!Array.isArray(datos)) return null;
-        var v = datos[sensor * VALORES_POR_SENSOR + INDICE_UF];
+        return Array.isArray(datos) ? datos : null;
+    }
+
+    function numeroEn(datos, indice) {
+        var v = datos ? datos[indice] : null;
         if (v === null || v === undefined || v === "" || v === "NaN" || v === "NAN") return null;
         var n = parseFloat(v);
         return isFinite(n) ? n : null;
+    }
+
+    function valorUF(registro, sensor) {
+        return numeroEn(datosDe(registro), sensor * VALORES_POR_SENSOR + INDICE_UF);
+    }
+
+    /**
+     * REQ-150: UF de un RESUMEN diario (/logs). Antes del WS v7, o si el valor es imposible (> 24 por dia), se
+     * recalculan con Tmin/Tmax del dia; si faltan, se usa el valor guardado solo si es posible (|UF| <= 24).
+     */
+    function ufDelResumen(registro, sensor) {
+        var datos = datosDe(registro);
+        var guardado = numeroEn(datos, sensor * VALORES_POR_SENSOR + INDICE_UF);
+        var dia = diaDe(registro);
+        var dudoso = (dia && dia < CORTE_V7) || (guardado !== null && Math.abs(guardado) > UF_MAXIMA_DIA);
+        if (!dudoso) return guardado;
+        var base = sensor * VALORES_POR_SENSOR;
+        var estimada = ufEstimadaDelDia(numeroEn(datos, base + INDICE_TMIN), numeroEn(datos, base + INDICE_TMAX));
+        if (estimada !== null) return estimada;
+        return guardado !== null && Math.abs(guardado) <= UF_MAXIMA_DIA ? guardado : null;
+    }
+
+    // ---------- REQ-150: temporada propia del sensor ----------
+
+    /** "MM-DD" -> [mes, dia], o null si no es una fecha valida. */
+    function mesDia(texto) {
+        var m = /^(\d{1,2})-(\d{1,2})$/.exec(String(texto || "").trim());
+        if (!m) return null;
+        var mes = parseInt(m[1], 10), dia = parseInt(m[2], 10);
+        if (mes < 1 || mes > 12 || dia < 1 || dia > new Date(2028, mes, 0).getDate()) return null;
+        return [mes, dia];
+    }
+
+    function textoDeFecha(md) {
+        return md[1] + " " + MESES[md[0] - 1];
+    }
+
+    /** Temporada propia ({ start, end } "MM-DD") o null si no esta o no es valida. */
+    function temporadaPropia(chillSeason) {
+        var c = chillSeason || {};
+        var inicio = mesDia(c.start), fin = mesDia(c.end);
+        if (!inicio || !fin || (inicio[0] === fin[0] && inicio[1] === fin[1])) return null;
+        return { inicio: inicio, fin: fin };
+    }
+
+    /**
+     * Temporada de frio del SENSOR: la propia (`chillSeason`) si esta definida; si no, la de su cultivo. null si no
+     * hay ninguna (el cultivo no necesita frio y no se definio una propia).
+     */
+    function temporadaDeSensor(sensor, latitud) {
+        var s = sensor || {};
+        var delCultivo = temporadaDeCultivo(s.culture, latitud);
+        var propia = temporadaPropia(s.chillSeason);
+        if (!propia) return delCultivo;
+        return {
+            cultivo: delCultivo ? delCultivo.cultivo : (String(s.culture || "").trim() || "Temporada propia"),
+            inicio: propia.inicio, fin: propia.fin, propia: true,
+            texto: textoDeFecha(propia.inicio) + " – " + textoDeFecha(propia.fin)
+        };
+    }
+
+    /** "MM-DD" de [mes, dia] (para la ventana del sensor). */
+    function aMesDia(md) {
+        return dos(md[0]) + "-" + dos(md[1]);
     }
 
     function diaDe(registro) {
@@ -160,7 +263,7 @@
         lista(logs).forEach(function (r) {
             var dia = diaDe(r);
             if (!dia || dia < inicio || dia >= hoy || diasConResumen[dia]) return;
-            var uf = valorUF(r, sensor);
+            var uf = ufDelResumen(r, sensor);
             if (uf === null) return;
             diasConResumen[dia] = true;
             total += uf;
@@ -211,7 +314,7 @@
             var rango = temporada ? rangoDeTemporada(diaDe(r), temporada) : { inicio: inicioTemporada(diaDe(r)) };
             if (!rango) return;
             if (rango.inicio !== actual) { actual = rango.inicio; total = null; }
-            var uf = valorUF(r, sensor);
+            var uf = ufDelResumen(r, sensor);
             if (uf !== null) total = (total || 0) + uf;
             salida[r.date] = total === null ? null : Math.round(total * 10) / 10;
         });
@@ -220,6 +323,9 @@
 
     return {
         inicioTemporada: inicioTemporada, acumulado: acumulado, horaDe: horaDe, acumuladoPorRegistro: acumuladoPorRegistro,
-        temporadaDeCultivo: temporadaDeCultivo, rangoDeTemporada: rangoDeTemporada
+        temporadaDeCultivo: temporadaDeCultivo, rangoDeTemporada: rangoDeTemporada,
+        // REQ-150
+        CORTE_V7: CORTE_V7, utah: utah, ufEstimadaDelDia: ufEstimadaDelDia, ufDelResumen: ufDelResumen,
+        temporadaPropia: temporadaPropia, temporadaDeSensor: temporadaDeSensor, aMesDia: aMesDia
     };
 }));

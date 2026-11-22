@@ -82,7 +82,8 @@ test("REQ-127 humedad Ms: 8 valores por sensor y valor ya en %", () => {
 
 test("REQ-128/129 U.Frio: acumulado solo en la temporada del cultivo, desde su primer dia (con los dias previos de /logs)", () => {
   const f = require("../../assets/js/logic/frio.js");
-  const r = (d, uf) => ({ date: d + " 0000am", dataRaw: JSON.stringify([0, 0, 0, 0, 0, 0, uf, 0, 0, 0, 0, 0, 0, 0, uf === "NaN" ? "NaN" : uf * 2, 0]) });
+  // REQ-150: sin Tmin/Tmax ("NaN") los dias anteriores al WS v7 conservan su valor (si es posible, <= 24)
+  const r = (d, uf) => ({ date: d + " 0000am", dataRaw: JSON.stringify([0, 0, "NaN", "NaN", 0, 0, uf, 0, 0, 0, "NaN", "NaN", 0, 0, uf === "NaN" ? "NaN" : uf * 2, 0]) });
   const nogal = f.temporadaDeCultivo("Nogal", 28.6);   // 1 nov - 28/29 feb
   const regs = [r("20261103", 3), r("20261030", 5), r("20261101", 2), r("20261102", "NaN"), r("20261031", 1)];   // cualquier orden
   assert.deepEqual(f.acumuladoPorRegistro(regs, 0, nogal),

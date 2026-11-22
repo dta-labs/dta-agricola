@@ -3762,18 +3762,20 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     // REQ-128/129: unidades frio acumuladas de cada dia del historial, solo en la temporada de frio del cultivo del
     // sensor (frio.temporadaDeCultivo). El acumulado empieza el primer dia de la temporada: si el periodo mostrado
     // empieza despues, se leen de /logs los dias anteriores de la temporada (una vez por lista y sensor).
-    const temporadaDeFrio = sensor => __modulo("frio").temporadaDeCultivo(sensor && sensor.culture, $scope.actualSystem && $scope.actualSystem.latitude);
+    // REQ-150: la temporada propia del sensor (chillSeason) manda sobre la del cultivo
+    const temporadaDeFrio = sensor => __modulo("frio").temporadaDeSensor(sensor, $scope.actualSystem && $scope.actualSystem.latitude);
     let cacheUfHistorial = { registros: null, porSensor: {} };
     const ufDelSensor = (indice, sensor) => {
         if (cacheUfHistorial.registros !== $scope.invertedRegisters) cacheUfHistorial = { registros: $scope.invertedRegisters, porSensor: {} };
         const porSensor = cacheUfHistorial.porSensor;
         const temporada = temporadaDeFrio(sensor);
-        if (porSensor[indice] && porSensor[indice].cultivo === (sensor && sensor.culture)) return porSensor[indice];
+        const firmaTemporada = JSON.stringify([sensor && sensor.culture, sensor && sensor.chillSeason]);
+        if (porSensor[indice] && porSensor[indice].cultivo === firmaTemporada) return porSensor[indice];
         const frio = __modulo("frio");
         const registros = $scope.invertedRegisters || [];
         const enTemporada = temporada ? registros.filter(r => r && r.date && frio.rangoDeTemporada(r.date.substring(0, 8), temporada)) : [];
         const entrada = porSensor[indice] = {
-            cultivo: sensor && sensor.culture, temporada, visible: enTemporada.length > 0,
+            cultivo: firmaTemporada, temporada, visible: enTemporada.length > 0,
             valores: temporada ? frio.acumuladoPorRegistro(registros, indice, temporada) : {}
         };
         if (entrada.visible) {
@@ -3793,6 +3795,45 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     /** Columna "U.Frio": solo si el cultivo del sensor necesita frio y el periodo mostrado toca su temporada. */
     $scope.mostrarUF = (sensor, indice) => $scope.selectedTimeOption != 'DIA' && ufDelSensor(indice, sensor).visible;
     $scope.temporadaUF = (sensor, indice) => { const t = ufDelSensor(indice, sensor).temporada; return t ? t.cultivo + ": " + t.texto : ""; };
+    // REQ-150: UF del dia (los resumenes anteriores al WS v7 se recalculan con Tmin/Tmax)
+    $scope.ufDelDiaDe = (reg, indice) => {
+        const uf = reg ? __modulo("frio").ufDelResumen(reg, indice) : null;
+        return uf === null ? "--" : (Math.round(uf * 10) / 10).toFixed(1);
+    };
+
+    // REQ-150: temporada de frio propia del sensor (ventana Editar sensor). Sin ella, la del cultivo.
+    $scope.mesesDelAnio = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
+        .map((nombre, i) => ({ valor: i + 1, nombre }));
+    $scope.diasDelMes = Array.from({ length: 31 }, (_, i) => i + 1);
+    const edicionesDeFrio = new WeakMap();
+    $scope.temporadaFrioDelCultivo = (sensor) => {
+        const t = sensor && __modulo("frio").temporadaDeCultivo(sensor.culture, $scope.actualSystem && $scope.actualSystem.latitude);
+        return t ? t.cultivo + ": " + t.texto : "";
+    };
+    $scope.edicionTemporadaFrio = (sensor) => {
+        if (!sensor) return null;
+        const firma = JSON.stringify([sensor.chillSeason, sensor.culture]);
+        const previa = edicionesDeFrio.get(sensor);
+        if (previa && previa.firma === firma) return previa;
+        const frio = __modulo("frio");
+        const propia = frio.temporadaPropia(sensor.chillSeason);
+        const base = propia || frio.temporadaDeCultivo(sensor.culture, $scope.actualSystem && $scope.actualSystem.latitude) || { inicio: [11, 1], fin: [2, 28] };
+        const e = { firma, propia: !!propia, inicioMes: base.inicio[0], inicioDia: base.inicio[1], finMes: base.fin[0], finDia: base.fin[1] };
+        edicionesDeFrio.set(sensor, e);
+        return e;
+    };
+    $scope.aplicarTemporadaFrio = (sensor) => {
+        const e = $scope.edicionTemporadaFrio(sensor);
+        if (!e) return;
+        if (!e.propia) { delete sensor.chillSeason; }
+        else {
+            const frio = __modulo("frio");
+            const ajustar = (mes, dia) => [mes, Math.min(dia, new Date(2028, mes, 0).getDate())];
+            sensor.chillSeason = { start: frio.aMesDia(ajustar(e.inicioMes, e.inicioDia)), end: frio.aMesDia(ajustar(e.finMes, e.finDia)) };
+        }
+        e.firma = JSON.stringify([sensor.chillSeason, sensor.culture]);
+    };
+
     $scope.ufAcumuladaDe = (reg, indice, sensor) => {
         const valor = reg ? ufDelSensor(indice, sensor).valores[reg.date] : undefined;
         if (valor === undefined) return "—";          // fuera de la temporada

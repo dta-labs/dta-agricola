@@ -89,6 +89,7 @@ Cada version publicada lleva una etiqueta de git `pwa3-vX.Y.Z` sobre el commit d
 - Etiquetas que tapaban los datos y selectores que no mostraban lo elegido, en toda la app. (REQ-043 A1-A2)
 
 ### Cambiado
+- **REQ-150**: unidades frio: las horas calidas restan; temporada de frio propia por sensor (por defecto la del cultivo); los resumenes anteriores al WS v7 (antes del 21/11) se recalculan con Tmin/Tmax desde el 1/11.
 - **REQ-148**: invernaderos: sin limites de temperatura definidos la tarjeta muestra "Sin límites" (no aplica el 0-3 °C de las neveras).
 - Estacionario, Plan de riego \ Parcelas: el estado de una parcela o del motor con la orden enviada y sin confirmar dice "En espera". (REQ-141)
 - Estacionario, Plan de riego \ Parcelas: tarjetas nuevas con el numero y el color del estado (regando, esperando, detenida), nombre, cultivo, superficie, duracion del riego y humedad del sensor asociado; el motor con su estado. Mismo comportamiento al tocarlas. (REQ-139)

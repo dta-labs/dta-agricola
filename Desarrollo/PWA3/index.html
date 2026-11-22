@@ -1879,7 +1879,7 @@
                                                         <td><b>{{ data[(idx * 8) + 5] != "NaN" ? (data[(idx * 8) + 5] | number : 1) : '--' }}</b></td>
 
                                                         <td ng-if="selectedTimeOption == 'DIA'" style="color: {{ data[(idx * 8) + 7] > 3 ? 'green' : data[(idx * 8) + 7] > 2.8 ? 'darkorange' : 'red'}};" title="{{ data[(idx * 8) + 7] }}V"><i class="material-icons">{{ data[(idx * 8) + 7] > 3 ? 'battery_full' : data[(idx * 8) + 7] > 2.8 ? 'battery_alert' : 'battery_unknown'}}</i></td>
-                                                        <td ng-if="mostrarUF(sensor, idx)" style="color: black;" title="Del día: {{ data[(idx * 8) + 6] != 'NaN' ? (data[(idx * 8) + 6] | number : 1) : '--' }}"><b>{{ ufAcumuladaDe(reg, idx, sensor) }}</b></td>
+                                                        <td ng-if="mostrarUF(sensor, idx)" style="color: black;" title="Del día: {{ ufDelDiaDe(reg, idx) }}"><b>{{ ufAcumuladaDe(reg, idx, sensor) }}</b></td>
                                                     </tr>
                                                 </tbody>
                                             </table>
@@ -3135,6 +3135,43 @@
                                             </select>
                                         </div>
                                     </div>
+                                    <!-- REQ-150: temporada de frio (unidades frio) propia del sensor; sin ella, la del cultivo -->
+                                    <div class="temporada-frio mt-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="editSensorFrioPropia"
+                                                ng-model="edicionTemporadaFrio(actualSensor).propia" ng-change="aplicarTemporadaFrio(actualSensor)">
+                                            <label class="form-check-label" for="editSensorFrioPropia"><b>Temporada de frío propia</b></label>
+                                        </div>
+                                        <div class="form-text" ng-if="!edicionTemporadaFrio(actualSensor).propia">
+                                            {{ temporadaFrioDelCultivo(actualSensor) ? 'Por defecto: ' + temporadaFrioDelCultivo(actualSensor) + '.' : 'El cultivo no tiene una temporada de frío conocida: sin unidades frío, salvo que definas una.' }}
+                                        </div>
+                                        <div class="row g-2 mt-1" ng-if="edicionTemporadaFrio(actualSensor).propia">
+                                            <div class="col-12 col-md-6">
+                                                <label class="form-label" for="editSensorFrioInicioDia">Inicio</label>
+                                                <div class="input-group">
+                                                    <select id="editSensorFrioInicioDia" class="browser-default form-select" aria-label="Día de inicio"
+                                                        ng-model="edicionTemporadaFrio(actualSensor).inicioDia" ng-change="aplicarTemporadaFrio(actualSensor)"
+                                                        ng-options="d for d in diasDelMes"></select>
+                                                    <select class="browser-default form-select" aria-label="Mes de inicio"
+                                                        ng-model="edicionTemporadaFrio(actualSensor).inicioMes" ng-change="aplicarTemporadaFrio(actualSensor)"
+                                                        ng-options="m.valor as m.nombre for m in mesesDelAnio"></select>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 col-md-6">
+                                                <label class="form-label" for="editSensorFrioFinDia">Fin</label>
+                                                <div class="input-group">
+                                                    <select id="editSensorFrioFinDia" class="browser-default form-select" aria-label="Día de fin"
+                                                        ng-model="edicionTemporadaFrio(actualSensor).finDia" ng-change="aplicarTemporadaFrio(actualSensor)"
+                                                        ng-options="d for d in diasDelMes"></select>
+                                                    <select class="browser-default form-select" aria-label="Mes de fin"
+                                                        ng-model="edicionTemporadaFrio(actualSensor).finMes" ng-change="aplicarTemporadaFrio(actualSensor)"
+                                                        ng-options="m.valor as m.nombre for m in mesesDelAnio"></select>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 form-text">Las unidades frío (modelo Utah; las horas cálidas restan) se acumulan solo entre estas fechas.
+                                                {{ temporadaFrioDelCultivo(actualSensor) ? 'Por defecto del cultivo: ' + temporadaFrioDelCultivo(actualSensor) + '.' : '' }}</div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="col s12"
@@ -4136,7 +4173,7 @@
     <script src="./assets/js/logic/panel.js?v=26.11.22.020"></script>
     <script src="./assets/js/logic/unidades.js?v=26.11.07.012"></script>
     <script src="./assets/js/logic/estaciones.js?v=26.11.21.001"></script>
-    <script src="./assets/js/logic/frio.js?v=26.11.22.006"></script>
+    <script src="./assets/js/logic/frio.js?v=26.11.22.026"></script>
     <script src="./assets/js/logic/historial.js?v=26.11.22.022"></script>
     <script src="./assets/js/logic/nevera.js?v=26.11.22.024"></script>
     <script src="./assets/js/logic/grafica.js?v=26.11.13.001"></script>
@@ -4169,9 +4206,9 @@
 <script src="./assets/js/logic/meteo.js?v=26.11.02.001"></script>
     <script src="./assets/js/logic/aviso.js?v=26.11.02.001"></script>
 <script src="./assets/vendor/bootstrap/bootstrap.bundle.min.js?v=5.3.8"></script>
-    <script src="./assets/js/core.js?v=26.11.22.023"></script>
+    <script src="./assets/js/core.js?v=26.11.22.026"></script>
     <!-- REQ-038: factories, ayudas de interfaz y componentes (despues de core.js, que crea el modulo) -->
-    <script src="./assets/js/app/version.js?v=26.11.22.025"></script>
+    <script src="./assets/js/app/version.js?v=26.11.22.026"></script>
     <script src="./assets/js/app/reglas.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/auth.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/repo.factory.js?v=26.11.06.001"></script>

@@ -123,7 +123,7 @@
 | REQ-122 | Catalogo de estaciones desde Firebase `/stations` (respaldo: `assets/data/estaciones.json`); regla de lectura | Implementado (probar: usuario) | 4 |
 | REQ-123 | Ficha del sensor: unidades frio acumuladas de la temporada (desde el 1 nov) en lugar del valor puntual | Implementado (probar: usuario) | 6 |
 
-**Total: 539 pruebas en Node (2026-11-22), todas en verde.** `npm test` funciona en Node 20 y 22.
+**Total: 543 pruebas en Node (2026-11-22), todas en verde.** `npm test` funciona en Node 20 y 22.
 
 ## Bloque de autenticacion (cerrado y confirmado por el usuario)
 
@@ -166,6 +166,7 @@
 | REQ-147 | Sensor sin datos tambien en redes de sensores (`lo`); el icono de la tarjeta abre las notificaciones | Implementado (probar: usuario) | 2 (+2 ajustadas) |
 | REQ-148 | Invernadero: sin rango de temperatura por defecto; estado "Sin límites" hasta que el usuario los defina | Implementado | 2 |
 | REQ-149 | Alertas push: humedad relativa (redes) y neveras/invernaderos (t, h, psi, fl, i), solo con "avisar" | Implementado (desplegar funciones: usuario) | 5 |
+| REQ-150 | Unidades frío: horas cálidas restan, temporada propia por sensor y recálculo de los días inflados (antes del 21/11) | Implementado (probar: usuario) | 4 (+1 ajustada) |
 | Prueba manual del resto | listado de equipos, retraso de comunicacion, alarma de nevera, plan de riego |
 | Empaquetado nativo | Capacitor (Android/iOS), objetivo final de la refactorizacion |
 
