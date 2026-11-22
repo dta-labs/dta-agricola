@@ -761,3 +761,24 @@
     font-size: 0.8rem;
     text-decoration: none;
 }
+
+/* REQ-144: varios cultivos por sensor (invernadero) */
+.bs .cultivo-fila {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+.bs .cultivo-fila-quitar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 38px;
+    padding: 0 8px;
+}
+@media (max-width: 600px) {
+    .bs .cultivo-fila { grid-template-columns: minmax(0, 1fr) auto; }
+    .bs .cultivo-fila-campo:nth-child(2) { grid-column: 1 / 2; grid-row: 2; }
+    .bs .cultivo-fila-quitar { grid-row: 1; grid-column: 2; }
+}

@@ -537,3 +537,16 @@ dta-panel-nevera {
 .nevera-boton-grafica:hover,
 .nevera-boton-grafica:focus-visible { background: #eceff1; }
 .nevera-boton-grafica .material-icons { font-size: 26px; }
+
+/* REQ-144: cultivos del sensor en la tarjeta (invernaderos) */
+.nevera-cultivos {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+    color: #2e7d32;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+.nevera-cultivos span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nevera-cultivos .material-icons { font-size: 16px; }

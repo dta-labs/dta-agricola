@@ -2689,6 +2689,33 @@
                             </div>
 
                             <div class="input-field col s12 row" ng-show="steepSensor == 1">   <!-- Seleccionar cultivos -->
+                                <!-- REQ-144: invernadero: varios cultivos por sensor (el primero es el principal: fase y alertas) -->
+                                <div class="col s12" ng-if="actualSystem.type == 'Invernadero'">
+                                    <div class="bs ventana-bloque text-start">
+                                        <div class="ventana-bloque-titulo"><i class="material-icons" aria-hidden="true">eco</i> Cultivos del invernadero</div>
+                                        <div class="cultivo-fila" ng-repeat="c in cultivosEditables(newSensor) track by $index">
+                                            <div class="cultivo-fila-campo">
+                                                <label for="newSensorCultivo{{ $index }}" class="form-label">{{ $first ? 'Cultivo principal' : 'Cultivo ' + ($index + 1) }}</label>
+                                                <select id="newSensorCultivo{{ $index }}" class="browser-default form-select" ng-model="c.culture"
+                                                    ng-options="culture.culture as culture.culture for culture in listOfCultures">
+                                                    <option value="">Elige el cultivo</option>
+                                                </select>
+                                            </div>
+                                            <div class="cultivo-fila-campo">
+                                                <label for="newSensorFase{{ $index }}" class="form-label">Fase fenológica</label>
+                                                <select id="newSensorFase{{ $index }}" class="browser-default form-select" ng-model="c.phenologicalStage" ng-disabled="!c.culture">
+                                                    <option value="">{{ c.culture ? 'Elige la fase' : 'Primero elige el cultivo' }}</option>
+                                                    <option ng-repeat="fase in fasesConActual(c.phenologicalStage)" value="{{ fase }}">{{ fase }}</option>
+                                                </select>
+                                            </div>
+                                            <button type="button" class="btn btn-outline-danger cultivo-fila-quitar" ng-click="quitarCultivo(newSensor, $index)"
+                                                aria-label="Quitar este cultivo" title="Quitar"><i class="material-icons" aria-hidden="true">delete</i></button>
+                                        </div>
+                                        <button type="button" class="btn btn-outline-success btn-sm mt-2" ng-click="agregarCultivo(newSensor)">
+                                            <i class="material-icons align-middle" aria-hidden="true">add</i> Agregar cultivo
+                                        </button>
+                                    </div>
+                                </div>
                                 <!-- Cultivo -->
                                 <!-- REQ-052: cultivo y fase fenologica, juntos y arriba -->
                                 <div class="col s12" ng-show="newSensor.type == 'NPKML' || newSensor.type == 'NPK' || newSensor.type == 'SHT4' || newSensor.type == 'WM' || newSensor.type == 'Ms'">
@@ -2980,6 +3007,33 @@
                                     <option value="Contact" selected="{{ actualSensor.type == 'Contact' ? 'selected' : '' }}" ng-show="esTipoNevera(actualSystem.type)">Sensor de <b>contacto</b></option>
                                 </select>
                                 <label style="top: -28px; font-size: .8em;">Tipo de sensor</label>
+                            </div>
+                            <!-- REQ-144: invernadero: varios cultivos por sensor (el primero es el principal: fase y alertas) -->
+                            <div class="col s12" ng-if="actualSystem.type == 'Invernadero'">
+                                <div class="bs ventana-bloque text-start">
+                                    <div class="ventana-bloque-titulo"><i class="material-icons" aria-hidden="true">eco</i> Cultivos del invernadero</div>
+                                    <div class="cultivo-fila" ng-repeat="c in cultivosEditables(actualSensor) track by $index">
+                                        <div class="cultivo-fila-campo">
+                                            <label for="editSensorCultivo{{ $index }}" class="form-label">{{ $first ? 'Cultivo principal' : 'Cultivo ' + ($index + 1) }}</label>
+                                            <select id="editSensorCultivo{{ $index }}" class="browser-default form-select" ng-model="c.culture"
+                                                ng-options="culture.culture as culture.culture for culture in listOfCultures">
+                                                <option value="">Elige el cultivo</option>
+                                            </select>
+                                        </div>
+                                        <div class="cultivo-fila-campo">
+                                            <label for="editSensorFase{{ $index }}" class="form-label">Fase fenológica</label>
+                                            <select id="editSensorFase{{ $index }}" class="browser-default form-select" ng-model="c.phenologicalStage" ng-disabled="!c.culture">
+                                                <option value="">{{ c.culture ? 'Elige la fase' : 'Primero elige el cultivo' }}</option>
+                                                <option ng-repeat="fase in fasesConActual(c.phenologicalStage)" value="{{ fase }}">{{ fase }}</option>
+                                            </select>
+                                        </div>
+                                        <button type="button" class="btn btn-outline-danger cultivo-fila-quitar" ng-click="quitarCultivo(actualSensor, $index)"
+                                            aria-label="Quitar este cultivo" title="Quitar"><i class="material-icons" aria-hidden="true">delete</i></button>
+                                    </div>
+                                    <button type="button" class="btn btn-outline-success btn-sm mt-2" ng-click="agregarCultivo(actualSensor)">
+                                        <i class="material-icons align-middle" aria-hidden="true">add</i> Agregar cultivo
+                                    </button>
+                                </div>
                             </div>
                             <!-- REQ-052: cultivo y fase fenologica (selector) -->
                             <div class="col s12" ng-show="actualSensor.type == 'SHT4' || actualSensor.type == 'WM' || actualSensor.type == 'Ms' || actualSensor.type == 'NPKML' || actualSensor.type == 'NPK'">
@@ -3650,7 +3704,7 @@
     <link rel="stylesheet" href="./assets/vendor/bootstrap/bootstrap-dta.css?v=5.3.8.1">
     <link rel="stylesheet" href="./assets/css/bootstrap-convivencia.css?v=26.11.06.002">
     <link rel="stylesheet" href="./assets/css/perfil.css?v=26.11.06.003">
-    <link rel="stylesheet" href="./assets/css/ventana.css?v=26.11.20.004">
+    <link rel="stylesheet" href="./assets/css/ventana.css?v=26.11.22.021">
     <!-- REQ-047: tema comun (botones, modales, campos, ventanas) para lo que sigue en Materialize -->
     <link rel="stylesheet" href="./assets/css/tema.css?v=26.11.06.002">
     <link rel="stylesheet" href="./assets/js/components/login/login.css?v=26.11.06.004">
@@ -3658,7 +3712,7 @@
     <link rel="stylesheet" href="./assets/js/components/comunes/mapa-selector/mapa-selector.css?v=26.11.08.011">
     <link rel="stylesheet" href="./assets/js/components/comunes/lector-codigo/lector-codigo.css?v=26.11.06.001">
     <link rel="stylesheet" href="./assets/js/components/tablero/tablero.css?v=26.11.22.015">
-    <link rel="stylesheet" href="./assets/js/components/sistema/paneles.css?v=26.11.22.019">
+    <link rel="stylesheet" href="./assets/js/components/sistema/paneles.css?v=26.11.22.021">
     <link rel="stylesheet" href="./assets/js/components/ayuda/ayuda.css?v=26.11.06.003">
     <link rel="stylesheet" href="./assets/js/components/fichas-tecnicas/fichas-tecnicas.css?v=26.11.06.003">
 
@@ -3919,7 +3973,7 @@
     <script src="./assets/js/logic/login.js?v=26.11.06.002"></script>
     <script src="./assets/js/logic/perfil.js?v=26.11.05.001"></script>
     <script src="./assets/js/logic/riego.js?v=26.11.06.001"></script>
-    <script src="./assets/js/logic/cultivos.js?v=26.11.06.002"></script>
+    <script src="./assets/js/logic/cultivos.js?v=26.11.22.021"></script>
     <script src="./assets/js/logic/geo.js?v=26.11.20.018"></script>
     <script src="./assets/js/logic/humedad.js?v=26.11.07.020"></script>
     <script src="./assets/js/logic/pivote.js?v=26.11.07.005"></script>
@@ -3928,9 +3982,9 @@
     <script src="./assets/js/logic/estaciones.js?v=26.11.21.001"></script>
     <script src="./assets/js/logic/frio.js?v=26.11.22.006"></script>
     <script src="./assets/js/logic/historial.js?v=26.11.22.007"></script>
-    <script src="./assets/js/logic/nevera.js?v=26.11.22.020"></script>
+    <script src="./assets/js/logic/nevera.js?v=26.11.22.021"></script>
     <script src="./assets/js/logic/grafica.js?v=26.11.13.001"></script>
-    <script src="./assets/js/logic/tablero.js?v=26.11.22.020"></script>
+    <script src="./assets/js/logic/tablero.js?v=26.11.22.021"></script>
     <script src="./assets/js/logic/resumen.js?v=26.11.22.020"></script>
     <script src="./assets/js/logic/notificaciones.js?v=26.11.22.019"></script>
     <script src="./assets/js/logic/satelite.js?v=26.11.20.013"></script>
@@ -3959,9 +4013,9 @@
 <script src="./assets/js/logic/meteo.js?v=26.11.02.001"></script>
     <script src="./assets/js/logic/aviso.js?v=26.11.02.001"></script>
 <script src="./assets/vendor/bootstrap/bootstrap.bundle.min.js?v=5.3.8"></script>
-    <script src="./assets/js/core.js?v=26.11.22.020"></script>
+    <script src="./assets/js/core.js?v=26.11.22.021"></script>
     <!-- REQ-038: factories, ayudas de interfaz y componentes (despues de core.js, que crea el modulo) -->
-    <script src="./assets/js/app/version.js?v=26.11.22.020"></script>
+    <script src="./assets/js/app/version.js?v=26.11.22.021"></script>
     <script src="./assets/js/app/reglas.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/auth.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/repo.factory.js?v=26.11.06.001"></script>
@@ -3980,7 +4034,7 @@
     <script src="./assets/js/components/sistema/panel-pivote-lineal/panel-pivote-lineal.component.js?v=26.11.20.011"></script>
     <script src="./assets/js/components/sistema/panel-estacionario/panel-estacionario.component.js?v=26.11.08.014"></script>
     <script src="./assets/js/components/sistema/panel-sensores/panel-sensores.component.js?v=26.11.20.010"></script>
-    <script src="./assets/js/components/sistema/panel-nevera/panel-nevera.component.js?v=26.11.22.019"></script>
+    <script src="./assets/js/components/sistema/panel-nevera/panel-nevera.component.js?v=26.11.22.021"></script>
     <script src="./assets/js/components/sistema/plan-pivote/plan-pivote.component.js?v=26.11.07.008"></script>
     <script src="./assets/js/components/ayuda/ayuda.component.js?v=26.11.06.003"></script>
     <script src="./assets/js/components/fichas-tecnicas/fichas-tecnicas.component.js?v=26.11.06.003"></script>

@@ -100,7 +100,45 @@
         return lista;
     }
 
+    // ---------- REQ-144: varios cultivos por sensor (invernaderos) ----------
+
+    function textoDe(v) { return typeof v === "string" ? v.trim() : ""; }
+
+    /**
+     * Cultivos de un sensor: [{ culture, phenologicalStage }]. Lee `sensor.cultures` (arreglo, u objeto como lo
+     * devuelve Firebase) y, si no hay, el cultivo unico de siempre (`culture` / `phenologicalStage`).
+     */
+    function cultivosDeSensor(sensor) {
+        var s = sensor || {};
+        var lista = Array.isArray(s.cultures) ? s.cultures
+            : (s.cultures && typeof s.cultures === "object" ? Object.keys(s.cultures).sort().map(function (k) { return s.cultures[k]; }) : null);
+        if (!lista) return textoDe(s.culture) ? [{ culture: textoDe(s.culture), phenologicalStage: textoDe(s.phenologicalStage) }] : [];
+        return lista.filter(function (c) { return c && typeof c === "object"; })
+            .map(function (c) { return { culture: textoDe(c.culture), phenologicalStage: textoDe(c.phenologicalStage) }; });
+    }
+
+    /**
+     * Deja el sensor listo para guardar: `cultures` sin vacios ni repetidos (por nombre) y, para lo que espera un
+     * solo cultivo (fase, alertas de plagas, resumen), `culture` / `phenologicalStage` = el primero.
+     */
+    function normalizarCultivosDeSensor(sensor) {
+        if (!sensor || typeof sensor !== "object") return sensor;
+        var vistos = {};
+        var lista = cultivosDeSensor(sensor).filter(function (c) {
+            var clave = c.culture.toLowerCase();
+            if (!c.culture || vistos[clave]) return false;
+            vistos[clave] = true;
+            return true;
+        });
+        sensor.cultures = lista;
+        sensor.culture = lista.length ? lista[0].culture : "";
+        sensor.phenologicalStage = lista.length ? lista[0].phenologicalStage : "";
+        return sensor;
+    }
+
     return {
+        cultivosDeSensor: cultivosDeSensor,
+        normalizarCultivosDeSensor: normalizarCultivosDeSensor,
         FASES_FENOLOGICAS: FASES_FENOLOGICAS,
         fasesConActual: fasesConActual,
         esGratuito: esGratuito,

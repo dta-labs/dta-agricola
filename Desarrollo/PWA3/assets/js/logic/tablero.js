@@ -130,6 +130,10 @@
                     agregar(p.culture, area(p.poligon), "", e === "seco" ? "seco" : e === "sin-dato" ? "sin-dato" : "adecuado", s);
                 });
             }
+            // REQ-144: invernadero: los cultivos de cada sensor (varios por sensor)
+            if (s.type === "Invernadero") {
+                cultivosDeInvernadero(s).forEach(function (c) { agregar(c.culture, 0, c.phenologicalStage, "sin-dato", s); });
+            }
             if (s.type === "PC" && s.plans) {
                 var radio = Number(s.length) || 0;
                 Object.keys(s.plans).forEach(function (k) {
@@ -158,6 +162,22 @@
     }
 
     /** REQ-138: claves de los equipos cuyos cultivos (sensores, parcelas o plan) estan todos en reposo invernal. */
+    /** REQ-144: cultivos de los sensores de un invernadero ([{ culture, phenologicalStage }]; `cultures` o `culture`). */
+    function cultivosDeInvernadero(s) {
+        var salida = [];
+        Object.keys(s.sensors || {}).filter(function (k) { return /^S\d+$/.test(k) && s.sensors[k] && s.sensors[k].id; }).forEach(function (k) {
+            var sensor = s.sensors[k];
+            var lista = Array.isArray(sensor.cultures) ? sensor.cultures
+                : sensor.cultures && typeof sensor.cultures === "object" ? Object.keys(sensor.cultures).map(function (i) { return sensor.cultures[i]; })
+                : [{ culture: sensor.culture, phenologicalStage: sensor.phenologicalStage }];
+            lista.forEach(function (c) {
+                var nombre = c && String(c.culture || "").trim();
+                if (nombre) salida.push({ culture: nombre, phenologicalStage: String(c.phenologicalStage || "").trim() });
+            });
+        });
+        return salida;
+    }
+
     function sistemasConTodoEnReposo(sistemas, medidas, deps, ahora) {
         var claves = [];
         sistemas.forEach(function (s) {
@@ -165,6 +185,7 @@
             if (s.type === "Sensor") medidas.filter(function (m) { return m.red === s; }).forEach(function (m) { if (m.sensor.culture) nombres.push(m.sensor.culture); });
             if (s.type === "Estacionario") Object.keys(s.plots || {}).forEach(function (k) { if (/^p[0-6]$/.test(k) && s.plots[k] && s.plots[k].culture) nombres.push(s.plots[k].culture); });
             if (s.type === "PC" && s.plans) Object.keys(s.plans).forEach(function (k) { if (s.plans[k] && s.plans[k].culture) nombres.push(s.plans[k].culture); });
+            if (s.type === "Invernadero") cultivosDeInvernadero(s).forEach(function (c) { nombres.push(c.culture); });
             if (nombres.length && nombres.every(function (n) { return enReposo(n, s.latitude, ahora, deps.frio); })) claves.push(s.key);
         });
         return claves;

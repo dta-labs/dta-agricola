@@ -159,6 +159,7 @@ Cada version publicada lleva una etiqueta de git `pwa3-vX.Y.Z` sobre el commit d
   migrados: acordeon, list-group y modales de Bootstrap. El login sigue en Materialize. (REQ-043 fases B-C)
 
 ### Anadido
+- Invernadero: cada sensor puede tener varios cultivos (Ajustes del sensor: "Cultivos del invernadero", con su fase; el primero es el principal). Se ven en la tarjeta del sensor y en "Mis cultivos" del resumen. (REQ-144)
 - Neveras e invernaderos: icono de notificacion en la tarjeta del sensor cuando el gateway no recibe sus datos (`lo`
   negativo) y aviso "Sin datos" en Notificaciones con desde cuando no se actualiza. (REQ-142)
 - Invernaderos (`type = "Invernadero"`): mismo panel, sensores, logs, graficas y avisos que las neveras; tarjeta

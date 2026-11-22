@@ -2007,6 +2007,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                         $scope.actualSystem["sensors"] = {};
                         $scope.actualSystem.sensors["sensorNumber"] = 1;
                     }
+                    normalizarCultivosSiInvernadero($scope.newSensor);   // REQ-144
                     $scope.actualSystem.sensors[idx] = $scope.newSensor;
                     $scope.actualSystem.sensors.sensorNumber = sensorNumber;
                     // updateSensorNet($scope.actualSystem.key, $scope.actualSystem.sensors);
@@ -2106,6 +2107,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         .then((confirm) => {
             if (confirm) {
                 document.getElementById("modalEditSensor").style.display = "none";
+                normalizarCultivosSiInvernadero($scope.actualSensor);   // REQ-144
                 $scope.setMachineSettings($scope.actualSystem);
                 swal("Edición completada!", {
                     icon: "success",
@@ -5234,6 +5236,27 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
 
     // REQ-052: fases fenologicas del selector (conserva lo escrito antes como texto libre).
     $scope.fasesConActual = (actual) => __modulo("cultivos").fasesConActual(actual);
+
+    // REQ-144: invernaderos con varios cultivos por sensor (sensor.cultures; el primero tambien en culture)
+    $scope.prepararCultivos = (sensor) => {
+        if (!sensor || Array.isArray(sensor.cultures)) return;
+        sensor.cultures = __modulo("cultivos").cultivosDeSensor(sensor);
+        if (!sensor.cultures.length) sensor.cultures.push({ culture: "", phenologicalStage: "" });
+    };
+    // misma lista (misma referencia) en cada ciclo de AngularJS
+    $scope.cultivosEditables = (sensor) => { $scope.prepararCultivos(sensor); return sensor ? sensor.cultures : []; };
+    $scope.agregarCultivo = (sensor) => {
+        $scope.prepararCultivos(sensor);
+        sensor.cultures.push({ culture: "", phenologicalStage: "" });
+    };
+    $scope.quitarCultivo = (sensor, indice) => {
+        if (!sensor || !Array.isArray(sensor.cultures)) return;
+        sensor.cultures.splice(indice, 1);
+        if (!sensor.cultures.length) sensor.cultures.push({ culture: "", phenologicalStage: "" });
+    };
+    const normalizarCultivosSiInvernadero = (sensor) => {
+        if ($scope.actualSystem && $scope.actualSystem.type === "Invernadero") __modulo("cultivos").normalizarCultivosDeSensor(sensor);
+    };
 
     // REQ-057: los paneles de "Sistema" (componentes) piden abrir un modal por su id: dentro de un
     // componente no funciona `modal-trigger` (su plantilla llega despues de M.AutoInit).

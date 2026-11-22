@@ -8,7 +8,7 @@
 (function (raiz) {
     "use strict";
 
-    var VERSION = "26.11.22.019";
+    var VERSION = "26.11.22.021";
 
     function Controlador(dtaReglas) {
         var vm = this;
@@ -24,7 +24,7 @@
         vm.tarjeta = function (clave, sensor) {
             var unidad = vm.sistema && vm.sistema.tempUnit === "F" ? "F" : "C";
             if (cache.datos !== vm.datos || cache.unidad !== unidad) cache = { datos: vm.datos, unidad: unidad, porClave: {} };
-            var huella = JSON.stringify([sensor && sensor.type, sensor && sensor.alias, sensor && sensor.id, sensor && sensor.t, sensor && sensor.h, sensor && sensor.psi, sensor && sensor.fl]);
+            var huella = JSON.stringify([sensor && sensor.type, sensor && sensor.alias, sensor && sensor.id, sensor && sensor.t, sensor && sensor.h, sensor && sensor.psi, sensor && sensor.fl, sensor && sensor.culture, sensor && sensor.cultures]);
             var guardada = cache.porClave[clave];
             if (guardada && guardada.huella === huella) return guardada.valor;
             var nevera = (raiz.DTALogic && raiz.DTALogic.nevera) || (typeof require === "function" ? require("../../../logic/nevera.js") : null);

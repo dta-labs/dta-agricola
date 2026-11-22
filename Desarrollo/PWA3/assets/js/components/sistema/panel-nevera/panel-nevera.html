@@ -54,6 +54,10 @@
                             aria-label="Sin datos: {{ vm.ciclosSinRecepcion(coldRoomKey) }} ciclos sin recibir">notification_important</i>
                         <span class="nevera-estado"><i class="material-icons" aria-hidden="true">{{ vm.tarjeta(coldRoomKey, coldRoom).estado.icono }}</i>{{ vm.tarjeta(coldRoomKey, coldRoom).estado.texto }}</span>
                     </div>
+                    <!-- REQ-144: cultivos del sensor (invernaderos) -->
+                    <div class="nevera-cultivos" ng-if="vm.tarjeta(coldRoomKey, coldRoom).cultivos">
+                        <i class="material-icons" aria-hidden="true">eco</i><span>{{ vm.tarjeta(coldRoomKey, coldRoom).cultivos }}</span>
+                    </div>
                     <div class="nevera-cuerpo">
                         <div class="nevera-principal" aria-label="{{ vm.tarjeta(coldRoomKey, coldRoom).principal.etiqueta }} {{ vm.tarjeta(coldRoomKey, coldRoom).principal.valorTexto }} {{ vm.tarjeta(coldRoomKey, coldRoom).principal.unidad }}">
                             <div class="nevera-principal-valor" ng-class="{ 'es-texto': vm.tarjeta(coldRoomKey, coldRoom).principal.esTexto }">

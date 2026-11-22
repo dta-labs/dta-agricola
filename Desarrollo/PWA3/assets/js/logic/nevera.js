@@ -158,6 +158,11 @@
         r.tipo = tipo;
         r.nombre = s.alias || s.id || "Sensor";
         r.voltaje = numero(d[base + 2]);
+        // REQ-144: cultivos del sensor (invernaderos: varios; `cultures` o el `culture` de siempre)
+        var cultivos = Array.isArray(s.cultures) ? s.cultures
+            : s.cultures && typeof s.cultures === "object" ? Object.keys(s.cultures).map(function (k) { return s.cultures[k]; })
+            : [{ culture: s.culture }];
+        r.cultivos = cultivos.map(function (c) { return c && String(c.culture || "").trim(); }).filter(Boolean).join(" · ");
         return r;
     }
 
