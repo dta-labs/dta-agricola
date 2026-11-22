@@ -48,7 +48,8 @@ test("REQ-093 ir a fecha: primer punto de ese dia y ventana centrada dentro del 
 test("REQ-093 el clima historico ya no esta bloqueado por la politica de seguridad", () => {
   const connect = HTML.match(/connect-src([^;]*);/)[1];
   assert.match(connect, /https:\/\/archive-api\.open-meteo\.com/);
-  assert.match(CORE, /url: `https:\/\/archive-api\.open-meteo\.com\/v1\/archive\?/);
+  assert.match(CORE, /pedir\(`https:\/\/archive-api\.open-meteo\.com\/v1\/archive\?/);   // REQ-130: y los ultimos dias, del pronostico
+  assert.match(connect, /https:\/\/api\.open-meteo\.com/);
 });
 
 test("REQ-093 graficas: datos al tocar en cualquier punto, zoom con limites y barra de herramientas", () => {

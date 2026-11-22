@@ -4014,37 +4014,66 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             if (cachedWeather) weatherByDate[dateKey] = cachedWeather;
             return false;
         });
-        if (!missingDates.length) return Promise.resolve(weatherByDate);
+        const publicar = () => { guardarClimaDelHistorial(system.key, weatherByDate); return weatherByDate; };
+        if (!missingDates.length) return Promise.resolve(publicar());
 
-        return new Promise(resolve => {
+        // REQ-130: el archivo historico de Open-Meteo publica los dias con unos dias de retraso: los ultimos 7 dias se
+        // piden al pronostico (past_days) y los anteriores al archivo. Antes la semana salia sin iconos.
+        const partes = __modulo("historial").separarDiasRecientes(missingDates, todayKey, 7);
+        const pedir = url => new Promise(resolve => {
             $.ajax({
-                url: `https://archive-api.open-meteo.com/v1/archive?latitude=${system.latitude}&longitude=${system.longitude}&start_date=${formatWeatherDate(missingDates[0])}&end_date=${formatWeatherDate(missingDates[missingDates.length - 1])}&daily=weather_code&timezone=auto`,
+                url,
                 success: result => {
                     const resultDates = result && result.daily ? result.daily.time || [] : [];
                     const resultCodes = result && result.daily ? result.daily.weather_code || [] : [];
                     resultDates.forEach((date, index) => {
                         const dateKey = date.replaceAll("-", "");
+                        if (resultCodes[index] === null || resultCodes[index] === undefined) return;
                         const icon = getOpenWeatherIconFromWmo(resultCodes[index]);
                         const weather = {
                             icon,
-                            description: `Código meteorológico ${resultCodes[index]}`,
+                            description: __modulo("historial").descripcionWmo(resultCodes[index]),
                             iconUrl: `${OPENWEATHER_ICON_URL}/${icon}.png`
                         };
                         historicalWeatherCache.set(`${coordinates},${dateKey}`, weather);
                         if (dates.includes(dateKey)) weatherByDate[dateKey] = weather;
                     });
-                    missingDates.forEach(dateKey => {
-                        const cacheKey = `${coordinates},${dateKey}`;
-                        if (!historicalWeatherCache.has(cacheKey)) historicalWeatherCache.set(cacheKey, null);
-                    });
-                    resolve(weatherByDate);
+                    resolve();
                 },
                 error: error => {
                     console.error("No fue posible cargar el clima histórico de la gráfica:", error);
-                    resolve(weatherByDate);
+                    resolve();
                 }
             });
         });
+        const peticiones = [];
+        if (partes.antiguos.length) {
+            peticiones.push(pedir(`https://archive-api.open-meteo.com/v1/archive?latitude=${system.latitude}&longitude=${system.longitude}&start_date=${formatWeatherDate(partes.antiguos[0])}&end_date=${formatWeatherDate(partes.antiguos[partes.antiguos.length - 1])}&daily=weather_code&timezone=auto`));
+        }
+        if (partes.recientes.length) {
+            peticiones.push(pedir(`https://api.open-meteo.com/v1/forecast?latitude=${system.latitude}&longitude=${system.longitude}&daily=weather_code&past_days=7&forecast_days=1&timezone=auto`));
+        }
+        return Promise.all(peticiones).then(() => {
+            missingDates.forEach(dateKey => {
+                const cacheKey = `${coordinates},${dateKey}`;
+                if (!historicalWeatherCache.has(cacheKey)) historicalWeatherCache.set(cacheKey, null);
+            });
+            return publicar();
+        });
+    };
+
+    // REQ-130: el mismo clima de la grafica, por dia, para la columna de la tabla del historial
+    $scope.climaHistorial = {};
+    const guardarClimaDelHistorial = (sistemaKey, porDia) => {
+        $scope.$evalAsync(() => {
+            const actual = $scope.climaHistorial[sistemaKey] || {};
+            $scope.climaHistorial[sistemaKey] = Object.assign({}, actual, porDia);
+        });
+    };
+    $scope.climaDe = reg => {
+        const sistema = $scope.actualSystem;
+        const porDia = sistema && $scope.climaHistorial[sistema.key];
+        return porDia && reg && reg.date ? porDia[reg.date.substring(0, 8)] || null : null;
     };
 
     getRegisterValues = (items) => {

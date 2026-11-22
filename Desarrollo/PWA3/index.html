@@ -1827,6 +1827,8 @@
                                                 <thead>
                                                     <tr>
                                                         <th><i class="fa fa-calendar" aria-hidden="true" style="font-size: 1.2em;"></i><br> Fecha</th>
+                                                        <!-- REQ-130: clima del dia, junto a la fecha (Semana, Mes y Ciclo) -->
+                                                        <th ng-if="selectedTimeOption != 'DIA'"><i class="material-icons" aria-hidden="true" style="font-size: 1.3em;">wb_sunny</i><br> Clima</th>
                                                         <th><img src="./assets/images/Hr.png" alt="Ms" style="width: 20px;" loading="lazy"><br> {{ sensor.type == 'WM' ? 'Tensión' : 'H.Suelo' }}</th>
                                                         <th><img src="./assets/images/agua.png" alt="Hr" style="width: 20px;" loading="lazy"><br> H.Relativa</th>
                                                         <th><img src="./assets/images/termometro.png" alt="Temp" style="width: 20px;" loading="lazy"><br> Temp.</th>
@@ -1840,6 +1842,7 @@
                                                 <tbody>
                                                     <tr ng-repeat="reg in invertedRegisters" ng-init="data=convertStrToJSON(reg.dataRaw)" ng-show="data[(idx * 8)] != 'NaN' && data[(idx * 8)] != 'NAN' && data[(idx * 8) + 1] != 'NaN' && data[(idx * 8) + 1] != 'NAN' && data[(idx * 8) + 4] != 'NaN' && data[(idx * 8) + 4] != 'NAN' && data[(idx * 8) + 5] != 'NaN' && data[(idx * 8) + 5] != 'NAN'">
                                                         <td ng-show="selectedTimeOption != 'DIA'">{{ reg.date.substring(6, 8) }}/{{ reg.date.substring(4, 6) }}/{{ reg.date.substring(2, 4) }}</td>
+                                                        <td ng-if="selectedTimeOption != 'DIA'" class="historial-clima"><img ng-if="climaDe(reg)" ng-src="{{ climaDe(reg).iconUrl }}" alt="{{ climaDe(reg).description }}" title="{{ climaDe(reg).description }}" loading="lazy"><span ng-if="!climaDe(reg)">--</span></td>
                                                         <td ng-show="selectedTimeOption == 'DIA'">{{ horaDeRegistro(reg.date) }}</td>
 
                                                         <!-- REQ-126: colores por capacidad de campo (%), por tension (cb) y por umbrales de temperatura -->
@@ -1862,6 +1865,8 @@
                                                 <thead>
                                                     <tr>
                                                         <th><i class="fa fa-calendar" aria-hidden="true" style="font-size: 1.2em;"></i><br> Fecha</th>
+                                                        <!-- REQ-130: clima del dia, junto a la fecha (Semana, Mes y Ciclo) -->
+                                                        <th ng-if="selectedTimeOption != 'DIA'"><i class="material-icons" aria-hidden="true" style="font-size: 1.3em;">wb_sunny</i><br> Clima</th>
                                                         <th><img src="./assets/images/pozo.png" alt="Ms" style="width: 20px;" loading="lazy"><br> {{ sensor.type == 'WM' ? 'Tensión' : 'H.Suelo' }}</th>
                                                         <th ng-if="selectedTimeOption == 'DIA'"><i class="material-icons">battery_charging_full</i><br>Bat.</th>
                                                         <th ng-if="selectedTimeOption != 'DIA'"><i class="material-icons">access_time</i><br>T.Encendido</th>
@@ -1870,6 +1875,7 @@
                                                 <tbody>
                                                     <tr ng-repeat="reg in invertedRegisters" ng-init="data=convertStrToJSON(reg.dataRaw)" ng-show="data[(idx * 8)] != 'NaN' && data[(idx * 8)] != 'NAN' && data[(idx * 8) + 1] != 'NaN' && data[(idx * 8) + 1] != 'NAN' && data[(idx * 8) + 4] != 'NaN' && data[(idx * 8) + 4] != 'NAN' && data[(idx * 8) + 5] != 'NaN' && data[(idx * 8) + 5] != 'NAN'">
                                                         <td ng-show="selectedTimeOption != 'DIA'">{{ reg.date.substring(6, 8) }}/{{ reg.date.substring(4, 6) }}/{{ reg.date.substring(2, 4) }}</td>
+                                                        <td ng-if="selectedTimeOption != 'DIA'" class="historial-clima"><img ng-if="climaDe(reg)" ng-src="{{ climaDe(reg).iconUrl }}" alt="{{ climaDe(reg).description }}" title="{{ climaDe(reg).description }}" loading="lazy"><span ng-if="!climaDe(reg)">--</span></td>
                                                         <td ng-show="selectedTimeOption == 'DIA'">{{ horaDeRegistro(reg.date) }}</td>
                                                         <td style="color: {{ data[idx * 8] < 1 ? 'red' : 'green' }};"><b>{{ data[(idx * 8)] != "NaN" ? (data[(idx * 8)] | number : 0) + 'psi' : 'Apagado' }}</b></td>
                                                         <td ng-if="selectedTimeOption == 'DIA'" style="color: {{ data[(idx * 8) + 7] > 3 ? 'green' : data[(idx * 8) + 7] > 2.8 ? 'darkorange' : 'red'}};" title="{{ data[(idx * 8) + 7] }}V"><i class="material-icons">{{ data[(idx * 8) + 7] > 3 ? 'battery_full' : data[(idx * 8) + 7] > 2.8 ? 'battery_alert' : 'battery_unknown'}}</i></td>
@@ -3612,7 +3618,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="./assets/modules/materialize/css/materialize.min.css">
     <link rel="stylesheet" href="./assets/modules/leaflet/leaflet.css">
-    <link rel="stylesheet" href="./assets/css/style.css?v=26.11.22.002">
+    <link rel="stylesheet" href="./assets/css/style.css?v=26.11.22.007">
     <link rel="stylesheet" href="./assets/css/responsive.css">
     <link rel="stylesheet" href="./assets/css/formularios.css?v=26.11.06.002">
     <!-- REQ-043: Bootstrap 5 aislado en .bs (convive con Materialize mientras se migra) -->
@@ -3896,7 +3902,7 @@
     <script src="./assets/js/logic/unidades.js?v=26.11.07.012"></script>
     <script src="./assets/js/logic/estaciones.js?v=26.11.21.001"></script>
     <script src="./assets/js/logic/frio.js?v=26.11.22.006"></script>
-    <script src="./assets/js/logic/historial.js?v=26.11.22.004"></script>
+    <script src="./assets/js/logic/historial.js?v=26.11.22.007"></script>
     <script src="./assets/js/logic/grafica.js?v=26.11.13.001"></script>
     <script src="./assets/js/logic/tablero.js?v=26.11.20.019"></script>
     <script src="./assets/js/logic/resumen.js?v=26.11.20.010"></script>
@@ -3927,9 +3933,9 @@
 <script src="./assets/js/logic/meteo.js?v=26.11.02.001"></script>
     <script src="./assets/js/logic/aviso.js?v=26.11.02.001"></script>
 <script src="./assets/vendor/bootstrap/bootstrap.bundle.min.js?v=5.3.8"></script>
-    <script src="./assets/js/core.js?v=26.11.22.006"></script>
+    <script src="./assets/js/core.js?v=26.11.22.007"></script>
     <!-- REQ-038: factories, ayudas de interfaz y componentes (despues de core.js, que crea el modulo) -->
-    <script src="./assets/js/app/version.js?v=26.11.22.006"></script>
+    <script src="./assets/js/app/version.js?v=26.11.22.007"></script>
     <script src="./assets/js/app/reglas.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/auth.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/repo.factory.js?v=26.11.06.001"></script>

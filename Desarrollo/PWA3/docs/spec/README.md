@@ -123,7 +123,7 @@
 | REQ-122 | Catalogo de estaciones desde Firebase `/stations` (respaldo: `assets/data/estaciones.json`); regla de lectura | Implementado (probar: usuario) | 4 |
 | REQ-123 | Ficha del sensor: unidades frio acumuladas de la temporada (desde el 1 nov) en lugar del valor puntual | Implementado (probar: usuario) | 6 |
 
-**Total: 498 pruebas en Node (2026-11-22), todas en verde.** `npm test` funciona en Node 20 y 22.
+**Total: 499 pruebas en Node (2026-11-22), todas en verde.** `npm test` funciona en Node 20 y 22.
 
 ## Bloque de autenticacion (cerrado y confirmado por el usuario)
 
@@ -146,6 +146,7 @@
 | REQ-127 | Historial: grafica de agua disponible (pestaña, lecturas invalidas, eje en cb, tension en la informacion) y humedad de sensores Ms | Corregido (probar: usuario) | 3 |
 | REQ-128 | Historial: "U.Frio acum." (unidades frio acumuladas por dia en el periodo) en lugar de "H.Frio" puntual | Implementado (probar: usuario) | 1 |
 | REQ-129 | Unidades frio por temporada del cultivo: columna U.Frio solo en temporada, acumulado desde su inicio; ficha con "Fuera de temporada" / "No aplica" | Implementado (probar: usuario) | 1 (+1 ajustada) |
+| REQ-130 | Historial: icono del clima por dia en la tabla (junto a la fecha) y en la grafica, tambien para los ultimos dias | Implementado (probar: usuario) | 1 |
 | Prueba manual del resto | listado de equipos, retraso de comunicacion, alarma de nevera, plan de riego |
 | Empaquetado nativo | Capacitor (Android/iOS), objetivo final de la refactorizacion |
 

@@ -149,6 +149,7 @@ Cada version publicada lleva una etiqueta de git `pwa3-vX.Y.Z` sobre el commit d
   migrados: acordeon, list-group y modales de Bootstrap. El login sigue en Materialize. (REQ-043 fases B-C)
 
 ### Anadido
+- Historial: columna "Clima" (icono del dia) junto a la fecha en Semana, Mes y Ciclo; los ultimos 7 dias se piden al pronostico porque el archivo historico los publica con retraso (antes la semana salia sin iconos en la grafica). Descripcion del clima en español. (REQ-130)
 - Historial de los sensores: boton "Dia" (lecturas de hoy) junto a Semana, Mes y Ciclo; el eje muestra la hora. (REQ-124)
 - Ajustes de la red de sensores: "Estacion meteorologica" con selector de region y de estacion
   (`settings.station = { region, id }`) desde el catalogo `assets/data/estaciones.json` (29 estaciones, 6 regiones);

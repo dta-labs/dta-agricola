@@ -124,3 +124,18 @@ test("REQ-129 temporada de frio segun el cultivo (hemisferio norte y sur) y cult
   assert.match(CORE, /if \(!frio\.rangoDeTemporada\(hoy, temporada\)\) \{ pintar\("Fuera de temporada"\); return; \}/);
   assert.match(CORE, /const uf = frio\.acumulado\(valores\(logs\), valores\(dia\), idx, hoy, temporada\);/);
 });
+
+test("REQ-130 clima en el historial: columna junto a la fecha (Semana, Mes, Ciclo) y ultimos dias desde el pronostico", () => {
+  const ini = HTML.indexOf('<div id="modalHistorial"');
+  const hist = HTML.slice(ini);
+  assert.equal((hist.match(/<br> Fecha<\/th>\n\s*<!-- REQ-130[^\n]*\n\s*<th ng-if="selectedTimeOption != 'DIA'"><i class="material-icons" aria-hidden="true" style="font-size: 1\.3em;">wb_sunny<\/i><br> Clima<\/th>/g) || []).length, 2);
+  assert.equal((hist.match(/\{\{ reg\.date\.substring\(2, 4\) \}\}<\/td>\n\s*<td ng-if="selectedTimeOption != 'DIA'" class="historial-clima"><img ng-if="climaDe\(reg\)" ng-src="\{\{ climaDe\(reg\)\.iconUrl \}\}"/g) || []).length, 2);
+  assert.match(CORE, /\$scope\.climaDe = reg =>/);
+  assert.match(CORE, /guardarClimaDelHistorial\(system\.key, weatherByDate\)/);
+  assert.match(CORE, /https:\/\/api\.open-meteo\.com\/v1\/forecast\?latitude=\$\{system\.latitude\}&longitude=\$\{system\.longitude\}&daily=weather_code&past_days=7&forecast_days=1&timezone=auto/);
+  assert.doesNotMatch(CORE, /description: `Código meteorológico \$\{resultCodes\[index\]\}`/);
+  assert.deepEqual(h.separarDiasRecientes(["20261101", "20261114", "20261115", "20261121"], "20261122", 7),
+    { recientes: ["20261121"], antiguos: ["20261101", "20261114", "20261115"] });
+  assert.deepEqual([0, 2, 3, 45, 63, 81, 95].map(h.descripcionWmo),
+    ["Despejado", "Parcialmente nublado", "Nublado", "Niebla", "Lluvia", "Chubascos", "Tormenta"]);
+});

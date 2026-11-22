@@ -100,6 +100,40 @@
         return null;
     }
 
+    // ---------- REQ-130: clima del dia (codigo WMO de Open-Meteo) ----------
+
+    /** Descripcion en español del codigo meteorologico WMO (antes "Codigo meteorologico 3"). */
+    function descripcionWmo(codigo) {
+        var c = numero(codigo);
+        if (c === null) return "";
+        if (c === 0) return "Despejado";
+        if (c === 1) return "Mayormente despejado";
+        if (c === 2) return "Parcialmente nublado";
+        if (c === 3) return "Nublado";
+        if (c === 45 || c === 48) return "Niebla";
+        if (c >= 51 && c <= 57) return "Llovizna";
+        if (c >= 61 && c <= 67) return "Lluvia";
+        if (c >= 71 && c <= 77) return "Nieve";
+        if (c >= 80 && c <= 82) return "Chubascos";
+        if (c >= 85 && c <= 86) return "Chubascos de nieve";
+        if (c >= 95 && c <= 99) return "Tormenta";
+        return "Código meteorológico " + c;
+    }
+
+    /**
+     * Dias ("AAAAMMDD") que el archivo historico de Open-Meteo aun no tiene (tarda unos dias en publicarlos): los de
+     * los ultimos `dias` dias se piden al pronostico con `past_days`. Devuelve { recientes, antiguos }.
+     */
+    function separarDiasRecientes(dias, hoy, diasRecientes) {
+        var limite = new Date(Number(String(hoy).substr(0, 4)), Number(String(hoy).substr(4, 2)) - 1, Number(String(hoy).substr(6, 2)));
+        limite.setDate(limite.getDate() - (diasRecientes || 7));
+        var corte = limite.getFullYear() + String(limite.getMonth() + 1).padStart(2, "0") + String(limite.getDate()).padStart(2, "0");
+        return {
+            recientes: (dias || []).filter(function (d) { return d > corte; }),
+            antiguos: (dias || []).filter(function (d) { return d <= corte; })
+        };
+    }
+
     /** Color de un dato de la tabla del historial: medida "humedad" (% o cb segun el sensor) o "temperatura" (°C). */
     function color(sensor, medida, valor) {
         if (medida === "temperatura") return colorDeTemperatura(sensor, valor);
@@ -116,6 +150,8 @@
         colorDeTemperatura: colorDeTemperatura,
         color: color,
         cbValido: cbValido,
-        cbDeAguaDisponible: cbDeAguaDisponible
+        cbDeAguaDisponible: cbDeAguaDisponible,
+        descripcionWmo: descripcionWmo,
+        separarDiasRecientes: separarDiasRecientes
     };
 }));

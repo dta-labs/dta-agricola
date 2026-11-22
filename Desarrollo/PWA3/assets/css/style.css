@@ -1362,6 +1362,19 @@ canvas[id^="myChart"],
     }
 }
 
+/* REQ-130: icono del clima del dia en la tabla del historial */
+.historial-clima {
+    padding: 0 4px !important;
+    text-align: center;
+    color: #9e9e9e;
+}
+.historial-clima img {
+    display: block;
+    width: 36px;
+    height: 36px;
+    margin: -4px auto;
+}
+
 /* REQ-093: barra de herramientas de las graficas del historial */
 .grafica-herramientas {
     display: flex;
