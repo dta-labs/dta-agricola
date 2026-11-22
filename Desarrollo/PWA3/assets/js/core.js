@@ -5472,6 +5472,20 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         return true;
     };
 
+    // REQ-140: guardar el programa sin iniciarlo (no toca las parcelas ni la programacion en curso). Queda en la lista
+    // de "Programacion" y se inicia cuando se quiera con su boton.
+    $scope.guardarProgramaDesdeFormulario = () => {
+        const p = $scope.programaEstacionario;
+        const errores = __modulo("riego").erroresDelPrograma(p, __modulo("fechas"));
+        $scope.erroresPrograma = errores;
+        if (Object.keys(errores).length) return false;
+        if (!p.id) p.id = generarIdUnico();
+        $scope.saveIrrigationPlan(p);
+        cerrarModal("modalStationaryProgram");
+        swal("Programa guardado", "No se inició. Puedes iniciarlo cuando quieras con ▶ en la lista de programas.", { icon: "success" });
+        return true;
+    };
+
     // REQ-048: fichas tecnicas en un modal (componente montado con ng-if). Funciones y no asignaciones en
     // la plantilla: asi el valor vive en este scope aunque la etiqueta quede en un scope hijo.
     $scope.fichasAbiertas = false;

@@ -38,3 +38,15 @@ test("REQ-139 vista: tarjetas en cuadricula con el mismo comportamiento (editar 
   assert.match(leer("assets", "js", "core.js"), /\$scope\.tarjetaParcela = \(clave\) => \{/);
   assert.match(leer("assets", "css", "style.css"), /\.parcelas-tarjetas \{\n    display: grid;\n    grid-template-columns: repeat\(2, minmax\(0, 1fr\)\);/);
 });
+
+test("REQ-140 Programacion: guardar el programa sin iniciarlo", () => {
+  const html = leer("index.html");
+  const core = leer("assets", "js", "core.js");
+  assert.match(html, /<button type="button" class="btn btn-outline-success" ng-click="guardarProgramaDesdeFormulario\(\)">\n\s*<i class="material-icons align-middle me-1" aria-hidden="true">save<\/i>Guardar/);
+  assert.ok(html.indexOf("guardarProgramaDesdeFormulario()") < html.indexOf(">play_arrow</i>Iniciar programa"));
+  const ini = core.indexOf("$scope.guardarProgramaDesdeFormulario = () => {");
+  const cuerpo = core.slice(ini, core.indexOf("};", ini));
+  assert.match(cuerpo, /erroresDelPrograma\(p, __modulo\("fechas"\)\)/);
+  assert.match(cuerpo, /if \(!p\.id\) p\.id = generarIdUnico\(\);\n\s*\$scope\.saveIrrigationPlan\(p\);/);
+  assert.doesNotMatch(cuerpo, /startStationaryProgram|stopStationaryProgram|createStationaryProgram/);   // no toca las parcelas
+});
