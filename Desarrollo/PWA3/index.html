@@ -1813,7 +1813,8 @@
                                                 <div class="col s12" style="text-align: right;">
                                                     <!-- <button class="btn-small" ng-class="selectedTimeOption == 'DIA' ? 'teal' : 'grey lighten-2'" ng-click="reloadSystemLog(actualSystem.key, 'DIA');" style="margin-right: 5px; padding: 0 15px; height: 28px; line-height: 28px; font-size: 0.8em; color: {{ selectedTimeOption == 'DIA' ? 'white' : '#616161' }};">Día</button>
                                                     <button class="btn-small" ng-class="selectedTimeOption == 'SEMANA' ? 'teal' : 'grey lighten-2'" ng-click="reloadSystemLog(actualSystem.key, 'SEMANA');" style="margin-right: 5px; padding: 0 15px; height: 28px; line-height: 28px; font-size: 0.8em; color: {{ selectedTimeOption == 'SEMANA' ? 'white' : '#616161' }};">Semana</button> -->
-                                                    <button class="btn-small" ng-if="actualSystem.type == 'Nevera'" ng-class="selectedTimeOption == 'DIA' ? 'teal' : 'grey lighten-2'" ng-click="$event.stopPropagation(); reloadSystemLog(actualSystem.key, 'DIA', idx);" style="padding: 0 15px; height: 28px; line-height: 28px; font-size: 0.8em; color: {{ selectedTimeOption == 'DIA' ? 'white' : '#616161' }};"><span class="history-button-spinner" ng-if="historyLoadingOption == 'DIA'"></span>Día</button>
+                                                    <!-- REQ-124: "Dia" tambien en las redes de sensores (lecturas de hoy, de dayLogs) -->
+                                                    <button class="btn-small" ng-class="selectedTimeOption == 'DIA' ? 'teal' : 'grey lighten-2'" ng-click="$event.stopPropagation(); reloadSystemLog(actualSystem.key, 'DIA', idx);" style="padding: 0 15px; height: 28px; line-height: 28px; font-size: 0.8em; color: {{ selectedTimeOption == 'DIA' ? 'white' : '#616161' }};"><span class="history-button-spinner" ng-if="historyLoadingOption == 'DIA'"></span>Día</button>
                                                     <button class="btn-small" ng-if="actualSystem.type != 'Nevera'" ng-class="selectedTimeOption == 'SEMANA' ? 'teal' : 'grey lighten-2'" ng-click="$event.stopPropagation(); reloadSystemLog(actualSystem.key, 'SEMANA', idx);" style="padding: 0 15px; height: 28px; line-height: 28px; font-size: 0.8em; color: {{ selectedTimeOption == 'SEMANA' ? 'white' : '#616161' }};"><span class="history-button-spinner" ng-if="historyLoadingOption == 'SEMANA'"></span>Semana</button>
                                                     <button class="btn-small" ng-class="selectedTimeOption == 'MES' ? 'teal' : 'grey lighten-2'" ng-click="$event.stopPropagation(); reloadSystemLog(actualSystem.key, 'MES', idx);" style="padding: 0 15px; height: 28px; line-height: 28px; font-size: 0.8em; color: {{ selectedTimeOption == 'MES' ? 'white' : '#616161' }};"><span class="history-button-spinner" ng-if="historyLoadingOption == 'MES'"></span>Mes</button>
                                                     <button class="btn-small" ng-class="selectedTimeOption == 'CICLO' ? 'teal' : 'grey lighten-2'" ng-click="$event.stopPropagation(); reloadSystemLog(actualSystem.key, 'CICLO', idx);" style="padding: 0 15px; height: 28px; line-height: 28px; font-size: 0.8em; color: {{ selectedTimeOption == 'CICLO' ? 'white' : '#616161' }};"><span class="history-button-spinner" ng-if="historyLoadingOption == 'CICLO'"></span>Ciclo</button>
@@ -3920,9 +3921,9 @@
 <script src="./assets/js/logic/meteo.js?v=26.11.02.001"></script>
     <script src="./assets/js/logic/aviso.js?v=26.11.02.001"></script>
 <script src="./assets/vendor/bootstrap/bootstrap.bundle.min.js?v=5.3.8"></script>
-    <script src="./assets/js/core.js?v=26.11.21.002"></script>
+    <script src="./assets/js/core.js?v=26.11.22.001"></script>
     <!-- REQ-038: factories, ayudas de interfaz y componentes (despues de core.js, que crea el modulo) -->
-    <script src="./assets/js/app/version.js?v=26.11.21.002"></script>
+    <script src="./assets/js/app/version.js?v=26.11.22.001"></script>
     <script src="./assets/js/app/reglas.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/auth.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/repo.factory.js?v=26.11.06.001"></script>

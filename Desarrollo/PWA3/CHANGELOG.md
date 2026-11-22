@@ -144,6 +144,7 @@ Cada version publicada lleva una etiqueta de git `pwa3-vX.Y.Z` sobre el commit d
   migrados: acordeon, list-group y modales de Bootstrap. El login sigue en Materialize. (REQ-043 fases B-C)
 
 ### Anadido
+- Historial de los sensores: boton "Dia" (lecturas de hoy) junto a Semana, Mes y Ciclo; el eje muestra la hora. (REQ-124)
 - Ajustes de la red de sensores: "Estacion meteorologica" con selector de region y de estacion
   (`settings.station = { region, id }`) desde el catalogo `assets/data/estaciones.json` (29 estaciones, 6 regiones);
   el servidor (WS v7) usa esa estacion local para completar HR y temperatura. (REQ-121)

@@ -4038,7 +4038,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             } else {
                 date = "";
             }
-            labels.push(date + " " + element.date.substr(9, 14));
+            labels.push($scope.selectedTimeOption == 'DIA' ? $scope.horaDeRegistro(element.date) : date);   // REQ-124: hora legible
         });
         // Código original modificado: ahora pasa $scope.chartType como parámetro
         chart(moisture, [], [], [], temperature, labels, title, i, threshold, chartLabel, $scope.chartType, sensorType, result, weatherByDate);
@@ -4103,7 +4103,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             } else {
                 date = "";
             }
-            labels.push(($scope.selectedTimeOption != 'DIA' ? date : '') + " " + ($scope.selectedTimeOption == 'DIA' ? element.date.substr(9, 14) : ''));
+            labels.push($scope.selectedTimeOption == 'DIA' ? $scope.horaDeRegistro(element.date) : date);   // REQ-124: hora legible
         });
         chart(moisture, humidity, temp_min, temp_max, temperature, labels, title, i, threshold, chartLabel, $scope.chartType, sensorType, result, weatherByDate);
     }
@@ -4149,7 +4149,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             } else {
                 date = "";
             }
-            labels.push(($scope.selectedTimeOption != 'DIA' ? date : '') + " " + ($scope.selectedTimeOption == 'DIA' ? element.date.substr(9, 14) : ''));
+            labels.push($scope.selectedTimeOption == 'DIA' ? $scope.horaDeRegistro(element.date) : date);   // REQ-124: hora legible
         });
         chart(moisture, humidity, temp_min, temp_max, temperature, labels, title, i, threshold, chartLabel, $scope.chartType, sensorType, result, weatherByDate);
     }
@@ -4168,7 +4168,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             } else {
                 date = "";
             }
-            labels.push(($scope.selectedTimeOption != 'DIA' ? date : '') + " " + ($scope.selectedTimeOption == 'DIA' ? element.date.substr(9, 14) : ''));
+            labels.push($scope.selectedTimeOption == 'DIA' ? $scope.horaDeRegistro(element.date) : date);   // REQ-124: hora legible
         });
         chart(moisture, [], [], [], [], labels, title, i, threshold, chartLabel, $scope.chartType, "Psi", result, weatherByDate);
     }
