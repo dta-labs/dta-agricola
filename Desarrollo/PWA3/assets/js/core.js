@@ -319,7 +319,10 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         return L.svgOverlay(svgNdvi(url, ancho, alto, forma, respaldo, satelite.urlFechaReciente(caja)), satelite.limites(caja), { pane: "ndvi", interactive: false });
     };
 
+    let alMoverMapaNdvi = null;
     const quitarNdvi = () => {
+        if (alMoverMapaNdvi && map) map.off("moveend", alMoverMapaNdvi);
+        alMoverMapaNdvi = null;
         if (capaNdvi && map) map.removeLayer(capaNdvi);
         if (leyendaNdvi && map) map.removeControl(leyendaNdvi);
         if (progresoNdvi && progresoNdvi.div) progresoNdvi.div.remove();
@@ -341,24 +344,46 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         }
         const satelite = __modulo("satelite");
         const geo = __modulo("geo");
-        // REQ-157: todas las areas del usuario (pivotes, redes de sensores y estacionarios), no solo las del equipo abierto
+        // REQ-157: areas de todos los equipos del usuario (pivotes, redes de sensores y estacionarios)...
         const areas = satelite.areasDelUsuario($scope.systems, geo.normalizarPoligono, geo.esPoligonoValido, geo.esCoordenadaValida);
         if (!areas.length) {
             if (window.M && M.toast) M.toast({ html: "Aún no hay pivotes ni parcelas marcadas en el mapa." });
             return false;
         }
         const contenedor = map.getContainer();
-        const div = document.createElement("div");
-        div.className = "mapa-progreso-ndvi";
-        div.setAttribute("role", "status");
-        div.setAttribute("aria-live", "polite");
-        contenedor.appendChild(div);
-        progresoNdvi = { total: areas.length, listas: 0, fallidas: 0, div };
-        pintarProgresoNdvi();
-        const capas = areas.map(a => a.circulo
-            ? capaNdviDe(satelite.cajaDeCirculo(a.circulo.lat, a.circulo.lng, a.circulo.radio), a.circulo)
-            : capaNdviDe(satelite.cajaDePuntos(a.puntos), { puntos: a.puntos }));
-        capaNdvi = L.layerGroup(capas).addTo(map);
+        capaNdvi = L.layerGroup().addTo(map);
+        // REQ-158: ...pero solo se piden las que SE VEN en el mapa (cada imagen consume creditos del servicio). Al
+        // mover o acercar el mapa se agregan las nuevas que entran en la vista; las ya pedidas no se repiten.
+        const pedidas = new Set();
+        const cargarVisibles = () => {
+            if (!capaNdvi || !map) return;
+            const b = map.getBounds();
+            const vista = { sur: b.getSouth(), oeste: b.getWest(), norte: b.getNorth(), este: b.getEast() };
+            const nuevas = satelite.areasEnVista(areas, vista).filter(a => !pedidas.has(a.clave));
+            if (!nuevas.length) return;
+            if (nuevas.length > satelite.MAXIMO_POR_VISTA) {
+                // mapa muy alejado: no se piden decenas de imagenes de golpe
+                if (window.M && M.toast) M.toast({ html: "Acerca el mapa para ver la imagen satelital (" + nuevas.length + " parcelas a la vista)." });
+                return;
+            }
+            if (!progresoNdvi || !progresoNdvi.div) {
+                const div = document.createElement("div");
+                div.className = "mapa-progreso-ndvi";
+                div.setAttribute("role", "status");
+                div.setAttribute("aria-live", "polite");
+                contenedor.appendChild(div);
+                progresoNdvi = { total: 0, listas: 0, fallidas: 0, div };
+            }
+            progresoNdvi.total += nuevas.length;
+            pintarProgresoNdvi();
+            nuevas.forEach(a => {
+                pedidas.add(a.clave);
+                capaNdvi.addLayer(a.circulo ? capaNdviDe(satelite.cajaDeArea(a), a.circulo) : capaNdviDe(satelite.cajaDeArea(a), { puntos: a.puntos }));
+            });
+        };
+        cargarVisibles();
+        alMoverMapaNdvi = cargarVisibles;
+        map.on("moveend", alMoverMapaNdvi);
         leyendaNdvi = L.control({ position: "bottomright" });
         leyendaNdvi.onAdd = () => {
             const leyenda = L.DomUtil.create("div", "mapa-leyenda-ndvi");

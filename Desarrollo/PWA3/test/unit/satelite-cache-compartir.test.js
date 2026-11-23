@@ -110,3 +110,26 @@ test("REQ-157 compartir la app en el pie del menu: solo iconos, QR grande y de a
   assert.ok(html.indexOf('<li class="menu-compartir"><dta-compartir-app>') < html.indexOf('<li class="menu-version">'));
   assert.ok(!leer("assets", "js", "components", "ayuda", "ayuda.html").includes("Compartir la aplicación"));
 });
+
+// ---------- REQ-158: solo las areas que se ven en el mapa ----------
+
+test("REQ-158 solo se piden las imagenes de las areas que se ven (y se agregan al mover el mapa)", () => {
+  const cerca = "28.60,-106.00,28.61,-106.00,28.61,-106.01";
+  const lejos = "30.60,-108.00,30.61,-108.00,30.61,-108.01";
+  const sistemas = {
+    p: { type: "PC", latitude: "28.605", longitude: "-106.005", length: "300" },
+    a: { type: "Estacionario", plots: { p0: { poligon: cerca }, p1: { poligon: lejos } } },
+    b: { type: "Sensor", sensors: { S0: { poligon: lejos } } }
+  };
+  const areas = sat.areasDelUsuario(sistemas, geo.normalizarPoligono, geo.esPoligonoValido, geo.esCoordenadaValida);
+  assert.equal(areas.length, 4);
+  const vista = { sur: 28.59, oeste: -106.02, norte: 28.62, este: -105.99 };
+  assert.deepEqual(sat.areasEnVista(areas, vista).map(a => a.clave), ["p", "ap0"]);
+  assert.deepEqual(sat.areasEnVista(areas, { sur: 30.5, oeste: -108.1, norte: 30.7, este: -107.9 }).map(a => a.clave), ["ap1", "bS0"]);
+  assert.equal(sat.MAXIMO_POR_VISTA, 25);
+  const core = fs.readFileSync(path.join(RAIZ, "assets", "js", "core.js"), "utf8").replace(/\r\n/g, "\n");
+  assert.match(core, /const nuevas = satelite\.areasEnVista\(areas, vista\)\.filter\(a => !pedidas\.has\(a\.clave\)\);/);
+  assert.match(core, /map\.on\("moveend", alMoverMapaNdvi\);/);
+  assert.match(core, /if \(alMoverMapaNdvi && map\) map\.off\("moveend", alMoverMapaNdvi\);/);
+  assert.match(core, /if \(nuevas\.length > satelite\.MAXIMO_POR_VISTA\) \{/);
+});

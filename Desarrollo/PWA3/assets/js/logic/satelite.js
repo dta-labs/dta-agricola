@@ -197,6 +197,29 @@
         return lista.concat(parcelasDelUsuario(sistemas, normalizar, esValido));
     }
 
+    // REQ-158: maximo de imagenes nuevas por vista; con mas (mapa muy alejado) se pide acercar el mapa
+    var MAXIMO_POR_VISTA = 25;
+
+    /** REQ-158: rectangulo Web Mercator de un area de areasDelUsuario (circulo o poligono). */
+    function cajaDeArea(area) {
+        if (!area) return null;
+        return area.circulo ? cajaDeCirculo(area.circulo.lat, area.circulo.lng, area.circulo.radio) : cajaDePuntos(area.puntos);
+    }
+
+    /**
+     * REQ-158: solo las areas que se ven en el mapa (cada imagen consume creditos del servicio). vista: limites del
+     * mapa { sur, oeste, norte, este } (grados). Un area cuenta si su rectangulo toca la vista.
+     */
+    function areasEnVista(areas, vista) {
+        if (!vista) return [];
+        var a = aMercator(vista.sur, vista.oeste), b = aMercator(vista.norte, vista.este);
+        var v = { xmin: Math.min(a[0], b[0]), ymin: Math.min(a[1], b[1]), xmax: Math.max(a[0], b[0]), ymax: Math.max(a[1], b[1]) };
+        return (areas || []).filter(function (area) {
+            var c = cajaDeArea(area);
+            return !!c && c.xmin <= v.xmax && c.xmax >= v.xmin && c.ymin <= v.ymax && c.ymax >= v.ymin;
+        });
+    }
+
     /**
      * REQ-157: consulta de la fecha de la imagen mas reciente del rectangulo (catalogo de Sentinel-2): si es posterior a
      * la guardada, se vuelve a pedir la imagen; si no, se usa la guardada.
@@ -238,6 +261,9 @@
 
     return {
         areasDelUsuario: areasDelUsuario,
+        cajaDeArea: cajaDeArea,
+        areasEnVista: areasEnVista,
+        MAXIMO_POR_VISTA: MAXIMO_POR_VISTA,
         urlFechaReciente: urlFechaReciente,
         fechaDeRespuesta: fechaDeRespuesta,
         decision: decision,
