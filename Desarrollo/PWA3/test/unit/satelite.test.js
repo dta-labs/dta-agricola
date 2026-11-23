@@ -92,9 +92,9 @@ test("REQ-089 barras flotantes: Satelite entre Sensores/Planes y Usuarios; Usuar
 
 test("REQ-089/157 core: todas las areas del usuario (pivotes y parcelas); capa debajo de las parcelas", () => {
   assert.match(CORE, /satelite\.areasDelUsuario\(\$scope\.systems, geo\.normalizarPoligono, geo\.esPoligonoValido, geo\.esCoordenadaValida\)/);
-  assert.match(CORE, /capaNdviDe\(satelite\.cajaDeArea\(a\), a\.circulo\)/);   // REQ-158: solo las visibles
+  assert.match(CORE, /capaNdviDe\(satelite\.cajaDeArea\(a\), a\.circulo \? a\.circulo : \{ puntos: a\.puntos \}, pedida === true\)/);   // REQ-158/159
   assert.match(CORE, /map\.getPane\("ndvi"\)\.style\.zIndex = 350;/);
-  assert.match(CORE, /L\.svgOverlay\(svgNdvi\(url, ancho, alto, forma, respaldo, satelite\.urlFechaReciente\(caja\)\), satelite\.limites\(caja\), \{ pane: "ndvi", interactive: false \}\)/);
+  assert.match(CORE, /L\.svgOverlay\(svgNdvi\(url, ancho, alto, forma, respaldo, satelite\.urlFechaReciente\(caja\), pedida\), satelite\.limites\(caja\), \{ pane: "ndvi", interactive: false \}\)/);
   assert.match(CORE, /imagen\.setAttribute\("clip-path", `url\(#\$\{id\}\)`\);/, "recortada al contorno");
   assert.match(CORE, /al cambiar de sistema se apaga/);
 });

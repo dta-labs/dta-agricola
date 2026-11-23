@@ -3,8 +3,9 @@
  *
  * La vista satelital pedia todas las imagenes cada vez. Ahora:
  *   - sin copia: se descarga, se guarda y se muestra;
- *   - con copia: se muestra al instante; como mucho cada 12 h se consulta en el catalogo si hay una imagen mas
- *     reciente que la descarga y, solo entonces, se vuelve a pedir (y se cambia en el mapa al llegar).
+ *   - con copia: se muestra al instante. Solo cuando el usuario pide ver la imagen (REQ-159: activa Satelite o
+ *     Reintentar) se consulta en el catalogo si hay una mas reciente que la descarga y, solo entonces, se vuelve a
+ *     pedir (y se cambia en el mapa al llegar). Al mover el mapa no se consulta.
  * Si el navegador no tiene Cache Storage o el servicio no permite leer la imagen (CORS), se usa la URL directa (como
  * antes). Las reglas puras (decision, hayMasReciente, urlFechaReciente) estan en logic/satelite.js.
  * Navegador: window.DTAServicios.cacheSatelite.
@@ -41,8 +42,9 @@
     /**
      * Fuente para la imagen `url` (objectURL de la copia, o la URL directa si no se puede guardar).
      * urlFecha: consulta del catalogo (logic/satelite.urlFechaReciente). alActualizar(src): llega una imagen mas reciente.
+     * pedida: el usuario pidio ver la imagen (solo entonces se consulta si hay una mas reciente).
      */
-    function obtener(url, urlFecha, alActualizar) {
+    function obtener(url, urlFecha, alActualizar, pedida) {
         var sat = reglas();
         if (!raiz.caches || !raiz.fetch || !sat) return Promise.resolve(url);
         var ahora = Date.now();
@@ -50,7 +52,7 @@
             return cache.match(url).then(function (guardada) {
                 var meta = leerMeta();
                 var m = meta[url];
-                var que = guardada ? sat.decision(m, ahora) : "descargar";
+                var que = guardada ? sat.decision(m, !!pedida) : "descargar";
                 if (que !== "descargar") {
                     m.usada = ahora;
                     guardarMeta(meta);

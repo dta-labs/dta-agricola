@@ -264,7 +264,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         pintarProgresoNdvi();
     };
 
-    const svgNdvi = (url, ancho, alto, recorte, respaldo, urlFecha) => {
+    const svgNdvi = (url, ancho, alto, recorte, respaldo, urlFecha, pedida) => {
         const ns = "http://www.w3.org/2000/svg";
         const svg = document.createElementNS(ns, "svg");
         svg.setAttribute("viewBox", `0 0 ${ancho} ${alto}`);
@@ -304,19 +304,19 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         svg.appendChild(imagen);
         // REQ-157: la copia guardada si la hay (y la nueva si el catalogo tiene una mas reciente)
         const cache = cacheSatelite();
-        if (cache) cache.obtener(url, urlFecha, fuente).then(fuente, () => fuente(url));
+        if (cache) cache.obtener(url, urlFecha, fuente, pedida).then(fuente, () => fuente(url));   // REQ-159
         else fuente(url);
         return svg;
     };
 
-    const capaNdviDe = (caja, recorte) => {
+    const capaNdviDe = (caja, recorte, pedida) => {
         const satelite = __modulo("satelite");
         const [ancho, alto] = satelite.tamanoImagen(caja);
         const url = satelite.urlNdvi(caja, ancho, alto);
         const respaldo = satelite.urlNdvi(caja, ancho, alto, true);
         const forma = recorte.puntos ? { puntos: satelite.puntosEnImagen(recorte.puntos, caja, ancho, alto) }
             : { circulo: satelite.circuloEnImagen(recorte.lat, recorte.lng, recorte.radio, caja, ancho, alto) };
-        return L.svgOverlay(svgNdvi(url, ancho, alto, forma, respaldo, satelite.urlFechaReciente(caja)), satelite.limites(caja), { pane: "ndvi", interactive: false });
+        return L.svgOverlay(svgNdvi(url, ancho, alto, forma, respaldo, satelite.urlFechaReciente(caja), pedida), satelite.limites(caja), { pane: "ndvi", interactive: false });
     };
 
     let alMoverMapaNdvi = null;
@@ -355,7 +355,9 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         // REQ-158: ...pero solo se piden las que SE VEN en el mapa (cada imagen consume creditos del servicio). Al
         // mover o acercar el mapa se agregan las nuevas que entran en la vista; las ya pedidas no se repiten.
         const pedidas = new Set();
-        const cargarVisibles = () => {
+        // REQ-159: solo la carga que pide el usuario (activar Satelite o Reintentar) consulta si hay imagenes mas
+        // recientes; las que entran al mover el mapa usan la copia guardada si la hay.
+        const cargarVisibles = (pedida) => {
             if (!capaNdvi || !map) return;
             const b = map.getBounds();
             const vista = { sur: b.getSouth(), oeste: b.getWest(), norte: b.getNorth(), este: b.getEast() };
@@ -378,11 +380,11 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             pintarProgresoNdvi();
             nuevas.forEach(a => {
                 pedidas.add(a.clave);
-                capaNdvi.addLayer(a.circulo ? capaNdviDe(satelite.cajaDeArea(a), a.circulo) : capaNdviDe(satelite.cajaDeArea(a), { puntos: a.puntos }));
+                capaNdvi.addLayer(capaNdviDe(satelite.cajaDeArea(a), a.circulo ? a.circulo : { puntos: a.puntos }, pedida === true));
             });
         };
-        cargarVisibles();
-        alMoverMapaNdvi = cargarVisibles;
+        cargarVisibles(true);
+        alMoverMapaNdvi = () => cargarVisibles(false);
         map.on("moveend", alMoverMapaNdvi);
         leyendaNdvi = L.control({ position: "bottomright" });
         leyendaNdvi.onAdd = () => {

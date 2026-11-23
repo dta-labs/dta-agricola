@@ -242,16 +242,14 @@
         return isFinite(v) && v > 0 ? v : null;
     }
 
-    var REVISAR_CADA_MS = 12 * 3600000;       // la fecha del catalogo se consulta como mucho cada 12 h por area
-
     /**
-     * Que hacer con una imagen guardada. meta: { guardada (ms en que se descargo), revisada (ms de la ultima consulta) }.
+     * Que hacer con una imagen guardada. meta: { guardada (ms en que se descargo) }.
      *   "descargar": no hay copia; "usar": la copia vale; "revisar": usar la copia y consultar si hay una mas reciente.
+     * REQ-159: solo se consulta cuando el usuario pide ver la imagen (activa Satelite o Reintentar): `pedida`.
      */
-    function decision(meta, ahora) {
+    function decision(meta, pedida) {
         if (!meta || !isFinite(meta.guardada)) return "descargar";
-        if (isFinite(meta.revisada) && ahora - meta.revisada < REVISAR_CADA_MS) return "usar";
-        return "revisar";
+        return pedida ? "revisar" : "usar";
     }
 
     /** Hay una imagen mas reciente que la guardada (la fecha de adquisicion es posterior a la descarga)? */

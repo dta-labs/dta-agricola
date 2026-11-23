@@ -28,11 +28,11 @@ test("REQ-157 todas las areas del usuario: pivotes (circulo) y parcelas de redes
   assert.deepEqual(areas[0].circulo, { lat: 28.6, lng: -106, radio: 400 });
 });
 
-test("REQ-157 copia local: descargar sin copia, usar la copia y revisar cada 12 h si hay una mas reciente", () => {
+test("REQ-157/159 copia local: descargar sin copia; consultar si hay una mas reciente solo cuando el usuario la pide", () => {
   const ahora = Date.UTC(2026, 10, 22, 12);
-  assert.equal(sat.decision(null, ahora), "descargar");
-  assert.equal(sat.decision({ guardada: ahora - 3600000, revisada: ahora - 3600000 }, ahora), "usar");
-  assert.equal(sat.decision({ guardada: ahora - 86400000, revisada: ahora - 13 * 3600000 }, ahora), "revisar");
+  assert.equal(sat.decision(null, true), "descargar");
+  assert.equal(sat.decision({ guardada: ahora - 86400000 }, true), "revisar");     // activar Satelite / Reintentar
+  assert.equal(sat.decision({ guardada: ahora - 86400000 }, false), "usar");       // al mover el mapa
   assert.equal(sat.hayMasReciente({ guardada: ahora - 86400000 }, ahora - 3600000), true);     // imagen tomada despues
   assert.equal(sat.hayMasReciente({ guardada: ahora - 3600000 }, ahora - 86400000), false);
   assert.equal(sat.fechaDeRespuesta({ features: [{ attributes: { acquisitiondate: 1794000000000 } }] }), 1794000000000);
@@ -52,13 +52,16 @@ test("REQ-157 servicio de copia: guarda la descarga y despues la sirve sin volve
     match: async u => almacen.get(u) || null, put: async (u, r) => { almacen.set(u, r); }, delete: async u => almacen.delete(u)
   }) };
   const respuesta = () => ({ ok: true, headers: { get: () => "image/png" }, clone() { return respuesta(); }, blob: async () => "BLOB" });
-  globalThis.fetch = async (u) => { pedidas.push(u); return respuesta(); };
+  globalThis.fetch = async (u) => { pedidas.push(u); return /q\//.test(u) ? { json: async () => ({ features: [] }) } : respuesta(); };
   globalThis.URL.createObjectURL = (b) => "blob:" + b;
   delete require.cache[require.resolve("../../assets/js/services/cache-satelite.js")];
   const cache = require("../../assets/js/services/cache-satelite.js");
   assert.equal(await cache.obtener("https://img/1", "https://q/1"), "blob:BLOB");
   assert.equal(await cache.obtener("https://img/1", "https://q/1"), "blob:BLOB");
-  assert.deepEqual(pedidas, ["https://img/1"]);                 // la segunda vez, de la copia (y sin consultar: < 12 h)
+  assert.deepEqual(pedidas, ["https://img/1"]);                 // la segunda vez, de la copia y sin consultar (no pedida)
+  await cache.obtener("https://img/1", "https://q/1", null, true);   // pedida por el usuario: consulta el catalogo
+  await new Promise(r => setTimeout(r, 10));
+  assert.deepEqual(pedidas, ["https://img/1", "https://q/1"]);
   // sin Cache Storage: la URL directa
   delete globalThis.caches;
   assert.equal(await cache.obtener("https://img/2", null), "https://img/2");
@@ -68,7 +71,8 @@ test("REQ-157 vista satelital: progreso de carga, reintento y CSP para el catalo
   const core = leer("assets", "js", "core.js");
   assert.match(core, /Cargando imágenes satelitales ' \+\n\s+hechas \+ ' de ' \+ p\.total/);
   assert.match(core, /class="ndvi-reintentar">Reintentar<\/button>/);
-  assert.match(core, /if \(cache\) cache\.obtener\(url, urlFecha, fuente\)\.then\(fuente, \(\) => fuente\(url\)\);/);
+  assert.match(core, /if \(cache\) cache\.obtener\(url, urlFecha, fuente, pedida\)\.then\(fuente, \(\) => fuente\(url\)\);/);
+  assert.match(core, /cargarVisibles\(true\);\n\s+alMoverMapaNdvi = \(\) => cargarVisibles\(false\);/);   // REQ-159
   assert.match(core, /imagen\.addEventListener\("load", \(\) => terminar\(true\)\);/);
   const html = leer("index.html");
   assert.match(html.match(/connect-src[^;]*/)[0], /https:\/\/sentinel\.arcgis\.com/);

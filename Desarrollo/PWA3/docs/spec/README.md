@@ -175,6 +175,7 @@
 | REQ-156 | Resumen: 6 indicadores por importancia y certeza (nuevos: consumo de agua y riesgo de plagas) | Implementado (probar: usuario) | 4 |
 | REQ-157 | Satélite: progreso, todas las áreas y copia local; barra inferior en iPhone; compartir la app en el menú lateral | Implementado (probar: usuario) | 6 (+4 ajustadas) |
 | REQ-158 | Satélite: solo las imágenes de las áreas visibles en el mapa (máx. 25 por vista) | Implementado (probar: usuario) | 1 |
+| REQ-159 | Satélite: consultar si hay imagen más reciente solo cuando el usuario la pide | Implementado | 3 ajustadas |
 | Prueba manual del resto | listado de equipos, retraso de comunicacion, alarma de nevera, plan de riego |
 | Empaquetado nativo | Capacitor (Android/iOS), objetivo final de la refactorizacion |
 
