@@ -259,10 +259,23 @@
                 detalle: "No reporta desde hace rato: verifica la alimentación y la señal" + (sinSenal.length > 1 ? " (y " + plural(sinSenal.length - 1, "equipo más", "equipos más") + ")." : "."),
                 accion: { tipo: "equipo", clave: sinSenal[0].key }, boton: "Ver equipo" });
         }
+        // REQ-160: asignar cultivos y dibujar parcelas son tareas de configuracion (configuracionPendiente), no del dia
+        // REQ-155: maximo 3 y ligadas a datos; el consejo general solo si no hay ninguna
+        lista = lista.slice(0, 3);
+        if (!lista.length) lista.push(CONSEJOS[diaDelAnio(ahora) % CONSEJOS.length]);
+        return lista;
+    }
+
+    /**
+     * REQ-160: configuracion pendiente (datos que faltan para que los indicadores sean certeros). Va aparte del "rescate
+     * de hoy": en el enfoque Administracion y plegada al final en Todo.
+     */
+    function configuracionPendiente(sistemas, medidas, agua, plagas) {
+        var lista = [];
         var sinCultivo = medidas.filter(function (m) { return !String(m.sensor.culture || "").trim(); });
         if (sinCultivo.length) {
             lista.push({ icono: "local_florist", titulo: "Asigna el cultivo a tus sensores",
-                detalle: plural(sinCultivo.length, "sensor no tiene", "sensores no tienen") + " cultivo: asígnalo para verlo en \"Mis cultivos\".",
+                detalle: plural(sinCultivo.length, "sensor no tiene", "sensores no tienen") + " cultivo: sin él no hay temporada, reposo ni humedad de referencia.",
                 accion: { tipo: "equipo", clave: sinCultivo[0].red.key }, boton: "Ver " + sinCultivo[0].red.name });
         }
         var sinParcela = medidas.filter(function (m) { return String(m.sensor.culture || "").trim() && !(m.sensor.poligon && String(m.sensor.poligon).trim()); });
@@ -271,10 +284,25 @@
                 detalle: plural(sinParcela.length, "sensor no tiene", "sensores no tienen") + " parcela dibujada: así calculamos las hectáreas.",
                 accion: { tipo: "equipo", clave: sinParcela[0].red.key }, boton: "Ver " + sinParcela[0].red.name });
         }
-        // REQ-155: maximo 3 y ligadas a datos; el consejo general solo si no hay ninguna
-        lista = lista.slice(0, 3);
-        if (!lista.length) lista.push(CONSEJOS[diaDelAnio(ahora) % CONSEJOS.length]);
+        if (agua && agua.sinCaudal) {
+            lista.push({ icono: "waves", titulo: "Configura el caudal de tus equipos",
+                detalle: plural(agua.sinCaudal, "equipo riega", "equipos riegan") + " sin caudal configurado: el consumo de agua queda incompleto.",
+                accion: { tipo: "equipos" }, boton: "Ver equipos" });
+        }
+        if (plagas && plagas.nivel === "sin-vigilancia" && medidas.length) {
+            lista.push({ icono: "bug_report", titulo: "Activa las alertas de plagas",
+                detalle: "Ningún sensor vigila enfermedades: actívalas en la configuración de cada sensor.",
+                accion: { tipo: "equipo", clave: medidas[0].red.key }, boton: "Ver " + medidas[0].red.name });
+        }
         return lista;
+    }
+
+    // ---------- REQ-160: helada medida en los sensores, agrupada ----------
+
+    /** Sensores bajo el minimo en el mensaje del resumen ("Helada en Sensor 1" = 1, "Helada en 3 sensores" = 3). */
+    function sensoresEnHelada(mensaje) {
+        var m = /^Helada en (\d+) sensores/.exec(mensaje || "");
+        return m ? parseInt(m[1], 10) : 1;
     }
 
     // ---------- REQ-155: clasificacion de los avisos por impacto ----------
@@ -303,11 +331,13 @@
 
     /** Acción concreta para "Lo que toca hoy" a partir de un aviso. */
     function accionDe(a) {
+        if (a.tipo === "helada-medida") return "Activar la protección contra helada en " + a.nombres.length + " equipos (" + plural(a.sensores, "sensor", "sensores") + " bajo el mínimo)";
         if (a.grupo) {
             var nombres = a.nombres.length === 1 ? a.nombres[0] : a.nombres.length + " equipos";
             return a.categoria === "confirmacion" ? "Confirmar el riego en " + nombres : "Revisar la conexión de " + nombres;
         }
         if (a.tipo === "helada") return "Verificar la mínima nocturna (" + a.minimo + " °C hacia las " + a.hora + ")";
+        if (/^Helada en /.test(a.mensaje || "")) return "Activar la protección contra helada en " + a.nombre;
         if (a.categoria === "agronomia") return "Programar riego en " + a.nombre;
         if (/^(Acción inmediata|Requiere atención)/.test(a.mensaje || "")) return "Atender " + a.nombre;
         return "Revisar " + a.mensaje.charAt(0).toLowerCase() + a.mensaje.slice(1) + " en " + a.nombre;
@@ -431,6 +461,26 @@
             });
         }
 
+        // REQ-160: la helada medida en varios equipos es UN aviso por impacto (equipos, sensores y hectareas bajo el
+        // minimo), no una linea por sensor
+        var heladas = avisos.filter(function (a) { return a.categoria === "critico" && /^Helada en /.test(a.mensaje || ""); });
+        if (heladas.length > 1) {
+            var claves = heladas.map(function (a) { return a.clave; });
+            var sensores = heladas.reduce(function (t, a) { return t + sensoresEnHelada(a.mensaje); }, 0);
+            var ha = medidas.filter(function (m) { return m.helada && !m.reposo && claves.indexOf(m.red.key) >= 0; })
+                .reduce(function (t, m) { return t + (m.hectareas || 0); }, 0);
+            var nombresHelada = heladas.map(function (a) { return a.nombre; });
+            avisos = avisos.filter(function (a) { return heladas.indexOf(a) < 0; });
+            avisos.push({
+                clave: null, categoria: "critico", nivel: "emergencia", tipo: "helada-medida", grupo: true,
+                nombres: nombresHelada, claves: claves, sensores: sensores,
+                hectareas: ha ? Math.round(ha * 10) / 10 : null,
+                titulo: "Helada en " + heladas.length + " equipos · " + plural(sensores, "sensor", "sensores") + " bajo el mínimo",
+                detalle: (ha ? (Math.round(ha * 10) / 10) + " ha bajo el umbral · " : "") + nombresHelada.slice(0, 3).join(", ") +
+                    (nombresHelada.length > 3 ? " y " + (nombresHelada.length - 3) + " más" : "")
+            });
+        }
+
         // Agrupar confirmaciones y faltas de comunicacion: un aviso por tipo ("3 equipos esperando confirmacion")
         var atiende = [];
         var grupos = {};
@@ -450,7 +500,9 @@
             });
         });
         atiende.sort(function (a, b) {
-            return CATEGORIAS[a.categoria].orden - CATEGORIAS[b.categoria].orden || (a.tipo === "helada") - (b.tipo === "helada");
+            // dentro de lo critico: fallas de equipo, helada medida y luego la pronosticada
+            var peso = function (x) { return x.tipo === "helada" ? 2 : x.tipo === "helada-medida" ? 1 : 0; };
+            return CATEGORIAS[a.categoria].orden - CATEGORIAS[b.categoria].orden || peso(a) - peso(b);
         });
 
         var criticas = avisos.filter(function (a) { return a.categoria === "critico"; });
@@ -462,17 +514,20 @@
             var grupoUnico = a.categoria === "confirmacion" || a.categoria === "comunicacion";
             var texto = accionDe(grupoUnico && !a.grupo ? { grupo: true, categoria: a.categoria, nombres: [a.nombre] } : a);
             return { id: (a.clave || a.tipo || a.categoria) + "|" + texto, texto: texto, clave: a.clave, nivel: a.nivel,
-                icono: a.tipo === "helada" ? "ac_unit" : a.categoria === "critico" ? "build" : a.categoria === "agronomia" ? "opacity" : a.categoria === "confirmacion" ? "task_alt" : "wifi_off" };
+                icono: a.tipo === "helada" || a.tipo === "helada-medida" || /^Helada en /.test(a.mensaje || "") ? "ac_unit" : a.categoria === "critico" ? "build" : a.categoria === "agronomia" ? "opacity" : a.categoria === "confirmacion" ? "task_alt" : "wifi_off" };
         });
 
         var vacio = !!o.sinEquipos && !sistemas.length;
+        var agua = aguaEnCurso(sistemas, resumenDe, deps);
+        var plagas = riesgoDePlagas(sistemas, o.notificaciones, ahora);
         var sugerencias = vacio ? sugerenciasDeInicio(!!o.instalada) : sugerenciasDelDia(sistemas, medidas, resumenDe, heladaRelevante ? noche : null, umbral, ahora);
 
         // Banner de alertas: rojo solo con criticas; ambar con avisos agronomicos; neutro si solo hay pendientes
         var plural2 = function (n, uno, varios) { return n ? plural(n, uno, varios) : ""; };
         var semaforo = criticas.length
             ? { nivel: "emergencia", titulo: plural(criticas.length, "alerta crítica", "alertas críticas"),
-                detalle: [criticas.map(function (a) { return a.titulo; }).slice(0, 2).join(" · "), plural2(agronomia.length + revision.length, "más por revisar", "más por revisar")].filter(Boolean).join(" · ") }
+                // REQ-160: en el orden de "Que atender primero" (la helada agrupada, no un sensor suelto)
+                detalle: [atiende.filter(function (a) { return a.categoria === "critico"; }).map(function (a) { return a.titulo; }).slice(0, 3).join(" · "), plural2(agronomia.length + revision.length, "más por revisar", "más por revisar")].filter(Boolean).join(" · ") }
             : agronomia.length
                 ? { nivel: "atencion", titulo: "Sin fallas críticas", detalle: [plural(agronomia.length, "aviso de suelo", "avisos de suelo"), plural2(revision.length, "pendiente de revisión", "pendientes de revisión")].filter(Boolean).join(" · ") }
                 : revision.length
@@ -493,8 +548,8 @@
                 pendientes: tocaHoy.length,
                 nocheMin: noche ? Math.round(noche.min) : null,
                 riesgoHelada: riesgoHelada,
-                agua: aguaEnCurso(sistemas, resumenDe, deps),                                   // REQ-156
-                plagas: riesgoDePlagas(sistemas, o.notificaciones, ahora),                       // REQ-156
+                agua: agua,                                                                      // REQ-156
+                plagas: plagas,                                                                  // REQ-156
                 heladaSinRiesgo: !!(noche && noche.min <= umbral && !heladaRelevante)   // helada, pero todo en reposo
             },
             atiende: atiende,
@@ -502,7 +557,8 @@
             cultivos: listaCultivos,
             reposo: { heladaRelevante: heladaRelevante, sistemas: sistemasEnReposo },   // REQ-138 (para "Hoy")
             vacio: vacio,
-            sugerencias: sugerencias
+            sugerencias: sugerencias,
+            configuracion: vacio ? [] : configuracionPendiente(sistemas, medidas, agua, plagas)   // REQ-160
         };
     }
 
@@ -523,7 +579,7 @@
         else if (/^Operando|^Regando|^Bombeando/.test(antes.linea || "") && !/^Operando|^Regando|^Bombeando/.test(ahora.linea || "")) texto = nombre + ": terminó el riego";
         else if (/^Regando/.test(ahora.linea || "")) texto = nombre + ": " + ahora.linea.charAt(0).toLowerCase() + ahora.linea.slice(1);
         else return null;
-        return { id: (sistema.key || nombre) + "|" + instante, instante: instante, hora: horaDe(instante), texto: texto, nivel: nivel };
+        return { id: (sistema.key || nombre) + "|" + instante, sistema: sistema.key || "", instante: instante, hora: horaDe(instante), texto: texto, nivel: nivel };
     }
 
     function mismoDia(a, b) {
@@ -538,15 +594,34 @@
         // la sufre)
         var rp = reposo || { heladaRelevante: true, sistemas: [] };
         var esHelada = function (n) { return n.tipo === "helada" || n.tipo === "temperatura"; };
-        var items = (eventos || []).filter(function (e) { return mismoDia(e.instante, ya); }).map(function (e) {
-            return { instante: e.instante, hora: horaDe(e.instante), texto: e.texto, nivel: e.nivel };
+        var sistemaDeEvento = function (e) { return e.sistema || String(e.id || "").split("|")[0]; };
+        // REQ-160: la helada (eventos "X: Helada en ..." y avisos de helada) se agrupa en UNA linea: cuantos equipos y
+        // sensores, y entre que horas. La de equipos en reposo se omite (no es riesgo para el cultivo).
+        var helada = { equipos: {}, sensores: 0, desde: null, hasta: null };
+        var anotarHelada = function (sistema, instante, sensores) {
+            if (rp.sistemas.indexOf(sistema) >= 0) return;
+            helada.equipos[sistema || "?"] = true;
+            helada.sensores += sensores;
+            helada.desde = helada.desde === null ? instante : Math.min(helada.desde, instante);
+            helada.hasta = helada.hasta === null ? instante : Math.max(helada.hasta, instante);
+        };
+        var items = [];
+        (eventos || []).filter(function (e) { return mismoDia(e.instante, ya); }).forEach(function (e) {
+            var m = /: (Helada en .*)$/.exec(e.texto || "");
+            if (m) { anotarHelada(sistemaDeEvento(e), e.instante, sensoresEnHelada(m[1])); return; }
+            items.push({ instante: e.instante, hora: horaDe(e.instante), texto: e.texto, nivel: e.nivel });
         });
-        (notificaciones || []).filter(function (n) {
-            return mismoDia(n.fecha, ya) && !(esHelada(n) && rp.sistemas.indexOf(n.sistema) >= 0);
-        }).forEach(function (n) {
+        (notificaciones || []).filter(function (n) { return mismoDia(n.fecha, ya); }).forEach(function (n) {
+            if (esHelada(n)) { anotarHelada(n.sistema, n.fecha, 1); return; }
             items.push({ instante: n.fecha, hora: horaDe(n.fecha), texto: n.titulo + (n.mensaje ? " · " + n.mensaje : ""),
                 nivel: n.nivel === "critica" ? "emergencia" : (n.nivel === "alta" || n.nivel === "media") ? "atencion" : "ok" });
         });
+        var equiposHelada = Object.keys(helada.equipos).length;
+        if (equiposHelada) {
+            var rango = helada.desde === helada.hasta ? "" : " · " + horaDe(helada.desde) + "–" + horaDe(helada.hasta);
+            items.push({ instante: helada.hasta, hora: horaDe(helada.hasta), nivel: "emergencia",
+                texto: "Helada en " + plural(equiposHelada, "equipo", "equipos") + " (" + plural(helada.sensores, "aviso", "avisos") + ")" + rango });
+        }
         items.sort(function (a, b) { return b.instante - a.instante; });
         var umbral = isFinite(umbralHelada) ? umbralHelada : 2;
         if (rp.heladaRelevante && pronostico && isFinite(pronostico.min) && pronostico.min <= umbral && pronostico.instante > ya) {

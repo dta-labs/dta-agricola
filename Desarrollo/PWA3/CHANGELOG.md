@@ -93,6 +93,7 @@ Cada version publicada lleva una etiqueta de git `pwa3-vX.Y.Z` sobre el commit d
 - Etiquetas que tapaban los datos y selectores que no mostraban lo elegido, en toda la app. (REQ-043 A1-A2)
 
 ### Cambiado
+- **REQ-160**: Resumen: la helada medida en varios equipos es un solo aviso critico (equipos, sensores, hectareas) con su accion de contencion; la actividad del dia agrupa la helada; la configuracion (cultivos, parcelas, caudal, alertas de plagas) sale de las sugerencias a "Configuracion pendiente".
 - **REQ-159**: vista satelital: la consulta de imagen mas reciente solo se hace cuando el usuario activa Satelite (o Reintentar), no al mover el mapa ni por plazo.
 - **REQ-157**: vista satelital con progreso de carga, todas las areas del usuario (pivotes y parcelas) y copia local que solo se renueva si hay una imagen mas reciente; barra inferior de pivote/estacionario anclada abajo (iPhone); compartir la app (WhatsApp, Telegram, correo, SMS, enlace, QR, mas) en el pie del menu lateral.
 - **REQ-155**: Resumen por enfoques (Todo, Riego, Agronomia, Campo, Administracion): solo lo critico en rojo, confirmaciones agrupadas, 4 indicadores por rol, "Que atender primero" (max. 5), "Lo que toca hoy" (lista de verificacion), sugerencias ligadas a datos, cultivos por prioridad y superficie; en reposo el suelo seco no es urgente.

@@ -168,6 +168,24 @@
                 </div>
             </section>
 
+            <!-- REQ-160: configuracion pendiente (mantenimiento de la app), aparte del rescate de hoy -->
+            <section class="tablero-seccion" ng-if="vm.muestra('config') && vm.datos.configuracion.length" aria-label="Configuración pendiente">
+                <button type="button" class="tablero-plegable" ng-click="vm.verConfig = !vm.verConfig" ng-disabled="vm.enfoque == 'admin'" aria-expanded="{{ vm.configAbierta() }}">
+                    <span class="tablero-titulo">Configuración pendiente <small>({{ vm.datos.configuracion.length }})</small></span>
+                    <i class="material-icons" aria-hidden="true" ng-if="vm.enfoque != 'admin'">{{ vm.verConfig ? 'expand_less' : 'expand_more' }}</i>
+                </button>
+                <div class="tablero-sugerencias tablero-config" ng-if="vm.configAbierta()">
+                    <div class="tablero-sugerencia" ng-repeat="s in vm.datos.configuracion track by $index">
+                        <span class="tablero-sugerencia-icono"><i class="material-icons" aria-hidden="true">{{ s.icono }}</i></span>
+                        <span class="tablero-sugerencia-texto">
+                            <span class="tablero-sugerencia-titulo">{{ s.titulo }}</span>
+                            <span class="tablero-sugerencia-detalle">{{ s.detalle }}</span>
+                            <button type="button" class="tablero-sugerencia-boton" ng-if="s.accion" ng-click="vm.sugerencia(s)">{{ s.boton || 'Ver' }} →</button>
+                        </span>
+                    </div>
+                </div>
+            </section>
+
             <!-- Actividad de hoy (antes "Hoy"): plegada; el detalle esta en Notificaciones -->
             <section class="tablero-seccion" ng-if="vm.muestra('actividad')" aria-label="Actividad de hoy">
                 <button type="button" class="tablero-plegable" ng-click="vm.verActividad = !vm.verActividad" aria-expanded="{{ vm.verActividad }}">

@@ -397,6 +397,11 @@
 /* actividad de hoy plegada */
 .tablero-plegable { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 0; border: 0; background: transparent; color: #546e7a; cursor: pointer; }
 .tablero-plegable .tablero-titulo { margin: 0 0 8px 2px; }
+.tablero-plegable[disabled] { cursor: default; opacity: 1; }
+.tablero .tablero-plegable:focus, .tablero .tablero-plegable:hover { background: transparent; }   /* Materialize pintaba el foco */
+.tablero .tablero-plegable:focus-visible { outline: 2px solid #1b4d38; outline-offset: 2px; }
+/* REQ-160: configuracion pendiente en tono gris (mantenimiento, no urgencia) */
+.tablero-config .tablero-sugerencia-icono { background: #eceff1; color: #546e7a; }
 
 /* dos columnas en la PC: acciones a la izquierda, cultivos y actividad a la derecha */
 @media (min-width: 992px) {

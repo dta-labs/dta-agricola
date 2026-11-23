@@ -12,17 +12,17 @@
 (function (raiz) {
     "use strict";
 
-    var VERSION = "26.11.22.032";
+    var VERSION = "26.11.22.036";
     var CLAVE_ENFOQUE = "dta-resumen-enfoque";
     var VISIBLES = 5;
 
     // Secciones y avisos de cada enfoque (categorias de logic/tablero.js)
     var ENFOQUES = [
-        { clave: "todo", nombre: "Todo", icono: "dashboard", secciones: ["atiende", "toca", "sugerencias", "cultivos", "actividad"], avisos: null },
+        { clave: "todo", nombre: "Todo", icono: "dashboard", secciones: ["atiende", "toca", "sugerencias", "cultivos", "actividad", "config"], avisos: null },
         { clave: "riego", nombre: "Riego", icono: "water_drop", secciones: ["atiende", "toca", "sugerencias"], avisos: ["critico", "confirmacion", "comunicacion", "agronomia"] },
         { clave: "agronomia", nombre: "Agronomía", icono: "eco", secciones: ["atiende", "cultivos", "sugerencias"], avisos: ["critico", "agronomia"] },
         { clave: "campo", nombre: "Campo", icono: "engineering", secciones: ["atiende", "toca", "actividad"], avisos: null },
-        { clave: "admin", nombre: "Administración", icono: "insights", secciones: ["atiende", "cultivos"], avisos: ["critico"] }
+        { clave: "admin", nombre: "Administración", icono: "insights", secciones: ["config", "atiende", "cultivos"], avisos: ["critico"] }
     ];
 
     function hoyTexto() {
@@ -46,6 +46,7 @@
         vm.enfoque = ENFOQUES.some(function (e) { return e.clave === leer(CLAVE_ENFOQUE, "todo"); }) ? leer(CLAVE_ENFOQUE, "todo") : "todo";
         vm.verTodos = false;
         vm.verActividad = false;
+        vm.verConfig = false;      // REQ-160: plegada en "Todo"; abierta en Administracion
 
         function enfoqueActual() {
             return ENFOQUES.filter(function (e) { return e.clave === vm.enfoque; })[0] || ENFOQUES[0];
@@ -56,6 +57,8 @@
             vm.verTodos = false;
             guardar(CLAVE_ENFOQUE, clave);
         };
+
+        vm.configAbierta = function () { return vm.enfoque === "admin" || vm.verConfig; };
 
         vm.muestra = function (seccion) {
             return enfoqueActual().secciones.indexOf(seccion) >= 0;
@@ -95,6 +98,7 @@
             if (!a) return;
             if (a.tipo === "equipo" && a.clave) vm.alAbrirEquipo({ $clave: a.clave });
             else if (a.tipo === "agregar") vm.alAgregarEquipo();
+            else if (a.tipo === "equipos") vm.alVerEquipos();
             else if (a.tipo === "url" && /^https:\/\//.test(a.url || "")) raiz.open(a.url, "_blank", "noopener");
             else vm.alVerEquipos();
         };
