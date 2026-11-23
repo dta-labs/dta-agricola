@@ -1,6 +1,6 @@
 /* REQ-114: vista de resumen (pagina de entrada) */
 .tablero {
-    max-width: 720px;
+    max-width: 1080px;   /* REQ-155: dos columnas en la PC */
     margin: 0 auto;
     padding: 12px 12px 96px 12px;
     color: #263238;
@@ -113,11 +113,8 @@
 /* cultivos */
 .tablero-cultivos {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr);   /* REQ-155: filas (superficies muy distintas: la barra las compara) */
     gap: 8px;
-}
-@media (min-width: 640px) {
-    .tablero-cultivos { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 .tablero-cultivo {
     display: flex;
@@ -147,7 +144,7 @@
     font-size: 0.84rem;
     font-weight: 600;
 }
-.tablero-cultivo-equipo-texto { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tablero-cultivo-equipo-texto { min-width: 0; overflow-wrap: anywhere; }   /* REQ-155: sin cortar */
 .tablero-cultivo-punto { flex: 0 0 8px; width: 8px; height: 8px; border-radius: 50%; background: #78909c; }
 .equipo-ok .tablero-cultivo-punto { background: #2e7d32; }
 .equipo-atencion .tablero-cultivo-punto { background: #ef6c00; }
@@ -168,8 +165,8 @@
     mask-image: linear-gradient(to bottom, #000 82%, transparent);
 }
 .tablero-titulo small { color: #90a4ae; font-weight: 600; }
-.tablero-cultivo-nombre { font-size: 1.05rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.tablero-cultivo-dato { min-height: 1.1em; color: #607d8b; font-size: 0.82rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tablero-cultivo-nombre { font-size: 1.05rem; font-weight: 700; overflow-wrap: anywhere; }
+.tablero-cultivo-dato { color: #607d8b; font-size: 0.84rem; overflow-wrap: anywhere; }
 .tablero-cultivo-estado { display: flex; align-items: center; gap: 3px; margin-top: 4px; font-size: 0.88rem; font-weight: 600; }
 .tablero-cultivo-estado .material-icons { font-size: 17px; }
 .cultivo-adecuado { color: #2e7d32; }
@@ -311,3 +308,101 @@
     background: #1b4d38;
     color: #ffffff;
 }
+
+/* ===================== REQ-155: rediseño por enfoques ===================== */
+.tablero-enfoques {
+    display: flex;
+    gap: 6px;
+    margin: 0 0 10px 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+}
+.tablero-enfoques::-webkit-scrollbar { display: none; }
+.tablero .tablero-enfoque {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 4px;
+    height: 32px;
+    padding: 0 12px;
+    border: 1px solid #cfd8dc;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #455a64;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+.tablero .tablero-enfoque .material-icons { font-size: 17px; }
+.tablero .tablero-enfoque.activo { border-color: #1b4d38; background: #1b4d38; color: #ffffff; }
+.tablero-enfoque:focus-visible { outline: 2px solid #1b4d38; outline-offset: 2px; }
+
+/* alertas: solo lo critico en rojo; lo pendiente en un tono neutro */
+.tablero-semaforo.nivel-revision { background: #eef3f8; color: #2b4a66; }
+.tablero-semaforo.nivel-revision .tablero-semaforo-icono { background: #5c7c99; }
+.tablero-semaforo-cuentas { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.tablero-semaforo-cuentas .cuenta { padding: 1px 8px; border-radius: 999px; font-size: 0.8rem; font-weight: 700; }
+.cuenta-critica { background: #d32f2f; color: #ffffff; }
+.cuenta-atencion { background: #ffe0b2; color: #8a4b00; }
+.cuenta-revision { background: #dde6ee; color: #2b4a66; }
+
+/* indicadores */
+.tablero-kpi-valor small { font-size: 0.8rem; font-weight: 600; color: #607d8b; }
+.tablero-kpi-nota { color: #78909c; font-size: 0.8rem; line-height: 1.25; }
+.tablero-kpi-nota.nota-critica { color: #c62828; font-weight: 700; }
+
+/* avisos por revisar: neutros (no gritan) */
+.tablero-aviso.nivel-revision { border-left-color: #90a4ae; background: #f3f6f8; color: #37474f; }
+.tablero-mas {
+    display: block;
+    width: 100%;
+    padding: 6px;
+    border: 0;
+    border-radius: 10px;
+    background: #f4f7f6;
+    color: #1b4d38;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* lo que toca hoy: lista de verificacion */
+.tablero .tablero-toca {
+    margin: 0;
+    padding: 2px 4px;
+    border: 1px solid #e3e8e6;
+    border-radius: 12px;
+    background: #ffffff;
+    list-style: none;
+}
+.tablero-toca li { display: flex; align-items: center; gap: 4px; border-bottom: 1px solid #eef1f0; }
+.tablero-toca li:last-child { border-bottom: 0; }
+.tablero .tablero-toca-marca { display: flex; flex: 1 1 auto; align-items: center; gap: 10px; min-width: 0; margin: 0; padding: 9px 8px; color: #263238; font-size: 0.95rem; cursor: pointer; }
+.tablero-toca-marca input[type="checkbox"] { position: static; flex: 0 0 auto; width: 20px; height: 20px; margin: 0; opacity: 1; pointer-events: auto; accent-color: #2e7d32; }
+.tablero-toca-texto { display: flex; align-items: center; gap: 6px; min-width: 0; overflow-wrap: anywhere; }
+.tablero-toca-texto .material-icons { font-size: 18px; color: #607d8b; }
+.tablero-toca-texto .material-icons.nivel-emergencia { color: #d32f2f; }
+.tablero-toca-texto .material-icons.nivel-atencion { color: #ef6c00; }
+.tablero-toca li.hecho .tablero-toca-texto { color: #90a4ae; text-decoration: line-through; }
+.tablero-toca-ir { flex: 0 0 auto; padding: 4px; border: 0; background: transparent; color: #607d8b; cursor: pointer; }
+
+/* cultivos: fila con superficie y barra comparativa */
+.tablero-cultivo-cabecera { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.tablero-cultivo-ha { flex: 0 0 auto; color: #455a64; font-size: 0.9rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.tablero-cultivo-barra { display: block; height: 4px; margin: 2px 0; overflow: hidden; border-radius: 2px; background: #eef1f0; }
+.tablero-cultivo-barra i { display: block; height: 100%; border-radius: 2px; background: #81c784; }
+.tablero-cultivo .tablero-cultivo-estado.cultivo-reposo { color: #5c6bc0; font-weight: 500; }
+
+/* actividad de hoy plegada */
+.tablero-plegable { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 0; border: 0; background: transparent; color: #546e7a; cursor: pointer; }
+.tablero-plegable .tablero-titulo { margin: 0 0 8px 2px; }
+
+/* dos columnas en la PC: acciones a la izquierda, cultivos y actividad a la derecha */
+@media (min-width: 992px) {
+    .tablero-columnas { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 18px; align-items: start; }
+}
+/* Materialize dibuja su propia casilla en el span que sigue al checkbox: aqui se usa la nativa */
+.tablero-toca-marca input[type="checkbox"] + span:not(.lever) { display: flex; position: static; height: auto; padding-left: 0; line-height: 1.35; font-size: inherit; user-select: auto; }
+.tablero-toca-marca input[type="checkbox"] + span:not(.lever)::before,
+.tablero-toca-marca input[type="checkbox"] + span:not(.lever)::after { display: none; }

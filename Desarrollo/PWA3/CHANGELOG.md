@@ -92,6 +92,7 @@ Cada version publicada lleva una etiqueta de git `pwa3-vX.Y.Z` sobre el commit d
 - Etiquetas que tapaban los datos y selectores que no mostraban lo elegido, en toda la app. (REQ-043 A1-A2)
 
 ### Cambiado
+- **REQ-155**: Resumen por enfoques (Todo, Riego, Agronomia, Campo, Administracion): solo lo critico en rojo, confirmaciones agrupadas, 4 indicadores por rol, "Que atender primero" (max. 5), "Lo que toca hoy" (lista de verificacion), sugerencias ligadas a datos, cultivos por prioridad y superficie; en reposo el suelo seco no es urgente.
 - **REQ-152**: neveras e invernaderos sin la barra Historial / Sensores / Usuarios (siguen en el menu lateral, donde la opcion dice "Sensores").
 - **REQ-150**: unidades frio: las horas calidas restan; temporada de frio propia por sensor (por defecto la del cultivo); los resumenes anteriores al WS v7 (antes del 21/11) se recalculan con Tmin/Tmax desde el 1/11.
 - **REQ-148**: invernaderos: sin limites de temperatura definidos la tarjeta muestra "Sin límites" (no aplica el 0-3 °C de las neveras).

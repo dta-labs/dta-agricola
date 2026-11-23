@@ -25,7 +25,7 @@ test("REQ-114 semaforo y KPIs: todo en orden, regando y equipos bien", () => {
   const r = t.tablero({ a: { key: "a", name: "Pivote Norte", type: "PC", status: "ON", log: ok } }, deps);
   assert.equal(r.semaforo.nivel, "ok");
   assert.equal(r.semaforo.titulo, "Todo en orden");
-  assert.deepEqual(r.kpis, { equiposBien: 1, total: 1, regando: 1, sueloAdecuado: null, nocheMin: null });
+  assert.deepEqual([r.kpis.equiposBien, r.kpis.total, r.kpis.regando, r.kpis.sueloAdecuado, r.kpis.nocheMin, r.kpis.fallasCriticas], [1, 1, 1, null, null, 0]);   // REQ-155: mas indicadores
   assert.deepEqual(r.atiende, []);
 });
 
@@ -39,10 +39,11 @@ test("REQ-114 'Atiende primero': urgentes arriba, helada del pronostico y textos
   assert.equal(r.atiende[0].nivel, "emergencia");
   assert.match(r.atiende[0].titulo, /^Pivote Norte · Falla eléctrica/);
   assert.equal(r.atiende[1].clave, null);
-  assert.equal(t.tablero({ a: sistemas.a }, deps).semaforo.titulo, "1 alerta requiere tu atención");
+  // REQ-155: la helada del pronostico tambien es critica; el banner las cuenta y nombra
+  assert.equal(t.tablero({ a: sistemas.a }, deps).semaforo.titulo, "1 alerta crítica");
   assert.match(r.atiende[1].titulo, /^Helada esta noche · 1 °C/);
-  assert.equal(r.semaforo.titulo, "2 alertas requieren tu atención");   // REQ-118: "alertas", no "cosas"
-  assert.equal(r.semaforo.detalle, "1 urgente · 1 por revisar hoy");
+  assert.equal(r.semaforo.titulo, "2 alertas críticas");   // REQ-118: "alertas", no "cosas"
+  assert.equal(r.semaforo.detalle, "Pivote Norte · Falla eléctrica · Helada esta noche · 1 °C");
   assert.equal(r.kpis.nocheMin, 1);
   assert.equal(r.kpis.equiposBien, 1);
 });
@@ -93,7 +94,7 @@ test("REQ-114 la app entra por el Resumen y la cabecera alterna Resumen / Equipo
 test("REQ-114 componente, cache (sin infdig), eventos y pronostico conectados", () => {
   assert.match(COMP, /component\("dtaTablero"/);
   assert.match(COMP, /alAbrirEquipo: "&"/);
-  for (const s of ["semaforo", "Atiende primero", "Mis cultivos", "Hoy", "Ver todos los equipos"]) assert.ok(VISTA.includes(s), s);
+  for (const s of ["semaforo", "Qué atender primero", "Mis cultivos", "Actividad de hoy", "Lo que toca hoy", "Ver todos los equipos"]) assert.ok(VISTA.includes(s), s);
   assert.match(CORE, /\$scope\.tableroActual = \(\) => \{ actualizarTablero\(\); return cacheTablero\.datos; \};/);
   assert.match(CORE, /registrarCambioDeEquipo\(system\);/);
   assert.match(CORE, /api\.open-meteo\.com\/v1\/forecast/);
@@ -115,22 +116,26 @@ test("REQ-115 sin equipos: bienvenida con sugerencias de inicio (agregar, adquir
   assert.equal(t.tablero({}, deps, {}).vacio, false);   // cargando: no es "sin equipos"
 });
 
-test("REQ-115 con equipos: lo accionable primero (maximo 2) y un consejo del dia que rota", () => {
+test("REQ-115 con equipos: lo accionable primero; el consejo del dia (rota) solo si no hay nada ligado a datos", () => {
   const sinSenal = { key: "a", name: "Pivote Norte", type: "PC", status: "ON", log: Object.assign({}, ok, { commDelay: "12" }) };
   const r = t.tablero({ a: sinSenal }, deps, { ahora: new Date(2026, 10, 20).getTime() });
   assert.equal(r.vacio, false);
   assert.equal(r.sugerencias[0].titulo, "Revisa la conexión de Pivote Norte");
   assert.deepEqual(r.sugerencias[0].accion, { tipo: "equipo", clave: "a" });
-  assert.equal(r.sugerencias.length, 2);
-  assert.ok(t.CONSEJOS.includes(r.sugerencias[1]));
-  const otroDia = t.tablero({ a: sinSenal }, deps, { ahora: new Date(2026, 10, 21).getTime() }).sugerencias[1];
-  assert.notEqual(otroDia, r.sugerencias[1]);
+  assert.equal(r.sugerencias.length, 1);                      // REQ-155: sin consejo de relleno
+  const bien = { key: "b", name: "Pivote Sur", type: "PC", status: "ON", log: ok };
+  const consejo = t.tablero({ b: bien }, deps, { ahora: new Date(2026, 10, 20).getTime() }).sugerencias;
+  assert.equal(consejo.length, 1);
+  assert.ok(t.CONSEJOS.includes(consejo[0]));
+  const otroDia = t.tablero({ b: bien }, deps, { ahora: new Date(2026, 10, 21).getTime() }).sugerencias[0];
+  assert.notEqual(otroDia, consejo[0]);
   const helada = t.tablero({}, deps, { pronostico: { min: -1, instante: Date.now() + 3600000 } }).sugerencias;
   assert.equal(helada[0].titulo, "Prepárate para la helada");
 });
 
 test("REQ-115 vista: sugerencias al final, bienvenida sin equipos y 'Agregar equipo' conectado", () => {
-  assert.ok(VISTA.indexOf("Sugerencias del día") > VISTA.indexOf("<!-- 4. Hoy -->"));
+  assert.ok(VISTA.indexOf("Sugerencias del día") > VISTA.indexOf("<!-- 5. Lo que toca hoy"));   // REQ-155: tras "Lo que toca hoy", antes de los cultivos
+  assert.ok(VISTA.indexOf("Sugerencias del día") < VISTA.indexOf("<!-- 4. Mis cultivos"));
   assert.match(VISTA, /ng-if="vm\.datos && vm\.datos\.vacio"/);
   assert.match(VISTA, /ng-if="vm\.datos && !vm\.datos\.vacio"/);
   assert.match(COMP, /alAgregarEquipo: "&"/);
@@ -182,10 +187,8 @@ test("REQ-138 vista: semaforo abre las notificaciones, Atiende primero con alto 
   assert.match(VISTA, /<button type="button" class="tablero-semaforo" ng-class="'nivel-' \+ vm\.datos\.semaforo\.nivel" ng-click="vm\.alAbrirNotificaciones\(\)"/);
   assert.match(COMP, /alAbrirNotificaciones: "&"/);
   assert.match(HTML, /al-abrir-notificaciones="abrirNotificaciones\(\)"/);
-  assert.match(VISTA, /<div class="tablero-atiende-lista" ng-class="\{ 'con-mas': vm\.datos\.atiende\.length > 3 \}">/);
-  const CSS = leer("assets", "js", "components", "tablero", "tablero.css");
-  assert.match(CSS, /\.tablero-atiende-lista \{\n    max-height: 214px;[^}]*overflow-y: auto;[^}]*scrollbar-width: none;/);
-  assert.match(CSS, /\.tablero-atiende-lista::-webkit-scrollbar \{ display: none; \}/);
+  // REQ-155: el area de alto fijo se sustituye por maximo 5 visibles y "Ver los N restantes"
+  assert.match(VISTA, /ng-repeat="a in vm\.avisos\(\) \| limitTo: vm\.limite\(\) track by \$index"/);
   assert.match(VISTA, /ng-click="c\.equipo && vm\.alAbrirEquipo\(\{ \$clave: c\.equipo\.clave \}\)"/);
   assert.match(CORE, /frio: __modulo\("frio"\) \}\);/);
   assert.match(CORE, /tablero\.lineaDeHoy\(eventosDelDia, bandejaLista, pronosticoNoche, Date\.now\(\), umbral, datos\.reposo\)/);

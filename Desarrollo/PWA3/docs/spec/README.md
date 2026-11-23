@@ -123,7 +123,7 @@
 | REQ-122 | Catalogo de estaciones desde Firebase `/stations` (respaldo: `assets/data/estaciones.json`); regla de lectura | Implementado (probar: usuario) | 4 |
 | REQ-123 | Ficha del sensor: unidades frio acumuladas de la temporada (desde el 1 nov) en lugar del valor puntual | Implementado (probar: usuario) | 6 |
 
-**Total: 553 pruebas en Node (2026-11-22), todas en verde.** `npm test` funciona en Node 20 y 22.
+**Total: 557 pruebas en Node (2026-11-22), todas en verde.** `npm test` funciona en Node 20 y 22.
 
 ## Bloque de autenticacion (cerrado y confirmado por el usuario)
 
@@ -171,6 +171,7 @@
 | REQ-152 | Neveras e invernaderos sin la barra de menú (Historial, Sensores, Usuarios) | Implementado | 1 |
 | REQ-153 | PWA: arranque rápido en el celular, una sola recarga por actualización; neveras sin el hueco de la barra | Implementado (probar: usuario) | 5 |
 | REQ-154 | Cloud Functions en Node.js 22 (Node.js 20 retirado) | Implementado (desplegar: usuario) | - |
+| REQ-155 | Resumen por enfoques (roles): alertas sin ruido, 4 indicadores, qué atender, lo que toca hoy, cultivos por prioridad | Implementado (probar: usuario) | 4 (+7 ajustadas) |
 | Prueba manual del resto | listado de equipos, retraso de comunicacion, alarma de nevera, plan de riego |
 | Empaquetado nativo | Capacitor (Android/iOS), objetivo final de la refactorizacion |
 

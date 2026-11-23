@@ -23,101 +23,153 @@
 
 <div class="tablero" ng-if="vm.datos && !vm.datos.vacio">
 
-    <!-- 1. Indicadores -->
-    <section class="tablero-seccion" aria-label="Indicadores">
-        <!-- REQ-138: el semaforo abre la ventana de notificaciones -->
+    <!-- REQ-155: enfoque por rol (que secciones y avisos se ven) -->
+    <div class="tablero-enfoques" role="tablist" aria-label="Enfoque del resumen">
+        <button type="button" role="tab" class="tablero-enfoque" ng-repeat="e in vm.enfoques track by e.clave"
+            ng-class="{ activo: vm.enfoque == e.clave }" aria-selected="{{ vm.enfoque == e.clave }}" ng-click="vm.elegirEnfoque(e.clave)">
+            <i class="material-icons" aria-hidden="true">{{ e.icono }}</i>{{ e.nombre }}
+        </button>
+    </div>
+
+    <!-- 1. Alertas: rojo solo con fallas reales o riesgo inmediato; lo demas, por revisar -->
+    <section class="tablero-seccion" aria-label="Alertas">
+        <!-- REQ-138: abre la ventana de notificaciones -->
         <button type="button" class="tablero-semaforo" ng-class="'nivel-' + vm.datos.semaforo.nivel" ng-click="vm.alAbrirNotificaciones()"
             aria-label="{{ vm.datos.semaforo.titulo }}. Ver notificaciones">
             <span class="tablero-semaforo-icono">
-                <i class="material-icons" aria-hidden="true">{{ vm.datos.semaforo.nivel == 'ok' ? 'check' : vm.datos.semaforo.nivel == 'emergencia' ? 'error_outline' : 'warning' }}</i>
+                <i class="material-icons" aria-hidden="true">{{ vm.datos.semaforo.nivel == 'ok' ? 'check' : vm.datos.semaforo.nivel == 'emergencia' ? 'error_outline' : vm.datos.semaforo.nivel == 'revision' ? 'fact_check' : 'warning' }}</i>
             </span>
             <span>
-                <span class="tablero-semaforo-titulo">{{ vm.datos.semaforo.titulo }}</span>
-                <span class="tablero-semaforo-detalle">{{ vm.datos.semaforo.detalle }}</span>
+                <span class="tablero-semaforo-titulo">{{ vm.titulo(vm.datos.semaforo.titulo) }}</span>
+                <span class="tablero-semaforo-detalle">{{ vm.titulo(vm.datos.semaforo.detalle) }}</span>
+                <span class="tablero-semaforo-cuentas" ng-if="vm.datos.alertas.criticas || vm.datos.alertas.agronomia || vm.datos.alertas.revision">
+                    <span class="cuenta cuenta-critica" ng-if="vm.datos.alertas.criticas">{{ vm.datos.alertas.criticas }} {{ vm.datos.alertas.criticas == 1 ? 'crítica' : 'críticas' }}</span>
+                    <span class="cuenta cuenta-atencion" ng-if="vm.datos.alertas.agronomia">{{ vm.datos.alertas.agronomia }} de suelo</span>
+                    <span class="cuenta cuenta-revision" ng-if="vm.datos.alertas.revision">{{ vm.datos.alertas.revision }} por revisar</span>
+                </span>
             </span>
             <i class="material-icons tablero-semaforo-ir" aria-hidden="true">chevron_right</i>
         </button>
+    </section>
+
+    <!-- 2. Indicadores (uno por rol) -->
+    <section class="tablero-seccion" aria-label="Indicadores">
         <div class="tablero-kpis">
-            <div class="tablero-kpi">
-                <span class="tablero-kpi-etiqueta"><i class="material-icons" aria-hidden="true">check_circle</i> Equipos bien</span>
-                <span class="tablero-kpi-valor kpi-bien">{{ vm.datos.kpis.equiposBien }} de {{ vm.datos.kpis.total }}</span>
+            <div class="tablero-kpi" title="Riego y equipos">
+                <span class="tablero-kpi-etiqueta"><i class="material-icons" aria-hidden="true">water_drop</i> Regando ahora</span>
+                <span class="tablero-kpi-valor">{{ vm.datos.kpis.regando }} <small>{{ vm.datos.kpis.regando == 1 ? 'equipo' : 'equipos' }}</small></span>
+                <span class="tablero-kpi-nota" ng-class="{ 'nota-critica': vm.datos.kpis.fallasCriticas }">{{ vm.datos.kpis.fallasCriticas ? vm.datos.kpis.fallasCriticas + ' con falla crítica' : 'Sin fallas críticas' }}</span>
             </div>
-            <div class="tablero-kpi">
-                <span class="tablero-kpi-etiqueta"><i class="material-icons" aria-hidden="true">opacity</i> Regando ahora</span>
-                <span class="tablero-kpi-valor">{{ vm.datos.kpis.regando }} {{ vm.datos.kpis.regando == 1 ? 'equipo' : 'equipos' }}</span>
+            <div class="tablero-kpi" title="Sectores activos (fuera del reposo) con humedad óptima, ponderados por superficie">
+                <span class="tablero-kpi-etiqueta"><i class="material-icons" aria-hidden="true">grass</i> Humedad óptima</span>
+                <span class="tablero-kpi-valor">{{ vm.datos.kpis.humedadOptima === null ? '—' : vm.datos.kpis.humedadOptima + ' %' }}</span>
+                <span class="tablero-kpi-nota">{{ vm.datos.kpis.sectoresActivos ? vm.datos.kpis.sectoresOptimos + ' de ' + vm.datos.kpis.sectoresActivos + ' sectores activos' : (vm.datos.kpis.sectoresEnReposo ? 'Todo en reposo' : 'Sin sensores de suelo') }}</span>
             </div>
-            <div class="tablero-kpi">
-                <span class="tablero-kpi-etiqueta"><i class="material-icons" aria-hidden="true">grass</i> Suelo adecuado</span>
-                <span class="tablero-kpi-valor">{{ vm.datos.kpis.sueloAdecuado === null ? '—' : vm.datos.kpis.sueloAdecuado + ' %' }}</span>
+            <div class="tablero-kpi" title="Acciones de hoy por atender">
+                <span class="tablero-kpi-etiqueta"><i class="material-icons" aria-hidden="true">checklist</i> Pendientes hoy</span>
+                <span class="tablero-kpi-valor">{{ vm.pendientes() }}</span>
+                <span class="tablero-kpi-nota">{{ vm.datos.tocaHoy.length ? 'de ' + vm.datos.tocaHoy.length + ' acciones' : 'Nada pendiente' }}</span>
             </div>
-            <div class="tablero-kpi">
-                <span class="tablero-kpi-etiqueta"><i class="material-icons" aria-hidden="true">ac_unit</i> Esta noche</span>
+            <div class="tablero-kpi" title="Clima y riesgo">
+                <span class="tablero-kpi-etiqueta"><i class="material-icons" aria-hidden="true">ac_unit</i> Mínima esta noche</span>
                 <span class="tablero-kpi-valor kpi-noche">{{ vm.grados(vm.datos.kpis.nocheMin) }}</span>
+                <span class="tablero-kpi-nota" ng-class="{ 'nota-critica': vm.datos.kpis.riesgoHelada }">{{ vm.datos.kpis.riesgoHelada ? 'Riesgo de helada' : vm.datos.kpis.heladaSinRiesgo ? 'Cultivos en reposo' : vm.datos.kpis.nocheMin === null ? 'Sin pronóstico' : 'Sin riesgo de helada' }}</span>
             </div>
         </div>
     </section>
 
-    <!-- 2. Atiende primero -->
-    <section class="tablero-seccion" ng-if="vm.datos.atiende.length" aria-label="Atiende primero">
-        <h3 class="tablero-titulo">Atiende primero <small ng-if="vm.datos.atiende.length > 3">({{ vm.datos.atiende.length }})</small></h3>
-        <!-- REQ-138: area de alto fijo con desplazamiento (sin barra visible) -->
-        <div class="tablero-atiende-lista" ng-class="{ 'con-mas': vm.datos.atiende.length > 3 }">
-            <button type="button" class="tablero-aviso" ng-repeat="a in vm.datos.atiende track by $index"
-                ng-class="'nivel-' + a.nivel" ng-click="vm.abrir(a)">
-                <span class="tablero-aviso-titulo">{{ vm.titulo(a.titulo) }}</span>
-                <span class="tablero-aviso-detalle">{{ a.detalle }} <span class="tablero-aviso-ir">· {{ a.clave ? 'Ver equipo' : 'Ver equipos' }} →</span></span>
-            </button>
-        </div>
-    </section>
+    <div class="tablero-columnas">
+        <div class="tablero-columna">
+            <!-- 3. Que atender primero: por impacto, maximo 5 visibles (confirmaciones agrupadas) -->
+            <section class="tablero-seccion" ng-if="vm.muestra('atiende') && vm.avisos().length" aria-label="Qué atender primero">
+                <h3 class="tablero-titulo">Qué atender primero <small ng-if="vm.avisos().length > 1">({{ vm.avisos().length }})</small></h3>
+                <button type="button" class="tablero-aviso" ng-repeat="a in vm.avisos() | limitTo: vm.limite() track by $index"
+                    ng-class="'nivel-' + a.nivel" ng-click="vm.abrir(a)">
+                    <span class="tablero-aviso-titulo">{{ vm.titulo(a.titulo) }}</span>
+                    <span class="tablero-aviso-detalle">{{ a.detalle }} <span class="tablero-aviso-ir">· {{ a.clave ? 'Ver equipo' : a.tipo == 'helada' ? 'Ver avisos' : 'Ver equipos' }} →</span></span>
+                </button>
+                <button type="button" class="tablero-mas" ng-if="vm.avisos().length > 5" ng-click="vm.verTodos = !vm.verTodos">
+                    {{ vm.verTodos ? 'Ver menos' : 'Ver los ' + (vm.avisos().length - 5) + ' restantes' }}
+                </button>
+            </section>
 
-    <!-- 3. Mis cultivos -->
-    <section class="tablero-seccion" ng-if="vm.datos.cultivos.length" aria-label="Mis cultivos">
-        <h3 class="tablero-titulo">Mis cultivos</h3>
-        <div class="tablero-cultivos">
-            <!-- REQ-138: sin sensor, el equipo donde esta el cultivo y su estado; la tarjeta abre ese equipo -->
-            <button type="button" class="tablero-cultivo" ng-repeat="c in vm.datos.cultivos track by c.clave"
-                ng-click="c.equipo && vm.alAbrirEquipo({ $clave: c.equipo.clave })" ng-disabled="!c.equipo">
-                <span class="tablero-cultivo-nombre">{{ c.nombre }}</span>
-                <span class="tablero-cultivo-dato">{{ c.hectareas !== null ? c.hectareas + ' ha' : '' }}{{ c.hectareas !== null && c.fase ? ' · ' : '' }}{{ c.fase }}</span>
-                <span class="tablero-cultivo-estado" ng-if="c.estado != 'sin-dato' || !c.equipo" ng-class="'cultivo-' + c.estado">
-                    <i class="material-icons" aria-hidden="true">{{ c.estado == 'helada' ? 'ac_unit' : c.estado == 'seco' ? 'opacity' : c.estado == 'adecuado' ? 'check' : c.estado == 'reposo' ? 'bedtime' : 'remove' }}</i>
-                    {{ c.texto }}
-                </span>
-                <span class="tablero-cultivo-equipo" ng-if="c.equipo" ng-class="'equipo-' + c.equipo.nivel">
-                    <span class="tablero-cultivo-punto" aria-hidden="true"></span>
-                    <span class="tablero-cultivo-equipo-texto">{{ c.equipo.nombre }}{{ c.equipo.linea ? ' · ' + c.equipo.linea : '' }}</span>
-                    <span class="tablero-cultivo-mas" ng-if="c.otrosEquipos">+{{ c.otrosEquipos }}</span>
-                </span>
-            </button>
-        </div>
-    </section>
+            <!-- 5. Lo que toca hoy: lista de verificacion (se marca en este dispositivo y se reinicia cada dia) -->
+            <section class="tablero-seccion" ng-if="vm.muestra('toca') && vm.datos.tocaHoy.length" aria-label="Lo que toca hoy">
+                <h3 class="tablero-titulo">Lo que toca hoy</h3>
+                <ul class="tablero-toca">
+                    <li ng-repeat="i in vm.datos.tocaHoy track by i.id" ng-class="{ hecho: vm.hecho(i) }">
+                        <label class="tablero-toca-marca">
+                            <input type="checkbox" ng-checked="vm.hecho(i)" ng-click="vm.marcar(i)" aria-label="Hecho: {{ i.texto }}">
+                            <span class="tablero-toca-texto"><i class="material-icons" aria-hidden="true" ng-class="'nivel-' + i.nivel">{{ i.icono }}</i>{{ vm.titulo(i.texto) }}</span>
+                        </label>
+                        <button type="button" class="tablero-toca-ir" ng-if="i.clave" ng-click="vm.alAbrirEquipo({ $clave: i.clave })" aria-label="Abrir el equipo">
+                            <i class="material-icons" aria-hidden="true">chevron_right</i>
+                        </button>
+                    </li>
+                </ul>
+            </section>
 
-    <!-- 4. Hoy -->
-    <section class="tablero-seccion" aria-label="Hoy">
-        <h3 class="tablero-titulo">Hoy</h3>
-        <p class="tablero-vacio" ng-if="!vm.hoy.length">Sin novedades por ahora. Aquí verás los cambios de tus equipos durante el día.</p>
-        <ol class="tablero-hoy" ng-if="vm.hoy.length">
-            <li ng-repeat="e in vm.hoy track by $index" ng-class="'nivel-' + e.nivel">
-                <span class="tablero-hoy-hora">{{ e.hora }}</span>
-                <span class="tablero-hoy-texto">{{ vm.titulo(e.texto) }}</span>
-            </li>
-        </ol>
-    </section>
-
-    <!-- 5. Sugerencias del dia (REQ-115) -->
-    <section class="tablero-seccion" ng-if="vm.datos.sugerencias.length" aria-label="Sugerencias del día">
-        <h3 class="tablero-titulo">Sugerencias del día</h3>
-        <div class="tablero-sugerencias">
-            <div class="tablero-sugerencia" ng-repeat="s in vm.datos.sugerencias track by $index">
-                <span class="tablero-sugerencia-icono"><i class="material-icons" aria-hidden="true">{{ s.icono }}</i></span>
-                <span class="tablero-sugerencia-texto">
-                    <span class="tablero-sugerencia-titulo">{{ s.titulo }}</span>
-                    <span class="tablero-sugerencia-detalle">{{ s.detalle }}</span>
-                    <button type="button" class="tablero-sugerencia-boton" ng-if="s.accion" ng-click="vm.sugerencia(s)">{{ s.boton || 'Ver' }} →</button>
-                </span>
-            </div>
+            <!-- 6. Sugerencias del dia: maximo 3, ligadas a datos (REQ-115) -->
+            <section class="tablero-seccion" ng-if="vm.muestra('sugerencias') && vm.datos.sugerencias.length" aria-label="Sugerencias del día">
+                <h3 class="tablero-titulo">Sugerencias del día</h3>
+                <div class="tablero-sugerencias">
+                    <div class="tablero-sugerencia" ng-repeat="s in vm.datos.sugerencias track by $index">
+                        <span class="tablero-sugerencia-icono"><i class="material-icons" aria-hidden="true">{{ s.icono }}</i></span>
+                        <span class="tablero-sugerencia-texto">
+                            <span class="tablero-sugerencia-titulo">{{ s.titulo }}</span>
+                            <span class="tablero-sugerencia-detalle">{{ vm.titulo(s.detalle) }}</span>
+                            <button type="button" class="tablero-sugerencia-boton" ng-if="s.accion" ng-click="vm.sugerencia(s)">{{ s.boton || 'Ver' }} →</button>
+                        </span>
+                    </div>
+                </div>
+            </section>
         </div>
-    </section>
+
+        <div class="tablero-columna">
+            <!-- 4. Mis cultivos: por prioridad y superficie, sin cortar textos -->
+            <section class="tablero-seccion" ng-if="vm.muestra('cultivos') && vm.datos.cultivos.length" aria-label="Mis cultivos">
+                <h3 class="tablero-titulo">Mis cultivos</h3>
+                <div class="tablero-cultivos">
+                    <!-- REQ-138: el equipo donde esta el cultivo y su estado; la fila abre ese equipo -->
+                    <button type="button" class="tablero-cultivo" ng-repeat="c in vm.datos.cultivos track by c.clave"
+                        ng-click="c.equipo && vm.alAbrirEquipo({ $clave: c.equipo.clave })" ng-disabled="!c.equipo">
+                        <span class="tablero-cultivo-cabecera">
+                            <span class="tablero-cultivo-nombre">{{ c.nombre }}</span>
+                            <span class="tablero-cultivo-ha">{{ c.hectareas !== null ? c.hectareas + ' ha' : '' }}</span>
+                        </span>
+                        <span class="tablero-cultivo-barra" ng-if="vm.barra(c)" aria-hidden="true"><i ng-style="{ width: vm.barra(c) + '%' }"></i></span>
+                        <span class="tablero-cultivo-dato" ng-if="c.fase">{{ c.fase }}</span>
+                        <span class="tablero-cultivo-estado" ng-if="c.estado != 'sin-dato' || !c.equipo" ng-class="'cultivo-' + c.estado">
+                            <i class="material-icons" aria-hidden="true">{{ c.estado == 'helada' ? 'ac_unit' : c.estado == 'seco' ? 'opacity' : c.estado == 'adecuado' ? 'check' : c.estado == 'reposo' ? 'bedtime' : 'remove' }}</i>
+                            {{ c.texto }}
+                        </span>
+                        <span class="tablero-cultivo-equipo" ng-if="c.equipo" ng-class="'equipo-' + c.equipo.nivel">
+                            <span class="tablero-cultivo-punto" aria-hidden="true"></span>
+                            <span class="tablero-cultivo-equipo-texto">{{ c.equipo.nombre }}{{ c.equipo.linea ? ' · ' + c.equipo.linea : '' }}</span>
+                            <span class="tablero-cultivo-mas" ng-if="c.otrosEquipos">+{{ c.otrosEquipos }}</span>
+                        </span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Actividad de hoy (antes "Hoy"): plegada; el detalle esta en Notificaciones -->
+            <section class="tablero-seccion" ng-if="vm.muestra('actividad')" aria-label="Actividad de hoy">
+                <button type="button" class="tablero-plegable" ng-click="vm.verActividad = !vm.verActividad" aria-expanded="{{ vm.verActividad }}">
+                    <span class="tablero-titulo">Actividad de hoy <small ng-if="vm.hoy.length">({{ vm.hoy.length }})</small></span>
+                    <i class="material-icons" aria-hidden="true">{{ vm.verActividad ? 'expand_less' : 'expand_more' }}</i>
+                </button>
+                <div ng-if="vm.verActividad">
+                    <p class="tablero-vacio" ng-if="!vm.hoy.length">Sin novedades por ahora. Aquí verás los cambios de tus equipos durante el día.</p>
+                    <ol class="tablero-hoy" ng-if="vm.hoy.length">
+                        <li ng-repeat="e in vm.hoy track by $index" ng-class="'nivel-' + e.nivel">
+                            <span class="tablero-hoy-hora">{{ e.hora }}</span>
+                            <span class="tablero-hoy-texto">{{ vm.titulo(e.texto) }}</span>
+                        </li>
+                    </ol>
+                </div>
+            </section>
+        </div>
+    </div>
 
     <button type="button" class="tablero-ver-equipos" ng-click="vm.alVerEquipos()">Ver todos los equipos →</button>
 </div>
