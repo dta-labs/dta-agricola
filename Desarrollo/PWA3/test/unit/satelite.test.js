@@ -90,11 +90,11 @@ test("REQ-089 barras flotantes: Satelite entre Sensores/Planes y Usuarios; Usuar
   assert.equal((HTML.match(/satelite-activo="vistaSatelital" al-satelite="alternarVistaSatelital\(\)"/g) || []).length, 2);
 });
 
-test("REQ-089 core: pivote = su circulo; red y estacionario = todas las parcelas; capa debajo de las parcelas", () => {
-  assert.match(CORE, /if \(actual\.type == "PC"\) \{[\s\S]*?satelite\.cajaDeCirculo\(lat, lng, radio\)/);
-  assert.match(CORE, /satelite\.parcelasDelUsuario\(\$scope\.systems, geo\.normalizarPoligono, geo\.esPoligonoValido\)/);
+test("REQ-089/157 core: todas las areas del usuario (pivotes y parcelas); capa debajo de las parcelas", () => {
+  assert.match(CORE, /satelite\.areasDelUsuario\(\$scope\.systems, geo\.normalizarPoligono, geo\.esPoligonoValido, geo\.esCoordenadaValida\)/);
+  assert.match(CORE, /capaNdviDe\(satelite\.cajaDeCirculo\(a\.circulo\.lat, a\.circulo\.lng, a\.circulo\.radio\), a\.circulo\)/);
   assert.match(CORE, /map\.getPane\("ndvi"\)\.style\.zIndex = 350;/);
-  assert.match(CORE, /L\.svgOverlay\(svgNdvi\(url, ancho, alto, forma, respaldo\), satelite\.limites\(caja\), \{ pane: "ndvi", interactive: false \}\)/);
+  assert.match(CORE, /L\.svgOverlay\(svgNdvi\(url, ancho, alto, forma, respaldo, satelite\.urlFechaReciente\(caja\)\), satelite\.limites\(caja\), \{ pane: "ndvi", interactive: false \}\)/);
   assert.match(CORE, /imagen\.setAttribute\("clip-path", `url\(#\$\{id\}\)`\);/, "recortada al contorno");
   assert.match(CORE, /al cambiar de sistema se apaga/);
 });

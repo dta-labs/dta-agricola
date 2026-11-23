@@ -1,0 +1,58 @@
+/* REQ-157: compartir la app (pie del menu lateral) */
+.compartir-app { padding: 10px 16px 6px; line-height: normal; }
+.compartir-app-titulo { display: block; margin-bottom: 6px; color: #78909c; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.02em; }
+.compartir-app-iconos { display: flex; flex-wrap: nowrap; justify-content: space-between; gap: 4px; max-width: 280px; }   /* una fila en el menu (300 px) */
+.compartir-app .compartir-icono {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 32px;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: #eceff1;
+    color: #37474f;
+    font-size: 17px;
+    cursor: pointer;
+}
+.compartir-app .compartir-icono:focus-visible { outline: 2px solid #1b4d38; outline-offset: 2px; }
+.compartir-app .compartir-icono.c-whatsapp { background: #25d366; color: #ffffff; }
+.compartir-app .compartir-icono.c-telegram { background: #229ed9; color: #ffffff; }
+.compartir-app .compartir-icono.c-correo { background: #ea4335; color: #ffffff; }
+.compartir-app .compartir-icono.c-qr { background: #000000; color: #ffffff; }
+
+/* QR a pantalla completa: blanco y negro puros, lo mas grande posible */
+.compartir-qr-capa {
+    position: fixed;
+    inset: 0;
+    z-index: 3000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(0, 0, 0, 0.85);
+}
+.compartir-qr-hoja {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 24px;
+    border-radius: 16px;
+    background: #ffffff;
+    color: #000000;
+    text-align: center;
+}
+.compartir-qr-imagen {
+    width: min(80vw, 62vh, 520px);
+    height: min(80vw, 62vh, 520px);
+    padding: 4%;                       /* zona de silencio */
+    background: #ffffff;
+    image-rendering: pixelated;        /* bordes nitidos al ampliar */
+    image-rendering: crisp-edges;
+}
+.compartir-qr-texto { font-size: 1.05rem; font-weight: 700; }
+.compartir-qr-url { color: #263238; font-size: 0.95rem; }
+.compartir-qr-cerrar { margin-top: 4px; padding: 8px 28px; border: 0; border-radius: 999px; background: #000000; color: #ffffff; font-size: 1rem; font-weight: 600; cursor: pointer; }

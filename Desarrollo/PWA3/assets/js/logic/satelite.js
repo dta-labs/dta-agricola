@@ -180,7 +180,68 @@
         return lista;
     }
 
+    /**
+     * REQ-157: TODAS las areas del usuario, sin importar el equipo abierto: circulos de los pivotes centrales
+     * (centro y radio) y parcelas de redes de sensores y estacionarios. [{ clave, puntos } | { clave, circulo }]
+     */
+    function areasDelUsuario(sistemas, normalizar, esValido, esCoordenadaValida) {
+        var lista = [];
+        Object.keys(sistemas || {}).forEach(function (k) {
+            var s = sistemas[k];
+            if (!s || s.type !== "PC") return;
+            var lat = Number(s.latitude), lng = Number(s.longitude);
+            var radio = parseInt(s.length, 10) > 0 ? parseInt(s.length, 10) : 50;
+            var valida = esCoordenadaValida ? esCoordenadaValida(lat, lng) : (isFinite(lat) && isFinite(lng) && (lat || lng));
+            if (valida && !(lat === 0 && lng === 0)) lista.push({ clave: k, circulo: { lat: lat, lng: lng, radio: radio } });
+        });
+        return lista.concat(parcelasDelUsuario(sistemas, normalizar, esValido));
+    }
+
+    /**
+     * REQ-157: consulta de la fecha de la imagen mas reciente del rectangulo (catalogo de Sentinel-2): si es posterior a
+     * la guardada, se vuelve a pedir la imagen; si no, se usa la guardada.
+     */
+    function urlFechaReciente(caja) {
+        var p = [
+            "where=" + encodeURIComponent("category = 1"),
+            "geometry=" + encodeURIComponent([caja.xmin, caja.ymin, caja.xmax, caja.ymax].map(function (n) { return n.toFixed(2); }).join(",")),
+            "geometryType=esriGeometryEnvelope", "inSR=3857", "spatialRel=esriSpatialRelIntersects",
+            "outFields=acquisitiondate", "orderByFields=" + encodeURIComponent("acquisitiondate DESC"),
+            "resultRecordCount=1", "returnGeometry=false", "f=json"
+        ];
+        return SERVICIO.replace(/exportImage$/, "query") + "?" + p.join("&");
+    }
+
+    /** Fecha (ms) de la respuesta de urlFechaReciente, o null. */
+    function fechaDeRespuesta(json) {
+        var f = json && json.features && json.features[0] && json.features[0].attributes;
+        var v = f && Number(f.acquisitiondate);
+        return isFinite(v) && v > 0 ? v : null;
+    }
+
+    var REVISAR_CADA_MS = 12 * 3600000;       // la fecha del catalogo se consulta como mucho cada 12 h por area
+
+    /**
+     * Que hacer con una imagen guardada. meta: { guardada (ms en que se descargo), revisada (ms de la ultima consulta) }.
+     *   "descargar": no hay copia; "usar": la copia vale; "revisar": usar la copia y consultar si hay una mas reciente.
+     */
+    function decision(meta, ahora) {
+        if (!meta || !isFinite(meta.guardada)) return "descargar";
+        if (isFinite(meta.revisada) && ahora - meta.revisada < REVISAR_CADA_MS) return "usar";
+        return "revisar";
+    }
+
+    /** Hay una imagen mas reciente que la guardada (la fecha de adquisicion es posterior a la descarga)? */
+    function hayMasReciente(meta, fechaReciente) {
+        return !!(meta && isFinite(fechaReciente) && fechaReciente > meta.guardada);
+    }
+
     return {
+        areasDelUsuario: areasDelUsuario,
+        urlFechaReciente: urlFechaReciente,
+        fechaDeRespuesta: fechaDeRespuesta,
+        decision: decision,
+        hayMasReciente: hayMasReciente,
         RENDER: RENDER,
         PALETA: PALETA,
         colorDeNdvi: colorDeNdvi,

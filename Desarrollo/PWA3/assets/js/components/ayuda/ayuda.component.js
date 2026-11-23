@@ -10,14 +10,8 @@
 (function (raiz) {
     "use strict";
 
-    var VERSION = "26.11.06.003";
-    var URL_APP = "https://dta-agricola.web.app";
-
-    /** Enlace de WhatsApp para compartir la app (puro: se prueba en Node). */
-    function enlaceParaCompartir(url) {
-        var mensaje = "DTA - Monitoring & Control: " + (url || URL_APP);
-        return "https://wa.me/?text=" + encodeURIComponent(mensaje);
-    }
+    var VERSION = "26.11.22.033";
+    // REQ-157: "Compartir la aplicación" paso al pie del menu lateral (<dta-compartir-app>).
 
     function ControladorAyuda($window, $timeout, $element, dtaUi) {
         var vm = this;
@@ -29,10 +23,6 @@
             modal = raizDom ? raizDom.querySelector(".ayuda-modal") : null;
             return modal;
         }
-
-        vm.$onInit = function () {
-            vm.mostrarQR = false;
-        };
 
         vm.$postLink = function () {
             dtaUi.abrirModal(elementoModal(), {
@@ -47,10 +37,6 @@
         vm.cerrar = function () {
             dtaUi.cerrarModal(elementoModal());
         };
-
-        vm.compartir = function () {
-            $window.open(enlaceParaCompartir(URL_APP), "_blank", "noopener");
-        };
     }
     ControladorAyuda.$inject = ["$window", "$timeout", "$element", "dtaUi"];
 
@@ -62,7 +48,7 @@
     };
 
     if (typeof module !== "undefined" && module.exports) {
-        module.exports = { definicion: definicion, Controlador: ControladorAyuda, enlaceParaCompartir: enlaceParaCompartir, VERSION: VERSION };
+        module.exports = { definicion: definicion, Controlador: ControladorAyuda, VERSION: VERSION };
     }
     if (raiz.angular) raiz.angular.module("Administracion").component("dtaAyuda", definicion);
 })(typeof window !== "undefined" ? window : globalThis);

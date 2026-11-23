@@ -126,10 +126,10 @@ test("REQ-040 core.js sin loadCultures/showFichaTecnicaModal/compartirWhatsApp y
   assert.ok(CORE.indexOf("const cargarCultivosSiFaltan = () => {") >= 0);
 });
 
-test("REQ-040 ayuda.html conserva las 17 secciones y no lleva enlaces externos sin rel", () => {
+test("REQ-040 ayuda.html conserva sus secciones (16: 'Compartir' paso al menu, REQ-157) y no lleva enlaces externos sin rel", () => {
   const plantilla = fs.readFileSync(path.join(COMPONENTES, "ayuda", "ayuda.html"), "utf8");
   // REQ-043: las secciones son ahora botones de acordeon de Bootstrap.
-  assert.equal((plantilla.match(/class="accordion-button( collapsed)?"/g) || []).length, 17);
+  assert.equal((plantilla.match(/class="accordion-button( collapsed)?"/g) || []).length, 16);
   (plantilla.match(/<a [^>]*target="_blank"[^>]*>/g) || []).forEach(a => assert.match(a, /rel="noopener"/));
 });
 

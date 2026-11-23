@@ -234,9 +234,37 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     let capaNdvi = null;
     let leyendaNdvi = null;
     let recortesNdvi = 0;
-    let avisoNdviMostrado = false;
 
-    const svgNdvi = (url, ancho, alto, recorte, respaldo) => {
+    // REQ-157: progreso de carga (las imagenes tardan) y copia local (services/cache-satelite.js)
+    let progresoNdvi = null;
+    let objetosNdvi = [];
+    const cacheSatelite = () => (window.DTAServicios && window.DTAServicios.cacheSatelite) || null;
+
+    const pintarProgresoNdvi = () => {
+        const p = progresoNdvi;
+        if (!p || !p.div) return;
+        const hechas = p.listas + p.fallidas;
+        const terminado = hechas >= p.total;
+        p.div.classList.toggle("terminado", terminado);
+        if (!terminado) {
+            p.div.innerHTML = '<span class="ndvi-spinner" aria-hidden="true"></span><span class="ndvi-progreso-texto">Cargando imágenes satelitales ' +
+                hechas + ' de ' + p.total + '</span><span class="ndvi-progreso-barra"><i style="width:' + Math.round(hechas * 100 / p.total) + '%"></i></span>';
+            return;
+        }
+        if (!p.fallidas) { p.div.remove(); progresoNdvi.div = null; return; }
+        p.div.innerHTML = '<span class="ndvi-progreso-texto">' + p.fallidas + (p.fallidas === 1 ? ' imagen no se pudo cargar' : ' imágenes no se pudieron cargar') +
+            '</span><button type="button" class="ndvi-reintentar">Reintentar</button>';
+        const boton = p.div.querySelector(".ndvi-reintentar");
+        if (boton) boton.addEventListener("click", () => { $scope.$evalAsync(() => { $scope.vistaSatelital = mostrarNdvi(); }); });
+    };
+
+    const imagenNdviTermino = (ok) => {
+        if (!progresoNdvi) return;
+        if (ok) progresoNdvi.listas += 1; else progresoNdvi.fallidas += 1;
+        pintarProgresoNdvi();
+    };
+
+    const svgNdvi = (url, ancho, alto, recorte, respaldo, urlFecha) => {
         const ns = "http://www.w3.org/2000/svg";
         const svg = document.createElementNS(ns, "svg");
         svg.setAttribute("viewBox", `0 0 ${ancho} ${alto}`);
@@ -252,25 +280,32 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         defs.appendChild(clip);
         svg.appendChild(defs);
         const imagen = document.createElementNS(ns, "image");
-        imagen.setAttribute("href", url);
-        imagen.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", url);
+        const fuente = (src) => {
+            imagen.setAttribute("href", src);
+            imagen.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", src);
+            if (/^blob:/.test(src)) objetosNdvi.push(src);
+        };
         imagen.setAttribute("width", ancho);
         imagen.setAttribute("height", alto);
         imagen.setAttribute("preserveAspectRatio", "none");
         imagen.setAttribute("clip-path", `url(#${id})`);
+        let contada = false;
+        const terminar = (ok) => { if (contada) return; contada = true; imagenNdviTermino(ok); };
+        imagen.addEventListener("load", () => terminar(true));
         imagen.addEventListener("error", () => {
             // REQ-112: si la paleta propia falla, se pide con el render de Esri antes de avisar.
             if (respaldo && !imagen.dataset.respaldo) {
                 imagen.dataset.respaldo = "1";
-                imagen.setAttribute("href", respaldo);
-                imagen.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", respaldo);
+                fuente(respaldo);
                 return;
             }
-            if (avisoNdviMostrado) return;
-            avisoNdviMostrado = true;
-            if (window.M && M.toast) M.toast({ html: "No se pudo cargar la imagen satelital. Revisa tu conexión." });
+            terminar(false);
         });
         svg.appendChild(imagen);
+        // REQ-157: la copia guardada si la hay (y la nueva si el catalogo tiene una mas reciente)
+        const cache = cacheSatelite();
+        if (cache) cache.obtener(url, urlFecha, fuente).then(fuente, () => fuente(url));
+        else fuente(url);
         return svg;
     };
 
@@ -281,12 +316,16 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         const respaldo = satelite.urlNdvi(caja, ancho, alto, true);
         const forma = recorte.puntos ? { puntos: satelite.puntosEnImagen(recorte.puntos, caja, ancho, alto) }
             : { circulo: satelite.circuloEnImagen(recorte.lat, recorte.lng, recorte.radio, caja, ancho, alto) };
-        return L.svgOverlay(svgNdvi(url, ancho, alto, forma, respaldo), satelite.limites(caja), { pane: "ndvi", interactive: false });
+        return L.svgOverlay(svgNdvi(url, ancho, alto, forma, respaldo, satelite.urlFechaReciente(caja)), satelite.limites(caja), { pane: "ndvi", interactive: false });
     };
 
     const quitarNdvi = () => {
         if (capaNdvi && map) map.removeLayer(capaNdvi);
         if (leyendaNdvi && map) map.removeControl(leyendaNdvi);
+        if (progresoNdvi && progresoNdvi.div) progresoNdvi.div.remove();
+        progresoNdvi = null;
+        objetosNdvi.forEach(u => { try { URL.revokeObjectURL(u); } catch (error) { /* ya liberada */ } });
+        objetosNdvi = [];
         capaNdvi = null;
         leyendaNdvi = null;
         if (map) map.getContainer().classList.remove("mapa-ndvi");
@@ -302,32 +341,36 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         }
         const satelite = __modulo("satelite");
         const geo = __modulo("geo");
-        const actual = $scope.actualSystem || {};
-        const capas = [];
-        if (actual.type == "PC") {
-            const lat = Number(actual.latitude), lng = Number(actual.longitude);
-            const radio = actual.length ? parseInt(actual.length) : 50;
-            if (geo.esCoordenadaValida(lat, lng)) capas.push(capaNdviDe(satelite.cajaDeCirculo(lat, lng, radio), { lat, lng, radio }));
-        } else {
-            satelite.parcelasDelUsuario($scope.systems, geo.normalizarPoligono, geo.esPoligonoValido)
-                .forEach(parcela => capas.push(capaNdviDe(satelite.cajaDePuntos(parcela.puntos), { puntos: parcela.puntos })));
-        }
-        if (!capas.length) {
-            if (window.M && M.toast) M.toast({ html: actual.type == "PC" ? "El pivote no tiene ubicación." : "Aún no hay parcelas marcadas en el mapa." });
+        // REQ-157: todas las areas del usuario (pivotes, redes de sensores y estacionarios), no solo las del equipo abierto
+        const areas = satelite.areasDelUsuario($scope.systems, geo.normalizarPoligono, geo.esPoligonoValido, geo.esCoordenadaValida);
+        if (!areas.length) {
+            if (window.M && M.toast) M.toast({ html: "Aún no hay pivotes ni parcelas marcadas en el mapa." });
             return false;
         }
-        avisoNdviMostrado = false;
+        const contenedor = map.getContainer();
+        const div = document.createElement("div");
+        div.className = "mapa-progreso-ndvi";
+        div.setAttribute("role", "status");
+        div.setAttribute("aria-live", "polite");
+        contenedor.appendChild(div);
+        progresoNdvi = { total: areas.length, listas: 0, fallidas: 0, div };
+        pintarProgresoNdvi();
+        const capas = areas.map(a => a.circulo
+            ? capaNdviDe(satelite.cajaDeCirculo(a.circulo.lat, a.circulo.lng, a.circulo.radio), a.circulo)
+            : capaNdviDe(satelite.cajaDePuntos(a.puntos), { puntos: a.puntos }));
         capaNdvi = L.layerGroup(capas).addTo(map);
         leyendaNdvi = L.control({ position: "bottomright" });
         leyendaNdvi.onAdd = () => {
-            const div = L.DomUtil.create("div", "mapa-leyenda-ndvi");
-            div.innerHTML = '<b>Vigor (NDVI)</b><span class="leyenda-ndvi-barra"></span>' +
+            const leyenda = L.DomUtil.create("div", "mapa-leyenda-ndvi");
+            leyenda.innerHTML = '<b>Vigor (NDVI)</b><span class="leyenda-ndvi-barra"></span>' +
                 '<span class="leyenda-ndvi-extremos"><span>Escaso</span><span>Vigoroso</span></span>' +
                 '<small>Sentinel-2 · Esri, ESA</small>';
-            return div;
+            return leyenda;
         };
         leyendaNdvi.addTo(map);
-        map.getContainer().classList.add("mapa-ndvi");
+        contenedor.classList.add("mapa-ndvi");
+        const cache = cacheSatelite();
+        if (cache) cache.limpiar();
         return true;
     };
 

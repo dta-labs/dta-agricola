@@ -34,8 +34,6 @@ function crearAyuda() {
 
 test("REQ-050 ayuda: abre el modal al montarse y avisa al cerrarse", () => {
   const { vm, llamadas } = crearAyuda();
-  vm.$onInit();
-  assert.equal(vm.mostrarQR, false);
   vm.$postLink();
   assert.equal(llamadas.abrir, 1);
   vm.cerrar();
@@ -44,14 +42,9 @@ test("REQ-050 ayuda: abre el modal al montarse y avisa al cerrarse", () => {
   assert.equal(llamadas.destruir, 1);
 });
 
-test("REQ-040 ayuda: compartir abre WhatsApp con la URL de la app", () => {
-  const { vm, llamadas } = crearAyuda();
-  const abiertas = llamadas.abiertas;
-  vm.compartir();
-  assert.equal(abiertas.length, 1);
-  assert.match(abiertas[0][0], /^https:\/\/wa\.me\/\?text=DTA%20-%20Monitoring%20%26%20Control%3A%20https%3A%2F%2Fdta-agricola\.web\.app$/);
-  assert.equal(abiertas[0][1], "_blank");
-  assert.equal(abiertas[0][2], "noopener");
+test("REQ-040/157 ayuda: compartir ya no esta en la Ayuda (paso al menu lateral)", () => {
+  const { vm } = crearAyuda();
+  assert.equal(vm.compartir, undefined);
 });
 
 test("REQ-050 ayuda: definicion con salida al-cerrar", () => {

@@ -1,0 +1,23 @@
+<!-- REQ-157: compartir la app (pie del menu lateral, solo iconos) -->
+<div class="bs compartir-app" role="group" aria-label="Compartir la aplicación">
+    <span class="compartir-app-titulo">Compartir la app</span>
+    <div class="compartir-app-iconos">
+        <button type="button" class="compartir-icono c-whatsapp" ng-click="vm.abrir('whatsapp')" title="WhatsApp" aria-label="Compartir por WhatsApp"><i class="fa fa-whatsapp" aria-hidden="true"></i></button>
+        <button type="button" class="compartir-icono c-telegram" ng-click="vm.abrir('telegram')" title="Telegram" aria-label="Compartir por Telegram"><i class="fa fa-telegram" aria-hidden="true"></i></button>
+        <button type="button" class="compartir-icono c-correo" ng-click="vm.abrir('correo')" title="Correo" aria-label="Compartir por correo"><i class="fa fa-envelope" aria-hidden="true"></i></button>
+        <button type="button" class="compartir-icono c-sms" ng-click="vm.abrir('sms')" title="SMS" aria-label="Compartir por SMS"><i class="fa fa-commenting" aria-hidden="true"></i></button>
+        <button type="button" class="compartir-icono c-enlace" ng-click="vm.copiar()" title="{{ vm.copiado ? 'Enlace copiado' : 'Copiar enlace' }}" aria-label="Copiar el enlace de la app"><i class="fa" ng-class="vm.copiado ? 'fa-check' : 'fa-link'" aria-hidden="true"></i></button>
+        <button type="button" class="compartir-icono c-qr" ng-click="vm.abrirQR()" title="Código QR" aria-label="Mostrar el código QR"><i class="fa fa-qrcode" aria-hidden="true"></i></button>
+        <button type="button" class="compartir-icono c-mas" ng-if="vm.puedeCompartir" ng-click="vm.compartirSistema()" title="Más opciones" aria-label="Más opciones para compartir"><i class="fa fa-share-alt" aria-hidden="true"></i></button>
+    </div>
+    <!-- QR a pantalla completa (se mueve al body al montarse) -->
+    <div class="compartir-qr-capa ng-hide" ng-show="vm.qrAbierto" ng-click="vm.cerrarQR()" ng-keydown="vm.teclaQR($event)"
+        role="dialog" aria-modal="true" aria-label="Código QR de la aplicación" tabindex="-1">
+        <div class="compartir-qr-hoja" ng-click="$event.stopPropagation()">
+            <img class="compartir-qr-imagen" src="./assets/images/qr-app.png" alt="Código QR para abrir DTA-Agrícola">
+            <div class="compartir-qr-texto">Escanea con la cámara del teléfono</div>
+            <div class="compartir-qr-url">{{ vm.url.replace('https://', '') }}</div>
+            <button type="button" class="compartir-qr-cerrar" ng-click="vm.cerrarQR()">Cerrar</button>
+        </div>
+    </div>
+</div>

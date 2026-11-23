@@ -39,10 +39,12 @@ dta-panel-nevera {
     font-size: 2.5em;
 }
 .panel-pc-estado {
-    padding: 0 !important;
+    padding: 0 0 env(safe-area-inset-bottom) 0 !important;
     width: 100% !important;
     position: fixed;
-    top: calc(100vh - 65px);
+    /* REQ-157: anclada abajo. En iPhone 100vh es mas alto que lo visible (barra de Safari) y la barra quedaba cortada */
+    top: auto;
+    bottom: 0;
 }
 
 /* Pozo */
@@ -95,7 +97,7 @@ dta-panel-nevera {
 .panel-s-e30 { text-align: center !important; cursor: pointer !important; }
 .panel-s-e31 { font-size: 2em !important; }
 .panel-s-e32 { font-size: 1.5em !important; }
-.panel-s-e33 { padding: 0 !important; width: 100% !important; position: fixed !important; top: calc(100vh - 65px) !important; }
+.panel-s-e33 { padding: 0 0 env(safe-area-inset-bottom) 0 !important; width: 100% !important; position: fixed !important; top: auto !important; bottom: 0 !important; }   /* REQ-157: abajo, no 100vh */
 .panel-s-e34 { margin-left: -20px !important; display: inline !important; }
 .panel-s-e35 { font-size: 3em !important; }
 .panel-s-e37 { display: inline !important; cursor: pointer !important; }
