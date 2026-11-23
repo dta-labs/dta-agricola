@@ -2127,3 +2127,28 @@ canvas[id^="myChart"],
     object-fit: contain;
     filter: grayscale(100%) contrast(1.05);
 }
+
+/* REQ-161: "Agregar equipo" en 2 columnas. El contenedor era .input-field (flex en columna) y Materialize da a .col
+   margin-left: auto: cada tarjeta quedaba sola y pegada a la derecha. */
+#modalNuevoEquipo .nuevo-equipo-tipos {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    float: none;
+    width: 100%;
+    margin: 12px 0 0;
+    padding: 0 4px;
+}
+#modalNuevoEquipo .nuevo-equipo-tipos > .col {
+    float: none;
+    width: auto;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+}
+#modalNuevoEquipo .nuevo-equipo-tipos .card { height: 100%; margin: 0; }
+#modalNuevoEquipo .nuevo-equipo-tipos .card-content { padding: 8px 6px 12px; }
+#modalNuevoEquipo .nuevo-equipo-tipos .card-content p { margin: 0; }
+@media (min-width: 600px) {
+    #modalNuevoEquipo .nuevo-equipo-tipos { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}

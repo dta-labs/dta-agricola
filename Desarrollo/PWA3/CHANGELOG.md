@@ -12,6 +12,7 @@ Cada version publicada lleva una etiqueta de git `pwa3-vX.Y.Z` sobre el commit d
 ## [Sin publicar] - candidata a 1.1.0
 
 ### Corregido
+- **REQ-161**: "Agregar equipo": los tipos de equipo en 2 columnas (3 en pantallas anchas); antes salian uno por fila pegados a la derecha.
 - **REQ-158**: vista satelital: solo se piden las imagenes de las areas que se ven en el mapa (y las que entran al moverlo; maximo 25 por vista), no las de todos los equipos.
 - **REQ-154**: Cloud Functions en Node.js 22 (Node.js 20 ya no se puede desplegar desde el 30/10/2026).
 - **REQ-153**: arranque mas rapido de la PWA en el celular (index.html con tiempo maximo de red y archivos versionados desde la copia), una sola recarga por actualizacion y sin el hueco de la barra en neveras/invernaderos.
