@@ -313,6 +313,78 @@
         return "Revisar " + a.mensaje.charAt(0).toLowerCase() + a.mensaje.slice(1) + " en " + a.nombre;
     }
 
+    // ---------- REQ-156: consumo de agua y riesgo de plagas ----------
+
+    /**
+     * Caudal configurado de un equipo (settings.caudal) en m³/h, o null. La ventana dice "m³/s" pero la dosis lo usa
+     * como litros por segundo: valores menores que 1 se toman como m³/s y el resto como L/s (un pivote da 20-120 L/s).
+     */
+    function caudalM3h(valor) {
+        var n = Number(String(valor === undefined || valor === null ? "" : valor).replace(",", "."));
+        if (!isFinite(n) || n <= 0) return null;
+        return n < 1 ? n * 3600 : n * 3.6;
+    }
+
+    /** Agua en curso: { m3h (estimado + medido), activos, sinCaudal, medidos } (null m3h si no hay como saberlo). */
+    function aguaEnCurso(sistemas, resumenDe, deps) {
+        var total = 0, conDato = 0, activos = 0, sinCaudal = 0, medidos = 0;
+        sistemas.forEach(function (s) {
+            var r = resumenDe(s) || {};
+            if (regando(s, r)) {
+                activos += 1;
+                var q = caudalM3h(s.caudal);
+                if (q === null && s.type === "Estacionario") {
+                    // sin caudal del equipo: el de las valvulas abiertas
+                    (r.valvulas || []).filter(function (v) { return !v.motor && v.estado === "encendido"; }).forEach(function (v) {
+                        var qv = caudalM3h(s.plots && s.plots[v.clave] && s.plots[v.clave].caudal);
+                        if (qv !== null) q = (q || 0) + qv;
+                    });
+                }
+                if (q === null) sinCaudal += 1; else { total += q; conDato += 1; }
+            }
+            // caudalimetros (sensores Fl de neveras e invernaderos, L/min): medido
+            if ((s.type === "Nevera" || s.type === "Invernadero") && deps.humedad) {
+                var datos = deps.humedad.datosCrudos(s);
+                sensoresDe(s).forEach(function (x) {
+                    if (x.sensor.type !== "Fl") return;
+                    var lmin = Number(datos[x.indice * 3]);
+                    if (isFinite(lmin) && lmin > 0) { total += lmin * 0.06; medidos += 1; }
+                });
+            }
+        });
+        return { m3h: conDato || medidos ? Math.round(total) : (activos ? null : 0), activos: activos, sinCaudal: sinCaudal, medidos: medidos };
+    }
+
+    var NIVEL_PLAGA = { alta: 3, media: 2, baja: 1 };
+    var TEXTO_PLAGA = { 3: "Alto", 2: "Medio", 1: "Bajo" };
+
+    /**
+     * Riesgo de plagas: avisos "Plagas" (disease-risk, Cloud Functions) de las ultimas 48 h y sensores que las
+     * vigilan (sensor.alerts con alguna enfermedad activada).
+     */
+    function riesgoDePlagas(sistemas, notificaciones, ahora) {
+        var vigilados = 0;
+        sistemas.filter(function (s) { return s.type === "Sensor"; }).forEach(function (s) {
+            sensoresDe(s).forEach(function (x) {
+                var a = x.sensor.alerts;
+                if (a && typeof a === "object" && Object.keys(a).some(function (k) { return a[k] === true; })) vigilados += 1;
+            });
+        });
+        var recientes = (notificaciones || []).filter(function (n) {
+            return n && n.tipo === "plagas" && isFinite(n.fecha) && ahora - n.fecha <= 48 * 3600000 && ahora - n.fecha >= -3600000;
+        });
+        var nivel = recientes.reduce(function (m, n) { return Math.max(m, NIVEL_PLAGA[n.nivel] || 1); }, 0);
+        var peor = recientes.filter(function (n) { return (NIVEL_PLAGA[n.nivel] || 1) === nivel; })
+            .sort(function (a, b) { return b.fecha - a.fecha; })[0];
+        if (nivel) {
+            return { nivel: nivel === 3 ? "alto" : nivel === 2 ? "medio" : "bajo", texto: TEXTO_PLAGA[nivel], avisos: recientes.length,
+                nota: (peor.enfermedad ? peor.enfermedad + (peor.probabilidad ? " · " + peor.probabilidad + " %" : "") : plural(recientes.length, "aviso", "avisos") + " en 48 h"),
+                vigilados: vigilados };
+        }
+        if (vigilados) return { nivel: "sin-riesgo", texto: "Sin riesgo", avisos: 0, nota: plural(vigilados, "sensor vigila", "sensores vigilan"), vigilados: vigilados };
+        return { nivel: "sin-vigilancia", texto: "—", avisos: 0, nota: "Activa las alertas de plagas en tus sensores", vigilados: 0 };
+    }
+
     /** Tablero completo. */
     function tablero(sistemasObj, deps, opciones) {
         var o = opciones || {};
@@ -421,6 +493,8 @@
                 pendientes: tocaHoy.length,
                 nocheMin: noche ? Math.round(noche.min) : null,
                 riesgoHelada: riesgoHelada,
+                agua: aguaEnCurso(sistemas, resumenDe, deps),                                   // REQ-156
+                plagas: riesgoDePlagas(sistemas, o.notificaciones, ahora),                       // REQ-156
                 heladaSinRiesgo: !!(noche && noche.min <= umbral && !heladaRelevante)   // helada, pero todo en reposo
             },
             atiende: atiende,
@@ -494,5 +568,5 @@
         return mejor;
     }
 
-    return { tablero: tablero, eventoDeCambio: eventoDeCambio, lineaDeHoy: lineaDeHoy, minimaDeLaNoche: minimaDeLaNoche, nombreDeCultivo: nombreDeCultivo, CONSEJOS: CONSEJOS };
+    return { caudalM3h: caudalM3h, tablero: tablero, eventoDeCambio: eventoDeCambio, lineaDeHoy: lineaDeHoy, minimaDeLaNoche: minimaDeLaNoche, nombreDeCultivo: nombreDeCultivo, CONSEJOS: CONSEJOS };
 }));

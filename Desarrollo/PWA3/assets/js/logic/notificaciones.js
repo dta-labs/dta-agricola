@@ -77,7 +77,10 @@
             mensaje: mensaje,
             sistema: datos.systemId || "",
             fecha: fecha,
-            leida: false
+            leida: false,
+            // REQ-156: para el indicador "Riesgo de plagas" del Resumen
+            enfermedad: datos.disease || undefined,
+            probabilidad: isFinite(Number(datos.probability)) && datos.probability !== "" && datos.probability !== undefined ? Math.round(Number(datos.probability)) : undefined
         };
     }
 

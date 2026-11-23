@@ -12,7 +12,7 @@
 (function (raiz) {
     "use strict";
 
-    var VERSION = "26.11.22.031";
+    var VERSION = "26.11.22.032";
     var CLAVE_ENFOQUE = "dta-resumen-enfoque";
     var VISIBLES = 5;
 
@@ -113,6 +113,23 @@
 
         vm.titulo = function (texto) {
             return String(texto || "").replace(/ -(\d)/g, " −$1");
+        };
+
+        /** REQ-156: "14,500" (miles con coma, como en Mexico). */
+        vm.miles = function (n) {
+            return String(Math.round(Number(n) || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        };
+
+        /** REQ-156: contexto del consumo de agua (equipos activos, sin caudal configurado, caudalimetros). */
+        vm.notaAgua = function () {
+            var a = vm.datos && vm.datos.kpis && vm.datos.kpis.agua;
+            if (!a) return "";
+            if (!a.activos && !a.medidos) return "Sin riego en curso";
+            var partes = [];
+            if (a.activos) partes.push(a.activos + (a.activos === 1 ? " equipo activo" : " equipos activos"));
+            if (a.sinCaudal) partes.push(a.sinCaudal + " sin caudal configurado");
+            if (a.medidos) partes.push(a.medidos + (a.medidos === 1 ? " caudalímetro" : " caudalímetros"));
+            return partes.join(" · ");
         };
 
         /** Ancho (%) de la barra de superficie de un cultivo respecto al mayor. */

@@ -52,28 +52,44 @@
         </button>
     </section>
 
-    <!-- 2. Indicadores (uno por rol) -->
+    <!-- 2. Indicadores. REQ-156: 6, por importancia y certeza (medido > pronostico > estimado > modelo) -->
     <section class="tablero-seccion" aria-label="Indicadores">
         <div class="tablero-kpis">
-            <div class="tablero-kpi" title="Riego y equipos">
+            <div class="tablero-kpi" title="Riego y equipos: estado reportado por los equipos">
                 <span class="tablero-kpi-etiqueta"><i class="material-icons" aria-hidden="true">water_drop</i> Regando ahora</span>
                 <span class="tablero-kpi-valor">{{ vm.datos.kpis.regando }} <small>{{ vm.datos.kpis.regando == 1 ? 'equipo' : 'equipos' }}</small></span>
                 <span class="tablero-kpi-nota" ng-class="{ 'nota-critica': vm.datos.kpis.fallasCriticas }">{{ vm.datos.kpis.fallasCriticas ? vm.datos.kpis.fallasCriticas + ' con falla crítica' : 'Sin fallas críticas' }}</span>
+                <span class="tablero-kpi-certeza">Reportado</span>
+            </div>
+            <div class="tablero-kpi" title="Clima: mínima pronosticada de esta noche">
+                <span class="tablero-kpi-etiqueta"><i class="material-icons" aria-hidden="true">ac_unit</i> Mínima esta noche</span>
+                <span class="tablero-kpi-valor kpi-noche">{{ vm.grados(vm.datos.kpis.nocheMin) }}</span>
+                <span class="tablero-kpi-nota" ng-class="{ 'nota-critica': vm.datos.kpis.riesgoHelada }">{{ vm.datos.kpis.riesgoHelada ? 'Riesgo de helada' : vm.datos.kpis.heladaSinRiesgo ? 'Cultivos en reposo' : vm.datos.kpis.nocheMin === null ? 'Sin pronóstico' : 'Sin riesgo de helada' }}</span>
+                <span class="tablero-kpi-certeza">Pronóstico</span>
             </div>
             <div class="tablero-kpi" title="Sectores activos (fuera del reposo) con humedad óptima, ponderados por superficie">
                 <span class="tablero-kpi-etiqueta"><i class="material-icons" aria-hidden="true">grass</i> Humedad óptima</span>
                 <span class="tablero-kpi-valor">{{ vm.datos.kpis.humedadOptima === null ? '—' : vm.datos.kpis.humedadOptima + ' %' }}</span>
                 <span class="tablero-kpi-nota">{{ vm.datos.kpis.sectoresActivos ? vm.datos.kpis.sectoresOptimos + ' de ' + vm.datos.kpis.sectoresActivos + ' sectores activos' : (vm.datos.kpis.sectoresEnReposo ? 'Todo en reposo' : 'Sin sensores de suelo') }}</span>
+                <span class="tablero-kpi-certeza">Medido</span>
+            </div>
+            <div class="tablero-kpi" title="Agua: caudal de los equipos que riegan (configurado en cada equipo) y caudalímetros">
+                <span class="tablero-kpi-etiqueta"><i class="material-icons" aria-hidden="true">waves</i> Consumo de agua</span>
+                <span class="tablero-kpi-valor">{{ vm.datos.kpis.agua.m3h === null ? '—' : vm.miles(vm.datos.kpis.agua.m3h) }} <small ng-if="vm.datos.kpis.agua.m3h !== null">m³/h</small></span>
+                <span class="tablero-kpi-nota">{{ vm.notaAgua() }}</span>
+                <span class="tablero-kpi-certeza">{{ vm.datos.kpis.agua.medidos && !vm.datos.kpis.agua.activos ? 'Medido' : 'Estimado' }}</span>
+            </div>
+            <div class="tablero-kpi" title="Riesgo de plagas y enfermedades: avisos de las últimas 48 h (modelo por cultivo y clima)">
+                <span class="tablero-kpi-etiqueta"><i class="material-icons" aria-hidden="true">bug_report</i> Riesgo de plagas</span>
+                <span class="tablero-kpi-valor" ng-class="'plaga-' + vm.datos.kpis.plagas.nivel">{{ vm.datos.kpis.plagas.texto }}</span>
+                <span class="tablero-kpi-nota">{{ vm.datos.kpis.plagas.nota }}</span>
+                <span class="tablero-kpi-certeza">Modelo</span>
             </div>
             <div class="tablero-kpi" title="Acciones de hoy por atender">
                 <span class="tablero-kpi-etiqueta"><i class="material-icons" aria-hidden="true">checklist</i> Pendientes hoy</span>
                 <span class="tablero-kpi-valor">{{ vm.pendientes() }}</span>
                 <span class="tablero-kpi-nota">{{ vm.datos.tocaHoy.length ? 'de ' + vm.datos.tocaHoy.length + ' acciones' : 'Nada pendiente' }}</span>
-            </div>
-            <div class="tablero-kpi" title="Clima y riesgo">
-                <span class="tablero-kpi-etiqueta"><i class="material-icons" aria-hidden="true">ac_unit</i> Mínima esta noche</span>
-                <span class="tablero-kpi-valor kpi-noche">{{ vm.grados(vm.datos.kpis.nocheMin) }}</span>
-                <span class="tablero-kpi-nota" ng-class="{ 'nota-critica': vm.datos.kpis.riesgoHelada }">{{ vm.datos.kpis.riesgoHelada ? 'Riesgo de helada' : vm.datos.kpis.heladaSinRiesgo ? 'Cultivos en reposo' : vm.datos.kpis.nocheMin === null ? 'Sin pronóstico' : 'Sin riesgo de helada' }}</span>
+                <span class="tablero-kpi-certeza">Tu lista</span>
             </div>
         </div>
     </section>

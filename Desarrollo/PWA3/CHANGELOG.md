@@ -167,6 +167,7 @@ Cada version publicada lleva una etiqueta de git `pwa3-vX.Y.Z` sobre el commit d
   migrados: acordeon, list-group y modales de Bootstrap. El login sigue en Materialize. (REQ-043 fases B-C)
 
 ### Anadido
+- **REQ-156**: Resumen con 6 indicadores ordenados por importancia y certeza: nuevos Consumo de agua (m³/h en curso) y Riesgo de plagas (avisos de 48 h); cada indicador muestra su certeza.
 - **REQ-149**: alertas push (Cloud Functions) de humedad relativa en redes de sensores y de neveras/invernaderos (temperatura, humedad, presion, caudal, corriente), cada una con su casilla "avisar". Requiere desplegar las funciones.
 - **REQ-147**: redes de sensores: aviso "Sin datos" con `lo` del gateway (notificacion e icono en la ficha); en redes, neveras e invernaderos el icono abre la ventana de notificaciones.
 - Sensores: en Agregar y Editar sensor se configuran los limites de todo lo que mide cada sensor: humedad del suelo, temperatura, humedad relativa (tambien en los sensores de suelo), presion, caudal y corriente; en neveras e invernaderos la humedad del SHT2 se trata como humedad relativa. El caudal tenia el minimo y el maximo cruzados. La tarjeta de corriente y la columna H.Relativa del historial usan esos limites. (REQ-145)

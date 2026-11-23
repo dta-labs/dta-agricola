@@ -5406,7 +5406,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         const tablero = __modulo("tablero");
         const umbral = umbralDeHelada();
         const datos = tablero.tablero($scope.systems, depsDeTablero(), { resumenDe: $scope.resumenDeEquipo, pronostico: pronosticoNoche, umbralHelada: umbral,
-            sinEquipos: !!$scope.sinEquipos, instalada: appInstalada(), ahora: Date.now() });
+            sinEquipos: !!$scope.sinEquipos, instalada: appInstalada(), ahora: Date.now(), notificaciones: bandejaLista });   // REQ-156: plagas
         cacheTablero = {
             huella,
             datos,

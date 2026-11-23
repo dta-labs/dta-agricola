@@ -2,7 +2,7 @@ importScripts("https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js");
 importScripts("https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js");
 importScripts("./assets/js/firebaseConfig.js");
 // REQ-101: bandeja de notificaciones (las push que llegan con la app cerrada quedan en un buzon para la app).
-importScripts("./assets/js/logic/notificaciones.js?v=26.11.20.004");
+importScripts("./assets/js/logic/notificaciones.js?v=26.11.22.032");   // REQ-156: enfermedad y probabilidad
 importScripts("./assets/js/services/buzon-notificaciones.js?v=26.11.20.004");
 
 // Con titulo y texto, el navegador muestra la notificacion por su cuenta y Firebase NO llama al manejador en

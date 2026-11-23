@@ -66,7 +66,7 @@
     margin-top: 8px;
 }
 @media (min-width: 640px) {
-    .tablero-kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .tablero-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }   /* REQ-156: 6 indicadores, 2 filas */
 }
 .tablero-kpi {
     display: flex;
@@ -406,3 +406,16 @@
 .tablero-toca-marca input[type="checkbox"] + span:not(.lever) { display: flex; position: static; height: auto; padding-left: 0; line-height: 1.35; font-size: inherit; user-select: auto; }
 .tablero-toca-marca input[type="checkbox"] + span:not(.lever)::before,
 .tablero-toca-marca input[type="checkbox"] + span:not(.lever)::after { display: none; }
+
+/* REQ-156: certeza de cada indicador y nivel del riesgo de plagas */
+.tablero-kpi { position: relative; }
+.tablero-kpi-certeza { position: absolute; top: 8px; right: 10px; padding: 0 6px; border-radius: 999px; background: #f1f4f3; color: #78909c; font-size: 0.68rem; font-weight: 600; letter-spacing: 0.02em; }
+.tablero-kpi-etiqueta { padding-right: 64px; }
+.tablero-kpi-valor.plaga-alto { color: #c62828; }
+.tablero-kpi-valor.plaga-medio { color: #ef6c00; }
+.tablero-kpi-valor.plaga-bajo { color: #6d4c41; }
+.tablero-kpi-valor.plaga-sin-riesgo { color: #2e7d32; }
+@media (max-width: 639px) {   /* celular: la certeza va abajo para no partir la etiqueta */
+    .tablero-kpi-certeza { position: static; align-self: flex-start; margin-top: 4px; }
+    .tablero-kpi-etiqueta { padding-right: 0; }
+}
