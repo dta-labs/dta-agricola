@@ -339,15 +339,22 @@
                 <br>
 
                 <!-- Modal Nuevo Equipo -->
-                <div id="modalNuevoEquipo" class="modal">
-                    <div class="swal-title">Agregar equipo</div>
-                    <div class="modal-content" style="padding: 24px 24px 0 24px;" ng-init="steep = 0; newDevice.type = '';">
+                <!-- REQ-162: asistente por pasos como "Agregar sensor": Tipo, Identificacion y Configuracion. La barra de
+                     pasos navega igual que los botones de abajo. -->
+                <div id="modalNuevoEquipo" class="modal modal-asistente">
+                    <div class="modal-content" ng-init="steep = 0; newDevice.type = '';">
+                        <div class="swal-title">Agregar equipo{{ steep > 0 && newDevice.type ? ': ' + nombreTipoEquipo(newDevice.type) : '' }}</div>
+                        <div class="bs">
+                            <ol class="pasos-asistente" aria-label="Pasos para agregar un equipo">
+                                <li ng-class="{ actual: steep == 0, hecho: steep > 0 }" role="button" tabindex="0" ng-click="steep = 0"
+                                    ng-keydown="($event.key === 'Enter' || $event.key === ' ') && (steep = 0)"><span>1</span><em class="paso-texto">Tipo</em></li>
+                                <li ng-class="{ actual: steep == 1, hecho: steep > 1, bloqueado: !newDevice.type }" role="button" tabindex="0" aria-disabled="{{ !newDevice.type }}"
+                                    ng-click="newDevice.type && (steep = 1)" ng-keydown="($event.key === 'Enter' || $event.key === ' ') && newDevice.type && (steep = 1)"><span>2</span><em class="paso-texto">Identificación</em></li>
+                                <li ng-class="{ actual: steep == 2, bloqueado: !newDevice.type }" role="button" tabindex="0" aria-disabled="{{ !newDevice.type }}"
+                                    ng-click="newDevice.type && (steep = 2)" ng-keydown="($event.key === 'Enter' || $event.key === ' ') && newDevice.type && (steep = 2)"><span>3</span><em class="paso-texto">Configuración</em></li>
+                            </ol>
+                        </div>
                         <div class="row" style="margin-bottom: 0;">
-                            <div class="row">
-                                <div class="col s12" style="font-size: 1.5em; border-bottom: 1px solid;"">
-                                    {{ steep == 0 ? '' : (newDevice.type == 'PC' ? 'Pivote central' : newDevice.type == 'Estacionario' ? 'Estacionario' : newDevice.type == 'Sensor' ? 'Sensor' : newDevice.type == 'Nevera' ? 'Nevera' : newDevice.type == 'Invernadero' ? 'Invernadero' : 'Pozo') }}
-                                </div>
-                            </div>
 
                             <div class="col s12 nuevo-equipo-tipos" ng-show="steep == 0">   <!-- Seleccionar sistemas. REQ-161: rejilla de 2 columnas -->
 
@@ -420,124 +427,129 @@
 
                             </div>
 
-                            <div class="input-field col s12 row" ng-show="steep == 1">   <!-- Seleccionar tipo de pivote -->
-                                <!-- Compatibilidad -->
-                                <div class="input-field col s12"
-                                    ng-show="newDevice.type == 'PC' || newDevice.type == 'PL'">
-                                    <select class="browser-default" ng-model="newDevice.brand">   <!-- Compatibilidad -->
-                                        <option value="" disabled selected>Seleccione un tipo</option>
-                                        <option value="valley">Valley | Valley cams</option>
-                                        <option value="growsmart">Zimmatic | Rintec hydrus | Growsmart</option>
-                                        <option value="lindsay">Lindsay</option>
-                                    </select>
-                                    <label>Compatibilidad</label>
-                                </div>
-                                <!-- REQ-051: Ubicacion del equipo en el mapa -->
-                                <div class="col s12 geo-bloque">
-                                    <div class="geo-titulo"><i class="material-icons" aria-hidden="true">place</i> Ubicación del equipo</div>
-                                    <dta-mapa-selector modo="punto" latitud="newDevice.latitude" longitud="newDevice.longitude"
-                                        al-cambiar="newDevice.latitude = $lat; newDevice.longitude = $lng"></dta-mapa-selector>
-                                </div>
-                                <!-- Largo -->
-                                <div class="input-field col s6"
-                                    ng-show="newDevice.type == 'PC' || newDevice.type == 'PL'">
-                                    <input id="newDeviceLarge" type="number" placeholder="metros"
-                                        ng-model="newDevice.length" ng-value="newDevice.length ? newDevice.length : 540">
-                                    <label for="newDeviceLarge">Largo del equipo (m)</label>
-                                </div>
-                                <!-- Límite de velocidad -->
-                                <div class="input-field col s6"
-                                    ng-show="newDevice.type == 'PC' || newDevice.type == 'PL'">
-                                    <input id="newDeviceMaxVelocity" type="number" placeholder="%"
-                                        ng-model="newDevice.maxVelocity" ng-value="newDevice.maxVelocity ? newDevice.maxVelocity : 100">
-                                    <label for="newDeviceMaxVelocity">Límite de velocidad (%)</label>
-                                </div>
-                            </div>
-                                
-                            <div class="input-field col s12 row" ng-show="steep == 2">   <!-- Datos generales -->
-                                <div class="input-field col s12">    <!-- Nombre del equipo -->
-                                    <input id="newDeviceName" type="text" placeholder="Nombre del equipo"
-                                    ng-model="newDevice.name">
-                                    <label for="newDeviceName">Nombre del equipo (alias)</label>
-                                </div>
-                                <!-- REQ-052: identificador con lector de QR, codigo de barras o NFC -->
-                                <div class="col s12">
-                                    <div class="bs ventana-bloque">
-                                        <label for="newDeviceKey" class="form-label">Identificador del equipo</label>
-                                        <input id="newDeviceKey" type="text" class="form-control" placeholder="Escríbelo o léelo con la cámara / NFC"
+                            <!-- Paso 2: identificacion -->
+                            <div class="col s12" ng-show="steep == 1">
+                                <div class="bs ventana-bloque">
+                                    <div class="mb-3">
+                                        <label for="newDeviceName" class="form-label">Nombre del equipo</label>
+                                        <input id="newDeviceName" type="text" class="form-control" placeholder="Ej. Pivote Norte" ng-model="newDevice.name" autocomplete="off">
+                                    </div>
+                                    <div>
+                                        <!-- REQ-052: identificador con lector de QR, codigo de barras o NFC -->
+                                        <label for="newDeviceKey" class="form-label">Identificación del equipo</label>
+                                        <input id="newDeviceKey" type="text" class="form-control" placeholder="Escríbela o léela con la cámara / NFC"
                                             ng-model="newDevice.key" autocomplete="off">
                                         <dta-lector-codigo class="mt-2" que="equipo" al-leer="newDevice.key = $codigo"></dta-lector-codigo>
                                     </div>
+                                    <div class="mt-3" ng-if="newDevice.type == 'Estacionario'">
+                                        <label for="newDeviceSerie" class="form-label">Serie</label>
+                                        <select id="newDeviceSerie" class="browser-default form-select" ng-model="newDevice.length">
+                                            <option value="" disabled>Elige la serie</option>
+                                            <option value="3">AG03 (3 válvulas + pozo)</option>
+                                            <option value="6">AG06 (6 válvulas + pozo)</option>
+                                            <option value="7">AG07 (7 válvulas + pozo)</option>
+                                        </select>
+                                    </div>
+                                    <div class="mt-3" ng-if="newDevice.type == 'Sensor'">
+                                        <label for="newDeviceSensorType" class="form-label">Serie</label>
+                                        <select id="newDeviceSensorType" class="browser-default form-select" ng-model="newDevice.sensorType">
+                                            <option value="" disabled>Elige la serie</option>
+                                            <option value="sensorBluetooth">Corto alcance (Bluetooth)</option>
+                                            <option value="sensorLoRa">Largo alcance (LoRa)</option>
+                                        </select>
+                                    </div>
                                 </div>
-                                <div class="input-field col s6" ng-show="newDevice.type == 'Estacionario'">    <!-- Serie -->
-                                    <select class="browser-default" ng-model="newDevice.length">
-                                        <option value="" disabled selected>Seleccione un tipo</option>
-                                        <option value="3">AG03 (3 válvulas + pozo)</option>
-                                        <option value="6">AG06 (6 válvulas + pozo)</option>
-                                        <option value="7">AG07 (7 válvulas + pozo)</option>
-                                    </select>
-                                    <label for="newDeviceLarge">Serie</label>
+                            </div>
+
+                            <!-- Paso 3: configuracion -->
+                            <div class="col s12" ng-show="steep == 2">
+                                <div class="bs ventana-bloque" ng-if="newDevice.type == 'PC' || newDevice.type == 'PL'">
+                                    <div class="ventana-bloque-titulo"><i class="material-icons" aria-hidden="true">settings</i> Equipo</div>
+                                    <div class="mb-3">
+                                        <label for="newDeviceBrand" class="form-label">Compatibilidad</label>
+                                        <select id="newDeviceBrand" class="browser-default form-select" ng-model="newDevice.brand">
+                                            <option value="" disabled>Elige la marca del pivote</option>
+                                            <option value="valley">Valley | Valley cams</option>
+                                            <option value="growsmart">Zimmatic | Rintec hydrus | Growsmart</option>
+                                            <option value="lindsay">Lindsay</option>
+                                        </select>
+                                    </div>
+                                    <div class="row g-3">
+                                        <div class="col-6">
+                                            <label for="newDeviceLarge" class="form-label">Largo del equipo (m)</label>
+                                            <input id="newDeviceLarge" type="number" min="1" class="form-control" placeholder="540" ng-model="newDevice.length">
+                                        </div>
+                                        <div class="col-6">
+                                            <label for="newDeviceMaxVelocity" class="form-label">Límite de velocidad (%)</label>
+                                            <input id="newDeviceMaxVelocity" type="number" min="1" max="100" class="form-control" placeholder="100" ng-model="newDevice.maxVelocity">
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="input-field col s6" ng-show="newDevice.type == 'Sensor'">    <!-- Serie -->
-                                    <select id="newDeviceSensorType" class="browser-default" ng-model="newDevice.sensorType">
-                                        <option value="" disabled selected>Seleccione un tipo</option>
-                                        <option value="sensorBluetooth">Corto alcance (Bluetooth)</option>
-                                        <option value="sensorLoRa">Largo alcance (LoRa)</option>
+                                <!-- REQ-051: ubicacion del equipo en el mapa, con latitud, longitud y zona horaria -->
+                                <div class="bs ventana-bloque geo-bloque">
+                                    <div class="ventana-bloque-titulo"><i class="material-icons" aria-hidden="true">place</i> Ubicación</div>
+                                    <dta-mapa-selector modo="punto" latitud="newDevice.latitude" longitud="newDevice.longitude"
+                                        al-cambiar="newDevice.latitude = $lat; newDevice.longitude = $lng"></dta-mapa-selector>
+                                    <div class="row g-3 mt-1">
+                                        <div class="col-6 col-md-4">
+                                            <label for="newDeviceLat" class="form-label">Latitud</label>
+                                            <input id="newDeviceLat" type="number" step="any" min="-90" max="90" class="form-control" ng-model="newDevice.latitude" ng-model-options="{ updateOn: 'blur' }">
+                                        </div>
+                                        <div class="col-6 col-md-4">
+                                            <label for="newDeviceLng" class="form-label">Longitud</label>
+                                            <input id="newDeviceLng" type="number" step="any" min="-180" max="180" class="form-control" ng-model="newDevice.longitude" ng-model-options="{ updateOn: 'blur' }">
+                                        </div>
+                                        <div class="col-12 col-md-4">
+                                            <label for="newDeviceZone" class="form-label">Zona horaria</label>
+                                            <select id="newDeviceZone" class="browser-default form-select" ng-model="newDevice.zona">
+                                        <option value="" disabled>Elige la zona</option>
+                                        <option value="-11">UTC-11 Pacific</option>
+                                        <option value="-10">UTC-10 America-Pacific</option>
+                                        <option value="-9:30">UTC-9:30 Pacific</option>
+                                        <option value="-9">UTC-9 America-Pacific</option>
+                                        <option value="-8">UTC-8 America-Pacific</option>
+                                        <option value="-7">UTC-7 America</option>
+                                        <option value="-6">UTC-6 America-Pacific</option>
+                                        <option value="-5">UTC-5 America</option>
+                                        <option value="-4">UTC-4 America-Atlantic</option>
+                                        <option value="-3">UTC-3 America-Atlantic</option>
+                                        <option value="-2">UTC-2 America-Atlantic</option>
+                                        <option value="-1">UTC-1 America-Atlantic</option>
+                                        <option value="+0">UTC+0 Africa-America-Atlantic-Europe</option>
+                                        <option value="+1">UTC+1 Africa-Arctic-Europe</option>
+                                        <option value="+2">UTC+2 Africa-Europe</option>
+                                        <option value="+3">UTC+3 Africa-Asia-Europe-Indian</option>
+                                        <option value="+4">UTC+4 Asia-Europe-Indian</option>
+                                        <option value="+5">UTC+5 Antarctica-Asia-Indian</option>
+                                        <option value="+5:30">UTC+5:30 Asia (India)</option>
+                                                <option value="+6">UTC+6 Antarctica-Asia-Indian</option>
+                                        <option value="+7">UTC+7 Antarctica-Asia-Indian</option>
+                                        <option value="+8">UTC+8 Asia-Australia </option>
+                                        <option value="+9">UTC+9 Asia-Pacific</option>
+                                        <option value="+10">UTC+10 Antarctica-Asia-Australia </option>
+                                        <option value="+10:30">UTC+10:30 Australia</option>
+                                        <option value="+11">UTC+11 Antarctica-Asia </option>
+                                        <option value="+12">UTC+12 Antarctica-Asia </option>
+                                        <option value="+13">UTC+13 Pacific</option>
+                                        <option value="+14">UTC+14 Pacific</option>
                                     </select>
-                                    <label for="newDeviceSensorType">Serie</label>
-                                </div>
-                                <div class="input-field col s12 m6" ng-init="newDevice.zona = '0'">    <!-- Zona -->
-                                    <select id="newDeviceZone" class="browser-default" ng-model="newDevice.zona">
-                                        <option value="" disabled selected>Seleccione una zona</option>
-                                        <option ng-selected="newDevice.zona == -11 ? true : false" value="-11">UTC-11 Pacific</option>
-                                        <option ng-selected="newDevice.zona == -10 ? true : false" value="-10">UTC-10 America-Pacific</option>
-                                        <option ng-selected="newDevice.zona == -9 ? true : false" value="-9:30">UTC-9:30 Pacific</option>
-                                        <option ng-selected="newDevice.zona == -9 ? true : false" value="-9">UTC-9 America-Pacific</option>
-                                        <option ng-selected="newDevice.zona == -8 ? true : false" value="-8">UTC-8 America-Pacific</option>
-                                        <option ng-selected="newDevice.zona == -7 ? true : false" value="-7">UTC-7 America</option>
-                                        <option ng-selected="newDevice.zona == -6 ? true : false" value="-6">UTC-6 America-Pacific</option>
-                                        <option ng-selected="newDevice.zona == -5 ? true : false" value="-5">UTC-5 America</option>
-                                        <option ng-selected="newDevice.zona == -4 ? true : false" value="-4">UTC-4 America-Atlantic</option>
-                                        <option ng-selected="newDevice.zona == -3 ? true : false" value="-3">UTC-3 America-Atlantic</option>
-                                        <option ng-selected="newDevice.zona == -2 ? true : false" value="-2">UTC-2 America-Atlantic</option>
-                                        <option ng-selected="newDevice.zona == -1 ? true : false" value="-1">UTC-1 America-Atlantic</option>
-                                        <option ng-selected="newDevice.zona == +0 ? true : false" value="+0">UTC+0 Africa-America-Atlantic-Europe</option>
-                                        <option ng-selected="newDevice.zona == +1 ? true : false" value="+1">UTC+1 Africa-Arctic-Europe</option>
-                                        <option ng-selected="newDevice.zona == +2 ? true : false" value="+2">UTC+2 Africa-Europe</option>
-                                        <option ng-selected="newDevice.zona == +3 ? true : false" value="+3">UTC+3 Africa-Asia-Europe-Indian</option>
-                                        <option ng-selected="newDevice.zona == +4 ? true : false" value="+4">UTC+4 Asia-Europe-Indian</option>
-                                        <option ng-selected="newDevice.zona == +5 ? true : false" value="+5">UTC+5 Antarctica-Asia-Indian</option>
-                                        <option ng-selected="newDevice.zona == +6 ? true : false" value="+6">UTC+6 Antarctica-Asia-Indian</option>
-                                        <option ng-selected="newDevice.zona == +7 ? true : false" value="+7">UTC+7 Antarctica-Asia-Indian</option>
-                                        <option ng-selected="newDevice.zona == +8 ? true : false" value="+8">UTC+8 Asia-Australia </option>
-                                        <option ng-selected="newDevice.zona == +9 ? true : false" value="+9">UTC+9 Asia-Pacific</option>
-                                        <option ng-selected="newDevice.zona == +10 ? true : false" value="+10">UTC+10 Antarctica-Asia-Australia </option>
-                                        <option ng-selected="newDevice.zona == +10 ? true : false" value="+10">UTC+10:30 Australia </option>
-                                        <option ng-selected="newDevice.zona == +11 ? true : false" value="+11">UTC+11 Antarctica-Asia </option>
-                                        <option ng-selected="newDevice.zona == +12 ? true : false" value="+12">UTC+12 Antarctica-Asia </option>
-                                        <option ng-selected="newDevice.zona == +13 ? true : false" value="+13">UTC+13 Pacific</option>
-                                        <option ng-selected="newDevice.zona == +14 ? true : false" value="+14">UTC+14 Pacific</option>
-                                    </select>
-                                    <label for="newDeviceZone">Zona</label>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
                         </div>
                     </div>
-                    <div class="modal-footer" style="margin-bottom: 10px;">
-                        <a href="" class="modal-close waves-effect waves-green btn grey lighten-3 black-text" ng-click="steep = 0">Cancelar</a>
-                        <a href="" class="waves-effect waves-green btn grey lighten-3 black-text"
-                            ng-click="steep = steep - 1" ng-show="steep != 0">
-                            <i class="material-icons">&nbsp;&nbsp;arrow_back&nbsp;&nbsp;</i>
-                        </a>
-                        <a href="" class="waves-effect waves-green btn teal lighten-3"
-                            ng-click="steep = steep + 1" ng-show="steep == 1">
-                            <i class="material-icons">&nbsp;&nbsp;arrow_forward&nbsp;&nbsp;</i>
-                        </a>
-                        <a href="" class="waves-effect waves-green btn teal lighten-3"
-                            ng-click="steep = 0; updateNewDevice()" ng-show="steep == 2">
-                            <i class="material-icons">&nbsp;&nbsp;add&nbsp;&nbsp;</i>
-                        </a>
+                    <div class="modal-footer">
+                        <span class="asistente-falta" ng-if="steep == 2 && faltaEnEquipo(newDevice)">Falta: {{ faltaEnEquipo(newDevice) }}</span>
+                        <a href="" class="modal-close btn-flat" ng-click="steep = 0">Cancelar</a>
+                        <a href="" class="btn grey boton-icono-movil" aria-label="Atrás" ng-click="steep = steep - 1" ng-show="steep != 0">
+                            <i class="material-icons left">arrow_back</i><span class="boton-texto">Atrás</span></a>
+                        <a href="" class="btn boton-icono-movil" aria-label="Siguiente" ng-click="steep = steep + 1" ng-show="steep == 1 || (steep == 0 && newDevice.type)">
+                            <span class="boton-texto">Siguiente</span><i class="material-icons right">arrow_forward</i></a>
+                        <a href="" class="btn boton-icono-movil" aria-label="Agregar equipo" ng-click="agregarEquipoDelAsistente()"
+                            ng-class="{ disabled: faltaEnEquipo(newDevice) }" ng-show="steep == 2">
+                            <i class="material-icons left">check</i><span class="boton-texto">Agregar equipo</span></a>
                     </div>
                 </div>
 
@@ -2546,17 +2558,24 @@
                         <div class="swal-title">Agregar sensor {{ newSensor.id }}</div>
                         <!-- REQ-052: indicador de pasos -->
                         <div class="bs">
+                            <!-- REQ-162: Tipo, Identificacion, Ubicacion (solo redes de sensores) y Cultivo y alertas. La barra navega
+                                 igual que los botones de abajo. -->
                             <ol class="pasos-asistente" aria-label="Pasos para agregar un sensor">
-                                <li ng-class="{ actual: steepSensor == 0, hecho: steepSensor > 0 }"><span>1</span><em class="paso-texto">Tipo</em></li>
-                                <li ng-class="{ actual: steepSensor == 1, hecho: steepSensor > 1 }"><span>2</span><em class="paso-texto">Cultivo y alertas</em></li>
-                                <li ng-class="{ actual: steepSensor == 2 }"><span>3</span><em class="paso-texto">Identificador y ubicación</em></li>
+                                <li ng-class="{ actual: steepSensor == 0, hecho: steepSensor > 0 }" role="button" tabindex="0" ng-click="steepSensor = 0"
+                                    ng-keydown="($event.key === 'Enter' || $event.key === ' ') && (steepSensor = 0)"><span>1</span><em class="paso-texto">Tipo</em></li>
+                                <li ng-class="{ actual: steepSensor == 1, hecho: steepSensor > 1, bloqueado: !newSensor.type }" role="button" tabindex="0" aria-disabled="{{ !newSensor.type }}"
+                                    ng-click="newSensor.type && (steepSensor = 1)" ng-keydown="($event.key === 'Enter' || $event.key === ' ') && newSensor.type && (steepSensor = 1)"><span>2</span><em class="paso-texto">Identificación</em></li>
+                                <li ng-if="actualSystem.type == 'Sensor'" ng-class="{ actual: steepSensor == 2, hecho: steepSensor > 2, bloqueado: !newSensor.type }" role="button" tabindex="0" aria-disabled="{{ !newSensor.type }}"
+                                    ng-click="newSensor.type && irAPasoSensor(2)" ng-keydown="($event.key === 'Enter' || $event.key === ' ') && newSensor.type && irAPasoSensor(2)"><span>3</span><em class="paso-texto">Ubicación</em></li>
+                                <li ng-class="{ actual: steepSensor == 3, bloqueado: !newSensor.type }" role="button" tabindex="0" aria-disabled="{{ !newSensor.type }}"
+                                    ng-click="newSensor.type && (steepSensor = 3)" ng-keydown="($event.key === 'Enter' || $event.key === ' ') && newSensor.type && (steepSensor = 3)"><span>{{ actualSystem.type == 'Sensor' ? 4 : 3 }}</span><em class="paso-texto">Cultivo y alertas</em></li>
                             </ol>
                         </div>
                         <div class="row" ng-init="steepSensor = 0; newSensor.type = ''">
 
-                            <div class="input-field col s12 row" ng-show="steepSensor == 0">   <!-- Seleccionar sensor -->
+                            <div class="col s12" ng-show="steepSensor == 0">   <!-- Seleccionar sensor -->
                                 
-                                <section ng-show="actualSystem.type == 'Sensor'">
+                                <section class="nuevo-equipo-tipos" ng-show="actualSystem.type == 'Sensor'">
                                     <div class="col s6">
                                         <div class="card tarjeta-sensores" ng-click="newSensor.type='NPKML'; steepSensor = steepSensor + 1" style="box-shadow: 8px 8px 8px gray !important;">
                                             <div class="card-image">
@@ -2607,7 +2626,7 @@
                                                 <img src="./assets/images/sTemp.png" style="height: 80px; width: 80px; margin: auto;" loading="lazy">
                                             </div>
                                             <div class="card-content">
-                                                <p style="text-align: center; font-size: 1.2em;">Presión</p>
+                                                <p style="text-align: center; font-size: 1.2em;">Temperatura</p>
                                             </div>
                                         </div>
                                     </div>
@@ -2635,7 +2654,7 @@
                                     </div>
                                 </section>
 
-                                <section ng-show="esTipoNevera(actualSystem.type)">
+                                <section class="nuevo-equipo-tipos" ng-show="esTipoNevera(actualSystem.type)">
                                     <div class="col s6">
                                         <div class="card tarjeta-sensores" ng-click="newSensor.type='SHT2'; steepSensor = steepSensor + 1" style="box-shadow: 8px 8px 8px gray !important;">
                                             <div class="card-image">
@@ -2688,7 +2707,44 @@
                                 
                             </div>
 
-                            <div class="input-field col s12 row" ng-show="steepSensor == 1">   <!-- Seleccionar cultivos -->
+                            <div class="col s12" ng-show="steepSensor == 1">   <!-- Paso 2: identificacion -->
+                                <!-- REQ-052: nombre e identificador (con lector de QR, codigo de barras o NFC) -->
+                                <div class="col s12">
+                                    <div class="bs ventana-bloque">
+                                        <div class="row g-3">
+                                            <div class="col-12 col-md-6">
+                                                <label for="newSensorAlias" class="form-label">Nombre del sensor</label>
+                                                <input id="newSensorAlias" type="text" class="form-control" ng-model="newSensor.alias" placeholder="Ej. Nogal norte" autocomplete="off">
+                                            </div>
+                                            <div class="col-12 col-md-6">
+                                                <label for="newSensorID" class="form-label">Identificador <span class="text-danger">*</span></label>
+                                                <input id="newSensorID" type="text" class="form-control" ng-model="newSensor.id" placeholder="Escríbelo o léelo" autocomplete="off">
+                                            </div>
+                                            <div class="col-12">
+                                                <dta-lector-codigo que="sensor" al-leer="newSensor.id = $codigo"></dta-lector-codigo>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col s12" ng-show="steepSensor == 2">   <!-- Paso 3: ubicacion (redes de sensores) -->
+                                <!-- REQ-051: ubicacion del sensor y area de su parcela en el mapa -->
+                                <div class="col s12 geo-bloque" ng-if="actualSystem.type == 'Sensor'">
+                                    <div class="geo-titulo"><i class="material-icons" aria-hidden="true">place</i> Ubicación del sensor <span class="geo-requerido">*</span></div>
+                                    <dta-mapa-selector modo="punto" latitud="newSensor.latitude" longitud="newSensor.longitude"
+                                        centro-lat="actualSystem.latitude" centro-lng="actualSystem.longitude"
+                                        al-cambiar="newSensor.latitude = $lat; newSensor.longitude = $lng"></dta-mapa-selector>
+
+                                    <div class="geo-titulo geo-titulo-siguiente"><i class="material-icons" aria-hidden="true">crop_free</i> Área de la parcela <span class="geo-opcional">(opcional)</span></div>
+                                    <p class="geo-nota">Marca el terreno que mide este sensor.</p>
+                                    <dta-mapa-selector modo="poligono" poligono="newSensor.poligon" marca-lat="newSensor.latitude" marca-lng="newSensor.longitude"
+                                        centro-lat="newSensor.latitude || actualSystem.latitude" centro-lng="newSensor.longitude || actualSystem.longitude"
+                                        al-cambiar="newSensor.poligon = $poligono"></dta-mapa-selector>
+                                </div>
+                            </div>
+
+                            <div class="input-field col s12 row" ng-show="steepSensor == 3">   <!-- Paso 4: cultivo y alertas -->
                                 <!-- REQ-144: invernadero: varios cultivos por sensor (el primero es el principal: fase y alertas) -->
                                 <div class="col s12" ng-if="actualSystem.type == 'Invernadero'">
                                     <div class="bs ventana-bloque text-start">
@@ -2990,51 +3046,19 @@
                                 </div>
                             </div>
 
-                            <div class="input-field col s12 row" ng-show="steepSensor == 2">   <!-- Datos generales -->
-                                <!-- REQ-052: nombre e identificador (con lector de QR, codigo de barras o NFC) -->
-                                <div class="col s12">
-                                    <div class="bs ventana-bloque">
-                                        <div class="row g-3">
-                                            <div class="col-12 col-md-6">
-                                                <label for="newSensorAlias" class="form-label">Nombre del sensor</label>
-                                                <input id="newSensorAlias" type="text" class="form-control" ng-model="newSensor.alias" placeholder="Ej. Nogal norte" autocomplete="off">
-                                            </div>
-                                            <div class="col-12 col-md-6">
-                                                <label for="newSensorID" class="form-label">Identificador <span class="text-danger">*</span></label>
-                                                <input id="newSensorID" type="text" class="form-control" ng-model="newSensor.id" placeholder="Escríbelo o léelo" autocomplete="off">
-                                            </div>
-                                            <div class="col-12">
-                                                <dta-lector-codigo que="sensor" al-leer="newSensor.id = $codigo"></dta-lector-codigo>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- REQ-051: ubicacion del sensor y area de su parcela en el mapa -->
-                                <div class="col s12 geo-bloque" ng-if="actualSystem.type == 'Sensor'">
-                                    <div class="geo-titulo"><i class="material-icons" aria-hidden="true">place</i> Ubicación del sensor <span class="geo-requerido">*</span></div>
-                                    <dta-mapa-selector modo="punto" latitud="newSensor.latitude" longitud="newSensor.longitude"
-                                        centro-lat="actualSystem.latitude" centro-lng="actualSystem.longitude"
-                                        al-cambiar="newSensor.latitude = $lat; newSensor.longitude = $lng"></dta-mapa-selector>
-
-                                    <div class="geo-titulo geo-titulo-siguiente"><i class="material-icons" aria-hidden="true">crop_free</i> Área de la parcela <span class="geo-opcional">(opcional)</span></div>
-                                    <p class="geo-nota">Marca el terreno que mide este sensor.</p>
-                                    <dta-mapa-selector modo="poligono" poligono="newSensor.poligon" marca-lat="newSensor.latitude" marca-lng="newSensor.longitude"
-                                        centro-lat="newSensor.latitude || actualSystem.latitude" centro-lng="newSensor.longitude || actualSystem.longitude"
-                                        al-cambiar="newSensor.poligon = $poligono"></dta-mapa-selector>
-                                </div>
-                            </div>
 
                         </div>
                     </div>
                     <div class="modal-footer">
+                        <span class="asistente-falta" ng-if="steepSensor == 3 && faltaEnSensor(newSensor)">Falta: {{ faltaEnSensor(newSensor) }}</span>
                         <!-- REQ-052: botones con texto -->
                         <a href="" class="modal-close btn-flat" ng-click="steepSensor = 0">Cancelar</a>
                         <!-- REQ-053: en el movil solo el icono (aria-label para lectores de pantalla) -->
-                        <a href="" class="btn grey boton-icono-movil" aria-label="Atrás" ng-click="steepSensor = steepSensor - 1" ng-show="steepSensor != 0">
+                        <a href="" class="btn grey boton-icono-movil" aria-label="Atrás" ng-click="steepSensor = pasoSensorAnterior(steepSensor)" ng-show="steepSensor != 0">
                             <i class="material-icons left">arrow_back</i><span class="boton-texto">Atrás</span></a>
-                        <a href="" class="btn boton-icono-movil" aria-label="Siguiente" ng-click="steepSensor = steepSensor + 1" ng-show="steepSensor == 1 && newSensor.type != ''">
+                        <a href="" class="btn boton-icono-movil" aria-label="Siguiente" ng-click="steepSensor = pasoSensorSiguiente(steepSensor)" ng-show="steepSensor < 3 && newSensor.type != ''">
                             <span class="boton-texto">Siguiente</span><i class="material-icons right">arrow_forward</i></a>
-                        <a href="" class="modal-close btn boton-icono-movil" aria-label="Agregar sensor" ng-click="steepSensor = 0; addNewSensorToNet()" ng-show="steepSensor == 2">
+                        <a href="" class="btn boton-icono-movil" aria-label="Agregar sensor" ng-click="agregarSensorDelAsistente()" ng-class="{ disabled: faltaEnSensor(newSensor) }" ng-show="steepSensor == 3">
                             <i class="material-icons left">check</i><span class="boton-texto">Agregar sensor</span></a>
                     </div>
                 </div>
@@ -3892,14 +3916,14 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="./assets/modules/materialize/css/materialize.min.css">
     <link rel="stylesheet" href="./assets/modules/leaflet/leaflet.css">
-    <link rel="stylesheet" href="./assets/css/style.css?v=26.11.22.037">
+    <link rel="stylesheet" href="./assets/css/style.css?v=26.11.22.038">
     <link rel="stylesheet" href="./assets/css/responsive.css">
     <link rel="stylesheet" href="./assets/css/formularios.css?v=26.11.06.002">
     <!-- REQ-043: Bootstrap 5 aislado en .bs (convive con Materialize mientras se migra) -->
     <link rel="stylesheet" href="./assets/vendor/bootstrap/bootstrap-dta.css?v=5.3.8.1">
     <link rel="stylesheet" href="./assets/css/bootstrap-convivencia.css?v=26.11.06.002">
     <link rel="stylesheet" href="./assets/css/perfil.css?v=26.11.06.003">
-    <link rel="stylesheet" href="./assets/css/ventana.css?v=26.11.22.022">
+    <link rel="stylesheet" href="./assets/css/ventana.css?v=26.11.22.038">
     <!-- REQ-047: tema comun (botones, modales, campos, ventanas) para lo que sigue en Materialize -->
     <link rel="stylesheet" href="./assets/css/tema.css?v=26.11.06.002">
     <link rel="stylesheet" href="./assets/js/components/login/login.css?v=26.11.06.004">
@@ -4161,7 +4185,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-analytics.js"></script>
     <!-- Logica pura y servicios (REQ-001..010). Debe ir ANTES de firebaseComm.js y core.js. -->
     <script src="./assets/js/logic/formulas.js?v=26.11.02.001"></script>
-    <script src="./assets/js/logic/fechas.js?v=26.11.06.002"></script>
+    <script src="./assets/js/logic/fechas.js?v=26.11.22.038"></script>
     <script src="./assets/js/logic/secuencias.js?v=26.11.02.001"></script>
     <script src="./assets/js/logic/estado.js?v=26.11.07.018"></script>
     <script src="./assets/js/logic/ids.js?v=26.11.08.002"></script>
@@ -4210,9 +4234,9 @@
 <script src="./assets/js/logic/meteo.js?v=26.11.02.001"></script>
     <script src="./assets/js/logic/aviso.js?v=26.11.02.001"></script>
 <script src="./assets/vendor/bootstrap/bootstrap.bundle.min.js?v=5.3.8"></script>
-    <script src="./assets/js/core.js?v=26.11.22.035"></script>
+    <script src="./assets/js/core.js?v=26.11.22.038"></script>
     <!-- REQ-038: factories, ayudas de interfaz y componentes (despues de core.js, que crea el modulo) -->
-    <script src="./assets/js/app/version.js?v=26.11.22.037"></script>
+    <script src="./assets/js/app/version.js?v=26.11.22.038"></script>
     <script src="./assets/js/app/reglas.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/auth.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/repo.factory.js?v=26.11.06.001"></script>

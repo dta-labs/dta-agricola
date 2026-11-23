@@ -396,6 +396,14 @@
     }
 }
 
+/* REQ-162: la barra de pasos navega (como las flechas); los pasos que aun no se pueden abrir se ven atenuados */
+.bs .pasos-asistente li[role="button"] { cursor: pointer; }
+.bs .pasos-asistente li[role="button"]:hover:not(.bloqueado):not(.actual) { background: #e8eceb; }
+.bs .pasos-asistente li[role="button"]:focus-visible { outline: 2px solid #2e7d32; outline-offset: 2px; }
+.bs .pasos-asistente li.bloqueado { cursor: not-allowed; opacity: 0.55; }
+.modal.modal-asistente .asistente-falta { flex: 1 1 auto; align-self: center; margin-right: auto; color: #c62828; font-size: 0.85rem; text-align: left; }
+.modal.modal-asistente .modal-footer .btn.disabled { opacity: 0.55; }
+
 .bs .pasos-asistente .paso-texto {
     font-style: normal;
     overflow: hidden;
@@ -503,6 +511,11 @@
         justify-content: center;
         width: 46px;
         padding: 0 !important;
+    }
+    /* REQ-162: el display de arriba (con !important) le ganaba a ng-hide: en el movil se veian Atras, Siguiente y
+       Agregar a la vez */
+    .modal.modal-asistente .boton-icono-movil.ng-hide {
+        display: none !important;
     }
     .modal.modal-asistente .boton-icono-movil .material-icons {
         float: none !important;

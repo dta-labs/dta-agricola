@@ -138,7 +138,21 @@
         return hora12 + ":" + dosDigitos(minuto) + " " + sufijo;
     }
 
+    /**
+     * REQ-162: zona horaria como la guardan los equipos y la ofrece el selector: "-6", "+0", "+5:30".
+     * minutosDesplazamiento: Date#getTimezoneOffset() (positivo al oeste de UTC).
+     */
+    function zonaHorariaLocal(minutosDesplazamiento) {
+        var m = minutosDesplazamiento === undefined ? new Date().getTimezoneOffset() : Number(minutosDesplazamiento);
+        var total = -m;
+        var signo = total < 0 ? "-" : "+";
+        var abs = Math.abs(total);
+        var h = Math.floor(abs / 60), min = abs % 60;
+        return signo + h + (min ? ":" + (min < 10 ? "0" : "") + min : "");
+    }
+
     return {
+        zonaHorariaLocal: zonaHorariaLocal,
         parseFechaHora2: parseFechaHora2,
         parseFechaHora: parseFechaHora,
         menorIgual: menorIgual,

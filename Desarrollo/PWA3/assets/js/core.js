@@ -1838,7 +1838,9 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             "status": "OFF",
             "summerHour": "0",
             "type": "",
-            "zona": ((new Date()).getTimezoneOffset() / 60) * -1
+            // REQ-162: zona como texto con signo ("-6", "+0"), igual que las opciones del selector (un numero no las
+            // seleccionaba y UTC+0 contaba como vacio)
+            "zona": __modulo("fechas").zonaHorariaLocal()
         };
         $scope.showWindow('listado');
     }
@@ -2055,6 +2057,55 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         }
         return op;
     }
+
+    // REQ-162: asistente "Agregar equipo" (Tipo, Identificacion, Configuracion)
+    const NOMBRES_TIPO_EQUIPO = { PC: "Pivote central", PL: "Pivote lineal", Estacionario: "Riego sectorial", Sensor: "Red de sensores",
+        Nevera: "Nevera", Invernadero: "Invernadero", Pozo: "Bombeo" };
+    $scope.nombreTipoEquipo = (tipo) => NOMBRES_TIPO_EQUIPO[tipo] || "";
+    /** Lo que falta para poder agregar el equipo ("" si nada). */
+    $scope.faltaEnEquipo = (d) => {
+        if (!d || !d.type) return "tipo de equipo";
+        const faltan = [];
+        if (!String(d.name || "").trim()) faltan.push("nombre");
+        if (!String(d.key || "").trim()) faltan.push("identificación");
+        if (d.zona === undefined || d.zona === null || d.zona === "") faltan.push("zona horaria");
+        return faltan.join(", ");
+    };
+    $scope.agregarEquipoDelAsistente = () => {
+        const falta = $scope.faltaEnEquipo($scope.newDevice);
+        if (falta) {
+            if (window.M && M.toast) M.toast({ html: "Falta: " + falta });
+            if (/nombre|identificaci/.test(falta)) $scope.steep = 1;
+            return;
+        }
+        $scope.steep = 0;
+        $scope.updateNewDevice();
+    };
+
+    // REQ-162: asistente "Agregar sensor": 0 Tipo, 1 Identificacion, 2 Ubicacion (solo redes de sensores), 3 Cultivo y
+    // alertas. Las neveras e invernaderos saltan la ubicacion.
+    const conUbicacionDeSensor = () => !!($scope.actualSystem && $scope.actualSystem.type === "Sensor");
+    $scope.pasoSensorSiguiente = (i) => Math.min(3, (i === 1 && !conUbicacionDeSensor()) ? 3 : i + 1);
+    $scope.pasoSensorAnterior = (i) => Math.max(0, (i === 3 && !conUbicacionDeSensor()) ? 1 : i - 1);
+    $scope.irAPasoSensor = (i) => { $scope.steepSensor = (i === 2 && !conUbicacionDeSensor()) ? 3 : i; };
+    $scope.faltaEnSensor = (s) => {
+        if (!s || !s.type) return "tipo de sensor";
+        const faltan = [];
+        if (!String(s.id || "").trim()) faltan.push("identificador");
+        if (conUbicacionDeSensor() && !(s.latitude && s.longitude)) faltan.push("ubicación");
+        return faltan.join(", ");
+    };
+    $scope.agregarSensorDelAsistente = () => {
+        const falta = $scope.faltaEnSensor($scope.newSensor);
+        if (falta) {
+            if (window.M && M.toast) M.toast({ html: "Falta: " + falta });
+            $scope.steepSensor = /identificador/.test(falta) ? 1 : /ubicaci/.test(falta) ? 2 : 0;
+            return;
+        }
+        $scope.steepSensor = 0;
+        cerrarModal("modalNuevoSensor");
+        $scope.addNewSensorToNet();
+    };
 
     $scope.updateNewDevice = async () => {
         if ($scope.newDevice.key && $scope.newDevice.name && $scope.newDevice.type && $scope.newDevice.zona) {
