@@ -12,7 +12,7 @@
     "cleanup:local": "node scripts/cleanup-stale-functions.js --print-local"
   },
   "engines": {
-    "node": "20"
+    "node": "22"
   },
   "main": "index.js",
   "dependencies": {

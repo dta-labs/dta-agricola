@@ -170,6 +170,7 @@
 | REQ-151 | Corrige en la base los nombres de cultivo "Jalape��o" y "Manazana" (catálogo y equipos) | Implementado (probar: usuario) | 4 |
 | REQ-152 | Neveras e invernaderos sin la barra de menú (Historial, Sensores, Usuarios) | Implementado | 1 |
 | REQ-153 | PWA: arranque rápido en el celular, una sola recarga por actualización; neveras sin el hueco de la barra | Implementado (probar: usuario) | 5 |
+| REQ-154 | Cloud Functions en Node.js 22 (Node.js 20 retirado) | Implementado (desplegar: usuario) | - |
 | Prueba manual del resto | listado de equipos, retraso de comunicacion, alarma de nevera, plan de riego |
 | Empaquetado nativo | Capacitor (Android/iOS), objetivo final de la refactorizacion |
 
