@@ -348,10 +348,11 @@
                             <ol class="pasos-asistente" aria-label="Pasos para agregar un equipo">
                                 <li ng-class="{ actual: steep == 0, hecho: steep > 0 }" role="button" tabindex="0" ng-click="steep = 0"
                                     ng-keydown="($event.key === 'Enter' || $event.key === ' ') && (steep = 0)"><span>1</span><em class="paso-texto">Tipo</em></li>
-                                <li ng-class="{ actual: steep == 1, hecho: steep > 1, bloqueado: !newDevice.type }" role="button" tabindex="0" aria-disabled="{{ !newDevice.type }}"
-                                    ng-click="newDevice.type && (steep = 1)" ng-keydown="($event.key === 'Enter' || $event.key === ' ') && newDevice.type && (steep = 1)"><span>2</span><em class="paso-texto">Identificación</em></li>
-                                <li ng-class="{ actual: steep == 2, bloqueado: !newDevice.type }" role="button" tabindex="0" aria-disabled="{{ !newDevice.type }}"
-                                    ng-click="newDevice.type && (steep = 2)" ng-keydown="($event.key === 'Enter' || $event.key === ' ') && newDevice.type && (steep = 2)"><span>3</span><em class="paso-texto">Configuración</em></li>
+                                <!-- REQ-163: no se avanza sin tipo; a Configuracion, sin nombre e identificacion -->
+                                <li ng-class="{ actual: steep == 1, hecho: steep > 1, bloqueado: !puedeIrPasoEquipo(1) }" role="button" tabindex="0" aria-disabled="{{ !puedeIrPasoEquipo(1) }}"
+                                    ng-click="irAPasoEquipo(1)" ng-keydown="($event.key === 'Enter' || $event.key === ' ') && irAPasoEquipo(1)"><span>2</span><em class="paso-texto">Identificación</em></li>
+                                <li ng-class="{ actual: steep == 2, bloqueado: !puedeIrPasoEquipo(2) }" role="button" tabindex="0" aria-disabled="{{ !puedeIrPasoEquipo(2) }}"
+                                    ng-click="irAPasoEquipo(2)" ng-keydown="($event.key === 'Enter' || $event.key === ' ') && irAPasoEquipo(2)"><span>3</span><em class="paso-texto">Configuración</em></li>
                             </ol>
                         </div>
                         <div class="row" style="margin-bottom: 0;">
@@ -490,16 +491,9 @@
                                     <div class="ventana-bloque-titulo"><i class="material-icons" aria-hidden="true">place</i> Ubicación</div>
                                     <dta-mapa-selector modo="punto" latitud="newDevice.latitude" longitud="newDevice.longitude"
                                         al-cambiar="newDevice.latitude = $lat; newDevice.longitude = $lng"></dta-mapa-selector>
+                                    <!-- REQ-163: latitud y longitud ya estan en el selector de mapa (estaban repetidas) -->
                                     <div class="row g-3 mt-1">
-                                        <div class="col-6 col-md-4">
-                                            <label for="newDeviceLat" class="form-label">Latitud</label>
-                                            <input id="newDeviceLat" type="number" step="any" min="-90" max="90" class="form-control" ng-model="newDevice.latitude" ng-model-options="{ updateOn: 'blur' }">
-                                        </div>
-                                        <div class="col-6 col-md-4">
-                                            <label for="newDeviceLng" class="form-label">Longitud</label>
-                                            <input id="newDeviceLng" type="number" step="any" min="-180" max="180" class="form-control" ng-model="newDevice.longitude" ng-model-options="{ updateOn: 'blur' }">
-                                        </div>
-                                        <div class="col-12 col-md-4">
+                                        <div class="col-12">
                                             <label for="newDeviceZone" class="form-label">Zona horaria</label>
                                             <select id="newDeviceZone" class="browser-default form-select" ng-model="newDevice.zona">
                                         <option value="" disabled>Elige la zona</option>
@@ -541,11 +535,11 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <span class="asistente-falta" ng-if="steep == 2 && faltaEnEquipo(newDevice)">Falta: {{ faltaEnEquipo(newDevice) }}</span>
+                        <span class="asistente-falta" ng-if="steep >= 1 && faltaEnEquipo(newDevice)">Falta: {{ faltaEnEquipo(newDevice) }}</span>
                         <a href="" class="modal-close btn-flat" ng-click="steep = 0">Cancelar</a>
                         <a href="" class="btn grey boton-icono-movil" aria-label="Atrás" ng-click="steep = steep - 1" ng-show="steep != 0">
                             <i class="material-icons left">arrow_back</i><span class="boton-texto">Atrás</span></a>
-                        <a href="" class="btn boton-icono-movil" aria-label="Siguiente" ng-click="steep = steep + 1" ng-show="steep == 1 || (steep == 0 && newDevice.type)">
+                        <a href="" class="btn boton-icono-movil" aria-label="Siguiente" ng-click="irAPasoEquipo(steep + 1)" ng-class="{ disabled: !puedeIrPasoEquipo(steep + 1) }" ng-show="steep < 2 && newDevice.type">
                             <span class="boton-texto">Siguiente</span><i class="material-icons right">arrow_forward</i></a>
                         <a href="" class="btn boton-icono-movil" aria-label="Agregar equipo" ng-click="agregarEquipoDelAsistente()"
                             ng-class="{ disabled: faltaEnEquipo(newDevice) }" ng-show="steep == 2">
@@ -1252,7 +1246,7 @@
                                                         </ul>
                                                     </div>
                                                     <div id="btnsPlan" class="right-align">
-                                                        <div class="btn waves-effect waves-light teal lighten-3 modal-trigger" href="#modalNuevoSensor">
+                                                        <div class="btn waves-effect waves-light teal lighten-3 modal-trigger" href="#modalNuevoSensor" ng-click="iniciarNuevoSensor()">
                                                             &nbsp; <i class="material-icons">add</i> &nbsp;
                                                         </div>
                                                     </div>
@@ -2563,15 +2557,16 @@
                             <ol class="pasos-asistente" aria-label="Pasos para agregar un sensor">
                                 <li ng-class="{ actual: steepSensor == 0, hecho: steepSensor > 0 }" role="button" tabindex="0" ng-click="steepSensor = 0"
                                     ng-keydown="($event.key === 'Enter' || $event.key === ' ') && (steepSensor = 0)"><span>1</span><em class="paso-texto">Tipo</em></li>
-                                <li ng-class="{ actual: steepSensor == 1, hecho: steepSensor > 1, bloqueado: !newSensor.type }" role="button" tabindex="0" aria-disabled="{{ !newSensor.type }}"
-                                    ng-click="newSensor.type && (steepSensor = 1)" ng-keydown="($event.key === 'Enter' || $event.key === ' ') && newSensor.type && (steepSensor = 1)"><span>2</span><em class="paso-texto">Identificación</em></li>
-                                <li ng-if="actualSystem.type == 'Sensor'" ng-class="{ actual: steepSensor == 2, hecho: steepSensor > 2, bloqueado: !newSensor.type }" role="button" tabindex="0" aria-disabled="{{ !newSensor.type }}"
-                                    ng-click="newSensor.type && irAPasoSensor(2)" ng-keydown="($event.key === 'Enter' || $event.key === ' ') && newSensor.type && irAPasoSensor(2)"><span>3</span><em class="paso-texto">Ubicación</em></li>
-                                <li ng-class="{ actual: steepSensor == 3, bloqueado: !newSensor.type }" role="button" tabindex="0" aria-disabled="{{ !newSensor.type }}"
-                                    ng-click="newSensor.type && (steepSensor = 3)" ng-keydown="($event.key === 'Enter' || $event.key === ' ') && newSensor.type && (steepSensor = 3)"><span>{{ actualSystem.type == 'Sensor' ? 4 : 3 }}</span><em class="paso-texto">Cultivo y alertas</em></li>
+                                <!-- REQ-163: no se navega sin tipo; despues de Identificacion, sin nombre e identificador -->
+                                <li ng-class="{ actual: steepSensor == 1, hecho: steepSensor > 1, bloqueado: !puedeIrPasoSensor(1) }" role="button" tabindex="0" aria-disabled="{{ !puedeIrPasoSensor(1) }}"
+                                    ng-click="irAPasoSensor(1)" ng-keydown="($event.key === 'Enter' || $event.key === ' ') && irAPasoSensor(1)"><span>2</span><em class="paso-texto">Identificación</em></li>
+                                <li ng-if="actualSystem.type == 'Sensor'" ng-class="{ actual: steepSensor == 2, hecho: steepSensor > 2, bloqueado: !puedeIrPasoSensor(2) }" role="button" tabindex="0" aria-disabled="{{ !puedeIrPasoSensor(2) }}"
+                                    ng-click="irAPasoSensor(2)" ng-keydown="($event.key === 'Enter' || $event.key === ' ') && irAPasoSensor(2)"><span>3</span><em class="paso-texto">Ubicación</em></li>
+                                <li ng-class="{ actual: steepSensor == 3, bloqueado: !puedeIrPasoSensor(3) }" role="button" tabindex="0" aria-disabled="{{ !puedeIrPasoSensor(3) }}"
+                                    ng-click="irAPasoSensor(3)" ng-keydown="($event.key === 'Enter' || $event.key === ' ') && irAPasoSensor(3)"><span>{{ actualSystem.type == 'Sensor' ? 4 : 3 }}</span><em class="paso-texto">Cultivo y alertas</em></li>
                             </ol>
                         </div>
-                        <div class="row" ng-init="steepSensor = 0; newSensor.type = ''">
+                        <div class="row" ng-init="iniciarNuevoSensor()">
 
                             <div class="col s12" ng-show="steepSensor == 0">   <!-- Seleccionar sensor -->
                                 
@@ -3050,13 +3045,13 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <span class="asistente-falta" ng-if="steepSensor == 3 && faltaEnSensor(newSensor)">Falta: {{ faltaEnSensor(newSensor) }}</span>
+                        <span class="asistente-falta" ng-if="steepSensor >= 1 && faltaEnSensor(newSensor)">Falta: {{ faltaEnSensor(newSensor) }}</span>
                         <!-- REQ-052: botones con texto -->
                         <a href="" class="modal-close btn-flat" ng-click="steepSensor = 0">Cancelar</a>
                         <!-- REQ-053: en el movil solo el icono (aria-label para lectores de pantalla) -->
                         <a href="" class="btn grey boton-icono-movil" aria-label="Atrás" ng-click="steepSensor = pasoSensorAnterior(steepSensor)" ng-show="steepSensor != 0">
                             <i class="material-icons left">arrow_back</i><span class="boton-texto">Atrás</span></a>
-                        <a href="" class="btn boton-icono-movil" aria-label="Siguiente" ng-click="steepSensor = pasoSensorSiguiente(steepSensor)" ng-show="steepSensor < 3 && newSensor.type != ''">
+                        <a href="" class="btn boton-icono-movil" aria-label="Siguiente" ng-click="irAPasoSensor(pasoSensorSiguiente(steepSensor))" ng-class="{ disabled: !puedeIrPasoSensor(pasoSensorSiguiente(steepSensor)) }" ng-show="steepSensor < 3 && newSensor.type">
                             <span class="boton-texto">Siguiente</span><i class="material-icons right">arrow_forward</i></a>
                         <a href="" class="btn boton-icono-movil" aria-label="Agregar sensor" ng-click="agregarSensorDelAsistente()" ng-class="{ disabled: faltaEnSensor(newSensor) }" ng-show="steepSensor == 3">
                             <i class="material-icons left">check</i><span class="boton-texto">Agregar sensor</span></a>
@@ -4234,9 +4229,9 @@
 <script src="./assets/js/logic/meteo.js?v=26.11.02.001"></script>
     <script src="./assets/js/logic/aviso.js?v=26.11.02.001"></script>
 <script src="./assets/vendor/bootstrap/bootstrap.bundle.min.js?v=5.3.8"></script>
-    <script src="./assets/js/core.js?v=26.11.22.038"></script>
+    <script src="./assets/js/core.js?v=26.11.23.001"></script>
     <!-- REQ-038: factories, ayudas de interfaz y componentes (despues de core.js, que crea el modulo) -->
-    <script src="./assets/js/app/version.js?v=26.11.22.038"></script>
+    <script src="./assets/js/app/version.js?v=26.11.23.001"></script>
     <script src="./assets/js/app/reglas.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/auth.factory.js?v=26.11.06.001"></script>
     <script src="./assets/js/app/repo.factory.js?v=26.11.06.001"></script>

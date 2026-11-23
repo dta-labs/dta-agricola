@@ -123,7 +123,7 @@
 | REQ-122 | Catalogo de estaciones desde Firebase `/stations` (respaldo: `assets/data/estaciones.json`); regla de lectura | Implementado (probar: usuario) | 4 |
 | REQ-123 | Ficha del sensor: unidades frio acumuladas de la temporada (desde el 1 nov) en lugar del valor puntual | Implementado (probar: usuario) | 6 |
 
-**Total: 575 pruebas en Node (2026-11-22), todas en verde.** `npm test` funciona en Node 20 y 22.
+**Total: 577 pruebas en Node (2026-11-23), todas en verde.** `npm test` funciona en Node 20 y 22.
 
 ## Bloque de autenticacion (cerrado y confirmado por el usuario)
 
@@ -179,6 +179,7 @@
 | REQ-160 | Resumen: helada agrupada por impacto con acción de contención; configuración pendiente aparte del rescate de hoy | Implementado (probar: usuario) | 3 |
 | REQ-161 | "Agregar equipo" en 2 columnas | Implementado | 1 |
 | REQ-162 | Asistentes Agregar equipo (3 pasos) y Agregar sensor (4 pasos) con barra de pasos navegable | Implementado (probar: usuario) | 3 (+1 ajustada) |
+| REQ-163 | Asistentes: sin lat/long repetidas; no se avanza sin tipo ni sin nombre e identificación | Implementado | 2 (+2 ajustadas) |
 | Prueba manual del resto | listado de equipos, retraso de comunicacion, alarma de nevera, plan de riego |
 | Empaquetado nativo | Capacitor (Android/iOS), objetivo final de la refactorizacion |
 

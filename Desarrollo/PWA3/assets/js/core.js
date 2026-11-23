@@ -2071,6 +2071,21 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         if (d.zona === undefined || d.zona === null || d.zona === "") faltan.push("zona horaria");
         return faltan.join(", ");
     };
+    // REQ-163: sin tipo no se avanza; a Configuracion, sin nombre e identificacion tampoco
+    $scope.puedeIrPasoEquipo = (i) => {
+        const d = $scope.newDevice;
+        if (i <= 0) return true;
+        if (!d || !d.type) return false;
+        return i === 1 || !!(String(d.name || "").trim() && String(d.key || "").trim());
+    };
+    $scope.irAPasoEquipo = (i) => {
+        if (!$scope.puedeIrPasoEquipo(i)) {
+            const falta = $scope.faltaEnEquipo($scope.newDevice);
+            if (falta && window.M && M.toast) M.toast({ html: "Falta: " + falta });
+            return;
+        }
+        $scope.steep = i;
+    };
     $scope.agregarEquipoDelAsistente = () => {
         const falta = $scope.faltaEnEquipo($scope.newDevice);
         if (falta) {
@@ -2087,10 +2102,33 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
     const conUbicacionDeSensor = () => !!($scope.actualSystem && $scope.actualSystem.type === "Sensor");
     $scope.pasoSensorSiguiente = (i) => Math.min(3, (i === 1 && !conUbicacionDeSensor()) ? 3 : i + 1);
     $scope.pasoSensorAnterior = (i) => Math.max(0, (i === 3 && !conUbicacionDeSensor()) ? 1 : i - 1);
-    $scope.irAPasoSensor = (i) => { $scope.steepSensor = (i === 2 && !conUbicacionDeSensor()) ? 3 : i; };
+    // REQ-163: cada "Agregar sensor" empieza de cero (antes quedaba el tipo y los datos del anterior y, como el sensor
+    // agregado era el MISMO objeto, editarlo en el asistente cambiaba tambien el sensor ya guardado en la red)
+    $scope.iniciarNuevoSensor = () => {
+        $scope.newSensor = { type: "", alerts: {} };
+        $scope.steepSensor = 0;
+    };
+
+    // REQ-163: sin tipo no se navega; despues de Identificacion, sin nombre e identificador tampoco
+    const identificacionDeSensorCompleta = (s) => !!(s && String(s.alias || "").trim() && String(s.id || "").trim());
+    $scope.puedeIrPasoSensor = (i) => {
+        const s = $scope.newSensor;
+        if (i <= 0) return true;
+        if (!s || !s.type) return false;
+        return i === 1 || identificacionDeSensorCompleta(s);
+    };
+    $scope.irAPasoSensor = (i) => {
+        if (!$scope.puedeIrPasoSensor(i)) {
+            const falta = $scope.faltaEnSensor($scope.newSensor);
+            if (falta && window.M && M.toast) M.toast({ html: "Falta: " + falta });
+            return;
+        }
+        $scope.steepSensor = (i === 2 && !conUbicacionDeSensor()) ? 3 : i;
+    };
     $scope.faltaEnSensor = (s) => {
         if (!s || !s.type) return "tipo de sensor";
         const faltan = [];
+        if (!String(s.alias || "").trim()) faltan.push("nombre");
         if (!String(s.id || "").trim()) faltan.push("identificador");
         if (conUbicacionDeSensor() && !(s.latitude && s.longitude)) faltan.push("ubicación");
         return faltan.join(", ");
@@ -2099,7 +2137,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         const falta = $scope.faltaEnSensor($scope.newSensor);
         if (falta) {
             if (window.M && M.toast) M.toast({ html: "Falta: " + falta });
-            $scope.steepSensor = /identificador/.test(falta) ? 1 : /ubicaci/.test(falta) ? 2 : 0;
+            $scope.steepSensor = /nombre|identificador/.test(falta) ? 1 : /ubicaci/.test(falta) ? 2 : 0;
             return;
         }
         $scope.steepSensor = 0;
@@ -2160,6 +2198,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                     }
                     normalizarCultivosSiInvernadero($scope.newSensor);   // REQ-144
                     $scope.actualSystem.sensors[idx] = $scope.newSensor;
+                    $scope.newSensor = { type: "", alerts: {} };   // REQ-163: el siguiente no comparte objeto con este
                     $scope.actualSystem.sensors.sensorNumber = sensorNumber;
                     // updateSensorNet($scope.actualSystem.key, $scope.actualSystem.sensors);
                     $scope.setMachineSettings($scope.actualSystem);
