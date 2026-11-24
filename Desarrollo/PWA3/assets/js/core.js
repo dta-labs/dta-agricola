@@ -567,12 +567,28 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
 
     const reglasLogin = () => (typeof DTALogic !== "undefined" && DTALogic.login) ? DTALogic.login : null;
 
+    // REQ-165: correo del usuario cuyos datos se cargaron en esta pagina. Si entra OTRO (alta de cuenta nueva, o salir
+    // y entrar con otra cuenta), se recarga la app: equipos, perfil, bandeja y escuchas eran del anterior.
+    let correoCargadoEnEstaPagina = null;
+    const avisoTrasAlta = () => {
+        let texto = null;
+        try { texto = sessionStorage.getItem("dta-aviso-tras-alta"); sessionStorage.removeItem("dta-aviso-tras-alta"); } catch (error) { /* sin sessionStorage */ }
+        if (texto && typeof swal === "function") swal({ title: "¡Bienvenido a DTA-Agrícola!", text: texto, icon: "success" });
+    };
+
     listenUserStatus = () => {
         if (observandoSesion) return;
         observandoSesion = true;
         console.log("[auth] registrando observador de sesion");
         __auth().observar(sesion => {
             if (sesion.autenticado) {
+                const correo = sesion.usuario && sesion.usuario.email;
+                if (correoCargadoEnEstaPagina && correo && correo !== correoCargadoEnEstaPagina) {
+                    console.log("[auth] cambio de usuario (" + correoCargadoEnEstaPagina + " -> " + correo + "): se recarga la app");
+                    location.reload();
+                    return;
+                }
+                correoCargadoEnEstaPagina = correo || correoCargadoEnEstaPagina;
                 huboSesionEnEstaCarga = true;
                 cierreDeSesionPedido = false;
                 console.log("[sesion] autenticado:", sesion.usuario && sesion.usuario.email);
@@ -584,6 +600,7 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                     getUserData();
                     $scope.vistaPrincipal = "resumen";   // REQ-114: la app entra por el resumen
                     $scope.showWindow('listado');
+                    avisoTrasAlta();                      // REQ-165
                 });
                 // REQ-105: se retira al llegar el primer equipo (o a los 5 s si no tiene ninguno).
                 pantallaDeInicio("avance", 92, "Cargando tus equipos…");

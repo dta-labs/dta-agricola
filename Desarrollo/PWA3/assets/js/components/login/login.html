@@ -77,7 +77,7 @@
                     </div>
                     <!-- REQ-164: contrasena con confirmacion, mostrar/ocultar y ayuda -->
                     <div class="input-field col s12 login-alta-clave">
-                        <input id="loginAltaClave" ng-attr-type="{{ vm.verClave ? 'text' : 'password' }}" ng-model="vm.alta.clave"
+                        <input id="loginAltaClave" ng-attr-type="{{ vm.verClave ? 'text' : 'password' }}" ng-model="vm.alta.clave" ng-trim="false"
                             ng-change="vm.mensajeAlta = null" autocomplete="new-password" minlength="6" aria-describedby="loginAltaAyuda">
                         <label for="loginAltaClave" ng-class="{ active: vm.alta.clave }">Contraseña</label>
                         <button type="button" class="login-ver-clave" ng-click="vm.verClave = !vm.verClave"
@@ -91,7 +91,7 @@
                         <small id="loginAltaAyuda" class="login-ayuda">Mínimo 6 caracteres, con letras y números.</small>
                     </div>
                     <div class="input-field col s12">
-                        <input id="loginAltaConfirmacion" ng-attr-type="{{ vm.verClave ? 'text' : 'password' }}" ng-model="vm.alta.confirmacion"
+                        <input id="loginAltaConfirmacion" ng-attr-type="{{ vm.verClave ? 'text' : 'password' }}" ng-model="vm.alta.confirmacion" ng-trim="false"
                             ng-change="vm.mensajeAlta = null" autocomplete="new-password">
                         <label for="loginAltaConfirmacion" ng-class="{ active: vm.alta.confirmacion }">Confirma la contraseña</label>
                         <small class="login-ayuda" ng-if="vm.alta.confirmacion" ng-class="vm.coinciden() ? 'coincide' : 'no-coincide'">

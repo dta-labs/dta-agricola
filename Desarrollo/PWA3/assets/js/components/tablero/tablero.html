@@ -3,7 +3,8 @@
 <!-- REQ-115: sin equipos registrados, la bienvenida y las sugerencias de inicio son protagonistas -->
 <div class="tablero tablero-bienvenida" ng-if="vm.datos && vm.datos.vacio">
     <section class="tablero-seccion tablero-hero">
-        <span class="tablero-hero-icono"><i class="material-icons" aria-hidden="true">spa</i></span>
+        <!-- REQ-165: el icono de la aplicacion (antes un icono generico) -->
+        <img class="tablero-hero-logo" src="./assets/images/icons/res/DTA_Agricola_512.png" alt="DTA-Agrícola" width="96" height="96">
         <h2 class="tablero-hero-titulo">¡Bienvenido a DTA-Agrícola!</h2>
         <p class="tablero-hero-texto">Aún no tienes equipos registrados. Empieza por aquí:</p>
     </section>

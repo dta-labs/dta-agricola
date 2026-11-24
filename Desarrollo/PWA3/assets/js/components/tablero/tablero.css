@@ -424,3 +424,16 @@
     .tablero-kpi-certeza { position: static; align-self: flex-start; margin-top: 4px; }
     .tablero-kpi-etiqueta { padding-right: 0; }
 }
+
+/* REQ-165: icono de la aplicacion en la bienvenida */
+.tablero-hero-logo {
+    display: block;
+    width: 96px;
+    height: 96px;
+    margin: 0 auto;
+    padding: 6px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 2px 10px rgba(27, 77, 56, 0.18);
+    object-fit: contain;
+}

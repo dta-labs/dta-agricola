@@ -10,7 +10,7 @@
 (function (raiz) {
     "use strict";
 
-    var VERSION = "26.11.24.001";
+    var VERSION = "26.11.24.002";
 
     function ControladorLogin($q, $element, dtaAuth, dtaReglas, dtaUi) {
         var vm = this;
@@ -155,9 +155,13 @@
             return enCurso(function () {
                 return $q.when(dtaAuth.crearCuenta(correo, vm.alta.clave)).then(function (resultado) {
                     dtaUi.cerrarModal(modalDeAlta());
-                    mostrar(resultado && resultado.verificacion
+                    var texto = resultado && resultado.verificacion
                         ? "Cuenta creada. Te enviamos un correo a " + correo + " para verificarla (revisa también spam)."
-                        : "Cuenta creada correctamente.", "exito");
+                        : "Cuenta creada correctamente.";
+                    mostrar(texto, "exito");
+                    // REQ-165: Firebase entra con la cuenta nueva; si la app se recarga para limpiar los datos del
+                    // usuario anterior, el aviso se muestra al volver
+                    try { raiz.sessionStorage.setItem("dta-aviso-tras-alta", texto); } catch (e) { /* sin sessionStorage */ }
                 }, function (error) {
                     vm.mensajeAlta = dtaAuth.mensajeDeError(error);
                 });
