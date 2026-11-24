@@ -10,7 +10,7 @@
 (function (raiz) {
     "use strict";
 
-    var VERSION = "26.11.24.002";
+    var VERSION = "26.11.24.003";
 
     function ControladorLogin($q, $element, dtaAuth, dtaReglas, dtaUi) {
         var vm = this;

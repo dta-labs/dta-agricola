@@ -182,6 +182,7 @@
 | REQ-163 | Asistentes: sin lat/long repetidas; no se avanza sin tipo ni sin nombre e identificación | Implementado | 2 (+2 ajustadas) |
 | REQ-164 | Alta con contraseña confirmada y validada; recuperación de contraseña en español con regreso a la app | Implementado (probar: usuario) | 2 (+2 ajustadas) |
 | REQ-165 | Usuario nuevo: espacios en la contraseña, app limpia al cambiar de usuario, icono en la bienvenida | Implementado (probar: usuario) | 3 |
+| REQ-166 | Acceso: autocompletado legible y casilla "Mostrar contraseñas" | Implementado (probar: usuario) | 1 ajustada |
 | Prueba manual del resto | listado de equipos, retraso de comunicacion, alarma de nevera, plan de riego |
 | Empaquetado nativo | Capacitor (Android/iOS), objetivo final de la refactorizacion |
 

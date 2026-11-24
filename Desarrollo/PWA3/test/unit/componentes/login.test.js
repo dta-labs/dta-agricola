@@ -299,7 +299,12 @@ test("REQ-164 alta: contrasena de 6+ caracteres con letras y numeros, confirmada
   assert.equal(vm.mensajeAlta, "Las contraseñas no coinciden.");
   const html = require("node:fs").readFileSync(require("node:path").join(__dirname, "..", "..", "..", "assets", "js", "components", "login", "login.html"), "utf8");
   assert.match(html, /id="loginAltaConfirmacion"/);
-  assert.match(html, /ng-click="vm\.verClave = !vm\.verClave"/);
+  // REQ-166: casilla "Mostrar contraseñas" debajo (antes un ojo dentro del campo)
+  assert.match(html, /<input type="checkbox" class="filled-in" ng-model="vm\.verClave">\s*<span>Mostrar contraseñas<\/span>/);
+  assert.doesNotMatch(html, /login-ver-clave/);
+  const css = require("node:fs").readFileSync(require("node:path").join(__dirname, "..", "..", "..", "assets", "css", "style.css"), "utf8");
+  assert.match(css, /-webkit-background-clip: text !important;/);   // autocompletado: sin el fondo celeste
+  assert.match(css, /\.login-modal-alta input:-webkit-autofill,/);
 });
 
 test("REQ-164 dtaAuth: correos en espanol, recuperar con regreso a la app (y sin el si no esta autorizado), verificacion al crear", async () => {

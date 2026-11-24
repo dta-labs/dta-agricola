@@ -154,9 +154,8 @@ dta-login {
 
 /* REQ-164: alta con confirmacion de contrasena */
 .login-alta-clave { position: relative; }
-.login-alta-clave input { padding-right: 40px !important; box-sizing: border-box; }
-.login-ver-clave { position: absolute; top: 0; right: 12px; display: flex; align-items: center; height: 38px; padding: 0 4px; border: 0; background: transparent; color: #607d8b; cursor: pointer; line-height: 1; }
-.login-ver-clave:focus { background: transparent; }
+.login-mostrar-claves { margin: -4px 0 8px; }
+.login-mostrar-claves label { color: #455a64; font-size: 0.9rem; }
 .login-fuerza { display: flex; align-items: center; gap: 4px; margin-top: -6px; }
 .login-fuerza span { flex: 0 0 40px; height: 4px; border-radius: 2px; background: #e0e0e0; }
 .login-fuerza span.activa { background: #ef6c00; }

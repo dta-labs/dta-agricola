@@ -54,6 +54,19 @@ input.signinPassword:-webkit-autofill:active {
   -webkit-text-fill-color: #fff !important; /* texto blanco */
   caret-color: #fff !important;
   transition: background-color 5000s ease-in-out 0s;
+  /* REQ-166: Chrome actual pinta su fondo de autocompletado (celeste, rectangular) aunque se pida transparente:
+     recortado al texto (y el texto en blanco) ese fondo deja de verse */
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+}
+/* REQ-166: el mismo efecto en los campos del alta (fondo blanco: texto oscuro) */
+.login-modal-alta input:-webkit-autofill,
+.login-modal-alta input:-webkit-autofill:hover,
+.login-modal-alta input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #263238 !important;
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+  box-shadow: 0 0 0 1000px #ffffff inset !important;
+  caret-color: #263238 !important;
 }
 
 .contenedor-texto {

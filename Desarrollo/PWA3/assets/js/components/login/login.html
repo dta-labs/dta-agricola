@@ -80,10 +80,6 @@
                         <input id="loginAltaClave" ng-attr-type="{{ vm.verClave ? 'text' : 'password' }}" ng-model="vm.alta.clave" ng-trim="false"
                             ng-change="vm.mensajeAlta = null" autocomplete="new-password" minlength="6" aria-describedby="loginAltaAyuda">
                         <label for="loginAltaClave" ng-class="{ active: vm.alta.clave }">Contraseña</label>
-                        <button type="button" class="login-ver-clave" ng-click="vm.verClave = !vm.verClave"
-                            aria-label="{{ vm.verClave ? 'Ocultar contraseña' : 'Mostrar contraseña' }}">
-                            <i class="material-icons" aria-hidden="true">{{ vm.verClave ? 'visibility_off' : 'visibility' }}</i>
-                        </button>
                         <div class="login-fuerza" ng-if="vm.alta.clave" aria-hidden="true">
                             <span ng-class="{ activa: vm.fuerza() >= 1 }"></span><span ng-class="{ activa: vm.fuerza() >= 2 }"></span><span ng-class="{ activa: vm.fuerza() >= 3 }"></span>
                             <em ng-class="'fuerza-' + vm.fuerza()">{{ vm.textoFuerza() }}</em>
@@ -96,6 +92,13 @@
                         <label for="loginAltaConfirmacion" ng-class="{ active: vm.alta.confirmacion }">Confirma la contraseña</label>
                         <small class="login-ayuda" ng-if="vm.alta.confirmacion" ng-class="vm.coinciden() ? 'coincide' : 'no-coincide'">
                             {{ vm.coinciden() ? 'Las contraseñas coinciden' : 'Las contraseñas no coinciden' }}</small>
+                    </div>
+                    <!-- REQ-166: mostrar las contrasenas como casilla general, debajo (antes un ojo dentro del campo) -->
+                    <div class="col s12 login-mostrar-claves">
+                        <label>
+                            <input type="checkbox" class="filled-in" ng-model="vm.verClave">
+                            <span>Mostrar contraseñas</span>
+                        </label>
                     </div>
                 </div>
             </div>
