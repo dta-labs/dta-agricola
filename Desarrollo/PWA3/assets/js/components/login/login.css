@@ -167,3 +167,4 @@ dta-login {
 .login-ayuda { display: block; color: #78909c; font-size: 0.78rem; }
 .login-ayuda.coincide { color: #2e7d32; }
 .login-ayuda.no-coincide { color: #c62828; }
+.login-reenviar { display: block; margin-top: 6px; font-weight: 700; text-decoration: underline; }   /* REQ-167 */

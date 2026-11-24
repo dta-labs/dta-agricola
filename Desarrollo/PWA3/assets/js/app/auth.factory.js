@@ -73,8 +73,34 @@
                 });
             },
 
+            /**
+             * REQ-167: con el correo sin verificar (cuentas nuevas) no se entra: se cierra la sesion y se rechaza con
+             * "dta/correo-sin-verificar".
+             */
             entrarConCorreo: function (correo, clave) {
-                return auth.signInWithEmailAndPassword(correo, clave);
+                return auth.signInWithEmailAndPassword(correo, clave).then(function (credencial) {
+                    var usuario = credencial && credencial.user;
+                    if (!reglas.requiereVerificacion || !reglas.requiereVerificacion(usuario)) return credencial;
+                    traza.info("[auth] correo sin verificar:", correo);
+                    return auth.signOut().then(function () {
+                        var error = new Error("correo sin verificar");
+                        error.code = "dta/correo-sin-verificar";
+                        throw error;
+                    });
+                });
+            },
+
+            /** REQ-167: reenvia el correo de verificacion (entra, lo envia y sale). */
+            reenviarVerificacion: function (correo, clave) {
+                return auth.signInWithEmailAndPassword(correo, clave).then(function (credencial) {
+                    var usuario = credencial && credencial.user;
+                    return usuario.sendEmailVerification(ajustesDelEnlace()).then(function () {
+                        traza.info("[auth] verificacion reenviada a", correo);
+                        return auth.signOut();
+                    }, function (error) {
+                        return auth.signOut().then(function () { throw error; });
+                    });
+                });
             },
 
             /**
@@ -85,12 +111,14 @@
                 return auth.createUserWithEmailAndPassword(correo, clave).then(function (credencial) {
                     var usuario = credencial && credencial.user;
                     if (!usuario || typeof usuario.sendEmailVerification !== "function") return { credencial: credencial, verificacion: false };
+                    // REQ-167: tras enviar la verificacion se cierra la sesion: no se entra hasta verificar el correo
+                    var salir = function (resultado) { return auth.signOut().then(function () { return resultado; }, function () { return resultado; }); };
                     return usuario.sendEmailVerification(ajustesDelEnlace()).then(function () {
                         traza.info("[auth] verificacion enviada a", correo);
-                        return { credencial: credencial, verificacion: true };
+                        return salir({ credencial: credencial, verificacion: true });
                     }, function (error) {
                         traza.error("[auth] no se pudo enviar la verificacion:", error && error.code, error && error.message);
-                        return { credencial: credencial, verificacion: false };
+                        return salir({ credencial: credencial, verificacion: false });
                     });
                 });
             },

@@ -47,7 +47,9 @@
         "auth/unauthorized-continue-uri": "El dominio de la app no está autorizado en Firebase para el enlace de recuperación...",
         "auth/invalid-continue-uri": "La dirección de regreso del enlace de recuperación no es válida...",
         "auth/missing-continue-uri": "Falta la dirección de regreso del enlace de recuperación...",
-        "auth/quota-exceeded": "Se alcanzó el límite de correos por hoy; inténtalo más tarde..."
+        "auth/quota-exceeded": "Se alcanzó el límite de correos por hoy; inténtalo más tarde...",
+        // REQ-167
+        "dta/correo-sin-verificar": "Tu correo aún no está verificado. Abre el enlace que te enviamos (revisa también spam) y vuelve a entrar."
     };
 
     var CLAVE_MINIMA = 6;   // minimo de Firebase Authentication
@@ -180,7 +182,22 @@
     }
 
     /** REQ-039: el error debe verse? Cerrar la ventana de Google no es un error para el usuario. */
+    // REQ-167: las cuentas de correo y contrasena creadas desde esta fecha deben verificar el correo para entrar. Las
+    // anteriores no (nunca se les pidio y quedarian fuera). Google ya verifica el correo.
+    var CORTE_VERIFICACION = Date.UTC(2026, 10, 24);
+
+    /** El usuario de Firebase debe verificar su correo antes de entrar? */
+    function requiereVerificacion(usuario) {
+        var u = usuario || {};
+        if (!u.email || u.emailVerified) return false;
+        var proveedores = (u.providerData || []).map(function (p) { return p && p.providerId; });
+        if (proveedores.indexOf("password") < 0 || proveedores.indexOf("google.com") >= 0) return false;
+        var creada = Date.parse(u.metadata && u.metadata.creationTime);
+        return isFinite(creada) && creada >= CORTE_VERIFICACION;
+    }
+
     function debeAvisarError(error) {
+        if (error && error.code === "dta/correo-sin-verificar") return true;
         if (!esErrorDeFirebase(error)) return false;
         var codigo = typeof error === "string" ? error : error.code;
         return !/popup-closed-by-user|cancelled-popup-request/.test(String(codigo));
@@ -193,6 +210,8 @@
         fuerzaDeClave: fuerzaDeClave,
         CLAVE_MINIMA: CLAVE_MINIMA,
         debeAvisarError: debeAvisarError,
+        requiereVerificacion: requiereVerificacion,
+        CORTE_VERIFICACION: CORTE_VERIFICACION,
         opcionesDelProveedor: opcionesDelProveedor,
         debeReintentarConRedirect: debeReintentarConRedirect,
         mensajeDeError: mensajeDeError,

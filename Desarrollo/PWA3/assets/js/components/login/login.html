@@ -49,7 +49,9 @@
                 </div>
                 <div class="col s12">
                     <p class="login-mensaje" ng-if="vm.mensaje" ng-class="'login-mensaje-' + vm.mensaje.tipo"
-                        role="alert" aria-live="assertive">{{ vm.mensaje.texto }}</p>
+                        role="alert" aria-live="assertive">{{ vm.mensaje.texto }}
+                        <!-- REQ-167 -->
+                        <a href="" class="login-reenviar" ng-if="vm.puedeReenviar" ng-click="vm.reenviarVerificacion()">Reenviar enlace de verificación</a></p>
                 </div>
             </form>
         </div>

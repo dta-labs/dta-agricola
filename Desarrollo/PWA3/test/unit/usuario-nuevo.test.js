@@ -17,12 +17,10 @@ test("REQ-165 la contrasena no se recorta (los espacios al inicio o al final se 
   assert.equal((html.match(/ng-trim="false"/g) || []).length, 2);
 });
 
-test("REQ-165 si entra otro usuario se recarga la app y el aviso del alta se muestra al volver", () => {
+test("REQ-165 si entra otro usuario se recarga la app", () => {
   const core = leer("assets", "js", "core.js");
   assert.match(core, /if \(correoCargadoEnEstaPagina && correo && correo !== correoCargadoEnEstaPagina\) \{[\s\S]{0,200}location\.reload\(\);\n\s+return;/);
   assert.match(core, /avisoTrasAlta\(\);                      \/\/ REQ-165/);
-  const comp = leer("assets", "js", "components", "login", "login.component.js");
-  assert.match(comp, /sessionStorage\.setItem\("dta-aviso-tras-alta", texto\)/);
 });
 
 test("REQ-165 la bienvenida del resumen usa el icono de la aplicacion", () => {

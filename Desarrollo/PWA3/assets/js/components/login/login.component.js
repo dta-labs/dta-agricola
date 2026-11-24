@@ -10,7 +10,7 @@
 (function (raiz) {
     "use strict";
 
-    var VERSION = "26.11.24.003";
+    var VERSION = "26.11.24.004";
 
     function ControladorLogin($q, $element, dtaAuth, dtaReglas, dtaUi) {
         var vm = this;
@@ -31,6 +31,8 @@
 
         function mostrarErrorDeAcceso(error) {
             mostrar(dtaAuth.mensajeDeError(error), "error");
+            // REQ-167: con el correo sin verificar se ofrece reenviar el enlace
+            vm.puedeReenviar = !!(error && error.code === "dta/correo-sin-verificar");
         }
 
         function avisarError(error) {
@@ -39,6 +41,19 @@
 
         vm.limpiarMensaje = function () {
             vm.mensaje = null;
+            vm.puedeReenviar = false;
+        };
+
+        /** REQ-167: reenviar el correo de verificacion (con el correo y la contrasena escritos). */
+        vm.reenviarVerificacion = function () {
+            var correo = (vm.correo || "").trim();
+            if (!correo || !vm.clave) { mostrar("Escribe tu correo y tu contraseña para reenviar el enlace."); return $q.when(); }
+            return enCurso(function () {
+                return $q.when(dtaAuth.reenviarVerificacion(correo, vm.clave)).then(function () {
+                    vm.puedeReenviar = false;
+                    mostrar("Te reenviamos el enlace a " + correo + ". Ábrelo y vuelve a entrar (revisa también spam).", "exito");
+                }, mostrarErrorDeAcceso);
+            });
         };
 
         /** Ejecuta una accion de acceso evitando dobles envios. */
@@ -155,13 +170,15 @@
             return enCurso(function () {
                 return $q.when(dtaAuth.crearCuenta(correo, vm.alta.clave)).then(function (resultado) {
                     dtaUi.cerrarModal(modalDeAlta());
-                    var texto = resultado && resultado.verificacion
-                        ? "Cuenta creada. Te enviamos un correo a " + correo + " para verificarla (revisa también spam)."
-                        : "Cuenta creada correctamente.";
-                    mostrar(texto, "exito");
-                    // REQ-165: Firebase entra con la cuenta nueva; si la app se recarga para limpiar los datos del
-                    // usuario anterior, el aviso se muestra al volver
-                    try { raiz.sessionStorage.setItem("dta-aviso-tras-alta", texto); } catch (e) { /* sin sessionStorage */ }
+                    // REQ-167: no se entra hasta verificar el correo; queda listo para entrar con el correo ya escrito
+                    vm.correo = correo;
+                    vm.clave = "";
+                    vm.paso = "contrasena";
+                    mostrar(resultado && resultado.verificacion
+                        ? "Cuenta creada. Te enviamos un enlace a " + correo + " para verificar tu correo (revisa también spam). " +
+                          "Ábrelo y después entra con tu contraseña."
+                        : "Cuenta creada, pero no se pudo enviar el correo de verificación. Escribe tu contraseña y pulsa \"Reenviar enlace\".", "exito");
+                    vm.puedeReenviar = !(resultado && resultado.verificacion);
                 }, function (error) {
                     vm.mensajeAlta = dtaAuth.mensajeDeError(error);
                 });

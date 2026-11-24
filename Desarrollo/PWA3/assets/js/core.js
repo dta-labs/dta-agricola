@@ -582,6 +582,14 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
         console.log("[auth] registrando observador de sesion");
         __auth().observar(sesion => {
             if (sesion.autenticado) {
+                // REQ-167: cuenta nueva con el correo sin verificar: no entra (se cierra la sesion y queda el acceso)
+                if (reglasLogin() && reglasLogin().requiereVerificacion && reglasLogin().requiereVerificacion(sesion.usuario)) {
+                    console.log("[auth] correo sin verificar:", sesion.usuario.email, "- no se entra");
+                    cierreDeSesionPedido = true;
+                    pantallaDeInicio("listo");
+                    __auth().cerrarSesion().catch(error => console.warn("[auth] no se pudo cerrar la sesion:", error));
+                    return;
+                }
                 const correo = sesion.usuario && sesion.usuario.email;
                 if (correoCargadoEnEstaPagina && correo && correo !== correoCargadoEnEstaPagina) {
                     console.log("[auth] cambio de usuario (" + correoCargadoEnEstaPagina + " -> " + correo + "): se recarga la app");

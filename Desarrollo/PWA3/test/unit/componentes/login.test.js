@@ -179,7 +179,10 @@ test("REQ-039 L-5: alta abre el modal con el correo ya escrito, crea la cuenta y
   await vm.crearCuenta();
   assert.deepEqual(llamadas.alta, [["nuevo@dtaamerica.com", "riego2026"]]);
   assert.equal(llamadas.cerrar, 1);
-  assert.deepEqual(vm.mensaje, { texto: "Cuenta creada correctamente.", tipo: "exito" });
+  // REQ-167: no se entra hasta verificar el correo; el acceso queda en el paso de la contrasena con el correo
+  assert.equal(vm.mensaje.tipo, "exito");
+  assert.match(vm.mensaje.texto, /^Cuenta creada/);
+  assert.deepEqual([vm.correo, vm.paso], ["nuevo@dtaamerica.com", "contrasena"]);
 });
 
 test("REQ-039 L-5: alta con correo invalido no llama a Firebase; error de Firebase no cierra el modal", async () => {
@@ -313,6 +316,7 @@ test("REQ-164 dtaAuth: correos en espanol, recuperar con regreso a la app (y sin
   const usuario = { sendEmailVerification: (a) => { usado.push(["verificar", a && a.url]); return Promise.resolve(); } };
   const auth = {
     createUserWithEmailAndPassword: (c, k) => { usado.push(["alta", c, k]); return Promise.resolve({ user: usuario }); },
+    signOut: () => { usado.push(["salir"]); return Promise.resolve(); },
     sendPasswordResetEmail: (c, a) => {
       usado.push(["recuperar", c, a && a.url]);
       if (rechazarRegreso && a) return Promise.reject({ code: "auth/unauthorized-continue-uri" });
@@ -332,5 +336,37 @@ test("REQ-164 dtaAuth: correos en espanol, recuperar con regreso a la app (y sin
   assert.deepEqual(usado.slice(-2), [["recuperar", "a@b.co", "https://dta-agricola.web.app/index.html"], ["recuperar", "a@b.co", undefined]]);
   const r = await dta.crearCuenta("n@b.co", "riego2026");
   assert.equal(r.verificacion, true);
-  assert.deepEqual(usado.slice(-2), [["alta", "n@b.co", "riego2026"], ["verificar", "https://dta-agricola.web.app/index.html"]]);
+  assert.deepEqual(usado.slice(-3), [["alta", "n@b.co", "riego2026"], ["verificar", "https://dta-agricola.web.app/index.html"], ["salir"]]);   // REQ-167: sale
+});
+
+// ---------- REQ-167: no se entra sin verificar el correo ----------
+
+test("REQ-167 cuentas de correo nuevas sin verificar no entran; las anteriores, las verificadas y las de Google si", () => {
+  const nueva = { email: "a@b.co", emailVerified: false, providerData: [{ providerId: "password" }], metadata: { creationTime: "Tue, 24 Nov 2026 23:50:00 GMT" } };
+  assert.equal(login.requiereVerificacion(nueva), true);
+  assert.equal(login.requiereVerificacion({ ...nueva, emailVerified: true }), false);
+  assert.equal(login.requiereVerificacion({ ...nueva, metadata: { creationTime: "Mon, 10 Mar 2025 10:00:00 GMT" } }), false);   // antiguas
+  assert.equal(login.requiereVerificacion({ ...nueva, providerData: [{ providerId: "google.com" }] }), false);
+  assert.equal(login.requiereVerificacion(null), false);
+  assert.match(login.mensajeDeError({ code: "dta/correo-sin-verificar" }), /^Tu correo aún no está verificado/);
+});
+
+test("REQ-167 dtaAuth: entrar sin verificar cierra la sesion y rechaza; reenviar envia el enlace y sale", async () => {
+  const usado = [];
+  const usuario = { email: "a@b.co", emailVerified: false, providerData: [{ providerId: "password" }], metadata: { creationTime: "Tue, 24 Nov 2026 23:50:00 GMT" },
+    sendEmailVerification: () => { usado.push("verificar"); return Promise.resolve(); } };
+  const auth = {
+    signInWithEmailAndPassword: () => { usado.push("entrar"); return Promise.resolve({ user: usuario }); },
+    signOut: () => { usado.push("salir"); return Promise.resolve(); }
+  };
+  function Proveedor() {}
+  Proveedor.prototype.setCustomParameters = function () {};
+  const sdk = { auth: Object.assign(() => auth, { GoogleAuthProvider: Proveedor }), app: () => ({ options: {} }) };
+  const dta = authFactory.crear(sdk, login, { host: "x.web.app", origin: "https://x.web.app" }, { info() {}, error() {} });
+  await assert.rejects(dta.entrarConCorreo("a@b.co", "riego2026"), { code: "dta/correo-sin-verificar" });
+  assert.deepEqual(usado, ["entrar", "salir"]);
+  await dta.reenviarVerificacion("a@b.co", "riego2026");
+  assert.deepEqual(usado.slice(2), ["entrar", "verificar", "salir"]);
+  const core = require("node:fs").readFileSync(require("node:path").join(__dirname, "..", "..", "..", "assets", "js", "core.js"), "utf8");
+  assert.match(core, /reglasLogin\(\)\.requiereVerificacion\(sesion\.usuario\)\) \{[\s\S]{0,250}__auth\(\)\.cerrarSesion\(\)/);
 });
