@@ -10,7 +10,7 @@
 (function (raiz) {
     "use strict";
 
-    var VERSION = "26.11.06.004";
+    var VERSION = "26.11.24.001";
 
     function ControladorLogin($q, $element, dtaAuth, dtaReglas, dtaUi) {
         var vm = this;
@@ -54,7 +54,8 @@
             vm.paso = "correo";
             vm.correo = "";
             vm.clave = "";
-            vm.alta = { correo: "", clave: "" };
+            vm.alta = { correo: "", clave: "", confirmacion: "" };
+            vm.verClave = false;
             vm.ocupado = false;
             vm.mensaje = null;
             vm.mensajeAlta = null;
@@ -112,23 +113,31 @@
 
         vm.recuperar = function () {
             var correo = (vm.correo || "").trim();
-            if (!correo) {
+            if (!dtaReglas.login.esCorreoValido(correo)) {
                 mostrar("Escribe tu correo y vuelve a pulsar \"¿Olvidaste tu contraseña?\".");
                 return $q.when();
             }
             return enCurso(function () {
                 return $q.when(dtaAuth.recuperarContrasena(correo)).then(function () {
-                    // No se revela si el correo existe.
-                    mostrar("Si el correo está registrado, recibirás un enlace para cambiar la contraseña.", "exito");
+                    // No se revela si el correo existe. REQ-164: donde buscarlo (suele caer en spam).
+                    mostrar("Si " + correo + " está registrado, te enviamos un enlace para cambiar la contraseña. " +
+                        "Revisa también la carpeta de spam o correo no deseado (remitente noreply). " +
+                        "Si entras con Google, usa \"Continuar con Google\": esa cuenta no tiene contraseña en DTA-Agrícola.", "exito");
                 }, mostrarErrorDeAcceso);
             });
         };
 
         vm.abrirAlta = function () {
-            vm.alta = { correo: vm.correo || "", clave: "" };
+            vm.alta = { correo: vm.correo || "", clave: "", confirmacion: "" };
+            vm.verClave = false;
             vm.mensajeAlta = null;
             dtaUi.abrirModal(modalDeAlta());
         };
+
+        /** REQ-164: barra de ayuda de la contrasena (0 a 3) y su texto. */
+        vm.fuerza = function () { return dtaReglas.login.fuerzaDeClave(vm.alta && vm.alta.clave); };
+        vm.textoFuerza = function () { return ["", "Débil", "Aceptable", "Fuerte"][vm.fuerza()]; };
+        vm.coinciden = function () { return !!(vm.alta && vm.alta.confirmacion && vm.alta.clave === vm.alta.confirmacion); };
 
         vm.cerrarAlta = function () {
             dtaUi.cerrarModal(modalDeAlta());
@@ -136,15 +145,19 @@
 
         vm.crearCuenta = function () {
             var correo = (vm.alta.correo || "").trim();
-            if (!dtaReglas.login.esCorreoValido(correo)) {
-                vm.mensajeAlta = "Escribe un correo electrónico válido.";
+            // REQ-164: correo valido, contrasena de 6+ caracteres con letras y numeros, y confirmada
+            var problema = dtaReglas.login.validarAlta(correo, vm.alta.clave, vm.alta.confirmacion);
+            if (problema) {
+                vm.mensajeAlta = problema;
                 return $q.when();
             }
             vm.mensajeAlta = null;
             return enCurso(function () {
-                return $q.when(dtaAuth.crearCuenta(correo, vm.alta.clave)).then(function () {
+                return $q.when(dtaAuth.crearCuenta(correo, vm.alta.clave)).then(function (resultado) {
                     dtaUi.cerrarModal(modalDeAlta());
-                    mostrar("Cuenta creada correctamente.", "exito");
+                    mostrar(resultado && resultado.verificacion
+                        ? "Cuenta creada. Te enviamos un correo a " + correo + " para verificarla (revisa también spam)."
+                        : "Cuenta creada correctamente.", "exito");
                 }, function (error) {
                     vm.mensajeAlta = dtaAuth.mensajeDeError(error);
                 });

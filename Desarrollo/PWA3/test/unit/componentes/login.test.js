@@ -174,9 +174,10 @@ test("REQ-039 L-5: alta abre el modal con el correo ya escrito, crea la cuenta y
   vm.abrirAlta();
   assert.equal(llamadas.abrir, 1);
   assert.equal(vm.alta.correo, "nuevo@dtaamerica.com");
-  vm.alta.clave = "123456";
+  vm.alta.clave = "riego2026";
+  vm.alta.confirmacion = "riego2026";   // REQ-164: confirmada
   await vm.crearCuenta();
-  assert.deepEqual(llamadas.alta, [["nuevo@dtaamerica.com", "123456"]]);
+  assert.deepEqual(llamadas.alta, [["nuevo@dtaamerica.com", "riego2026"]]);
   assert.equal(llamadas.cerrar, 1);
   assert.deepEqual(vm.mensaje, { texto: "Cuenta creada correctamente.", tipo: "exito" });
 });
@@ -187,7 +188,7 @@ test("REQ-039 L-5: alta con correo invalido no llama a Firebase; error de Fireba
   await vm.crearCuenta();
   assert.equal(llamadas.alta.length, 0);
   assert.ok(vm.mensajeAlta);
-  vm.alta = { correo: "ya@existe.com", clave: "123456" };
+  vm.alta = { correo: "ya@existe.com", clave: "riego2026", confirmacion: "riego2026" };
   await vm.crearCuenta();
   assert.equal(llamadas.alta.length, 1);
   assert.equal(llamadas.cerrar, 0);
@@ -279,4 +280,52 @@ test("REQ-038 dtaUi: inicializa el modal al abrirlo y lo destruye", () => {
   ui.destruirModal(el);
   assert.deepEqual(eventos, ["init", "open", "open", "close", "destroy"]);
   assert.equal(ui.abrirModal(null), false);
+});
+
+// ---------- REQ-164: alta con confirmacion de contrasena y recuperacion ----------
+
+test("REQ-164 alta: contrasena de 6+ caracteres con letras y numeros, confirmada; no llama a Firebase si no", async () => {
+  assert.equal(login.validarAlta("a@b.com", "", ""), "Escribe una contraseña.");
+  assert.equal(login.validarAlta("a@b.com", "ab1", "ab1"), "La contraseña debe tener al menos 6 caracteres.");
+  assert.equal(login.validarAlta("a@b.com", "abcdefg", "abcdefg"), "Usa letras y números en la contraseña.");
+  assert.equal(login.validarAlta("a@b.com", " riego2026", " riego2026"), "La contraseña no puede empezar ni terminar con espacios.");
+  assert.equal(login.validarAlta("a@b.com", "riego2026", "riego2025"), "Las contraseñas no coinciden.");
+  assert.equal(login.validarAlta("a@b.com", "riego2026", "riego2026"), "");
+  assert.deepEqual(["", "ab", "riego1", "Riego2026!x"].map(login.fuerzaDeClave), [0, 1, 1, 3]);
+  const { vm, llamadas } = await iniciado();
+  vm.alta = { correo: "nuevo@dtaamerica.com", clave: "riego2026", confirmacion: "otra2026" };
+  await vm.crearCuenta();
+  assert.equal(llamadas.alta.length, 0);
+  assert.equal(vm.mensajeAlta, "Las contraseñas no coinciden.");
+  const html = require("node:fs").readFileSync(require("node:path").join(__dirname, "..", "..", "..", "assets", "js", "components", "login", "login.html"), "utf8");
+  assert.match(html, /id="loginAltaConfirmacion"/);
+  assert.match(html, /ng-click="vm\.verClave = !vm\.verClave"/);
+});
+
+test("REQ-164 dtaAuth: correos en espanol, recuperar con regreso a la app (y sin el si no esta autorizado), verificacion al crear", async () => {
+  const usado = [];
+  let rechazarRegreso = false;
+  const usuario = { sendEmailVerification: (a) => { usado.push(["verificar", a && a.url]); return Promise.resolve(); } };
+  const auth = {
+    createUserWithEmailAndPassword: (c, k) => { usado.push(["alta", c, k]); return Promise.resolve({ user: usuario }); },
+    sendPasswordResetEmail: (c, a) => {
+      usado.push(["recuperar", c, a && a.url]);
+      if (rechazarRegreso && a) return Promise.reject({ code: "auth/unauthorized-continue-uri" });
+      return Promise.resolve();
+    }
+  };
+  function Proveedor() {}
+  Proveedor.prototype.setCustomParameters = function () {};
+  const sdk = { auth: Object.assign(() => auth, { GoogleAuthProvider: Proveedor }), app: () => ({ options: {} }) };
+  const silencio = { info() {}, error() {} };
+  const dta = authFactory.crear(sdk, login, { host: "dta-agricola.web.app", origin: "https://dta-agricola.web.app" }, silencio);
+  assert.equal(auth.languageCode, "es");
+  await dta.recuperarContrasena("a@b.co");
+  assert.deepEqual(usado.pop(), ["recuperar", "a@b.co", "https://dta-agricola.web.app/index.html"]);
+  rechazarRegreso = true;
+  await dta.recuperarContrasena("a@b.co");
+  assert.deepEqual(usado.slice(-2), [["recuperar", "a@b.co", "https://dta-agricola.web.app/index.html"], ["recuperar", "a@b.co", undefined]]);
+  const r = await dta.crearCuenta("n@b.co", "riego2026");
+  assert.equal(r.verificacion, true);
+  assert.deepEqual(usado.slice(-2), [["alta", "n@b.co", "riego2026"], ["verificar", "https://dta-agricola.web.app/index.html"]]);
 });

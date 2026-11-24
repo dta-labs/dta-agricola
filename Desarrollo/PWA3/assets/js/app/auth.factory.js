@@ -29,6 +29,14 @@
         if (!reglas) throw new Error("dtaAuth: faltan las reglas de login");
         var traza = consola || console;
         var auth = sdk.auth();
+        // REQ-164: correos de Firebase (recuperar contrasena, verificar correo) en espanol
+        try { auth.languageCode = "es"; } catch (error) { /* SDK sin languageCode */ }
+
+        /** REQ-164: el enlace del correo vuelve a la app (y no a una pagina generica de Firebase). */
+        function ajustesDelEnlace() {
+            var origen = ubicacion && ubicacion.origin;
+            return origen && /^https?:\/\//.test(origen) ? { url: origen + "/index.html", handleCodeInApp: false } : undefined;
+        }
         var proveedorGoogle = new sdk.auth.GoogleAuthProvider();
         // REQ-020: sin esto, Google devuelve la cuenta ya autorizada sin preguntar.
         if (typeof reglas.opcionesDelProveedor === "function") {
@@ -69,12 +77,39 @@
                 return auth.signInWithEmailAndPassword(correo, clave);
             },
 
+            /**
+             * REQ-164: crea la cuenta y envia el correo de verificacion (confirma que el correo existe y es suyo).
+             * Si la verificacion no se puede enviar, la cuenta queda creada igual (se traza el error).
+             */
             crearCuenta: function (correo, clave) {
-                return auth.createUserWithEmailAndPassword(correo, clave);
+                return auth.createUserWithEmailAndPassword(correo, clave).then(function (credencial) {
+                    var usuario = credencial && credencial.user;
+                    if (!usuario || typeof usuario.sendEmailVerification !== "function") return { credencial: credencial, verificacion: false };
+                    return usuario.sendEmailVerification(ajustesDelEnlace()).then(function () {
+                        traza.info("[auth] verificacion enviada a", correo);
+                        return { credencial: credencial, verificacion: true };
+                    }, function (error) {
+                        traza.error("[auth] no se pudo enviar la verificacion:", error && error.code, error && error.message);
+                        return { credencial: credencial, verificacion: false };
+                    });
+                });
             },
 
+            /**
+             * REQ-164: correo para cambiar la contrasena (en espanol y con regreso a la app). Si Firebase rechaza la
+             * direccion de regreso (dominio no autorizado), se reintenta sin ella: lo importante es que llegue.
+             */
             recuperarContrasena: function (correo) {
-                return auth.sendPasswordResetEmail(correo);
+                var ajustes = ajustesDelEnlace();
+                traza.info("[auth] recuperar contrasena:", correo, "| regreso:", ajustes ? ajustes.url : "(predeterminado)");
+                return auth.sendPasswordResetEmail(correo, ajustes).catch(function (error) {
+                    var codigo = error && error.code;
+                    if (ajustes && /continue-uri|unauthorized-domain/.test(codigo || "")) {
+                        traza.error("[auth] regreso no autorizado; se envia sin el:", codigo);
+                        return auth.sendPasswordResetEmail(correo);
+                    }
+                    throw error;
+                }).then(function () { traza.info("[auth] correo de recuperacion aceptado por Firebase"); });
             },
 
             /** Traza el error y dice si hay que mostrarlo al usuario. */

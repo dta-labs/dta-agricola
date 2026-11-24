@@ -42,8 +42,42 @@
         "auth/invalid-credential": "Correo o contraseña incorrectos...",
         "auth/invalid-login-credentials": "Correo o contraseña incorrectos...",
         "auth/too-many-requests": "Demasiados intentos; espera unos minutos e inténtalo de nuevo...",
-        "auth/missing-email": "Escribe tu correo para recuperar la contraseña..."
+        "auth/missing-email": "Escribe tu correo para recuperar la contraseña...",
+        // REQ-164: recuperar la contrasena
+        "auth/unauthorized-continue-uri": "El dominio de la app no está autorizado en Firebase para el enlace de recuperación...",
+        "auth/invalid-continue-uri": "La dirección de regreso del enlace de recuperación no es válida...",
+        "auth/missing-continue-uri": "Falta la dirección de regreso del enlace de recuperación...",
+        "auth/quota-exceeded": "Se alcanzó el límite de correos por hoy; inténtalo más tarde..."
     };
+
+    var CLAVE_MINIMA = 6;   // minimo de Firebase Authentication
+
+    /**
+     * REQ-164: validacion del alta (antes la contrasena se escribia una vez y no se validaba).
+     * Devuelve el mensaje del primer problema, o "" si todo esta bien.
+     */
+    function validarAlta(correo, clave, confirmacion) {
+        if (!esCorreoValido(correo)) return "Escribe un correo electrónico válido.";
+        var c = String(clave || "");
+        if (!c) return "Escribe una contraseña.";
+        if (c.length < CLAVE_MINIMA) return "La contraseña debe tener al menos " + CLAVE_MINIMA + " caracteres.";
+        if (/^\s|\s$/.test(c)) return "La contraseña no puede empezar ni terminar con espacios.";
+        if (!/[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]/.test(c) || !/\d/.test(c)) return "Usa letras y números en la contraseña.";
+        if (c !== String(confirmacion || "")) return "Las contraseñas no coinciden.";
+        return "";
+    }
+
+    /** REQ-164: nivel de la contrasena para la barra de ayuda: 0 (vacia) a 3 (fuerte). */
+    function fuerzaDeClave(clave) {
+        var c = String(clave || "");
+        if (!c) return 0;
+        var puntos = 0;
+        if (c.length >= CLAVE_MINIMA) puntos += 1;
+        if (c.length >= 10) puntos += 1;
+        if (/[a-z]/.test(c) && /[A-Z]/.test(c)) puntos += 1;
+        if (/\d/.test(c) && /[^A-Za-z0-9]/.test(c)) puntos += 1;
+        return c.length < CLAVE_MINIMA ? 1 : Math.min(3, Math.max(1, puntos));
+    }
 
     /**
      * Parametros del proveedor de Google.
@@ -155,6 +189,9 @@
     return {
         esErrorDeFirebase: esErrorDeFirebase,
         esCorreoValido: esCorreoValido,
+        validarAlta: validarAlta,
+        fuerzaDeClave: fuerzaDeClave,
+        CLAVE_MINIMA: CLAVE_MINIMA,
         debeAvisarError: debeAvisarError,
         opcionesDelProveedor: opcionesDelProveedor,
         debeReintentarConRedirect: debeReintentarConRedirect,

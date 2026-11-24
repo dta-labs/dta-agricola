@@ -12,6 +12,7 @@ Cada version publicada lleva una etiqueta de git `pwa3-vX.Y.Z` sobre el commit d
 ## [Sin publicar] - candidata a 1.1.0
 
 ### Corregido
+- **REQ-164**: alta de usuario con contraseña confirmada y validada (6+ caracteres, letras y numeros), correo de verificacion; recuperar contraseña con correo en español, regreso a la app y mensaje que orienta (spam, cuentas de Google).
 - **REQ-163**: asistentes de alta: sin latitud/longitud repetidas en Agregar equipo; no se avanza sin tipo ni sin nombre e identificacion (equipo y sensor); cada Agregar sensor empieza de cero.
 - **REQ-161**: "Agregar equipo": los tipos de equipo en 2 columnas (3 en pantallas anchas); antes salian uno por fila pegados a la derecha.
 - **REQ-158**: vista satelital: solo se piden las imagenes de las areas que se ven en el mapa (y las que entran al moverlo; maximo 25 por vista), no las de todos los equipos.
