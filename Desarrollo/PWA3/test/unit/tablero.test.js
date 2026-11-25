@@ -137,7 +137,7 @@ test("REQ-115 vista: sugerencias al final, bienvenida sin equipos y 'Agregar equ
   assert.ok(VISTA.indexOf("Sugerencias del día") > VISTA.indexOf("<!-- 5. Lo que toca hoy"));   // REQ-155: tras "Lo que toca hoy", antes de los cultivos
   assert.ok(VISTA.indexOf("Sugerencias del día") < VISTA.indexOf("<!-- 4. Mis cultivos"));
   assert.match(VISTA, /ng-if="vm\.datos && vm\.datos\.vacio"/);
-  assert.match(VISTA, /ng-if="vm\.datos && !vm\.datos\.vacio"/);
+  assert.match(VISTA, /ng-if="vm\.datos && !vm\.datos\.vacio && !vm\.datos\.cargando"/);   // REQ-168
   assert.match(COMP, /alAgregarEquipo: "&"/);
   assert.match(COMP, /raiz\.open\(a\.url, "_blank", "noopener"\)/);
   assert.match(HTML, /al-agregar-equipo="agregarEquipoDesdeResumen\(\)"/);

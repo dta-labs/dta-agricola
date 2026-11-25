@@ -123,7 +123,7 @@
 | REQ-122 | Catalogo de estaciones desde Firebase `/stations` (respaldo: `assets/data/estaciones.json`); regla de lectura | Implementado (probar: usuario) | 4 |
 | REQ-123 | Ficha del sensor: unidades frio acumuladas de la temporada (desde el 1 nov) en lugar del valor puntual | Implementado (probar: usuario) | 6 |
 
-**Total: 584 pruebas en Node (2026-11-24), todas en verde.** `npm test` funciona en Node 20 y 22.
+**Total: 586 pruebas en Node (2026-11-24), todas en verde.** `npm test` funciona en Node 20 y 22.
 
 ## Bloque de autenticacion (cerrado y confirmado por el usuario)
 
@@ -184,6 +184,7 @@
 | REQ-165 | Usuario nuevo: espacios en la contraseña, app limpia al cambiar de usuario, icono en la bienvenida | Implementado (probar: usuario) | 3 |
 | REQ-166 | Acceso: autocompletado legible y casilla "Mostrar contraseñas" | Implementado (probar: usuario) | 1 ajustada |
 | REQ-167 | No se entra sin verificar el correo (cuentas nuevas de correo y contraseña) | Implementado (probar: usuario) | 2 (+3 ajustadas) |
+| REQ-168 | Resumen: bienvenida siempre que no hay equipos; "Cargando" mientras llegan | Implementado | 2 (+1 ajustada) |
 | Prueba manual del resto | listado de equipos, retraso de comunicacion, alarma de nevera, plan de riego |
 | Empaquetado nativo | Capacitor (Android/iOS), objetivo final de la refactorizacion |
 

@@ -22,7 +22,13 @@
     </section>
 </div>
 
-<div class="tablero" ng-if="vm.datos && !vm.datos.vacio">
+<!-- REQ-168: mientras llegan los equipos no se muestra el resumen en cero -->
+<div class="tablero tablero-cargando" ng-if="vm.datos && vm.datos.cargando" role="status" aria-live="polite">
+    <span class="tablero-cargando-spinner" aria-hidden="true"></span>
+    <span>Cargando tus equipos…</span>
+</div>
+
+<div class="tablero" ng-if="vm.datos && !vm.datos.vacio && !vm.datos.cargando">
 
     <!-- REQ-155: enfoque por rol (que secciones y avisos se ven) -->
     <div class="tablero-enfoques" role="tablist" aria-label="Enfoque del resumen">

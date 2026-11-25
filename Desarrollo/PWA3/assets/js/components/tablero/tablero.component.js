@@ -12,7 +12,7 @@
 (function (raiz) {
     "use strict";
 
-    var VERSION = "26.11.24.002";
+    var VERSION = "26.11.24.005";
     var CLAVE_ENFOQUE = "dta-resumen-enfoque";
     var VISIBLES = 5;
 

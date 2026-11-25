@@ -557,6 +557,8 @@
             cultivos: listaCultivos,
             reposo: { heladaRelevante: heladaRelevante, sistemas: sistemasEnReposo },   // REQ-138 (para "Hoy")
             vacio: vacio,
+            // REQ-168: aun no llegan sus equipos: ni bienvenida ni resumen en cero
+            cargando: !vacio && !sistemas.length,
             sugerencias: sugerencias,
             configuracion: vacio ? [] : configuracionPendiente(sistemas, medidas, agua, plagas)   // REQ-160
         };

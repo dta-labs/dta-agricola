@@ -654,6 +654,11 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
                 cargarBandeja();
                 recogerNotificacionesPendientes();
                 loadSystems();
+            } else {
+                // REQ-168: usuario sin registro (cuenta recien creada): no tiene equipos -> bienvenida, no el resumen en cero
+                $scope.systems = [];
+                $scope.sinEquipos = true;
+                pantallaDeInicio("listo");
             }
             $scope.showWindow('listado');
             $scope.$apply();
@@ -780,12 +785,21 @@ app.controller("ControladorPrincipal", function ($scope, $timeout) {
             .catch(error => console.warn("[cultivos] no se pudo corregir el catalogo:", (error && error.message) || error));
     };
 
+    let esperaDeEquipos = null;
+    const ESPERA_DE_EQUIPOS_MS = 10000;
     loadSystems = () => {
         if (!$scope.authUser) return;
         const usuario = $scope.userLocations[convertDotToDash($scope.authUser.email)];
         const userSystems = usuario && usuario.systems;
-        if (!userSystems) { $scope.systems = []; $scope.sinEquipos = true; pantallaDeInicio("listo"); return; }   // REQ-115: bienvenida en el resumen
+        // REQ-115: bienvenida en el resumen. REQ-168: tambien con la lista de equipos vacia (antes, {} contaba como
+        // "con equipos" y se veia el resumen en cero)
+        if (!userSystems || !Object.keys(userSystems).length) { $scope.systems = []; $scope.sinEquipos = true; pantallaDeInicio("listo"); return; }
         $scope.sinEquipos = false;
+        // REQ-168: si ninguno de sus equipos llega (borrados o sin permiso), es como no tener equipos
+        clearTimeout(esperaDeEquipos);
+        esperaDeEquipos = setTimeout(() => {
+            if (!Object.keys($scope.systems || {}).length) $scope.$evalAsync(() => { $scope.sinEquipos = true; });
+        }, ESPERA_DE_EQUIPOS_MS);
 
         // REQ-013: el servicio sostiene las suscripciones; aqui se hace el trabajo de vista.
         __equipos().cargar(Object.keys(userSystems), {
